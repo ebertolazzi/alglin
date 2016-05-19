@@ -18,17 +18,26 @@
 \*--------------------------------------------------------------------------*/
 
 ///
-/// file: ColrowLU.cc
+/// file: Colrow.cc
 ///
 
-#define EIGEN_NO_DEBUG
-#define EIGEN_MPL2_ONLY
-
-#include "ColrowLU.hh"
+#include "Colrow.hh"
 #include <iomanip>
 #include <vector>
 #include <limits>
 #include <cmath>
+
+#include <iostream>
+#include <iomanip>
+#include <stdexcept>
+
+#ifndef ALGLIN_ASSERT
+  #define ALGLIN_ASSERT(COND,MSG) if ( !(COND) ) { \
+    std::ostringstream ost ; ost << "in alglin::" << MSG << '\n' ; \
+    throw std::runtime_error(ost.str()) ; \
+  }
+#endif
+
 
 /*
 //  Blocco algoritmo di Diaz
@@ -51,77 +60,58 @@
 
 namespace alglin {
 
-  template <> float  const ColrowLU<float>::epsi  = 100*std::numeric_limits<float>::epsilon() ;
-  template <> double const ColrowLU<double>::epsi = 1000*std::numeric_limits<double>::epsilon() ;
+  template <> float  const Colrow<float>::epsi  = 100*std::numeric_limits<float>::epsilon() ;
+  template <> double const Colrow<double>::epsi = 1000*std::numeric_limits<double>::epsilon() ;
 
   template <typename t_Value>
-  ColrowLU<t_Value>::ColrowLU()
-  : baseValue("ColrowLU reals")
-  , baseIndex("ColrowLU ints")
-  //, last_block(ColrowLU_QR0)
-  , last_block(ColrowLU_LU1)
+  Colrow<t_Value>::Colrow()
+  //, last_block(ColrowLU_LU)
+  //, last_block(ColrowLU_fullLU)
+  : last_block(Colrow_QR0)
   {
   }
   
   template <typename t_Value>
-  ColrowLU<t_Value>::~ColrowLU() {
-    baseValue.free() ;
-    baseIndex.free() ;
+  Colrow<t_Value>::~Colrow() {
   }
 
   //! compute y += alpha*A*x
   template <typename t_Value>
   void
-  ColrowLU<t_Value>::mv( integer            _numBlock,
-                         integer            _dimBlock,
-                         integer            _row0,
-                         integer            _rowN,
-                         valueConstPointer _block0,
-                         valueConstPointer _blocks,
-                         valueConstPointer _blockN,
-                         valueType         alpha,
-                         valueConstPointer x,
-                         integer           incx,
-                         valueType         beta,
-                         valuePointer      y,
-                         integer           incy ) {
+  Colrow<t_Value>::mv( integer     _numBlock,
+                       integer     _dimBlock,
+                       integer     _row0,
+                       integer     _rowN,
+                       mat const & _block0,
+                       mat const & _blocks,
+                       mat const & _blockN,
+                       valueType   alpha,
+                       vec const & x,
+                       valueType   beta,
+                       vec       & y ) {
 
     // first block y = alpha * _block0 * x + beta * y
-    gemv( Transposition::NO_TRANSPOSE, _row0, _dimBlock,
-          alpha, _block0, _row0,
-          x, incx,
-          beta, y, incy ) ;
-
+    y *= beta ;
+    y.head(_row0) += alpha * _block0 * x.head(_dimBlock) ;
+    
     // internal blocks block
-    valueConstPointer xx   = x ;
-    valuePointer      yy   = y+_row0*incy ;
-    valueConstPointer blks = _blocks ;
-    for ( integer i = 0 ; i < _numBlock ; ++i ) {
-      gemv( Transposition::NO_TRANSPOSE, _dimBlock, 2*_dimBlock,
-            alpha, blks, _dimBlock,
-            xx, incx,
-            beta, yy, incy ) ;
-      xx   += _dimBlock*incx ;
-      yy   += _dimBlock*incy ;
-      blks += 2*_dimBlock*_dimBlock ;
-    }
+    for ( integer i = 0 ; i < _numBlock ; ++i )
+      y.segment(_row0+i*_dimBlock,_dimBlock) +=
+        alpha * _blocks.block(i*_dimBlock,0,_dimBlock,2*_dimBlock) * x.segment(i*_dimBlock,2*_dimBlock) ;
 
     // last block
-    gemv( Transposition::NO_TRANSPOSE, _rowN, _row0+_rowN,
-          alpha, _blockN, _rowN,
-          xx, incx,
-          beta, yy, incy ) ;
+    y.tail(_rowN) += alpha * _blockN * x.tail(_rowN+_row0) ;
   }
 
   template <typename t_Value>
   void
-  ColrowLU<t_Value>::factorize( integer           _numBlock,
-                                integer           _dimBlock,
-                                integer           _row0,
-                                integer           _rowN,
-                                valueConstPointer _block0,
-                                valueConstPointer _blocks,
-                                valueConstPointer _blockN  ) {
+  Colrow<t_Value>::factorize( integer     _numBlock,
+                              integer     _dimBlock,
+                              integer     _row0,
+                              integer     _rowN,
+                              mat const & _block0,
+                              mat const & _blocks,
+                              mat const & _blockN ) {
     numBlock        = _numBlock ;
     dimBlock        = _dimBlock ;
     dimBlock_m_row0 = _dimBlock-_row0 ;
@@ -132,55 +122,17 @@ namespace alglin {
     Nlast           = row0+rowN ;
 
     // allocate
-    baseIndex.allocate( numBlock*dimBlock+2*Nlast ) ;
-    baseValue.allocate( sizeBlock*numBlock + dimBlock*row0 + Nlast*Nlast ) ;
-    block0      = baseValue( dimBlock * row0 ) ;
-    blocks      = baseValue( sizeBlock * numBlock ) ;
-    blockNN     = baseValue( Nlast*Nlast ) ;
-    swapRC_blks = baseIndex( numBlock*dimBlock+2*Nlast ) ;
+    block0      = _block0 ;
+    blocks      = _blocks ;
+    blockNN.resize(Nlast,Nlast) ;
+    swapRC_blks.resize( numBlock*dimBlock+2*Nlast ) ;
     
-    // copy block
-    copy( dimBlock*row0,      _block0, 1, block0, 1 ) ;
-    copy( sizeBlock*numBlock, _blocks, 1, blocks, 1 ) ;
-
-    gezero( row0, Nlast, blockNN, Nlast ) ;
-    integer ierr = gecopy( rowN, Nlast, _blockN, rowN, blockNN+row0, Nlast ) ;
-    ALGLIN_ASSERT( ierr == 0,
-                   "ColrowLU::factorize, in gecopy ierr = " << ierr ) ;
+    blockNN.block( 0, 0, row0, Nlast ).setZero() ;
+    blockNN.block( row0, 0, Nlast-row0, Nlast ) = _blockN ;
 
     factorize() ;
   }
 
-  template <typename t_Value>
-  void
-  ColrowLU<t_Value>::factorize_inplace( integer      _numBlock,
-                                        integer      _dimBlock,
-                                        integer      _row0,
-                                        integer      _rowN,
-                                        valuePointer _block0,
-                                        valuePointer _blocks,
-                                        valuePointer _blockN ) {
-    numBlock        = _numBlock ;
-    dimBlock        = _dimBlock ;
-    dimBlock_m_row0 = _dimBlock-_row0 ;
-    row0            = _row0 ;
-    rowN            = _rowN ;
-    sizeBlock       = 2*dimBlock*dimBlock ;
-    offs            = dimBlock*dimBlock - dimBlock_m_row0 ;
-    Nlast           = row0+rowN ;
-
-    baseIndex.allocate( numBlock*dimBlock+2*Nlast ) ;
-    baseValue.allocate( Nlast*Nlast ) ;
-
-    blockNN     = baseValue( Nlast*Nlast ) ;
-    swapRC_blks = baseIndex( numBlock*dimBlock+2*Nlast ) ;
-
-    integer ierr = gecopy( rowN, Nlast, _blockN, rowN, blockNN+row0, Nlast ) ;
-    ALGLIN_ASSERT( ierr == 0,
-                   "ColrowLU::factorize_inplace, in gecopy ierr = " << ierr ) ;
-    factorize() ;
-  }
-  
   /*
   //  +------+             +-------+             +-------+
   //  |  A   |             | L\ U  |             | L\ U  |
@@ -214,7 +166,7 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  ColrowLU<t_Value>::factorize_block() {
+  Colrow<t_Value>::factorize_block() {
     // applico row0 passi di Gauss con pivoting di colonna
     valuePointer Bk  = Bmat ;
     valuePointer Ak  = Amat ;
@@ -249,49 +201,50 @@ namespace alglin {
         ger( row0-k, dimBlock-k, -1, X, 1, Y, ldA, Akk, ldA ) ;
       }
     } while ( do_loop ) ;
-    
-    /*
-    //  +---------+
-    //  | A1   A2 |
-    //  +---------+--------+
-    //  | B1   C1 |  D1    |
-    //  | B2   C2 |  D2    |
-    //  +---------+--------+
-    */
-
-    valuePointer Cmat = Bmat+dimBlock*dimBlock ;
-
-    Eigen::Map<mat,0,Eigen::OuterStride<> > A1(Amat,row0,row0,Eigen::OuterStride<>(ldA) ) ;
-    Eigen::Map<mat,0,Eigen::OuterStride<> > A2(Amat+ldA*row0,row0,dimBlock_m_row0,Eigen::OuterStride<>(ldA) ) ;
-    Eigen::Map<mat>                         B(Bmat,dimBlock,row0) ;
-    Eigen::Map<mat>                         C(Bmat+row0*dimBlock,dimBlock,dimBlock_m_row0) ;
-    Eigen::Map<mat,0,Eigen::OuterStride<> > C1(Bmat+row0*dimBlock,dimBlock_m_row0,dimBlock_m_row0,Eigen::OuterStride<>(dimBlock) ) ;
-    Eigen::Map<mat,0,Eigen::OuterStride<> > C2(Bmat+row0*dimBlock+dimBlock_m_row0,row0,dimBlock_m_row0,Eigen::OuterStride<>(dimBlock) ) ;
-    Eigen::Map<mat,0,Eigen::OuterStride<> > D1(Cmat,dimBlock_m_row0,dimBlock,Eigen::OuterStride<>(dimBlock)) ;
-    Eigen::Map<mat,0,Eigen::OuterStride<> > D2(Cmat+dimBlock_m_row0,row0,dimBlock,Eigen::OuterStride<>(dimBlock)) ;
-
-    A1.template triangularView<Eigen::Upper>()
-      .template solveInPlace<Eigen::OnTheRight>(B) ;
-
-    C.noalias() -= B*A2 ;
-
+    // Apply transform to block B
+    trsm( SideMultiply::RIGHT,
+          ULselect::UPPER,
+          Transposition::NO_TRANSPOSE,
+          DiagonalType::NON_UNIT,
+          dimBlock, row0, 1.0,
+          Amat, ldA,
+          Bmat, dimBlock ) ;
+    Bk = Bmat+dimBlock*row0 ;
+    gemm( Transposition::NO_TRANSPOSE,
+          Transposition::NO_TRANSPOSE,
+          dimBlock, dimBlock_m_row0, row0,
+          -1.0,
+          Bmat, dimBlock,
+          Amat+ldA*row0, ldA,
+          1.0,
+          Bk, dimBlock ) ;
     // ----------
-    integer ierr = getrf( dimBlock, dimBlock_m_row0, Bmat+dimBlock*row0, dimBlock, swapRC+row0 ) ;
+    integer ierr = getrf( dimBlock, dimBlock_m_row0, Bk, dimBlock, swapRC+row0 ) ;
     ALGLIN_ASSERT( ierr == 0,
                    "ColrowLU::factorize_block, found ierr = " << ierr <<
                    " at LU factorizatioon on block N." << nblk+1 ) ;
+    valuePointer Cmat = Bmat+dimBlock*dimBlock ;
     ierr = swaps( dimBlock, Cmat, dimBlock,
                   0, dimBlock_m_row0-1,
                   swapRC+row0, 1 ) ;
     ALGLIN_ASSERT( ierr == 0,
                    "ColrowLU::factorize_block, found ierr = " << ierr <<
                    " at LU swaps rows on block N." << nblk+1 ) ;
-
-    C1.template triangularView<Eigen::UnitLower>()
-      .template solveInPlace<Eigen::OnTheLeft>(D1) ;
-
-    D2.noalias() -= C2*D1 ;
-
+    trsm( SideMultiply::LEFT,
+          ULselect::LOWER,
+          Transposition::NO_TRANSPOSE,
+          DiagonalType::UNIT,
+          dimBlock_m_row0, dimBlock, 1.0,
+          Bk, dimBlock,
+          Cmat, dimBlock ) ;
+    gemm( Transposition::NO_TRANSPOSE,
+          Transposition::NO_TRANSPOSE,
+          row0, dimBlock, dimBlock_m_row0,
+          -1.0,
+          Bk+dimBlock_m_row0, dimBlock,
+          Cmat, dimBlock,
+          1.0,
+          Cmat+dimBlock_m_row0, dimBlock ) ;
   }
 
   template <typename t_Value>
@@ -325,11 +278,22 @@ namespace alglin {
 
     // fattorizzazione ultimo blocco
     switch ( last_block ) {
-      case ColrowLU_QR0: la_solve0.compute(Eigen::Map<mat>(blockNN,N,N)) ; break ;
-      case ColrowLU_QR1: la_solve1.compute(Eigen::Map<mat>(blockNN,N,N)) ; break ;
-      case ColrowLU_QR2: la_solve2.compute(Eigen::Map<mat>(blockNN,N,N)) ; break ;
-      case ColrowLU_LU0: la_solve3.compute(Eigen::Map<mat>(blockNN,N,N)) ; break ;
-      case ColrowLU_LU1: la_solve4.compute(Eigen::Map<mat>(blockNN,N,N)) ; break ;
+      case ColrowLU_LU:
+        ierr = getrf( N, N, blockNN, N, swapRC ) ;
+        break ;
+      case ColrowLU_fullLU:
+        ierr = getc2( N, blockNN, N, swapRC, swapRC+N ) ;
+        break ;
+      case ColrowLU_QR:
+        //#define USE_EIGEN
+        #ifndef USE_EIGEN
+        //ierr = geqp3( N, N, blockNN, N, swapRC, Tau, Work, Lwork ) ;
+        ierr = geqr2( N, N, blockNN, N, Tau, Work ) ;
+        //ierr = geqrf( N, N, blockNN, N, Tau, Work ) ;
+        #else
+        qr.compute(Eigen::Map<mat>(blockNN,N,N)) ;
+        #endif
+        break ;
     }
 
     ALGLIN_ASSERT( ierr == 0,
@@ -458,14 +422,38 @@ namespace alglin {
     Bmat   += sizeBlock ;
     io     += dimBlock ;
 
-    // fattorizzazione ultimo blocco
+    integer ierr = 0 ;
     switch ( last_block ) {
-      case ColrowLU_QR0: Eigen::Map<vec>(io,N) = la_solve0.solve(Eigen::Map<vec>(io,N)) ; break ;
-      case ColrowLU_QR1: Eigen::Map<vec>(io,N) = la_solve1.solve(Eigen::Map<vec>(io,N)) ; break ;
-      case ColrowLU_QR2: Eigen::Map<vec>(io,N) = la_solve2.solve(Eigen::Map<vec>(io,N)) ; break ;
-      case ColrowLU_LU0: Eigen::Map<vec>(io,N) = la_solve3.solve(Eigen::Map<vec>(io,N)) ; break ;
-      case ColrowLU_LU1: Eigen::Map<vec>(io,N) = la_solve4.solve(Eigen::Map<vec>(io,N)) ; break ;
+      case ColrowLU_LU:
+        ierr = getrs( Transposition::NO_TRANSPOSE, N, 1, blockNN, N, swapRC, io, N ) ;
+        break ;
+      case ColrowLU_fullLU:
+        {
+          valueType scale = gesc2( N, blockNN, N, io, swapRC, swapRC+N ) ;
+          scal( N, scale, io, 1 ) ;
+        }
+        break ;
+      case ColrowLU_QR:
+        #ifndef USE_EIGEN
+        ierr = ormqr( SideMultiply::LEFT,
+                      Transposition::TRANSPOSE,
+                      N, 1, N, blockNN, N,
+                      Tau, io, N, Work, Lwork ) ;
+        trsv( ULselect::UPPER,
+              Transposition::NO_TRANSPOSE,
+              DiagonalType::NON_UNIT,
+              N, blockNN, N, io, 1 ) ;
+        // applico permutazione
+        //for ( integer i = 0 ; i < N ; ++i ) Work[swapRC[i]-1] = io[i] ;
+        //copy( N, Work, 1, io, 1 ) ;
+        #else
+        Eigen::Map<vec>(io,N) = qr.solve(Eigen::Map<vec>(io,N)) ;
+        #endif
+        break ;
     }
+
+    ALGLIN_ASSERT( ierr == 0,
+                   "ColrowLU::solve, failed to solve on last block ierr = " << ierr ) ;
 
     for ( integer i = 1 ; i < numBlock ; ++i ) {
       swapRC -= dimBlock ;

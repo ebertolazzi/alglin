@@ -21,9 +21,6 @@
 /// file: ColrowLU.cc
 ///
 
-#define EIGEN_NO_DEBUG
-#define EIGEN_MPL2_ONLY
-
 #include "ColrowLU.hh"
 #include <iomanip>
 #include <vector>
@@ -132,12 +129,12 @@ namespace alglin {
     Nlast           = row0+rowN ;
 
     // allocate
-    baseIndex.allocate( numBlock*dimBlock+2*Nlast ) ;
+    baseIndex.allocate( numBlock*(dimBlock+row0)+2*Nlast ) ; // @@@@@@@
     baseValue.allocate( sizeBlock*numBlock + dimBlock*row0 + Nlast*Nlast ) ;
     block0      = baseValue( dimBlock * row0 ) ;
     blocks      = baseValue( sizeBlock * numBlock ) ;
     blockNN     = baseValue( Nlast*Nlast ) ;
-    swapRC_blks = baseIndex( numBlock*dimBlock+2*Nlast ) ;
+    swapRC_blks = baseIndex( numBlock*(dimBlock+row0) +2*Nlast ) ; // @@@@@@@@
     
     // copy block
     copy( dimBlock*row0,      _block0, 1, block0, 1 ) ;
@@ -169,11 +166,11 @@ namespace alglin {
     offs            = dimBlock*dimBlock - dimBlock_m_row0 ;
     Nlast           = row0+rowN ;
 
-    baseIndex.allocate( numBlock*dimBlock+2*Nlast ) ;
+    baseIndex.allocate( numBlock*(dimBlock+row0)+2*Nlast ) ; // @@@@@@@
     baseValue.allocate( Nlast*Nlast ) ;
 
     blockNN     = baseValue( Nlast*Nlast ) ;
-    swapRC_blks = baseIndex( numBlock*dimBlock+2*Nlast ) ;
+    swapRC_blks = baseIndex( numBlock*(dimBlock+row0) +2*Nlast ) ; // @@@@@@@
 
     integer ierr = gecopy( rowN, Nlast, _blockN, rowN, blockNN+row0, Nlast ) ;
     ALGLIN_ASSERT( ierr == 0,
@@ -214,24 +211,41 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  ColrowLU<t_Value>::factorize_block() {
+  ColrowLU<t_Value>::factorize_block( bool first ) {
     // applico row0 passi di Gauss con pivoting di colonna
     valuePointer Bk  = Bmat ;
     valuePointer Ak  = Amat ;
     valuePointer Akk = Amat ;
+    
+    integer      dimBlock2 = first ? dimBlock : 2*dimBlock ;
+    valuePointer Amat2     = first ? Amat     : Amat - dimBlock * ldA ;
+
+    integer * swapC = swapRC ;
+    integer * swapR = swapRC+row0 ;
+
     integer k = 0 ;
     bool do_loop ;
     do {
       // cerco pivot
-      integer ipiv = iamax( dimBlock-k, Akk, ldA ) ;
-      // scambio colonne
-      if ( ipiv > 0 ) {
-        swap( row0,     Ak, 1, Ak + ipiv*ldA,      1 ) ;
-        swap( dimBlock, Bk, 1, Bk + ipiv*dimBlock, 1 ) ;
+      integer ipiv = k, jpiv = k ;
+      valueType amax = std::abs(Akk[0]) ;
+      integer i = k ;
+      //for ( integer i = k ; i < row0 ; ++i ) {
+        for ( integer j = k ; j < dimBlock ; ++j ) {
+          valueType amax1 = std::abs(Amat[i+j*ldA]) ;
+          if ( amax1 > amax ) { ipiv = i ; jpiv = j ; amax = amax1 ; }
+        }
+      //}
+      swapR[k] = ipiv ;
+      swapC[k] = jpiv ; // memorizzo scambio
+      if ( jpiv > k ) {
+        swap( row0,     Amat + k*ldA,      1, Amat + jpiv*ldA,      1 ) ;
+        swap( dimBlock, Bmat + k*dimBlock, 1, Bmat + jpiv*dimBlock, 1 ) ;
       }
-      swapRC[k] = k+ipiv ; // memorizzo scambio
+      if ( ipiv > k ) swap( dimBlock2, Amat2 + k, ldA, Amat2 + ipiv, ldA ) ;
+
       // controllo pivot non zero
-      ALGLIN_ASSERT( std::abs(Akk[0]) > epsi,
+      ALGLIN_ASSERT( amax > epsi,
                      "ColrowLU::factorize_block, found pivot: " << Akk[0] << " at block N." <<
                      nblk << " row N." << k << " of the block" ) ;
       // memorizzo L^(-1)
@@ -249,7 +263,8 @@ namespace alglin {
         ger( row0-k, dimBlock-k, -1, X, 1, Y, ldA, Akk, ldA ) ;
       }
     } while ( do_loop ) ;
-    
+    // Apply transform to block B
+
     /*
     //  +---------+
     //  | A1   A2 |
@@ -259,39 +274,72 @@ namespace alglin {
     //  +---------+--------+
     */
 
-    valuePointer Cmat = Bmat+dimBlock*dimBlock ;
+    valuePointer A1 = Amat ;
+    valuePointer A2 = Amat+ldA*row0 ;
 
-    Eigen::Map<mat,0,Eigen::OuterStride<> > A1(Amat,row0,row0,Eigen::OuterStride<>(ldA) ) ;
-    Eigen::Map<mat,0,Eigen::OuterStride<> > A2(Amat+ldA*row0,row0,dimBlock_m_row0,Eigen::OuterStride<>(ldA) ) ;
-    Eigen::Map<mat>                         B(Bmat,dimBlock,row0) ;
-    Eigen::Map<mat>                         C(Bmat+row0*dimBlock,dimBlock,dimBlock_m_row0) ;
-    Eigen::Map<mat,0,Eigen::OuterStride<> > C1(Bmat+row0*dimBlock,dimBlock_m_row0,dimBlock_m_row0,Eigen::OuterStride<>(dimBlock) ) ;
-    Eigen::Map<mat,0,Eigen::OuterStride<> > C2(Bmat+row0*dimBlock+dimBlock_m_row0,row0,dimBlock_m_row0,Eigen::OuterStride<>(dimBlock) ) ;
-    Eigen::Map<mat,0,Eigen::OuterStride<> > D1(Cmat,dimBlock_m_row0,dimBlock,Eigen::OuterStride<>(dimBlock)) ;
-    Eigen::Map<mat,0,Eigen::OuterStride<> > D2(Cmat+dimBlock_m_row0,row0,dimBlock,Eigen::OuterStride<>(dimBlock)) ;
+    valuePointer B  = Bmat ;
 
-    A1.template triangularView<Eigen::Upper>()
-      .template solveInPlace<Eigen::OnTheRight>(B) ;
+    valuePointer C  = Bmat+row0*dimBlock ;
+    valuePointer C1 = C ;
+    valuePointer C2 = C1+dimBlock_m_row0 ;
 
-    C.noalias() -= B*A2 ;
+    valuePointer D  = Bmat+dimBlock*dimBlock ;
+    valuePointer D1 = D ;
+    valuePointer D2 = D+dimBlock_m_row0 ;
 
+    // B * Upper(A1)^(-1)
+    trsm( SideMultiply::RIGHT,
+          ULselect::UPPER,
+          Transposition::NO_TRANSPOSE,
+          DiagonalType::NON_UNIT,
+          dimBlock, row0, 1.0,
+          A1, ldA,
+          B,  dimBlock ) ;
+    // C -= B * A2
+    gemm( Transposition::NO_TRANSPOSE,
+          Transposition::NO_TRANSPOSE,
+          dimBlock, dimBlock_m_row0, row0,
+          -1.0,
+          B,  dimBlock,
+          A2, ldA,
+          1.0,
+          C, dimBlock ) ;
     // ----------
-    integer ierr = getrf( dimBlock, dimBlock_m_row0, Bmat+dimBlock*row0, dimBlock, swapRC+row0 ) ;
+    // C = L*U
+    swapR = swapRC + 2*row0 ;
+    integer ierr = getrf( dimBlock, dimBlock_m_row0, C, dimBlock, swapR ) ;
     ALGLIN_ASSERT( ierr == 0,
                    "ColrowLU::factorize_block, found ierr = " << ierr <<
                    " at LU factorizatioon on block N." << nblk+1 ) ;
-    ierr = swaps( dimBlock, Cmat, dimBlock,
+    ierr = swaps( dimBlock, D, dimBlock,
                   0, dimBlock_m_row0-1,
-                  swapRC+row0, 1 ) ;
+                  swapR, 1 ) ;
     ALGLIN_ASSERT( ierr == 0,
                    "ColrowLU::factorize_block, found ierr = " << ierr <<
                    " at LU swaps rows on block N." << nblk+1 ) ;
-
-    C1.template triangularView<Eigen::UnitLower>()
-      .template solveInPlace<Eigen::OnTheLeft>(D1) ;
-
-    D2.noalias() -= C2*D1 ;
-
+    ierr = swaps( row0, B, dimBlock,
+                  0, dimBlock_m_row0-1,
+                  swapR, 1 ) ;
+    ALGLIN_ASSERT( ierr == 0,
+                   "ColrowLU::factorize_block, found ierr = " << ierr <<
+                   " at LU swaps rows on block N." << nblk+1 ) ;
+    // Lower(C1)^(-1) * D1
+    trsm( SideMultiply::LEFT,
+          ULselect::LOWER,
+          Transposition::NO_TRANSPOSE,
+          DiagonalType::UNIT,
+          dimBlock_m_row0, dimBlock, 1.0,
+          C1, dimBlock,
+          D1, dimBlock ) ;
+    // D2 -= C2*D1
+    gemm( Transposition::NO_TRANSPOSE,
+          Transposition::NO_TRANSPOSE,
+          row0, dimBlock, dimBlock_m_row0,
+          -1.0,
+          C2, dimBlock,
+          D1, dimBlock,
+          1.0,
+          D2, dimBlock ) ;
   }
 
   template <typename t_Value>
@@ -303,18 +351,18 @@ namespace alglin {
     ldA    = row0 ;
     Bmat   = blocks ;
     nblk   = 0 ;
-    factorize_block() ;
+    factorize_block(true) ;
 
     // blocchi intermedi (n-1)
     ldA = dimBlock ;
     while ( ++nblk < numBlock ) {
-      swapRC += dimBlock ;
+      swapRC += dimBlock+row0 ;
       Bmat   += sizeBlock ;
       Amat    = Bmat-offs ;
-      factorize_block() ;
+      factorize_block(false) ;
     }
 
-    swapRC += dimBlock ;
+    swapRC += dimBlock+row0 ;
     Amat    = Bmat + sizeBlock - offs ;
 
     // copio in ultimo blocco
@@ -349,47 +397,56 @@ namespace alglin {
   */
   template <typename t_Value>
   void
-  ColrowLU<t_Value>::solver_block_L( valuePointer in_out ) const {
-    valuePointer io1 = in_out+row0 ;
+  ColrowLU<t_Value>::solver_block_L( valuePointer io ) const {
+
+    valuePointer io1 = io+row0 ;
+    
+    // applico permutazione
+    integer const * swapR = swapRC+row0 ;
+
+    //for ( integer k = row0-1 ; k >= 0 ; --k ) {
+    for ( integer k = 0 ; k < row0 ; ++k ) {
+      integer k1 = swapR[k] ; // 0 based
+      if ( k1 > k ) std::swap( io[k], io[k1] ) ;
+    }
+    swaps( 1, io1, dimBlock, 0, dimBlock_m_row0-1, swapRC+2*row0, 1 ) ;
+
 
     trsv( ULselect::LOWER,
           Transposition::NO_TRANSPOSE,
           DiagonalType::UNIT,
           row0,
-          Amat, ldA, in_out, 1 ) ;
+          Amat, ldA, io, 1 ) ;
     gemv( Transposition::NO_TRANSPOSE,
           dimBlock, row0,
           -1, Bmat, dimBlock,
-          in_out, 1,
+          io, 1,
           1, io1, 1 ) ;
-    valuePointer io2 = in_out+dimBlock ;
-    valuePointer Bk  = Bmat+dimBlock*row0 ;
-
-    // applico permutazione
-    for ( integer k = 0 ; k < dimBlock_m_row0 ; ++k ) {
-      integer k1 = swapRC[row0+k]-1 ; // base 1 da lapack
-      if ( k1 > k ) std::swap( io1[k], io1[k1] ) ;
-    }
+    valuePointer io2 = io+dimBlock ;
+    valuePointer L   = Bmat+dimBlock*row0 ;
+    valuePointer W   = L+dimBlock_m_row0 ;
 
     trsv( ULselect::LOWER,
           Transposition::NO_TRANSPOSE,
           DiagonalType::UNIT,
           dimBlock_m_row0,
-          Bk, dimBlock, io1, 1 ) ;
+          L, dimBlock, io1, 1 ) ;
     gemv( Transposition::NO_TRANSPOSE,
           row0, dimBlock_m_row0,
-          -1, Bk+dimBlock_m_row0, dimBlock,
+          -1, W, dimBlock,
           io1, 1,
           1, io2, 1 ) ;
   }
+
   /*
   //  applico permutazione righe (da applicare alla rovescia sulla rhs)
   //
+  //                                  io   io1   io2
   //  +----+          +---+          +---+-----+
-  //  |  L |          | I |          | U |  N  |
+  //  |  L |          | I |          | A |  N  |
   //  +----+------+   +---+---+---+  +---+-----+--------+
-  //  |  M | I    |   |   | L |   |  |   |  U  |        |
-  //  |  M |    I |   |   | W | I |  |   |     |    D   |
+  //  |  M | I    |   |   | L |   |  |   |  U  |   D    |
+  //  |  M |    I |   |   | W | I |  |   |     |        |
   //  +----+------+   +---+---+---+  +---+-----+--------+
   //
   */
@@ -397,25 +454,36 @@ namespace alglin {
   template <typename t_Value>
   void
   ColrowLU<t_Value>::solver_block_U( valuePointer in_out ) const {
+
     // y := alpha*A*x + beta*y,   or   y := alpha*A'*x + beta*y,
-    valuePointer io1  = in_out+row0 ;
-    valuePointer io2  = in_out+dimBlock ;
-    valuePointer Cmat = Bmat+dimBlock*dimBlock ;
+    valuePointer      io1 = in_out+row0 ;
+    valuePointer      io2 = in_out+dimBlock ;
+    valueConstPointer D   = Bmat+dimBlock*dimBlock ;
+    valueConstPointer U   = Bmat+row0*dimBlock ;
+    valueConstPointer N   = Amat+row0*ldA ;
+
+    // io1 -= D*io2
     gemv( Transposition::NO_TRANSPOSE,
           dimBlock_m_row0, dimBlock,
-          -1, Cmat, dimBlock,
+          -1, D, dimBlock,
           io2, 1,
           1, io1, 1 ) ;
+
+    // io1 = U^(-1)*io1
     trsv( ULselect::UPPER,
           Transposition::NO_TRANSPOSE,
           DiagonalType::NON_UNIT,
           dimBlock_m_row0,
-          Bmat+row0*dimBlock, dimBlock, io1, 1 ) ;
+          U, dimBlock, io1, 1 ) ;
+
+    // io1 -= N*io1
     gemv( Transposition::NO_TRANSPOSE,
           row0, dimBlock_m_row0,
-          -1, Amat+row0*ldA, ldA,
+          -1, N, ldA,
           io1, 1,
           1, in_out, 1 ) ;
+
+    // io = U(A)^(-1)*io
     trsv( ULselect::UPPER,
           Transposition::NO_TRANSPOSE,
           DiagonalType::NON_UNIT,
@@ -423,8 +491,10 @@ namespace alglin {
           Amat, ldA, in_out, 1 ) ;
 
     // applico permutazione
-    for ( integer k = row0-1 ; k >= 0 ; --k ) {
-      integer k1 = swapRC[k] ; // 0 based
+    integer * swapC = swapRC ;
+    //for ( integer k = row0-1 ; k >= 0 ; --k ) {
+    for ( integer k = 0 ; k < row0 ; ++k ) {
+      integer k1 = swapC[k] ; // 0 based
       if ( k1 > k ) std::swap( in_out[k], in_out[k1] ) ;
     }
   }
@@ -432,6 +502,14 @@ namespace alglin {
   template <typename t_Value>
   void
   ColrowLU<t_Value>::solve( valuePointer in_out ) const {
+
+    // applico inverso permutazione (in ordine inverso)
+    for ( integer nb = 0 ; nb < numBlock ; ++nb )  {
+      integer * swapR = swapRC_blks+nb*(dimBlock+row0) ;
+      valuePointer io = in_out+nb*dimBlock ;
+      // applico permutazione
+      //swaps( 1, io+row0, dimBlock, 0, dimBlock_m_row0-1, swapR+2*row0, 1 ) ;
+    }
 
     valuePointer io = in_out ;
 
@@ -445,7 +523,7 @@ namespace alglin {
     // blocchi intermedi
     ldA = dimBlock ;
     for ( integer i = 1 ; i < numBlock ; ++i ) {
-      swapRC += dimBlock ;
+      swapRC += dimBlock+row0 ;
       Bmat   += sizeBlock ;
       Amat    = Bmat-offs ;
       io     += dimBlock ;
@@ -454,7 +532,7 @@ namespace alglin {
 
     // risolve rispetto ultimo blocco
     integer N = row0+rowN ;
-    swapRC += dimBlock ;
+    swapRC += dimBlock+row0 ;
     Bmat   += sizeBlock ;
     io     += dimBlock ;
 
@@ -468,7 +546,7 @@ namespace alglin {
     }
 
     for ( integer i = 1 ; i < numBlock ; ++i ) {
-      swapRC -= dimBlock ;
+      swapRC -= dimBlock+row0 ;
       Bmat   -= sizeBlock ;
       Amat    = Bmat-offs ;
       io     -= dimBlock ;

@@ -18,13 +18,12 @@
 \*--------------------------------------------------------------------------*/
 
 ///
-/// file: ColrowLU.hh
+/// file: Colrow.hh
 ///
 
-#ifndef COLROW_LU_HH
-#define COLROW_LU_HH
+#ifndef COLROW_HH
+#define COLROW_HH
 
-#include "alglin.hh"
 #include <iostream>
 
 // Eigen3
@@ -32,9 +31,11 @@
 
 namespace alglin {
 
+  typedef int integer ;
+
   template <typename t_Value>
   void
-  print_colrow( std::ostream & stream,
+  print_colrow( std::ostream &  stream,
                 integer         numBlock,
                 integer         dimBlock,
                 integer         row0,
@@ -71,21 +72,24 @@ namespace alglin {
    * 
    */
   template <typename t_Value>
-  class ColrowLU {
+  class Colrow {
   public:
 
     typedef t_Value         valueType ;
     typedef t_Value*        valuePointer ;
     typedef t_Value const * valueConstPointer ;
 
-    typedef enum { ColrowLU_QR0 = 0,
-                   ColrowLU_QR1 = 1,
-                   ColrowLU_QR2 = 2,
-                   ColrowLU_LU0 = 3,
-                   ColrowLU_LU1 = 4 } LAST_BLOCK ;
+    typedef enum { Colrow_QR0 = 0,
+                   Colrow_QR1 = 1,
+                   Colrow_QR2 = 2,
+                   Colrow_LU0 = 3,
+                   Colrow_LU1 = 4 } LAST_BLOCK ;
 
     typedef Eigen::Matrix<t_Value,Eigen::Dynamic,1>              vec ;
     typedef Eigen::Matrix<t_Value,Eigen::Dynamic,Eigen::Dynamic> mat ;
+
+    typedef Eigen::Matrix<integer,Eigen::Dynamic,1>              ivec ;
+    typedef Eigen::Matrix<integer,Eigen::Dynamic,Eigen::Dynamic> imat ;
 
     Eigen::HouseholderQR<mat>        la_solve0 ;
     Eigen::ColPivHouseholderQR<mat>  la_solve1 ;
@@ -95,25 +99,22 @@ namespace alglin {
 
   private:
 
-    Malloc<valueType> baseValue ;
-    Malloc<integer>   baseIndex ;
+    Colrow( Colrow const & ) ;
+    Colrow const & operator = ( Colrow const & ) ;
 
-    ColrowLU( ColrowLU const & ) ;
-    ColrowLU const & operator = ( ColrowLU const & ) ;
-    
     static valueType const epsi ;
     
-    integer      numBlock ;
-    integer      dimBlock ;
-    integer      dimBlock_m_row0 ;
-    integer      Nlast ;
-    integer      row0 ;
-    integer      rowN ;
-    valuePointer block0 ;
-    valuePointer blocks ;
-    valuePointer blockNN ;
-    integer *    swapRC_blks ;
-    LAST_BLOCK   last_block ;
+    integer    numBlock ;
+    integer    dimBlock ;
+    integer    dimBlock_m_row0 ;
+    integer    Nlast ;
+    integer    row0 ;
+    integer    rowN ;
+    mat        block0 ;
+    mat        blocks ;
+    mat        blockNN ;
+    ivec       swapRC_blks ;
+    LAST_BLOCK last_block ;
 
     // internal parameters
     mutable valuePointer Amat ;
@@ -125,54 +126,42 @@ namespace alglin {
     mutable integer      nblk ;
 
     void factorize() ;
-    void factorize_block( bool first ) ;
-    void solver_block_L( valuePointer in_out ) const ;
-    void solver_block_U( valuePointer in_out ) const ;
+    void factorize_block() ;
+    void solver_block_L( vec & in_out ) const ;
+    void solver_block_U( vec & in_out ) const ;
 
   public:
 
-    explicit ColrowLU() ;
-    ~ColrowLU() ;
+    explicit Colrow() ;
+    ~Colrow() ;
 
     //! compute y = alpha*A*x+beta*y
     static
     void
-    mv( integer           _numBlock,
-        integer           _dimBlock,
-        integer           _row0,
-        integer           _rowN,
-        valueConstPointer _block0,
-        valueConstPointer _blocks,
-        valueConstPointer _blockN,
-        valueType         alpha,
-        valueConstPointer x,
-        integer           incx,
-        valueType         beta,
-        valuePointer      y,
-        integer           incy ) ;
+    mv( integer     _numBlock,
+        integer     _dimBlock,
+        integer     _row0,
+        integer     _rowN,
+        mat const & _block0,
+        mat const & _blocks,
+        mat const & _blockN,
+        valueType   alpha,
+        vec const & x,
+        valueType   beta,
+        vec       & y ) ;
 
     //! factorize the matrix
     void
-    factorize( integer           _numBlock,
-               integer           _dimBlock,
-               integer           _row0,
-               integer           _rowN,
-               valueConstPointer _block0,
-               valueConstPointer _blocks,
-               valueConstPointer _blockN ) ;
-
-    //! factorize the matrix
-    void
-    factorize_inplace( integer      _numBlock,
-                       integer      _dimBlock,
-                       integer      _row0,
-                       integer      _rowN,
-                       valuePointer _block0,
-                       valuePointer _blocks,
-                       valuePointer _blockN ) ;
+    factorize( integer     _numBlock,
+               integer     _dimBlock,
+               integer     _row0,
+               integer     _rowN,
+               mat const & _block0,
+               mat const & _blocks,
+               mat const & _blockN ) ;
 
     //! solve linear sistem using internal factorized matrix
-    void solve( valuePointer in_out ) const ;
+    void solve( vec & in_out ) const ;
 
     void print( std::ostream & stream ) const ;
 
@@ -182,6 +171,5 @@ namespace alglin {
 #endif
 
 ///
-/// eof: ColrowLU.hh
+/// eof: Colrow.hh
 ///
-
