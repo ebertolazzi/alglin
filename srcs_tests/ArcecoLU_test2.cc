@@ -42,7 +42,7 @@ int
 main() {
 
   alglin::integer dim      = 100 ;
-  alglin::integer row0     = 2  ;
+  alglin::integer row0     = 5  ;
   alglin::integer rowN     = dim-row0+2 ;
   alglin::integer numBlock = 50 ;
 
@@ -58,7 +58,7 @@ main() {
   alglin::integer nnz = row0*dim +
                         2*dim*dim*numBlock +
                         (row0+rowN)*rowN +
-                        3*N ;
+                        5*N ;
 
   valueType * p_memory = new valueType[ nnz ] ;
 
@@ -68,7 +68,9 @@ main() {
   valueType * blockN = ptr ; ptr += (row0+rowN)*rowN ;
   valueType * x      = ptr ; ptr += N ;
   valueType * xref   = ptr ; ptr += N ;
+  valueType * xref1  = ptr ; ptr += N ;
   valueType * rhs    = ptr ; ptr += N ;
+  valueType * resid  = ptr ; ptr += N ;
   
   for ( int i = 0 ; i < nnz ; ++i ) p_memory[i] = rand(-1,1) ;
   for ( int j = 0 ; j < row0 ; ++j ) {
@@ -84,8 +86,8 @@ main() {
   for ( int i = 0 ; i < numBlock ; ++i ) {
     valueType * blks = blocks + 2*dim*dim*i ;
     for ( int j = 0 ; j < dim ; ++j ) {
-      blks[(dim+1)*j]         += 10 ;
-      blks[dim*dim+(dim+1)*j] -= 10 ;
+      blks[(dim+1)*j]         += 20 ;
+      blks[dim*dim+(dim+1)*j] -= 20 ;
     }
   }
 
@@ -113,8 +115,30 @@ main() {
   LU.solve( x ) ;
   tm.stop() ;
   cout << "Solve = " << tm.partialElapsedMilliseconds() << " [ms]\n" ;
-  alglin::axpy( N, -1.0, x, 1, xref, 1 ) ;
-  cout << "Check |err|_inf = " << alglin::absmax( N, xref, 1 ) << '\n' ;
+  alglin::copy( N, xref, 1, xref1, 1 ) ;
+  alglin::axpy( N, -1.0, x, 1, xref1, 1 ) ;
+  cout << "Check |err|_inf = " << alglin::absmax( N, xref1, 1 ) << '\n' ;
+  
+  LU.residue( numBlock, dim, row0, rowN,
+              block0, blocks, blockN,
+              rhs, 1, x, 1, resid, 1 ) ;
+
+  cout << "Check |r|_inf = " << alglin::absmax( N, resid, 1 ) << '\n' ;
+  
+  LU.solve( resid ) ;
+  alglin::axpy( N, +1.0, resid, 1, x, 1 ) ;
+
+  alglin::copy( N, xref, 1, xref1, 1 ) ;
+  alglin::axpy( N, -1.0, x, 1, xref1, 1 ) ;
+  cout << "Check |err|_inf = " << alglin::absmax( N, xref1, 1 ) << '\n' ;
+
+  LU.residue( numBlock, dim, row0, rowN,
+              block0, blocks, blockN,
+              rhs, 1, x, 1, resid, 1 ) ;
+  cout << "Check |r|_inf = " << alglin::absmax( N, resid, 1 ) << '\n' ;
+
+  
+  
   
   //for ( int i = 0 ; i < N ; ++i )
   //  cout << "x[" << i << "] = " << x[i] << "\n" ;

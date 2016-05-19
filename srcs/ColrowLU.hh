@@ -32,28 +32,6 @@
 
 namespace alglin {
 
-  template <typename t_Value>
-  void
-  print_colrow( std::ostream & stream,
-                integer         numBlock,
-                integer         dimBlock,
-                integer         row0,
-                integer         rowN,
-                t_Value const * block0,
-                t_Value const * blocks,
-                t_Value const * blockN ) ;
-
-  template <typename t_Value>
-  void
-  print_colrow_to_maple( std::ostream & stream,
-                         integer         numBlock,
-                         integer         dimBlock,
-                         integer         row0,
-                         integer         rowN,
-                         t_Value const * block0,
-                         t_Value const * blocks,
-                         t_Value const * blockN ) ;
-
   //! LU decomposition of a ABD matrix
   /*!
    * 
@@ -92,6 +70,28 @@ namespace alglin {
     Eigen::FullPivHouseholderQR<mat> la_solve2 ;
     Eigen::PartialPivLU<mat>         la_solve3 ;
     Eigen::FullPivLU<mat>            la_solve4 ;
+
+    static
+    void
+    print_colrow( std::ostream & stream,
+                  integer         numBlock,
+                  integer         dimBlock,
+                  integer         row0,
+                  integer         rowN,
+                  t_Value const * block0,
+                  t_Value const * blocks,
+                  t_Value const * blockN ) ;
+
+    static
+    void
+    print_colrow_to_maple( std::ostream & stream,
+                           integer         numBlock,
+                           integer         dimBlock,
+                           integer         row0,
+                           integer         rowN,
+                           t_Value const * block0,
+                           t_Value const * blocks,
+                           t_Value const * blockN ) ;
 
   private:
 
@@ -150,6 +150,23 @@ namespace alglin {
         valueType         beta,
         valuePointer      y,
         integer           incy ) ;
+
+    //! compute r = b-A*x
+    static
+    void
+    residue( integer           _numBlock,
+             integer           _dimBlock,
+             integer           _row0,
+             integer           _rowN,
+             valueConstPointer _block0,
+             valueConstPointer _blocks,
+             valueConstPointer _blockN,
+             valueConstPointer b,
+             integer           incb,
+             valueConstPointer x,
+             integer           incx,
+             valuePointer      res,
+             integer           incr ) ;
 
     //! factorize the matrix
     void

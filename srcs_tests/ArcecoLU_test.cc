@@ -35,23 +35,23 @@ main() {
   } ;
   valueType blocks[3*4*8] = {
      9,  13, 17, 21, 10, 14, 18, 2,
-     10, 16, 18, 22, 10, 14, 1, 22,
+     10, 16, 18, 22, 10, 14, 121, 22,
      11, 15, 19, 23, 10, 14, 18, 22,
      12, 16, 20, 24, 10, 14, 15, 22,
      9,  13, 17, 21, 10, 14, 18, 22,
-     10, 14, 18, 22, 11, 54, 13, 22,
+     10, 14, -3345, 22, 11, 54, 13, 22,
      11, 15, 19, 23, 10, 14, 28, 22,
      12, 16, 20, 24, 12, 10, 18, 22,
-     9,  13, 17, 21, 10, 14, 18, 22,
+     9,  13, 17, 21, -2345, 14, 18, 22,
      10, 14, 18, 22, 13, 11, 18, 12,
      11, 15, 19, 23, 10, 13, 12, 22,
      12, 16, 20, 24, 10, 14, 11, 22,
   } ;
   valueType blockN[4*6] = {
-    95, 99,  3,  7, 11, 1,
-    96,  0,  4,  8, 12, 2,
-    97,  1,  5,  9, 13, 3,
-    98,  2,  6, 10, 14, 4
+    1, 99,  3,  7, 11, 1,
+    0,  0,  4,  8, 12, 2,
+    0,  1,  5,  9, 234, 3,
+    -1,  2,  6, 10, 14, 4
   };
 
   alglin::integer numBlock = 5-2 ;
@@ -66,8 +66,8 @@ main() {
   
   valueType x[20], y[20] ;
 
-  alglin::print_colrow( cout, numBlock, dim, row0, rowN, block0, blocks, blockN ) ;
-  alglin::print_colrow_to_maple( cout, numBlock, dim, row0, rowN, block0, blocks, blockN ) ;
+  alglin::ColrowLU<valueType>::print_colrow( cout, numBlock, dim, row0, rowN, block0, blocks, blockN ) ;
+  alglin::ColrowLU<valueType>::print_colrow_to_maple( cout, numBlock, dim, row0, rowN, block0, blocks, blockN ) ;
 
   LU.factorize( numBlock, dim, row0, rowN, block0, blocks, blockN ) ;
   for ( alglin::integer i = 0 ; i < N ; ++i ) x[i] = i ;
