@@ -29,10 +29,13 @@ typedef double valueType ;
 
 int
 main() {
-  #if 0
-  valueType block0[2*4] = {
-     1,  3,  5,  7,
-     2,  4,  6,  8
+  valueType block0[3*5] = {
+     1,  1, 3, 1, 1,
+     2,  2,  6,  8, 0,
+     -2,  4,  -1,  8, 2
+  } ;
+  valueType block011[8] = {
+    1, 2, 6, 8, -2, 4, 8, 2
   } ;
   valueType blocks[3*4*8] = {
      9,  13, 17, 21, 10, 14, 18, 2,
@@ -54,70 +57,48 @@ main() {
     0,  1,  5,  9, 234, 3,
     -1,  2,  6, 10, 14, 4
   };
-  #else
-  #if 0
-  valueType block0[2*4] = {
-     1,  0,  5,  7,
-     2,  4,  6,  8
-  } ;
-  valueType blocks[4*8] = {
-     0,  0, 0, 0, 0, 0, 0, 0,
-     10, 0, 0, 0, 10, 14, 0, 0,
-     11, 15, 19, 0, 10, 14, 18, 22,
-     12, 16, 20, 24, 10, 14, 15, 22,
-  } ;
-  valueType blockN[4*6] = {
-    0, 0,  0,  0, 0, 0,
-    0,  0,  4,  0, 0, 0,
-    0,  1,  0,  0, 234, 3,
-    -1,  0,  6, 10, 14, 4
-  };
-  #else
-  valueType block0[2*4] = {
-     1,  3,  1,  1,
-     1,  1,  -1,  0
-  } ;
-  valueType blocks[4*8] = {
-     9,  13, 17, 21, 10, 14, 18, 2,
-     1, 16, 18, 22, 0, 1, 121, 22,
-     0, -2, 1, 23, 1, 2, 3, 1,
-     1, 0, 2, 0, 0, 1, 2, 0,
-  } ;
-  valueType blockN[4*6] = {
-    1, 99,  0,  7, 11, 1,
-    0,  0,  1,  8, 12, 2,
-    0,  1,  5,  9, -3, 0,
-    1,  2,  -1, 2, 10, 1
-  };
-  #endif
-  #endif
 
-  alglin::integer numBlock = 1 ; // 5-2 ;
+  alglin::integer numBlock = 0 ; // 5-2 ;
   alglin::integer dim      = 4 ;
-  alglin::integer row0     = 2 ;
+  alglin::integer row0     = 3 ;
+  alglin::integer col0     = 5 ;
   alglin::integer rowN     = 4 ;
   alglin::integer colN     = 6 ;
   
   alglin::ColrowLU<valueType> LU ;
   
-  alglin::integer N = row0 + rowN + numBlock*4 ;
+  alglin::integer N = row0 + rowN + numBlock*dim ;
   cout << "N = " << N << '\n' ;
   
-  valueType x[20], y[20] ;
+  valueType x[20], y[20], resid[20] ;
 
   alglin::ColrowLU<valueType>::print( cout,
-                                      row0, dim, block0,
+                                      row0, col0, block0,
                                       numBlock, dim, blocks,
                                       rowN, colN, blockN ) ;
-  LU.factorize( row0, dim, block0,
+  LU.factorize( row0, col0, block0,
                 numBlock, dim, blocks,
                 rowN, colN, blockN ) ;
+  cout << "\n\n\n" ;
   LU.print(cout) ;
   for ( alglin::integer i = 0 ; i < N ; ++i ) x[i] = i ;
-  LU.mv( row0, dim, block0,
+  //alglin::copy( N, x, 1, xref, 1 ) ;
+
+  LU.mv( row0, col0, block0,
          numBlock, dim, blocks,
          rowN, colN, blockN,
-         2.0, x, 1, 0, y, 1 ) ;
+         1.0, x, 1, 0, y, 1 ) ;
+
+  for ( int i = 0 ; i < N ; ++i )
+    cout << "rhs[" << i << "] = " << y[i] << "\n" ;
+
+  LU.residue( row0, col0, block0,
+              numBlock, dim, blocks,
+              rowN, colN, blockN,
+              y, 1, x, 1, resid, 1 ) ;
+
+  cout << "Check |resid|_inf = " << alglin::absmax( N, resid, 1 ) << '\n' ;
+
   LU.solve( y ) ;
   for ( int i = 0 ; i < 20 ; ++i )
     cout << "y[" << i << "] = " << y[i] << "\n" ;

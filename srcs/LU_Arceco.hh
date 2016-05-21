@@ -20,13 +20,12 @@
 #ifndef MECHATRONIX_CORE_ARCECO_LU_HH
 #define MECHATRONIX_CORE_ARCECO_LU_HH
 
-#include "Common.hh"
+#include "Alglin.hh"
 #include "LU_ArcecoSolver.hh"
 
-namespace LUdecomposition {
+namespace alglin {
 
   using namespace ::std ;
-  using namespace ::MechatronixCommon ;
   
   /*
    * NB: prima le condizioni finali, poi quelle iniziali.
@@ -49,7 +48,12 @@ namespace LUdecomposition {
    *           enrico.bertolazzi@ing.unitn.it
    * 
    */
-  class MECHATRONIX_API_DLL ArcecoLU {
+  typedef double  valueType ;
+  typedef int     indexType ;
+  typedef double* valuePointer ;
+  typedef int*    indexPointer ;
+  
+  class ArcecoLU {
   private:
 
     Malloc<valueType> baseValue ;
@@ -67,8 +71,8 @@ namespace LUdecomposition {
     indexPointer PIVOT  ;
     indexPointer MTR    ;
     indexType    NBLOCK ;
-
-    Arceco       arcecoSolver ;
+    
+    Arceco arcecoSolver ;
 
   public:
 
@@ -143,10 +147,6 @@ namespace LUdecomposition {
     void solve( valuePointer in_out ) ;
 
   } ;
-}
-
-namespace LUdecompositionLoad {
-  using ::LUdecomposition::ArcecoLU ;
 }
 
 #endif

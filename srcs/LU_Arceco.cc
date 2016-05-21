@@ -20,47 +20,13 @@
 #include "LU_Arceco.hh"
 #include "Alglin.hh"
 
-//#define USE_F90_ARCECO
-#ifdef USE_F90_ARCECO
-#include "FortranLink.hh"
-#endif
-
-#ifdef MECHATRONIX_MEMORY_LIMITED
-  #define MAX_MEMORY_REAL    MECHATRONIX_MAX_NPTS * ( 4 * MECHATRONIX_MAX_NEQ * MECHATRONIX_MAX_NEQ )
-  #define MAX_MEMORY_INTEGER MECHATRONIX_MAX_NPTS * ( 2 + 2*MECHATRONIX_MAX_NEQ )
-#else
-  #define MAX_MEMORY_REAL    0
-  #define MAX_MEMORY_INTEGER 0
-#endif
-
-namespace LUdecomposition {
-
-  #ifdef USE_F90_ARCECO
-
-  typedef char   character ;
-  typedef int    integer ;
-  typedef float  single_precision ;
-  typedef double double_precision ;
- 
-  extern "C" void F77NAME(arcedc)( integer  const & n,
-                                   double_precision ARRAY[], 
-                                   integer  const   MTRSTR[],
-                                   integer  const & NMBLKS,
-                                   integer          PIVOT[],
-                                   integer        & IFLAG ) ;
-
-  extern "C" void F77NAME(arcesl)( double_precision ARRAY[], 
-                                   integer  const   MTRSTR[],
-                                   integer  const & NMBLKS,
-                                   integer          PIVOT[],
-                                   double_precision BX[] ) ;
-  #endif
+namespace alglin {
 
   using namespace std ;
 
   ArcecoLU::ArcecoLU()
-  : baseValue("ArcecoLU_value",MAX_MEMORY_REAL)
-  , baseIndex("ArcecoLU_index",MAX_MEMORY_INTEGER)
+  : baseValue("ArcecoLU_value")
+  , baseIndex("ArcecoLU_index")
   { }
 
   ArcecoLU::~ArcecoLU() {
@@ -175,12 +141,7 @@ namespace LUdecomposition {
     alglin::gecopy( nRowN, n,           HN, nq, blkN + IDXN(0,0), nRowN ) ;
     alglin::gecopy( nRowN, numFinalETA, Hq, nq, blkN + IDXN(0,n), nRowN ) ;
     
-    #ifndef USE_F90_ARCECO
     arcecoSolver . loadByRef ( NBLOCK, MTR, AR, PIVOT ) ;
-    #ifdef MECHATRONIX_DEBUG
-    arcecoSolver . checkStructure( numEquations ) ;
-    #endif
-    #endif
 
   }
 

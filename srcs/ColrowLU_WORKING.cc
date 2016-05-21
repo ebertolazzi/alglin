@@ -21,6 +21,9 @@
 /// file: ColrowLU.cc
 ///
 
+#define EIGEN_NO_DEBUG
+#define EIGEN_MPL2_ONLY
+
 #include "ColrowLU.hh"
 #include <iomanip>
 #include <vector>
@@ -55,11 +58,8 @@ namespace alglin {
   ColrowLU<t_Value>::ColrowLU()
   : baseValue("ColrowLU reals")
   , baseIndex("ColrowLU ints")
-  , last_block(ColrowLU_QR0)
-  //, last_block(ColrowLU_QR1)
-  //, last_block(ColrowLU_QR2)
-  //, last_block(ColrowLU_LU0)
-  //, last_block(ColrowLU_LU1)
+  //, last_block(ColrowLU_QR0)
+  , last_block(ColrowLU_LU1)
   {
   }
   
@@ -68,16 +68,14 @@ namespace alglin {
     baseValue.free() ;
     baseIndex.free() ;
   }
-  
-  // ---------------------------------------------------------------------------
 
   //! compute y += alpha*A*x
   template <typename t_Value>
   void
-  ColrowLU<t_Value>::mv( integer           _numBlock,
-                         integer           _dimBlock,
-                         integer           _row0,
-                         integer           _rowN,
+  ColrowLU<t_Value>::mv( integer            _numBlock,
+                         integer            _dimBlock,
+                         integer            _row0,
+                         integer            _rowN,
                          valueConstPointer _block0,
                          valueConstPointer _blocks,
                          valueConstPointer _blockN,
@@ -114,54 +112,6 @@ namespace alglin {
           xx, incx,
           beta, yy, incy ) ;
   }
-  
-  // ---------------------------------------------------------------------------
-
-  template <typename t_Value>
-  void
-  ColrowLU<t_Value>::residue( integer           _numBlock,
-                              integer           _dimBlock,
-                              integer           _row0,
-                              integer           _rowN,
-                              valueConstPointer _block0,
-                              valueConstPointer _blocks,
-                              valueConstPointer _blockN,
-                              valueConstPointer b,
-                              integer           incb,
-                              valueConstPointer x,
-                              integer           incx,
-                              valuePointer      res,
-                              integer           incr ) {
-
-    copy( _numBlock*_dimBlock+_row0+_rowN, b, incb, res, incr ) ;
-    // first block res -= _block0 * x
-    gemv( Transposition::NO_TRANSPOSE, _row0, _dimBlock,
-          -1.0, _block0, _row0,
-          x, incx,
-          1.0, res, incr ) ;
-
-    // internal blocks block
-    valueConstPointer xx   = x ;
-    valuePointer      rr   = res+_row0*incr ;
-    valueConstPointer blks = _blocks ;
-    for ( integer i = 0 ; i < _numBlock ; ++i ) {
-      gemv( Transposition::NO_TRANSPOSE, _dimBlock, 2*_dimBlock,
-            -1.0, blks, _dimBlock,
-            xx, incx,
-            1.0, rr, incr ) ;
-      xx   += _dimBlock*incx ;
-      rr   += _dimBlock*incr ;
-      blks += 2*_dimBlock*_dimBlock ;
-    }
-
-    // last block
-    gemv( Transposition::NO_TRANSPOSE, _rowN, _row0+_rowN,
-          -1.0, _blockN, _rowN,
-          xx, incx,
-          1.0, rr, incr ) ;
-  }
-
-  // ---------------------------------------------------------------------------
 
   template <typename t_Value>
   void
@@ -182,12 +132,12 @@ namespace alglin {
     Nlast           = row0+rowN ;
 
     // allocate
-    baseIndex.allocate( numBlock*(dimBlock+row0)+2*Nlast ) ; // @@@@@@@
+    baseIndex.allocate( numBlock*dimBlock+2*Nlast ) ;
     baseValue.allocate( sizeBlock*numBlock + dimBlock*row0 + Nlast*Nlast ) ;
     block0      = baseValue( dimBlock * row0 ) ;
     blocks      = baseValue( sizeBlock * numBlock ) ;
     blockNN     = baseValue( Nlast*Nlast ) ;
-    swapRC_blks = baseIndex( numBlock*(dimBlock+row0) +2*Nlast ) ; // @@@@@@@@
+    swapRC_blks = baseIndex( numBlock*dimBlock+2*Nlast ) ;
     
     // copy block
     copy( dimBlock*row0,      _block0, 1, block0, 1 ) ;
@@ -200,8 +150,6 @@ namespace alglin {
 
     factorize() ;
   }
-  
-  // ---------------------------------------------------------------------------
 
   template <typename t_Value>
   void
@@ -221,11 +169,11 @@ namespace alglin {
     offs            = dimBlock*dimBlock - dimBlock_m_row0 ;
     Nlast           = row0+rowN ;
 
-    baseIndex.allocate( numBlock*(dimBlock+row0)+2*Nlast ) ; // @@@@@@@
+    baseIndex.allocate( numBlock*dimBlock+2*Nlast ) ;
     baseValue.allocate( Nlast*Nlast ) ;
 
     blockNN     = baseValue( Nlast*Nlast ) ;
-    swapRC_blks = baseIndex( numBlock*(dimBlock+row0) +2*Nlast ) ; // @@@@@@@
+    swapRC_blks = baseIndex( numBlock*dimBlock+2*Nlast ) ;
 
     integer ierr = gecopy( rowN, Nlast, _blockN, rowN, blockNN+row0, Nlast ) ;
     ALGLIN_ASSERT( ierr == 0,
@@ -266,37 +214,24 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  ColrowLU<t_Value>::factorize_block( bool first ) {
-
-    // applico row0 passi di Gauss con full pivoting
+  ColrowLU<t_Value>::factorize_block() {
+    // applico row0 passi di Gauss con pivoting di colonna
     valuePointer Bk  = Bmat ;
     valuePointer Ak  = Amat ;
     valuePointer Akk = Amat ;
-
-    integer * swapC = swapRC ;
-    integer * swapR = swapRC+row0 ;
-
-    // LU full pivoting
     integer k = 0 ;
     bool do_loop ;
     do {
       // cerco pivot
-      integer ipiv = k, jpiv = k ;
-      valueType amax = std::abs(Akk[0]) ;
-      for ( integer i = k ; i < row0 ; ++i ) {
-        //integer i = k ;
-        for ( integer j = k ; j < dimBlock ; ++j ) {
-          valueType amax1 = std::abs(Amat[i+j*ldA]) ;
-          if ( amax1 > amax ) { ipiv = i ; jpiv = j ; amax = amax1 ; }
-        }
+      integer ipiv = iamax( dimBlock-k, Akk, ldA ) ;
+      // scambio colonne
+      if ( ipiv > 0 ) {
+        swap( row0,     Ak, 1, Ak + ipiv*ldA,      1 ) ;
+        swap( dimBlock, Bk, 1, Bk + ipiv*dimBlock, 1 ) ;
       }
-      swapR[k] = ipiv ;
-      swapC[k] = jpiv ; // memorizzo scambio
-      if ( ipiv > k ) swap( dimBlock, Amat + k,   ldA, Amat + ipiv,   ldA ) ;
-      if ( jpiv > k ) swap( row0,     Amat + k*ldA, 1, Amat + jpiv*ldA, 1 ) ;
-
+      swapRC[k] = k+ipiv ; // memorizzo scambio
       // controllo pivot non zero
-      ALGLIN_ASSERT( amax > epsi,
+      ALGLIN_ASSERT( std::abs(Akk[0]) > epsi,
                      "ColrowLU::factorize_block, found pivot: " << Akk[0] << " at block N." <<
                      nblk << " row N." << k << " of the block" ) ;
       // memorizzo L^(-1)
@@ -314,30 +249,7 @@ namespace alglin {
         ger( row0-k, dimBlock-k, -1, X, 1, Y, ldA, Akk, ldA ) ;
       }
     } while ( do_loop ) ;
-
-    // propago permutazioni ai vari blocchi
-    if ( first ) {
-      for ( integer j = 0 ; j < row0 ; ++j ) {
-        integer j1 = swapC[j] ;
-        if ( j1 > j ) swap( dimBlock, Bmat + j*dimBlock,  1,
-                                      Bmat + j1*dimBlock, 1 ) ;
-      }
-    } else {
-      valuePointer Tmat = Amat - dimBlock_m_row0 ;
-      valuePointer Lmat = Amat - dimBlock*dimBlock ;
-      for ( integer j = 0 ; j < row0 ; ++j ) {
-        integer j1 = swapC[j] ;
-        if ( j1 > j ) {
-          integer offs1 = j*dimBlock ;
-          integer offs2 = j1*dimBlock ;
-          swap( dimBlock,        Bmat + offs1, 1, Bmat + offs2, 1 ) ;
-          swap( dimBlock_m_row0, Tmat + offs1, 1, Tmat + offs2, 1 ) ;
-        }
-        j1 = swapR[j] ;
-        if ( j1 > j ) swap( dimBlock, Lmat + j, dimBlock, Lmat + j1, dimBlock ) ;
-      }
-    }
-
+    
     /*
     //  +---------+
     //  | A1   A2 |
@@ -347,71 +259,40 @@ namespace alglin {
     //  +---------+--------+
     */
 
-    valuePointer A1 = Amat ;
-    valuePointer A2 = Amat+ldA*row0 ;
+    valuePointer Cmat = Bmat+dimBlock*dimBlock ;
 
-    valuePointer B  = Bmat ;
+    Eigen::Map<mat,0,Eigen::OuterStride<> > A1(Amat,row0,row0,Eigen::OuterStride<>(ldA) ) ;
+    Eigen::Map<mat,0,Eigen::OuterStride<> > A2(Amat+ldA*row0,row0,dimBlock_m_row0,Eigen::OuterStride<>(ldA) ) ;
+    Eigen::Map<mat>                         B(Bmat,dimBlock,row0) ;
+    Eigen::Map<mat>                         C(Bmat+row0*dimBlock,dimBlock,dimBlock_m_row0) ;
+    Eigen::Map<mat,0,Eigen::OuterStride<> > C1(Bmat+row0*dimBlock,dimBlock_m_row0,dimBlock_m_row0,Eigen::OuterStride<>(dimBlock) ) ;
+    Eigen::Map<mat,0,Eigen::OuterStride<> > C2(Bmat+row0*dimBlock+dimBlock_m_row0,row0,dimBlock_m_row0,Eigen::OuterStride<>(dimBlock) ) ;
+    Eigen::Map<mat,0,Eigen::OuterStride<> > D1(Cmat,dimBlock_m_row0,dimBlock,Eigen::OuterStride<>(dimBlock)) ;
+    Eigen::Map<mat,0,Eigen::OuterStride<> > D2(Cmat+dimBlock_m_row0,row0,dimBlock,Eigen::OuterStride<>(dimBlock)) ;
 
-    valuePointer C  = Bmat+row0*dimBlock ;
-    valuePointer C1 = C ;
-    valuePointer C2 = C1+dimBlock_m_row0 ;
+    A1.template triangularView<Eigen::Upper>()
+      .template solveInPlace<Eigen::OnTheRight>(B) ;
 
-    valuePointer D  = Bmat+dimBlock*dimBlock ;
-    valuePointer D1 = D ;
-    valuePointer D2 = D+dimBlock_m_row0 ;
+    C.noalias() -= B*A2 ;
 
-    // B * Upper(A1)^(-1)
-    trsm( SideMultiply::RIGHT,
-          ULselect::UPPER,
-          Transposition::NO_TRANSPOSE,
-          DiagonalType::NON_UNIT,
-          dimBlock, row0, 1.0,
-          A1, ldA,
-          B,  dimBlock ) ;
-    // C -= B * A2
-    gemm( Transposition::NO_TRANSPOSE,
-          Transposition::NO_TRANSPOSE,
-          dimBlock, dimBlock_m_row0, row0,
-          -1.0,
-          B,  dimBlock,
-          A2, ldA,
-          1.0,
-          C, dimBlock ) ;
     // ----------
-    // C = L*U
-    swapR = swapRC + 2*row0 ;
-    integer ierr = getrf( dimBlock, dimBlock_m_row0, C, dimBlock, swapR ) ;
+    integer ierr = getrf( dimBlock, dimBlock_m_row0, Bmat+dimBlock*row0, dimBlock, swapRC+row0 ) ;
     ALGLIN_ASSERT( ierr == 0,
                    "ColrowLU::factorize_block, found ierr = " << ierr <<
                    " at LU factorizatioon on block N." << nblk+1 ) ;
-    ierr = swaps( dimBlock, D, dimBlock, 0, dimBlock_m_row0-1, swapR, 1 ) ;
+    ierr = swaps( dimBlock, Cmat, dimBlock,
+                  0, dimBlock_m_row0-1,
+                  swapRC+row0, 1 ) ;
     ALGLIN_ASSERT( ierr == 0,
                    "ColrowLU::factorize_block, found ierr = " << ierr <<
                    " at LU swaps rows on block N." << nblk+1 ) ;
-    ierr = swaps( row0, B, dimBlock, 0, dimBlock_m_row0-1, swapR, 1 ) ;
-    ALGLIN_ASSERT( ierr == 0,
-                   "ColrowLU::factorize_block, found ierr = " << ierr <<
-                   " at LU swaps rows on block N." << nblk+1 ) ;
-    // Lower(C1)^(-1) * D1
-    trsm( SideMultiply::LEFT,
-          ULselect::LOWER,
-          Transposition::NO_TRANSPOSE,
-          DiagonalType::UNIT,
-          dimBlock_m_row0, dimBlock, 1.0,
-          C1, dimBlock,
-          D1, dimBlock ) ;
-    // D2 -= C2*D1
-    gemm( Transposition::NO_TRANSPOSE,
-          Transposition::NO_TRANSPOSE,
-          row0, dimBlock, dimBlock_m_row0,
-          -1.0,
-          C2, dimBlock,
-          D1, dimBlock,
-          1.0,
-          D2, dimBlock ) ;
+
+    C1.template triangularView<Eigen::UnitLower>()
+      .template solveInPlace<Eigen::OnTheLeft>(D1) ;
+
+    D2.noalias() -= C2*D1 ;
+
   }
-  
-  // ---------------------------------------------------------------------------
 
   template <typename t_Value>
   void
@@ -422,18 +303,18 @@ namespace alglin {
     ldA    = row0 ;
     Bmat   = blocks ;
     nblk   = 0 ;
-    factorize_block(true) ;
+    factorize_block() ;
 
     // blocchi intermedi (n-1)
     ldA = dimBlock ;
     while ( ++nblk < numBlock ) {
-      swapRC += dimBlock+row0 ;
+      swapRC += dimBlock ;
       Bmat   += sizeBlock ;
       Amat    = Bmat-offs ;
-      factorize_block(false) ;
+      factorize_block() ;
     }
 
-    swapRC += dimBlock+row0 ;
+    swapRC += dimBlock ;
     Amat    = Bmat + sizeBlock - offs ;
 
     // copio in ultimo blocco
@@ -468,45 +349,47 @@ namespace alglin {
   */
   template <typename t_Value>
   void
-  ColrowLU<t_Value>::solver_block_L( valuePointer io ) const {
-
-    valuePointer io1 = io+row0 ;
+  ColrowLU<t_Value>::solver_block_L( valuePointer in_out ) const {
+    valuePointer io1 = in_out+row0 ;
 
     trsv( ULselect::LOWER,
           Transposition::NO_TRANSPOSE,
           DiagonalType::UNIT,
           row0,
-          Amat, ldA, io, 1 ) ;
+          Amat, ldA, in_out, 1 ) ;
     gemv( Transposition::NO_TRANSPOSE,
           dimBlock, row0,
           -1, Bmat, dimBlock,
-          io, 1,
+          in_out, 1,
           1, io1, 1 ) ;
-    valuePointer io2 = io+dimBlock ;
-    valuePointer L   = Bmat+dimBlock*row0 ;
-    valuePointer W   = L+dimBlock_m_row0 ;
+    valuePointer io2 = in_out+dimBlock ;
+    valuePointer Bk  = Bmat+dimBlock*row0 ;
+
+    // applico permutazione
+    for ( integer k = 0 ; k < dimBlock_m_row0 ; ++k ) {
+      integer k1 = swapRC[row0+k]-1 ; // base 1 da lapack
+      if ( k1 > k ) std::swap( io1[k], io1[k1] ) ;
+    }
 
     trsv( ULselect::LOWER,
           Transposition::NO_TRANSPOSE,
           DiagonalType::UNIT,
           dimBlock_m_row0,
-          L, dimBlock, io1, 1 ) ;
+          Bk, dimBlock, io1, 1 ) ;
     gemv( Transposition::NO_TRANSPOSE,
           row0, dimBlock_m_row0,
-          -1, W, dimBlock,
+          -1, Bk+dimBlock_m_row0, dimBlock,
           io1, 1,
           1, io2, 1 ) ;
   }
-
   /*
   //  applico permutazione righe (da applicare alla rovescia sulla rhs)
   //
-  //                                  io   io1   io2
   //  +----+          +---+          +---+-----+
-  //  |  L |          | I |          | A |  N  |
+  //  |  L |          | I |          | U |  N  |
   //  +----+------+   +---+---+---+  +---+-----+--------+
-  //  |  M | I    |   |   | L |   |  |   |  U  |   D    |
-  //  |  M |    I |   |   | W | I |  |   |     |        |
+  //  |  M | I    |   |   | L |   |  |   |  U  |        |
+  //  |  M |    I |   |   | W | I |  |   |     |    D   |
   //  +----+------+   +---+---+---+  +---+-----+--------+
   //
   */
@@ -514,63 +397,41 @@ namespace alglin {
   template <typename t_Value>
   void
   ColrowLU<t_Value>::solver_block_U( valuePointer in_out ) const {
-
     // y := alpha*A*x + beta*y,   or   y := alpha*A'*x + beta*y,
-    valuePointer      io1 = in_out+row0 ;
-    valuePointer      io2 = in_out+dimBlock ;
-    valueConstPointer D   = Bmat+dimBlock*dimBlock ;
-    valueConstPointer U   = Bmat+row0*dimBlock ;
-    valueConstPointer N   = Amat+row0*ldA ;
-
-    // io1 -= D*io2
+    valuePointer io1  = in_out+row0 ;
+    valuePointer io2  = in_out+dimBlock ;
+    valuePointer Cmat = Bmat+dimBlock*dimBlock ;
     gemv( Transposition::NO_TRANSPOSE,
           dimBlock_m_row0, dimBlock,
-          -1, D, dimBlock,
+          -1, Cmat, dimBlock,
           io2, 1,
           1, io1, 1 ) ;
-
-    // io1 = U^(-1)*io1
     trsv( ULselect::UPPER,
           Transposition::NO_TRANSPOSE,
           DiagonalType::NON_UNIT,
           dimBlock_m_row0,
-          U, dimBlock, io1, 1 ) ;
-
-    // io1 -= N*io1
+          Bmat+row0*dimBlock, dimBlock, io1, 1 ) ;
     gemv( Transposition::NO_TRANSPOSE,
           row0, dimBlock_m_row0,
-          -1, N, ldA,
+          -1, Amat+row0*ldA, ldA,
           io1, 1,
           1, in_out, 1 ) ;
-
-    // io = U(A)^(-1)*io
     trsv( ULselect::UPPER,
           Transposition::NO_TRANSPOSE,
           DiagonalType::NON_UNIT,
           row0,
           Amat, ldA, in_out, 1 ) ;
+
+    // applico permutazione
+    for ( integer k = row0-1 ; k >= 0 ; --k ) {
+      integer k1 = swapRC[k] ; // 0 based
+      if ( k1 > k ) std::swap( in_out[k], in_out[k1] ) ;
+    }
   }
-  
-  // ---------------------------------------------------------------------------
 
   template <typename t_Value>
   void
   ColrowLU<t_Value>::solve( valuePointer in_out ) const {
-
-    // applico permutazione alla RHS
-    for ( integer nb = 0 ; nb < numBlock ; ++nb )  {
-      integer * swapRC = swapRC_blks+nb*(dimBlock+row0) ;
-      valuePointer io = in_out+nb*dimBlock ;
-
-      integer const * swapR = swapRC+row0 ;
-      for ( integer k = 0 ; k < row0 ; ++k ) {
-        integer k1 = swapR[k] ; // 0 based
-        if ( k1 > k ) std::swap( io[k], io[k1] ) ;
-      } ;
-
-      // applico permutazione
-      swaps( 1, io+row0, dimBlock, 0, dimBlock_m_row0-1, swapRC+2*row0, 1 ) ;
-    }
 
     valuePointer io = in_out ;
 
@@ -584,7 +445,7 @@ namespace alglin {
     // blocchi intermedi
     ldA = dimBlock ;
     for ( integer i = 1 ; i < numBlock ; ++i ) {
-      swapRC += dimBlock+row0 ;
+      swapRC += dimBlock ;
       Bmat   += sizeBlock ;
       Amat    = Bmat-offs ;
       io     += dimBlock ;
@@ -593,7 +454,7 @@ namespace alglin {
 
     // risolve rispetto ultimo blocco
     integer N = row0+rowN ;
-    swapRC += dimBlock+row0 ;
+    swapRC += dimBlock ;
     Bmat   += sizeBlock ;
     io     += dimBlock ;
 
@@ -607,7 +468,7 @@ namespace alglin {
     }
 
     for ( integer i = 1 ; i < numBlock ; ++i ) {
-      swapRC -= dimBlock+row0 ;
+      swapRC -= dimBlock ;
       Bmat   -= sizeBlock ;
       Amat    = Bmat-offs ;
       io     -= dimBlock ;
@@ -619,20 +480,7 @@ namespace alglin {
     ldA    = row0 ;
     Bmat   = blocks ;
     solver_block_U( in_out ) ;
-
-    for ( integer nb = 0 ; nb < numBlock ; ++nb )  {
-      integer const * swapC = swapRC_blks+nb*(dimBlock+row0) ;
-      valuePointer io = in_out+nb*dimBlock ;
-      integer k = row0 ;
-      do {
-        integer k1 = swapC[--k] ; // 0 based
-        if ( k1 > k ) std::swap( io[k], io[k1] ) ;
-      } while ( k > 0 ) ;
-    }
-
   }
-  
-  // ---------------------------------------------------------------------------
 
   template <typename t_Value>
   void
@@ -663,19 +511,18 @@ namespace alglin {
       stream << '\n' ;
     }
   }
-  
-  // ---------------------------------------------------------------------------
+
 
   template <typename t_Value>
   void
-  ColrowLU<t_Value>::print_colrow( std::ostream & stream,
-                                   integer         numBlock,
-                                   integer         dimBlock,
-                                   integer         row0,
-                                   integer         rowN,
-                                   t_Value const * block0,
-                                   t_Value const * blocks,
-                                   t_Value const * blockN ) {
+  print_colrow( std::ostream & stream,
+                integer         numBlock,
+                integer         dimBlock,
+                integer         row0,
+                integer         rowN,
+                t_Value const * block0,
+                t_Value const * blocks,
+                t_Value const * blockN ) {
     integer sizeBlock = 2*dimBlock*dimBlock ;
     stream << "Block 0\n" ;
     for ( integer i = 0 ; i < row0 ; ++i ) {
@@ -702,19 +549,17 @@ namespace alglin {
       stream << '\n' ;
     }
   }
-  
-  // ---------------------------------------------------------------------------
 
   template <typename t_Value>
   void
-  ColrowLU<t_Value>::print_colrow_to_maple( std::ostream & stream,
-                                            integer         numBlock,
-                                            integer         dimBlock,
-                                            integer         row0,
-                                            integer         rowN,
-                                            t_Value const * block0,
-                                            t_Value const * blocks,
-                                            t_Value const * blockN ) {
+  print_colrow_to_maple( std::ostream & stream,
+                         integer         numBlock,
+                         integer         dimBlock,
+                         integer         row0,
+                         integer         rowN,
+                         t_Value const * block0,
+                         t_Value const * blocks,
+                         t_Value const * blockN ) {
 
     integer N = row0+rowN+numBlock*dimBlock ;
     std::vector<t_Value> mat(N*N) ;
@@ -746,6 +591,42 @@ namespace alglin {
       else           stream << ">>;\n" ;
     }
   }
+
+  template void print_colrow( std::ostream & stream,
+                              integer         numBlock,
+                              integer         dimBlock,
+                              integer         row0,
+                              integer         rowN,
+                              double const *  block0,
+                              double const *  blocks,
+                              double const *  blockN ) ;
+
+  template void print_colrow( std::ostream & stream,
+                              integer         numBlock,
+                              integer         dimBlock,
+                              integer         row0,
+                              integer         rowN,
+                              float const *   block0,
+                              float const *   blocks,
+                              float const *   blockN ) ;
+
+  template void print_colrow_to_maple( std::ostream & stream,
+                                       integer         numBlock,
+                                       integer         dimBlock,
+                                       integer         row0,
+                                       integer         rowN,
+                                       double const *  block0,
+                                       double const *  blocks,
+                                       double const *  blockN ) ;
+
+  template void print_colrow_to_maple( std::ostream & stream,
+                                       integer         numBlock,
+                                       integer         dimBlock,
+                                       integer         row0,
+                                       integer         rowN,
+                                       float const *   block0,
+                                       float const *   blocks,
+                                       float const *   blockN ) ;
 
   template class ColrowLU<double> ;
   template class ColrowLU<float> ;

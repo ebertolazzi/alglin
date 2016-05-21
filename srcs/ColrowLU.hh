@@ -24,7 +24,7 @@
 #ifndef COLROW_LU_HH
 #define COLROW_LU_HH
 
-#include "alglin.hh"
+#include "Alglin.hh"
 #include <iostream>
 
 // Eigen3
@@ -48,6 +48,27 @@ namespace alglin {
    *           enrico.bertolazzi@ing.unitn.it
    * 
    */
+  /*
+      Matrix NNZ structure
+          col0
+       |       |
+     / +-------+                         \
+     | |  TOP  |                         | <-- row0
+     | +-------+----+                    |
+     |    |    |    |                    | <- sizeBlock
+     |    +----+----+----+               |
+     |         |    |    |               |
+     |         +----+----+----+          |
+     |              |    |    |          |
+     |              +----+----+----+     |
+     |                   |    |    |     |
+     |                   +----+----+---+ |
+     |                        |        | | <-- rowN
+     |                        | BOTTOM | |
+     \                        +--------+ /
+                              |        |
+                                 colN
+  */
   template <typename t_Value>
   class ColrowLU {
   public:
@@ -73,25 +94,16 @@ namespace alglin {
 
     static
     void
-    print_colrow( std::ostream & stream,
-                  integer         numBlock,
-                  integer         dimBlock,
-                  integer         row0,
-                  integer         rowN,
-                  t_Value const * block0,
-                  t_Value const * blocks,
-                  t_Value const * blockN ) ;
-
-    static
-    void
-    print_colrow_to_maple( std::ostream & stream,
-                           integer         numBlock,
-                           integer         dimBlock,
-                           integer         row0,
-                           integer         rowN,
-                           t_Value const * block0,
-                           t_Value const * blocks,
-                           t_Value const * blockN ) ;
+    print( std::ostream & stream,
+           integer         row0,
+           integer         col0,
+           t_Value const * block0,
+           integer         numBlock,
+           integer         dimBlock,
+           t_Value const * blocks,
+           integer         rowN,
+           integer         colN,
+           t_Value const * blockN ) ;
 
   private:
 
@@ -103,31 +115,39 @@ namespace alglin {
     
     static valueType const epsi ;
     
+    integer      neq ;
     integer      numBlock ;
     integer      dimBlock ;
-    integer      dimBlock_m_row0 ;
     integer      Nlast ;
-    integer      row0 ;
-    integer      rowN ;
+    integer      row0, col0 ;
+    integer      rowN, colN ;
     valuePointer block0 ;
     valuePointer blocks ;
-    valuePointer blockNN ;
+    valuePointer blockN ;
     integer *    swapRC_blks ;
     LAST_BLOCK   last_block ;
 
-    // internal parameters
-    mutable valuePointer Amat ;
-    mutable integer      ldA ;
-    mutable valuePointer Bmat ;
-    mutable integer *    swapRC ;
-    mutable integer      sizeBlock ;
-    mutable integer      offs ;
-    mutable integer      nblk ;
+    integer      sizeBlock ;
+    integer      hSizeBlock ;
+    integer      row00, col00 ;
+    integer      rowNN, colNN ;
+    integer      dimBlock_m_row00 ;
+    
+    mutable integer nblk ;
+
+    void setup() ;
 
     void factorize() ;
-    void factorize_block( bool first ) ;
-    void solver_block_L( valuePointer in_out ) const ;
-    void solver_block_U( valuePointer in_out ) const ;
+    void factorize_first_block() ;
+    void factorize_block() ;
+    void factorize_last_block() ;
+
+    void solve_block_L( valuePointer in_out ) const ;
+    void solve_block_U( valuePointer in_out ) const ;
+    void solve_last_block( valuePointer in_out ) const ;
+    void LU_full( integer nr, integer nc,
+                  t_Value * A, integer ldA,
+                  integer swapR[], integer swapC[] ) ;
 
   public:
 
@@ -137,12 +157,14 @@ namespace alglin {
     //! compute y = alpha*A*x+beta*y
     static
     void
-    mv( integer           _numBlock,
-        integer           _dimBlock,
-        integer           _row0,
-        integer           _rowN,
+    mv( integer           _row0,
+        integer           _col0,
         valueConstPointer _block0,
+        integer           _numBlock,
+        integer           _dimBlock,
         valueConstPointer _blocks,
+        integer           _rowN,
+        integer           _colN,
         valueConstPointer _blockN,
         valueType         alpha,
         valueConstPointer x,
@@ -154,12 +176,14 @@ namespace alglin {
     //! compute r = b-A*x
     static
     void
-    residue( integer           _numBlock,
-             integer           _dimBlock,
-             integer           _row0,
-             integer           _rowN,
+    residue( integer           _row0,
+             integer           _col0,
              valueConstPointer _block0,
+             integer           _numBlock,
+             integer           _dimBlock,
              valueConstPointer _blocks,
+             integer           _rowN,
+             integer           _colN,
              valueConstPointer _blockN,
              valueConstPointer b,
              integer           incb,
@@ -170,22 +194,26 @@ namespace alglin {
 
     //! factorize the matrix
     void
-    factorize( integer           _numBlock,
-               integer           _dimBlock,
-               integer           _row0,
-               integer           _rowN,
+    factorize( integer           _row0,
+               integer           _col0,
                valueConstPointer _block0,
+               integer           _numBlock,
+               integer           _dimBlock,
                valueConstPointer _blocks,
+               integer           _rowN,
+               integer           _colN,
                valueConstPointer _blockN ) ;
 
     //! factorize the matrix
     void
-    factorize_inplace( integer      _numBlock,
-                       integer      _dimBlock,
-                       integer      _row0,
-                       integer      _rowN,
+    factorize_inplace( integer      _row0,
+                       integer      _col0,
                        valuePointer _block0,
+                       integer      _numBlock,
+                       integer      _dimBlock,
                        valuePointer _blocks,
+                       integer      _rowN,
+                       integer      _colN,
                        valuePointer _blockN ) ;
 
     //! solve linear sistem using internal factorized matrix
