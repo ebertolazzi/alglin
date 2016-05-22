@@ -25,6 +25,7 @@
 #define COLROW_LU_HH
 
 #include "Alglin.hh"
+#include "LU_ArcecoSolver.hh"
 #include <iostream>
 
 // Eigen3
@@ -145,13 +146,36 @@ namespace alglin {
     void solve_block_L( valuePointer in_out ) const ;
     void solve_block_U( valuePointer in_out ) const ;
     void solve_last_block( valuePointer in_out ) const ;
-    void LU_full( integer nr, integer nc,
-                  t_Value * A, integer ldA,
-                  integer swapR[], integer swapC[] ) ;
+
+    void
+    LU_left_right( integer nrA,
+                   integer ncA,
+                   integer ncL,
+                   integer ncR,
+                   t_Value * A, integer ldA,
+                   integer swapR[],
+                   integer swapC[] ) ;
+
+    void
+    LU_top_bottom( integer nrT,
+                   integer nrA,
+                   integer ncA,
+                   t_Value * A, integer ldA,
+                   integer nrB,
+                   t_Value * B, integer ldB,
+                   integer swapR[],
+                   integer swapC[] ) ;
+
+    integer *    matrixStructure ; //!< structure of the matrix
+    integer *    pivot           ; //!< permutation array
+    valuePointer array           ; //!< the matrix data
+
+    bool   use_arceco ;
+    Arceco LU_arceco ;
 
   public:
 
-    explicit ColrowLU() ;
+    explicit ColrowLU( bool use_arceco ) ;
     ~ColrowLU() ;
 
     //! compute y = alpha*A*x+beta*y
