@@ -122,10 +122,6 @@ namespace alglin {
 
     rowElimination ( array + index1, numRowsBlock, numColsBlock, numRowsPivot, pivot + indpiv ) ;
 
-    //CHECK_NAN( array + index1,
-    //           "Arceco::rowElimination, first block",
-    //           numRowsBlock*numColsBlock ) ;
-
     for ( indexType k = 1 ; k < numberOfBlocks ; ++k ) {
       indpiv += numRowsPivot ;
       indexType index2        = index1 + numRowsBlock * numRowsPivot ;
@@ -136,12 +132,6 @@ namespace alglin {
       columnElimination ( array + index2, numRowsBlock,  numOverlapCols, 
                           array + index3, numRowsBlock2, numColsPivot,
                           pivot + indpiv ) ;
-      //CHECK_NAN( array + index2,
-      //           "Arceco::columnElimination, top block",
-      //           numRowsBlock*numOverlapCols ) ;
-      //CHECK_NAN( array + index3,
-      //          "Arceco::columnElimination, bottom block",
-      //           numRowsBlock2*numColsPivot ) ;
 
       numRowsBlock   = numRowsBlock2 ;
       index1         = index3 + numRowsBlock * numColsPivot ;
@@ -151,9 +141,7 @@ namespace alglin {
       indpiv        += numColsPivot ;
 
       rowElimination ( array + index1, numRowsBlock, numColsBlock, numRowsPivot, pivot + indpiv );
-      //CHECK_NAN( array + index1,
-      //           "Arceco::rowElimination",
-      //           numRowsBlock*numColsBlock ) ;
+
     }
   }
   
@@ -203,13 +191,13 @@ namespace alglin {
   }
 
   void
-  Arceco::columnElimination ( valuePointer   topblk,
-                              indexType      numRowsTopBlock,
-                              indexType      numOverlapCols,
-                              valuePointer   botblk,
-                              indexType      numRowsBottomBlock,
-                              indexType      numColsPivot,
-                              indexPointer   pivot ) {
+  Arceco::columnElimination ( valuePointer topblk,
+                              indexType    numRowsTopBlock,
+                              indexType    numOverlapCols,
+                              valuePointer botblk,
+                              indexType    numRowsBottomBlock,
+                              indexType    numColsPivot,
+                              indexPointer pivot ) {
 
     #define TOPBLK(I,J) topblk[(I) + (J) * numRowsTopBlock]
     #define BOTBLK(I,J) botblk[(I) + (J) * numRowsBottomBlock]
@@ -451,19 +439,10 @@ namespace alglin {
     indexType j1 = numColsPivot ;
     while ( j1 > 0 ) {
       valueConstPointer blockS = block + j1-1 + kk + j1 * numRowsBlock ;
-      valueConstPointer xS     = x + j1 ;
       indexType n = numOverlapCols - j1 ;
       // Kahan summation algorithm
-      valueType dotprd = 0 ;
-      valueType comp   = 0 ;
-      for ( indexType k = 0 ; k < n ; ++k, ++xS, blockS += numRowsBlock ) {
-        valueType y = xS[0] * blockS[0] - comp ;
-        valueType t = dotprd + y ;
-        comp = (t-dotprd) - y ;
-        dotprd = t ;
-      }
-      --j1 ;
-      x[j1] -= dotprd ;
+      valueType dotprd = dot(n,x+j1,1,blockS,numRowsBlock) ;
+      x[--j1] -= dotprd ;
       indexType pivotj = pivot[j1] ;
       if ( pivotj != j1 ) std::swap( x[pivotj], x[j1] ) ;
     }

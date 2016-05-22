@@ -58,14 +58,14 @@ main() {
     -1,  2,  6, 10, 14, 4
   };
 
-  alglin::integer numBlock = 3 ; // 5-2 ;
+  alglin::integer numBlock = 0 ; // 5-2 ;
   alglin::integer dim      = 4 ;
   alglin::integer row0     = 3 ;
   alglin::integer col0     = 5 ;
   alglin::integer rowN     = 4 ;
   alglin::integer colN     = 6 ;
   
-  alglin::ColrowLU<valueType> LU ;
+  alglin::ColrowLU<valueType> LU(false) ;
   
   alglin::integer N = row0 + rowN + numBlock*dim ;
   cout << "N = " << N << '\n' ;

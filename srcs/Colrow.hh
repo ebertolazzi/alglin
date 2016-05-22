@@ -162,6 +162,7 @@ namespace alglin {
 
     //! solve linear sistem using internal factorized matrix
     void solve( vec & in_out ) const ;
+    void solve2( vec & in_out ) const ;
 
     void print( std::ostream & stream ) const ;
 

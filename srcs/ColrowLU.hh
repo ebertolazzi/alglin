@@ -137,15 +137,7 @@ namespace alglin {
     mutable integer nblk ;
 
     void setup() ;
-
     void factorize() ;
-    void factorize_first_block() ;
-    void factorize_block() ;
-    void factorize_last_block() ;
-
-    void solve_block_L( valuePointer in_out ) const ;
-    void solve_block_U( valuePointer in_out ) const ;
-    void solve_last_block( valuePointer in_out ) const ;
 
     void
     LU_left_right( integer nrA,
@@ -153,8 +145,7 @@ namespace alglin {
                    integer ncL,
                    integer ncR,
                    t_Value * A, integer ldA,
-                   integer swapR[],
-                   integer swapC[] ) ;
+                   integer swapR[] ) ;
 
     void
     LU_top_bottom( integer nrT,
@@ -163,7 +154,6 @@ namespace alglin {
                    t_Value * A, integer ldA,
                    integer nrB,
                    t_Value * B, integer ldB,
-                   integer swapR[],
                    integer swapC[] ) ;
 
     integer *    matrixStructure ; //!< structure of the matrix

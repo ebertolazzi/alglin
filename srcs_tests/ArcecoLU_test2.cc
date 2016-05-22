@@ -43,7 +43,7 @@ int
 main() {
 
   alglin::integer dim      = 100 ;
-  alglin::integer row0     = 5 ;
+  alglin::integer row0     = 40 ;
   alglin::integer col0     = dim+2 ;
   alglin::integer colN     = dim+10 ;
   alglin::integer rowN     = (dim-row0)+(col0+colN-2*dim) ;
