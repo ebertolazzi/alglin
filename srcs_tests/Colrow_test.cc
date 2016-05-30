@@ -20,10 +20,11 @@
 #include <iostream>
 #include <vector>
 #include <random>
-#include "alglin.hh"
-#include "ColrowLU.hh"
+#include "Alglin.hh"
+#include "Alglin_aux.hh"
 #include "TimeMeter.hh"
 #include "LU_Arceco.hh"
+#include "LU_ABD_Colrow.hh"
 
 using namespace std ;
 typedef double valueType ;
@@ -47,7 +48,7 @@ main() {
   alglin::integer col0     = dim+2 ;
   alglin::integer colN     = dim+10 ;
   alglin::integer rowN     = (dim-row0)+(col0+colN-2*dim) ;
-  alglin::integer numBlock = 1000 ;
+  alglin::integer numBlock = 5000 ;
 
   alglin::integer N   = row0 + rowN + numBlock*dim ;
   alglin::integer nnz = row0*col0 + rowN*colN + 2*dim*dim*numBlock + 5*N ;
@@ -69,19 +70,19 @@ main() {
   
   for ( int i = 0 ; i < row0 ; ++i )
     for ( int j = 0 ; j < col0 ; ++j )
-      block0[i+j*row0] = rand(-1,1) ;
+      block0[i+j*row0] = rand(-1,0) ;
   
   for ( int i = 0 ; i < rowN ; ++i )
     for ( int j = 0 ; j < colN ; ++j )
-      blockN[i+j*rowN] = rand(-1,1) ;
+      blockN[i+j*rowN] = rand(-1,0) ;
 
   for ( int k = 0 ; k < numBlock ; ++k )
     for ( int i = 0 ; i < dim ; ++i )
       for ( int j = 0 ; j < 2*dim ; ++j )
-        blocks[2*k*dim*dim+i+j*dim] = rand(-1,1) ;
+        blocks[2*k*dim*dim+i+j*dim] = rand(-1,0) ;
   
   // forzo diagonale dominanza
-  valueType diag = 8.5 ;
+  valueType diag = 2*dim ;
   alglin::integer col00 = col0-dim ;
   alglin::integer row00 = row0-col00 ;
   for ( int i = 0 ; i < row0 ; ++i )
@@ -101,10 +102,10 @@ main() {
 
   for ( alglin::integer i = 0 ; i < N ; ++i ) x[i] = i ;
   std::copy( x, x+N, xref ) ;
-  LU.mv( row0, col0, block0,
-         numBlock, dim, blocks,
-         rowN, colN, blockN,
-         1.0, x, 1, 0, rhs, 1 ) ;
+  alglin::abd_mv<valueType>( row0, col0, block0,
+                             numBlock, dim, blocks,
+                             rowN, colN, blockN,
+                             1.0, x, 1, 0, rhs, 1 ) ;
 
   TimeMeter tm ;
   tm.reset() ;
@@ -133,10 +134,10 @@ main() {
   alglin::axpy( N, -1.0, x, 1, xref1, 1 ) ;
   cout << "Check |err|_inf = " << alglin::absmax( N, xref1, 1 ) << '\n' ;
 
-  LU.residue( row0, col0, block0,
-              numBlock, dim, blocks,
-              rowN, colN, blockN,
-              rhs, 1, x, 1, resid, 1 ) ;
+  alglin::abd_residue<valueType>( row0, col0, block0,
+                                  numBlock, dim, blocks,
+                                  rowN, colN, blockN,
+                                  rhs, 1, x, 1, resid, 1 ) ;
 
   cout << "Check |r|_inf = " << alglin::absmax( N, resid, 1 ) << '\n' ;
   
@@ -147,10 +148,10 @@ main() {
   alglin::axpy( N, -1.0, x, 1, xref1, 1 ) ;
   cout << "Check |err|_inf = " << alglin::absmax( N, xref1, 1 ) << '\n' ;
 
-  LU.residue( row0, col0, block0,
-              numBlock, dim, blocks,
-              rowN, colN, blockN,
-              rhs, 1, x, 1, resid, 1 ) ;
+  alglin::abd_residue<valueType>( row0, col0, block0,
+                                  numBlock, dim, blocks,
+                                  rowN, colN, blockN,
+                                  rhs, 1, x, 1, resid, 1 ) ;
   cout << "Check |r|_inf = " << alglin::absmax( N, resid, 1 ) << '\n' ;
 
 
@@ -165,10 +166,10 @@ main() {
   alglin::axpy( N, -1.0, x, 1, xref1, 1 ) ;
   cout << "Check (arceco) |err|_inf = " << alglin::absmax( N, xref1, 1 ) << '\n' ;
 
-  LU.residue( row0, col0, block0,
-              numBlock, dim, blocks,
-              rowN, colN, blockN,
-              rhs, 1, x, 1, resid, 1 ) ;
+  alglin::abd_residue<valueType>( row0, col0, block0,
+                                  numBlock, dim, blocks,
+                                  rowN, colN, blockN,
+                                  rhs, 1, x, 1, resid, 1 ) ;
 
   cout << "Check (arceco) |r|_inf = " << alglin::absmax( N, resid, 1 ) << '\n' ;
 

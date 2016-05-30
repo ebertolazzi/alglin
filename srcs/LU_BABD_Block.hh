@@ -1,0 +1,207 @@
+/*--------------------------------------------------------------------------*\
+ |                                                                          |
+ |  Copyright (C) 2003                                                      |
+ |                                                                          |
+ |         , __                 , __                                        |
+ |        /|/  \               /|/  \                                       |
+ |         | __/ _   ,_         | __/ _   ,_                                | 
+ |         |   \|/  /  |  |   | |   \|/  /  |  |   |                        |
+ |         |(__/|__/   |_/ \_/|/|(__/|__/   |_/ \_/|/                       |
+ |                           /|                   /|                        |
+ |                           \|                   \|                        |
+ |                                                                          |
+ |      Enrico Bertolazzi                                                   |
+ |      Dipartimento di Ingegneria Industriale                              |
+ |      Universita` degli Studi di Trento                                   |
+ |      email: enrico.bertolazzi@unitn.it                                   |
+ |                                                                          |
+\*--------------------------------------------------------------------------*/
+
+#ifndef LU_BABD_BLOCK_HH
+#define LU_BABD_BLOCK_HH
+
+#include "Alglin.hh"
+
+//! Various LU decomposition classes
+namespace alglin {
+
+  /*
+  //   ____  _            _    _    _   _ 
+  //  | __ )| | ___   ___| | _| |  | | | |
+  //  |  _ \| |/ _ \ / __| |/ / |  | | | |
+  //  | |_) | | (_) | (__|   <| |__| |_| |
+  //  |____/|_|\___/ \___|_|\_\_____\___/ 
+  //
+  */
+  //! LU decomposition of a BABD matrix
+  /*!
+   * 
+   * \date     May 30, 2006
+   * \version  1.0
+   * \note     first release May 30, 2006
+   *
+   * \author   Enrico Bertolazzi
+   *
+   * \par      Affiliation:
+   *           Department of Mechanics and Structures Engineering <br>
+   *           University of Trento <br>
+   *           via Mesiano 77, I -- 38050 Trento, Italy <br>
+   *           enrico.bertolazzi@ing.unitn.it
+   */
+  template <typename t_Value>
+  class BlockLU {
+
+    typedef t_Value         valueType ;
+    typedef t_Value*        valuePointer ;
+    typedef t_Value const * valueConstPointer ;
+
+    Malloc<valueType> baseValue ;
+    Malloc<integer>   baseInteger ;
+
+    BlockLU(BlockLU const &) ;
+    BlockLU const & operator = (BlockLU const &) ;
+
+    integer nblock ; //!< total number of blocks
+    integer n      ; //!< size of square blocks
+    integer m      ; //!< number final rows (m>=n)
+    integer N      ; //!< n * (nblock+1) + q
+    integer nnz    ; //!< total number of non zeros
+
+    /*!
+    //
+    //  Matrix structure
+    //
+    //                  n * nblock
+    //    ________________^_________________
+    //   /                                  \
+    //     n     n     n                        n     q
+    //  +-----+-----+-----+----.........-----+-----+-----+    \
+    //  |  Ad | Au  |  0  |                  |  0  |  0  | n   |
+    //  +-----+-----+-----+             -----+-----+-----+     |
+    //  |  0  | Ad  | Au  |  0               |  0  |  0  | n   |
+    //  +-----+-----+-----+-----+       -----+-----+-----+     |
+    //  |  0  |  0  | Ad  | Au  |            |  0  |  0  | n   |
+    //  +-----+-----+-----+-----+       -----+-----+-----+     |   
+    //  |                                                :     |
+    //  :                                                :      > n * nblock
+    //  :                                                :     | 
+    //  :                                                :     |
+    //  :                                                :     |
+    //  :                              +-----+-----+-----+     |
+    //  :                              | Au  |  0  |  0  |     |
+    //  :                        +-----+-----+-----+-----+     |
+    //  :                        |  0  | Ad  | Au  |  0  | n   |
+    //  +-----+-----+---......---+-----+-----+=====+=====+    /
+    //  |     |     |            |     |     !     |     !
+    //  | H0  |  0  |            |     |  0  ! HN  | Hq  ! m
+    //  |     |     |            |     |     !     |     !
+    //  +-----+-----+---......---+-----+-----+=====+=====+
+    //
+    */
+    
+    /*!
+    //
+    //  Working block AdH_blk [ size = nblock * ( n * (n+m) ) ]
+    //
+    //                 n * nblock
+    //    ________________^_________________
+    //   /                                  \
+    //     n     n     n                      
+    //  +-----+-----+-----+----........+-----+
+    //  |  Ad | Ad  | Ad  |               Ad | n
+    //  +-----+-----+-----+            +-----+
+    //  |     |     |            |     |     !
+    //  | H0  |  0  |            |     |  0  ! m
+    //  |     |     |            |     |     !
+    //  +-----+-----+---......---+-----+-----+
+    //
+    */
+    valuePointer AdH_blk ;
+
+    /*!
+    //
+    //  Working block Au_blk [ size = nblock * (n*n) ]
+    //
+    //                  n * nblock + q
+    //    ________________^________________________
+    //   /                                         \
+    //     n     n     n                  n      q
+    //  +-----+-----+-----+----.........-----+------+
+    //  |  Au | Au  | Au  |               Au | fill | n
+    //  +-----+-----+-----+----.........-----+------+
+    //
+    */
+    valuePointer Au_blk ;
+
+    /*!
+    //
+    //  Working block DD_blk [ size = m * m ]
+    //
+    //     n     q     (n+q=m)
+    //  +=====+=====+
+    //  !     |     !
+    //  ! HN  | Hq  ! m
+    //  !     |     !
+    //  +=====+=====+
+    //
+    */    
+    valuePointer DD_blk ;
+    
+    /*!
+    //
+    //  Working block FF_blk [ size = nblock * (n*m) ]
+    //
+    //     n     q        (n+q=m)
+    //  +-----+-----+   \
+    //  |fill |fill | n |
+    //  +-----+-----+   |
+    //  |fill |fill | n |
+    //  +-----+-----+   |
+    //  |fill |fill | n |
+    //  +-----+-----+   :
+    //  |           |   :  n * (nblock-1)
+    //  :           :   :
+    //  :           :   :
+    //  :           :   :
+    //  :           :   :
+    //  :           :   :
+    //  |fill |fill | n |
+    //  +-----+-----+   /
+    //
+    */
+    valuePointer FF_blk ;
+
+    // pivot vector
+    integer * ipiv_blk ;
+
+  public:
+
+    explicit BlockLU()
+    : baseValue( "BlockLU_value" )
+    , baseInteger( "BlockLU_index" )
+    { }
+
+    ~BlockLU() {
+      baseValue   . free() ;
+      baseInteger . free() ;
+    }
+
+    //! load BABD linear system to class
+    void
+    factorize( integer           nblk,
+               integer           n,
+               integer           q,
+               valueConstPointer AdAu,
+               valueConstPointer H0,
+               valueConstPointer HN,
+               valueConstPointer Hq ) ;
+
+    //! solve linear system previously factorized
+    void
+    solve( valuePointer in_out ) ;
+
+  } ;
+
+}
+
+#endif

@@ -18,11 +18,11 @@
 \*--------------------------------------------------------------------------*/
 
 ///
-/// file: ColrowLU.hh
+/// file: LU_ABD_Colrow.hh
 ///
 
-#ifndef COLROW_LU_HH
-#define COLROW_LU_HH
+#ifndef LU_ABD_COLROW_HH
+#define LU_ABD_COLROW_HH
 
 #include "Alglin.hh"
 #include "LU_ArcecoSolver.hh"
@@ -133,6 +133,7 @@ namespace alglin {
     integer      row00, col00 ;
     integer      rowNN, colNN ;
     integer      dimBlock_m_row00 ;
+    integer      NB ;
     
     mutable integer nblk ;
 
@@ -167,44 +168,6 @@ namespace alglin {
 
     explicit ColrowLU( bool use_arceco ) ;
     ~ColrowLU() ;
-
-    //! compute y = alpha*A*x+beta*y
-    static
-    void
-    mv( integer           _row0,
-        integer           _col0,
-        valueConstPointer _block0,
-        integer           _numBlock,
-        integer           _dimBlock,
-        valueConstPointer _blocks,
-        integer           _rowN,
-        integer           _colN,
-        valueConstPointer _blockN,
-        valueType         alpha,
-        valueConstPointer x,
-        integer           incx,
-        valueType         beta,
-        valuePointer      y,
-        integer           incy ) ;
-
-    //! compute r = b-A*x
-    static
-    void
-    residue( integer           _row0,
-             integer           _col0,
-             valueConstPointer _block0,
-             integer           _numBlock,
-             integer           _dimBlock,
-             valueConstPointer _blocks,
-             integer           _rowN,
-             integer           _colN,
-             valueConstPointer _blockN,
-             valueConstPointer b,
-             integer           incb,
-             valueConstPointer x,
-             integer           incx,
-             valuePointer      res,
-             integer           incr ) ;
 
     //! factorize the matrix
     void
@@ -241,6 +204,6 @@ namespace alglin {
 #endif
 
 ///
-/// eof: ColrowLU.hh
+/// eof: LU_ABD_Colrow.hh
 ///
 

@@ -55,6 +55,168 @@ namespace alglin {
 
   // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
+  /*
+  //              _                 __
+  //    __ _  ___| |_ _ ____  __   / /   _
+  //   / _` |/ _ \ __| '__\ \/ /  / / | | |
+  //  | (_| |  __/ |_| |   >  <  / /| |_| |
+  //   \__, |\___|\__|_|  /_/\_\/_/  \__, |
+  //   |___/                         |___/
+  */
+  template <typename REAL>
+  integer
+  gtx( integer M,
+       integer N,
+       REAL    A[],
+       integer LDA,
+       integer IPIV[] ) {
+    // LU DECOMPOSITION, COLUMN INTERCHANGES
+    REAL * Ajj = A ;
+    for ( int j = 0 ; j < M ; Ajj += LDA+1 ) {
+      integer MX = iamax( N-j, Ajj, LDA ) ;
+      IPIV[j] = MX + j ; // C-based
+      if ( j < IPIV[j] ) swap( M, A + j*LDA, 1, A + IPIV[j]*LDA, 1 ) ;
+      if ( std::abs(Ajj[0]) == 0 ) return j ;
+      REAL COLM = 1/Ajj[0] ;
+      ++j ;
+      scal(M-j, COLM, Ajj+1, 1) ;
+      ger(M-j, N-j, -1.0, Ajj+1, 1, Ajj+LDA, LDA, Ajj+LDA+1, LDA) ;
+    }
+    return 0 ;
+  }
+
+  template <typename REAL>
+  integer
+  getrx( integer M,      // NUMBER OF ROWS IN A, UNCHANGED
+         integer N,      // NUMBER OF COLUMNS IN A, UNCHANGED
+         REAL    A[],    // A - ARRAY OF DIMENSION (LDA, N), OVERWRITTEN BY FACTORIZATION
+                         // L - UNIT LOVER TRIANGULAR
+                         // U - UPPER TRIANGULAR
+         integer LDA,    // FIRST DIMENSION OF A AS DECLARED IN THE CALLING (SUB)PROGRAM, UNCHANGED
+         integer IPIV[], // ARRAY OF DIMENSION (M) ON EXIT CONTAINS PIVOT INDICES
+         integer MB
+  ) {
+    // COMPUTES LU FACTORIZATION OF M-BY-N MATRIX;
+    // PARTIAL PIVOTING COLUMN INTERCHANGES
+    // INFO - ERROR INDICATOR, 0 - NORMAL RETURN, POSITIVE VALUE (K) INDICATE
+    // THAT U(K, K) = 0.E0 EXACTLY, ALWAYS CHECK AFTER CALL
+    if ( M == 0 || N == 0 ) return 0 ;
+    REAL * Ajj = A ;
+    for ( integer j = 0 ; j < M ; j += MB, Ajj += MB*(LDA+1) ) {
+      integer JB = std::min(M-j, MB) ;
+      // FACTORIZE DIAGONAL AND SUBDIAGONAL BLOCKS AND TEST FOR SINGULARITY
+      integer INFO = gtx( JB, N-j, Ajj, LDA, IPIV+j ) ;
+      if ( INFO != 0 ) return INFO + j ;
+      // APPLY INTERCHANGES TO PREVIOUS BLOCKS
+      integer jjB = j + JB ;
+      REAL * Aj = A+jjB ;
+      for ( integer i = j ; i < jjB ; ++i ) {
+        integer IP = (IPIV[i] += j) ; ;
+        if ( i < IP ) {
+          swap( j,     A  + i*LDA, 1, A  + IP*LDA, 1 ) ;
+          swap( M-jjB, Aj + i*LDA, 1, Aj + IP*LDA, 1 ) ;
+        }
+      }
+      // COMPUTE SUPERDIAGONAL BLOCK OF U
+      trsm( SideMultiply::RIGHT,
+            ULselect::UPPER,
+            Transposition::NO_TRANSPOSE,
+            DiagonalType::NON_UNIT,
+            M-jjB, JB, 1, Ajj, LDA, Ajj+JB, LDA ) ;
+      // UPDATE DIAGONAL AND SUBDIAGONAL BLOCKS
+      gemm( Transposition::NO_TRANSPOSE,
+            Transposition::NO_TRANSPOSE,
+            M-jjB, N-jjB, JB,
+            -1.0, Ajj+JB,         LDA,
+                  Ajj+JB*LDA,     LDA,
+            1.0,  Ajj+JB*(LDA+1), LDA ) ;
+    }
+    return 0 ;
+  }
+
+  template <typename REAL>
+  integer
+  gty( integer M,
+       integer N,
+       REAL    A[],
+       integer LDA,
+       integer IPIV[] ) {
+    // LU DECOMPOSITION, ROW INTERCHANGES
+    REAL * Ajj = A ;
+    for ( int j = 0 ; j < N ; Ajj += LDA+1 ) {
+      integer MX = iamax( M-j, Ajj, 1 ) ;
+      IPIV[j] = MX + j ; // C-based
+      if ( j < IPIV[j] ) swap( N, A + j, LDA, A + IPIV[j], LDA ) ;
+      if ( std::abs(Ajj[0]) == 0 ) return j ;
+      REAL ROWM = 1/Ajj[0] ;
+      ++j ;
+      scal(M-j, ROWM, Ajj+1, 1) ;
+      ger(M-j, N-j, -1.0, Ajj+1, 1, Ajj+LDA, LDA, Ajj+LDA+1, LDA ) ;
+    }
+    return 0 ;
+  }
+
+  template <typename REAL>
+  integer
+  getry( integer M,      // NUMBER OF ROWS IN A, UNCHANGED
+         integer N,      // NUMBER OF COLUMNS IN A, UNCHANGED
+         REAL    A[],    // A - ARRAY OF DIMENSION (LDA, N), OVERWRITTEN BY FACTORIZATION
+                         // L - UNIT LOVER TRIANGULAR
+                         // U - UPPER TRIANGULAR
+         integer LDA,    // FIRST DIMENSION OF A AS DECLARED IN THE CALLING (SUB)PROGRAM, UNCHANGED
+         integer IPIV[], // ARRAY OF DIMENSION (M) ON EXIT CONTAINS PIVOT INDICES
+         integer NB
+  ) {
+    // COMPUTES LU FACTORIZATION OF M-BY-N MATRIX;
+    // PARTIAL PIVOTING ROW INTERCHANGES
+    // INFO - ERROR INDICATOR, 0 - NORMAL RETURN, POSITIVE VALUE (K) INDICATE
+    // THAT U(K, K) = 0.E0 EXACTLY, ALWAYS CHECK AFTER CALL
+    if ( M == 0 || N == 0 ) return 0 ;
+    REAL * Ajj = A ;
+    for ( integer j = 0 ; j < N ; j += NB, Ajj += NB*(LDA+1) ) {
+      integer JB = std::min(N-j, NB) ;
+      // FACTORIZE DIAGONAL AND SUBDIAGONAL BLOCKS AND TEST FOR SINGULARITY
+      integer INFO = gty( M-j, JB, Ajj, LDA, IPIV+j ) ;
+      // APPLY INTERCHANGES TO PREVIOUS BLOCKS
+      integer jjB = j+JB ;
+      REAL * Aj = A+jjB*LDA ;
+      for ( integer i = j ; i < jjB ; ++i ) {
+        integer IP = (IPIV[i] += j) ;
+        if ( i < IP ) {
+          swap( j,     A + i,  LDA, A + IP,  LDA ) ;
+          swap( N-jjB, Aj + i, LDA, Aj + IP, LDA ) ;
+        }
+      }
+      if ( INFO != 0 ) return INFO + j ;
+      // COMPUTE SUPERDIAGONAL BLOCK OF U
+      trsm( SideMultiply::LEFT,
+            ULselect::LOWER,
+            Transposition::NO_TRANSPOSE,
+            DiagonalType::UNIT,
+            JB, N-jjB, 1.0, Ajj, LDA, Ajj+JB*LDA, LDA ) ;
+      // UPDATE DIAGONAL AND SUBDIAGONAL BLOCKS
+      gemm( Transposition::NO_TRANSPOSE,
+            Transposition::NO_TRANSPOSE,
+            M-jjB, N-jjB, JB,
+            -1.0, Ajj+JB,         LDA,
+                  Ajj+JB*LDA,     LDA,
+            1.0,  Ajj+JB*(LDA+1), LDA ) ;
+    }
+    return 0 ;
+  }
+  
+  template integer gtx( integer M, integer N, float A[],  integer LDA, integer IPIV[] ) ;
+  template integer gtx( integer M, integer N, double A[], integer LDA, integer IPIV[] ) ;
+  template integer gty( integer M, integer N, float A[],  integer LDA, integer IPIV[] ) ;
+  template integer gty( integer M, integer N, double A[], integer LDA, integer IPIV[] ) ;
+
+  template integer getrx( integer M, integer N, float A[],  integer LDA, integer IPIV[], integer MB ) ;
+  template integer getrx( integer M, integer N, double A[], integer LDA, integer IPIV[], integer MB  ) ;
+  template integer getry( integer M, integer N, float A[],  integer LDA, integer IPIV[], integer MB  ) ;
+  template integer getry( integer M, integer N, double A[], integer LDA, integer IPIV[], integer MB  ) ;
+
+  // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
   template <typename T>
   integer
   equilibrate( integer M,

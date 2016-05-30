@@ -9590,6 +9590,48 @@ namespace alglin {
   { LAPACKNAME(dlaic1)( &JOB, &J, (doublereal*)X, &SEST, (doublereal*)W, &GAMMA, &SESTPR, &S, &C ) ; }
   #endif
 
+  /*
+  //              _                 __
+  //    __ _  ___| |_ _ ____  __   / /   _
+  //   / _` |/ _ \ __| '__\ \/ /  / / | | |
+  //  | (_| |  __/ |_| |   >  <  / /| |_| |
+  //   \__, |\___|\__|_|  /_/\_\/_/  \__, |
+  //   |___/                         |___/
+  */
+  template <typename REAL>
+  integer
+  getrx( integer M,
+         integer N,
+         REAL    A[],
+         integer LDA,
+         integer IPIV[],
+         integer NB ) ;
+
+  template <typename REAL>
+  integer
+  getry( integer M,
+         integer N,
+         REAL    A[],
+         integer LDA,
+         integer IPIV[],
+         integer NB ) ;
+
+  template <typename REAL>
+  integer
+  gtx( integer M,
+       integer N,
+       REAL    A[],
+       integer LDA,
+       integer IPIV[] ) ;
+
+  template <typename REAL>
+  integer
+  gty( integer M,
+       integer N,
+       REAL    A[],
+       integer LDA,
+       integer IPIV[] ) ;
+
   // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
   template <typename T>

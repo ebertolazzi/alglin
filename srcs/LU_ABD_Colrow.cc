@@ -18,10 +18,10 @@
 \*--------------------------------------------------------------------------*/
 
 ///
-/// file: ColrowLU.cc
+/// file: LU_ABD_Colrow.cc
 ///
 
-#include "ColrowLU.hh"
+#include "LU_ABD_Colrow.hh"
 #include <iomanip>
 #include <vector>
 #include <limits>
@@ -55,6 +55,7 @@ namespace alglin {
   ColrowLU<t_Value>::ColrowLU( bool _use_arceco )
   : baseValue("ColrowLU reals")
   , baseIndex("ColrowLU ints")
+  , NB(25)
   , last_block(ColrowLU_QR0)
   //, last_block(ColrowLU_QR1)
   //, last_block(ColrowLU_QR2)
@@ -70,85 +71,6 @@ namespace alglin {
     baseIndex.free() ;
   }
   
-  // ---------------------------------------------------------------------------
-
-  //! compute y += alpha*A*x
-  template <typename t_Value>
-  void
-  ColrowLU<t_Value>::mv( integer           _row0,
-                         integer           _col0,
-                         valueConstPointer _block0,
-                        
-                         integer           _numBlock,
-                         integer           _dimBlock,
-                         valueConstPointer _blocks,
-                        
-                         integer           _rowN,
-                         integer           _colN,
-                         valueConstPointer _blockN,
-                        
-                         valueType         alpha,
-                         valueConstPointer x,
-                         integer           incx,
-                        
-                         valueType         beta,
-                         valuePointer      y,
-                         integer           incy) {
-
-    // first block y = alpha * _block0 * x + beta * y
-    gemv( Transposition::NO_TRANSPOSE, _row0, _col0,
-          alpha, _block0, _row0,
-          x, incx,
-          beta, y, incy ) ;
-
-    // internal blocks block
-    valueConstPointer xx   = x+(_col0-_dimBlock)*incx ;
-    valuePointer      yy   = y+_row0*incy ;
-    valueConstPointer blks = _blocks ;
-    for ( integer i = 0 ; i < _numBlock ; ++i ) {
-      gemv( Transposition::NO_TRANSPOSE, _dimBlock, 2*_dimBlock,
-            alpha, blks, _dimBlock,
-            xx, incx,
-            beta, yy, incy ) ;
-      xx   += _dimBlock*incx ;
-      yy   += _dimBlock*incy ;
-      blks += 2*_dimBlock*_dimBlock ;
-    }
-
-    // last block
-    gemv( Transposition::NO_TRANSPOSE, _rowN, _colN,
-          alpha, _blockN, _rowN,
-          xx, incx,
-          beta, yy, incy ) ;
-  }
-  
-  // ---------------------------------------------------------------------------
-
-  template <typename t_Value>
-  void
-  ColrowLU<t_Value>::residue(  integer           _row0,
-                               integer           _col0,
-                               valueConstPointer _block0,
-                               integer           _numBlock,
-                               integer           _dimBlock,
-                               valueConstPointer _blocks,
-                               integer           _rowN,
-                               integer           _colN,
-                               valueConstPointer _blockN,
-                               valueConstPointer b,
-                               integer           incb,
-                               valueConstPointer x,
-                               integer           incx,
-                               valuePointer      res,
-                               integer           incr ) {
-
-    copy( _numBlock*_dimBlock+_row0+_rowN, b, incb, res, incr ) ;
-    mv( _row0, _col0, _block0,
-        _numBlock, _dimBlock, _blocks,
-        _rowN, _colN, _blockN,
-        -1.0, x, incx, 1.0, res, incr ) ;
-  }
-
   /*
   // ---------------------------------------------------------------------------
   //             col0
@@ -346,14 +268,45 @@ namespace alglin {
                                     integer ncR,
                                     t_Value * A, integer ldA,
                                     integer swapR[] ) {
+#if 1
+    integer ierr ;
+    if ( 2*NB < nrA ) ierr = getry( nrA, ncA, A, ldA, swapR, NB ) ;
+    else              ierr = gty( nrA, ncA, A, ldA, swapR ) ;
 
+    ALGLIN_ASSERT( ierr == 0,
+                   "ColrowLU::LU_left_right, found ierr: " << ierr ) ;
+    // applico permutazione al blocco
+    t_Value * R = A + ncA * ldA ;
+    t_Value * L = A - ncL * ldA ;
+    for ( integer i = 0 ; i < ncA ; ++i ) {
+      integer ip = swapR[i] ;
+      if ( ip > i ) {
+        swap( ncR, R + i, ldA, R + ip, ldA ) ;
+        swap( ncL, L + i, ldA, L + ip, ldA ) ;
+      }
+    }
+    trsm( SideMultiply::LEFT,
+          ULselect::LOWER,
+          Transposition::NO_TRANSPOSE,
+          DiagonalType::UNIT,
+          ncA, ncR, 1.0,
+          A, ldA,
+          R, ldA ) ;
+    gemm( Transposition::NO_TRANSPOSE,
+          Transposition::NO_TRANSPOSE,
+          nrA-ncA, ncR, ncA,
+          -1.0,  A+ncA, ldA,
+          R, ldA,
+          1.0,  R+ncA, ldA ) ;
+
+#else
     t_Value * Ak  = A ;
     t_Value * Akk = A ;
     t_Value * L   = A - ncL*ldA ;
 
     integer ncc = ncA+ncL+ncR ;
 
-    // LU full pivoting
+    // LU row pivoting
     integer rr = nrA ;
     integer cc = ncA+ncR ;
     for ( integer k = 0 ; k < ncA ; ++k ) {
@@ -385,6 +338,7 @@ namespace alglin {
       Akk += ldA+1 ;
       ger( rr, cc, -1, X, 1, Y, ldA, Akk, ldA ) ;
     }
+  #endif
   }
 
   /*
@@ -409,6 +363,37 @@ namespace alglin {
                                     integer nrB,
                                     t_Value * B, integer ldB,
                                     integer swapC[] ) {
+#if 1
+    integer ierr ;
+    if ( 2*NB < ncA ) ierr = getrx( nrA, ncA, A, ldA, swapC, NB ) ;
+    else              ierr = gtx( nrA, ncA, A, ldA, swapC ) ;
+
+    ALGLIN_ASSERT( ierr == 0,
+                   "ColrowLU::LU_top_bottom, found ierr: " << ierr ) ;
+    // applico permutazione al blocco
+    t_Value * T = A - nrT ;
+    for ( integer i = 0 ; i < nrA ; ++i ) {
+      integer ip = swapC[i] ;
+      if ( ip > i ) {
+        swap( nrT, T + i*ldA, 1, T + ip*ldA, 1 ) ;
+        swap( nrB, B + i*ldB, 1, B + ip*ldB, 1 ) ;
+      }
+    }
+    trsm( SideMultiply::RIGHT,
+          ULselect::UPPER,
+          Transposition::NO_TRANSPOSE,
+          DiagonalType::NON_UNIT,
+          nrB, nrA, 1.0,
+          A, ldA,
+          B, ldB ) ;
+    gemm( Transposition::NO_TRANSPOSE,
+          Transposition::NO_TRANSPOSE,
+          nrB, ncA-nrA, nrA,
+          -1.0, B, ldB,
+          A+nrA*ldA, ldA,
+          1.0,  B+nrA*ldB, ldB ) ;
+
+#else
     t_Value * Ak  = A ;
     t_Value * Akk = A ;
     t_Value * Bk  = B ;
@@ -454,6 +439,7 @@ namespace alglin {
       ger( rr,  cc, -1, X, 1, Y, ldA, Akk, ldA ) ;
       ger( nrB, cc, -1, Z, 1, Y, ldA, Bk,  ldB ) ;
     }
+#endif
   }
 
   // ---------------------------------------------------------------------------
