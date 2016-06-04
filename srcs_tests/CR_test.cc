@@ -23,7 +23,7 @@
 #include "Alglin.hh"
 #include "Alglin_aux.hh"
 #include "TimeMeter.hh"
-#include "LU_BABD_Amodio.hh"
+#include "LU_BABD_CR.hh"
 
 using namespace std ;
 typedef double valueType ;
@@ -42,25 +42,25 @@ main() {
 
   #include "LU_test.hxx"
 
-  alglin::AmodioLU<valueType> LU ;
-
   //alglin::babd_print<valueType>( cout, nblk, n, q, AdAu, H0, HN, Hq ) ;
 
   TimeMeter tm ;
   tm.reset() ;
+  
+  alglin::CyclicReductionLU<valueType,NSIZE> LU ;
 
   tm.start() ;
-  LU.factorize( nblk, n, q, AdAu, H0, HN, Hq ) ;
+  LU.factorize( nblk, q, AdAu, H0, HN, Hq ) ;
   tm.stop() ;
-  cout << "Factorize (Amodio) = " << tm.partialElapsedMilliseconds() << " [ms]\n" ;
+  cout << "Factorize (CyclicReduction) = " << tm.partialElapsedMilliseconds() << " [ms]\n" ;
 
   tm.start() ;
-  //for ( int k = 0 ; k < 10 ; ++k ) {
+  for ( int k = 0 ; k < 10 ; ++k ) {
     std::copy( rhs, rhs+N, x ) ;
     LU.solve( x ) ;
-  //}
+  }
   tm.stop() ;
-  cout << "Solve (Amodio) = " << tm.partialElapsedMilliseconds() << " [ms]\n" ;
+  cout << "Solve (CyclicReduction) = " << tm.partialElapsedMilliseconds()/10 << " [ms]\n" ;
 
   //for ( alglin::integer i = 0 ; i < N ; ++i )
   //  cout << "x[" << i << "] = " << x[i] << '\n' ;

@@ -43,12 +43,12 @@ rand( valueType xmin, valueType xmax ) {
 int
 main() {
 
-  alglin::integer dim      = 100 ;
-  alglin::integer row0     = 40 ;
+  alglin::integer dim      = 100/10 ;
+  alglin::integer row0     = 40/10 ;
   alglin::integer col0     = dim+2 ;
   alglin::integer colN     = dim+10 ;
   alglin::integer rowN     = (dim-row0)+(col0+colN-2*dim) ;
-  alglin::integer numBlock = 5000 ;
+  alglin::integer numBlock = 100 ;
 
   alglin::integer N   = row0 + rowN + numBlock*dim ;
   alglin::integer nnz = row0*col0 + rowN*colN + 2*dim*dim*numBlock + 5*N ;

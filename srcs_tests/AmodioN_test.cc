@@ -23,7 +23,7 @@
 #include "Alglin.hh"
 #include "Alglin_aux.hh"
 #include "TimeMeter.hh"
-#include "LU_BABD_Amodio.hh"
+#include "LU_BABD_AmodioN.hh"
 
 using namespace std ;
 typedef double valueType ;
@@ -42,7 +42,7 @@ main() {
 
   #include "LU_test.hxx"
 
-  alglin::AmodioLU<valueType> LU ;
+  alglin::AmodioN<valueType,NSIZE> LU(2) ;
 
   //alglin::babd_print<valueType>( cout, nblk, n, q, AdAu, H0, HN, Hq ) ;
 
@@ -50,7 +50,7 @@ main() {
   tm.reset() ;
 
   tm.start() ;
-  LU.factorize( nblk, n, q, AdAu, H0, HN, Hq ) ;
+  LU.factorize( nblk, q, AdAu, H0, HN, Hq ) ;
   tm.stop() ;
   cout << "Factorize (Amodio) = " << tm.partialElapsedMilliseconds() << " [ms]\n" ;
 

@@ -17,22 +17,25 @@
  |                                                                          |
 \*--------------------------------------------------------------------------*/
 
-#ifndef LU_BABD_AMODIO_HH
-#define LU_BABD_AMODIO_HH
+#ifndef LU_BABD_CR_HH
+#define LU_BABD_CR_HH
 
 #include "Alglin.hh"
 #include <vector>
 
+// Eigen3
+#include <Eigen/Dense>
+
 #ifdef ALGLIN_USE_CXX11
-  //#define LU_BABD_AMODIO_USE_THREAD
+  //#define LU_BABD_CR_USE_THREAD
 #endif
 
-#ifdef LU_BABD_AMODIO_USE_THREAD
+#ifdef LU_BABD_CR_USE_THREAD
   #include <thread>
   #include <mutex>
   #include <condition_variable>
   #include <atomic>
-  #define LU_BABD_AMODIO_MAX_THREAD 256
+  #define LU_BABD_CR_MAX_THREAD 256
 #endif
 
 namespace alglin {
@@ -63,31 +66,28 @@ namespace alglin {
    *           enrico.bertolazzi@ing.unitn.it
    *
    */
-  template <typename t_Value>
-  class AmodioLU {
+  template <typename t_Value, integer N>
+  class CyclicReductionLU {
   private:
-  
+
     typedef t_Value         valueType ;
     typedef t_Value*        valuePointer ;
     typedef t_Value const * valueConstPointer ;
 
-    Malloc<valueType> baseValue ;
-    Malloc<integer>   baseInteger ;
-    std::vector<std::vector<bool> > LU_rows_blk ;
+    typedef Eigen::Matrix<integer,N,1> ivec_t ;
+    typedef Eigen::Matrix<t_Value,N,1> vec_t ;
+    typedef Eigen::Matrix<t_Value,N,N> mat_t ;
+    typedef Eigen::Matrix<t_Value,Eigen::Dynamic,1>              dvec_t ;
+    typedef Eigen::Matrix<t_Value,Eigen::Dynamic,Eigen::Dynamic> dmat_t ;
+    //typedef Eigen::Block<mat_t>                                  mblock_t ;
+    //typedef Eigen::Block<vec_t>                                  vblock_t ;
+    //typedef Eigen::Block<ivec_t>                                 ivblock_t ;
 
-    AmodioLU(AmodioLU const &) ;
-    AmodioLU const & operator = (AmodioLU const &) ;
+    CyclicReductionLU(CyclicReductionLU const &) ;
+    CyclicReductionLU const & operator = (CyclicReductionLU const &) ;
 
     integer nblock ; //!< total number of blocks
-    integer n      ; //!< size of square blocks
-    integer m      ; //!< number final rows (m>=n)
-    integer nnz    ; //!< total number of non zeros
-
-    // some derived constanst
-    integer nx2 ;
-    integer nxn ;
-    integer nxnx2 ;
-    integer nm ;
+    integer q      ; //!< number final extra rows (q>=0)
 
     /*
     //
@@ -123,20 +123,21 @@ namespace alglin {
 
     ///////////////////////////////////////////////////////
 
-    valuePointer G_blk ;
-    valuePointer AdAu_blk ;
-    valuePointer LU_blk ; // last LU and working space
-    valuePointer tmpV ;
-    valuePointer tmpM ;
+    std::vector<std::vector<bool> > LU_rows_blk ;
+    std::vector<mat_t>              AdAuG_blk ;
+    std::vector<ivec_t>             ipiv_blk ;
+    mat_t EE, FF ;
+    Eigen::FullPivLU<dmat_t>        LU_last ;
 
-    integer * ipiv_blk ;
-    integer * LU_ipiv_blk ;
-    integer   NB ; // blocking factor
+    mutable dvec_t tmpV ;
+    mutable dvec_t tmpV1 ;
 
-    #ifdef LU_BABD_AMODIO_USE_THREAD
+    integer NB ; // blocking factor
+
+    #ifdef LU_BABD_CR_USE_THREAD
     mutable mutex              mtx0, mtx1, mtx2 ;
     mutable condition_variable cond0 ;
-    mutable std::thread        threads[LU_BABD_AMODIO_MAX_THREAD] ;
+    mutable std::thread        threads[LU_BABD_CR_MAX_THREAD] ;
     mutable integer            to_be_done ;
     integer const              numThread ;
     #endif
@@ -145,14 +146,11 @@ namespace alglin {
     mutable integer jump_block ;
 
     integer
-    LU_2_block( integer      n,
-                valuePointer A,
-                valuePointer B,
-                integer      ipiv[] ) const ;
+    LU_2_block( mat_t & A, mat_t & B, ivec_t & ipiv ) const ;
 
-    #ifdef LU_BABD_AMODIO_USE_THREAD
-    void forward_reduce_mt( integer num_thread, valuePointer y ) const ;
-    void back_substitute_mt( integer num_thread, valuePointer y ) const ;
+    #ifdef LU_BABD_CR_USE_THREAD
+    void forward_reduce_mt( integer num_thread, vblock_t & y ) const ;
+    void back_substitute_mt( integer num_thread, vblock_t & y ) const ;
     void reduction_mt( integer num_thread, integer nth ) ;
     #endif
 
@@ -162,13 +160,13 @@ namespace alglin {
 
   public:
 
-    #ifdef LU_BABD_AMODIO_USE_THREAD
-    explicit AmodioLU( integer nth = std::thread::hardware_concurrency() ) ;
+    #ifdef LU_BABD_CR_USE_THREAD
+    explicit CyclicReductionLU( integer nth = std::thread::hardware_concurrency() ) ;
     #else
-    explicit AmodioLU() ;
+    explicit CyclicReductionLU() ;
     #endif
 
-    ~AmodioLU() ;
+    ~CyclicReductionLU() ;
 
     //! load matrix in the class
     /*!
@@ -211,7 +209,6 @@ namespace alglin {
     */
     void
     factorize( integer           nblk,
-               integer           n,
                integer           q,
                valueConstPointer AdAu,
                valueConstPointer H0,
