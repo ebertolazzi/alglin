@@ -44,7 +44,12 @@ main() {
   alglin::integer nblk = 5000 ;
   alglin::integer q    = 40 ;
   alglin::integer nq   = n+q ;
-
+/*
+  alglin::integer n    = 2 ;
+  alglin::integer nblk = 11 ;
+  alglin::integer q    = 0 ;
+  alglin::integer nq   = n+q ;
+*/
   alglin::integer N   = nblk*n + nq ;
   alglin::integer nnz = nblk*(2*n*n) + nq*(2*n+q) + 5*N ;
 
@@ -63,6 +68,8 @@ main() {
   valueType * xref1 = baseValue(N) ;
   valueType * rhs   = baseValue(N) ;
   valueType * resid = baseValue(N) ;
+  
+  #if 1
 
   for ( int i = 0 ; i < nq ; ++i ) {
     for ( int j = 0 ; j < n ; ++j ) {
@@ -76,7 +83,7 @@ main() {
       Hq[i+j*nq] = rand(-1,0) ;
 
   // forzo diagonale dominanza
-  valueType diag = n ;
+  valueType diag = 2*n ;
   for ( int k = 0 ; k < nblk ; ++k ) {
     valueType * AdAu_k = AdAu + 2*k*n*n ;
     for ( int i = 0 ; i < n ; ++i )
@@ -88,6 +95,39 @@ main() {
 
   for ( int j = 0 ; j < n ; ++j ) HN[j*(nq+1)]   += diag ;
   for ( int j = 0 ; j < q ; ++j ) Hq[n+j*(nq+1)] += diag ;
+  
+  #else
+  
+  for ( int i = 0 ; i < nq ; ++i ) {
+    for ( int j = 0 ; j < n ; ++j ) {
+      H0[i+j*nq] = rand(-1,0) ;
+      HN[i+j*nq] = rand(-1,0) ;
+    }
+  }
+
+  for ( int i = 0 ; i < nq ; ++i )
+    for ( int j = 0 ; j < q ; ++j )
+      Hq[i+j*nq] = rand(-1,0) ;
+
+  // forzo diagonale dominanza
+  valueType diag = 0.1*n ;
+  for ( int k = 0 ; k < nblk ; ++k ) {
+    valueType * AdAu_k = AdAu + 2*k*n*n ;
+    std::fill( AdAu_k, AdAu_k+2*n*n, 0 ) ;
+    for ( int i = 0 ; i < n ; ++i ) {
+      for ( int j = 0 ; j < n ; ++j )
+        AdAu_k[i+j*n] = rand(-1,0) ;
+      for ( int j = n ; j < 2*n ; ++j )
+        AdAu_k[i+j*n] = rand(-1,0) ;
+    }
+    for ( int i = 0 ; i < n ; ++i )
+      AdAu_k[i*(n+1)] += diag ;
+  }
+
+  for ( int j = 0 ; j < n ; ++j ) HN[j*(nq+1)]   += diag ;
+  for ( int j = 0 ; j < q ; ++j ) Hq[n+j*(nq+1)] += diag ;
+
+  #endif
 
   alglin::AmodioLU<valueType> LU ;
 
@@ -103,6 +143,8 @@ main() {
 
   cout << "Check residue |r|_inf = " << alglin::absmax( N, resid, 1 ) << '\n' ;
 
+  //alglin::babd_print<valueType>( cout, nblk, n, q, AdAu, H0, HN, Hq ) ;
+
   TimeMeter tm ;
   tm.reset() ;
 
@@ -117,6 +159,9 @@ main() {
   tm.stop() ;
   cout << "Solve (Amodio) = " << tm.partialElapsedMilliseconds() << " [ms]\n" ;
 
+  //for ( alglin::integer i = 0 ; i < N ; ++i )
+  //  cout << "x[" << i << "] = " << x[i] << '\n' ;
+
   alglin::copy( N, xref, 1, xref1, 1 ) ;
   alglin::axpy( N, -1.0, x, 1, xref1, 1 ) ;
   cout << "Check |err|_inf = " << alglin::absmax( N, xref1, 1 ) << '\n' ;
@@ -129,6 +174,7 @@ main() {
   LU.solve( resid ) ;
   alglin::axpy( N, +1.0, resid, 1, x, 1 ) ;
 
+/*
   alglin::copy( N, xref, 1, xref1, 1 ) ;
   alglin::axpy( N, -1.0, x, 1, xref1, 1 ) ;
   cout << "Check |err|_inf = " << alglin::absmax( N, xref1, 1 ) << '\n' ;
@@ -136,7 +182,7 @@ main() {
   alglin::babd_residue<valueType>( nblk, n, q, AdAu, H0, HN, Hq,
                                    rhs, 1, x, 1, resid, 1 ) ;
   cout << "Check |r|_inf = " << alglin::absmax( N, resid, 1 ) << '\n' ;
-
+*/
 
   cout << "All done!\n" ;
 

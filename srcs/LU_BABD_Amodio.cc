@@ -22,10 +22,168 @@
 #include <iostream>
 using namespace std ;
 
+/*\
+ |  reduces a 2x3 block matrix / Ad  Au     \ to a 1x2 block matrix ( Ad' Au' )
+ |                             \     Bd  Bu /
+ |  
+ |  by using the following algorithm:
+ |
+ |    P * / Au \ = / Au' \  = / M \ (U) = / G \ (L*U)
+ |        \ Bd /   \ Bd' /    \ L /       \ I /
+ |
+ |  where G = M * L^(-1).
+ |
+ |    / I -G \ * P * / Au \ = / I -G \ / G \ (L*U) = /  0  \
+ |    \    I /       \ Bd /   \    I / \ I /         \ L*U /
+ |
+ |
+ |    P * / Ad Au    \ = / Ad'    0   Bu'  \
+ |        \    Bd Bu /   \ Ad''  L*U  Bu'' /
+ |
+ |    / I -G \ * P * / Ad Au    \ = / E*    0   F*   \
+ |    \    I /       \    Bd Bu /   \ Ad'' L*U  Bu'' /
+ |
+ |  where  E* = Ad' - G*Ad'',  F* = Bu' - G*Bu''
+ |
+ | ------------------------------------------------------------
+ |
+ |  Esempio
+ |  +-----+-----+
+ |  |  Ad | Au  |
+ |  +-----+-----+-----+
+ |        | Ad  | Au  |
+ |        +-----+-----+-----+
+ |              | Ad  | Au  |
+ |              +-----+-----+-----+
+ |                    | Ad  | Au  |
+ |                    +-----+-----+-----+
+ |                          | Ad  | Au  |
+ |                          +-----+-----+-----+
+ |                                | Ad  | Au  |
+ |  +----+                        +-----+-----+--+
+ |  | H0 |                              | HN  |  |
+ |  |    |                              |     |  |
+ |  +----+                              +-----+--+
+ |
+ |  Applicazione riduzione
+ |  ----------------------
+ |
+ |  Au'' = selezione righe di Au --> / Au'' e Ad'' possono essere compattate
+ |  Ad'' = selezione righe di Ad --> \ nella stessa matrice
+ |
+ |  P * / Ad  0 \ = / Ad'   Bu'  \ ===> P * / Ad \ = / Adu'  \
+ |      \ 0  Bu /   \ Ad''  Bu'' /          \ Bu /   \ Adu'' /
+ |
+ |  where  E* = Ad' - G*Ad'',  F* = Bu' - G*Bu''
+ |
+ |  La matrice G è spachettata nel blocco
+ |
+ |  +-----+-----+ - - +
+ |  | E*  |  0  | F*   <-- messo al posto dell "0"
+ |  +-----+-----+-----+
+ |    Ad' | L\U | Au' | <-- memorizzazione compatta
+ |  + - - +-----+-----+-----+ - - +
+ |              | E*  |  0  | F*
+ |              +-----+-----+-----+
+ |                Ad' | L\U | Au' |
+ |              + - - +-----+-----+-----+ - - +
+ |                          | E*  |  0  | F*
+ |                          +-----+-----+-----+
+ |                            Ad' | L\U | Au' |
+ |  +----+                  + - - +-----+-----+--+
+ |  | H0 |                              | HN  |  |
+ |  |    |                              |     |  |
+ |  +----+                              +-----+--+
+ |
+ |  Sistema ridotto e memorizzazione
+ |  +-----+-----+
+ |  | E*  | F* |
+ |  +-----+-----+-----+
+ |        | E*  | F*  |
+ |        +-----+-----+-----+
+ |              | E*  | F*  |
+ |  +----+      +-----+-----+--+
+ |  | H0 |            | HN  |  |
+ |  |    |            |     |  |
+ |  +----+            +-----+--+
+ |
+ |
+ |  +-----+-----+
+ |  | E*  | F*  |
+ |  +-----+-----+-----+                            +===+
+ |        | L\U | Adu'|                            | V | <-- memorizzazione compatta e fill in
+ |        +-----+-----+-----+                      +===+
+ |              | E*  | F*  |
+ |              +-----+-----+-----+                +===+
+ |                    | L\U | Adu'|                | V | <-- memorizzazione compatta e fill in
+ |                    +-----+-----+-----+          +===+
+ |                          | E*  | F*  |
+ |                          +-----+-----+-----+    +===+
+ |                                | L\U | Adu'|    | V | <-- memorizzazione compatta e fill in
+ |  +----+                        +-----+-----+--+ +===+
+ |  | H0 |                              | HN  |  |
+ |  |    |                              |     |  |
+ |  +----+                              +-----+--+
+ |
+\*/
 
 namespace alglin {
 
   using namespace std ;
+  
+  /*
+  //
+  // +--------+
+  // |        |
+  // |   A    |
+  // |        |
+  // +--------+
+  // |        |
+  // |   B    |
+  // |        |
+  // +--------+
+  //
+  */
+  template <typename t_Value>
+  integer
+  AmodioLU<t_Value>::LU_2_block( integer      n,
+                                 valuePointer A,
+                                 valuePointer B,
+                                 integer      ipiv[] ) const {
+    // LU DECOMPOSITION, ROW INTERCHANGES
+    valuePointer Ajj = A ;
+    valuePointer Bj  = B ;
+    for ( integer j = 0 ; j < n ; Ajj += n+1, Bj += n  ) {
+      integer MX1 = iamax( n-j, Ajj, 1 ) ;
+      integer MX2 = iamax( n,   Bj,  1 ) ;
+      if ( std::abs(Ajj[MX1]) < std::abs(Bj[MX2]) ) {
+        ipiv[j] = MX2 + n ; // C-based
+        swap( n, A + j, n, B + MX2, n ) ;
+      } else {
+        ipiv[j] = MX1 + j ; // C-based
+        if ( MX1 > 0 ) swap( n, A + j, n, A + ipiv[j], n ) ;
+      }
+      if ( std::abs(Ajj[0]) == 0 ) return j+1 ;
+      valueType ROWM = 1/Ajj[0] ;
+      ++j ;
+      scal(n-j, ROWM, Ajj+1, 1) ;
+      scal(n,   ROWM, Bj,    1) ;
+      ger(n-j, n-j, -1.0, Ajj+1, 1, Ajj+n, n, Ajj+n+1, n ) ;
+      ger(n,   n-j, -1.0, Bj,    1, Ajj+n, n, Bj+n,    n ) ;
+    }
+    /*
+    // compute G = B*L^(-1)
+    //
+    //  / L \ (U) = / I          \ (L*U) =  / I \ (L*U)
+    //  \ M /       \ M * L^(-1) /          \ G /
+    */
+    trsm( SideMultiply::RIGHT,
+          ULselect::LOWER,
+          Transposition::NO_TRANSPOSE,
+          DiagonalType::UNIT,
+          n, n, 1.0, A, n, B, n ) ;
+    return 0 ;
+  }
 
   /*  
   //    __            _             _         
@@ -48,27 +206,34 @@ namespace alglin {
     this -> n      = n ;
     this -> m      = n+q ;
 
-    integer nnzF   = nblock*n*n ;
-    integer nnzSR  = 2*nnzF ;
-    integer nnzD   = (n+m)*(n+m) ;
-    integer nnzTMP = 2*n*n ;
+    integer nx2    = 2*n ;
+    integer nxn    = n*n ;
+    integer nxnx2  = nxn*2 ;
+    integer nm     = n+m ;
 
-    integer nv = nnzF + nnzSR + nnzD + nnzTMP ;
-    integer ni = 2*n*nblock + 2*n+m ;
+    integer nnzG    = (nblock-1)*nxn ;
+    integer nnzADAU = nblock*nxnx2 ;
+    integer nnzLU   = nm*nm ;
+
+    integer nv = nnzG + nnzADAU + nnzLU + nm ;
+    integer ni = nblock*n + nm ;
 
     baseValue   . allocate(nv) ;
     baseInteger . allocate(ni) ;
 
-    SR_blk    = baseValue( nnzSR  ) ;
-    D_blk     = baseValue( nnzD   ) ;
-    F_blk     = baseValue( nnzF   ) ;
-    TMP_blk   = baseValue( nnzTMP ) ;
+    AdAu_blk = baseValue( nnzADAU ) ;
+    G_blk    = baseValue( nnzG ) - nxn ; // 1 based
+    LU_blk   = baseValue( nnzLU ) ;
+    tmpV     = baseValue( nm ) ;
 
-    perm_blk  = baseInteger( 2*n*nblock ) ;
-    ipiv_blk  = baseInteger( n+m ) ;
-    ipiv_work = baseInteger( n ) ;
+    ipiv_blk    = baseInteger( nblock*n ) ;
+    LU_ipiv_blk = baseInteger( nm ) ;
 
-    alglin::copy( nnzSR, AdAu, 1, SR_blk, 1 ) ;
+    LU_rows_blk.resize( nblock ) ;
+    for ( integer i = 0 ; i < nblock ; ++i )
+      LU_rows_blk[i].resize(nx2) ;
+
+    alglin::copy( nnzADAU, AdAu, 1, AdAu_blk, 1 ) ;
 
     /*\
      |  Based on the algorithm 
@@ -76,157 +241,150 @@ namespace alglin {
      |  Algorithm 859: BABDCR: a Fortran 90 package for the Solution of Bordered ABD Linear Systems
      |  ACM Transactions on Mathematical Software, 32, 4, 597—608 (2006)
     \*/
-    
-    // some constanst
-    integer const nxn = n*n ;
-    integer const nx2 = n*2 ;
 
-    // initialize indices
-    valuePointer F    = F_blk ;
-    integer *    perm = perm_blk ;
-    
+    // 0  1  2  3  4  5  6
+    // 0  -  2  -  4  -  6* unchanged
+    // 0  -  -  -  4  -  6* unchanged
+    // 0  -  -  -  -  -  6* special
+    // 0  -  -  -  -  -  -
+
     // 0  1  2  3  4  5  6  7  8  9 10 11 12
-    // 0  *  2  *  4  *  6  *  8  * 10  * 12
-    // 0  -  *  -  4  -  *  -  8  -  *  - 12
-    // 0  -  -  -  *  -  -  -  8  -  -  - 12
-    // 0  -  -  -  -  -  -  -  *  -  -  - 12    
+    // 0  -  2  -  4  -  6  -  8  - 10  - 12* unchanged
+    // 0  -  -  -  4  -  -  -  8  -  -  - 12* unchanged
+    // 0  -  -  -  -  -  -  -  8  -  -  - 12* unchanged
+    // 0  -  -  -  -  -  -  -  -  -  -  - 12* special
+    // 0  -  -  -  -  -  -  -  -  -  -  -
 
-    // !!!!!!!!!!!!!!!!!!!!!!!!!
-    // !!!! reduction phase !!!!
-    // !!!!!!!!!!!!!!!!!!!!!!!!!
-    for ( integer jump = 1 ; jump < nblock ; jump *= 2 ) {
+    // 0  1  2  3  4  5  6  7  8  9 10 11 12 13
+    // 0  -  2  -  4  -  6  -  8  - 10  - 12  -
+    // 0  -  -  -  4  -  -  -  8  -  -  - 12  -
+    // 0  -  -  -  -  -  -  -  8  -  -  - 12  -
+    // 0  -  -  -  -  -  -  -  -  -  -  - 12  -
+    // 0  -  -  -  -  -  -  -  -  -  -  -  -  -
 
-      for ( integer k = 1 ; k*jump < nblock ; k += 2 ) {
-      
-        integer      jC = k*jump ;
-        integer      jL = jC-jump ;
-        integer      jR = min(jC + jump,nblock) ;
-        valuePointer S  = SR_blk +  2*jL*nxn ;
-        valuePointer RS = SR_blk + (2*jC-1)*nxn ;
-        valuePointer R  = SR_blk + (2*jR-1)*nxn ;
+    // 0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15
+    // 0  -  2  -  4  -  6  -  8  - 10  - 12  - 14  -
+    // 0  -  -  -  4  -  -  -  8  -  -  - 12  -  -  -
+    // 0  -  -  -  -  -  -  -  8  -  -  -  -  -  -  -
+    // 0  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
 
-        // reshape ( Rb  Sb ) as ( Rb ) and save in ( , ) columns by columns
-        //                       ( Sb )
-        copy( 2*nxn, RS, 1, TMP_blk, 1 ) ;
-        gecopy( n, n, TMP_blk,     n, RS,   nx2 ) ;
-        gecopy( n, n, TMP_blk+nxn, n, RS+n, nx2 ) ;
+    /*\
+     | !!!!!!!!!!!!!!!!!!!!!!!!!
+     | !!!! reduction phase !!!!
+     | !!!!!!!!!!!!!!!!!!!!!!!!!
+    \*/
+    integer jump = 1 ;
+    for ( ; jump < nblock ; jump *= 2 ) {
+      integer k  = 0 ;
+      integer k1 = jump ;
+      while ( k1 < nblock ) {
+
+        valuePointer BLK0 = AdAu_blk + k  * nxnx2 ;
+        valuePointer BLK1 = AdAu_blk + k1 * nxnx2 ;
+        valuePointer G    = G_blk    + k1 * nxn ;
+        integer *    ipiv = ipiv_blk + k1 * n ;
+        std::vector<bool> & LU_rows = LU_rows_blk[k1] ;
+
+        valuePointer E   = BLK0 ;       // <-- Ad'' - G*Ad'
+        valuePointer F   = BLK0 + nxn ; // <-- Bu'' - G*Bu'
+        valuePointer LU  = BLK1 ;
+        valuePointer Adu = BLK1 + nxn ;
 
         /*\
-         |  reduces a 2x3 block matrix / Sa  Rb     \  to a 1x2 block matrix ( Sa' Rc' )
-         |                             \     Sb  Rc /
-         |  
-         |  by using the following algorithm:
-         |
-         |    P * / Rb \ = / Rb' \  = / L          \ (U) = / I              \ (L*U) = / I \ (L*U)
-         |        \ Sb /   \ Sb' /    \ Sb' U^(-1) /       \ Sb' (L*U)^(-1) /         \ G /
-         |
-         |  where  and  G = Sb'*U^(-1)*L^(-1).
-         |
-         |    / -G  I \ * P * / Rb \ = / -G  I \ / I \ (L*U) = /  0  \
-         |    \  I  0 /       \ Sb /   \  I  0 / \ G /         \ L*U /
-         |
-         | ------------------------------------------------------------
-         |
-         |    / -G  I \ * P * / Sa   0  \ = / -G  I \ / Sa'  Rc'  \ = / Sa''' Rc''' \ 
-         |    \  I  0 /       \ 0    Rc /   \  I  0 / \ Sa'' Rc'' /   \ Sa'   Rc'   /
-         |
-         |  where  Sa''' = Sa'' - G*Sa', Rc''' = Rc'' - G*Rc' and thus
-         |
-         |    / -G  I \ * P * / Sa  Rb     \ = / Sa'''  0    Rc''' \
-         |    \  I  0 /       \     Sb  Rc /   \ Sa'    L*U  Rc'   /
-         |  
+         | factorize RS by means of the LU factorization
+         | P * / Au \ = / G \ (L*U)
+         |     \ Bd /   \ I /
         \*/
-        /*
-        // factorize RS by means of the LU factorization
-        // P * / Rb \ = / L          \ (U)
-        //     \ Sb /   \ Sb' U^(-1) /
-        */
-        integer INFO = getrf( nx2, n, RS, nx2, ipiv_work ) ;
-        ALGLIN_ASSERT( INFO==0, "AmodioLU::factorize, singular matrix" );
+        copy( nxn, F, 1, G, 1 ) ;
+        integer info = LU_2_block( n, LU, G, ipiv ) ;
+        ALGLIN_ASSERT( info == 0,
+                       "AmodioLU::factorize, at block N." << k <<
+                       " singular matrix, info = " << info );
 
-        /*
-        // compute G = Sb' U^(-1) L^(-1)
-        //  / L          \ (U) = / I                 \ (L*U) =  / I \ (L*U)
-        //  \ Sb' U^(-1) /       \ Sb' U^(-1) L^(-1) /          \ G /
-        */
-        trsm( SideMultiply::RIGHT,
-              ULselect::LOWER,
-              Transposition::NO_TRANSPOSE,
-              DiagonalType::UNIT,
-              n, n, 1.0, RS, nx2, RS+n, nx2 ) ;
+        /*\
+         |   +-----+-----+ - - +
+         |   | E*  |  0 <=  F*   <-- messo al posto dell "0"
+         |   +-----+-----+-----+
+         |     Ad''| L\U | Au''| <-- memorizzazione compatta
+         |   + - - +-----+-----+
+         |
+         |   applico permutazione
+         |   +-----+             +-----+-----+
+         |   | Ad  |             |  E  |  F  |
+         |   +-----+-----+  -->  +-----+-----+
+         |         | Bu  |       | Ad''+Bu'' | compattato
+         |         +-----+       +-----------+
+        \*/
 
-        // determine the permutation vector
-        for ( integer i = 0 ; i < nx2 ; ++i ) perm[i] = i ;
-        for ( integer i = 0 ; i < n   ; ++i ) {
-          integer ip = ipiv_work[i]-1 ;
-          if ( ip != i ) std::swap( perm[i], perm[ip] ) ;
-        }
-
-        /*
-        // P * / Sa   0  \ = / Sa'  Rc'  \ 
-        //     \ 0    Rc /   \ Sa'' Rc'' /
-        // S = Sa'' and R = Rc''
-        */
-        valuePointer Sa1 = TMP_blk ;
-        valuePointer Rc1 = TMP_blk + nxn ;
-        copy( nxn, S, 1, Sa1, 1 ) ; zero( nxn, S, 1 ) ;
-        copy( nxn, R, 1, Rc1, 1 ) ; zero( nxn, R, 1 ) ;
+        // determine the permutation vector and select row vectors
         for ( integer i = 0 ; i < n ; ++i ) {
-          integer pi = perm[i+n] ;
-          if ( pi < n ) copy( n, Sa1+pi,   n, S+i, n ) ;
-          else          copy( n, Rc1+pi-n, n, R+i, n ) ;
+          LU_rows[i]   = true ;
+          LU_rows[n+i] = false ;
         }
-
-        /*
-        // / -G  I \ / Sa'  Rc'  \ = / Sa''' Rc''' \ 
-        // \  I  0 / \ Sa'' Rc'' /   \ Sa'   Rc'   /
-        //
-        // where  Sa''' = Sa'' - G*Sa', Rc''' = Rc'' - G*Rc' 
-        // where the nonnull rows of Sa' and Rc' are saved in F
-        */
         for ( integer i = 0 ; i < n ; ++i ) {
-          integer      pi = perm[i] ;
-          valuePointer Fi = F  + n*i ;
-          valuePointer Gi = RS + (2*i+1)*n ; // i-th column of G
-          valuePointer R_or_S, Ra_or_Sc ;
-          if ( pi < n ) { // save nonnull row of Sa' in the column of F
-            Ra_or_Sc = Sa1 + pi ;
-            R_or_S   = S ;
-          } else { // save nonnull row of Rc' in the column of F
-            Ra_or_Sc = Rc1 + pi - n ;
-            R_or_S   = R ;
+          integer ip = ipiv[i] ;
+          if ( ip > i ) {
+            std::swap( LU_rows[i], LU_rows[ip] ) ;
+            if ( ip < n ) swap( n, Adu + i, n, Adu + ip, n ) ; // scambia righe
+            else          swap( n, Adu + i, n, E + ip-n, n ) ; // scambia righe
           }
-          copy( n, Ra_or_Sc, n, Fi, 1 ) ;
-          ger( n, n, -1.0, Gi, 1, Fi, 1, R_or_S, n ) ;
         }
-
-        perm += nx2 ;
-        F    += nxn ;
+        valuePointer EE = LU_blk ;
+        valuePointer FF = LU_blk+nxn ;
+        zero( nxn, F, 1 ) ;
+        zero( nxnx2, EE, 1 ) ;
+        for ( integer i = 0 ; i < n ; ++i ) {
+          if ( LU_rows[i+n] ) {
+            copy( n, E+i, n, F+i, n ) ;
+            zero( n, E+i, n ) ;
+          }
+          if ( LU_rows[i] ) copy( n, Adu+i, n, FF+i, n ) ;
+          else              copy( n, Adu+i, n, EE+i, n ) ;
+        }
+        gemm( Transposition::NO_TRANSPOSE,
+              Transposition::NO_TRANSPOSE,
+              n, n, n,
+              -1.0, G, n,
+              EE, n,
+              1.0, E, n ) ;
+        gemm( Transposition::NO_TRANSPOSE,
+              Transposition::NO_TRANSPOSE,
+              n, n, n,
+              -1.0, G, n,
+              FF, n,
+              1.0, F, n ) ;
+        /*\
+         |  +-----+-----+ - - +
+         |  | E*  |  0  | F*    <-- messo al posto dell "0"
+         |  +-----+-----+-----+
+         |    Ad' | L\U | Bu' | <-- memorizzazione compatta
+         |  + - - +-----+-----+-----+ - - +
+        \*/
+        k  += 2*jump ;
+        k1 += 2*jump ;
       }
     }
 
     /*
-    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    // !!!! factorization of the last 2 by 2 matrix !!!!
-    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    // !!!! factorization of the last block !!!!
+    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     */
-    valuePointer S = SR_blk ;
-    valuePointer R = SR_blk + (2*nblock-1)*nxn ;
-
-    integer nm = n+m ;
-    gecopy( n, n, S,  n, D_blk,        nm ) ;
-    gecopy( n, n, R,  n, D_blk+n*nm,   nm ) ;
-
-    gecopy( m, n, H0, m, D_blk+n,      nm ) ;
-    gecopy( m, n, HN, m, D_blk+n+n*nm, nm ) ;
-
+    /*
+    // / S  R  0  \ /x(0)\  = b(0)
+    // \ H0 HN Hq / \x(N)/  = b(N)
+    */
+    gecopy( n, nx2, AdAu_blk, n, LU_blk, nm ) ;
+    gecopy( m, n, H0, m, LU_blk+n,      nm ) ;
+    gecopy( m, n, HN, m, LU_blk+n+n*nm, nm ) ;
     if ( m > n ) {
-      gezero( n, m-n,        D_blk+nx2*nm,   nm ) ;
-      gecopy( m, m-n, Hq, m, D_blk+nx2*nm+n, nm ) ;
+      gezero( n, q,        LU_blk+nx2*nm,   nm ) ;
+      gecopy( m, q, Hq, m, LU_blk+nx2*nm+n, nm ) ;
     }
 
-    integer INFO = getrf( nm, nm, D_blk, nm, ipiv_blk ) ;
-    ALGLIN_ASSERT( INFO==0, "AmodioLU::factorize(), singular matrix" ) ;
+    integer INFO = getrf( nm, nm, LU_blk, nm, LU_ipiv_blk ) ;
+    ALGLIN_ASSERT( INFO==0,
+                   "AmodioLU::factorize(), singular matrix, getrf INFO = " << INFO ) ;
 
   }
   
@@ -265,120 +423,112 @@ namespace alglin {
      |
     \*/
     // some constanst
-    integer const nxn = n*n ;
-    integer const nx2 = 2*n ;
-
-    // initialize indices
-    valuePointer F    = F_blk ;
-    integer *    perm = perm_blk ;
+    integer nxn   = n*n ;
+    integer nxnx2 = nxn*2 ;
+    integer nm    = n+m ;
     
-    /*
-    // !!!!!!!!!!!!!!!!!!!!!!!!!
-    // !!!! reduction phase !!!!
-    // !!!!!!!!!!!!!!!!!!!!!!!!!
-    */
+    /*\
+     | !!!!!!!!!!!!!!!!!!!!!!!!!
+     | !!!! reduction phase !!!!
+     | !!!!!!!!!!!!!!!!!!!!!!!!!
+    \*/
     integer jump = 1 ;
-    for ( ; jump < nblock ; jump *=2 ) {
+    for ( ; jump < nblock ; jump *= 2 ) {
+      integer k  = 0 ;
+      integer k1 = jump ;
 
-      for ( integer k = 1 ; k*jump < nblock ; k += 2 ) {
+      while ( k1 < nblock ) {
 
-        integer      jC = k * jump ;
-        integer      jL = jC - jump ;
-        valuePointer RS = SR_blk + (2*jC-1)*nxn ;
-        valuePointer Va = y + jL*n ;
-        valuePointer Vb = y + jC*n ;
+        valuePointer G    = G_blk    + k1 * nxn ;
+        integer *    ipiv = ipiv_blk + k1 * n ;
+
+        valuePointer yk  = y + k  * n ;
+        valuePointer yk1 = y + k1 * n ;
 
         /*\
-         |   P * / Va \ = / Vp \
-         |       \ Vb /   \ Vq /
+         |   applico permutazione e moltiplico per / I -G \
+         |                                         \    I /
         \*/
-        copy( n, Va, 1, TMP_blk,   1 ) ; 
-        copy( n, Vb, 1, TMP_blk+n, 1 ) ;
-
         for ( integer i = 0 ; i < n ; ++i ) {
-          Va[i] = TMP_blk[perm[i+n]] ;
-          Vb[i] = TMP_blk[perm[i]] ;
+          integer ip = ipiv[i] ;
+          if ( ip > i ) {
+            if ( ip < n ) std::swap( yk1[i], yk1[ip] ) ;
+            else          std::swap( yk1[i], yk[ip-n] ) ;
+          }
         }
-        /*\
-         |  / -G  I \ / Vp \ = / Vq-G*Vp \
-         |  \  I  0 / \ Vq /   \ Vp      /
-        \*/
+        // yk -= G * yk1
         gemv( Transposition::NO_TRANSPOSE,
-              n, n, -1.0, RS + n, nx2, Vb, 1, 1.0, Va, 1 ) ;
-
-        perm += nx2 ;
-        F    += nxn ;
+              n, n, -1.0, G, n, yk1, 1, 1.0, yk, 1 ) ;
+        // -----------------
+        k  += 2*jump ;
+        k1 += 2*jump ;
       }
     }
 
-    /*
-    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    // !!!! 2 by 2 block linear system solution !!!!
-    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    */
-    integer nm = n+m ;
+    /*\
+     | !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+     | !!!! 2 by 2 block linear system solution !!!!
+     | !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    \*/
+    valuePointer ye = y + nblock * n ;
+    copy( n, y,  1, tmpV,   1 ) ;
+    copy( m, ye, 1, tmpV+n, 1 ) ;
+    integer INFO = getrs( Transposition::NO_TRANSPOSE,
+                          nm, 1, LU_blk, nm, LU_ipiv_blk, tmpV, nm ) ;
+    ALGLIN_ASSERT( INFO==0,
+                   "AmodioLU::solve(), singular matrix, getrs INFO = " << INFO ) ;
+    copy( n, tmpV,   1, y,  1 ) ;
+    copy( m, tmpV+n, 1, ye, 1 ) ;
 
-    /*
-    // / S  R  0  \ /x(0)\  = b(0)
-    // \ H0 HN Hq / \x(N)/  = b(N)
-    */
-    valuePointer ye = y + (nblock-1) * n ;
-    
-    // Apply row interchanges to the right hand sides.
-    swap( n, y, 1, ye, 1 ) ;
-    swaps( 1, ye, nm, 0, nm-1, ipiv_blk, 1 ) ;
-    trsv( alglin::ULselect::LOWER, alglin::Transposition::NO_TRANSPOSE, alglin::DiagonalType::UNIT,     nm, D_blk, nm, ye, 1 ) ;
-    trsv( alglin::ULselect::UPPER, alglin::Transposition::NO_TRANSPOSE, alglin::DiagonalType::NON_UNIT, nm, D_blk, nm, ye, 1 ) ;
-    swap( n, y, 1, ye, 1 ) ;
-
-    /*
-    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    // !!!! back-substitution phase !!!!
-    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    */
+    /*\
+     | !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+     | !!!! back-substitution phase !!!!
+     | !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    \*/
     for ( jump /= 2 ; jump > 0 ; jump /= 2 ) {
 
-      integer k = (nblock-1)/jump ;
-      if ( (k & 0x01) == 0 ) --k ; 
-    
-      for ( ; k > 0 ; k -= 2 ) {
-        integer      jC = k*jump ;
-        integer      jL = jC-jump ;
-        integer      jR = min(jC + jump,nblock) ;
-        valuePointer Xm = y + jL*n ;
-        valuePointer Xs = y + jR*n ;
-        valuePointer V  = y + jC*n ;
-        valuePointer RS = SR_blk + (2*jC-1)*nxn ;
+      integer k  = 0 ;
+      integer k1 = jump ;
 
-        perm -= nx2 ;
-        F    -= nxn ;
+      while ( k1 < nblock ) {
 
+        integer      k2   = min(k1+jump,nblock) ;
+        valuePointer BLK1 = AdAu_blk + k1 * nxnx2 ;
+        std::vector<bool> & LU_rows = LU_rows_blk[k1] ;
+
+        valuePointer yk  = y + k  * n ;
+        valuePointer yk1 = y + k1 * n ;
+        valuePointer yk2 = y + k2 * n ;
+
+        valuePointer LU  = BLK1 ;
+        valuePointer Adu = BLK1 + nxn ;
+
+        for ( integer i = 0 ; i < n ; ++i ) {
+          valuePointer LR = LU_rows[i] ? yk2 : yk ; // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+          yk1[i] -= dot( n, Adu+i, n, LR, 1 ) ;
+        }
+        // (LU)^(-1) = U^(-1) L^(-1)
+        trsv( ULselect::LOWER,
+              Transposition::NO_TRANSPOSE,
+              DiagonalType::UNIT,
+              n, LU, n, yk1, 1 ) ;
+        trsv( ULselect::UPPER,
+              Transposition::NO_TRANSPOSE,
+              DiagonalType::NON_UNIT,
+              n, LU, n, yk1, 1 ) ;
         /*\
-         |  computes the solution Xn (of length n) of the linear system
-         |
-         |          L*U Xn = Vp - Sp*Xm - Rp*Xs
-         |
-         |  obtained from the subroutines reduceBlock and reduceRHS applied
-         |  to the system (see the subroutine reduceBlock for further details)
-         |
-         |   ( Sa  Rb     )  ( Xm )   ( Va ).
-         |   (     Sb  Rc )  ( Xn ) = ( Vb )
-         |                   ( Xs )
-         |
-         |   (  I    ) * P * ( Sa  Rb     ) ( Xm )   ( Sp  L*U  Rp  ) ( Xm )   ( Vp )
-         |   ( -G  I )       (     Sb  Rc ) ( Xn ) = ( Sa'  0   Rc' ) ( Xn ) = ( V' )
-         |                                  ( Xs )                    ( Xs )
+         |  +-----+-----+ - - +
+         |  | E*  |  0  | F*    <-- messo al posto dell "0"
+         |  +-----+-----+-----+
+         |    Ad' | L\U | Bu' | <-- memorizzazione compatta
+         |  + - - +-----+-----+-----+ - - +
         \*/
-     
-        // compute V = Vp - Sp*Xm - Rp*Xs
-        for ( integer i = 0 ; i < n ; ++i )
-          V[i] -= dot( n, F + i*n, 1, perm[i] < n ? Xm : Xs, 1 ) ;
-
-        // solve the system L*U Xn = V
-        trsv( ULselect::LOWER, Transposition::NO_TRANSPOSE, DiagonalType::UNIT,     n, RS, nx2, V, 1 ) ;
-        trsv( ULselect::UPPER, Transposition::NO_TRANSPOSE, DiagonalType::NON_UNIT, n, RS, nx2, V, 1 ) ;
+        // -----------------
+        k  += 2*jump ;
+        k1 += 2*jump ;
       }
     }
+
   }
 
   template class AmodioLU<double> ;

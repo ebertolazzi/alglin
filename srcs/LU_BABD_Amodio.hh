@@ -21,6 +21,7 @@
 #define LU_BABD_AMODIO_HH
 
 #include "Alglin.hh"
+#include <vector>
 
 namespace alglin {
 
@@ -58,6 +59,7 @@ namespace alglin {
 
     Malloc<valueType> baseValue ;
     Malloc<integer>   baseInteger ;
+    std::vector<std::vector<bool> > LU_rows_blk ;
 
     AmodioLU(AmodioLU const &) ;
     AmodioLU const & operator = (AmodioLU const &) ;
@@ -101,15 +103,19 @@ namespace alglin {
 
     ///////////////////////////////////////////////////////
 
-    valuePointer SR_blk ;
-    valuePointer D_blk ;
-    valuePointer F_blk ;
+    valuePointer G_blk ;
+    valuePointer AdAu_blk ;
+    valuePointer LU_blk ; // last LU and working space
+    valuePointer tmpV ;
 
-    integer * ipiv_work ;
     integer * ipiv_blk ;
-    integer * perm_blk ;
+    integer * LU_ipiv_blk ;
 
-    valuePointer TMP_blk ;
+    integer
+    LU_2_block( integer      n,
+                valuePointer A,
+                valuePointer B,
+                integer      ipiv[] ) const ;
 
   public:
 

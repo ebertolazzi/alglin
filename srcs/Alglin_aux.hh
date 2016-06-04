@@ -626,12 +626,14 @@ namespace alglin {
         stream << ' ' << setw(8) << HN[i+j*nq] ;
       stream << '\n' ;
     }
-    stream << "Block Hq\n" ;
-    for ( integer i = 0 ; i < nq ; ++i ) {
-      stream << setw(8) << Hq[i] ;
-      for ( integer j = 1 ; j < q ; ++j )
-        stream << ' ' << setw(8) << Hq[i+j*nq] ;
-      stream << '\n' ;
+    if ( q > 0 ) {
+      stream << "Block Hq\n" ;
+      for ( integer i = 0 ; i < nq ; ++i ) {
+        stream << setw(8) << Hq[i] ;
+        for ( integer j = 1 ; j < q ; ++j )
+          stream << ' ' << setw(8) << Hq[i+j*nq] ;
+        stream << '\n' ;
+      }
     }
   }
 
