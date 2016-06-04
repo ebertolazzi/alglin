@@ -18,9 +18,14 @@
 \*--------------------------------------------------------------------------*/
 
 #include "LU_BABD_Amodio.hh"
-
 #include <iostream>
-using namespace std ;
+
+#ifdef ALGLIN_USE_CXX11
+  #include <thread>
+  #include <mutex>
+  #include <condition_variable>
+  #include <atomic>
+#endif
 
 /*\
  |  reduces a 2x3 block matrix / Ad  Au     \ to a 1x2 block matrix ( Ad' Au' )
@@ -130,17 +135,21 @@ using namespace std ;
 namespace alglin {
 
   using namespace std ;
-  
+
+  #ifdef ALGLIN_USE_CXX11
+  static integer numThread = std::thread::hardware_concurrency();
+  #endif
+
   /*
   //
   // +--------+
-  // |        |
-  // |   A    |
-  // |        |
+  // | \______|
+  // | | A    |
+  // | |      |
   // +--------+
-  // |        |
-  // |   B    |
-  // |        |
+  // | |      |
+  // | | B    |
+  // | |      |
   // +--------+
   //
   */
@@ -153,6 +162,7 @@ namespace alglin {
     // LU DECOMPOSITION, ROW INTERCHANGES
     valuePointer Ajj = A ;
     valuePointer Bj  = B ;
+    integer nb = std::min(NB,n) ;
     for ( integer j = 0 ; j < n ; Ajj += n+1, Bj += n  ) {
       integer MX1 = iamax( n-j, Ajj, 1 ) ;
       integer MX2 = iamax( n,   Bj,  1 ) ;
@@ -168,8 +178,57 @@ namespace alglin {
       ++j ;
       scal(n-j, ROWM, Ajj+1, 1) ;
       scal(n,   ROWM, Bj,    1) ;
-      ger(n-j, n-j, -1.0, Ajj+1, 1, Ajj+n, n, Ajj+n+1, n ) ;
-      ger(n,   n-j, -1.0, Bj,    1, Ajj+n, n, Bj+n,    n ) ;
+      if ( nb == j ) { // applico al prox blocco
+        /*
+        // / L 0 \-1   /  L^(-1)      \
+        // \ M I /   = \ -M*L^(-1)  I /
+        */
+        nb += NB ;
+        if ( nb > n ) nb = n ;
+        trsm( SideMultiply::LEFT,
+              ULselect::LOWER,
+              Transposition::NO_TRANSPOSE,
+              DiagonalType::UNIT,
+              j, nb-j, 1.0, A, n, A+j*n, n ) ;
+        gemm( Transposition::NO_TRANSPOSE,
+              Transposition::NO_TRANSPOSE,
+              n-j, nb-j, j,
+              -1.0, A+j,       n,
+                    A+j*n,     n,
+               1.0, A+j*(n+1), n ) ;
+        gemm( Transposition::NO_TRANSPOSE,
+              Transposition::NO_TRANSPOSE,
+              n, nb-j, j,
+              -1.0, B,     n,
+                    A+j*n, n,
+               1.0, B+j*n, n ) ;
+      } else {
+        ger(n-j, nb-j, -1.0, Ajj+1, 1, Ajj+n, n, Ajj+n+1, n ) ;
+        ger(n,   nb-j, -1.0, Bj,    1, Ajj+n, n, Bj+n,    n ) ;
+      }
+    }
+    if ( nb < n ) { // applico al prox blocco
+      /*
+      // / L 0 \-1   /  L^(-1)      \
+      // \ M I /   = \ -M*L^(-1)  I /
+      */
+      trsm( SideMultiply::LEFT,
+            ULselect::LOWER,
+            Transposition::NO_TRANSPOSE,
+            DiagonalType::UNIT,
+            nb, n-nb, 1.0, A, n, A+nb*n, n ) ;
+      gemm( Transposition::NO_TRANSPOSE,
+            Transposition::NO_TRANSPOSE,
+            n-nb, n-nb, nb,
+            -1.0, A+nb,       n,
+                  A+nb*n,     n,
+             1.0, A+nb*(n+1), n ) ;
+      gemm( Transposition::NO_TRANSPOSE,
+            Transposition::NO_TRANSPOSE,
+            n, n-nb, nb,
+            -1.0, B,      n,
+                  A+nb*n, n,
+             1.0, B+nb*n, n ) ;
     }
     /*
     // compute G = B*L^(-1)
@@ -194,22 +253,22 @@ namespace alglin {
   */
   template <typename t_Value>
   void
-  AmodioLU<t_Value>::factorize( integer           nblock,
-                                integer           n,
-                                integer           q,
+  AmodioLU<t_Value>::factorize( integer           _nblock,
+                                integer           _n,
+                                integer           _q,
                                 valueConstPointer AdAu,
                                 valueConstPointer H0,
                                 valueConstPointer HN,
                                 valueConstPointer Hq ) {
 
-    this -> nblock = nblock ;
-    this -> n      = n ;
-    this -> m      = n+q ;
+    nblock = _nblock ;
+    n      = _n ;
+    m      = _n+_q ;
 
-    integer nx2    = 2*n ;
-    integer nxn    = n*n ;
-    integer nxnx2  = nxn*2 ;
-    integer nm     = n+m ;
+    nx2    = 2*n ;
+    nxn    = n*n ;
+    nxnx2  = nxn*2 ;
+    nm     = n+m ;
 
     integer nnzG    = (nblock-1)*nxn ;
     integer nnzADAU = nblock*nxnx2 ;
@@ -295,6 +354,19 @@ namespace alglin {
          | P * / Au \ = / G \ (L*U)
          |     \ Bd /   \ I /
         \*/
+        /*
+        gecopy( n, n, LU, n, LU_blk, nx2 ) ;
+        gecopy( n, n, F,  n, LU_blk+n, nx2 ) ;
+        integer info = getrf( nx2, n, LU_blk, nx2, ipiv ) ;
+        for ( integer ii = 0 ; ii < n ; ++ii ) --ipiv[ii] ;
+        gecopy( n, n, LU_blk, nx2, LU, n ) ;
+        gecopy( n, n, LU_blk+n, nx2, G, n ) ;
+        trsm( SideMultiply::RIGHT,
+              ULselect::LOWER,
+              Transposition::NO_TRANSPOSE,
+              DiagonalType::UNIT,
+              n, n, 1.0, LU, n, G, n ) ;
+        */
         copy( nxn, F, 1, G, 1 ) ;
         integer info = LU_2_block( n, LU, G, ipiv ) ;
         ALGLIN_ASSERT( info == 0,
@@ -377,9 +449,9 @@ namespace alglin {
     gecopy( n, nx2, AdAu_blk, n, LU_blk, nm ) ;
     gecopy( m, n, H0, m, LU_blk+n,      nm ) ;
     gecopy( m, n, HN, m, LU_blk+n+n*nm, nm ) ;
-    if ( m > n ) {
-      gezero( n, q,        LU_blk+nx2*nm,   nm ) ;
-      gecopy( m, q, Hq, m, LU_blk+nx2*nm+n, nm ) ;
+    if ( _q > 0 ) {
+      gezero( n, _q,        LU_blk+nx2*nm,   nm ) ;
+      gecopy( m, _q, Hq, m, LU_blk+nx2*nm+n, nm ) ;
     }
 
     integer INFO = getrf( nm, nm, LU_blk, nm, LU_ipiv_blk ) ;
@@ -387,81 +459,97 @@ namespace alglin {
                    "AmodioLU::factorize(), singular matrix, getrf INFO = " << INFO ) ;
 
   }
-  
+
   /*             _           
   //   ___  ___ | |_   _____ 
   //  / __|/ _ \| \ \ / / _ \
   //  \__ \ (_) | |\ V /  __/
   //  |___/\___/|_| \_/ \___|
   */
+
   template <typename t_Value>
   void
-  AmodioLU<t_Value>::solve( valuePointer y ) {
+  AmodioLU<t_Value>::reduce_block( integer      k,
+                                   integer      k1,
+                                   valuePointer y ) const {
+
+    valuePointer G    = G_blk    + k1 * nxn ;
+    integer *    ipiv = ipiv_blk + k1 * n ;
+
+    valuePointer yk  = y + k  * n ;
+    valuePointer yk1 = y + k1 * n ;
+
     /*\
-     |
-     |  Purpose
-     |  =======
-     |
-     |  BABDCR_SOLV  solves a babd linear system whose coefficient matrix
-     |  has been factorized by BABDCR_FACT. The algorithm consists of three
-     |  phases: reduction (by using the subroutine REDUCE_RHS), solution of
-     |  the 2 by 2 block system (by using the subroutine DGETRS) and 
-     |  back-substitution (by using the subroutine SOLVE_BLOCK).
-     |
-     |  In input, BABDCR_SOLV requires the coefficient matrix factorized by
-     |  the subroutine BABDCR_FACT (see details of this subroutine) and the
-     |  right hand side which is stored in the block vector VECT_B in the
-     |  following form
-     |
-     |  VECT_B  = [f(0), f(1), ...., f(NBLOKS)].
-     |
-     |  The first block element f(0) corresponds to the first row of the
-     |  coefficient matrix containing Ba and Bb.
-     |
-     |  On exit, BABDCR_SOLV gives the solution of the babd linear system.
-     |  The solution is stored in the block vector VECT_B.
-     |
+     |   applico permutazione e moltiplico per / I -G \
+     |                                         \    I /
     \*/
-    // some constanst
-    integer nxn   = n*n ;
-    integer nxnx2 = nxn*2 ;
-    integer nm    = n+m ;
-    
+    for ( integer i = 0 ; i < n ; ++i ) {
+      integer ip = ipiv[i] ;
+      if ( ip > i ) {
+        if ( ip < n ) std::swap( yk1[i], yk1[ip] ) ;
+        else          std::swap( yk1[i], yk[ip-n] ) ;
+      }
+    }
+    // yk -= G * yk1
+    gemv( Transposition::NO_TRANSPOSE,
+          n, n, -1.0, G, n, yk1, 1, 1.0, yk, 1 ) ;
+  }
+
+  template <typename t_Value>
+  void
+  AmodioLU<t_Value>::back_substitute( integer      k,
+                                      integer      k1,
+                                      integer      k2,
+                                      valuePointer y ) const {
+    valuePointer LU  = AdAu_blk + k1 * nxnx2 ;
+    valuePointer Adu = LU + nxn ;
+    std::vector<bool> const & LU_rows = LU_rows_blk[k1] ;
+
+    valuePointer yk  = y + k  * n ;
+    valuePointer yk1 = y + k1 * n ;
+    valuePointer yk2 = y + k2 * n ;
+
+    for ( integer i = 0 ; i < n ; ++i ) {
+      valuePointer LR = LU_rows[i] ? yk2 : yk ;
+      yk1[i] -= dot( n, Adu+i, n, LR, 1 ) ;
+    }
+    // (LU)^(-1) = U^(-1) L^(-1)
+    trsv( ULselect::LOWER,
+          Transposition::NO_TRANSPOSE,
+          DiagonalType::UNIT,
+          n, LU, n, yk1, 1 ) ;
+    trsv( ULselect::UPPER,
+          Transposition::NO_TRANSPOSE,
+          DiagonalType::NON_UNIT,
+          n, LU, n, yk1, 1 ) ;
+    /*\
+     |  +-----+-----+ - - +
+     |  | E*  |  0  | F*    <-- messo al posto dell "0"
+     |  +-----+-----+-----+
+     |    Ad' | L\U | Bu' | <-- memorizzazione compatta
+     |  + - - +-----+-----+-----+ - - +
+    \*/
+  }
+
+  template <typename t_Value>
+  void
+  AmodioLU<t_Value>::solve( valuePointer y ) const {
+    std::vector<std::thread> vec_thread( numThread ) ;
+
     /*\
      | !!!!!!!!!!!!!!!!!!!!!!!!!
      | !!!! reduction phase !!!!
      | !!!!!!!!!!!!!!!!!!!!!!!!!
     \*/
     integer jump = 1 ;
-    for ( ; jump < nblock ; jump *= 2 ) {
+    while ( jump < nblock ) {
       integer k  = 0 ;
       integer k1 = jump ;
-
+      jump *= 2 ;
       while ( k1 < nblock ) {
-
-        valuePointer G    = G_blk    + k1 * nxn ;
-        integer *    ipiv = ipiv_blk + k1 * n ;
-
-        valuePointer yk  = y + k  * n ;
-        valuePointer yk1 = y + k1 * n ;
-
-        /*\
-         |   applico permutazione e moltiplico per / I -G \
-         |                                         \    I /
-        \*/
-        for ( integer i = 0 ; i < n ; ++i ) {
-          integer ip = ipiv[i] ;
-          if ( ip > i ) {
-            if ( ip < n ) std::swap( yk1[i], yk1[ip] ) ;
-            else          std::swap( yk1[i], yk[ip-n] ) ;
-          }
-        }
-        // yk -= G * yk1
-        gemv( Transposition::NO_TRANSPOSE,
-              n, n, -1.0, G, n, yk1, 1, 1.0, yk, 1 ) ;
-        // -----------------
-        k  += 2*jump ;
-        k1 += 2*jump ;
+        reduce_block( k, k1, y ) ;
+        k  += jump ;
+        k1 += jump ;
       }
     }
 
@@ -486,49 +574,23 @@ namespace alglin {
      | !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     \*/
     for ( jump /= 2 ; jump > 0 ; jump /= 2 ) {
-
       integer k  = 0 ;
       integer k1 = jump ;
-
+      //integer nth = 0 ;
       while ( k1 < nblock ) {
-
-        integer      k2   = min(k1+jump,nblock) ;
-        valuePointer BLK1 = AdAu_blk + k1 * nxnx2 ;
-        std::vector<bool> & LU_rows = LU_rows_blk[k1] ;
-
-        valuePointer yk  = y + k  * n ;
-        valuePointer yk1 = y + k1 * n ;
-        valuePointer yk2 = y + k2 * n ;
-
-        valuePointer LU  = BLK1 ;
-        valuePointer Adu = BLK1 + nxn ;
-
-        for ( integer i = 0 ; i < n ; ++i ) {
-          valuePointer LR = LU_rows[i] ? yk2 : yk ; // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-          yk1[i] -= dot( n, Adu+i, n, LR, 1 ) ;
-        }
-        // (LU)^(-1) = U^(-1) L^(-1)
-        trsv( ULselect::LOWER,
-              Transposition::NO_TRANSPOSE,
-              DiagonalType::UNIT,
-              n, LU, n, yk1, 1 ) ;
-        trsv( ULselect::UPPER,
-              Transposition::NO_TRANSPOSE,
-              DiagonalType::NON_UNIT,
-              n, LU, n, yk1, 1 ) ;
-        /*\
-         |  +-----+-----+ - - +
-         |  | E*  |  0  | F*    <-- messo al posto dell "0"
-         |  +-----+-----+-----+
-         |    Ad' | L\U | Bu' | <-- memorizzazione compatta
-         |  + - - +-----+-----+-----+ - - +
-        \*/
-        // -----------------
+        integer k2  = min(k1+jump,nblock) ;
+        back_substitute( k, k1, k2, y ) ;
+        //vec_thread[nth] = std::thread( &AmodioLU<t_Value>::back_substitute, this, k, k1, k2, y ) ;
+        //if ( ++nth >= numThread ) { // join thread
+        //  for ( integer j=0 ; j < numThread ; ++j )
+        //    vec_thread[j].join() ;
+        //  nth = 0 ;
+        //}
         k  += 2*jump ;
         k1 += 2*jump ;
       }
+      //for ( integer j=0 ; j < nth ; ++j ) vec_thread[j].join() ;
     }
-
   }
 
   template class AmodioLU<double> ;

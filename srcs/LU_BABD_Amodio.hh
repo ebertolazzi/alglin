@@ -69,6 +69,12 @@ namespace alglin {
     integer m      ; //!< number final rows (m>=n)
     integer nnz    ; //!< total number of non zeros
 
+    // some derived constanst
+    integer nx2 ;
+    integer nxn ;
+    integer nxnx2 ;
+    integer nm ;
+
     /*
     //
     //  Matrix structure
@@ -110,6 +116,7 @@ namespace alglin {
 
     integer * ipiv_blk ;
     integer * LU_ipiv_blk ;
+    integer   NB ; // blocking factor
 
     integer
     LU_2_block( integer      n,
@@ -117,11 +124,23 @@ namespace alglin {
                 valuePointer B,
                 integer      ipiv[] ) const ;
 
+    void
+    reduce_block( integer      k,
+                  integer      k1,
+                  valuePointer y ) const ;
+
+    void
+    back_substitute( integer      k,
+                     integer      k1,
+                     integer      k2,
+                     valuePointer y ) const ;
+
   public:
 
     explicit AmodioLU()
     : baseValue("AmodioLU_value")
     , baseInteger("AmodioLU_index")
+    , NB(25)
     { }
 
     ~AmodioLU() {
@@ -179,7 +198,7 @@ namespace alglin {
 
     //! solve linear sistem using internal factorized matrix
     void
-    solve( valuePointer in_out ) ;
+    solve( valuePointer in_out ) const ;
 
   } ;
 }

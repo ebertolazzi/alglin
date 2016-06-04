@@ -92,8 +92,14 @@
 #endif
 
 // if C++11
-#if __cplusplus > 199711L
-  #define ALGLIN_USE_CXX11
+#ifdef ALGLIN_OS_WINDOWS
+  #if _MSC_VER >= 1900
+    #define ALGLIN_USE_CXX11
+  #endif
+#else
+  #if __cplusplus > 199711L
+    #define ALGLIN_USE_CXX11
+  #endif
 #endif
 
 // find Headers for Lapack/Blas
