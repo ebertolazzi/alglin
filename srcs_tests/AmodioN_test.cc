@@ -42,7 +42,7 @@ main() {
 
   #include "LU_test.hxx"
 
-  alglin::AmodioN<valueType,NSIZE> LU(2) ;
+  alglin::AmodioN<valueType,NSIZE> LU ;
 
   //alglin::babd_print<valueType>( cout, nblk, n, q, AdAu, H0, HN, Hq ) ;
 

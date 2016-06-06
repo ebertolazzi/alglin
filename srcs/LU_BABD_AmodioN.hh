@@ -126,15 +126,6 @@ namespace alglin {
     integer * ipiv_blk ;
     integer * LU_ipiv_blk ;
 
-    #ifdef LU_BABD_AMODIO_N_USE_THREAD
-    mutable mutex              mtx0, mtx1, mtx2 ;
-    mutable condition_variable cond0 ;
-    mutable std::thread        threads[LU_BABD_AMODIO_MAX_THREAD] ;
-    mutable integer            to_be_done ;
-    integer const              numThread ;
-    #endif
-
-    mutable integer k_block ;
     mutable integer jump_block ;
 
     integer
@@ -143,13 +134,22 @@ namespace alglin {
                 integer      ipiv[] ) const ;
 
     #ifdef LU_BABD_AMODIO_N_USE_THREAD
-    void forward_reduce_mt( integer num_thread, valuePointer y ) const ;
-    void back_substitute_mt( integer num_thread, valuePointer y ) const ;
-    void reduction_mt( integer num_thread, integer nth ) ;
+    mutable mutex              mtx0, mtx1, mtx2 ;
+    mutable condition_variable cond0 ;
+    mutable std::thread        threads[LU_BABD_AMODIO_MAX_THREAD] ;
+    mutable integer            to_be_done ;
+            integer const      numThread ;
+    mutable integer            usedThread ;
+    mutable valuePointer       y_thread ;
+    mutable integer            jump_block_max_mt ;
+
+    void forward_reduce_mt( integer nth ) const ;
+    void back_substitute_mt( integer nth ) const ;
+    void reduction_mt( integer nth ) ;
     #endif
 
     void forward_reduce( valuePointer y ) const ;
-    void back_substitute( valuePointer y ) const ;
+    void back_substitute( valuePointer y, integer jump_block_min ) const ;
     void reduction() ;
 
   public:
