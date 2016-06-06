@@ -284,21 +284,14 @@ namespace alglin {
     valuePointer EE = tmpM ;
     valuePointer FF = tmpM+nxn ;
 
-    do {
+    while ( jump_block < nblock ) {
 
-      if ( jump_block >= nblock ) break ;
-      k_block = 0 ;
+      integer kstep = 2*jump_block ;
+      integer kend  = nblock-jump_block ;
 
-      do {
+      for ( integer k = 0 ; k < kend ; k += kstep ) {
 
-        integer k, k1 ;
-        // update
-        k        = k_block ;
-        k_block += 2*jump_block ;
-
-        // update....
-        k1 = k+jump_block ;
-        if ( k1 >= nblock ) break ;
+        integer k1 = k+jump_block ;
 
         valuePointer BLK0 = AdAu_blk + k  * nxnx2 ;
         valuePointer BLK1 = AdAu_blk + k1 * nxnx2 ;
@@ -380,42 +373,27 @@ namespace alglin {
          |    Ad' | L\U | Bu' | <-- memorizzazione compatta
          |  + - - +-----+-----+-----+ - - +
         \*/
-      } while ( true ) ;
+      }
       jump_block *= 2 ;
-    } while ( true ) ;
+    }
   }
 
   #ifdef LU_BABD_AMODIO_USE_THREAD
   template <typename t_Value>
   void
-  AmodioLU<t_Value>::reduction_mt( integer num_thread, integer nth ) {
+  AmodioLU<t_Value>::reduction_mt( integer nth ) {
     valuePointer EE = tmpM+nth*nxnx2 ;
     valuePointer FF = EE+nxn ;
 
-    do {
+    while ( jump_block < jump_block_max_mt ) {
 
-      if ( jump_block >= nblock ) break ;
+      integer k_step = 2*usedThread*jump_block ;
+      integer k0     = 2*nth*jump_block ;
+      integer kend   = nblock-jump_block ;
 
-      { unique_lock<mutex> lck(mtx0);
-        if ( to_be_done == 0 ) { // prima thread che passa
-          k_block    = 0 ;
-          to_be_done = num_thread ;
-        }
-      }
+      for ( integer k = k0 ; k < kend ; k += k_step ) {
 
-      do {
-
-        integer k, k1 ;
-        // update
-        {
-          unique_lock<mutex> lck(mtx1);
-          k        = k_block ;
-          k_block += 2*jump_block ;
-        }
-
-        // update....
-        k1 = k+jump_block ;
-        if ( k1 >= nblock ) break ;
+        integer k1 = k+jump_block ;
 
         valuePointer BLK0 = AdAu_blk + k  * nxnx2 ;
         valuePointer BLK1 = AdAu_blk + k1 * nxnx2 ;
@@ -497,18 +475,19 @@ namespace alglin {
          |    Ad' | L\U | Bu' | <-- memorizzazione compatta
          |  + - - +-----+-----+-----+ - - +
         \*/
-      } while ( true ) ;
+      }
 
       // aspetta le altre thread
       { unique_lock<mutex> lck(mtx0);
         if ( --to_be_done == 0 ) {
           cond0.notify_all() ; // wake up all tread
           jump_block *= 2 ;
+          to_be_done = usedThread ;
         } else {
           cond0.wait(lck);
         }
       }
-    } while ( true ) ;
+    }
   }
   #endif
 
@@ -569,19 +548,19 @@ namespace alglin {
     \*/
 
     #ifdef LU_BABD_AMODIO_USE_THREAD
-    integer usedThread = numThread ;
+    usedThread        = numThread ;
+    jump_block_max_mt = nblock>>(usedThread-1) ;
     #endif
 
     jump_block = 1 ;
     #ifdef LU_BABD_AMODIO_USE_THREAD
-    to_be_done = 0 ;
+    to_be_done = usedThread ;
     for ( integer nt = 0 ; nt < usedThread ; ++nt )
-      threads[nt] = std::thread( &AmodioLU<t_Value>::reduction_mt, this, usedThread, nt ) ;
+      threads[nt] = std::thread( &AmodioLU<t_Value>::reduction_mt, this, nt ) ;
     for ( integer nt = 0 ; nt < usedThread ; ++nt )
       threads[nt].join() ;
-    #else
-    reduction() ;
     #endif
+    reduction() ;
 
     /*
     // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -618,18 +597,14 @@ namespace alglin {
   template <typename t_Value>
   void
   AmodioLU<t_Value>::forward_reduce( valuePointer y ) const {
-    do {
-      k_block = 0 ;
-      if ( jump_block >= nblock ) break ;
 
-      do {
-        integer k, k1 ;
-        // update
-        k        = k_block ;
-        k_block += 2*jump_block ;
-        // update....
-        k1 = k+jump_block ;
-        if ( k1 >= nblock ) break ;
+    while ( jump_block < nblock ) {
+
+      integer k_step = 2*jump_block ;
+      integer kend   = nblock-jump_block ;
+
+      for ( integer k = 0 ; k < kend ; k += k_step ) {
+        integer k1 = k+jump_block ;
 
         valuePointer G    = G_blk    + k1 * nxn ;
         integer *    ipiv = ipiv_blk + k1 * n ;
@@ -651,44 +626,31 @@ namespace alglin {
         // yk -= G * yk1
         gemv( Transposition::NO_TRANSPOSE,
               n, n, -1.0, G, n, yk1, 1, 1.0, yk, 1 ) ;
-      } while ( true ) ;
+      }
 
       // aspetta le altre thread
       jump_block *= 2 ;
-    } while ( true ) ;
+    }
   }
 
   #ifdef LU_BABD_AMODIO_USE_THREAD
   template <typename t_Value>
   void
-  AmodioLU<t_Value>::forward_reduce_mt( integer num_thread, valuePointer y ) const {
-    do {
-      { unique_lock<mutex> lck(mtx0);
-        if ( to_be_done == 0 ) { // prima thread che passa
-          k_block    = 0 ;
-          to_be_done = num_thread ;
-        }
-      }
+  AmodioLU<t_Value>::forward_reduce_mt( integer nth ) const {
+    while ( jump_block < jump_block_max_mt ) {
 
-      if ( jump_block >= nblock ) break ;
+      integer k_step = 2*usedThread*jump_block ;
+      integer k0     = 2*nth*jump_block ;
+      integer kend   = nblock-jump_block ;
 
-      do {
-        integer k, k1 ;
-        // update
-        {
-          unique_lock<mutex> lck(mtx1);
-          k        = k_block ;
-          k_block += 2*jump_block ;
-        }
-        // update....
-        k1 = k+jump_block ;
-        if ( k1 >= nblock ) break ;
+      for ( integer k = k0 ; k < kend ; k += k_step ) {
 
-        valuePointer G    = G_blk    + k1 * nxn ;
-        integer *    ipiv = ipiv_blk + k1 * n ;
+        integer     k1 = k+jump_block ;
+        valuePointer G = G_blk    + k1 * nxn ;
+        integer * ipiv = ipiv_blk + k1 * n ;
 
-        valuePointer yk  = y + k  * n ;
-        valuePointer yk1 = y + k1 * n ;
+        valuePointer yk  = y_thread + k  * n ;
+        valuePointer yk1 = y_thread + k1 * n ;
 
         /*\
          |   applico permutazione e moltiplico per / I -G \
@@ -704,18 +666,20 @@ namespace alglin {
         // yk -= G * yk1
         gemv( Transposition::NO_TRANSPOSE,
               n, n, -1.0, G, n, yk1, 1, 1.0, yk, 1 ) ;
-      } while ( true ) ;
+      }
 
       // aspetta le altre thread
       { unique_lock<mutex> lck(mtx0);
         if ( --to_be_done == 0 ) {
           cond0.notify_all() ; // wake up all tread
           jump_block *= 2 ;
+          to_be_done = usedThread ;
         } else {
           cond0.wait(lck);
         }
       }
-    } while ( true ) ;
+
+    }
   }
   #endif
 
@@ -730,23 +694,13 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  AmodioLU<t_Value>::back_substitute( valuePointer y ) const {
-    do {
-      jump_block /= 2 ;
-      k_block    = 0 ;
-      if ( jump_block == 0 ) break ;
-
-      do {
-        integer k, k1 ;
-        // update
-        k        = k_block ;
-        k_block += 2*jump_block ;
-
-        // update....
-        k1 = k+jump_block ;
-        if ( k1 >= nblock ) break ;
-      
-        integer k2 = min(k1+jump_block,nblock) ;
+  AmodioLU<t_Value>::back_substitute( valuePointer y, integer jump_block_min ) const {
+    while ( jump_block > jump_block_min ) {
+      integer k_step = 2*jump_block ;
+      integer kend   = nblock-jump_block ;
+      for ( integer k = 0 ; k < kend ; k += k_step ) {
+        integer      k1  = k+jump_block ;
+        integer      k2  = min(k1+jump_block,nblock) ;
         valuePointer LU  = AdAu_blk + k1 * nxnx2 ;
         valuePointer Adu = LU + nxn ;
         std::vector<bool> const & LU_rows = LU_rows_blk[k1] ;
@@ -775,50 +729,34 @@ namespace alglin {
          |    Ad' | L\U | Bu' | <-- memorizzazione compatta
          |  + - - +-----+-----+-----+ - - +
         \*/
-      } while ( true ) ;
-    } while ( true ) ;
+      }
+      jump_block /= 2 ;
+    }
   }
 
   #ifdef LU_BABD_AMODIO_USE_THREAD
 
   template <typename t_Value>
   void
-  AmodioLU<t_Value>::back_substitute_mt( integer num_thread, valuePointer y ) const {
-    do {
-      { unique_lock<mutex> lck(mtx0);
-        if ( to_be_done == 0 ) { // prima thread che passa
-          jump_block /= 2 ;
-          k_block    = 0 ;
-          to_be_done = num_thread ;
-        }
-      }
+  AmodioLU<t_Value>::back_substitute_mt( integer nth ) const {
 
-      if ( jump_block == 0 ) break ;
+    while ( jump_block > 0 ) {
 
-      do {
-        integer k, k1 ;
-        // update
-        {
-          unique_lock<mutex> lck(mtx1);
-          k        = k_block ;
-          k_block += 2*jump_block ;
-        }
+      integer k_step = 2*usedThread*jump_block ;
+      integer k0     = 2*nth*jump_block ;
+      integer kend   = nblock-jump_block ;
 
-        // update....
-        k1 = k+jump_block ;
-        if ( k1 >= nblock ) break ;
-      
+      for ( integer k = k0 ; k < kend ; k += k_step ) {
+
+        integer k1 = k+jump_block ;
         integer k2 = min(k1+jump_block,nblock) ;
         valuePointer LU  = AdAu_blk + k1 * nxnx2 ;
         valuePointer Adu = LU + nxn ;
         std::vector<bool> const & LU_rows = LU_rows_blk[k1] ;
 
-        valuePointer yk  = y + k  * n ;
-        valuePointer yk1 = y + k1 * n ;
-        valuePointer yk2 = y + k2 * n ;
-
+        valuePointer yk1 = y_thread + k1 * n ;
         for ( integer i = 0 ; i < n ; ++i ) {
-          valuePointer LR = LU_rows[i] ? yk2 : yk ;
+          valuePointer LR = y_thread + ( LU_rows[i] ? k2 : k ) * n ;
           yk1[i] -= dot( n, Adu+i, n, LR, 1 ) ;
         }
         // (LU)^(-1) = U^(-1) L^(-1)
@@ -837,13 +775,18 @@ namespace alglin {
          |    Ad' | L\U | Bu' | <-- memorizzazione compatta
          |  + - - +-----+-----+-----+ - - +
         \*/
-      } while ( true ) ;
+      }
       // aspetta le altre thread
       { unique_lock<mutex> lck(mtx0);
-        if ( --to_be_done == 0 ) cond0.notify_all() ; // wake up all tread
-        else                     cond0.wait(lck);
+        if ( --to_be_done == 0 ) {
+          cond0.notify_all() ; // wake up all tread
+          jump_block /= 2 ;
+          to_be_done = usedThread ;
+        } else {
+          cond0.wait(lck);
+        }
       }
-    } while ( true ) ;
+    }
   }
   #endif
 
@@ -859,7 +802,9 @@ namespace alglin {
   AmodioLU<t_Value>::solve( valuePointer y ) const {
 
     #ifdef LU_BABD_AMODIO_USE_THREAD
-    integer usedThread = numThread ;
+    usedThread        = numThread ;
+    jump_block_max_mt = nblock>>(usedThread-1) ;
+    y_thread          = y ;
     #endif
 
     /*\
@@ -869,18 +814,15 @@ namespace alglin {
     \*/
     jump_block = 1 ;
     #ifdef LU_BABD_AMODIO_USE_THREAD
-    if ( usedThread == 1 ) {
-      forward_reduce(y) ;
-    } else {
-      to_be_done = 0 ;
+    if ( usedThread > 0 ) {
+      to_be_done = usedThread ;
       for ( integer nt = 0 ; nt < usedThread ; ++nt )
-        threads[nt] = std::thread( &AmodioLU<t_Value>::forward_reduce_mt, this, usedThread, y ) ;
+        threads[nt] = std::thread( &AmodioLU<t_Value>::forward_reduce_mt, this, nt ) ;
       for ( integer nt = 0 ; nt < usedThread ; ++nt )
         threads[nt].join() ;
     }
-    #else
-    forward_reduce(y) ;
     #endif
+    forward_reduce(y) ;
 
     /*\
      | !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -902,18 +844,20 @@ namespace alglin {
      | !!!! back-substitution phase !!!!
      | !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     \*/
+    jump_block /= 2 ;
     #ifdef LU_BABD_AMODIO_USE_THREAD
-    if ( usedThread == 1 ) {
-      back_substitute( y ) ;
-    } else {
-      to_be_done = 0 ;
+    if ( usedThread > 0 ) {
+      back_substitute( y, jump_block_max_mt ) ;
+      to_be_done = usedThread ;
       for ( integer nt = 0 ; nt < usedThread ; ++nt )
-        threads[nt] = std::thread( &AmodioLU<t_Value>::back_substitute_mt, this, usedThread, y ) ;
+        threads[nt] = std::thread( &AmodioLU<t_Value>::back_substitute_mt, this, nt ) ;
       for ( integer nt = 0 ; nt < usedThread ; ++nt )
         threads[nt].join() ;
+    } else {
+      back_substitute( y, 0 ) ;
     }
     #else
-    back_substitute( y ) ;
+    back_substitute( y, 0 ) ;
     #endif
   }
 
