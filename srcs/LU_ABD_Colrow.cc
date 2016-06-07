@@ -160,9 +160,9 @@ namespace alglin {
     col0     = _col0 ;
     rowN     = _rowN ;
     colN     = _colN ;
-    
+
     setup() ;
-    
+
     if ( use_arceco ) {
 
       baseIndex.allocate( 3*(numBlock+2) + neq ) ;
