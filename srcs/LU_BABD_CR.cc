@@ -174,7 +174,7 @@ namespace alglin {
                                             mat_t  & B,
                                             ivec_t & ipiv ) const {
     // LU DECOMPOSITION, ROW INTERCHANGES
-    //integer nb = std::min(NB,n) ;
+    // integer nb = std::min(NB,n) ;
     for ( integer j = 0 ; j < n ; ) {
       integer mx1 = j ;
       t_Value ax1 = std::abs( A(j,j) ) ;

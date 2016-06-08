@@ -81,7 +81,6 @@ namespace alglin {
     integer nblock ; //!< total number of blocks
     integer n      ; //!< size of square blocks
     integer m      ; //!< number final rows (m>=n)
-    integer nnz    ; //!< total number of non zeros
 
     // some derived constanst
     integer nx2 ;

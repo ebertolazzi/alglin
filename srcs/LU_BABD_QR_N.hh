@@ -17,8 +17,8 @@
  |                                                                          |
 \*--------------------------------------------------------------------------*/
 
-#ifndef LU_BABD_QR_HH
-#define LU_BABD_QR_HH
+#ifndef LU_BABD_QR_N_HH
+#define LU_BABD_QR_N_HH
 
 #include "Alglin.hh"
 #include <vector>
@@ -27,15 +27,17 @@
 #include <Eigen/Dense>
 
 #ifdef ALGLIN_USE_CXX11
-  //#define LU_BABD_QR_USE_THREAD
+  #define LU_BABD_QR_N_USE_THREAD
 #endif
 
-#ifdef LU_BABD_QR_USE_THREAD
+#define LU_BABD_QR_N_USE_PIVOTING
+
+#ifdef LU_BABD_QR_N_USE_THREAD
   #include <thread>
   #include <mutex>
   #include <condition_variable>
   #include <atomic>
-  #define LU_BABD_QR_MAX_THREAD 256
+  #define LU_BABD_QR_N_MAX_THREAD 256
 #endif
 
 namespace alglin {
@@ -66,31 +68,28 @@ namespace alglin {
    *           enrico.bertolazzi@ing.unitn.it
    *
    */
-  template <typename t_Value>
-  class BabdQR {
+  template <typename t_Value, integer N>
+  class BabdQR_N {
   private:
   
     typedef t_Value         valueType ;
     typedef t_Value*        valuePointer ;
     typedef t_Value const * valueConstPointer ;
 
+    typedef Eigen::Matrix<t_Value,N,1>     vecTypeN ;
+    typedef Eigen::Matrix<t_Value,2*N,1>   vecType2N ;
+    typedef Eigen::Matrix<t_Value,N,N>     matTypeNN ;
+    typedef Eigen::Matrix<t_Value,2*N,N>   matType2NN ;
+    typedef Eigen::Matrix<t_Value,2*N,2*N> matType2N2N ;
+
     typedef Eigen::Matrix<t_Value,Eigen::Dynamic,1>              vecType ;
     typedef Eigen::Matrix<t_Value,Eigen::Dynamic,Eigen::Dynamic> matType ;
 
-    Malloc<valueType> baseValue ;
-
-    BabdQR(BabdQR const &) ;
-    BabdQR const & operator = (BabdQR const &) ;
+    BabdQR_N(BabdQR_N const &) ;
+    BabdQR_N const & operator = (BabdQR_N const &) ;
 
     integer nblock ; //!< total number of blocks
-    integer n      ; //!< size of square blocks
-    integer m      ; //!< number final rows (m>=n)
-
-    // some derived constanst
-    integer nx2 ;
-    integer nxn ;
-    integer nxnx2 ;
-    integer nm ;
+    integer q      ;
 
     /*
     //
@@ -125,24 +124,25 @@ namespace alglin {
     */
 
     ///////////////////////////////////////////////////////
-    
-    //typedef Eigen::HouseholderQR<matType>       QR_type ;
-    typedef Eigen::ColPivHouseholderQR<matType> QR_type ;
+    #ifdef LU_BABD_QR_N_USE_PIVOTING
+    typedef Eigen::ColPivHouseholderQR<matType2NN> QR_type_2NN ;
+    typedef Eigen::ColPivHouseholderQR<matType>    QR_type ;
+    #else
+    typedef Eigen::HouseholderQR<matType2NN> QR_type_2NN ;
+    typedef Eigen::HouseholderQR<matType>    QR_type ;
+    #endif
 
-    std::vector<QR_type> QR_blk ;
-    QR_type              QR_last_blk ; // last QR and working space
-    valuePointer         AdAu_blk ;
+    std::vector<QR_type_2NN> QR_blk ;
+    QR_type                  QR_last_blk ; // last QR and working space
+    std::vector<matTypeNN>   AdAu_blk ;
 
-    mutable vecType v1_n,   v2_n   ;
-    mutable vecType v1_nx2, v2_nx2 ;
-    mutable vecType v1_nm,  v2_nm  ;
+    mutable vecType v1_nm, v2_nm  ;
+    mutable matType M_nm_nm ;
 
-    mutable matType M1_2n_n, M2_2n_n ;
-
-    #ifdef LU_BABD_QR_USE_THREAD
+    #ifdef LU_BABD_QR_N_USE_THREAD
     mutable mutex              mtx0, mtx1, mtx2 ;
     mutable condition_variable cond0 ;
-    mutable std::thread        threads[LU_BABD_QR_MAX_THREAD] ;
+    mutable std::thread        threads[LU_BABD_QR_N_MAX_THREAD] ;
     mutable integer            to_be_done ;
             integer const      numThread ;
     mutable integer            usedThread ;
@@ -152,7 +152,7 @@ namespace alglin {
 
     mutable integer jump_block ;
 
-    #ifdef LU_BABD_QR_USE_THREAD
+    #ifdef LU_BABD_QR_N_USE_THREAD
     void forward_reduce_mt( integer nth ) const ;
     void back_substitute_mt( integer nth ) const ;
     void reduction_mt( integer nth ) ;
@@ -164,13 +164,13 @@ namespace alglin {
 
   public:
 
-    #ifdef LU_BABD_QR_USE_THREAD
-    explicit BabdQR( integer nth = std::thread::hardware_concurrency() ) ;
+    #ifdef LU_BABD_QR_N_USE_THREAD
+    explicit BabdQR_N( integer nth = std::thread::hardware_concurrency() ) ;
     #else
-    explicit BabdQR() ;
+    explicit BabdQR_N() ;
     #endif
 
-    ~BabdQR() ;
+    ~BabdQR_N() {}
 
     //! load matrix in the class
     /*!
@@ -213,7 +213,6 @@ namespace alglin {
     */
     void
     factorize( integer           nblk,
-               integer           n,
                integer           q,
                valueConstPointer AdAu,
                valueConstPointer H0,

@@ -17,7 +17,7 @@
  |                                                                          |
 \*--------------------------------------------------------------------------*/
 
-  #define NSIZE 4
+  #define NSIZE 10
 
   alglin::integer n    = NSIZE ;
   alglin::integer nblk = 500000 ;
