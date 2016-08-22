@@ -22,7 +22,7 @@
 #include <random>
 #include "Alglin.hh"
 #include "Alglin_aux.hh"
-#include "TimeMeter.hh"
+#include "TicToc.hh"
 #include "LU_Arceco.hh"
 #include "LU_ABD_Colrow.hh"
 
@@ -107,28 +107,28 @@ main() {
                              rowN, colN, blockN,
                              1.0, x, 1, 0, rhs, 1 ) ;
 
-  TimeMeter tm ;
+  TicToc tm ;
   tm.reset() ;
 
-  tm.start() ;
+  tm.tic() ;
   LU.factorize( row0, col0, block0,
                 numBlock, dim, blocks,
                 rowN, colN, blockN ) ;
-  tm.stop() ;
-  cout << "Factorize = " << tm.partialElapsedMilliseconds() << " [ms]\n" ;
+  tm.toc() ;
+  cout << "Factorize = " << tm.elapsedMilliseconds() << " [ms]\n" ;
 
-  tm.start() ;
+  tm.tic() ;
   LU_arceco.factorize( row0, col0, block0,
                        numBlock, dim, blocks,
                        rowN, colN, blockN ) ;
-  tm.stop() ;
-  cout << "Factorize (arceco) = " << tm.partialElapsedMilliseconds() << " [ms]\n" ;
+  tm.toc() ;
+  cout << "Factorize (arceco) = " << tm.elapsedMilliseconds() << " [ms]\n" ;
 
   std::copy( rhs, rhs+N, x ) ;
-  tm.start() ;
+  tm.tic() ;
   LU.solve( x ) ;
-  tm.stop() ;
-  cout << "Solve = " << tm.partialElapsedMilliseconds() << " [ms]\n" ;
+  tm.toc() ;
+  cout << "Solve = " << tm.elapsedMilliseconds() << " [ms]\n" ;
 
   alglin::copy( N, xref, 1, xref1, 1 ) ;
   alglin::axpy( N, -1.0, x, 1, xref1, 1 ) ;
@@ -157,10 +157,10 @@ main() {
 
 
   std::copy( rhs, rhs+N, x ) ;
-  tm.start() ;
+  tm.tic() ;
   LU_arceco.solve( x ) ;
-  tm.stop() ;
-  cout << "\n\nSolve (arceco) = " << tm.partialElapsedMilliseconds() << " [ms]\n" ;
+  tm.toc() ;
+  cout << "\n\nSolve (arceco) = " << tm.elapsedMilliseconds() << " [ms]\n" ;
 
   alglin::copy( N, xref, 1, xref1, 1 ) ;
   alglin::axpy( N, -1.0, x, 1, xref1, 1 ) ;

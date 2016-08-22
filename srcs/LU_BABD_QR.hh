@@ -21,6 +21,7 @@
 #define LU_BABD_QR_HH
 
 #include "Alglin.hh"
+#include "Alglin++.hh"
 #include <vector>
 
 // Eigen3

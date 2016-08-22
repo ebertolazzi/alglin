@@ -21,6 +21,7 @@
 #define LU_BABD_BLOCK_HH
 
 #include "Alglin.hh"
+#include "Alglin++.hh"
 
 //! Various LU decomposition classes
 namespace alglin {

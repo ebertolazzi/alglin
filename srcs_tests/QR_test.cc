@@ -21,8 +21,9 @@
 #include <vector>
 #include <random>
 #include "Alglin.hh"
+#include "Alglin++.hh"
 #include "Alglin_aux.hh"
-#include "TimeMeter.hh"
+#include "TicToc.hh"
 #include "LU_BABD_QR.hh"
 
 using namespace std ;
@@ -46,21 +47,21 @@ main() {
 
   //alglin::babd_print<valueType>( cout, nblk, n, q, AdAu, H0, HN, Hq ) ;
 
-  TimeMeter tm ;
+  TicToc tm ;
   tm.reset() ;
 
-  tm.start() ;
+  tm.tic() ;
   LU.factorize( nblk, n, q, AdAu, H0, HN, Hq ) ;
-  tm.stop() ;
-  cout << "Factorize (QR) = " << tm.partialElapsedMilliseconds() << " [ms]\n" ;
+  tm.toc() ;
+  cout << "Factorize (QR) = " << tm.elapsedMilliseconds() << " [ms]\n" ;
 
-  tm.start() ;
+  tm.tic() ;
   //for ( int k = 0 ; k < 10 ; ++k ) {
     std::copy( rhs, rhs+N, x ) ;
     LU.solve( x ) ;
   //}
-  tm.stop() ;
-  cout << "Solve (QR) = " << tm.partialElapsedMilliseconds() << " [ms]\n" ;
+  tm.toc() ;
+  cout << "Solve (QR) = " << tm.elapsedMilliseconds() << " [ms]\n" ;
 
   //for ( alglin::integer i = 0 ; i < N ; ++i )
   //  cout << "x[" << i << "] = " << x[i] << '\n' ;

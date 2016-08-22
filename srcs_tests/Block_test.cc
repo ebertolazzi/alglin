@@ -22,7 +22,7 @@
 #include <random>
 #include "Alglin.hh"
 #include "Alglin_aux.hh"
-#include "TimeMeter.hh"
+#include "TicToc.hh"
 #include "LU_BABD_Block.hh"
 
 using namespace std ;
@@ -103,19 +103,19 @@ main() {
 
   cout << "Check residue |r|_inf = " << alglin::absmax( N, resid, 1 ) << '\n' ;
 
-  TimeMeter tm ;
+  TicToc tm ;
   tm.reset() ;
 
-  tm.start() ;
+  tm.tic() ;
   LU.factorize( nblk, n, q, AdAu, H0, HN, Hq ) ;
-  tm.stop() ;
-  cout << "Factorize (Block) = " << tm.partialElapsedMilliseconds() << " [ms]\n" ;
+  tm.toc() ;
+  cout << "Factorize (Block) = " << tm.elapsedMilliseconds() << " [ms]\n" ;
 
   std::copy( rhs, rhs+N, x ) ;
-  tm.start() ;
+  tm.tic() ;
   LU.solve( x ) ;
-  tm.stop() ;
-  cout << "Solve (Block) = " << tm.partialElapsedMilliseconds() << " [ms]\n" ;
+  tm.toc() ;
+  cout << "Solve (Block) = " << tm.elapsedMilliseconds() << " [ms]\n" ;
 
   alglin::copy( N, xref, 1, xref1, 1 ) ;
   alglin::axpy( N, -1.0, x, 1, xref1, 1 ) ;

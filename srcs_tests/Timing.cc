@@ -21,7 +21,8 @@
 #include <vector>
 #include <random>
 #include "Alglin.hh"
-#include "TimeMeter.hh"
+#include "Alglin++.hh"
+#include "TicToc.hh"
 
 #include <Eigen/Dense>
 
@@ -75,10 +76,10 @@ main() {
     }
   }
 
-  TimeMeter tm ;
+  TicToc tm ;
   tm.reset() ;
 
-  tm.start() ;
+  tm.tic() ;
   for ( int i = 0 ; i < N_TIMES ; ++i ) {
     gemm( Transposition::NO_TRANSPOSE,
           Transposition::NO_TRANSPOSE,
@@ -88,26 +89,26 @@ main() {
           1.0, M3, N ) ;
     copy( N*N, M3, 1, M2, 1) ;
   }
-  tm.stop() ;
-  cout << "MULT (lapack) = " << tm.partialElapsedMilliseconds() << " [ms]\n" ;
+  tm.toc() ;
+  cout << "MULT (lapack) = " << tm.elapsedMilliseconds() << " [ms]\n" ;
 
-  tm.start() ;
+  tm.tic() ;
   for ( int i = 0 ; i < N_TIMES ; ++i ) {
     m3.noalias() -= m1*m2 ;
     m2 = m3 ;
   }
-  tm.stop() ;
-  cout << "MULT (eigen) = " << tm.partialElapsedMilliseconds() << " [ms]\n" ;
+  tm.toc() ;
+  cout << "MULT (eigen) = " << tm.elapsedMilliseconds() << " [ms]\n" ;
 
-  tm.start() ;
+  tm.tic() ;
   for ( int i = 0 ; i < N_TIMES ; ++i ) {
     dm3.noalias() -= dm1*dm2 ;
     dm2 = dm3 ;
   }
-  tm.stop() ;
-  cout << "MULT (deigen) = " << tm.partialElapsedMilliseconds() << " [ms]\n" ;
+  tm.toc() ;
+  cout << "MULT (deigen) = " << tm.elapsedMilliseconds() << " [ms]\n" ;
 
-  tm.start() ;
+  tm.tic() ;
   for ( int i = 0 ; i < N_TIMES ; ++i ) {
     Eigen::Map<mat_t> mm1(M1) ;
     Eigen::Map<mat_t> mm2(M2) ;
@@ -115,10 +116,10 @@ main() {
     mm3.noalias() -= mm1*mm2 ;
     mm2 = mm3 ;
   }
-  tm.stop() ;
-  cout << "MULT (eigen map) = " << tm.partialElapsedMilliseconds() << " [ms]\n" ;
+  tm.toc() ;
+  cout << "MULT (eigen map) = " << tm.elapsedMilliseconds() << " [ms]\n" ;
 
-  tm.start() ;
+  tm.tic() ;
   for ( int i = 0 ; i < N_TIMES ; ++i ) {
     Eigen::Map<dmat_t> mm1(M1,N,N) ;
     Eigen::Map<dmat_t> mm2(M2,N,N) ;
@@ -126,11 +127,11 @@ main() {
     mm3.noalias() -= mm1*mm2 ;
     mm2 = mm3 ;
   }
-  tm.stop() ;
-  cout << "MULT (deigen map) = " << tm.partialElapsedMilliseconds() << " [ms]\n" ;
+  tm.toc() ;
+  cout << "MULT (deigen map) = " << tm.elapsedMilliseconds() << " [ms]\n" ;
 
 
-  tm.start() ;
+  tm.tic() ;
   for ( int i = 0 ; i < N_TIMES ; ++i ) {
     M3[0+0*N] -= M1[0+0*N]*M2[0+0*N]+M1[0+1*N]*M2[1+0*N] ;
     M3[0+1*N] -= M1[0+0*N]*M2[0+1*N]+M1[0+1*N]*M2[1+1*N] ;
@@ -141,8 +142,8 @@ main() {
     M2[1+0*N] = M2[1+0*N];
     M2[1+1*N] = M2[1+1*N];
   }
-  tm.stop() ;
-  cout << "MULT (hand) = " << tm.partialElapsedMilliseconds() << " [ms]\n" ;
+  tm.toc() ;
+  cout << "MULT (hand) = " << tm.elapsedMilliseconds() << " [ms]\n" ;
 
   cout << "All done!\n" ;
 

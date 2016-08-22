@@ -21,6 +21,7 @@
 #define LU_BABD_AMODIO_N_HH
 
 #include "Alglin.hh"
+#include "Alglin++.hh"
 #include <vector>
 
 #ifdef ALGLIN_USE_CXX11
