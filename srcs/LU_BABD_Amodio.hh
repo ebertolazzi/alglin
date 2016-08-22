@@ -21,6 +21,8 @@
 #define LU_BABD_AMODIO_HH
 
 #include "Alglin.hh"
+#include "Alglin++.hh"
+
 #include <vector>
 
 #ifdef ALGLIN_USE_CXX11
@@ -82,7 +84,7 @@ namespace alglin {
     integer n      ; //!< size of square blocks
     integer m      ; //!< number final rows (m>=n)
 
-    // some derived constanst
+    // some derived constants
     integer nx2 ;
     integer nxn ;
     integer nxnx2 ;

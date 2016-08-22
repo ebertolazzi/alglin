@@ -25,6 +25,8 @@
 #define LU_ABD_COLROW_HH
 
 #include "Alglin.hh"
+#include "Alglin++.hh"
+
 #include "LU_ArcecoSolver.hh"
 #include <iostream>
 

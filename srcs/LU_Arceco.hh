@@ -21,6 +21,8 @@
 #define MECHATRONIX_CORE_ARCECO_LU_HH
 
 #include "Alglin.hh"
+#include "Alglin++.hh"
+
 #include "LU_ArcecoSolver.hh"
 
 namespace alglin {
