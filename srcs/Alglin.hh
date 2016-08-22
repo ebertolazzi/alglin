@@ -446,11 +446,11 @@ namespace alglin {
   real
   lamch( character const WHAT[] )
   #if defined(ALGLIN_USE_OPENBLAS)
-  { return LAPACK_NAME(slamch)( (character*)WHAT ) ; }
+  { return LAPACK_NAME(slamch)( const_cast<character*>(WHAT) ) ; }
   #elif defined(ALGLIN_USE_ACCELERATE)
-  { return CLAPACKNAME(slamch)( (character*)WHAT ) ; }
+  { return CLAPACKNAME(slamch)( const_cast<character*>(WHAT) ) ; }
   #else
-  { return LAPACKNAME(slamch)( (character*)WHAT ) ; }
+  { return LAPACKNAME(slamch)( const_cast<character*>(WHAT) ) ; }
   #endif
 
   template <>
@@ -458,11 +458,11 @@ namespace alglin {
   doublereal
   lamch( character const WHAT[] )
   #if defined(ALGLIN_USE_OPENBLAS)
-  { return LAPACK_NAME(dlamch)( (character*)WHAT ) ; }
+  { return LAPACK_NAME(dlamch)( const_cast<character*>(WHAT) ) ; }
   #elif defined(ALGLIN_USE_ACCELERATE)
-  { return CLAPACKNAME(dlamch)( (character*)WHAT ) ; }
+  { return CLAPACKNAME(dlamch)( const_cast<character*>(WHAT) ) ; }
   #else
-  { return LAPACKNAME(dlamch)( (character*)WHAT ) ; }
+  { return LAPACKNAME(dlamch)( const_cast<character*>(WHAT) ) ; }
   #endif
 
   /*
@@ -599,10 +599,14 @@ namespace alglin {
     #elif !defined(ALGLIN_USE_ACCELERATE)
     size_t len_NAME = strlen( NAME ) ;
     size_t len_OPTS = strlen( OPTS ) ;
-    return LAPACKNAME(ilaenv)( &ISPEC, (character*)NAME, (character*)OPTS,
+    return LAPACKNAME(ilaenv)( &ISPEC,
+                               const_cast<character*>(NAME),
+                               const_cast<character*>(OPTS),
                                &N1, &N2, &N3, &N4, &len_NAME, &len_OPTS ) ;
     #else
-    return CLAPACKNAME(ilaenv)( &ISPEC, (character*)NAME, (character*)OPTS,
+    return CLAPACKNAME(ilaenv)( &ISPEC,
+                                const_cast<character*>(NAME),
+                                const_cast<character*>(OPTS),
                                 &N1, &N2, &N3, &N4 ) ;
     #endif
   }
@@ -801,11 +805,11 @@ namespace alglin {
     #elif defined(ALGLIN_USE_ACCELERATE)
       integer K1 = I1+1 ;
       integer K2 = I2+1 ;
-      return CLAPACKNAME(slaswp)( &NCOL, A, &LDA, &K1, &K2, (integer*)IPIV, &INC ) ;
+      return CLAPACKNAME(slaswp)( &NCOL, A, &LDA, &K1, &K2, const_cast<integer*>(IPIV), &INC ) ;
     #else
       integer K1 = I1+1 ;
       integer K2 = I2+1 ;
-      LAPACKNAME(slaswp)( &NCOL, A, &LDA, &K1, &K2, (integer*)IPIV, &INC ) ;
+      LAPACKNAME(slaswp)( &NCOL, A, &LDA, &K1, &K2, const_cast<integer*>(IPIV), &INC ) ;
       return 0;
     #endif
   }
@@ -830,11 +834,11 @@ namespace alglin {
     #elif defined(ALGLIN_USE_ACCELERATE)
       integer K1 = I1+1 ;
       integer K2 = I2+1 ;
-      return CLAPACKNAME(dlaswp)( &NCOL, A, &LDA, &K1, &K2, (integer*)IPIV, &INC ) ;
+      return CLAPACKNAME(dlaswp)( &NCOL, A, &LDA, &K1, &K2, const_cast<integer*>(IPIV), &INC ) ;
     #else
       integer K1 = I1+1 ;
       integer K2 = I2+1 ;
-      LAPACKNAME(dlaswp)( &NCOL, A, &LDA, &K1, &K2, (integer*)IPIV, &INC ) ;
+      LAPACKNAME(dlaswp)( &NCOL, A, &LDA, &K1, &K2, const_cast<integer*>(IPIV), &INC ) ;
       return 0;
     #endif
   }
@@ -1810,8 +1814,8 @@ namespace alglin {
                       B, LDB,
                       BETA, C, LDC ) ; }
   #else
-  { BLASNAME(dgemm)( (character*)trans_blas[TRANSA],
-                     (character*)trans_blas[TRANSB],
+  { BLASNAME(dgemm)( const_cast<character*>(trans_blas[TRANSA]),
+                     const_cast<character*>(trans_blas[TRANSB]),
                      &M, &N, &K,
                      &ALPHA, A, &LDA,
                      B, &LDB,
@@ -1844,7 +1848,7 @@ namespace alglin {
   #endif
 
   inline
-  return_precision
+  real
   nrm2( integer    N,
         real const X[],
         integer    INCX )
@@ -1889,7 +1893,7 @@ namespace alglin {
   #endif
 
   inline
-  return_precision
+  real
   asum( integer    N,
         real const X[],
         integer    INCX)
@@ -2003,7 +2007,7 @@ namespace alglin {
   #endif
   
   inline
-  return_precision
+  real
   dot( integer    N,
        real const SX[],
        integer    INCX,
@@ -2953,7 +2957,8 @@ namespace alglin {
     BLASNAME(stbmv)( uplo_blas[UPLO],
                      trans_blas[TRANS],
                      diag_blas[DIAG],
-                     &N, &K, (real*)A, &ldA, xb, &incx ) ;
+                     &N, &K,
+                     const_cast<real*>(A), &ldA, xb, &incx ) ;
     #endif
   }
 
@@ -2978,7 +2983,8 @@ namespace alglin {
     BLASNAME(dtbmv)( uplo_blas[UPLO],
                      trans_blas[TRANS],
                      diag_blas[DIAG],
-                     &N, &K, (doublereal*)A, &ldA, xb, &incx ) ;
+                     &N, &K,
+                     const_cast<doublereal*>(A), &ldA, xb, &incx ) ;
     #endif
   }
 
@@ -3161,7 +3167,8 @@ namespace alglin {
     BLASNAME(stbsv)( uplo_blas[UPLO],
                      trans_blas[TRANS],
                      diag_blas[DIAG],
-                     &N, &K, (real*)A, &ldA, xb, &incx ) ;
+                     &N, &K,
+                     const_cast<real*>(A), &ldA, xb, &incx ) ;
     #endif
   }
 
@@ -3186,7 +3193,8 @@ namespace alglin {
     BLASNAME(dtbsv)( uplo_blas[UPLO],
                      trans_blas[TRANS],
                      diag_blas[DIAG],
-                     &N, &K, (doublereal*)A, &ldA, xb, &incx ) ;
+                     &N, &K,
+                     const_cast<doublereal*>(A), &ldA, xb, &incx ) ;
     #endif
   }
 
@@ -3418,14 +3426,25 @@ namespace alglin {
          integer               LDB )
   { integer INFO = 0;
     #if defined(ALGLIN_USE_OPENBLAS)
-    LAPACK_NAME(sgttrs)( (character*)trans_blas[TRANS],
+    LAPACK_NAME(sgttrs)( const_cast<character*>(trans_blas[TRANS]),
                          &N, &NRHS, DL, D, DU, DU2, IPIV, B, &LDB, &INFO ) ;
     #elif defined(ALGLIN_USE_ACCELERATE)
-    CLAPACKNAME(sgttrs)( (character*)trans_blas[TRANS],
-                         &N, &NRHS, (real*)DL, (real*)D, (real*)DU, (real*)DU2, (integer*)IPIV, B, &LDB, &INFO ) ;
+    CLAPACKNAME(sgttrs)( const_cast<character*>(trans_blas[TRANS]),
+                         &N, &NRHS,
+                         const_cast<real*>(DL),
+                         const_cast<real*>(D),
+                         const_cast<real*>(DU),
+                         const_cast<real*>(DU2),
+                         const_cast<integer*>(IPIV), B, &LDB, &INFO ) ;
     #else
-    LAPACKNAME(sgttrs)( (character*)trans_blas[TRANS],
-                        &N, &NRHS, (real*)DL, (real*)D, (real*)DU, (real*)DU2, (integer*)IPIV, B, &LDB, &INFO ) ;
+    LAPACKNAME(sgttrs)( const_cast<character*>(trans_blas[TRANS]),
+                        &N, &NRHS,
+                        const_cast<real*>(DL),
+                        const_cast<real*>(D),
+                        const_cast<real*>(DU),
+                        const_cast<real*>(DU2),
+                        const_cast<integer*>(IPIV),
+                        B, &LDB, &INFO ) ;
     #endif
     return INFO ;
   }
@@ -3444,16 +3463,26 @@ namespace alglin {
          integer               LDB )
   { integer INFO = 0;
     #if defined(ALGLIN_USE_OPENBLAS)
-    LAPACK_NAME(dgttrs)( (character*)trans_blas[TRANS],
+    LAPACK_NAME(dgttrs)( const_cast<character*>(trans_blas[TRANS]),
                          &N, &NRHS, DL, D, DU, DU2, IPIV, B, &LDB, &INFO ) ;
     #elif defined(ALGLIN_USE_ACCELERATE)
-    CLAPACKNAME(dgttrs)( (character*)trans_blas[TRANS],
-                         &N, &NRHS, (doublereal*)DL, (doublereal*)D, (doublereal*)DU, (doublereal*)DU2,
-                         (integer*)IPIV, B, &LDB, &INFO ) ;
+    CLAPACKNAME(dgttrs)( const_cast<character*>(trans_blas[TRANS]),
+                         &N, &NRHS,
+                         const_cast<doublereal*>(DL),
+                         const_cast<doublereal*>(D),
+                         const_cast<doublereal*>(DU),
+                         const_cast<doublereal*>(DU2),
+                         const_cast<integer*>(IPIV),
+                         B, &LDB, &INFO ) ;
     #else
-    LAPACKNAME(dgttrs)( (character*)trans_blas[TRANS],
-                         &N, &NRHS, (doublereal*)DL, (doublereal*)D, (doublereal*)DU, (doublereal*)DU2,
-                         (integer*)IPIV, B, &LDB, &INFO ) ;
+    LAPACKNAME(dgttrs)( const_cast<character*>(trans_blas[TRANS]),
+                        &N, &NRHS,
+                        const_cast<doublereal*>(DL),
+                        const_cast<doublereal*>(D),
+                        const_cast<doublereal*>(DU),
+                        const_cast<doublereal*>(DU2),
+                        const_cast<integer*>(IPIV),
+                        B, &LDB, &INFO ) ;
     #endif
     return INFO ;
   }
@@ -3692,17 +3721,29 @@ namespace alglin {
           integer       IWORK[] )
   { integer INFO = 0;
     #if defined(ALGLIN_USE_OPENBLAS)
-    LAPACK_NAME(sgtcon)( (character*)"1", &N,
-                         (real*)DL, (real*)D, (real*)DU, (real*)DU2, (integer*)IPIV,
+    LAPACK_NAME(sgtcon)( const_cast<character*>("1"), &N,
+                         const_cast<real*>(DL),
+                         const_cast<real*>(D),
+                         const_cast<real*>(DU),
+                         const_cast<real*>(DU2),
+                         const_cast<integer*>(IPIV),
                          &ANORM, &RCOND, WORK, IWORK, &INFO ) ;
     #elif defined(ALGLIN_USE_ACCELERATE)
-    CLAPACKNAME(sgtcon)( (character*)"1", &N,
-                         (real*)DL, (real*)D, (real*)DU, (real*)DU2, (integer*)IPIV,
+    CLAPACKNAME(sgtcon)( const_cast<character*>("1"), &N,
+                         const_cast<real*>(DL),
+                         const_cast<real*>(D),
+                         const_cast<real*>(DU),
+                         const_cast<real*>(DU2),
+                         const_cast<integer*>(IPIV),
                          &ANORM, &RCOND, WORK, IWORK, &INFO ) ;
     #else
-    LAPACKNAME(sgtcon)( (character*)"1", &N,
-                         (real*)DL, (real*)D, (real*)DU, (real*)DU2, (integer*)IPIV,
-                         &ANORM, &RCOND, WORK, IWORK, &INFO ) ;
+    LAPACKNAME(sgtcon)( const_cast<character*>("1"), &N,
+                        const_cast<real*>(DL),
+                        const_cast<real*>(D),
+                        const_cast<real*>(DU),
+                        const_cast<real*>(DU2),
+                        const_cast<integer*>(IPIV),
+                        &ANORM, &RCOND, WORK, IWORK, &INFO ) ;
     #endif
     return INFO ;
   }
@@ -3721,17 +3762,29 @@ namespace alglin {
           integer          IWORK[] )
   { integer INFO = 0;
     #if defined(ALGLIN_USE_OPENBLAS)
-    LAPACK_NAME(dgtcon)( (character*)"1", &N,
-                         (doublereal*)DL, (doublereal*)D, (doublereal*)DU, (doublereal*)DU2, (integer*)IPIV,
+    LAPACK_NAME(dgtcon)( const_cast<character*>("1"), &N,
+                         const_cast<doublereal*>(DL),
+                         const_cast<doublereal*>(D),
+                         const_cast<doublereal*>(DU),
+                         const_cast<doublereal*>(DU2),
+                         const_cast<integer*>(IPIV),
                          &ANORM, &RCOND, WORK, IWORK, &INFO ) ;
     #elif defined(ALGLIN_USE_ACCELERATE)
-    CLAPACKNAME(dgtcon)( (character*)"1", &N,
-                         (doublereal*)DL, (doublereal*)D, (doublereal*)DU, (doublereal*)DU2, (integer*)IPIV,
+    CLAPACKNAME(dgtcon)( const_cast<character*>("1"), &N,
+                         const_cast<doublereal*>(DL),
+                         const_cast<doublereal*>(D),
+                         const_cast<doublereal*>(DU),
+                         const_cast<doublereal*>(DU2),
+                         const_cast<integer*>(IPIV),
                          &ANORM, &RCOND, WORK, IWORK, &INFO ) ;
     #else
-    LAPACKNAME(dgtcon)( (character*)"1", &N,
-                         (doublereal*)DL, (doublereal*)D, (doublereal*)DU, (doublereal*)DU2, (integer*)IPIV,
-                         &ANORM, &RCOND, WORK, IWORK, &INFO ) ;
+    LAPACKNAME(dgtcon)( const_cast<character*>("1"), &N,
+                        const_cast<doublereal*>(DL),
+                        const_cast<doublereal*>(D),
+                        const_cast<doublereal*>(DU),
+                        const_cast<doublereal*>(DU2),
+                        const_cast<integer*>(IPIV),
+                        &ANORM, &RCOND, WORK, IWORK, &INFO ) ;
     #endif
     return INFO ;
   }
@@ -3750,17 +3803,29 @@ namespace alglin {
             integer       IWORK[] )
   { integer INFO = 0;
     #if defined(ALGLIN_USE_OPENBLAS)
-    LAPACK_NAME(sgtcon)( (character*)"I", &N,
-                         (real*)DL, (real*)D, (real*)DU, (real*)DU2, (integer*)IPIV,
+    LAPACK_NAME(sgtcon)( const_cast<character*>("I"), &N,
+                         const_cast<real*>(DL),
+                         const_cast<real*>(D),
+                         const_cast<real*>(DU),
+                         const_cast<real*>(DU2),
+                         const_cast<integer*>(IPIV),
                          &ANORM, &RCOND, WORK, IWORK, &INFO ) ;
     #elif defined(ALGLIN_USE_ACCELERATE)
-    CLAPACKNAME(sgtcon)( (character*)"I", &N,
-                         (real*)DL, (real*)D, (real*)DU, (real*)DU2, (integer*)IPIV,
+    CLAPACKNAME(sgtcon)( const_cast<character*>("I"), &N,
+                         const_cast<real*>(DL),
+                         const_cast<real*>(D),
+                         const_cast<real*>(DU),
+                         const_cast<real*>(DU2),
+                         const_cast<integer*>(IPIV),
                          &ANORM, &RCOND, WORK, IWORK, &INFO ) ;
     #else
-    LAPACKNAME(sgtcon)( (character*)"I", &N,
-                         (real*)DL, (real*)D, (real*)DU, (real*)DU2, (integer*)IPIV,
-                         &ANORM, &RCOND, WORK, IWORK, &INFO ) ;
+    LAPACKNAME(sgtcon)( const_cast<character*>("I"), &N,
+                        const_cast<real*>(DL),
+                        const_cast<real*>(D),
+                        const_cast<real*>(DU),
+                        const_cast<real*>(DU2),
+                        const_cast<integer*>(IPIV),
+                        &ANORM, &RCOND, WORK, IWORK, &INFO ) ;
     #endif
     return INFO ;
   }
@@ -3779,17 +3844,29 @@ namespace alglin {
             integer          IWORK[] )
   { integer INFO = 0;
     #if defined(ALGLIN_USE_OPENBLAS)
-    LAPACK_NAME(dgtcon)( (character*)"I", &N,
-                         (doublereal*)DL, (doublereal*)D, (doublereal*)DU, (doublereal*)DU2, (integer*)IPIV,
+    LAPACK_NAME(dgtcon)( const_cast<character*>("I"), &N,
+                         const_cast<doublereal*>(DL),
+                         const_cast<doublereal*>(D),
+                         const_cast<doublereal*>(DU),
+                         const_cast<doublereal*>(DU2),
+                         const_cast<integer*>(IPIV),
                          &ANORM, &RCOND, WORK, IWORK, &INFO ) ;
     #elif defined(ALGLIN_USE_ACCELERATE)
-    CLAPACKNAME(dgtcon)( (character*)"I", &N,
-                         (doublereal*)DL, (doublereal*)D, (doublereal*)DU, (doublereal*)DU2, (integer*)IPIV,
+    CLAPACKNAME(dgtcon)( const_cast<character*>("I"), &N,
+                         const_cast<doublereal*>(DL),
+                         const_cast<doublereal*>(D),
+                         const_cast<doublereal*>(DU),
+                         const_cast<doublereal*>(DU2),
+                         const_cast<integer*>(IPIV),
                          &ANORM, &RCOND, WORK, IWORK, &INFO ) ;
     #else
-    LAPACKNAME(dgtcon)( (character*)"I", &N,
-                         (doublereal*)DL, (doublereal*)D, (doublereal*)DU, (doublereal*)DU2, (integer*)IPIV,
-                         &ANORM, &RCOND, WORK, IWORK, &INFO ) ;
+    LAPACKNAME(dgtcon)( const_cast<character*>("I"), &N,
+                        const_cast<doublereal*>(DL),
+                        const_cast<doublereal*>(D),
+                        const_cast<doublereal*>(DU),
+                        const_cast<doublereal*>(DU2),
+                        const_cast<integer*>(IPIV),
+                        &ANORM, &RCOND, WORK, IWORK, &INFO ) ;
     #endif
     return INFO ;
   }
@@ -3999,11 +4076,16 @@ namespace alglin {
   { CLAPACKNAME(sgetrs)( CblasColMajor, trans_cblas[TRANS], N, NRHS, A, LDA, IPIV, B, LDB ) ; return 0 ; }
   #elif defined(ALGLIN_USE_OPENBLAS)
   { integer INFO = 0;
-    LAPACK_NAME(sgetrs)( (character*)trans_blas[TRANS], &N, &NRHS, A, &LDA, IPIV, B, &LDB, &INFO ) ;
+    LAPACK_NAME(sgetrs)( const_cast<character*>(trans_blas[TRANS]),
+                         &N, &NRHS, A, &LDA, IPIV, B, &LDB, &INFO ) ;
     return INFO ; }
   #elif defined(ALGLIN_USE_ACCELERATE)
   { integer INFO = 0;
-    CLAPACKNAME(sgetrs)( (character*)trans_blas[TRANS], &N, &NRHS, (real*)A, &LDA, (integer*)IPIV, B, &LDB, &INFO ) ;
+    CLAPACKNAME(sgetrs)( const_cast<character*>(trans_blas[TRANS]),
+                         &N, &NRHS,
+                         const_cast<real*>(A), &LDA,
+                         const_cast<integer*>(IPIV),
+                         B, &LDB, &INFO ) ;
     return INFO ; }
   #else
   { integer INFO = 0;
@@ -4025,11 +4107,16 @@ namespace alglin {
   { CLAPACKNAME(dgetrs)( CblasColMajor, trans_cblas[TRANS], N, NRHS, A, LDA, IPIV, B, LDB ) ; return 0 ; }
   #elif defined(ALGLIN_USE_OPENBLAS)
   { integer INFO = 0;
-    LAPACK_NAME(dgetrs)( (character*)trans_blas[TRANS], &N, &NRHS, A, &LDA, IPIV, B, &LDB, &INFO ) ;
+    LAPACK_NAME(dgetrs)( const_cast<character*>(trans_blas[TRANS]),
+                         &N, &NRHS, A, &LDA, IPIV, B, &LDB, &INFO ) ;
     return INFO ; }
   #elif defined(ALGLIN_USE_ACCELERATE)
   { integer INFO = 0;
-    CLAPACKNAME(dgetrs)( (character*)trans_blas[TRANS], &N, &NRHS, (doublereal*)A, &LDA, (integer*)IPIV, B, &LDB, &INFO ) ;
+    CLAPACKNAME(dgetrs)( const_cast<character*>(trans_blas[TRANS]),
+                         &N, &NRHS,
+                         const_cast<doublereal*>(A), &LDA,
+                         const_cast<integer*>(IPIV),
+                         B, &LDB, &INFO ) ;
     return INFO ; }
   #else
   { integer INFO = 0;
@@ -4395,9 +4482,15 @@ namespace alglin {
     #if defined(ALGLIN_USE_OPENBLAS)
     SCALE = gesc2_tmpl<real>( N, A, LDA, RHS, IPIV, JPIV ) ;
     #elif defined(ALGLIN_USE_ACCELERATE)
-    CLAPACKNAME(sgesc2)( &N, (real*)A, &LDA, RHS, (integer*)IPIV, (integer*)JPIV, &SCALE ) ;
+    CLAPACKNAME(sgesc2)( &N,
+                         const_cast<real*>(A), &LDA, RHS,
+                         const_cast<integer*>(IPIV),
+                         const_cast<integer*>(JPIV), &SCALE ) ;
     #else
-    LAPACKNAME(sgesc2)( &N, (real*)A, &LDA, RHS, (integer*)IPIV, (integer*)JPIV, &SCALE ) ;
+    LAPACKNAME(sgesc2)( &N,
+                        const_cast<real*>(A), &LDA, RHS,
+                        const_cast<integer*>(IPIV),
+                        const_cast<integer*>(JPIV), &SCALE ) ;
     #endif
     return SCALE ;
   }
@@ -4414,9 +4507,17 @@ namespace alglin {
     #if defined(ALGLIN_USE_OPENBLAS)
     SCALE = gesc2_tmpl<doublereal>( N, A, LDA, RHS, IPIV, JPIV ) ;
     #elif defined(ALGLIN_USE_ACCELERATE)
-    CLAPACKNAME(dgesc2)( &N, (doublereal*)A, &LDA, RHS, (integer*)IPIV, (integer*)JPIV, &SCALE ) ;
+    CLAPACKNAME(dgesc2)( &N,
+                         const_cast<doublereal*>(A), &LDA, RHS,
+                         const_cast<integer*>(IPIV),
+                         const_cast<integer*>(JPIV),
+                         &SCALE ) ;
     #else
-    LAPACKNAME(dgesc2)( &N, (doublereal*)A, &LDA, RHS, (integer*)IPIV, (integer*)JPIV, &SCALE ) ;
+    LAPACKNAME(dgesc2)( &N,
+                        const_cast<doublereal*>(A), &LDA, RHS,
+                        const_cast<integer*>(IPIV),
+                        const_cast<integer*>(JPIV),
+                        &SCALE ) ;
     #endif
     return SCALE ;
   }
@@ -4514,13 +4615,17 @@ namespace alglin {
           integer    iwork[] ) {
     integer INFO = 0 ;
     #if defined(ALGLIN_USE_ATLAS)
-    LAPACKNAME(sgecon)( (character*)"1", &N, (real*)A, &LDA, &anorm, &rcond, work, iwork, &INFO ) ;
+    LAPACKNAME(sgecon)( const_cast<character*>("1"), &N,
+                        const_cast<real*>(A), &LDA, &anorm, &rcond, work, iwork, &INFO ) ;
     #elif defined(ALGLIN_USE_OPENBLAS)
-    LAPACK_NAME(sgecon)( (character*)"1", &N, (real*)A, &LDA, &anorm, &rcond, work, iwork, &INFO ) ;
+    LAPACK_NAME(sgecon)( const_cast<character*>("1"), &N,
+                         const_cast<real*>(A), &LDA, &anorm, &rcond, work, iwork, &INFO ) ;
     #elif defined(ALGLIN_USE_ACCELERATE)
-    CLAPACKNAME(sgecon)( (character*)"1", &N, (real*)A, &LDA, &anorm, &rcond, work, iwork, &INFO ) ;
+    CLAPACKNAME(sgecon)( const_cast<character*>("1"), &N,
+                         const_cast<real*>(A), &LDA, &anorm, &rcond, work, iwork, &INFO ) ;
     #else
-    LAPACKNAME(sgecon)( (character*)"1", &N, (real*)A, &LDA, &anorm, &rcond, work, iwork, &INFO) ;
+    LAPACKNAME(sgecon)( const_cast<character*>("1"), &N,
+                        const_cast<real*>(A), &LDA, &anorm, &rcond, work, iwork, &INFO) ;
     #endif
     return INFO ;
   }
@@ -4536,13 +4641,17 @@ namespace alglin {
           integer          iwork[] ) {
     integer INFO = 0 ;
     #if defined(ALGLIN_USE_ATLAS)
-    LAPACKNAME(dgecon)( (character*)"1", &N, (doublereal*)A, &LDA, &anorm, &rcond, work, iwork, &INFO ) ;
+    LAPACKNAME(dgecon)( const_cast<character*>("1"), &N,
+                        const_cast<doublereal*>(A), &LDA, &anorm, &rcond, work, iwork, &INFO ) ;
     #elif defined(ALGLIN_USE_OPENBLAS)
-    LAPACK_NAME(dgecon)( (character*)"1", &N, (doublereal*)A, &LDA, &anorm, &rcond, work, iwork, &INFO ) ;
+    LAPACK_NAME(dgecon)( const_cast<character*>("1"), &N,
+                         const_cast<doublereal*>(A), &LDA, &anorm, &rcond, work, iwork, &INFO ) ;
     #elif defined(ALGLIN_USE_ACCELERATE)
-    CLAPACKNAME(dgecon)( (character*)"1", &N, (doublereal*)A, &LDA, &anorm, &rcond, work, iwork, &INFO ) ;
+    CLAPACKNAME(dgecon)( const_cast<character*>("1"), &N,
+                         const_cast<doublereal*>(A), &LDA, &anorm, &rcond, work, iwork, &INFO ) ;
     #else
-    LAPACKNAME(dgecon)( (character*)"1", &N, (doublereal*)A, &LDA, &anorm, &rcond, work, iwork, &INFO) ;
+    LAPACKNAME(dgecon)( const_cast<character*>("1"), &N,
+                        const_cast<doublereal*>(A), &LDA, &anorm, &rcond, work, iwork, &INFO) ;
     #endif
     return INFO ;
   }
@@ -4558,13 +4667,17 @@ namespace alglin {
             integer    iwork[] ) {
     integer INFO = 0 ;
     #if defined(ALGLIN_USE_ATLAS)
-    LAPACKNAME(sgecon)( (character*)"I", &N, (real*)A, &LDA, &anorm, &rcond, work, iwork, &INFO ) ;
+    LAPACKNAME(sgecon)( const_cast<character*>("I"), &N,
+                        const_cast<real*>(A), &LDA, &anorm, &rcond, work, iwork, &INFO ) ;
     #elif defined(ALGLIN_USE_OPENBLAS)
-    LAPACK_NAME(sgecon)( (character*)"I", &N, (real*)A, &LDA, &anorm, &rcond, work, iwork, &INFO ) ;
+    LAPACK_NAME(sgecon)( const_cast<character*>("I"), &N,
+                         const_cast<real*>(A), &LDA, &anorm, &rcond, work, iwork, &INFO ) ;
     #elif defined(ALGLIN_USE_ACCELERATE)
-    CLAPACKNAME(sgecon)( (character*)"I", &N, (real*)A, &LDA, &anorm, &rcond, work, iwork, &INFO ) ;
+    CLAPACKNAME(sgecon)( const_cast<character*>("I"), &N,
+                         const_cast<real*>(A), &LDA, &anorm, &rcond, work, iwork, &INFO ) ;
     #else
-    LAPACKNAME(sgecon)( (character*)"I", &N, (real*)A, &LDA, &anorm, &rcond, work, iwork, &INFO) ;
+    LAPACKNAME(sgecon)( const_cast<character*>("I"), &N,
+                        const_cast<real*>(A), &LDA, &anorm, &rcond, work, iwork, &INFO) ;
     #endif
     return INFO ;
   }
@@ -4580,13 +4693,17 @@ namespace alglin {
             integer          iwork[] ) {
     integer INFO = 0 ;
     #if defined(ALGLIN_USE_ATLAS)
-    LAPACKNAME(dgecon)( (character*)"I", &N, (doublereal*)A, &LDA, &anorm, &rcond, work, iwork, &INFO ) ;
+    LAPACKNAME(dgecon)( const_cast<character*>("I"), &N,
+                        const_cast<doublereal*>(A), &LDA, &anorm, &rcond, work, iwork, &INFO ) ;
     #elif defined(ALGLIN_USE_OPENBLAS)
-    LAPACK_NAME(dgecon)( (character*)"I", &N, (doublereal*)A, &LDA, &anorm, &rcond, work, iwork, &INFO ) ;
+    LAPACK_NAME(dgecon)( const_cast<character*>("I"), &N,
+                         const_cast<doublereal*>(A), &LDA, &anorm, &rcond, work, iwork, &INFO ) ;
     #elif defined(ALGLIN_USE_ACCELERATE)
-    CLAPACKNAME(dgecon)( (character*)"I", &N, (doublereal*)A, &LDA, &anorm, &rcond, work, iwork, &INFO ) ;
+    CLAPACKNAME(dgecon)( const_cast<character*>("I"), &N,
+                         const_cast<doublereal*>(A), &LDA, &anorm, &rcond, work, iwork, &INFO ) ;
     #else
-    LAPACKNAME(dgecon)( (character*)"I", &N, (doublereal*)A, &LDA, &anorm, &rcond, work, iwork, &INFO) ;
+    LAPACKNAME(dgecon)( const_cast<character*>("I"), &N,
+                        const_cast<doublereal*>(A), &LDA, &anorm, &rcond, work, iwork, &INFO) ;
     #endif
     return INFO ;
   }
@@ -4695,13 +4812,13 @@ namespace alglin {
          real     & AMAX ) {
     integer INFO = 0 ;
     #if defined(ALGLIN_USE_ATLAS)
-    LAPACKNAME(sgeequ)( &M, &N, (real*)A, &LDA, R, C, &ROWCND, &COLCND, &AMAX, &INFO ) ;
+    LAPACKNAME(sgeequ)( &M, &N, const_cast<real*>(A), &LDA, R, C, &ROWCND, &COLCND, &AMAX, &INFO ) ;
     #elif defined(ALGLIN_USE_OPENBLAS)
-    LAPACK_NAME(sgeequ)( &M, &N, (real*)A, &LDA, R, C, &ROWCND, &COLCND, &AMAX, &INFO ) ;
+    LAPACK_NAME(sgeequ)( &M, &N, const_cast<real*>(A), &LDA, R, C, &ROWCND, &COLCND, &AMAX, &INFO ) ;
     #elif defined(ALGLIN_USE_ACCELERATE)
-    CLAPACKNAME(sgeequ)( &M, &N, (real*)A, &LDA, R, C, &ROWCND, &COLCND, &AMAX, &INFO ) ;
+    CLAPACKNAME(sgeequ)( &M, &N, const_cast<real*>(A), &LDA, R, C, &ROWCND, &COLCND, &AMAX, &INFO ) ;
     #else
-    LAPACKNAME(sgeequ)( &M, &N, (real*)A, &LDA, R, C, &ROWCND, &COLCND, &AMAX, &INFO ) ;
+    LAPACKNAME(sgeequ)( &M, &N, const_cast<real*>(A), &LDA, R, C, &ROWCND, &COLCND, &AMAX, &INFO ) ;
     #endif
     return INFO ;
   }
@@ -4719,13 +4836,21 @@ namespace alglin {
          doublereal     & AMAX ) {
     integer INFO = 0 ;
     #if defined(ALGLIN_USE_ATLAS)
-    LAPACKNAME(dgeequ)( &M, &N, (doublereal*)A, &LDA, R, C, &ROWCND, &COLCND, &AMAX, &INFO ) ;
+    LAPACKNAME(dgeequ)( &M, &N,
+                        const_cast<doublereal*>(A), &LDA,
+                        R, C, &ROWCND, &COLCND, &AMAX, &INFO ) ;
     #elif defined(ALGLIN_USE_OPENBLAS)
-    LAPACK_NAME(dgeequ)( &M, &N, (doublereal*)A, &LDA, R, C, &ROWCND, &COLCND, &AMAX, &INFO ) ;
+    LAPACK_NAME(dgeequ)( &M, &N,
+                         const_cast<doublereal*>(A), &LDA,
+                         R, C, &ROWCND, &COLCND, &AMAX, &INFO ) ;
     #elif defined(ALGLIN_USE_ACCELERATE)
-    CLAPACKNAME(dgeequ)( &M, &N, (doublereal*)A, &LDA, R, C, &ROWCND, &COLCND, &AMAX, &INFO ) ;
+    CLAPACKNAME(dgeequ)( &M, &N,
+                        const_cast<doublereal*>(A), &LDA,
+                        R, C, &ROWCND, &COLCND, &AMAX, &INFO ) ;
     #else
-    LAPACKNAME(dgeequ)( &M, &N, (doublereal*)A, &LDA, R, C, &ROWCND, &COLCND, &AMAX, &INFO ) ;
+    LAPACKNAME(dgeequ)( &M, &N,
+                        const_cast<doublereal*>(A), &LDA,
+                        R, C, &ROWCND, &COLCND, &AMAX, &INFO ) ;
     #endif
     return INFO ;
   }
@@ -4856,11 +4981,23 @@ namespace alglin {
     #if defined(ALGLIN_USE_OPENBLAS)
     laqge_tmpl<real>( M, N, A, LDA, R, C, ROWCND, COLCND, AMAX, equ ) ;
     #elif defined(ALGLIN_USE_ATLAS)
-    LAPACKNAME(slaqge)( &M, &N, A, &LDA, (real*)R, (real*)C, &ROWCND, &COLCND, &AMAX, (character*)equilibrate_blas[equ] ) ;
+    LAPACKNAME(slaqge)( &M, &N, A, &LDA,
+                        const_cast<real*>(R),
+                        const_cast<real*>(C),
+                        &ROWCND, &COLCND, &AMAX,
+                        const_cast<character*>(equilibrate_blas[equ]) ) ;
     #elif defined(ALGLIN_USE_ACCELERATE)
-    CLAPACKNAME(slaqge)( &M, &N, A, &LDA, (real*)R, (real*)C, &ROWCND, &COLCND, &AMAX, (character*)equilibrate_blas[equ] ) ;
+    CLAPACKNAME(slaqge)( &M, &N, A, &LDA,
+                         const_cast<real*>(R),
+                         const_cast<real*>(C),
+                         &ROWCND, &COLCND, &AMAX,
+                         const_cast<character*>(equilibrate_blas[equ]) ) ;
     #else
-    LAPACKNAME(slaqge)( &M, &N, A, &LDA, (real*)R, (real*)C, &ROWCND, &COLCND, &AMAX, (character*)equilibrate_blas[equ] ) ;
+    LAPACKNAME(slaqge)( &M, &N, A, &LDA,
+                        const_cast<real*>(R),
+                        const_cast<real*>(C),
+                        &ROWCND, &COLCND, &AMAX,
+                        const_cast<character*>(equilibrate_blas[equ]) ) ;
     #endif
   }
 
@@ -4879,11 +5016,23 @@ namespace alglin {
     #if defined(ALGLIN_USE_OPENBLAS)
     laqge_tmpl<doublereal>( M, N, A, LDA, R, C, ROWCND, COLCND, AMAX, equ ) ;
     #elif defined(ALGLIN_USE_ATLAS)
-    LAPACKNAME(dlaqge)( &M, &N, A, &LDA, (doublereal*)R, (doublereal*)C, &ROWCND, &COLCND, &AMAX, (character*)equilibrate_blas[equ] ) ;
+    LAPACKNAME(dlaqge)( &M, &N, A, &LDA,
+                        const_cast<doublereal*>(R),
+                        const_cast<doublereal*>(C),
+                        &ROWCND, &COLCND, &AMAX,
+                        const_cast<character*>(equilibrate_blas[equ]) ) ;
     #elif defined(ALGLIN_USE_OPENBLAS)
-    LAPACK_NAME(dlaqge)( &M, &N, A, &LDA, (doublereal*)R, (doublereal*)C, &ROWCND, &COLCND, &AMAX, (character*)equilibrate_blas[equ] ) ;
+    LAPACK_NAME(dlaqge)( &M, &N, A, &LDA,
+                         const_cast<doublereal*>(R),
+                         const_cast<doublereal*>(C),
+                         &ROWCND, &COLCND, &AMAX,
+                         const_cast<character*>(equilibrate_blas[equ]) ) ;
     #else
-    LAPACKNAME(dlaqge)( &M, &N, A, &LDA, (doublereal*)R, (doublereal*)C, &ROWCND, &COLCND, &AMAX, (character*)equilibrate_blas[equ] ) ;
+    LAPACKNAME(dlaqge)( &M, &N, A, &LDA,
+                        const_cast<doublereal*>(R),
+                        const_cast<doublereal*>(C),
+                        &ROWCND, &COLCND, &AMAX,
+                        const_cast<character*>(equilibrate_blas[equ]) ) ;
     #endif
   }
 
@@ -4974,11 +5123,12 @@ namespace alglin {
   #if defined(ALGLIN_USE_ATLAS)
   { for ( integer i = 0 ; i < N ; ++i ) alglin::copy( M, A+i*LDA, 1, B+i*LDB, 1 ) ; return 0 ; }
   #elif defined(ALGLIN_USE_OPENBLAS)
-  { LAPACK_NAME(slacpy)( (character*)"A", &M, &N, A, &LDA, B, &LDB ) ; return 0 ; }
+  { LAPACK_NAME(slacpy)( const_cast<character*>("A"), &M, &N, A, &LDA, B, &LDB ) ; return 0 ; }
   #elif defined(ALGLIN_USE_ACCELERATE)
-  { return CLAPACKNAME(slacpy)( (character*)"A", &M, &N, (real*)A, &LDA, B, &LDB ) ; }
+  { return CLAPACKNAME(slacpy)( const_cast<character*>("A"), &M, &N,
+                                const_cast<real*>(A), &LDA, B, &LDB ) ; }
   #else
-  { LAPACKNAME(slacpy)( (character*)"A", &M, &N, A, &LDA, B, &LDB ) ; return 0 ; }
+  { LAPACKNAME(slacpy)( const_cast<character*>("A"), &M, &N, A, &LDA, B, &LDB ) ; return 0 ; }
   #endif
 
   inline
@@ -4992,11 +5142,12 @@ namespace alglin {
   #if defined(ALGLIN_USE_ATLAS)
   { for ( integer i = 0 ; i < N ; ++i ) alglin::copy( M, A+i*LDA, 1, B+i*LDB, 1 ) ; return 0 ; }
   #elif defined(ALGLIN_USE_OPENBLAS)
-  { LAPACK_NAME(dlacpy)( (character*)"A", &M, &N, A, &LDA, B, &LDB ) ; return 0 ; }
+  { LAPACK_NAME(dlacpy)( const_cast<character*>("A"), &M, &N, A, &LDA, B, &LDB ) ; return 0 ; }
   #elif defined(ALGLIN_USE_ACCELERATE)
-  { return CLAPACKNAME(dlacpy)( (character*)"A", &M, &N, (doublereal*)A, &LDA, B, &LDB ) ; }
+  { return CLAPACKNAME(dlacpy)( const_cast<character*>("A"), &M, &N,
+                                const_cast<doublereal*>(A), &LDA, B, &LDB ) ; }
   #else
-  { LAPACKNAME(dlacpy)( (character*)"A", &M, &N, A, &LDA, B, &LDB ) ; return 0 ; }
+  { LAPACKNAME(dlacpy)( const_cast<character*>("A"), &M, &N, A, &LDA, B, &LDB ) ; return 0 ; }
   #endif
 
   /*
@@ -5080,11 +5231,11 @@ namespace alglin {
   #if defined(ALGLIN_USE_ATLAS)
   { real zero = 0 ; for ( integer i = 0 ; i < N ; ++i ) alglin::copy( M, &zero, 0, A+i*LDA, 1 ) ; }
   #elif defined(ALGLIN_USE_OPENBLAS)
-  { real zero = 0 ; LAPACK_NAME(slaset)( (character*)"A", &M, &N, &zero, &zero, A, &LDA ) ; }
+  { real zero = 0 ; LAPACK_NAME(slaset)( const_cast<character*>("A"), &M, &N, &zero, &zero, A, &LDA ) ; }
   #elif defined(ALGLIN_USE_ACCELERATE)
-  { real zero = 0 ; CLAPACKNAME(slaset)( (character*)"A", &M, &N, &zero, &zero, A, &LDA ) ; }
+  { real zero = 0 ; CLAPACKNAME(slaset)( const_cast<character*>("A"), &M, &N, &zero, &zero, A, &LDA ) ; }
   #else
-  { real zero = 0 ; LAPACKNAME(slaset)( (character*)"A", &M, &N, &zero, &zero, A, &LDA ) ; }
+  { real zero = 0 ; LAPACKNAME(slaset)( const_cast<character*>("A"), &M, &N, &zero, &zero, A, &LDA ) ; }
   #endif
 
   inline
@@ -5096,11 +5247,11 @@ namespace alglin {
   #if defined(ALGLIN_USE_ATLAS)
   { doublereal zero = 0 ; for ( integer i = 0 ; i < N ; ++i ) alglin::copy( M, &zero, 0, A+i*LDA, 1 ) ; }
   #elif defined(ALGLIN_USE_OPENBLAS)
-  { doublereal zero = 0 ; LAPACK_NAME(dlaset)( (character*)"A", &M, &N, &zero, &zero, A, &LDA ) ; }
+  { doublereal zero = 0 ; LAPACK_NAME(dlaset)( const_cast<character*>("A"), &M, &N, &zero, &zero, A, &LDA ) ; }
   #elif defined(ALGLIN_USE_ACCELERATE)
-  { doublereal zero = 0 ; CLAPACKNAME(dlaset)( (character*)"A", &M, &N, &zero, &zero, A, &LDA ) ; }
+  { doublereal zero = 0 ; CLAPACKNAME(dlaset)( const_cast<character*>("A"), &M, &N, &zero, &zero, A, &LDA ) ; }
   #else
-  { doublereal zero = 0 ; LAPACKNAME(dlaset)( (character*)"A", &M, &N, &zero, &zero, A, &LDA ) ; }
+  { doublereal zero = 0 ; LAPACKNAME(dlaset)( const_cast<character*>("A"), &M, &N, &zero, &zero, A, &LDA ) ; }
   #endif
 
   /*
@@ -5123,11 +5274,11 @@ namespace alglin {
     integer MN = std::min(M,N) ;
     alglin::copy( MN, &diag, 0, A, LDA+1 ) ; }
   #elif defined(ALGLIN_USE_OPENBLAS)
-  { real zero = 0 ; LAPACK_NAME(slaset)( (character*)"A", &M, &N, &zero, &diag, A, &LDA ) ; }
+  { real zero = 0 ; LAPACK_NAME(slaset)( const_cast<character*>("A"), &M, &N, &zero, &diag, A, &LDA ) ; }
   #elif defined(ALGLIN_USE_ACCELERATE)
-  { real zero = 0 ; CLAPACKNAME(slaset)( (character*)"A", &M, &N, &zero, &diag, A, &LDA ) ; }
+  { real zero = 0 ; CLAPACKNAME(slaset)( const_cast<character*>("A"), &M, &N, &zero, &diag, A, &LDA ) ; }
   #else
-  { real zero = 0 ; LAPACKNAME(slaset)( (character*)"A", &M, &N, &zero, &diag, A, &LDA ) ; }
+  { real zero = 0 ; LAPACKNAME(slaset)( const_cast<character*>("A"), &M, &N, &zero, &diag, A, &LDA ) ; }
   #endif
 
   inline
@@ -5142,11 +5293,11 @@ namespace alglin {
     integer MN = std::min(M,N) ;
     alglin::copy( MN, &diag, 0, A, LDA+1 ) ; }
   #elif defined(ALGLIN_USE_OPENBLAS)
-  { doublereal zero = 0 ; LAPACK_NAME(dlaset)( (character*)"A", &M, &N, &zero, &diag, A, &LDA ) ; }
+  { doublereal zero = 0 ; LAPACK_NAME(dlaset)( const_cast<character*>("A"), &M, &N, &zero, &diag, A, &LDA ) ; }
   #elif defined(ALGLIN_USE_ACCELERATE)
-  { doublereal zero = 0 ; CLAPACKNAME(dlaset)( (character*)"A", &M, &N, &zero, &diag, A, &LDA ) ; }
+  { doublereal zero = 0 ; CLAPACKNAME(dlaset)( const_cast<character*>("A"), &M, &N, &zero, &diag, A, &LDA ) ; }
   #else
-  { doublereal zero = 0 ; LAPACKNAME(dlaset)( (character*)"A", &M, &N, &zero, &diag, A, &LDA ) ; }
+  { doublereal zero = 0 ; LAPACKNAME(dlaset)( const_cast<character*>("A"), &M, &N, &zero, &diag, A, &LDA ) ; }
   #endif
 
   /*
@@ -5298,28 +5449,28 @@ namespace alglin {
   \*/
 
   inline
-  return_precision
+  real
   normInf( integer    N,
            integer    M,
            real const A[],
            integer    LDA )
-  { return_precision res = 0 ;
+  { real res = 0 ;
     for ( integer i=0 ; i < N ; ++i ) {
-      return_precision normcol = alglin::asum(M,A+i,LDA) ;
+      real normcol = alglin::asum(M,A+i,LDA) ;
       if ( normcol > res ) res = normcol ;
     }
     return res ;
   }
 
   inline
-  return_precision
+  doublereal
   normInf( integer          N,
            integer          M,
            doublereal const A[],
            integer          LDA )
-  { return_precision res = 0 ;
+  { doublereal res = 0 ;
     for ( integer i=0 ; i < N ; ++i ) {
-      return_precision normcol = alglin::asum(M,A+i,LDA) ;
+      doublereal normcol = alglin::asum(M,A+i,LDA) ;
       if ( normcol > res ) res = normcol ;
     }
     return res ;
@@ -5328,25 +5479,26 @@ namespace alglin {
   ///////////////////
 
   inline
-  return_precision
+  real
   norm1( integer    N,
          integer    M,
          real const A[],
          integer    LDA )
   #if defined(ALGLIN_USE_ATLAS)
-  { return_precision res = 0 ;
+  { real res = 0 ;
     for ( integer i=0 ; i < M ; ++i ) {
-      return_precision normcol = alglin::asum(N,A+i*LDA,1) ;
+      real normcol = alglin::asum(N,A+i*LDA,1) ;
       if ( normcol > res ) res = normcol ;
     }
     return res ;
   }
   #elif defined(ALGLIN_USE_OPENBLAS)
-  { return LAPACK_NAME(slange)( (character*)"1", &N, &M, A, &LDA, nullptr ) ; }
+  { return LAPACK_NAME(slange)( const_cast<character*>("1"), &N, &M, A, &LDA, nullptr ) ; }
   #elif defined(ALGLIN_USE_ACCELERATE)
-  { return CLAPACKNAME(slange)( (character*)"1", &N, &M, (real*)A, &LDA, nullptr ) ; }
+  { return CLAPACKNAME(slange)( const_cast<character*>("1"), &N, &M,
+                                const_cast<real*>(A), &LDA, nullptr ) ; }
   #else
-  { return LAPACKNAME(slange)( (character*)"1", &N, &M, A, &LDA, nullptr ) ; }
+  { return LAPACKNAME(slange)( const_cast<character*>("1"), &N, &M, A, &LDA, nullptr ) ; }
   #endif
 
   inline
@@ -5364,11 +5516,12 @@ namespace alglin {
     return res ;
   }
   #elif defined(ALGLIN_USE_OPENBLAS)
-  { return LAPACK_NAME(dlange)( (character*)"1", &N, &M, A, &LDA, nullptr ) ; }
+  { return LAPACK_NAME(dlange)( const_cast<character*>("1"), &N, &M, A, &LDA, nullptr ) ; }
   #elif defined(ALGLIN_USE_ACCELERATE)
-  { return CLAPACKNAME(dlange)( (character*)"1", &N, &M, (doublereal*)A, &LDA, nullptr ) ; }
+  { return CLAPACKNAME(dlange)( const_cast<character*>("1"), &N, &M,
+                                const_cast<doublereal*>(A), &LDA, nullptr ) ; }
   #else
-  { return LAPACKNAME(dlange)( (character*)"1", &N, &M, A, &LDA, nullptr ) ; }
+  { return LAPACKNAME(dlange)( const_cast<character*>("1"), &N, &M, A, &LDA, nullptr ) ; }
   #endif
 
   ///////////////////
@@ -5380,11 +5533,12 @@ namespace alglin {
          real const A[],
          integer    LDA )
   #if defined(ALGLIN_USE_ACCELERATE)
-  { return CLAPACKNAME(slange)( (character*)"F", &N, &M, (real*)A, &LDA, nullptr ) ; }
+  { return CLAPACKNAME(slange)( const_cast<character*>("F"), &N, &M,
+                                const_cast<real*>(A), &LDA, nullptr ) ; }
   #elif defined(ALGLIN_USE_OPENBLAS)
-  { return LAPACK_NAME(slange)( (character*)"F", &N, &M, A, &LDA, nullptr ) ; }
+  { return LAPACK_NAME(slange)( const_cast<character*>("F"), &N, &M, A, &LDA, nullptr ) ; }
   #else
-  { return LAPACKNAME(slange)( (character*)"F", &N, &M, A, &LDA, nullptr ) ; }
+  { return LAPACKNAME(slange)( const_cast<character*>("F"), &N, &M, A, &LDA, nullptr ) ; }
   #endif
 
   inline
@@ -5394,11 +5548,12 @@ namespace alglin {
          doublereal const A[],
          integer          LDA )
   #if defined(ALGLIN_USE_ACCELERATE)
-  { return CLAPACKNAME(dlange)( (character*)"F", &N, &M, (doublereal*)A, &LDA, nullptr ) ; }
+  { return CLAPACKNAME(dlange)( const_cast<character*>("F"), &N, &M,
+                                const_cast<doublereal*>(A), &LDA, nullptr ) ; }
   #elif defined(ALGLIN_USE_OPENBLAS)
-  { return LAPACK_NAME(dlange)( (character*)"F", &N, &M, A, &LDA, nullptr ) ; }
+  { return LAPACK_NAME(dlange)( const_cast<character*>("F"), &N, &M, A, &LDA, nullptr ) ; }
   #else
-  { return LAPACKNAME(dlange)( (character*)"F", &N, &M, A, &LDA, nullptr ) ; }
+  { return LAPACKNAME(dlange)( const_cast<character*>("F"), &N, &M, A, &LDA, nullptr ) ; }
   #endif
 
   ///////////////////
@@ -5410,11 +5565,12 @@ namespace alglin {
           real const A[],
           integer    LDA )
   #if defined(ALGLIN_USE_ACCELERATE)
-  { return CLAPACKNAME(slange)( (character*)"M", &N, &M, (real*)A, &LDA, nullptr ) ; }
+  { return CLAPACKNAME(slange)( const_cast<character*>("M"), &N, &M,
+                                const_cast<real*>(A), &LDA, nullptr ) ; }
   #elif defined(ALGLIN_USE_OPENBLAS)
-  { return LAPACK_NAME(slange)( (character*)"M", &N, &M, A, &LDA, nullptr ) ; }
+  { return LAPACK_NAME(slange)( const_cast<character*>("M"), &N, &M, A, &LDA, nullptr ) ; }
   #else
-  { return LAPACKNAME(slange)( (character*)"M", &N, &M, A, &LDA, nullptr ) ; }
+  { return LAPACKNAME(slange)( const_cast<character*>("M"), &N, &M, A, &LDA, nullptr ) ; }
   #endif
 
   inline
@@ -5424,11 +5580,12 @@ namespace alglin {
           doublereal const A[],
           integer          LDA )
   #if defined(ALGLIN_USE_ACCELERATE)
-  { return CLAPACKNAME(dlange)( (character*)"M", &N, &M, (doublereal*)A, &LDA, nullptr ) ; }
+  { return CLAPACKNAME(dlange)( const_cast<character*>("M"), &N, &M,
+                                const_cast<doublereal*>(A), &LDA, nullptr ) ; }
   #elif defined(ALGLIN_USE_OPENBLAS)
-  { return LAPACK_NAME(dlange)( (character*)"M", &N, &M, A, &LDA, nullptr ) ; }
+  { return LAPACK_NAME(dlange)( const_cast<character*>("M"), &N, &M, A, &LDA, nullptr ) ; }
   #else
-  { return LAPACKNAME(dlange)( (character*)"M", &N, &M, A, &LDA, nullptr ) ; }
+  { return LAPACKNAME(dlange)( const_cast<character*>("M"), &N, &M, A, &LDA, nullptr ) ; }
   #endif
 
   /*
@@ -5543,10 +5700,12 @@ namespace alglin {
          integer    LDA ) {
     integer info = 0 ;
     #if defined(ALGLIN_USE_ACCELERATE)
-    CLAPACKNAME(slascl)( (character*)mtype_blas[TYPE], &KL, &KU, &FROM, &TO, &M, &N, A, &LDA, &info ) ;
+    CLAPACKNAME(slascl)( const_cast<character*>(mtype_blas[TYPE]),
+                         &KL, &KU, &FROM, &TO, &M, &N, A, &LDA, &info ) ;
     #elif defined(ALGLIN_USE_OPENBLAS)
     #else
-    LAPACKNAME(slascl)( (character*)mtype_blas[TYPE], &KL, &KU, &FROM, &TO, &M, &N, A, &LDA, &info ) ;
+    LAPACKNAME(slascl)( const_cast<character*>(mtype_blas[TYPE]),
+                        &KL, &KU, &FROM, &TO, &M, &N, A, &LDA, &info ) ;
     #endif
     return info ;
   }
@@ -5564,10 +5723,12 @@ namespace alglin {
          integer    LDA ) {
     integer info = 0 ;
     #if defined(ALGLIN_USE_ACCELERATE)
-    CLAPACKNAME(dlascl)( (character*)mtype_blas[TYPE], &KL, &KU, &FROM, &TO, &M, &N, A, &LDA, &info ) ;
+    CLAPACKNAME(dlascl)( const_cast<character*>(mtype_blas[TYPE]),
+                         &KL, &KU, &FROM, &TO, &M, &N, A, &LDA, &info ) ;
     #elif defined(ALGLIN_USE_OPENBLAS)
     #else
-    LAPACKNAME(dlascl)( (character*)mtype_blas[TYPE], &KL, &KU, &FROM, &TO, &M, &N, A, &LDA, &info ) ;
+    LAPACKNAME(dlascl)( const_cast<character*>(mtype_blas[TYPE]),
+                        &KL, &KU, &FROM, &TO, &M, &N, A, &LDA, &info ) ;
     #endif
     return info ;
   }
@@ -5742,8 +5903,8 @@ namespace alglin {
         integer lwork )
   #if defined(ALGLIN_USE_OPENBLAS)
   { integer info = 0 ;
-    LAPACK_NAME(sgeev)( (character*)(jobvl?"V":"N"),
-                        (character*)(jobvr?"V":"N"),
+    LAPACK_NAME(sgeev)( const_cast<character*>(jobvl?"V":"N"),
+                        const_cast<character*>(jobvr?"V":"N"),
                         &n, A, &lda, wr, wi,
                         vl, &ldvl,
                         vr, &ldvr, work, &lwork, &info ) ;
@@ -5751,9 +5912,10 @@ namespace alglin {
   }
   #elif defined(ALGLIN_USE_ACCELERATE)
   { integer INFO = 0 ;
-    CLAPACKNAME(sgeev)( (character*)(jobvl?"V":"N"),
-                        (character*)(jobvr?"V":"N"),
-                        &n, (real*)A, &lda, wr, wi,
+    CLAPACKNAME(sgeev)( const_cast<character*>(jobvl?"V":"N"),
+                        const_cast<character*>(jobvr?"V":"N"),
+                        &n,
+                        const_cast<real*>(A), &lda, wr, wi,
                         vl, &ldvl,
                         vr, &ldvr,
                         work, &lwork, &INFO ) ;
@@ -5761,8 +5923,8 @@ namespace alglin {
   }
   #else
   { integer INFO = 0;
-    LAPACKNAME(sgeev)( (character*)(jobvl?"V":"N"),
-                       (character*)(jobvr?"V":"N"),
+    LAPACKNAME(sgeev)( const_cast<character*>(jobvl?"V":"N"),
+                       const_cast<character*>(jobvr?"V":"N"),
                        &n, A, &lda, wr, wi,
                        vl, &ldvl,
                        vr, &ldvr,
@@ -5788,8 +5950,8 @@ namespace alglin {
         integer    lwork )
   #if defined(ALGLIN_USE_OPENBLAS)
   { integer info = 0 ;
-    LAPACK_NAME(dgeev)( (character*)(jobvl?"V":"N"),
-                        (character*)(jobvr?"V":"N"),
+    LAPACK_NAME(dgeev)( const_cast<character*>(jobvl?"V":"N"),
+                        const_cast<character*>(jobvr?"V":"N"),
                         &n, A, &lda, wr, wi,
                         vl, &ldvl,
                         vr, &ldvr, work, &lwork, &info ) ;
@@ -5797,9 +5959,10 @@ namespace alglin {
   }
   #elif defined(ALGLIN_USE_ACCELERATE)
   { integer INFO = 0;
-    CLAPACKNAME(dgeev)( (character*)(jobvl?"V":"N"),
-                        (character*)(jobvr?"V":"N"),
-                        &n, (doublereal*)A, &lda, wr, wi,
+    CLAPACKNAME(dgeev)( const_cast<character*>(jobvl?"V":"N"),
+                        const_cast<character*>(jobvr?"V":"N"),
+                        &n,
+                        const_cast<doublereal*>(A), &lda, wr, wi,
                         vl, &ldvl,
                         vr, &ldvr,
                         work, &lwork, &INFO ) ;
@@ -5807,8 +5970,8 @@ namespace alglin {
   }
   #else
   { integer INFO = 0;
-    LAPACKNAME(dgeev)( (character*)(jobvl?"V":"N"),
-                       (character*)(jobvr?"V":"N"),
+    LAPACKNAME(dgeev)( const_cast<character*>(jobvl?"V":"N"),
+                       const_cast<character*>(jobvr?"V":"N"),
                        &n, A, &lda, wr, wi,
                        vl, &ldvl,
                        vr, &ldvr,
@@ -6024,24 +6187,27 @@ namespace alglin {
         integer lwork )
   #if defined(ALGLIN_USE_OPENBLAS)
   { integer info = 0 ;
-    LAPACK_NAME(sggev)( (character*)(jobvl?"V":"N"),
-                        (character*)(jobvr?"V":"N"),
+    LAPACK_NAME(sggev)( const_cast<character*>(jobvl?"V":"N"),
+                        const_cast<character*>(jobvr?"V":"N"),
                         &n, A, &lda, B, &ldb, alphar, alphai, beta,
                         vl, &ldvl, vr, &ldvr, work, &lwork, &info ) ;
     return info ;
   }
   #elif defined(ALGLIN_USE_ACCELERATE)
   { integer INFO = 0;
-    CLAPACKNAME(sggev)( (character*)(jobvl?"V":"N"),
-                        (character*)(jobvr?"V":"N"),
-                        &n, (real*)A, &lda, (real*)B, &ldb, alphar, alphai, beta,
+    CLAPACKNAME(sggev)( const_cast<character*>(jobvl?"V":"N"),
+                        const_cast<character*>(jobvr?"V":"N"),
+                        &n,
+                        const_cast<real*>(A), &lda,
+                        const_cast<real*>(B), &ldb,
+                        alphar, alphai, beta,
                         vl, &ldvl, vr, &ldvr, work, &lwork, &INFO ) ;
     return INFO ;
   }
   #else
   { integer INFO = 0;
-    LAPACKNAME(sggev)( (character*)(jobvl?"V":"N"),
-                       (character*)(jobvr?"V":"N"),
+    LAPACKNAME(sggev)( const_cast<character*>(jobvl?"V":"N"),
+                       const_cast<character*>(jobvr?"V":"N"),
                        &n, A, &lda, B, &ldb, alphar, alphai, beta,
                        vl, &ldvl, vr, &ldvr, work, &lwork, &INFO ) ;
     return INFO ;
@@ -6069,24 +6235,27 @@ namespace alglin {
         integer    lwork )
   #if defined(ALGLIN_USE_OPENBLAS)
   { integer info = 0 ;
-    LAPACK_NAME(dggev)( (character*)(jobvl?"V":"N"),
-                        (character*)(jobvr?"V":"N"),
+    LAPACK_NAME(dggev)( const_cast<character*>(jobvl?"V":"N"),
+                        const_cast<character*>(jobvr?"V":"N"),
                         &n, A, &lda, B, &ldb, alphar, alphai, beta,
                         vl, &ldvl, vr, &ldvr, work, &lwork, &info ) ;
     return info ;
   }
   #elif defined(ALGLIN_USE_ACCELERATE)
   { integer INFO = 0;
-    CLAPACKNAME(dggev)( (character*)(jobvl?"V":"N"),
-                        (character*)(jobvr?"V":"N"),
-                        &n, (doublereal*)A, &lda, (doublereal*)B, &ldb, alphar, alphai, beta,
+    CLAPACKNAME(dggev)( const_cast<character*>(jobvl?"V":"N"),
+                        const_cast<character*>(jobvr?"V":"N"),
+                        &n,
+                        const_cast<doublereal*>(A), &lda,
+                        const_cast<doublereal*>(B), &ldb,
+                        alphar, alphai, beta,
                         vl, &ldvl, vr, &ldvr, work, &lwork, &INFO ) ;
     return INFO ;
   }
   #else
   { integer INFO = 0;
-    LAPACKNAME(dggev)( (character*)(jobvl?"V":"N"),
-                       (character*)(jobvr?"V":"N"),
+    LAPACKNAME(dggev)( const_cast<character*>(jobvl?"V":"N"),
+                       const_cast<character*>(jobvr?"V":"N"),
                        &n, A, &lda, B, &ldb, alphar, alphai, beta,
                        vl, &ldvl, vr, &ldvr, work, &lwork, &INFO ) ;
     return INFO ;
@@ -6682,10 +6851,10 @@ namespace alglin {
          integer             bwork[] )
   #if defined(ALGLIN_USE_OPENBLAS)
   { integer info = 0 ;
-    LAPACK_NAME(sggevx)( (character*)balance_blas[balanc],
-                         (character*)(jobvl?"V":"N"),
-                         (character*)(jobvl?"V":"N"),
-                         (character*)sense_blas[sense],
+    LAPACK_NAME(sggevx)( const_cast<character*>(balance_blas[balanc]),
+                         const_cast<character*>(jobvl?"V":"N"),
+                         const_cast<character*>(jobvr?"V":"N"),
+                         const_cast<character*>(sense_blas[sense]),
                          &n,
                          A, &lda,
                          B, &ldb,
@@ -6700,11 +6869,14 @@ namespace alglin {
   }
   #elif defined(ALGLIN_USE_ACCELERATE)
   { integer INFO = 0;
-    CLAPACKNAME(sggevx)( (character*)balance_blas[balanc],
-                         (character*)(jobvl?"V":"N"),
-                         (character*)(jobvl?"V":"N"),
-                         (character*)sense_blas[sense],
-                         &n, (real*)A, &lda, (real*)B, &ldb, alphar, alphai, beta,
+    CLAPACKNAME(sggevx)( const_cast<character*>(balance_blas[balanc]),
+                         const_cast<character*>(jobvl?"V":"N"),
+                         const_cast<character*>(jobvr?"V":"N"),
+                         const_cast<character*>(sense_blas[sense]),
+                         &n,
+                         const_cast<real*>(A), &lda,
+                         const_cast<real*>(B), &ldb,
+                         alphar, alphai, beta,
                          vl, &ldvl, vr, &ldvr,
                          &ilo, &ihi,
                          lscale, rscale,
@@ -6762,10 +6934,10 @@ namespace alglin {
         integer             bwork[])
   #if defined(ALGLIN_USE_OPENBLAS)
   { integer info = 0 ;
-    LAPACK_NAME(dggevx)( (character*)balance_blas[balanc],
-                         (character*)(jobvl?"V":"N"),
-                         (character*)(jobvl?"V":"N"),
-                         (character*)sense_blas[sense],
+    LAPACK_NAME(dggevx)( const_cast<character*>(balance_blas[balanc]),
+                         const_cast<character*>(jobvl?"V":"N"),
+                         const_cast<character*>(jobvr?"V":"N"),
+                         const_cast<character*>(sense_blas[sense]),
                          &n,
                          A, &lda,
                          B, &ldb,
@@ -6780,11 +6952,13 @@ namespace alglin {
   }
   #elif defined(ALGLIN_USE_ACCELERATE)
   { integer INFO = 0;
-    CLAPACKNAME(dggevx)( (character*)balance_blas[balanc],
-                         (character*)(jobvl?"V":"N"),
-                         (character*)(jobvl?"V":"N"),
-                         (character*)sense_blas[sense],
-                         &n, (doublereal*)A, &lda, (doublereal*)B, &ldb,
+    CLAPACKNAME(dggevx)( const_cast<character*>(balance_blas[balanc]),
+                         const_cast<character*>(jobvl?"V":"N"),
+                         const_cast<character*>(jobvr?"V":"N"),
+                         const_cast<character*>(sense_blas[sense]),
+                         &n,
+                         const_cast<doublereal*>(A), &lda,
+                         const_cast<doublereal*>(B), &ldb,
                          alphar, alphai, beta,
                          vl, &ldvl, vr, &ldvr,
                          &ilo, &ihi,
@@ -6993,16 +7167,16 @@ namespace alglin {
          integer         LWORK )
   { integer info = 0 ;
     #if defined(ALGLIN_USE_OPENBLAS)
-    LAPACK_NAME(sgesvd)( (character*)job_blas[JOBU],
-                         (character*)job_blas[JOBVT],
+    LAPACK_NAME(sgesvd)( const_cast<character*>(job_blas[JOBU]),
+                         const_cast<character*>(job_blas[JOBVT]),
                          &M, &N, A, &LDA, S, U, &LDU, VT, &LDVT, WORK, &LWORK, &info ) ;
     #elif defined(ALGLIN_USE_ACCELERATE)
-    CLAPACKNAME(sgesvd)( (character*)job_blas[JOBU],
-                         (character*)job_blas[JOBVT],
+    CLAPACKNAME(sgesvd)( const_cast<character*>(job_blas[JOBU]),
+                         const_cast<character*>(job_blas[JOBVT]),
                          &M, &N, A, &LDA, S, U, &LDU, VT, &LDVT, WORK, &LWORK, &info ) ;
     #else
-    LAPACKNAME(sgesvd)( (character*)job_blas[JOBU],
-                        (character*)job_blas[JOBVT],
+    LAPACKNAME(sgesvd)( const_cast<character*>(job_blas[JOBU]),
+                        const_cast<character*>(job_blas[JOBVT]),
                         &M, &N, A, &LDA, S, U, &LDU, VT, &LDVT, WORK, &LWORK, &info ) ;
     #endif
     return info ;
@@ -7025,16 +7199,16 @@ namespace alglin {
          integer         LWORK )
   { integer info = 0 ;
     #if defined(ALGLIN_USE_OPENBLAS)
-    LAPACK_NAME(dgesvd)( (character*)job_blas[JOBU],
-                         (character*)job_blas[JOBVT],
+    LAPACK_NAME(dgesvd)( const_cast<character*>(job_blas[JOBU]),
+                         const_cast<character*>(job_blas[JOBVT]),
                          &M, &N, A, &LDA, S, U, &LDU, VT, &LDVT, WORK, &LWORK, &info ) ;
     #elif defined(ALGLIN_USE_ACCELERATE)
-    CLAPACKNAME(dgesvd)( (character*)job_blas[JOBU],
-                         (character*)job_blas[JOBVT],
+    CLAPACKNAME(dgesvd)( const_cast<character*>(job_blas[JOBU]),
+                         const_cast<character*>(job_blas[JOBVT]),
                          &M, &N, A, &LDA, S, U, &LDU, VT, &LDVT, WORK, &LWORK, &info ) ;
     #else
-    LAPACKNAME(dgesvd)( (character*)job_blas[JOBU],
-                        (character*)job_blas[JOBVT],
+    LAPACKNAME(dgesvd)( const_cast<character*>(job_blas[JOBU]),
+                        const_cast<character*>(job_blas[JOBVT]),
                         &M, &N, A, &LDA, S, U, &LDU, VT, &LDVT, WORK, &LWORK, &info ) ;
     #endif
     return info ;
@@ -7232,13 +7406,13 @@ namespace alglin {
          integer         IWORK[] ) // (8*min(M,N))
   { integer info = 0 ;
     #if defined(ALGLIN_USE_OPENBLAS)
-    LAPACK_NAME(sgesdd)( (character*)job_blas[JOBZ],
+    LAPACK_NAME(sgesdd)( const_cast<character*>(job_blas[JOBZ]),
                          &M, &N, A, &LDA, S, U, &LDU, VT, &LDVT, WORK, &LWORK, IWORK, &info ) ;
     #elif defined(ALGLIN_USE_ACCELERATE)
-    CLAPACKNAME(sgesdd)( (character*)job_blas[JOBZ],
+    CLAPACKNAME(sgesdd)( const_cast<character*>(job_blas[JOBZ]),
                          &M, &N, A, &LDA, S, U, &LDU, VT, &LDVT, WORK, &LWORK, IWORK, &info ) ;
     #else
-    LAPACKNAME(sgesdd)( (character*)job_blas[JOBZ],
+    LAPACKNAME(sgesdd)( const_cast<character*>(job_blas[JOBZ]),
                         &M, &N, A, &LDA, S, U, &LDU, VT, &LDVT, WORK, &LWORK, IWORK, &info ) ;
     #endif
     return info ;
@@ -7261,13 +7435,13 @@ namespace alglin {
          integer         IWORK[] ) // (8*min(M,N))
   { integer info = 0 ;
     #if defined(ALGLIN_USE_OPENBLAS)
-    LAPACK_NAME(dgesdd)( (character*)job_blas[JOBZ],
+    LAPACK_NAME(dgesdd)( const_cast<character*>(job_blas[JOBZ]),
                          &M, &N, A, &LDA, S, U, &LDU, VT, &LDVT, WORK, &LWORK, IWORK, &info ) ;
     #elif defined(ALGLIN_USE_ACCELERATE)
-    CLAPACKNAME(dgesdd)( (character*)job_blas[JOBZ],
+    CLAPACKNAME(dgesdd)( const_cast<character*>(job_blas[JOBZ]),
                          &M, &N, A, &LDA, S, U, &LDU, VT, &LDVT, WORK, &LWORK, IWORK, &info ) ;
     #else
-    LAPACKNAME(dgesdd)( (character*)job_blas[JOBZ],
+    LAPACKNAME(dgesdd)( const_cast<character*>(job_blas[JOBZ]),
                         &M, &N, A, &LDA, S, U, &LDU, VT, &LDVT, WORK, &LWORK, IWORK, &info ) ;
     #endif
     return info ;
@@ -8011,13 +8185,16 @@ namespace alglin {
          integer               LWORK )
   { integer info = 0 ;
     #if defined(ALGLIN_USE_OPENBLAS)
-    LAPACK_NAME(sormqr)( (character*)side_blas[SIDE], (character*)trans_blas[TRANS],
+    LAPACK_NAME(sormqr)( const_cast<character*>(side_blas[SIDE]),
+                         const_cast<character*>(trans_blas[TRANS]),
                          &M, &N, &K, A, &LDA, TAU, C, &LDC, WORK, &LWORK, &info);
     #elif defined(ALGLIN_USE_ACCELERATE)
-    CLAPACKNAME(sormqr)( (character*)side_blas[SIDE], (character*)trans_blas[TRANS],
-                          &M, &N, &K, A, &LDA, TAU, C, &LDC, WORK, &LWORK, &info ) ;
+    CLAPACKNAME(sormqr)( const_cast<character*>(side_blas[SIDE]),
+                         const_cast<character*>(trans_blas[TRANS]),
+                         &M, &N, &K, A, &LDA, TAU, C, &LDC, WORK, &LWORK, &info ) ;
     #else
-    LAPACKNAME(sormqr)( (character*)side_blas[SIDE], (character*)trans_blas[TRANS],
+    LAPACKNAME(sormqr)( const_cast<character*>(side_blas[SIDE]),
+                        const_cast<character*>(trans_blas[TRANS]),
                         &M, &N, &K, A, &LDA, TAU, C, &LDC, WORK, &LWORK, &info ) ;
     #endif
     return info ;
@@ -8039,13 +8216,16 @@ namespace alglin {
          integer               LWORK )
   { integer info = 0 ;
     #if defined(ALGLIN_USE_OPENBLAS)
-    LAPACK_NAME(dormqr)( (character*)side_cblas[SIDE], (character*)trans_cblas[TRANS],
+    LAPACK_NAME(dormqr)( const_cast<character*>(side_cblas[SIDE]),
+                         const_cast<character*>(trans_cblas[TRANS]),
                          &M, &N, &K, A, &LDA, TAU, C, &LDC, WORK, &LWORK, &info);
     #elif defined(ALGLIN_USE_ACCELERATE)
-    CLAPACKNAME(dormqr)( (character*)side_blas[SIDE], (character*)trans_blas[TRANS],
-                          &M, &N, &K, A, &LDA, TAU, C, &LDC, WORK, &LWORK, &info ) ;
+    CLAPACKNAME(dormqr)( const_cast<character*>(side_blas[SIDE]),
+                         const_cast<character*>(trans_blas[TRANS]),
+                         &M, &N, &K, A, &LDA, TAU, C, &LDC, WORK, &LWORK, &info ) ;
     #else
-    LAPACKNAME(dormqr)( (character*)side_blas[SIDE], (character*)trans_blas[TRANS],
+    LAPACKNAME(dormqr)( const_cast<character*>(side_blas[SIDE]),
+                        const_cast<character*>(trans_blas[TRANS]),
                         &M, &N, &K, A, &LDA, TAU, C, &LDC, WORK, &LWORK, &info ) ;
     #endif
     return info ;
@@ -8177,10 +8357,12 @@ namespace alglin {
          real                  WORK[] )
   { integer info = 0;
     #ifdef ALGLIN_USE_ACCELERATE
-    CLAPACKNAME(sorm2r)( (character*)side_blas[SIDE], (character*)trans_blas[TRANS],
-                          &M, &N, &K, A, &LDA, TAU, C, &LDC, WORK, &info ) ;
+    CLAPACKNAME(sorm2r)( const_cast<character*>(side_blas[SIDE]),
+                         const_cast<character*>(trans_blas[TRANS]),
+                         &M, &N, &K, A, &LDA, TAU, C, &LDC, WORK, &info ) ;
     #else
-    LAPACKNAME(sorm2r)( (character*)side_blas[SIDE], (character*)trans_blas[TRANS],
+    LAPACKNAME(sorm2r)( const_cast<character*>(side_blas[SIDE]),
+                        const_cast<character*>(trans_blas[TRANS]),
                         &M, &N, &K, A, &LDA, TAU, C, &LDC, WORK, &info ) ;
     #endif
     return info ;
@@ -8201,10 +8383,13 @@ namespace alglin {
          doublereal            WORK[] )
   { integer info = 0;
     #ifdef ALGLIN_USE_ACCELERATE
-    CLAPACKNAME(dorm2r)( (character*)side_blas[SIDE], (character*)trans_blas[TRANS],
-                          &M, &N, &K, A, &LDA, TAU, C, &LDC, WORK, &info ) ;
+    CLAPACKNAME(dorm2r)( const_cast<character*>(side_blas[SIDE]),
+                         const_cast<character*>(trans_blas[TRANS]),
+                         &M, &N, &K, A, &LDA, TAU, C, &LDC, WORK, &info ) ;
     #else
-    LAPACKNAME(dorm2r)( (character*)side_blas[SIDE], (character*)trans_blas[TRANS], &M, &N, &K, A, &LDA, TAU, C, &LDC, WORK, &info ) ;
+    LAPACKNAME(dorm2r)( const_cast<character*>(side_blas[SIDE]),
+                        const_cast<character*>(trans_blas[TRANS]),
+                        &M, &N, &K, A, &LDA, TAU, C, &LDC, WORK, &info ) ;
     #endif
     return info ;
   }
@@ -8334,16 +8519,16 @@ namespace alglin {
          real            T[],
          integer         LDT )
   #if defined(ALGLIN_USE_OPENBLAS)
-  { LAPACK_NAME(slarft)( (character*)direct_blas[DIRECT],
-                         (character*)store_blas[STOREV],
+  { LAPACK_NAME(slarft)( const_cast<character*>(direct_blas[DIRECT]),
+                         const_cast<character*>(store_blas[STOREV]),
                          &N, &K, V, &LDV, TAU, T, &LDT ) ; }
   #elif defined(ALGLIN_USE_ACCELERATE)
-  { CLAPACKNAME(slarft)( (character*)direct_blas[DIRECT],
-                         (character*)store_blas[STOREV],
+  { CLAPACKNAME(slarft)( const_cast<character*>(direct_blas[DIRECT]),
+                         const_cast<character*>(store_blas[STOREV]),
                          &N, &K, V, &LDV, TAU, T, &LDT ) ; }
   #else
-  { LAPACKNAME(slarft)( (character*)direct_blas[DIRECT],
-                        (character*)store_blas[STOREV],
+  { LAPACKNAME(slarft)( const_cast<character*>(direct_blas[DIRECT]),
+                        const_cast<character*>(store_blas[STOREV]),
                         &N, &K, V, &LDV, TAU, T, &LDT ) ; }
   #endif
 
@@ -8359,16 +8544,16 @@ namespace alglin {
          doublereal      T[],
          integer         LDT )
   #if defined(ALGLIN_USE_OPENBLAS)
-  { LAPACK_NAME(dlarft)( (character*)direct_blas[DIRECT],
-                         (character*)store_blas[STOREV],
+  { LAPACK_NAME(dlarft)( const_cast<character*>(direct_blas[DIRECT]),
+                         const_cast<character*>(store_blas[STOREV]),
                          &N, &K, V, &LDV, TAU, T, &LDT ) ; }
   #elif defined(ALGLIN_USE_ACCELERATE)
-  { CLAPACKNAME(dlarft)( (character*)direct_blas[DIRECT],
-                         (character*)store_blas[STOREV],
+  { CLAPACKNAME(dlarft)( const_cast<character*>(direct_blas[DIRECT]),
+                         const_cast<character*>(store_blas[STOREV]),
                          &N, &K, V, &LDV, TAU, T, &LDT ) ; }
   #else
-  { LAPACKNAME(dlarft)( (character*)direct_blas[DIRECT],
-                        (character*)store_blas[STOREV],
+  { LAPACKNAME(dlarft)( const_cast<character*>(direct_blas[DIRECT]),
+                        const_cast<character*>(store_blas[STOREV]),
                         &N, &K, V, &LDV, TAU, T, &LDT ) ; }
   #endif
 
@@ -8582,25 +8767,31 @@ namespace alglin {
          real                  WORK[],
          integer               LDWORK )
   #if defined(ALGLIN_USE_OPENBLAS)
-  { LAPACK_NAME(slarfb)( (character*)side_blas[SIDE],
-                         (character*)trans_blas[TRANS],
-                         (character*)direct_blas[DIRECT],
-                         (character*)store_blas[STOREV],
+  { LAPACK_NAME(slarfb)( const_cast<character*>(side_blas[SIDE]),
+                         const_cast<character*>(trans_blas[TRANS]),
+                         const_cast<character*>(direct_blas[DIRECT]),
+                         const_cast<character*>(store_blas[STOREV]),
                          &M, &N, &K, V, &LDV, T, &LDT, C, &LDC, WORK, &LDWORK ) ;
   }
   #elif defined(ALGLIN_USE_ACCELERATE)
-  { CLAPACKNAME(slarfb)( (character*)side_blas[SIDE],
-                         (character*)trans_blas[TRANS],
-                         (character*)direct_blas[DIRECT],
-                         (character*)store_blas[STOREV],
-                         &M, &N, &K, (real*)V, &LDV, (real*)T, &LDT, C, &LDC, WORK, &LDWORK ) ;
+  { CLAPACKNAME(slarfb)( const_cast<character*>(side_blas[SIDE]),
+                         const_cast<character*>(trans_blas[TRANS]),
+                         const_cast<character*>(direct_blas[DIRECT]),
+                         const_cast<character*>(store_blas[STOREV]),
+                         &M, &N, &K,
+                         const_cast<real*>(V), &LDV,
+                         const_cast<real*>(T), &LDT,
+                         C, &LDC, WORK, &LDWORK ) ;
   }
   #else
-  { LAPACKNAME(slarfb)( (character*)side_blas[SIDE],
-                        (character*)trans_blas[TRANS],
-                        (character*)direct_blas[DIRECT],
-                        (character*)store_blas[STOREV],
-                        &M, &N, &K, (real*)V, &LDV, (real*)T, &LDT, C, &LDC, WORK, &LDWORK ) ;
+  { LAPACKNAME(slarfb)( const_cast<character*>(side_blas[SIDE]),
+                        const_cast<character*>(trans_blas[TRANS]),
+                        const_cast<character*>(direct_blas[DIRECT]),
+                        const_cast<character*>(store_blas[STOREV]),
+                        &M, &N, &K,
+                        const_cast<real*>(V), &LDV,
+                        const_cast<real*>(T), &LDT,
+                        C, &LDC, WORK, &LDWORK ) ;
   }
   #endif
 
@@ -8622,25 +8813,31 @@ namespace alglin {
          doublereal            WORK[],
          integer               LDWORK )
   #if defined(ALGLIN_USE_OPENBLAS)
-  { LAPACK_NAME(dlarfb)((character*)side_blas[SIDE],
-                        (character*)trans_blas[TRANS],
-                        (character*)direct_blas[DIRECT],
-                        (character*)store_blas[STOREV],
+  { LAPACK_NAME(dlarfb)(const_cast<character*>(side_blas[SIDE]),
+                        const_cast<character*>(trans_blas[TRANS]),
+                        const_cast<character*>(direct_blas[DIRECT]),
+                        const_cast<character*>(store_blas[STOREV]),
                         &M, &N, &K, V, &LDV, T, &LDT, C, &LDC, WORK, &LDWORK ) ;
   }
   #elif defined(ALGLIN_USE_ACCELERATE)
-  { CLAPACKNAME(dlarfb)( (character*)side_blas[SIDE],
-                         (character*)trans_blas[TRANS],
-                         (character*)direct_blas[DIRECT],
-                         (character*)store_blas[STOREV],
-                         &M, &N, &K, (doublereal*)V, &LDV, (doublereal*)T, &LDT, C, &LDC, WORK, &LDWORK ) ;
+  { CLAPACKNAME(dlarfb)( const_cast<character*>(side_blas[SIDE]),
+                         const_cast<character*>(trans_blas[TRANS]),
+                         const_cast<character*>(direct_blas[DIRECT]),
+                         const_cast<character*>(store_blas[STOREV]),
+                         &M, &N, &K,
+                         const_cast<doublereal*>(V), &LDV,
+                         const_cast<doublereal*>(T), &LDT,
+                         C, &LDC, WORK, &LDWORK ) ;
   }
   #else
-  { LAPACKNAME(dlarfb)( (character*)side_blas[SIDE],
-                        (character*)trans_blas[TRANS],
-                        (character*)direct_blas[DIRECT],
-                        (character*)store_blas[STOREV],
-                        &M, &N, &K, (doublereal*)V, &LDV, (doublereal*)T, &LDT, C, &LDC, WORK, &LDWORK ) ;
+  { LAPACKNAME(dlarfb)( const_cast<character*>(side_blas[SIDE]),
+                        const_cast<character*>(trans_blas[TRANS]),
+                        const_cast<character*>(direct_blas[DIRECT]),
+                        const_cast<character*>(store_blas[STOREV]),
+                        &M, &N, &K,
+                        const_cast<doublereal*>(V), &LDV,
+                        const_cast<doublereal*>(T), &LDT,
+                        C, &LDC, WORK, &LDWORK ) ;
   }
   #endif
 
@@ -9422,13 +9619,16 @@ namespace alglin {
          integer               LWORK )
   { integer info = 0 ;
     #if defined(ALGLIN_USE_OPENBLAS)
-    LAPACK_NAME(sormrz)( (character*)side_blas[SIDE], (character*)trans_blas[TRANS],
+    LAPACK_NAME(sormrz)( const_cast<character*>(side_blas[SIDE]),
+                         const_cast<character*>(trans_blas[TRANS]),
                          &M, &N, &K, &L, A, &LDA, TAU, C, &LDC, WORK, &LWORK, &info);
     #elif defined(ALGLIN_USE_ACCELERATE)
-    CLAPACKNAME(sormrz)( (character*)side_blas[SIDE], (character*)trans_blas[TRANS],
-                          &M, &N, &K, &L, A, &LDA, TAU, C, &LDC, WORK, &LWORK, &info ) ;
+    CLAPACKNAME(sormrz)( const_cast<character*>(side_blas[SIDE]),
+                         const_cast<character*>(trans_blas[TRANS]),
+                         &M, &N, &K, &L, A, &LDA, TAU, C, &LDC, WORK, &LWORK, &info ) ;
     #else
-    LAPACKNAME(sormrz)( (character*)side_blas[SIDE], (character*)trans_blas[TRANS],
+    LAPACKNAME(sormrz)( const_cast<character*>(side_blas[SIDE]),
+                        const_cast<character*>(trans_blas[TRANS]),
                         &M, &N, &K, &L, A, &LDA, TAU, C, &LDC, WORK, &LWORK, &info ) ;
     #endif
     return info ;
@@ -9451,13 +9651,16 @@ namespace alglin {
          integer               LWORK )
   { integer info = 0 ;
     #if defined(ALGLIN_USE_OPENBLAS)
-    LAPACK_NAME(dormrz)( (character*)side_cblas[SIDE], (character*)trans_cblas[TRANS],
+    LAPACK_NAME(dormrz)( const_cast<character*>(side_cblas[SIDE]),
+                         const_cast<character*>(trans_cblas[TRANS]),
                          &M, &N, &K, &L, A, &LDA, TAU, C, &LDC, WORK, &LWORK, &info);
     #elif defined(ALGLIN_USE_ACCELERATE)
-    CLAPACKNAME(dormrz)( (character*)side_blas[SIDE], (character*)trans_blas[TRANS],
-                          &M, &N, &K, &L, A, &LDA, TAU, C, &LDC, WORK, &LWORK, &info ) ;
+    CLAPACKNAME(dormrz)( const_cast<character*>(side_blas[SIDE]),
+                         const_cast<character*>(trans_blas[TRANS]),
+                         &M, &N, &K, &L, A, &LDA, TAU, C, &LDC, WORK, &LWORK, &info ) ;
     #else
-    LAPACKNAME(dormrz)( (character*)side_blas[SIDE], (character*)trans_blas[TRANS],
+    LAPACKNAME(dormrz)( const_cast<character*>(side_blas[SIDE]),
+                        const_cast<character*>(trans_blas[TRANS]),
                         &M, &N, &K, &L, A, &LDA, TAU, C, &LDC, WORK, &LWORK, &info ) ;
     #endif
     return info ;
@@ -9574,9 +9777,15 @@ namespace alglin {
          real     & S,
          real     & C )
   #ifdef ALGLIN_USE_ACCELERATE
-  { CLAPACKNAME(slaic1)( &JOB, &J, (real*)X, &SEST, (real*)W, &GAMMA, &SESTPR, &S, &C  ) ; }
+  { CLAPACKNAME(slaic1)( &JOB, &J,
+                         const_cast<real*>(X), &SEST,
+                         const_cast<real*>(W), &GAMMA,
+                         &SESTPR, &S, &C  ) ; }
   #else
-  { LAPACKNAME(slaic1)( &JOB, &J, (real*)X, &SEST, (real*)W, &GAMMA, &SESTPR, &S, &C ) ; }
+  { LAPACKNAME(slaic1)( &JOB, &J,
+                        const_cast<real*>(X), &SEST,
+                        const_cast<real*>(W), &GAMMA,
+                        &SESTPR, &S, &C ) ; }
   #endif
 
   inline
@@ -9591,9 +9800,15 @@ namespace alglin {
          doublereal     & S,
          doublereal     & C )
   #ifdef ALGLIN_USE_ACCELERATE
-  { CLAPACKNAME(dlaic1)( &JOB, &J, (doublereal*)X, &SEST, (doublereal*)W, &GAMMA, &SESTPR, &S, &C  ) ; }
+  { CLAPACKNAME(dlaic1)( &JOB, &J,
+                         const_cast<doublereal*>(X), &SEST,
+                         const_cast<doublereal*>(W), &GAMMA,
+                         &SESTPR, &S, &C  ) ; }
   #else
-  { LAPACKNAME(dlaic1)( &JOB, &J, (doublereal*)X, &SEST, (doublereal*)W, &GAMMA, &SESTPR, &S, &C ) ; }
+  { LAPACKNAME(dlaic1)( &JOB, &J,
+                        const_cast<doublereal*>(X), &SEST,
+                        const_cast<doublereal*>(W), &GAMMA,
+                        &SESTPR, &S, &C ) ; }
   #endif
 
   /*

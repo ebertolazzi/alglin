@@ -43,10 +43,10 @@ namespace alglin {
    * \author   Enrico Bertolazzi
    *
    * \par      Affiliation:
-   *           Dipartimento di Ingegneria Industriale <br>
+   *           Department of Industrial Engineering<br>
    *           University of Trento <br>
-   *           via Mesiano 77, I -- 38050 Trento, Italy <br>
-   *           enrico.bertolazzi@ing.unitn.it
+   *           Via Sommarive 9, I-38123 Povo, Trento, Italy<br>
+   *           `enrico.bertolazzi@unitn.it`
    * 
    */
   /*

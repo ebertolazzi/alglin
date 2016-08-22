@@ -11,9 +11,9 @@
  |                           \|                   \|                        |
  |                                                                          |
  |      Enrico Bertolazzi                                                   |
- |      Dipartimento di Ingegneria Meccanica e Strutturale                  |
+ |      Dipartimento di Ingegneria Industriale                              |
  |      Universita` degli Studi di Trento                                   |
- |      Via Mesiano 77, I-38050 Trento, Italy                               |
+ |      Via Sommarive 9, I-38123 Povo, Trento, Italy                        |
  |      email: enrico.bertolazzi@unitn.it                                   |
  |                                                                          |
  |      version: 0.2 07-03-2011                                             |
@@ -38,7 +38,7 @@ class TimeMeter {
 public:
 
   TimeMeter() : elapsedTotal(0) { start() ; }
-  ~TimeMeter() {} ;
+  ~TimeMeter() {}
 
   void reset() { elapsedTotal = 0 ; }
 

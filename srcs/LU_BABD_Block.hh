@@ -43,10 +43,10 @@ namespace alglin {
    * \author   Enrico Bertolazzi
    *
    * \par      Affiliation:
-   *           Department of Mechanics and Structures Engineering <br>
-   *           University of Trento <br>
-   *           via Mesiano 77, I -- 38050 Trento, Italy <br>
-   *           enrico.bertolazzi@ing.unitn.it
+   *           Department of Industrial Engineering<br>
+   *           University of Trento<br>
+   *           Via Sommarive 9, I-38123 Povo, Trento, Italy<br>
+   *           `enrico.bertolazzi@unitn.it`
    */
   template <typename t_Value>
   class BlockLU {

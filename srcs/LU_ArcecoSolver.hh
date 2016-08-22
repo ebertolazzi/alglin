@@ -42,10 +42,10 @@ namespace alglin {
    * \author   Enrico Bertolazzi and Daniele Bosetti
    *
    * \par      Affiliation:
-   *           Department of Mechanics and Structures Engineering <br>
+   *           Department of Industrial Engineering<br>
    *           University of Trento <br>
-   *           via Mesiano 77, I -- 38050 Trento, Italy <br>
-   *           enrico.bertolazzi@ing.unitn.it
+   *           Via Sommarive 9, I-38123 Povo, Trento, Italy<br>
+   *           enrico.bertolazzi@unitn.it
    *
    * \par Abstract
    *  This program solves the linear system A*X = B where A is
