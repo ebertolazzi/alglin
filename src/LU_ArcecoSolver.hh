@@ -17,18 +17,12 @@
  |                                                                          |
 \*--------------------------------------------------------------------------*/
 
-#ifndef MECHATRONIX_CORE_ARCECO_SOLVER_HH
-#define MECHATRONIX_CORE_ARCECO_SOLVER_HH
+#ifndef LU_ARCECO_SOLVER_HH
+#define LU_ARCECO_SOLVER_HH
 
 #include "Alglin.hh"
 
 namespace alglin {
-
-  typedef double  valueType ;
-  typedef int     indexType ;
-  typedef double* valuePointer ;
-  typedef double const * valueConstPointer ;
-  typedef int*    indexPointer ;
 
   /*
    *  A R C E C O
@@ -59,14 +53,19 @@ namespace alglin {
    *  numberOfBlocks is the number of the blocks forming the matrix, matrixStructure is an array which describes the structure
    *  of the matrix, and array contains the data of the matrix.
    */
+  template <typename t_Value>
   class Arceco {
 
-    Arceco (Arceco const &);
-    Arceco const &operator = (Arceco const &) ;
+    typedef t_Value         valueType ;
+    typedef t_Value*        valuePointer ;
+    typedef t_Value const * valueConstPointer ;
 
-    indexType    numberOfBlocks  ; //!< total number of blocks of the matrix A
-    indexPointer matrixStructure ; //!< structure of the matrix
-    indexPointer pivot           ; //!< permutation array
+    Arceco (Arceco<t_Value> const &);
+    Arceco<t_Value> const &operator = (Arceco<t_Value> const &) ;
+
+    integer      numberOfBlocks  ; //!< total number of blocks of the matrix A
+    integer *    matrixStructure ; //!< structure of the matrix
+    integer *    pivot           ; //!< permutation array
     valuePointer array           ; //!< the matrix data
 
     /*!
@@ -79,10 +78,10 @@ namespace alglin {
      */
     void
     rowElimination ( valuePointer block,
-                     indexType    numRowsBlock,
-                     indexType    numColsBlock,
-                     indexType    numRowsPivot,
-                     indexPointer pivot ) ;
+                     integer      numRowsBlock,
+                     integer      numColsBlock,
+                     integer      numRowsPivot,
+                     integer    * pivot ) ;
 
     /*!
      *  ColumnElimination performs numColsPivot column elimination on the matrix top-block and bottom-block.
@@ -96,64 +95,64 @@ namespace alglin {
      */
     void
     columnElimination ( valuePointer topblk,
-                        indexType    numRowsTopBlock,
-                        indexType    numOverlapCols,
+                        integer      numRowsTopBlock,
+                        integer      numOverlapCols,
                         valuePointer botblk,
-                        indexType    numRowsBottomBlock,
-                        indexType    numColsPivot,
-                        indexPointer pivot ) ;
+                        integer      numRowsBottomBlock,
+                        integer      numColsPivot,
+                        integer *    pivot ) ;
 
     //! Performs the forward elimination step in the solution phase of solveByRef
     void
     forwardElimination ( valuePointer block,
-                         indexType    numRowsBlock,
-                         indexType    numRowsPivot,
-                         indexPointer pivot,
+                         integer      numRowsBlock,
+                         integer      numRowsPivot,
+                         integer *    pivot,
                          valuePointer b ) const ;
 
     //! Performs the forward solution step in the solution phase of solveByRef
     void
     forwardSolution ( valuePointer block,
-                      indexType    numRowsBlock,
-                      indexType    numColsPivot,
-                      indexType    numOverlapCols,
+                      integer      numRowsBlock,
+                      integer      numColsPivot,
+                      integer      numOverlapCols,
                       valuePointer b ) const ;
 
     //! Performs the forward modification step in the solution phase of solve
     void
     forwardModification ( valuePointer block,
-                          indexType    numRowsBlock,
-                          indexType    numColsPivot,
+                          integer      numRowsBlock,
+                          integer      numColsPivot,
                           valuePointer b ) const ;
 
     //! Performs the backward modification step in the solution phase of solve
     void
     backwardModification ( valuePointer block,
-                           indexType    numRowsBlock,
-                           indexType    numColsBlock,
-                           indexType    numRowsPivot,
+                           integer      numRowsBlock,
+                           integer      numColsBlock,
+                           integer      numRowsPivot,
                            valuePointer b ) const ;
 
     //! Performs the backward substitution step in the solution phase of solve
     void
     backwardSolution ( valuePointer block,
-                       indexType    numRowsBlock,
-                       indexType    numColsBlock,
-                       indexType    numRowsPivot,
+                       integer      numRowsBlock,
+                       integer      numColsBlock,
+                       integer      numRowsPivot,
                        valuePointer b ) const ;
 
     //! Performs the backward elimination step in the solution phase of solve
     void
     backwardElimination ( valuePointer block,
-                          indexType    numRowsBlock,
-                          indexType    numColsPivot,
-                          indexType    numOverlapCols,
-                          indexPointer pivot,
+                          integer      numRowsBlock,
+                          integer      numColsPivot,
+                          integer      numOverlapCols,
+                          integer *    pivot,
                           valuePointer b ) const ;
 
-    indexType numRows    ( indexType numBlock ) const { return matrixStructure[numBlock*3+0] ; }
-    indexType numCols    ( indexType numBlock ) const { return matrixStructure[numBlock*3+1] ; }
-    indexType numOverlap ( indexType numBlock ) const { return matrixStructure[numBlock*3+2] ; }
+    integer numRows    ( integer numBlock ) const { return matrixStructure[numBlock*3+0] ; }
+    integer numCols    ( integer numBlock ) const { return matrixStructure[numBlock*3+1] ; }
+    integer numOverlap ( integer numBlock ) const { return matrixStructure[numBlock*3+2] ; }
 
   public:
   
@@ -181,14 +180,14 @@ namespace alglin {
      *  to the given structure. The class will use this space to store the matrix decomposition.
      */
     void
-    loadByRef ( indexType    numberOfBlocks,
-                indexPointer matrixStructure,
+    loadByRef ( integer      numberOfBlocks,
+                integer *    matrixStructure,
                 valuePointer array,
-                indexPointer pivot ) ;
+                integer *    pivot ) ;
 
     //! \@param neq the order of the linear system, and n = SUM(matrixStructure[3*k],K=0,numberOfBlocks-1)
     void
-    checkStructure( indexType neq ) ;
+    checkStructure( integer neq ) ;
 
     /*!
      *  Decompose supervises the modified alternate row and column

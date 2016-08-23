@@ -17,19 +17,18 @@
  |                                                                          |
 \*--------------------------------------------------------------------------*/
 
-#ifndef LU_BABD_AMODIO_HH
-#define LU_BABD_AMODIO_HH
+#ifndef LU_BABD_AMODIO_N_HH
+#define LU_BABD_AMODIO_N_HH
 
 #include "Alglin.hh"
 #include "Alglin++.hh"
-
 #include <vector>
 
 #ifdef ALGLIN_USE_CXX11
-  #define LU_BABD_AMODIO_USE_THREAD
+  #define LU_BABD_AMODIO_N_USE_THREAD
 #endif
 
-#ifdef LU_BABD_AMODIO_USE_THREAD
+#ifdef LU_BABD_AMODIO_N_USE_THREAD
   #include <thread>
   #include <mutex>
   #include <condition_variable>
@@ -60,13 +59,13 @@ namespace alglin {
    *
    * \par      Affiliation:
    *           Department of Industrial Engineering<br>
-   *           University of Trento <br>
+   *           University of Trento<br>
    *           Via Sommarive 9, I-38123 Povo, Trento, Italy<br>
    *           `enrico.bertolazzi@unitn.it`
    *
    */
-  template <typename t_Value>
-  class AmodioLU {
+  template <typename t_Value, integer N>
+  class AmodioN {
   private:
   
     typedef t_Value         valueType ;
@@ -77,18 +76,13 @@ namespace alglin {
     Malloc<integer>   baseInteger ;
     std::vector<std::vector<bool> > LU_rows_blk ;
 
-    AmodioLU(AmodioLU const &) ;
-    AmodioLU const & operator = (AmodioLU const &) ;
+    AmodioN(AmodioN const &) ;
+    AmodioN const & operator = (AmodioN const &) ;
 
     integer nblock ; //!< total number of blocks
-    integer n      ; //!< size of square blocks
-    integer m      ; //!< number final rows (m>=n)
-
-    // some derived constants
-    integer nx2 ;
-    integer nxn ;
-    integer nxnx2 ;
-    integer nm ;
+    integer q      ; //!< number final rows (m>=n)
+    integer m      ;
+    integer nm     ;
 
     /*
     //
@@ -132,28 +126,24 @@ namespace alglin {
 
     integer * ipiv_blk ;
     integer * LU_ipiv_blk ;
-    integer   NB ; // blocking factor
 
-    #ifdef LU_BABD_AMODIO_USE_THREAD
+    mutable integer jump_block ;
+
+    integer
+    LU_2_block( valuePointer A,
+                valuePointer B,
+                integer      ipiv[] ) const ;
+
+    #ifdef LU_BABD_AMODIO_N_USE_THREAD
     mutable mutex              mtx0, mtx1, mtx2 ;
     mutable condition_variable cond0 ;
     mutable std::thread        threads[LU_BABD_AMODIO_MAX_THREAD] ;
     mutable integer            to_be_done ;
             integer const      numThread ;
     mutable integer            usedThread ;
-    mutable valuePointer       y_thread ;
     mutable integer            jump_block_max_mt ;
-    #endif
+    mutable valuePointer       y_thread ;
 
-    mutable integer jump_block ;
-
-    integer
-    LU_2_block( integer      n,
-                valuePointer A,
-                valuePointer B,
-                integer      ipiv[] ) const ;
-
-    #ifdef LU_BABD_AMODIO_USE_THREAD
     void forward_reduce_mt( integer nth ) const ;
     void back_substitute_mt( integer nth ) const ;
     void reduction_mt( integer nth ) ;
@@ -165,18 +155,17 @@ namespace alglin {
 
   public:
 
-    #ifdef LU_BABD_AMODIO_USE_THREAD
-    explicit AmodioLU( integer nth = std::thread::hardware_concurrency() ) ;
+    #ifdef LU_BABD_AMODIO_N_USE_THREAD
+    explicit AmodioN( integer nth = std::thread::hardware_concurrency() ) ;
     #else
-    explicit AmodioLU() ;
+    explicit AmodioN() ;
     #endif
 
-    ~AmodioLU() ;
+    ~AmodioN() ;
 
     //! load matrix in the class
     /*!
       \param nblk number of (square) blocks
-      \param n    size of the blocks
       \param q    extra bc
       \param AdAu pointer to the blocks diagonal ad upper diagonal
       \param H0   pointer to the block \f$ H_0 \f$
@@ -214,7 +203,6 @@ namespace alglin {
     */
     void
     factorize( integer           nblk,
-               integer           n,
                integer           q,
                valueConstPointer AdAu,
                valueConstPointer H0,

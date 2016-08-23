@@ -20,7 +20,7 @@
   #define NSIZE 10
 
   alglin::integer n    = NSIZE ;
-  alglin::integer nblk = 500000 ;
+  alglin::integer nblk = 100000 ;
   alglin::integer q    = 40 ;
   alglin::integer nq   = n+q ;
 /*

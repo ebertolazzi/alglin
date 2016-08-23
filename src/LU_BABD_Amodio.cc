@@ -17,10 +17,8 @@
  |                                                                          |
 \*--------------------------------------------------------------------------*/
 
-#include "LU_BABD_AmodioN.hh"
-#include "Alglin_tmpl.hh"
+#include "LU_BABD_Amodio.hh"
 #include <iostream>
-#include <algorithm>
 
 /*\
  |  reduces a 2x3 block matrix / Ad  Au     \ to a 1x2 block matrix ( Ad' Au' )
@@ -131,11 +129,12 @@ namespace alglin {
 
   using namespace std ;
 
-  #ifdef LU_BABD_AMODIO_N_USE_THREAD
-  template <typename t_Value, integer n>
-  AmodioN<t_Value,n>::AmodioN( integer nth )
+  #ifdef LU_BABD_AMODIO_USE_THREAD
+  template <typename t_Value>
+  AmodioLU<t_Value>::AmodioLU( integer nth )
   : baseValue("AmodioLU_value")
   , baseInteger("AmodioLU_index")
+  , NB(25)
   , numThread(nth)
   {
     ALGLIN_ASSERT( numThread > 0 && numThread <= LU_BABD_AMODIO_MAX_THREAD,
@@ -143,18 +142,20 @@ namespace alglin {
                    "must be a number > 0 and <= " << LU_BABD_AMODIO_MAX_THREAD ) ;
   }
   #else
-  template <typename t_Value, integer n>
-  AmodioN<t_Value,n>::AmodioN()
+  template <typename t_Value>
+  AmodioLU<t_Value>::AmodioLU()
   : baseValue("AmodioLU_value")
   , baseInteger("AmodioLU_index")
+  , NB(25)
   { }
   #endif
 
-  template <typename t_Value, integer n>
-  AmodioN<t_Value,n>::~AmodioN() {
+  template <typename t_Value>
+  AmodioLU<t_Value>::~AmodioLU() {
     baseValue   . free() ;
     baseInteger . free() ;
   }
+
   /*
   //
   // +--------+
@@ -168,69 +169,64 @@ namespace alglin {
   // +--------+
   //
   */
-  template <typename t_Value, integer N, integer LEVEL>
-  class LU_2_block_inline {
-    enum { J = N-LEVEL, NJ = LEVEL, NJ1 = LEVEL-1 } ;
-  public:
-    static inline integer
-    eval( t_Value * A,
-          t_Value * B,
-          integer   ipiv[] ) {
-      integer MX1, MX2 ;
-      t_Value absA, absB ;
-      t_Value * Ajj = A + J*(N+1) ;
-      t_Value * Bj  = B + J*N ;
-      Amax<t_Value,NJ,1>::eval( Ajj, absA, MX1 ) ;
-      Amax<t_Value,N,1>::eval( Bj, absB, MX2 ) ;
-      if ( absA < absB ) {
-        ipiv[J] = MX2 + N ; // C-based
-        Swap<t_Value,N,N,N>::eval( A+J, B+MX2 ) ;
-      } else {
-        ipiv[J] = MX1 + J ; // C-based
-        if ( MX1 > 0 ) Swap<t_Value,N,N,N>::eval( A+J, A+ipiv[J] ) ;
-      }
-      if ( Ajj[0] == 0 ) return J+1 ;
-      t_Value ROWM = 1/Ajj[0] ;
-      Scal<t_Value,NJ1,1>::eval(ROWM,Ajj+1) ;
-      Scal<t_Value,N,1>::eval(ROWM,Bj) ;
-      //   N, M, LdM, INCX, INCY
-      Rank1<t_Value,NJ1,NJ1,N,1,N>::subTo(Ajj+1,Ajj+N,Ajj+N+1) ;
-      Rank1<t_Value,N,NJ1,N,1,N>::subTo(Bj,Ajj+N,Bj+N) ;
-      return LU_2_block_inline<t_Value,N,LEVEL-1>::eval(A,B,ipiv) ;
-    }
-
-  } ;
-
-  template <typename t_Value, integer N>
-  class LU_2_block_inline<t_Value,N,0> {
-  public:
-    static inline integer
-    eval( t_Value * A,
-          t_Value * B,
-          integer   ipiv[] ) {
-      return 0 ;
-    }
-  } ;
-
-  template <typename t_Value, integer n>
+  template <typename t_Value>
   integer
-  AmodioN<t_Value,n>::LU_2_block( valuePointer A,
-                                  valuePointer B,
-                                  integer      ipiv[] ) const {
-    
-    integer ierr = LU_2_block_inline<t_Value,n,n>::eval(A,B,ipiv) ;
+  AmodioLU<t_Value>::LU_2_block( integer      n,
+                                 valuePointer A,
+                                 valuePointer B,
+                                 integer      ipiv[] ) const {
+    // LU DECOMPOSITION, ROW INTERCHANGES
+    valuePointer Ajj = A ;
+    valuePointer Bj  = B ;
+    integer nb = std::min(NB,n) ;
+    for ( integer j = 0 ; j < n ; Ajj += n+1, Bj += n  ) {
+      integer MX1 = iamax( n-j, Ajj, 1 ) ;
+      integer MX2 = iamax( n,   Bj,  1 ) ;
+      if ( std::abs(Ajj[MX1]) < std::abs(Bj[MX2]) ) {
+        ipiv[j] = MX2 + n ; // C-based
+        swap( n, A + j, n, B + MX2, n ) ;
+      } else {
+        ipiv[j] = MX1 + j ; // C-based
+        if ( MX1 > 0 ) swap( n, A + j, n, A + ipiv[j], n ) ;
+      }
+      if ( isZero(Ajj[0]) ) return j+1 ;
+      valueType ROWM = 1/Ajj[0] ;
+      ++j ;
+      scal(n-j, ROWM, Ajj+1, 1) ;
+      scal(n,   ROWM, Bj,    1) ;
+      if ( nb == j ) { // applico al prox blocco
+        /*
+        // / L 0 \-1   /  L^(-1)      \
+        // \ M I /   = \ -M*L^(-1)  I /
+        */
+        nb += NB ;
+        if ( nb > n-NB/2 ) nb = n ;
+        trsm( LEFT, LOWER, NO_TRANSPOSE, UNIT,
+              j, nb-j, 1.0, A, n, A+j*n, n ) ;
+        gemm( NO_TRANSPOSE, NO_TRANSPOSE,
+              n-j, nb-j, j,
+              -1.0, A+j,       n,
+                    A+j*n,     n,
+               1.0, A+j*(n+1), n ) ;
+        gemm( NO_TRANSPOSE, NO_TRANSPOSE,
+              n, nb-j, j,
+              -1.0, B,     n,
+                    A+j*n, n,
+               1.0, B+j*n, n ) ;
+      } else {
+        ger(n-j, nb-j, -1.0, Ajj+1, 1, Ajj+n, n, Ajj+n+1, n ) ;
+        ger(n,   nb-j, -1.0, Bj,    1, Ajj+n, n, Bj+n,    n ) ;
+      }
+    }
     /*
     // compute G = B*L^(-1)
     //
     //  / L \ (U) = / I          \ (L*U) =  / I \ (L*U)
     //  \ M /       \ M * L^(-1) /          \ G /
     */
-    if ( ierr == 0 ) trsm( SideMultiply::RIGHT,
-                           ULselect::LOWER,
-                           Transposition::NO_TRANSPOSE,
-                           DiagonalType::UNIT,
-                           n, n, 1.0, A, n, B, n ) ;
-    return ierr ;
+    trsm( RIGHT, LOWER, NO_TRANSPOSE, UNIT,
+          n, n, 1.0, A, n, B, n ) ;
+    return 0 ;
   }
 
   /*  
@@ -273,20 +269,20 @@ namespace alglin {
   // 0  -  -  -  4  -  -  -  8  -  -  - 12  -  -  -
   // 0  -  -  -  -  -  -  -  8  -  -  -  -  -  -  -
   // 0  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
-
-  template <typename t_Value, integer n>
-  void
-  AmodioN<t_Value,n>::reduction() {
-    integer const nxn   = n*n ;
-    integer const nxnx2 = n*n*2 ;
   
+  template <typename t_Value>
+  void
+  AmodioLU<t_Value>::reduction() {
     valuePointer EE = tmpM ;
     valuePointer FF = tmpM+nxn ;
 
     while ( jump_block < nblock ) {
+
       integer kstep = 2*jump_block ;
       integer kend  = nblock-jump_block ;
+
       for ( integer k = 0 ; k < kend ; k += kstep ) {
+
         integer k1 = k+jump_block ;
 
         valuePointer BLK0 = AdAu_blk + k  * nxnx2 ;
@@ -305,11 +301,12 @@ namespace alglin {
          | P * / Au \ = / G \ (L*U)
          |     \ Bd /   \ I /
         \*/
-        Copy<t_Value,nxn,1,1>::eval(F,G) ;
-        integer info = LU_2_block( LU, G, ipiv ) ;
+        copy( nxn, F, 1, G, 1 ) ;
+        integer info = LU_2_block( n, LU, G, ipiv ) ;
         ALGLIN_ASSERT( info == 0,
                        "AmodioLU::factorize, at block N." << k <<
                        " singular matrix, info = " << info );
+
 
         /*\
          |   +-----+-----+ - - +
@@ -335,24 +332,30 @@ namespace alglin {
           integer ip = ipiv[i] ;
           if ( ip > i ) {
             std::swap( LU_rows[i], LU_rows[ip] ) ;
-            if ( ip < n ) Swap<t_Value,n,n,n>::eval( Adu + i, Adu + ip ) ; // scambia righe
-            else          Swap<t_Value,n,n,n>::eval( Adu + i, E + ip-n ) ; // scambia righe
+            if ( ip < n ) swap( n, Adu + i, n, Adu + ip, n ) ; // scambia righe
+            else          swap( n, Adu + i, n, E + ip-n, n ) ; // scambia righe
           }
         }
-        Zero<t_Value,nxn,1>::eval( F ) ;
-        Zero<t_Value,nxnx2,1>::eval( EE ) ;
+        zero( nxn, F, 1 ) ;
+        zero( nxnx2, EE, 1 ) ;
         for ( integer i = 0 ; i < n ; ++i ) {
           if ( LU_rows[i+n] ) {
-            Copy<t_Value,n,n,n>::eval(E+i,F+i) ;
-            Zero<t_Value,n,n>::eval(E+i) ;
+            copy( n, E+i, n, F+i, n ) ;
+            zero( n, E+i, n ) ;
           }
-          if ( LU_rows[i] ) Copy<t_Value,n,n,n>::eval( Adu+i, FF+i ) ;
-          else              Copy<t_Value,n,n,n>::eval( Adu+i, EE+i ) ;
+          if ( LU_rows[i] ) copy( n, Adu+i, n, FF+i, n ) ;
+          else              copy( n, Adu+i, n, EE+i, n ) ;
         }
-
-        MM<t_Value,n,n,n,n,n,n>::subTo( G, EE, E ) ;
-        MM<t_Value,n,n,n,n,n,n>::subTo( G, FF, F ) ;
-
+        gemm( NO_TRANSPOSE, NO_TRANSPOSE,
+              n, n, n,
+              -1.0, G, n,
+              EE, n,
+              1.0, E, n ) ;
+        gemm( NO_TRANSPOSE, NO_TRANSPOSE,
+              n, n, n,
+              -1.0, G, n,
+              FF, n,
+              1.0, F, n ) ;
         /*\
          |  +-----+-----+ - - +
          |  | E*  |  0  | F*    <-- messo al posto dell "0"
@@ -365,13 +368,10 @@ namespace alglin {
     }
   }
 
-  #ifdef LU_BABD_AMODIO_N_USE_THREAD
-  template <typename t_Value, integer n>
+  #ifdef LU_BABD_AMODIO_USE_THREAD
+  template <typename t_Value>
   void
-  AmodioN<t_Value,n>::reduction_mt( integer nth ) {
-    integer const nxn   = n*n ;
-    integer const nxnx2 = n*n*2 ;
-
+  AmodioLU<t_Value>::reduction_mt( integer nth ) {
     valuePointer EE = tmpM+nth*nxnx2 ;
     valuePointer FF = EE+nxn ;
 
@@ -401,11 +401,12 @@ namespace alglin {
          | P * / Au \ = / G \ (L*U)
          |     \ Bd /   \ I /
         \*/
-        Copy<t_Value,nxn,1,1>::eval( F, G ) ;
-        integer info = LU_2_block( LU, G, ipiv ) ;
+        copy( nxn, F, 1, G, 1 ) ;
+        integer info = LU_2_block( n, LU, G, ipiv ) ;
         ALGLIN_ASSERT( info == 0,
                        "AmodioLU::factorize, at block N." << k <<
                        " singular matrix, info = " << info );
+
 
         /*\
          |   +-----+-----+ - - +
@@ -431,24 +432,30 @@ namespace alglin {
           integer ip = ipiv[i] ;
           if ( ip > i ) {
             std::swap( LU_rows[i], LU_rows[ip] ) ;
-            if ( ip < n ) Swap<t_Value,n,n,n>::eval( Adu + i, Adu + ip ) ; // scambia righe
-            else          Swap<t_Value,n,n,n>::eval( Adu + i, E + ip-n ) ; // scambia righe
+            if ( ip < n ) swap( n, Adu + i, n, Adu + ip, n ) ; // scambia righe
+            else          swap( n, Adu + i, n, E + ip-n, n ) ; // scambia righe
           }
         }
-        Zero<t_Value,nxn,1>::eval(F) ;
-        Zero<t_Value,nxnx2,1>::eval(EE) ;
+        zero( nxn, F, 1 ) ;
+        zero( nxnx2, EE, 1 ) ;
         for ( integer i = 0 ; i < n ; ++i ) {
           if ( LU_rows[i+n] ) {
-            Copy<t_Value,n,n,n>::eval( E+i, F+i ) ;
-            Zero<t_Value,n,n>::eval(E+i) ;
+            copy( n, E+i, n, F+i, n ) ;
+            zero( n, E+i, n ) ;
           }
-          if ( LU_rows[i] ) Copy<t_Value,n,n,n>::eval( Adu+i, FF+i ) ;
-          else              Copy<t_Value,n,n,n>::eval( Adu+i, EE+i ) ;
+          if ( LU_rows[i] ) copy( n, Adu+i, n, FF+i, n ) ;
+          else              copy( n, Adu+i, n, EE+i, n ) ;
         }
-
-        MM<t_Value,n,n,n,n,n,n>::subTo( G, EE, E ) ;
-        MM<t_Value,n,n,n,n,n,n>::subTo( G, FF, F ) ;
-
+        gemm( NO_TRANSPOSE, NO_TRANSPOSE,
+              n, n, n,
+              -1.0, G, n,
+              EE, n,
+              1.0, E, n ) ;
+        gemm( NO_TRANSPOSE, NO_TRANSPOSE,
+              n, n, n,
+              -1.0, G, n,
+              FF, n,
+              1.0, F, n ) ;
         /*\
          |  +-----+-----+ - - +
          |  | E*  |  0  | F*    <-- messo al posto dell "0"
@@ -472,28 +479,29 @@ namespace alglin {
   }
   #endif
 
-  template <typename t_Value, integer n>
+  template <typename t_Value>
   void
-  AmodioN<t_Value,n>::factorize( integer           _nblock,
-                                 integer           _q,
-                                 valueConstPointer AdAu,
-                                 valueConstPointer H0,
-                                 valueConstPointer HN,
-                                 valueConstPointer Hq ) {
-
-    integer const nx2   = n*2 ;
-    integer const nxn   = n*n ;
-    integer const nxnx2 = n*n*2 ;
+  AmodioLU<t_Value>::factorize( integer           _nblock,
+                                integer           _n,
+                                integer           _q,
+                                valueConstPointer AdAu,
+                                valueConstPointer H0,
+                                valueConstPointer HN,
+                                valueConstPointer Hq ) {
 
     nblock = _nblock ;
-    q      = _q ;
-    m      = n+q ;
+    n      = _n ;
+    m      = _n+_q ;
+
+    nx2    = 2*n ;
+    nxn    = n*n ;
+    nxnx2  = nxn*2 ;
     nm     = n+m ;
 
     integer nnzG    = (nblock-1)*nxn ;
     integer nnzADAU = nblock*nxnx2 ;
 
-    #ifdef LU_BABD_AMODIO_N_USE_THREAD
+    #ifdef LU_BABD_AMODIO_USE_THREAD
     integer nnzLU = numThread*nxnx2 ;
     if ( nnzLU < nm*nm ) nnzLU = nm*nm ;
     #else
@@ -527,17 +535,16 @@ namespace alglin {
      | !!!!!!!!!!!!!!!!!!!!!!!!!
     \*/
 
-    #ifdef LU_BABD_AMODIO_N_USE_THREAD
+    #ifdef LU_BABD_AMODIO_USE_THREAD
     usedThread        = numThread ;
     jump_block_max_mt = nblock>>(usedThread-1) ;
     #endif
 
     jump_block = 1 ;
-    #ifdef LU_BABD_AMODIO_N_USE_THREAD
-    // esegue un numero di livelli in parallelo
+    #ifdef LU_BABD_AMODIO_USE_THREAD
     to_be_done = usedThread ;
     for ( integer nt = 0 ; nt < usedThread ; ++nt )
-      threads[nt] = std::thread( &AmodioN<t_Value,n>::reduction_mt, this, nt ) ;
+      threads[nt] = std::thread( &AmodioLU<t_Value>::reduction_mt, this, nt ) ;
     for ( integer nt = 0 ; nt < usedThread ; ++nt )
       threads[nt].join() ;
     #endif
@@ -567,23 +574,23 @@ namespace alglin {
   }
 
   /*
-  //  __                                   _                  _
-  // / _|  ___  _ ____      ____ _ _ __ __| |    _ __ ___  __| |_   _  ___ ___
+  //  __                                  _                  _
+  // / _| ___  _ ____      ____ _ _ __ __| |    _ __ ___  __| |_   _  ___ ___
   // | |_ / _ \| '__\ \ /\ / / _` | '__/ _` |   | '__/ _ \/ _` | | | |/ __/ _ \
   // |  _| (_) | |   \ V  V / (_| | | | (_| |   | | |  __/ (_| | |_| | (_|  __/
   // |_|  \___/|_|    \_/\_/ \__,_|_|  \__,_|___|_|  \___|\__,_|\__,_|\___\___|
   //                                       |_____|
   */
 
-  template <typename t_Value, integer n>
+  template <typename t_Value>
   void
-  AmodioN<t_Value,n>::forward_reduce( valuePointer y ) const {
-    integer const nxn = n*n ;
+  AmodioLU<t_Value>::forward_reduce( valuePointer y ) const {
 
     while ( jump_block < nblock ) {
 
       integer k_step = 2*jump_block ;
       integer kend   = nblock-jump_block ;
+
       for ( integer k = 0 ; k < kend ; k += k_step ) {
         integer k1 = k+jump_block ;
 
@@ -605,7 +612,7 @@ namespace alglin {
           }
         }
         // yk -= G * yk1
-        Mv<t_Value,n,n,n,1,1>::subTo(G,yk1,yk) ;
+        gemv( NO_TRANSPOSE, n, n, -1.0, G, n, yk1, 1, 1.0, yk, 1 ) ;
       }
 
       // aspetta le altre thread
@@ -613,11 +620,10 @@ namespace alglin {
     }
   }
 
-  #ifdef LU_BABD_AMODIO_N_USE_THREAD
-  template <typename t_Value, integer n>
+  #ifdef LU_BABD_AMODIO_USE_THREAD
+  template <typename t_Value>
   void
-  AmodioN<t_Value,n>::forward_reduce_mt( integer nth ) const {
-    integer const nxn = n*n ;
+  AmodioLU<t_Value>::forward_reduce_mt( integer nth ) const {
     while ( jump_block < jump_block_max_mt ) {
 
       integer k_step = 2*usedThread*jump_block ;
@@ -625,10 +631,10 @@ namespace alglin {
       integer kend   = nblock-jump_block ;
 
       for ( integer k = k0 ; k < kend ; k += k_step ) {
-        integer k1 = k+jump_block ;
 
-        valuePointer G    = G_blk    + k1 * nxn ;
-        integer *    ipiv = ipiv_blk + k1 * n ;
+        integer     k1 = k+jump_block ;
+        valuePointer G = G_blk    + k1 * nxn ;
+        integer * ipiv = ipiv_blk + k1 * n ;
 
         valuePointer yk  = y_thread + k  * n ;
         valuePointer yk1 = y_thread + k1 * n ;
@@ -645,7 +651,7 @@ namespace alglin {
           }
         }
         // yk -= G * yk1
-        Mv<t_Value,n,n,n,1,1>::subTo(G,yk1,yk) ;
+        gemv( NO_TRANSPOSE, n, n, -1.0, G, n, yk1, 1, 1.0, yk, 1 ) ;
       }
 
       // aspetta le altre thread
@@ -658,6 +664,7 @@ namespace alglin {
           cond0.wait(lck);
         }
       }
+
     }
   }
   #endif
@@ -671,11 +678,9 @@ namespace alglin {
   //                       |_____|
   */
 
-  template <typename t_Value, integer n>
+  template <typename t_Value>
   void
-  AmodioN<t_Value,n>::back_substitute( valuePointer y, integer jump_block_min ) const {
-    integer const nxn   = n*n ;
-    integer const nxnx2 = n*n*2 ;
+  AmodioLU<t_Value>::back_substitute( valuePointer y, integer jump_block_min ) const {
     while ( jump_block > jump_block_min ) {
       integer k_step = 2*jump_block ;
       integer kend   = nblock-jump_block ;
@@ -686,15 +691,17 @@ namespace alglin {
         valuePointer Adu = LU + nxn ;
         std::vector<bool> const & LU_rows = LU_rows_blk[k1] ;
 
+        valuePointer yk  = y + k  * n ;
         valuePointer yk1 = y + k1 * n ;
+        valuePointer yk2 = y + k2 * n ;
+
         for ( integer i = 0 ; i < n ; ++i ) {
-          valuePointer LR = y + ( LU_rows[i] ? k2 : k ) * n ;
-          yk1[i] -= Dot<t_Value,n,n,1>::eval( Adu+i, LR ) ;
+          valuePointer LR = LU_rows[i] ? yk2 : yk ;
+          yk1[i] -= dot( n, Adu+i, n, LR, 1 ) ;
         }
         // (LU)^(-1) = U^(-1) L^(-1)
-        LsolveUnit<t_Value,n,n>::eval(LU,yk1) ;
-        Usolve<t_Value,n,n>::eval(LU,yk1) ;
-
+        trsv( LOWER, NO_TRANSPOSE, UNIT, n, LU, n, yk1, 1 ) ;
+        trsv( UPPER, NO_TRANSPOSE, NON_UNIT, n, LU, n, yk1, 1 ) ;
         /*\
          |  +-----+-----+ - - +
          |  | E*  |  0  | F*    <-- messo al posto dell "0"
@@ -707,13 +714,11 @@ namespace alglin {
     }
   }
 
-  #ifdef LU_BABD_AMODIO_N_USE_THREAD
+  #ifdef LU_BABD_AMODIO_USE_THREAD
 
-  template <typename t_Value, integer n>
+  template <typename t_Value>
   void
-  AmodioN<t_Value,n>::back_substitute_mt( integer nth ) const {
-    integer const nxn   = n*n ;
-    integer const nxnx2 = n*n*2 ;
+  AmodioLU<t_Value>::back_substitute_mt( integer nth ) const {
 
     while ( jump_block > 0 ) {
 
@@ -732,12 +737,11 @@ namespace alglin {
         valuePointer yk1 = y_thread + k1 * n ;
         for ( integer i = 0 ; i < n ; ++i ) {
           valuePointer LR = y_thread + ( LU_rows[i] ? k2 : k ) * n ;
-          yk1[i] -= Dot<t_Value,n,n,1>::eval( Adu+i, LR ) ;
+          yk1[i] -= dot( n, Adu+i, n, LR, 1 ) ;
         }
         // (LU)^(-1) = U^(-1) L^(-1)
-        LsolveUnit<t_Value,n,n>::eval(LU,yk1) ;
-        Usolve<t_Value,n,n>::eval(LU,yk1) ;
-
+        trsv( LOWER, NO_TRANSPOSE, UNIT, n, LU, n, yk1, 1 ) ;
+        trsv( UPPER, NO_TRANSPOSE, NON_UNIT, n, LU, n, yk1, 1 ) ;
         /*\
          |  +-----+-----+ - - +
          |  | E*  |  0  | F*    <-- messo al posto dell "0"
@@ -756,7 +760,7 @@ namespace alglin {
           cond0.wait(lck);
         }
       }
-    }  
+    }
   }
   #endif
 
@@ -767,11 +771,11 @@ namespace alglin {
   //  |___/\___/|_| \_/ \___|
   */
 
-  template <typename t_Value, integer n>
+  template <typename t_Value>
   void
-  AmodioN<t_Value,n>::solve( valuePointer y ) const {
+  AmodioLU<t_Value>::solve( valuePointer y ) const {
 
-    #ifdef LU_BABD_AMODIO_N_USE_THREAD
+    #ifdef LU_BABD_AMODIO_USE_THREAD
     usedThread        = numThread ;
     jump_block_max_mt = nblock>>(usedThread-1) ;
     y_thread          = y ;
@@ -783,11 +787,11 @@ namespace alglin {
      | !!!!!!!!!!!!!!!!!!!!!!!!!
     \*/
     jump_block = 1 ;
-    #ifdef LU_BABD_AMODIO_N_USE_THREAD
+    #ifdef LU_BABD_AMODIO_USE_THREAD
     if ( usedThread > 0 ) {
       to_be_done = usedThread ;
       for ( integer nt = 0 ; nt < usedThread ; ++nt )
-        threads[nt] = std::thread( &AmodioN<t_Value,n>::forward_reduce_mt, this, nt ) ;
+        threads[nt] = std::thread( &AmodioLU<t_Value>::forward_reduce_mt, this, nt ) ;
       for ( integer nt = 0 ; nt < usedThread ; ++nt )
         threads[nt].join() ;
     }
@@ -800,13 +804,12 @@ namespace alglin {
      | !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     \*/
     valuePointer ye = y + nblock * n ;
-    Copy<t_Value,n,1,1>::eval( y, tmpV ) ;
+    copy( n, y,  1, tmpV,   1 ) ;
     copy( m, ye, 1, tmpV+n, 1 ) ;
-    integer INFO = getrs( Transposition::NO_TRANSPOSE,
-                          nm, 1, LU_blk, nm, LU_ipiv_blk, tmpV, nm ) ;
+    integer INFO = getrs( NO_TRANSPOSE, nm, 1, LU_blk, nm, LU_ipiv_blk, tmpV, nm ) ;
     ALGLIN_ASSERT( INFO==0,
                    "AmodioLU::solve(), singular matrix, getrs INFO = " << INFO ) ;
-    Copy<t_Value,n,1,1>::eval( tmpV, y ) ;
+    copy( n, tmpV,   1, y,  1 ) ;
     copy( m, tmpV+n, 1, ye, 1 ) ;
 
     /*\
@@ -815,36 +818,23 @@ namespace alglin {
      | !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     \*/
     jump_block /= 2 ;
-    #ifdef LU_BABD_AMODIO_N_USE_THREAD
+    #ifdef LU_BABD_AMODIO_USE_THREAD
     if ( usedThread > 0 ) {
       back_substitute( y, jump_block_max_mt ) ;
       to_be_done = usedThread ;
       for ( integer nt = 0 ; nt < usedThread ; ++nt )
-        threads[nt] = std::thread( &AmodioN<t_Value,n>::back_substitute_mt, this, nt ) ;
+        threads[nt] = std::thread( &AmodioLU<t_Value>::back_substitute_mt, this, nt ) ;
       for ( integer nt = 0 ; nt < usedThread ; ++nt )
         threads[nt].join() ;
     } else {
       back_substitute( y, 0 ) ;
     }
     #else
-      back_substitute( y, 0 ) ;
+    back_substitute( y, 0 ) ;
     #endif
   }
 
-  template class AmodioN<double,2> ;
-  template class AmodioN<double,3> ;
-  template class AmodioN<double,4> ;
-  template class AmodioN<double,5> ;
-  template class AmodioN<double,6> ;
-  template class AmodioN<double,7> ;
-  template class AmodioN<double,8> ;
-  template class AmodioN<double,9> ;
-  template class AmodioN<double,10> ;
-  template class AmodioN<double,11> ;
-  template class AmodioN<double,12> ;
-  template class AmodioN<double,13> ;
-  template class AmodioN<double,14> ;
-  template class AmodioN<double,15> ;
-  template class AmodioN<double,16> ;
+  template class AmodioLU<double> ;
+  template class AmodioLU<float> ;
 
 }

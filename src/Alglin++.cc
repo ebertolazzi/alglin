@@ -19,6 +19,7 @@
 
 #include "Alglin++.hh"
 #include <iomanip>
+#include <vector>
 
 namespace alglin {
 
@@ -75,8 +76,8 @@ namespace alglin {
                  Transposition const & TRANS,
                  integer NR, integer NC,
                  valueType C[], integer ldC ) const {
-    ALGLIN_ASSERT( (SIDE == SideMultiply::LEFT  && NR == nRow) ||
-                   (SIDE == SideMultiply::RIGHT && NC == nRow),
+    ALGLIN_ASSERT( (SIDE == alglin::LEFT  && NR == nRow) ||
+                   (SIDE == alglin::RIGHT && NC == nRow),
                    "QR::applyQ NR = " << NR << " NC = " << NC << " nRow = " << nRow ) ;
     integer info = ormqr( SIDE, TRANS,
                           NR, NC,
@@ -93,8 +94,7 @@ namespace alglin {
   QR<T>::solveT( Transposition const & TRANS,
                  integer rk, valueType x[], integer incx ) const {
     // risolvo R
-    trsv( ULselect::UPPER, TRANS, DiagonalType::NON_UNIT,
-          rk, Amat, nRow, x, incx ) ;
+    trsv( UPPER, TRANS, NON_UNIT, rk, Amat, nRow, x, incx ) ;
   }
     
   template <typename T>
@@ -104,8 +104,7 @@ namespace alglin {
                  integer N, integer M,
                  valueType alpha, valueType Bmat[], integer ldB ) const {
     // risolvo R
-    trsm( SIDE, ULselect::UPPER, TRANS, DiagonalType::NON_UNIT,
-          N, M, alpha, Amat, nRow, Bmat, ldB ) ;
+    trsm( SIDE, UPPER, TRANS, NON_UNIT, N, M, alpha, Amat, nRow, Bmat, ldB ) ;
   }
 
   template <typename T>
@@ -133,20 +132,31 @@ namespace alglin {
 
   template <typename T>
   void
+  QR<T>::solve( valueType const rhs[], valueType x[] ) const {
+    copy( nRow, rhs, 1, xbtmp, 1 ) ;
+    applyQ( LEFT, TRANSPOSE, nRow, 1, xbtmp, nRow ) ;
+    solveT( NO_TRANSPOSE, rank, xbtmp, 1 ) ;
+    for ( integer i = 0 ; i < nCol ; ++i ) x[JPVT[i]-1] = xbtmp[i] ;
+    integer info = lascl( FULL_MATRIX, 0, 0, mxabs, 1, nCol, 1, x, nCol ) ;
+    ALGLIN_ASSERT( info == 0, "QR::minq call alglin::lascl return info = " << info ) ;
+  }
+
+  template <typename T>
+  void
   QR<T>::minq( valueType const rhs[], valueType x[], valueType lambda ) const {
 
     // se NR > NC |x| < |rhs|
     copy( nRow, rhs, 1, xbtmp, 1 ) ;
-    applyQ( SideMultiply::LEFT, Transposition::TRANSPOSE, nRow, 1, xbtmp, nRow ) ;
+    applyQ( LEFT, TRANSPOSE, nRow, 1, xbtmp, nRow ) ;
 
     if ( rank < nCol && !top_factorized ) topFactorize() ;
 
     if ( lambda > 0 ) triTikhonov( rank, Amat, nRow, 1, xbtmp, rank, lambda ) ;
-    else              solveT( alglin::NO_TRANSPOSE, rank, xbtmp, 1 ) ;
+    else              solveT( NO_TRANSPOSE, rank, xbtmp, 1 ) ;
 
     if ( rank < nCol ) {
       for ( integer i = rank ; i < nCol ; ++i ) xbtmp[i] = 0 ;
-      integer info = ormrz( SideMultiply::LEFT, Transposition::TRANSPOSE,
+      integer info = ormrz( LEFT, TRANSPOSE,
                             nCol, 1, rank, nCol-rank,
                             Amat, nRow,
                             TauTop,
@@ -173,21 +183,21 @@ namespace alglin {
     // se NR > NC |x| < |rhs|
     for ( integer j = 0 ; j < nrhs ; ++j ) {
       copy( nRow, rhs+j*ldRHS, 1, xbtmp, 1 ) ;
-      applyQ( SideMultiply::LEFT, Transposition::TRANSPOSE, nRow, 1, xbtmp, nRow ) ;
+      applyQ( LEFT, TRANSPOSE, nRow, 1, xbtmp, nRow ) ;
       copy( nRow, xbtmp, 1, x+j*ldX, 1 ) ;
     }
 
     if ( rank < nCol && !top_factorized ) topFactorize() ;
 
     if ( lambda > 0 ) triTikhonov( rank, Amat, nRow, nrhs, x, rank, lambda ) ;
-    else              solveT( alglin::LEFT, alglin::NO_TRANSPOSE, rank, nrhs, 1.0, x, ldX ) ;
+    else              solveT( LEFT, NO_TRANSPOSE, rank, nrhs, 1.0, x, ldX ) ;
 
     if ( rank < nCol ) {
       for ( integer j = 0 ; j < nrhs ; ++j ) {
         valueType * xj = x+j*ldX ;
         copy( rank, xj, 1, xbtmp, 1 ) ;
         zero( nCol-rank, xbtmp+rank, 1 ) ;
-        integer info = ormrz( SideMultiply::LEFT, Transposition::TRANSPOSE,
+        integer info = ormrz( LEFT, TRANSPOSE,
                               nCol, 1, rank, nCol-rank,
                               Amat, nRow,
                               TauTop,
@@ -237,15 +247,15 @@ namespace alglin {
     nCol  = NC ;
     minRC = min(NR,NC) ;
     valueType tmp ;
-    integer info = use_gesvd ? gesvd( JobType::REDUCED,
-                                      JobType::REDUCED,
+    integer info = use_gesvd ? gesvd( REDUCED,
+                                      REDUCED,
                                       NR, NC,
                                       nullptr, LDA,
                                       nullptr,
                                       nullptr, NR,
                                       nullptr, minRC,
                                       &tmp, -1 ) :
-                               gesdd( JobType::REDUCED,
+                               gesdd( REDUCED,
                                       NR, NC,
                                       nullptr, LDA,
                                       nullptr,
@@ -265,8 +275,8 @@ namespace alglin {
     info = lascl( FULL_MATRIX, 0, 0, mxabs, 1, nRow, nCol, Amat, nRow ) ;
     ALGLIN_ASSERT( info == 0, "SVD::factorize call alglin::lascl return info = " << info ) ;
     if ( use_gesvd ) {
-      info = gesvd( JobType::REDUCED,
-                    JobType::REDUCED,
+      info = gesvd( REDUCED,
+                    REDUCED,
                     NR, NC, Amat, NR,
                     Svec,
                     Umat, NR,
@@ -274,17 +284,13 @@ namespace alglin {
                     Work, Lwork ) ;
       ALGLIN_ASSERT( info == 0, "SVD::factorize call alglin::gesvd return info = " << info ) ;
     } else {
-      #ifdef _MSC_VER
-      integer * IWork = (integer*)alloca(8*minRC*sizeof(integer)) ;
-      #else
-      integer IWork[8*minRC] ;
-      #endif
-      info = gesdd( JobType::REDUCED,
+      std::vector<integer> IWork(8*minRC) ;
+      info = gesdd( REDUCED,
                     NR, NC, Amat, NR,
                     Svec,
                     Umat, NR,
                     VTmat, minRC,
-                    Work, Lwork, IWork ) ;
+                    Work, Lwork, &IWork.front() ) ;
       ALGLIN_ASSERT( info == 0, "SVD::factorize call alglin::gesdd return info = " << info ) ;
     }
     tmp = threshold*Svec[0] ;
@@ -299,7 +305,7 @@ namespace alglin {
     // U*S*VT*x=b --> VT^T S^+ U^T b
     // U  nRow x minRC
     // VT minRC x nCol
-    gemv( Transposition::TRANSPOSE,
+    gemv( TRANSPOSE,
           nRow,
           minRC,
           1.0, Umat, nRow,
@@ -308,7 +314,7 @@ namespace alglin {
 
     for ( integer i = 0 ; i < minRC ; ++i ) Work[i] *= invSvec[i] ;
 
-    gemv( Transposition::TRANSPOSE,
+    gemv( TRANSPOSE,
           minRC,
           nCol,
           1.0, VTmat, minRC,
@@ -467,28 +473,20 @@ namespace alglin {
                           T       lambda_in) const {
 
     valueType lambda = normInfA * lambda_in ;
-
-    #ifdef _MSC_VER
-    T * D   = (T*)alloca( (3*(nRC-1)+nrhs)*sizeof(T) ) ;
-    T * U   = D+nRC ;
-    T * U2  = U+nRC-1 ;
-    T * tmp = U2+nRC-2 ;
-    #else
-    T D[nRC], U[nRC-1], U2[nRC-2], tmp[nrhs] ;
-    #endif
+    std::vector<T> D(nRC), U(nRC-1), U2(nRC-2), tmp(nrhs) ;
     T CC, SS ;
 
     for ( integer i = 0 ; i < nRC-1 ; ++i )
       rot( nrhs, RHS+i, ldRHS, RHS+i+1, ldRHS, C[i], S[i] ) ;
 
-    copy( nRC,   BD,  1, D,  1 ) ;
-    copy( nRC-1, BU,  1, U,  1 ) ;
-    copy( nRC-2, BU2, 1, U2, 1 ) ;
+    copy( nRC,   BD,  1, &D.front(),  1 ) ;
+    copy( nRC-1, BU,  1, &U.front(),  1 ) ;
+    copy( nRC-2, BU2, 1, &U2.front(), 1 ) ;
     T line[3] ;
     integer i = 0 ;
     while ( i < nRC-1 ) {
       line[0] = line[2] = 0 ; line[1] = lambda ;
-      zero( nrhs, tmp, 1 ) ;
+      std::fill( tmp.begin(), tmp.end(), T(0) ) ;
       integer j = i ;
       while ( j < nRC-2 ) {
         line[0] = line[1] ;
@@ -497,31 +495,31 @@ namespace alglin {
         rotg( D[j], line[0], CC, SS ) ;
         rot( 1, &U[j],  1, &line[1], 1, CC, SS ) ;
         rot( 1, &U2[j], 1, &line[2], 1, CC, SS ) ;
-        rot( nrhs, RHS+j, ldRHS, tmp, 1, CC, SS ) ;
+        rot( nrhs, RHS+j, ldRHS, &tmp.front(), 1, CC, SS ) ;
         ++j ;
       }
       // penultima
       rotg( D[j], line[1], CC, SS ) ;
       rot( 1, &U[j],  1, &line[2], 1, CC, SS ) ;
-      rot( nrhs, RHS+j, ldRHS, tmp, 1, CC, SS ) ;
+      rot( nrhs, RHS+j, ldRHS, &tmp.front(), 1, CC, SS ) ;
       ++j ;
 
       rotg( D[j], line[2], CC, SS ) ;
-      rot( nrhs, RHS+j, ldRHS, tmp, 1, CC, SS ) ;
+      rot( nrhs, RHS+j, ldRHS, &tmp.front(), 1, CC, SS ) ;
 
       // ultima
       line[2] = lambda ;
       rotg( D[j], line[2], CC, SS ) ;
-      rot( nrhs, RHS+j, ldRHS, tmp, 1, CC, SS ) ;
+      rot( nrhs, RHS+j, ldRHS, &tmp.front(), 1, CC, SS ) ;
 
       ++i ; // next lambda
     }
     if ( nRC > 0 ) {
       integer j = nRC-1 ;
       line[0] = lambda ;
-      zero( nrhs, tmp, 1 ) ;
+      std::fill( tmp.begin(), tmp.end(), T(0) ) ;
       rotg( D[j], line[0], CC, SS ) ;
-      rot( nrhs, RHS+j, ldRHS, tmp, 1, CC, SS ) ;
+      rot( nrhs, RHS+j, ldRHS, &tmp.front(), 1, CC, SS ) ;
     }
 
     for ( integer j = 0 ; j < nrhs ; ++j ) {
@@ -602,8 +600,8 @@ namespace alglin {
     copy( nRow-nCol, in, 1, tmp, 1 ) ;
     zero( nCol, tmp + nCol, 1 ) ;
     // moltiplico per Q
-    integer info = ormqr( SideMultiply::LEFT,
-                          Transposition::TRANSPOSE,
+    integer info = ormqr( LEFT,
+                          TRANSPOSE,
                           nRow, 1, // dimensione tmp
                           nCol,  // numero riflettori Q
                           Amat, nRow,
@@ -612,9 +610,9 @@ namespace alglin {
                           Work, Lwork ) ;
     ALGLIN_ASSERT( info == 0, "LeastSquares::solve, ormqr return info = " << info ) ;
     // risolvo R
-    trsv( ULselect::UPPER,
-          Transposition::NO_TRANSPOSE,
-          DiagonalType::NON_UNIT,
+    trsv( UPPER,
+          NO_TRANSPOSE,
+          NON_UNIT,
           nCol,
           Amat, nRow,
           tmp, 1 ) ;

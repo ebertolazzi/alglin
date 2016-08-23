@@ -29,8 +29,8 @@
 using namespace std ;
 typedef double valueType ;
 
-unsigned seed1 = 2 ;
-std::mt19937 generator(seed1);
+static unsigned seed1 = 2 ;
+static std::mt19937 generator(seed1);
 
 valueType
 rand( valueType xmin, valueType xmax ) {
@@ -42,6 +42,11 @@ int
 main() {
 
   #include "LU_test.hxx"
+
+  cout << "nblk = " << nblk << "\n"
+       << "n    = " << n << "\n"
+       << "q    = " << q << "\n" ;
+
 
   alglin::AmodioLU<valueType> LU ;
 

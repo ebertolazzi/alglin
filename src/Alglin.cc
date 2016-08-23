@@ -18,6 +18,7 @@
 \*--------------------------------------------------------------------------*/
 
 #include "Alglin.hh"
+#include <vector>
 
 namespace alglin {
 
@@ -76,7 +77,7 @@ namespace alglin {
       integer MX = iamax( N-j, Ajj, LDA ) ;
       IPIV[j] = MX + j ; // C-based
       if ( j < IPIV[j] ) swap( M, A + j*LDA, 1, A + IPIV[j]*LDA, 1 ) ;
-      if ( std::abs(Ajj[0]) == 0 ) return j ;
+      if ( isZero(Ajj[0]) ) return j ;
       REAL COLM = 1/Ajj[0] ;
       ++j ;
       scal(M-j, COLM, Ajj+1, 1) ;
@@ -118,14 +119,14 @@ namespace alglin {
         }
       }
       // COMPUTE SUPERDIAGONAL BLOCK OF U
-      trsm( SideMultiply::RIGHT,
-            ULselect::UPPER,
-            Transposition::NO_TRANSPOSE,
-            DiagonalType::NON_UNIT,
+      trsm( RIGHT,
+            UPPER,
+            NO_TRANSPOSE,
+            NON_UNIT,
             M-jjB, JB, 1, Ajj, LDA, Ajj+JB, LDA ) ;
       // UPDATE DIAGONAL AND SUBDIAGONAL BLOCKS
-      gemm( Transposition::NO_TRANSPOSE,
-            Transposition::NO_TRANSPOSE,
+      gemm( NO_TRANSPOSE,
+            NO_TRANSPOSE,
             M-jjB, N-jjB, JB,
             -1.0, Ajj+JB,         LDA,
                   Ajj+JB*LDA,     LDA,
@@ -147,7 +148,7 @@ namespace alglin {
       integer MX = iamax( M-j, Ajj, 1 ) ;
       IPIV[j] = MX + j ; // C-based
       if ( j < IPIV[j] ) swap( N, A + j, LDA, A + IPIV[j], LDA ) ;
-      if ( std::abs(Ajj[0]) == 0 ) return j ;
+      if ( isZero(Ajj[0]) ) return j ;
       REAL ROWM = 1/Ajj[0] ;
       ++j ;
       scal(M-j, ROWM, Ajj+1, 1) ;
@@ -189,14 +190,14 @@ namespace alglin {
       }
       if ( INFO != 0 ) return INFO + j ;
       // COMPUTE SUPERDIAGONAL BLOCK OF U
-      trsm( SideMultiply::LEFT,
-            ULselect::LOWER,
-            Transposition::NO_TRANSPOSE,
-            DiagonalType::UNIT,
+      trsm( LEFT,
+            LOWER,
+            NO_TRANSPOSE,
+            UNIT,
             JB, N-jjB, 1.0, Ajj, LDA, Ajj+JB*LDA, LDA ) ;
       // UPDATE DIAGONAL AND SUBDIAGONAL BLOCKS
-      gemm( Transposition::NO_TRANSPOSE,
-            Transposition::NO_TRANSPOSE,
+      gemm( NO_TRANSPOSE,
+            NO_TRANSPOSE,
             M-jjB, N-jjB, JB,
             -1.0, Ajj+JB,         LDA,
                   Ajj+JB*LDA,     LDA,
@@ -436,14 +437,7 @@ namespace alglin {
                 T         SVAL[3] ) {
 
     integer MN = min(M, N) ;
-
-    #ifdef _MSC_VER
-    T * Wmin = (T*)alloca( (2*MN)*sizeof(T) )  ;
-    T * Wmax = Wmin+MN ;
-    #else
-    T Wmin[MN] ;
-    T Wmax[MN] ;
-    #endif
+    std::vector<T> Wmin(MN), Wmax(MN) ;
 
     // Test the input scalar arguments.
     if ( M < 0 )          return -1 ;
@@ -468,8 +462,8 @@ namespace alglin {
         T SMAXPR, S1, C1, S2, C2 ;
         T * pA0r = A + RANK * LDA ;
         T & Arr  = pA0r[RANK] ;
-        laic1( 2, RANK, Wmin, SMIN, pA0r, Arr, SMINPR, S1, C1 ) ;
-        laic1( 1, RANK, Wmax, SMAX, pA0r, Arr, SMAXPR, S2, C2 ) ;
+        laic1( 2, RANK, &Wmin.front(), SMIN, pA0r, Arr, SMINPR, S1, C1 ) ;
+        laic1( 1, RANK, &Wmax.front(), SMAX, pA0r, Arr, SMAXPR, S2, C2 ) ;
 
         if ( SMAXPR*RCOND > SMINPR ) break ;
 
@@ -519,35 +513,29 @@ namespace alglin {
                T       RHS[],
                integer ldRHS,
                T       lambda ) {
-    #ifdef _MSC_VER
-    T * Tmat = (T*)alloca( (N*(N+1)+nrhs)*sizeof(T) ) ;
-    T * line = Tmat+N*N ;
-    T * r    = line+N ;
-    #else
-    T Tmat[N*N] ;
-    T line[N], r[nrhs] ;
-    #endif
+
+    std::vector<T> Tmat(N*N), line(N), r(nrhs) ;
     T C, S ;
     
-    gecopy( N, N, Amat, ldA, Tmat, N ) ;
+    gecopy( N, N, Amat, ldA, &Tmat.front(), N ) ;
 
     for ( integer i = 0 ; i < N ; ++i ) {
-      std::fill( line+i, line+N, T(0) ) ;
-      std::fill( r, r+nrhs, T(0) ) ;
+      std::fill( line.begin()+i, line.end(), T(0) ) ;
+      std::fill( r.begin(), r.end(), T(0) ) ;
       line[i] = lambda ;
       for ( integer j = i ; j < N ; ++j ) {
-        T * pTjj = Tmat + j*(N+1) ;
+        T * pTjj = &Tmat[j*(N+1)] ;
         rotg( *pTjj, line[j], C, S ) ;
-        if ( N-j-1 > 0 ) rot( N-j-1, pTjj+N, N, line+j+1, 1, C, S ) ;
-        rot( nrhs, RHS+j, ldRHS, r, 1, C, S ) ;
+        if ( N-j-1 > 0 ) rot( N-j-1, pTjj+N, N, &line[j+1], 1, C, S ) ;
+        rot( nrhs, RHS+j, ldRHS, &r.front(), 1, C, S ) ;
       }
     }
     // risolvo R
-    trsm( SideMultiply::LEFT,
-          ULselect::UPPER,
-          Transposition::NO_TRANSPOSE,
-          DiagonalType::NON_UNIT,
-          N, nrhs, 1.0, Tmat, N, RHS, ldRHS ) ;
+    trsm( LEFT,
+          UPPER,
+          NO_TRANSPOSE,
+          NON_UNIT,
+          N, nrhs, 1.0, &Tmat.front(), N, RHS, ldRHS ) ;
   }
   
   #ifdef ALGLIN_USE_OPENBLAS

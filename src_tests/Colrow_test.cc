@@ -29,10 +29,10 @@
 using namespace std ;
 typedef double valueType ;
 
-unsigned seed1 = 2 ;
+static unsigned seed1 = 2 ;
 // std::chrono::system_clock::now().time_since_epoch().count();
 
-std::mt19937 generator(seed1);
+static std::mt19937 generator(seed1);
 
 valueType
 rand( valueType xmin, valueType xmax ) {
@@ -115,20 +115,20 @@ main() {
                 numBlock, dim, blocks,
                 rowN, colN, blockN ) ;
   tm.toc() ;
-  cout << "Factorize = " << tm.elapsedMilliseconds() << " [ms]\n" ;
+  cout << "(ColrowLU) Factorize = " << tm.elapsedMilliseconds() << " [ms]\n" ;
 
   tm.tic() ;
   LU_arceco.factorize( row0, col0, block0,
                        numBlock, dim, blocks,
                        rowN, colN, blockN ) ;
   tm.toc() ;
-  cout << "Factorize (arceco) = " << tm.elapsedMilliseconds() << " [ms]\n" ;
+  cout << "(arceco) Factorize = " << tm.elapsedMilliseconds() << " [ms]\n" ;
 
   std::copy( rhs, rhs+N, x ) ;
   tm.tic() ;
   LU.solve( x ) ;
   tm.toc() ;
-  cout << "Solve = " << tm.elapsedMilliseconds() << " [ms]\n" ;
+  cout << "(ColrowLU) Solve = " << tm.elapsedMilliseconds() << " [ms]\n" ;
 
   alglin::copy( N, xref, 1, xref1, 1 ) ;
   alglin::axpy( N, -1.0, x, 1, xref1, 1 ) ;
@@ -160,18 +160,18 @@ main() {
   tm.tic() ;
   LU_arceco.solve( x ) ;
   tm.toc() ;
-  cout << "\n\nSolve (arceco) = " << tm.elapsedMilliseconds() << " [ms]\n" ;
+  cout << "\n\n(arceco) Solve = " << tm.elapsedMilliseconds() << " [ms]\n" ;
 
   alglin::copy( N, xref, 1, xref1, 1 ) ;
   alglin::axpy( N, -1.0, x, 1, xref1, 1 ) ;
-  cout << "Check (arceco) |err|_inf = " << alglin::absmax( N, xref1, 1 ) << '\n' ;
+  cout << "(arceco) Check|err|_inf = " << alglin::absmax( N, xref1, 1 ) << '\n' ;
 
   alglin::abd_residue<valueType>( row0, col0, block0,
                                   numBlock, dim, blocks,
                                   rowN, colN, blockN,
                                   rhs, 1, x, 1, resid, 1 ) ;
 
-  cout << "Check (arceco) |r|_inf = " << alglin::absmax( N, resid, 1 ) << '\n' ;
+  cout << "(arceco) Check |r|_inf = " << alglin::absmax( N, resid, 1 ) << '\n' ;
 
 
   cout << "All done!\n" ;

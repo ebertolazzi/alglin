@@ -24,32 +24,35 @@ namespace alglin {
 
   using namespace std ;
 
-  ArcecoLU::ArcecoLU()
+  template <typename t_Value>
+  ArcecoLU<t_Value>::ArcecoLU()
   : baseValue("ArcecoLU_value")
-  , baseIndex("ArcecoLU_index")
+  , baseInteger("ArcecoLU_integer")
   { }
 
-  ArcecoLU::~ArcecoLU() {
-    baseValue . free() ;
-    baseIndex . free() ;
+  template <typename t_Value>
+  ArcecoLU<t_Value>::~ArcecoLU() {
+    baseValue   . free() ;
+    baseInteger . free() ;
   }
 
+  template <typename t_Value>
   void
-  ArcecoLU::load( indexType    numInitialBc,
-                  indexType    numFinalBc,
-                  indexType    numInitialETA,
-                  indexType    numFinalETA,
-                  indexType    numBlock,
-                  valuePointer AdAu,
-                  valuePointer H0,
-                  valuePointer HN,
-                  valuePointer Hq ) {
+  ArcecoLU<t_Value>::load( integer      numInitialBc,
+                           integer      numFinalBc,
+                           integer      numInitialETA,
+                           integer      numFinalETA,
+                           integer      numBlock,
+                           valuePointer AdAu,
+                           valuePointer H0,
+                           valuePointer HN,
+                           valuePointer Hq ) {
 
     this -> numInitialETA = numInitialETA ;
 
-    indexType nq = numInitialBc + numFinalBc ;
-    indexType q  = numInitialETA + numFinalETA ;
-    indexType n  = nq - q ;
+    integer nq = numInitialBc + numFinalBc ;
+    integer q  = numInitialETA + numFinalETA ;
+    integer n  = nq - q ;
     
     nRow0        = numInitialBc ;
     nCol0        = n + numInitialETA ;
@@ -58,13 +61,13 @@ namespace alglin {
     numEquations = n * numBlock + nRow0 + nRowN ;
     NBLOCK       = numBlock + 2 ;
 
-    baseValue . allocate( 2*n*n*numBlock + nRow0 * nCol0 + nRowN * nColN + numEquations ) ;
-    baseIndex . allocate( numEquations + 3*NBLOCK) ;
+    baseValue   . allocate( 2*n*n*numBlock + nRow0 * nCol0 + nRowN * nColN + numEquations ) ;
+    baseInteger . allocate( numEquations + 3*NBLOCK) ;
 
     AR    = baseValue( 2*n*n*numBlock + nRow0 * nCol0 + nRowN * nColN ) ;
     X     = baseValue( numEquations ) ;
-    PIVOT = baseIndex( numEquations ) ;
-    MTR   = baseIndex( 3*NBLOCK ) ;
+    PIVOT = baseInteger( numEquations ) ;
+    MTR   = baseInteger( 3*NBLOCK ) ;
 
     /*
     //  +                     +
@@ -112,11 +115,11 @@ namespace alglin {
     alglin::zero( nRowN * nColN, blkN, 1 ) ;
     alglin::copy( 2*n*n*numBlock, AdAu, 1, AR + nRow0 * nCol0, 1 ) ;
 
-    indexPointer mtr = MTR ;
+    integer * mtr = MTR ;
     *mtr++ = nRow0 ;
     *mtr++ = nCol0 ;
     *mtr++ = n ;
-    for ( indexType i = 0 ; i < numBlock ; ++i ) {
+    for ( integer i = 0 ; i < numBlock ; ++i ) {
       *mtr++ = n ;
       *mtr++ = 2*n ;
       *mtr++ = n ;
@@ -144,45 +147,8 @@ namespace alglin {
     arcecoSolver . loadByRef ( NBLOCK, MTR, AR, PIVOT ) ;
 
   }
-
-  /*
-  //    __            _             _         
-  //   / _| __ _  ___| |_ ___  _ __(_)_______ 
-  //  | |_ / _` |/ __| __/ _ \| '__| |_  / _ \
-  //  |  _| (_| | (__| || (_) | |  | |/ /  __/
-  //  |_|  \__,_|\___|\__\___/|_|  |_/___\___|
-  */
-  void
-  ArcecoLU::factorize() {
   
-    #ifdef USE_F90_ARCECO
-    indexType IFLAG ;
-    F77NAME(arcedc)(numEquations, AR, MTR, NBLOCK, PIVOT, IFLAG) ;
-    ASSERT(IFLAG == 0, "ArcecoLU::factorize()" ) ;
-    #else
-    arcecoSolver . factorize() ;
-    #endif
-  }
+  template class ArcecoLU<float> ;
+  template class ArcecoLU<double> ;
 
-  /*             _           
-  //   ___  ___ | |_   _____ 
-  //  / __|/ _ \| \ \ / / _ \
-  //  \__ \ (_) | |\ V /  __/
-  //  |___/\___/|_| \_/ \___|
-  */                       
-  void
-  ArcecoLU::solve( valuePointer in_out ) {
-
-    alglin::copy( numEquations - nRow0, in_out, 1, X + nRow0, 1 ) ;
-    alglin::copy( nRow0, in_out + numEquations - nRow0, 1, X, 1 ) ;
-
-    #ifdef USE_F90_ARCECO
-    F77NAME(arcesl)( AR, MTR, NBLOCK, PIVOT, X ) ;
-    #else
-    arcecoSolver . solve ( X ) ;
-    #endif
-    
-    alglin::copy( numEquations - numInitialETA, X + numInitialETA, 1, in_out, 1 ) ;
-    alglin::copy( numInitialETA, X, 1, in_out + numEquations - numInitialETA, 1 ) ;
-  }
 }

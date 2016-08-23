@@ -120,11 +120,11 @@ namespace alglin {
       //  CC* = CC - H (LU)^(-1) Au
       //  DD* = DD - H (LU)^(-1) FF
       //
-      trsm( SideMultiply::LEFT, ULselect::LOWER, Transposition::NO_TRANSPOSE, DiagonalType::UNIT, n, n, 1, AdH, nm, Au, n ) ;
-      trsm( SideMultiply::LEFT, ULselect::LOWER, Transposition::NO_TRANSPOSE, DiagonalType::UNIT, n, m, 1, AdH, nm, FF, rowFF ) ;
+      trsm( LEFT, LOWER, NO_TRANSPOSE, UNIT, n, n, 1, AdH, nm, Au, n ) ;
+      trsm( LEFT, LOWER, NO_TRANSPOSE, UNIT, n, m, 1, AdH, nm, FF, rowFF ) ;
 
-      gemm( Transposition::NO_TRANSPOSE, Transposition::NO_TRANSPOSE, m, n, n, -1, H, nm, Au, n, 1, CC, nm ) ;
-      gemm( Transposition::NO_TRANSPOSE, Transposition::NO_TRANSPOSE, m, m, n, -1, H, nm, FF, rowFF, 1, DD_blk, m ) ;
+      gemm( NO_TRANSPOSE, NO_TRANSPOSE, m, n, n, -1, H, nm, Au, n, 1, CC, nm ) ;
+      gemm( NO_TRANSPOSE, NO_TRANSPOSE, m, m, n, -1, H, nm, FF, rowFF, 1, DD_blk, m ) ;
     }
 
     // factorize last two block
@@ -156,8 +156,8 @@ namespace alglin {
     //  CC* = CC - H (LU)^(-1) Au
     //
     valuePointer H = AdH + n ;
-    trsm( SideMultiply::LEFT, ULselect::LOWER, Transposition::NO_TRANSPOSE, DiagonalType::UNIT, n, m, 1, AdH, nm, Au, n ) ;
-    gemm( Transposition::NO_TRANSPOSE, Transposition::NO_TRANSPOSE, m, m, n, -1, H, nm, Au, n, 1, DD_blk, m ) ;
+    trsm( LEFT, LOWER, NO_TRANSPOSE, UNIT, n, m, 1, AdH, nm, Au, n ) ;
+    gemm( NO_TRANSPOSE, NO_TRANSPOSE, m, m, n, -1, H, nm, Au, n, 1, DD_blk, m ) ;
     
     // factorize last block
     ipivk += n ;
@@ -193,17 +193,17 @@ namespace alglin {
           else          std::swap( yk[i], ye[ip-n] ) ;
         }
       }
-      trsv( ULselect::LOWER, Transposition::NO_TRANSPOSE, DiagonalType::UNIT, n, AdH, nm, yk, 1 ) ;
-      gemv( Transposition::NO_TRANSPOSE, m, n, -1, AdH + n, nm, yk, 1, 1, ye, 1 ) ;
+      trsv( LOWER, NO_TRANSPOSE, UNIT, n, AdH, nm, yk, 1 ) ;
+      gemv( NO_TRANSPOSE, m, n, -1, AdH + n, nm, yk, 1, 1, ye, 1 ) ;
     }
 
     integer const * ipive = ipiv_blk + nblock * n ;
-    integer            ok = getrs( Transposition::NO_TRANSPOSE, m, 1, DD_blk, m, ipive, ye, m ) ;
+    integer            ok = getrs( NO_TRANSPOSE, m, 1, DD_blk, m, ipive, ye, m ) ;
     
     ALGLIN_ASSERT( ok == 0, "BlockLU::solve(...) failed" ) ;
 
-    if ( rowFF > 0 ) gemv( Transposition::NO_TRANSPOSE, rowFF, m, -1, FF_blk, rowFF, ye, 1, 1, y, 1 ) ;
-    if (     m > n ) gemv( Transposition::NO_TRANSPOSE, n, m-n, -1, Au_blk + nblock*n*n, n, ye+n, 1, 1, ye-n, 1 ) ;
+    if ( rowFF > 0 ) gemv( NO_TRANSPOSE, rowFF, m, -1, FF_blk, rowFF, ye, 1, 1, y, 1 ) ;
+    if (     m > n ) gemv( NO_TRANSPOSE, n, m-n, -1, Au_blk + nblock*n*n, n, ye+n, 1, 1, ye-n, 1 ) ;
 
     integer k = nblock ;
     do {
@@ -212,8 +212,8 @@ namespace alglin {
       valueConstPointer Au  = Au_blk  + k*n*n  ;
       valuePointer      yk  = y       + k*n    ;
 
-      gemv( Transposition::NO_TRANSPOSE, n, n, -1, Au, n, yk + n, 1, 1, yk, 1 ) ;
-      trsv( ULselect::UPPER, Transposition::NO_TRANSPOSE, DiagonalType::NON_UNIT, n, AdH, nm, yk, 1 ) ;
+      gemv( NO_TRANSPOSE, n, n, -1, Au, n, yk + n, 1, 1, yk, 1 ) ;
+      trsv( UPPER, NO_TRANSPOSE, NON_UNIT, n, AdH, nm, yk, 1 ) ;
 
     } while ( k > 0 ) ;
   }

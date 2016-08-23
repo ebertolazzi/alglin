@@ -24,13 +24,13 @@
 #include "Alglin++.hh"
 #include "Alglin_aux.hh"
 #include "TicToc.hh"
-#include "LU_BABD_AmodioN.hh"
+#include "LU_BABD_QR_N.hh"
 
 using namespace std ;
 typedef double valueType ;
 
-unsigned seed1 = 2 ;
-std::mt19937 generator(seed1);
+static unsigned seed1 = 2 ;
+static std::mt19937 generator(seed1);
 
 valueType
 rand( valueType xmin, valueType xmax ) {
@@ -43,7 +43,7 @@ main() {
 
   #include "LU_test.hxx"
 
-  alglin::AmodioN<valueType,NSIZE> LU ;
+  alglin::BabdQR_N<valueType,NSIZE> LU ;
 
   //alglin::babd_print<valueType>( cout, nblk, n, q, AdAu, H0, HN, Hq ) ;
 
@@ -53,7 +53,7 @@ main() {
   tm.tic() ;
   LU.factorize( nblk, q, AdAu, H0, HN, Hq ) ;
   tm.toc() ;
-  cout << "Factorize (Amodio) = " << tm.elapsedMilliseconds() << " [ms]\n" ;
+  cout << "Factorize (QRN) = " << tm.elapsedMilliseconds() << " [ms]\n" ;
 
   tm.tic() ;
   //for ( int k = 0 ; k < 10 ; ++k ) {
@@ -61,7 +61,7 @@ main() {
     LU.solve( x ) ;
   //}
   tm.toc() ;
-  cout << "Solve (Amodio) = " << tm.elapsedMilliseconds() << " [ms]\n" ;
+  cout << "Solve (QRN) = " << tm.elapsedMilliseconds() << " [ms]\n" ;
 
   //for ( alglin::integer i = 0 ; i < N ; ++i )
   //  cout << "x[" << i << "] = " << x[i] << '\n' ;

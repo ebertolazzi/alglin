@@ -30,11 +30,12 @@ namespace alglin {
   //  |_|\___/ \__,_|\__,_|____/ \__, |_| \_\___|_|  
   //                             |___/               
   */
+  template <typename t_Value>
   void
-  Arceco::loadByRef ( indexType    numberOfBlocks,
-                      indexPointer matrixStructure,
-                      valuePointer array,
-                      indexPointer pivot ) {
+  Arceco<t_Value>::loadByRef ( integer      numberOfBlocks,
+                               integer *    matrixStructure,
+                               valuePointer array,
+                               integer *    pivot ) {
 
     this -> numberOfBlocks  = numberOfBlocks  ;
     this -> matrixStructure = matrixStructure ;
@@ -49,15 +50,16 @@ namespace alglin {
   //  | (__| | | |  __/ (__|   <  ___) | |_| |  | |_| | (__| |_| |_| | | |  __/
   //   \___|_| |_|\___|\___|_|\_\|____/ \__|_|   \__,_|\___|\__|\__,_|_|  \___|
   */
+  template <typename t_Value>
   void
-  Arceco::checkStructure( indexType neq ) {
+  Arceco<t_Value>::checkStructure( integer neq ) {
   
     ALGLIN_ASSERT( numOverlap(numberOfBlocks-1) == 0,
             "Arceco::checkStructure: numOverlap(" << numberOfBlocks-1 << ") = " <<
             numOverlap(numberOfBlocks-1) << " expected zero!" ) ;
 
     // check index
-    for ( indexType k = 0 ; k < numberOfBlocks ; ++k ) {
+    for ( integer k = 0 ; k < numberOfBlocks ; ++k ) {
       ALGLIN_ASSERT( numCols(k)    >= 1, "Arceco::checkStructure: numCols(" << k << ") = " << numCols(k) << " < 1 " ) ;
       ALGLIN_ASSERT( numRows(k)    >= 1, "Arceco::checkStructure: numRows(" << k << ") = " << numRows(k) << " < 1 " ) ;
       ALGLIN_ASSERT( numOverlap(k) >= 0, "Arceco::checkStructure: numOverlap(" << k << ") = " << numOverlap(k) << " < 0 " ) ;
@@ -67,7 +69,7 @@ namespace alglin {
     }
 
     // check ovelapping
-    for ( indexType k = 1 ; k < numberOfBlocks ; ++k )
+    for ( integer k = 1 ; k < numberOfBlocks ; ++k )
       ALGLIN_ASSERT( numOverlap(k-1) + numOverlap(k) <= numCols(k),
               "Arceco::checkStructure: at block " << k << " three consecutive block overlap" ) ;
 
@@ -76,17 +78,17 @@ namespace alglin {
     // r           +------------------+
     //             |                  |
     // r+numRow    +------------------+
-    indexType r = numRows(0), c = numCols(0) - numOverlap(0) ;
-    for ( indexType k = 1 ; k < numberOfBlocks ; ++k ) {
+    integer r = numRows(0), c = numCols(0) - numOverlap(0) ;
+    for ( integer k = 1 ; k < numberOfBlocks ; ++k ) {
       ALGLIN_ASSERT( c <= r && c+numCols(k) >= r+numRows(k),
               "Arceco::checkStructure: block n. " << k << " do not cross the diagonal" ) ;
       r += numRows(k) ;
       c += numCols(k)-numOverlap(k) ;
     }
 
-    indexType isum1 = 0 ;
-    indexType isum2 = 0 ;
-    for ( indexType k = 0 ; k < numberOfBlocks ; ++k ) {
+    integer isum1 = 0 ;
+    integer isum2 = 0 ;
+    for ( integer k = 0 ; k < numberOfBlocks ; ++k ) {
       isum1 += numRows(k) ;
       isum2 += numCols(k) - numOverlap(k) ;
     }
@@ -100,16 +102,17 @@ namespace alglin {
   //  | |_ / _` |/ __| __/ _ \| '__| |_  / _ \
   //  |  _| (_| | (__| || (_) | |  | |/ /  __/
   //  |_|  \__,_|\___|\__\___/|_|  |_/___\___|
-  */                                        
+  */
+  template <typename t_Value>
   void
-  Arceco::factorize () {
+  Arceco<t_Value>::factorize () {
 
-    indexType index1 = 0 ;
-    indexType indpiv = 0 ;
-    indexType numRowsBlock   = numRows(0) ;
-    indexType numColsBlock   = numCols(0) ;
-    indexType numOverlapCols = numOverlap(0) ;
-    indexType numRowsPivot   = numColsBlock - numOverlapCols ;
+    integer index1 = 0 ;
+    integer indpiv = 0 ;
+    integer numRowsBlock   = numRows(0) ;
+    integer numColsBlock   = numCols(0) ;
+    integer numOverlapCols = numOverlap(0) ;
+    integer numRowsPivot   = numColsBlock - numOverlapCols ;
 
     /*
     //  +------------------+
@@ -122,12 +125,12 @@ namespace alglin {
 
     rowElimination ( array + index1, numRowsBlock, numColsBlock, numRowsPivot, pivot + indpiv ) ;
 
-    for ( indexType k = 1 ; k < numberOfBlocks ; ++k ) {
+    for ( integer k = 1 ; k < numberOfBlocks ; ++k ) {
       indpiv += numRowsPivot ;
-      indexType index2        = index1 + numRowsBlock * numRowsPivot ;
-      indexType index3        = index2 + numRowsBlock * numOverlapCols ;
-      indexType numColsPivot  = numRowsBlock - numRowsPivot ;
-      indexType numRowsBlock2 = numRows(k) ;
+      integer index2        = index1 + numRowsBlock * numRowsPivot ;
+      integer index3        = index2 + numRowsBlock * numOverlapCols ;
+      integer numColsPivot  = numRowsBlock - numRowsPivot ;
+      integer numRowsBlock2 = numRows(k) ;
 
       columnElimination ( array + index2, numRowsBlock,  numOverlapCols, 
                           array + index3, numRowsBlock2, numColsPivot,
@@ -152,21 +155,21 @@ namespace alglin {
   //  | |___| | | | | | | | | | | | (_| | |_| | (_) | | | |
   //  |_____|_|_|_| |_| |_|_|_| |_|\__,_|\__|_|\___/|_| |_|
   */
-  
+  template <typename t_Value>
   void
-  Arceco::rowElimination ( valuePointer block,
-                           indexType    numRowsBlock,
-                           indexType    numColsBlock,
-                           indexType    numRowsPivot,
-                           indexPointer pivot ) {
+  Arceco<t_Value>::rowElimination ( valuePointer block,
+                                    integer      numRowsBlock,
+                                    integer      numColsBlock,
+                                    integer      numRowsPivot,
+                                    integer *    pivot ) {
 
     #define BLOCK(I,J) block[(I) + (J) * numRowsBlock]
 
-    for ( indexType j = 0 ; j < numRowsPivot ; ++j ) {
-      indexType jplus1 = j + 1 ;
-      indexType jmax   = j ;
+    for ( integer j = 0 ; j < numRowsPivot ; ++j ) {
+      integer   jplus1 = j + 1 ;
+      integer   jmax   = j ;
       valueType rowmax = std::abs(BLOCK(j,j)) ;
-      for ( indexType i1 = jplus1 ; i1 < numRowsBlock ; ++i1 ) {
+      for ( integer i1 = jplus1 ; i1 < numRowsBlock ; ++i1 ) {
         valueType tempiv = std::abs(BLOCK(i1,j)) ;
         if ( tempiv > rowmax ) { rowmax = tempiv ; jmax = i1 ; }
       }
@@ -175,13 +178,13 @@ namespace alglin {
 
       pivot[j] = jmax ;
       if ( j != jmax )
-        for ( indexType j1 = j ; j1 < numColsBlock ; ++j1 )
+        for ( integer j1 = j ; j1 < numColsBlock ; ++j1 )
           std::swap( BLOCK(jmax,j1), BLOCK(j,j1) ) ;
 
       valueType rowpiv = BLOCK(j,j) ;
-      for ( indexType i1 = jplus1 ; i1 < numRowsBlock ; ++i1 ) {
+      for ( integer i1 = jplus1 ; i1 < numRowsBlock ; ++i1 ) {
         valueType rowmlt = ( BLOCK(i1,j) /= rowpiv ) ;
-        for ( indexType j1 = jplus1 ; j1 < numColsBlock ; ++j1 )
+        for ( integer j1 = jplus1 ; j1 < numColsBlock ; ++j1 )
           BLOCK(i1,j1) -= rowmlt * BLOCK(j,j1) ;
       }
     }
@@ -190,24 +193,25 @@ namespace alglin {
 
   }
 
+  template <typename t_Value>
   void
-  Arceco::columnElimination ( valuePointer topblk,
-                              indexType    numRowsTopBlock,
-                              indexType    numOverlapCols,
-                              valuePointer botblk,
-                              indexType    numRowsBottomBlock,
-                              indexType    numColsPivot,
-                              indexPointer pivot ) {
+  Arceco<t_Value>::columnElimination ( valuePointer topblk,
+                                       integer      numRowsTopBlock,
+                                       integer      numOverlapCols,
+                                       valuePointer botblk,
+                                       integer      numRowsBottomBlock,
+                                       integer      numColsPivot,
+                                       integer *    pivot ) {
 
     #define TOPBLK(I,J) topblk[(I) + (J) * numRowsTopBlock]
     #define BOTBLK(I,J) botblk[(I) + (J) * numRowsBottomBlock]
 
-    for ( indexType j = 0 ; j < numColsPivot ; ++j ) {
-      indexType jplus1 = j + 1 ;
-      indexType i      = numRowsTopBlock - numColsPivot + j ;
-      indexType jmax   = j ;
+    for ( integer j = 0 ; j < numColsPivot ; ++j ) {
+      integer jplus1 = j + 1 ;
+      integer i      = numRowsTopBlock - numColsPivot + j ;
+      integer jmax   = j ;
       valueType colmax = std::abs(TOPBLK(i,j)) ;
-      for ( indexType j1 = jplus1 ; j1 < numOverlapCols; ++j1 ) {
+      for ( integer j1 = jplus1 ; j1 < numOverlapCols; ++j1 ) {
         valueType tempiv = std::abs(TOPBLK(i,j1)) ;
         if ( tempiv > colmax) { colmax = tempiv ; jmax = j1 ; }
       }
@@ -216,14 +220,14 @@ namespace alglin {
 
       pivot[j] = jmax ;
       if ( j != jmax ) {
-        for ( indexType k = i ; k < numRowsTopBlock    ; ++k ) std::swap(TOPBLK(k,j),TOPBLK(k,jmax)) ;
-        for ( indexType k = 0 ; k < numRowsBottomBlock ; ++k ) std::swap(BOTBLK(k,j),BOTBLK(k,jmax)) ;
+        for ( integer k = i ; k < numRowsTopBlock    ; ++k ) std::swap(TOPBLK(k,j),TOPBLK(k,jmax)) ;
+        for ( integer k = 0 ; k < numRowsBottomBlock ; ++k ) std::swap(BOTBLK(k,j),BOTBLK(k,jmax)) ;
       }
       valueType colpiv = TOPBLK(i,j) ;
-      for ( indexType j1 = jplus1 ; j1 < numOverlapCols ; ++j1 ) {
+      for ( integer j1 = jplus1 ; j1 < numOverlapCols ; ++j1 ) {
         valueType colmlt = (TOPBLK(i,j1) /= colpiv) ;
-        for ( indexType k = i+1 ; k < numRowsTopBlock    ; ++k ) TOPBLK(k,j1) -= colmlt * TOPBLK(k,j) ;
-        for ( indexType k = 0   ; k < numRowsBottomBlock ; ++k ) BOTBLK(k,j1) -= colmlt * BOTBLK(k,j) ;
+        for ( integer k = i+1 ; k < numRowsTopBlock    ; ++k ) TOPBLK(k,j1) -= colmlt * TOPBLK(k,j) ;
+        for ( integer k = 0   ; k < numRowsBottomBlock ; ++k ) BOTBLK(k,j1) -= colmlt * BOTBLK(k,j) ;
       }
     }
 
@@ -238,20 +242,21 @@ namespace alglin {
   //  \___ \ / _ \| \ \ / / _ \
   //   ___) | (_) | |\ V /  __/
   //  |____/ \___/|_| \_/ \___|
-  */                         
+  */
+  template <typename t_Value>
   void
-  Arceco::solve( valuePointer b ) const {
-    indexType indpiv         = 0 ;
-    indexType indexa         = 0 ;
-    indexType numRowsBlock   = numRows(0) ;
-    indexType numColsBlock   = numCols(0) ;
-    indexType numOverlapCols = numOverlap(0) ;
-    indexType numRowsPivot   = numColsBlock - numOverlapCols ;
+  Arceco<t_Value>::solve( valuePointer b ) const {
+    integer indpiv         = 0 ;
+    integer indexa         = 0 ;
+    integer numRowsBlock   = numRows(0) ;
+    integer numColsBlock   = numCols(0) ;
+    integer numOverlapCols = numOverlap(0) ;
+    integer numRowsPivot   = numColsBlock - numOverlapCols ;
 
     forwardElimination( array + indexa, numRowsBlock, numRowsPivot, pivot + indpiv, b + indpiv ) ;
 
-    indexType numColsPivot = 0 ;
-    for ( indexType k = 1 ; k < numberOfBlocks ; ++k ) {
+    integer numColsPivot = 0 ;
+    for ( integer k = 1 ; k < numberOfBlocks ; ++k ) {
       indexa      += numRowsBlock * numRowsPivot ;
       numColsPivot = numRowsBlock - numRowsPivot ;
       indpiv      += numRowsPivot ;
@@ -275,7 +280,7 @@ namespace alglin {
       forwardElimination ( array + indexa, numRowsBlock, numRowsPivot, pivot + indpiv, b + indpiv ) ;
     }
     // BACKWARD LOOP
-    for ( indexType k = numberOfBlocks - 2 ; k >= 0 ; --k ) {
+    for ( integer k = numberOfBlocks - 2 ; k >= 0 ; --k ) {
 
       if ( numRowsPivot != 0 ) {
         if ( numRowsPivot != numColsBlock ) backwardModification ( array + indexa, numRowsBlock, numColsBlock, numRowsPivot, b + indpiv ) ;
@@ -318,18 +323,19 @@ namespace alglin {
   //  | |___| | | | | | | | | | | | (_| | |_| | (_) | | | |
   //  |_____|_|_|_| |_| |_|_|_| |_|\__,_|\__|_|\___/|_| |_|
   */
+  template <typename t_Value>
   void
-  Arceco::forwardElimination ( valuePointer block,
-                               indexType    numRowsBlock,
-                               indexType    numRowsPivot,
-                               indexPointer pivot,
-                               valuePointer b ) const {
+  Arceco<t_Value>::forwardElimination ( valuePointer block,
+                                        integer      numRowsBlock,
+                                        integer      numRowsPivot,
+                                        integer *    pivot,
+                                        valuePointer b ) const {
     valueConstPointer blockI = block ;
-    for ( indexType i = 0 ; i < numRowsPivot ; ++i, blockI += numRowsBlock ) {
-      indexType pivoti = pivot[i];
+    for ( integer i = 0 ; i < numRowsPivot ; ++i, blockI += numRowsBlock ) {
+      integer pivoti = pivot[i];
       if ( pivoti != i ) std::swap(b[pivoti],b[i]) ;
       valueType bi = b[i] ;
-      for ( indexType l = i+1 ; l < numRowsBlock ; ++l ) b[l] -= blockI[l] * bi;
+      for ( integer l = i+1 ; l < numRowsBlock ; ++l ) b[l] -= blockI[l] * bi;
     }
   }
   /*
@@ -339,21 +345,23 @@ namespace alglin {
   //   ___) | (_) | | |_| | |_| | (_) | | | |
   //  |____/ \___/|_|\__,_|\__|_|\___/|_| |_|
   //                                       
-  */                                                         
+  */
+  template <typename t_Value>
   void
-  Arceco::forwardSolution ( valuePointer block,
-                            indexType    numRowsBlock,
-                            indexType    numColsPivot,
-                            indexType    /* numOverlapCols */,
-                            valuePointer b ) const {
-    indexType    kk      = numRowsBlock - numColsPivot ;
+  Arceco<t_Value>::forwardSolution ( valuePointer block,
+                                     integer      numRowsBlock,
+                                     integer      numColsPivot,
+                                     integer      /* numOverlapCols */,
+                                     valuePointer b ) const {
+    integer      kk      = numRowsBlock - numColsPivot ;
     valuePointer blockJS = block + kk ;
-    for ( indexType j = 0 ; j < numColsPivot ; ++j, blockJS += numRowsBlock ) {
+    for ( integer j = 0 ; j < numColsPivot ; ++j, blockJS += numRowsBlock ) {
       valueType xj = (b[j] /= blockJS[j]) ;
-      for ( indexType l = j+1 ; l < numColsPivot ; ++l )
+      for ( integer l = j+1 ; l < numColsPivot ; ++l )
         b[l] -= blockJS[l] * xj ;
     }
   }
+
   /*
   //   __  __           _ _  __ _           _   _             
   //  |  \/  | ___   __| (_)/ _(_) ___ __ _| |_(_) ___  _ __  
@@ -361,15 +369,16 @@ namespace alglin {
   //  | |  | | (_) | (_| | |  _| | (_| (_| | |_| | (_) | | | |
   //  |_|  |_|\___/ \__,_|_|_| |_|\___\__,_|\__|_|\___/|_| |_|
   */
+  template <typename t_Value>
   void
-  Arceco::forwardModification ( valuePointer block,
-                                indexType    numRowsBlock,
-                                indexType    numColsPivot,
-                                valuePointer b ) const {
+  Arceco<t_Value>::forwardModification ( valuePointer block,
+                                         integer      numRowsBlock,
+                                         integer      numColsPivot,
+                                         valuePointer b ) const {
     valuePointer blockJ = block ;
-    for ( indexType j = 0 ; j < numColsPivot ; ++j, blockJ += numRowsBlock ) {
+    for ( integer j = 0 ; j < numColsPivot ; ++j, blockJ += numRowsBlock ) {
       valueType xj = b[j];
-      for ( indexType l = 0 ; l < numRowsBlock ; ++l )
+      for ( integer l = 0 ; l < numRowsBlock ; ++l )
         b[numColsPivot + l] -= blockJ[l] * xj ;
     }
   }
@@ -387,16 +396,17 @@ namespace alglin {
   //  | |  | | (_) | (_| | |  _| | (_| (_| | |_| | (_) | | | |
   //  |_|  |_|\___/ \__,_|_|_| |_|\___\__,_|\__|_|\___/|_| |_|
   */
+  template <typename t_Value>
   void
-  Arceco::backwardModification ( valuePointer block,
-                                 indexType    numRowsBlock,
-                                 indexType    numColsBlock,
-                                 indexType    numRowsPivot,
-                                 valuePointer b ) const {
+  Arceco<t_Value>::backwardModification ( valuePointer block,
+                                          integer      numRowsBlock,
+                                          integer      numColsBlock,
+                                          integer      numRowsPivot,
+                                          valuePointer b ) const {
     valuePointer blockJ = block + numRowsPivot * numRowsBlock ;
-    for ( indexType j = numRowsPivot ; j < numColsBlock ; ++j, blockJ += numRowsBlock ) {
+    for ( integer j = numRowsPivot ; j < numColsBlock ; ++j, blockJ += numRowsBlock ) {
       valueType xj = b[j] ;
-      for ( indexType l = 0 ; l < numRowsPivot ; ++l )
+      for ( integer l = 0 ; l < numRowsPivot ; ++l )
         b[l] -= blockJ[l] * xj ;
     }
   }
@@ -407,17 +417,18 @@ namespace alglin {
   //   ___) | (_) | | |_| | |_| | (_) | | | |
   //  |____/ \___/|_|\__,_|\__|_|\___/|_| |_|
   //                                       
-  */                                                         
+  */
+  template <typename t_Value>
   void
-  Arceco::backwardSolution ( valuePointer block,
-                             indexType    numRowsBlock,
-                             indexType    /* numColsBlock */,
-                             indexType    numRowsPivot,
-                             valuePointer b ) const {
-    for ( indexType j = numRowsPivot - 1 ; j >= 0 ; --j ) {
+  Arceco<t_Value>::backwardSolution ( valuePointer block,
+                                      integer      numRowsBlock,
+                                      integer      /* numColsBlock */,
+                                      integer      numRowsPivot,
+                                      valuePointer b ) const {
+    for ( integer j = numRowsPivot - 1 ; j >= 0 ; --j ) {
       valuePointer blockJ = block + j * numRowsBlock ;
       valueType xj = (b[j] /= blockJ[j]) ;
-      for ( indexType l = 0 ; l < j ; ++l )
+      for ( integer l = 0 ; l < j ; ++l )
         b[l] -= blockJ[l] * xj ;
     }
   }
@@ -428,24 +439,28 @@ namespace alglin {
   //  | |___| | | | | | | | | | | | (_| | |_| | (_) | | | |
   //  |_____|_|_|_| |_| |_|_|_| |_|\__,_|\__|_|\___/|_| |_|
   */
+  template <typename t_Value>
   void
-  Arceco::backwardElimination( valuePointer block,
-                               indexType    numRowsBlock,
-                               indexType    numColsPivot,
-                               indexType    numOverlapCols,
-                               indexPointer pivot,
-                               valuePointer x )  const {
-    indexType kk = numRowsBlock - numColsPivot ;
-    indexType j1 = numColsPivot ;
+  Arceco<t_Value>::backwardElimination( valuePointer block,
+                                        integer      numRowsBlock,
+                                        integer      numColsPivot,
+                                        integer      numOverlapCols,
+                                        integer *    pivot,
+                                        valuePointer x )  const {
+    integer kk = numRowsBlock - numColsPivot ;
+    integer j1 = numColsPivot ;
     while ( j1 > 0 ) {
       valueConstPointer blockS = block + j1-1 + kk + j1 * numRowsBlock ;
-      indexType n = numOverlapCols - j1 ;
+      integer n = numOverlapCols - j1 ;
       // Kahan summation algorithm
       valueType dotprd = dot(n,x+j1,1,blockS,numRowsBlock) ;
       x[--j1] -= dotprd ;
-      indexType pivotj = pivot[j1] ;
+      integer pivotj = pivot[j1] ;
       if ( pivotj != j1 ) std::swap( x[pivotj], x[j1] ) ;
     }
   }
+  
+  template class Arceco<float> ;
+  template class Arceco<double> ;
 
 }

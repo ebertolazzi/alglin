@@ -24,13 +24,14 @@
 #include "Alglin++.hh"
 #include "Alglin_aux.hh"
 #include "TicToc.hh"
-#include "LU_BABD_QR_N.hh"
+#include "LU_BABD_AmodioN.hh"
+#include "LU_BABD_Amodio.hh"
 
 using namespace std ;
 typedef double valueType ;
 
-unsigned seed1 = 2 ;
-std::mt19937 generator(seed1);
+static unsigned seed1 = 2 ;
+static std::mt19937 generator(seed1);
 
 valueType
 rand( valueType xmin, valueType xmax ) {
@@ -43,25 +44,48 @@ main() {
 
   #include "LU_test.hxx"
 
-  alglin::BabdQR_N<valueType,NSIZE> LU ;
+  alglin::AmodioN<valueType,NSIZE> LU_N ;
+  alglin::AmodioLU<valueType>      LU ;
 
   //alglin::babd_print<valueType>( cout, nblk, n, q, AdAu, H0, HN, Hq ) ;
+
+  cout << "nblk = " << nblk  << "\n"
+       << "N    = " << NSIZE << "\n"
+       << "q    = " << q     << "\n" ;
 
   TicToc tm ;
   tm.reset() ;
 
-  tm.tic() ;
-  LU.factorize( nblk, q, AdAu, H0, HN, Hq ) ;
-  tm.toc() ;
-  cout << "Factorize (QRN) = " << tm.elapsedMilliseconds() << " [ms]\n" ;
+  cout << "\n\n" ;
 
   tm.tic() ;
-  //for ( int k = 0 ; k < 10 ; ++k ) {
+  for ( int k = 0 ; k < 10 ; ++k ) LU_N.factorize( nblk, q, AdAu, H0, HN, Hq ) ;
+  tm.toc() ;
+  cout << "Factorize (AmodioN) = " << tm.elapsedMilliseconds() << " [ms]\n" ;
+
+  tm.tic() ;
+  for ( int k = 0 ; k < 10 ; ++k ) LU.factorize( nblk, NSIZE, q, AdAu, H0, HN, Hq ) ;
+  tm.toc() ;
+  cout << "Factorize (Amodio)  = " << tm.elapsedMilliseconds() << " [ms]\n" ;
+
+  cout << "\n\n" ;
+
+  tm.tic() ;
+  for ( int k = 0 ; k < 10 ; ++k ) {
+    std::copy( rhs, rhs+N, x ) ;
+    LU_N.solve( x ) ;
+  }
+  tm.toc() ;
+  cout << "Solve (AmodioN) = " << tm.elapsedMilliseconds() << " [ms]\n" ;
+
+  tm.tic() ;
+  for ( int k = 0 ; k < 10 ; ++k ) {
     std::copy( rhs, rhs+N, x ) ;
     LU.solve( x ) ;
-  //}
+  }
   tm.toc() ;
-  cout << "Solve (QRN) = " << tm.elapsedMilliseconds() << " [ms]\n" ;
+  cout << "Solve (Amodio)  = " << tm.elapsedMilliseconds() << " [ms]\n" ;
+  cout << "\n\n" ;
 
   //for ( alglin::integer i = 0 ; i < N ; ++i )
   //  cout << "x[" << i << "] = " << x[i] << '\n' ;
@@ -75,7 +99,7 @@ main() {
 
   cout << "Check |r|_inf = " << alglin::absmax( N, resid, 1 ) << '\n' ;
 
-  LU.solve( resid ) ;
+  LU_N.solve( resid ) ;
   alglin::axpy( N, +1.0, resid, 1, x, 1 ) ;
 
   cout << "All done!\n" ;

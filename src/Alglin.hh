@@ -68,6 +68,12 @@
   #elif defined(__x86_64__)
     #define ALGLIN_ARCH64 1
   #endif
+  #if !defined(ALGLIN_USE_ACCELERATE) && \
+      !defined(ALGLIN_USE_ATLAS)      && \
+      !defined(ALGLIN_USE_OPENBLAS)   && \
+      !defined(ALGLIN_USE_LAPACK)
+    #define ALGLIN_USE_ACCELERATE 1
+  #endif
 #elif defined(__unix__)
   #define ALGLIN_OS_LINUX 1
   #if defined(__i386__)
@@ -283,6 +289,53 @@ namespace alglin {
   extern character const *store_blas[2] ;
   extern character const *mtype_blas[5] ;
   extern character const *equilibrate_blas[4] ;
+
+  //============================================================================
+
+  static
+  inline
+  bool isZero( float x )
+  { return FP_ZERO == fpclassify(x) ; }
+
+  static
+  inline
+  bool isInteger( float x )
+  { return isZero(x-floor(x)) ; }
+
+  static
+  inline
+  bool isUnsigned( float x )
+  { return isInteger(x) && x >= 0 ; }
+
+  static
+  inline
+  bool isZero( double x )
+  { return FP_ZERO == fpclassify(x) ; }
+
+  static
+  inline
+  bool isInteger( double x )
+  { return isZero(x-floor(x)) ; }
+
+  static
+  inline
+  bool isUnsigned( double x )
+  { return isInteger(x) && x >= 0 ; }
+
+  static
+  inline
+  bool isZero( long double x )
+  { return FP_ZERO == fpclassify(x) ; }
+
+  static
+  inline
+  bool isInteger( long double x )
+  { return isZero(x-floor(x)) ; }
+
+  static
+  inline
+  bool isUnsigned( long double x )
+  { return isInteger(x) && x >= 0 ; }
 
   /*
   //   _                      _

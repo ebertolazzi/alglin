@@ -56,11 +56,9 @@ namespace alglin {
   : baseValue("ColrowLU reals")
   , baseIndex("ColrowLU ints")
   , NB(25)
-  , last_block(ColrowLU_QR0)
-  //, last_block(ColrowLU_QR1)
-  //, last_block(ColrowLU_QR2)
-  //, last_block(ColrowLU_LU0)
-  //, last_block(ColrowLU_LU1)
+  //, last_block(ColrowLU_LU)
+  //, last_block(ColrowLU_QR)
+  , last_block(ColrowLU_SVD)
   , use_arceco(_use_arceco)
   {
   }
@@ -285,15 +283,11 @@ namespace alglin {
         swap( ncL, L + i, ldA, L + ip, ldA ) ;
       }
     }
-    trsm( SideMultiply::LEFT,
-          ULselect::LOWER,
-          Transposition::NO_TRANSPOSE,
-          DiagonalType::UNIT,
+    trsm( LEFT, LOWER, NO_TRANSPOSE, UNIT,
           ncA, ncR, 1.0,
           A, ldA,
           R, ldA ) ;
-    gemm( Transposition::NO_TRANSPOSE,
-          Transposition::NO_TRANSPOSE,
+    gemm( NO_TRANSPOSE, NO_TRANSPOSE,
           nrA-ncA, ncR, ncA,
           -1.0,  A+ncA, ldA,
           R, ldA,
@@ -379,15 +373,11 @@ namespace alglin {
         swap( nrB, B + i*ldB, 1, B + ip*ldB, 1 ) ;
       }
     }
-    trsm( SideMultiply::RIGHT,
-          ULselect::UPPER,
-          Transposition::NO_TRANSPOSE,
-          DiagonalType::NON_UNIT,
+    trsm( RIGHT, UPPER, NO_TRANSPOSE, NON_UNIT,
           nrB, nrA, 1.0,
           A, ldA,
           B, ldB ) ;
-    gemm( Transposition::NO_TRANSPOSE,
-          Transposition::NO_TRANSPOSE,
+    gemm( NO_TRANSPOSE, NO_TRANSPOSE,
           nrB, ncA-nrA, nrA,
           -1.0, B, ldB,
           A+nrA*ldA, ldA,
@@ -531,11 +521,9 @@ namespace alglin {
     // fattorizzazione ultimo blocco
     valuePointer D0 = blockN + row00 * rowN;
     switch ( last_block ) {
-      case ColrowLU_QR0: la_solve0.compute(Eigen::Map<mat>(D0,rowN,rowN)) ; break ;
-      case ColrowLU_QR1: la_solve1.compute(Eigen::Map<mat>(D0,rowN,rowN)) ; break ;
-      case ColrowLU_QR2: la_solve2.compute(Eigen::Map<mat>(D0,rowN,rowN)) ; break ;
-      case ColrowLU_LU0: la_solve3.compute(Eigen::Map<mat>(D0,rowN,rowN)) ; break ;
-      case ColrowLU_LU1: la_solve4.compute(Eigen::Map<mat>(D0,rowN,rowN)) ; break ;
+      case ColrowLU_QR:  la_qr.factorize(rowN,rowN,D0,rowN)    ; break ;
+      case ColrowLU_LU:  la_lu.factorize(rowN,D0,rowN)         ; break ;
+      case ColrowLU_SVD: la_svd.factorize(rowN,rowN,D0,rowN,0) ; break ;
     }
   }
 
@@ -570,9 +558,7 @@ namespace alglin {
 
     // primo blocco
     io = in_out ;
-    trsv( ULselect::LOWER,
-          Transposition::NO_TRANSPOSE,
-          DiagonalType::UNIT,
+    trsv( LOWER, NO_TRANSPOSE, UNIT,
           row0,
           block0, row0, io, 1 ) ;
 
@@ -595,15 +581,13 @@ namespace alglin {
       valuePointer L   = M + row00 * dimBlock ;
 
       // io -= M*io1
-      gemv( Transposition::NO_TRANSPOSE,
+      gemv( NO_TRANSPOSE,
             dimBlock, row00,
             -1, M, dimBlock,
             io1, 1,
             1, io, 1 ) ;
 
-      trsv( ULselect::LOWER,
-            Transposition::NO_TRANSPOSE,
-            DiagonalType::UNIT,
+      trsv( LOWER, NO_TRANSPOSE, UNIT,
             dimBlock,
             L, dimBlock, io, 1 ) ;
 
@@ -613,17 +597,15 @@ namespace alglin {
 
     // soluzione ultimo blocco
     integer ncol = colN-rowN ;
-    gemv( Transposition::NO_TRANSPOSE,
+    gemv( NO_TRANSPOSE,
           rowN, ncol,
           -1, blockN, rowN,
           io-ncol, 1,
           1, io, 1 ) ;
     switch ( last_block ) {
-      case ColrowLU_QR0: Eigen::Map<vec>(io,rowN) = la_solve0.solve(Eigen::Map<vec>(io,rowN)) ; break ;
-      case ColrowLU_QR1: Eigen::Map<vec>(io,rowN) = la_solve1.solve(Eigen::Map<vec>(io,rowN)) ; break ;
-      case ColrowLU_QR2: Eigen::Map<vec>(io,rowN) = la_solve2.solve(Eigen::Map<vec>(io,rowN)) ; break ;
-      case ColrowLU_LU0: Eigen::Map<vec>(io,rowN) = la_solve3.solve(Eigen::Map<vec>(io,rowN)) ; break ;
-      case ColrowLU_LU1: Eigen::Map<vec>(io,rowN) = la_solve4.solve(Eigen::Map<vec>(io,rowN)) ; break ;
+      case ColrowLU_LU:  la_lu.solve(io)     ; break ;
+      case ColrowLU_QR:  la_qr.solve(io,io)  ; break ;
+      case ColrowLU_SVD: la_svd.solve(io,io) ; break ;
     }
 
     while ( nblk > 0 ) {
@@ -642,15 +624,13 @@ namespace alglin {
       valuePointer U   = blocks + nblk * sizeBlock + row00 * dimBlock ;
       valuePointer M   = U + hSizeBlock ;
 
-      gemv( Transposition::NO_TRANSPOSE,
+      gemv( NO_TRANSPOSE,
             dimBlock, dimBlock_m_row00,
             -1, M, dimBlock,
             io1, 1,
             1, io, 1 ) ;
 
-      trsv( ULselect::UPPER,
-            Transposition::NO_TRANSPOSE,
-            DiagonalType::NON_UNIT,
+      trsv( UPPER, NO_TRANSPOSE, NON_UNIT,
             dimBlock,
             U, dimBlock, io, 1 ) ;
     }
@@ -659,15 +639,13 @@ namespace alglin {
     io -= row0 ;
   
     // soluzione primo blocco
-    gemv( Transposition::NO_TRANSPOSE,
+    gemv( NO_TRANSPOSE,
           row0, col0-row0,
           -1, block0+row0*row0, row0,
           io+row0, 1,
           1, io, 1 ) ;
 
-    trsv( ULselect::UPPER,
-          Transposition::NO_TRANSPOSE,
-          DiagonalType::NON_UNIT,
+    trsv( UPPER, NO_TRANSPOSE, NON_UNIT,
           row0,
           block0, row0, io, 1 ) ;
 

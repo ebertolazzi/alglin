@@ -30,9 +30,6 @@
 #include "LU_ArcecoSolver.hh"
 #include <iostream>
 
-// Eigen3
-#include <Eigen/Dense>
-
 namespace alglin {
 
   //! LU decomposition of a ABD matrix
@@ -80,20 +77,13 @@ namespace alglin {
     typedef t_Value*        valuePointer ;
     typedef t_Value const * valueConstPointer ;
 
-    typedef enum { ColrowLU_QR0 = 0,
-                   ColrowLU_QR1 = 1,
-                   ColrowLU_QR2 = 2,
-                   ColrowLU_LU0 = 3,
-                   ColrowLU_LU1 = 4 } LAST_BLOCK ;
+    typedef enum { ColrowLU_LU  = 0,
+                   ColrowLU_QR  = 1,
+                   ColrowLU_SVD = 2 } LAST_BLOCK ;
 
-    typedef Eigen::Matrix<t_Value,Eigen::Dynamic,1>              vec ;
-    typedef Eigen::Matrix<t_Value,Eigen::Dynamic,Eigen::Dynamic> mat ;
-
-    Eigen::HouseholderQR<mat>        la_solve0 ;
-    Eigen::ColPivHouseholderQR<mat>  la_solve1 ;
-    Eigen::FullPivHouseholderQR<mat> la_solve2 ;
-    Eigen::PartialPivLU<mat>         la_solve3 ;
-    Eigen::FullPivLU<mat>            la_solve4 ;
+    LU<t_Value>  la_lu ;
+    QR<t_Value>  la_qr ;
+    SVD<t_Value> la_svd ;
 
     static
     void
@@ -163,8 +153,8 @@ namespace alglin {
     integer *    pivot           ; //!< permutation array
     valuePointer array           ; //!< the matrix data
 
-    bool   use_arceco ;
-    Arceco LU_arceco ;
+    bool            use_arceco ;
+    Arceco<t_Value> LU_arceco ;
 
   public:
 

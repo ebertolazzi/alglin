@@ -270,6 +270,9 @@ namespace alglin {
     integer numericRank() const { return rank ; }
 
     void
+    solve( valueType const rhs[], valueType x[] ) const ;
+
+    void
     minq( valueType const rhs[], valueType x[], valueType lambda = 0 ) const ;
 
     void

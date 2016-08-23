@@ -173,12 +173,10 @@ namespace alglin {
         TAU = WB / WA ;
       }
       // multiply A(i:n,1:n) by random reflection from the left
-      gemv( Transposition::TRANSPOSE,
-            Ni, N, 1.0, A+i, LDA, WORK, 1, 0.0, WORK+N, 1 ) ;
+      gemv( TRANSPOSE, Ni, N, 1.0, A+i, LDA, WORK, 1, 0.0, WORK+N, 1 ) ;
       ger( Ni, N, -TAU, WORK, 1, WORK+N, 1, A+i, LDA ) ;
       // multiply A(1:n,i:n) by random reflection from the right
-      gemv( Transposition::NO_TRANSPOSE,
-            N, Ni, 1.0, A+i*LDA, LDA, WORK, 1, 0.0, WORK+N, 1 ) ;
+      gemv( NO_TRANSPOSE, N, Ni, 1.0, A+i*LDA, LDA, WORK, 1, 0.0, WORK+N, 1 ) ;
       ger( N, Ni, -TAU, WORK+N, 1, WORK, 1, A+i*LDA, LDA ) ;
     }
     return 0 ;
@@ -282,9 +280,9 @@ namespace alglin {
          T                    WORK[],
          integer              LWORK ) {
 
-    if ( LR == SideMultiply::LEFT ) {
+    if ( LR == LEFT ) {
       ALGLIN_ASSERT( LWORK >= 2*M + N , "laror, LWORK = " << LWORK << " must be >= " << 2*M + N ) ;
-    } else if ( LR == SideMultiply::RIGHT ) {
+    } else if ( LR == RIGHT ) {
       ALGLIN_ASSERT( LWORK >= 2*N + M, "laror, LWORK = " << LWORK << " must be >= " << 2*N + M ) ;
     } else {
       return -1 ;
@@ -305,7 +303,7 @@ namespace alglin {
     if ( N < 0 ) return -1 ;
     if ( LDA < std::max( 1, N ) ) return -3 ;
     
-    if ( LR == SideMultiply::LEFT ) {
+    if ( LR == LEFT ) {
       // pre-multiply A by random orthogonal matrix
       for ( integer i = M-1 ; i >= 0 ; --i ) {
         // generate random reflection
@@ -322,8 +320,7 @@ namespace alglin {
           TAU = WB / WA ;
         }
         // multiply A(i:n,1:n) by random reflection from the left
-        gemv( Transposition::TRANSPOSE,
-              Mi, M, 1.0, A+i, LDA, WORK, 1, 0.0, WORK+M, 1 ) ;
+        gemv( TRANSPOSE, Mi, M, 1.0, A+i, LDA, WORK, 1, 0.0, WORK+M, 1 ) ;
         ger( Mi, N, -TAU, WORK, 1, WORK+M, 1, A+i, LDA ) ;
       }
     } else {
@@ -343,8 +340,7 @@ namespace alglin {
           TAU = WB / WA ;
         }
         // multiply A(1:n,i:n) by random reflection from the right
-        gemv( Transposition::NO_TRANSPOSE,
-              N, Ni, 1.0, A+i*LDA, LDA, WORK, 1, 0.0, WORK+N, 1 ) ;
+        gemv( NO_TRANSPOSE, N, Ni, 1.0, A+i*LDA, LDA, WORK, 1, 0.0, WORK+N, 1 ) ;
         ger( N, Ni, -TAU, WORK+N, 1, WORK, 1, A+i*LDA, LDA ) ;
       }
     }
@@ -395,7 +391,7 @@ namespace alglin {
           integer         incy ) {
 
     // first block y = alpha * _block0 * x + beta * y
-    gemv( Transposition::NO_TRANSPOSE, row0, col0,
+    gemv( NO_TRANSPOSE, row0, col0,
           alpha, block0, row0,
           x, incx,
           beta, y, incy ) ;
@@ -405,7 +401,7 @@ namespace alglin {
     t_Value *       yy   = y+row0*incy ;
     t_Value const * blks = blocks ;
     for ( integer i = 0 ; i < numBlock ; ++i ) {
-      gemv( Transposition::NO_TRANSPOSE, dimBlock, 2*dimBlock,
+      gemv( NO_TRANSPOSE, dimBlock, 2*dimBlock,
             alpha, blks, dimBlock,
             xx, incx,
             beta, yy, incy ) ;
@@ -415,7 +411,7 @@ namespace alglin {
     }
 
     // last block
-    gemv( Transposition::NO_TRANSPOSE, rowN, colN,
+    gemv( NO_TRANSPOSE, rowN, colN,
           alpha, blockN, rowN,
           xx, incx,
           beta, yy, incy ) ;
@@ -541,7 +537,7 @@ namespace alglin {
     t_Value *       yy   = y ;
     t_Value const * blks = AdAu ;
     for ( integer i = 0 ; i < nblk ; ++i ) {
-      gemv( Transposition::NO_TRANSPOSE, n, 2*n,
+      gemv( NO_TRANSPOSE, n, 2*n,
             alpha, blks, n,
             xx, incx,
             beta, yy, incy ) ;
@@ -552,15 +548,11 @@ namespace alglin {
 
     // last blocks
     integer nq = n+q ;
-    gemv( Transposition::NO_TRANSPOSE, nq, n,
-          alpha, H0, nq, x, incx, beta, yy, incy ) ;
-
-    gemv( Transposition::NO_TRANSPOSE, nq, n,
-          alpha, HN, nq, xx, incx, t_Value(1), yy, incy ) ;
+    gemv( NO_TRANSPOSE, nq, n, alpha, H0, nq, x, incx, beta, yy, incy ) ;
+    gemv( NO_TRANSPOSE, nq, n, alpha, HN, nq, xx, incx, t_Value(1), yy, incy ) ;
 
     xx += n*incx ;
-    gemv( Transposition::NO_TRANSPOSE, nq, q,
-          alpha, Hq, nq, xx, incx, t_Value(1), yy, incy ) ;
+    gemv( NO_TRANSPOSE, nq, q, alpha, Hq, nq, xx, incx, t_Value(1), yy, incy ) ;
 
   }
 
