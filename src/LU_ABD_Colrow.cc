@@ -245,6 +245,95 @@ namespace alglin {
     factorize() ;
   }
 
+  template <typename t_Value>
+  void
+  ColrowLU<t_Value>::factorize( integer      numInitialBc,
+                                integer      numFinalBc,
+                                integer      numInitialETA,
+                                integer      numFinalETA,
+                                integer      _numBlock,
+                                valuePointer AdAu,
+                                valuePointer H0,
+                                valuePointer HN,
+                                valuePointer Hq ) {
+
+    integer nq = numInitialBc + numFinalBc ;
+    integer q  = numInitialETA + numFinalETA ;
+
+    numBlock = _numBlock + 2 ;
+    dimBlock = nq - q ;
+    row0     = numInitialBc ;
+    col0     = dimBlock + numInitialETA ;
+    rowN     = numFinalBc ;
+    colN     = dimBlock + numFinalETA ;
+
+    setup() ;
+
+    // allocate
+    baseIndex.allocate(size_t( numBlock*dimBlock+row0 )) ;
+    baseValue.allocate(size_t( sizeBlock*numBlock + row0*col0 + rowN*colN )) ;
+    block0      = baseValue(size_t( row0*col0 )) ;
+    blocks      = baseValue(size_t( sizeBlock * numBlock )) ;
+    blockN      = baseValue(size_t( rowN*colN )) ;
+    swapRC_blks = baseIndex(size_t( numBlock*dimBlock+row0 )) ;
+
+    /*
+    //  +                     +
+    //  |  Ad Au              |
+    //  |     Ad Au           |
+    //  |          ...        |
+    //  |            Ad Au    |
+    //  |  H0           HN Hq |
+    //  +                     +
+    //
+    //  H0 = nq x n
+    //  HN = nq x n
+    //  Hq = nq x q
+    //
+    //       +-------+       +-------+       +---+
+    //       |  0    |       |  NZ   |       |y|0|
+    //  H0 = +-------+  HN = +-------+  Hq = +---+
+    //       |  NZ   |       |  0    |       |0|x|
+    //       |  NZ   |       |       |       |0|x|
+    //       +-------+       +-------+       +---+
+    //
+    //  Primo blocco per ARCECO (numInitialBc) x (n+numInitialETA) 
+    //
+    //  +-+-------+
+    //  |x|  NZ   |
+    //  |x|  NZ   |
+    //  +-+-------+
+    //
+    //  Ultimo blocco per ARCECO (numFinalBc) x (n+numFinalETA) 
+    //
+    //  +-------+-+
+    //  |  NZ   |y|
+    //  +-------+-+
+    //
+    */
+    
+    #define IDX0(I,J) ((I)+(J)*row0)
+    #define IDXN(I,J) ((I)+(J)*rowN)
+    
+    std::fill( block0, block0 + row0 * col0, 0 ) ;
+    std::fill( blockN, blockN + rowN * colN, 0 ) ;
+    
+    //  +-+-------+
+    //  |x|  NZ   |
+    //  |x|  NZ   |
+    //  +-+-------+
+    alglin::gecopy( row0, numInitialETA, Hq+rowN+numFinalETA*nq, nq, block0 + IDX0(0,0),             row0 ) ;
+    alglin::gecopy( row0, dimBlock,      H0+rowN,                nq, block0 + IDX0(0,numInitialETA), row0 ) ;
+
+    //  +-------+-+
+    //  |  NZ   |y|
+    //  +-------+-+
+    alglin::gecopy( rowN, dimBlock,    HN, nq, blockN + IDXN(0,0),        rowN ) ;
+    alglin::gecopy( rowN, numFinalETA, Hq, nq, blockN + IDXN(0,dimBlock), rowN ) ;
+    factorize() ;
+
+  }
+
   /*
   //
   // +---+-----+--------+
@@ -752,7 +841,7 @@ namespace alglin {
   }
 
   template class ColrowLU<double> ;
-  //template class ColrowLU<float> ;
+  template class ColrowLU<float> ;
 
 }
 

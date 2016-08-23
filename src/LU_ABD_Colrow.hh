@@ -184,6 +184,23 @@ namespace alglin {
                        integer      _rowN,
                        integer      _colN,
                        valuePointer _blockN ) ;
+    /*
+    //    __            _             _
+    //   / _| __ _  ___| |_ ___  _ __(_)_______
+    //  | |_ / _` |/ __| __/ _ \| '__| |_  / _ \
+    //  |  _| (_| | (__| || (_) | |  | |/ /  __/
+    //  |_|  \__,_|\___|\__\___/|_|  |_/___\___|
+    */
+    void
+    factorize( integer      numInitialBc,
+               integer      numFinalBc,
+               integer      numInitialETA,
+               integer      numFinalETA,
+               integer      numBlock,
+               valuePointer AdAu,
+               valuePointer H0,
+               valuePointer HN,
+               valuePointer Hq ) ;
 
     //! solve linear sistem using internal factorized matrix
     void solve( valuePointer in_out ) const ;

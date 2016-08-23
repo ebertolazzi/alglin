@@ -144,8 +144,8 @@ namespace alglin {
     alglin::gecopy( nRowN, n,           HN, nq, blkN + IDXN(0,0), nRowN ) ;
     alglin::gecopy( nRowN, numFinalETA, Hq, nq, blkN + IDXN(0,n), nRowN ) ;
     
-    arcecoSolver . loadByRef ( NBLOCK, MTR, AR, PIVOT ) ;
-
+    arcecoSolver.loadByRef ( NBLOCK, MTR, AR, PIVOT ) ;
+    arcecoSolver.factorize() ;
   }
   
   template class ArcecoLU<float> ;

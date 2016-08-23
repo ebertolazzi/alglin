@@ -130,17 +130,6 @@ namespace alglin {
       \endcode
     */
 
-    void
-    load( integer      numInitialBc,
-          integer      numFinalBc,
-          integer      numInitialETA,
-          integer      numFinalETA,
-          integer      numBlock,
-          valuePointer AdAu,
-          valuePointer H0,
-          valuePointer HN,
-          valuePointer Hq ) ;
-
     /*
     //    __            _             _
     //   / _| __ _  ___| |_ ___  _ __(_)_______
@@ -148,10 +137,16 @@ namespace alglin {
     //  |  _| (_| | (__| || (_) | |  | |/ /  __/
     //  |_|  \__,_|\___|\__\___/|_|  |_/___\___|
     */
-    //! factorize the matrix
     void
-    factorize()
-    { arcecoSolver.factorize() ; }
+    factorize( integer      numInitialBc,
+               integer      numFinalBc,
+               integer      numInitialETA,
+               integer      numFinalETA,
+               integer      numBlock,
+               valuePointer AdAu,
+               valuePointer H0,
+               valuePointer HN,
+               valuePointer Hq ) ;
 
     /*             _
     //   ___  ___ | |_   _____
