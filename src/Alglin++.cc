@@ -50,14 +50,14 @@ namespace alglin {
     ALGLIN_ASSERT( info == 0, "QR::factorize call alglin::tzrzf return info = " << info ) ;
     if ( Lwork < integer(tmp) ) Lwork = integer(tmp) ;
     if ( Lwork < nRow*nCol    ) Lwork = nRow*nCol ;
-    allocReals.allocate(nRow*nCol+Lwork+nCol+2*nReflector+mm) ;
-    allocIntegers.allocate(nCol) ;
-    Amat   = allocReals(nRow*nCol) ;
-    Work   = allocReals(Lwork) ;
-    Tau    = allocReals(nReflector) ;
-    TauTop = allocReals(nReflector) ;
-    JPVT   = allocIntegers(nCol) ;
-    xbtmp  = allocReals(mm) ;
+    allocReals.allocate(size_t(nRow*nCol+Lwork+nCol+2*nReflector+mm)) ;
+    allocIntegers.allocate(size_t(nCol)) ;
+    Amat   = allocReals(size_t(nRow*nCol)) ;
+    Work   = allocReals(size_t(Lwork)) ;
+    Tau    = allocReals(size_t(nReflector)) ;
+    TauTop = allocReals(size_t(nReflector)) ;
+    JPVT   = allocIntegers(size_t(nCol)) ;
+    xbtmp  = allocReals(size_t(mm)) ;
     info   = gecopy( NR, NC, A, LDA, Amat, nRow ) ;
     ALGLIN_ASSERT( info == 0, "QR::factorize call alglin::gecopy return info = " << info ) ;
     info = lascl( FULL_MATRIX, 0, 0, mxabs, 1, nRow, nCol, Amat, nRow ) ;
@@ -348,13 +348,13 @@ namespace alglin {
                                valueType const L[],
                                valueType const D[],
                                valueType const U[] ) {
-    allocReals.allocate(5*(N-1)) ;
+    allocReals.allocate(size_t(5*(N-1))) ;
     this -> nRC = N ;
-    this -> C   = allocReals(N-1) ;
-    this -> S   = allocReals(N-1) ;
-    this -> BD  = allocReals(N) ;
-    this -> BU  = allocReals(N-1) ;
-    this -> BU2 = allocReals(N-2) ;
+    this -> C   = allocReals(size_t(N-1)) ;
+    this -> S   = allocReals(size_t(N-1)) ;
+    this -> BD  = allocReals(size_t(N)) ;
+    this -> BU  = allocReals(size_t(N-1)) ;
+    this -> BU2 = allocReals(size_t(N-2)) ;
 
     /*\
       | d u       | d u @     | d u @     | d u @     | d u @     |
@@ -473,7 +473,10 @@ namespace alglin {
                           T       lambda_in) const {
 
     valueType lambda = normInfA * lambda_in ;
-    std::vector<T> D(nRC), U(nRC-1), U2(nRC-2), tmp(nrhs) ;
+    std::vector<T> D(nRC),
+                   U(nRC-1),
+                   U2(nRC-2),
+                   tmp(nrhs) ;
     T CC, SS ;
 
     for ( integer i = 0 ; i < nRC-1 ; ++i )
@@ -526,8 +529,8 @@ namespace alglin {
       T * xb = RHS + j*ldRHS ;
       xb[nRC-1] /= D[nRC-1] ;
       xb[nRC-2] = (xb[nRC-2]-U[nRC-2]*xb[nRC-1])/D[nRC-2] ;
-      for ( integer i = nRC-3 ; i >= 0 ; --i )
-        xb[i] = (xb[i]-U[i]*xb[i+1]-U2[i]*xb[i+2])/D[i] ;
+      for ( integer k = nRC-3 ; k >= 0 ; --k )
+        xb[k] = (xb[k]-U[k]*xb[k+1]-U2[k]*xb[k+2])/D[k] ;
     }
   }
 
@@ -563,13 +566,13 @@ namespace alglin {
     nCol = NC ;
     integer N = max(nRow,nCol) ;
     Lwork = 2*N+(N+1)*N ;
-    allocReals.allocate(nRow*nCol+Lwork+N+nRow) ;
-    allocIntegers.allocate(N) ;
-    Amat = allocReals(nRow*nCol) ;
-    Work = allocReals(Lwork) ;
-    Tau  = allocReals(N) ;
-    tmp  = allocReals(nRow) ;
-    JPVT = allocIntegers(N) ;
+    allocReals.allocate(size_t(nRow*nCol+Lwork+N+nRow)) ;
+    allocIntegers.allocate(size_t(N)) ;
+    Amat = allocReals(size_t(nRow*nCol)) ;
+    Work = allocReals(size_t(Lwork)) ;
+    Tau  = allocReals(size_t(N)) ;
+    tmp  = allocReals(size_t(nRow)) ;
+    JPVT = allocIntegers(size_t(N)) ;
     integer info = gecopy( NR, NC, A, LDA, Amat, nRow ) ;
     if ( info == 0 ) {
       geid( NC, NC, Amat + NR, nRow, lambda ) ;

@@ -56,17 +56,17 @@ main() {
   alglin::Malloc<valueType>       baseValue("real") ;
   alglin::Malloc<alglin::integer> baseIndex("integer") ;
   
-  baseValue.allocate(nnz) ;
-  baseIndex.allocate(N) ;
+  baseValue.allocate(size_t(nnz)) ;
+  baseIndex.allocate(size_t(N)) ;
 
-  valueType * block0 = baseValue(row0*col0) ;
-  valueType * blocks = baseValue(2*dim*dim*numBlock) ;
-  valueType * blockN = baseValue(rowN*colN) ;
-  valueType * x      = baseValue(N) ;
-  valueType * xref   = baseValue(N) ;
-  valueType * xref1  = baseValue(N) ;
-  valueType * rhs    = baseValue(N) ;
-  valueType * resid  = baseValue(N) ;
+  valueType * block0 = baseValue(size_t(row0*col0)) ;
+  valueType * blocks = baseValue(size_t(2*dim*dim*numBlock)) ;
+  valueType * blockN = baseValue(size_t(rowN*colN)) ;
+  valueType * x      = baseValue(size_t(N)) ;
+  valueType * xref   = baseValue(size_t(N)) ;
+  valueType * xref1  = baseValue(size_t(N)) ;
+  valueType * rhs    = baseValue(size_t(N)) ;
+  valueType * resid  = baseValue(size_t(N)) ;
   
   for ( int i = 0 ; i < row0 ; ++i )
     for ( int j = 0 ; j < col0 ; ++j )

@@ -49,7 +49,7 @@ namespace alglin {
   template <typename t_Value, int STEP>
   class Zero<t_Value,0,STEP> {
   public:
-    static inline void eval( t_Value * A ) {}
+    static inline void eval( t_Value * ) {}
   } ;
   
   /*
@@ -72,7 +72,7 @@ namespace alglin {
   template <typename t_Value, int STEPA, int STEPB>
   class Copy<t_Value,0,STEPA,STEPB> {
   public:
-    static inline void eval( t_Value const * A, t_Value * B ) {}
+    static inline void eval( t_Value const *, t_Value * ) {}
   } ;
   
   /*
@@ -94,7 +94,7 @@ namespace alglin {
   template <typename t_Value, int STEPA, int STEPB>
   class Swap<t_Value,0,STEPA,STEPB> {
   public:
-    static inline void eval( t_Value * A, t_Value * B ) {}
+    static inline void eval( t_Value *, t_Value * ) {}
   } ;
   
   /*
@@ -115,7 +115,7 @@ namespace alglin {
   template <typename t_Value, int STEPA, int STEPB>
   class Dot<t_Value,0,STEPA,STEPB> {
   public:
-    static inline t_Value eval( t_Value const * A, t_Value const * B )
+    static inline t_Value eval( t_Value const *, t_Value const * )
     { return t_Value(0) ; }
   } ;
   
@@ -138,7 +138,7 @@ namespace alglin {
   template <typename t_Value, int STEP>
   class Scal<t_Value,0,STEP> {
   public:
-    static inline void eval( t_Value s, t_Value * x ) {}
+    static inline void eval( t_Value, t_Value * ) {}
   } ;
   
   /*
@@ -186,11 +186,11 @@ namespace alglin {
   template <typename t_Value, int N, int STEPX, int STEPY>
   class XopY {
   public:
-    static inline void xpy( t_Value a, t_Value const * x, t_Value * y ) {
+    static inline void xpy( t_Value const * x, t_Value * y ) {
       y[0] += x[0] ;
       XopY<t_Value,N-1,STEPX,STEPY>::xpy(x+STEPX,y+STEPY) ;
     }
-    static inline void xmy( t_Value a, t_Value const * x, t_Value * y ) {
+    static inline void xmy( t_Value const * x, t_Value * y ) {
       y[0] -= x[0] ;
       XopY<t_Value,N-1,STEPX,STEPY>::xmy(x+STEPX,y+STEPY) ;
     }
@@ -211,11 +211,11 @@ namespace alglin {
   template <typename t_Value, int STEPX, int STEPY>
   class XopY<t_Value,0,STEPX,STEPY> {
   public:
-    static inline void xpy( t_Value a, t_Value const * x, t_Value * y ) {}
-    static inline void xmy( t_Value a, t_Value const * x, t_Value * y ) {}
-    static inline void axy( t_Value a, t_Value const * x, t_Value * y ) {}
-    static inline void axpy( t_Value a, t_Value const * x, t_Value * y ) {}
-    static inline void axpby( t_Value a, t_Value const * x, t_Value b, t_Value * y ) {}
+    static inline void xpy( t_Value const *, t_Value * ) {}
+    static inline void xmy( t_Value const *, t_Value * ) {}
+    static inline void axy( t_Value, t_Value const *, t_Value * ) {}
+    static inline void axpy( t_Value, t_Value const *, t_Value * ) {}
+    static inline void axpby( t_Value, t_Value const *, t_Value, t_Value *) {}
   } ;
   
   /*
@@ -237,7 +237,7 @@ namespace alglin {
   template <typename t_Value, int LDL>
   class LsolveUnit<t_Value,1,LDL> {
   public:
-    static inline void eval( t_Value const * L, t_Value * x ) {}
+    static inline void eval( t_Value const *, t_Value * ) {}
   } ;
 
   template <typename t_Value, int N, int LDL>
@@ -275,7 +275,7 @@ namespace alglin {
   template <typename t_Value, int LDU>
   class UsolveUnit<t_Value,1,LDU> {
   public:
-    static void eval( t_Value const * U, t_Value * x ) {}
+    static void eval( t_Value const *, t_Value * ) {}
   } ;
 
   template <typename t_Value, int N, int LDU>
@@ -328,11 +328,11 @@ namespace alglin {
   template <typename t_Value, int N, int LDM, int INCX, int INCR>
   class Mv<t_Value,0,N,LDM,INCX,INCR> {
   public:
-    static inline void ass( t_Value const * Mat, t_Value const * x, t_Value * res ) { }
-    static inline void addTo( t_Value const * Mat, t_Value const * x, t_Value * res ) { }
-    static inline void subTo( t_Value const * Mat, t_Value const * x, t_Value * res ) { }
-    static inline void aMxpby( t_Value a, t_Value const * Mat, t_Value const * x,
-                               t_Value b, t_Value * res ) { }
+    static inline void ass( t_Value const *, t_Value const *, t_Value * ) { }
+    static inline void addTo( t_Value const *, t_Value const *, t_Value * ) { }
+    static inline void subTo( t_Value const *, t_Value const *, t_Value * ) { }
+    static inline void aMxpby( t_Value, t_Value const *, t_Value const *,
+                               t_Value, t_Value * ) { }
   } ;
   
   /*
@@ -407,11 +407,11 @@ namespace alglin {
   template <typename t_Value, int M, int LDM, int INCX, int INCY>
   class Rank1<t_Value,M,0,LDM,INCX,INCY> {
   public:
-    static inline void ass( t_Value const * x, t_Value const * y, t_Value * Mat ) { }
-    static inline void addTo( t_Value const * x, t_Value const * y, t_Value * Mat ) { }
-    static inline void subTo( t_Value const * x, t_Value const * y, t_Value * Mat ) { }
-    static inline void auvpbM( t_Value a, t_Value const * x, t_Value const * y,
-                               t_Value b, t_Value * Mat ) { }
+    static inline void ass( t_Value const *, t_Value const *, t_Value * ) { }
+    static inline void addTo( t_Value const *, t_Value const *, t_Value * ) { }
+    static inline void subTo( t_Value const *, t_Value const *, t_Value * ) { }
+    static inline void auvpbM( t_Value, t_Value const *, t_Value const *,
+                               t_Value, t_Value * ) { }
   } ;
 
 

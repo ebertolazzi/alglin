@@ -55,10 +55,10 @@ namespace alglin {
   ColrowLU<t_Value>::ColrowLU( bool _use_arceco )
   : baseValue("ColrowLU reals")
   , baseIndex("ColrowLU ints")
-  , NB(25)
   //, last_block(ColrowLU_LU)
   //, last_block(ColrowLU_QR)
   , last_block(ColrowLU_SVD)
+  , NB(25)
   , use_arceco(_use_arceco)
   {
   }
@@ -163,12 +163,12 @@ namespace alglin {
 
     if ( use_arceco ) {
 
-      baseIndex.allocate( 3*(numBlock+2) + neq ) ;
-      baseValue.allocate( sizeBlock*numBlock + row0*col0 + rowN*colN ) ;
+      baseIndex.allocate(size_t(3*(numBlock+2) + neq)) ;
+      baseValue.allocate(size_t(sizeBlock*numBlock + row0*col0 + rowN*colN)) ;
 
-      matrixStructure = baseIndex( 3*(numBlock+2) ) ;
-      array           = baseValue( sizeBlock*numBlock + row0*col0 + rowN*colN ) ;
-      pivot           = baseIndex( neq ) ;
+      matrixStructure = baseIndex(size_t( 3*(numBlock+2) )) ;
+      array           = baseValue(size_t( sizeBlock*numBlock + row0*col0 + rowN*colN )) ;
+      pivot           = baseIndex(size_t( neq )) ;
 
       integer * mS = matrixStructure ;
       valuePointer      a = array ;
@@ -196,12 +196,12 @@ namespace alglin {
     } else {
 
       // allocate
-      baseIndex.allocate( numBlock*dimBlock+row0 ) ;
-      baseValue.allocate( sizeBlock*numBlock + row0*col0 + rowN*colN ) ;
-      block0      = baseValue( row0*col0 ) ;
-      blocks      = baseValue( sizeBlock * numBlock ) ;
-      blockN      = baseValue( rowN*colN ) ;
-      swapRC_blks = baseIndex( numBlock*dimBlock+row0 ) ;
+      baseIndex.allocate(size_t( numBlock*dimBlock+row0 )) ;
+      baseValue.allocate(size_t( sizeBlock*numBlock + row0*col0 + rowN*colN )) ;
+      block0      = baseValue(size_t( row0*col0 )) ;
+      blocks      = baseValue(size_t( sizeBlock * numBlock )) ;
+      blockN      = baseValue(size_t( rowN*colN )) ;
+      swapRC_blks = baseIndex(size_t( numBlock*dimBlock+row0 )) ;
 
       // copy block
       copy( row0*col0,          _block0, 1, block0, 1 ) ;
@@ -231,12 +231,16 @@ namespace alglin {
     col0     = _col0 ;
     rowN     = _rowN ;
     colN     = _colN ;
+    
+    block0   = _block0 ;
+    blocks   = _blocks ;
+    blockN   = _blockN ;
 
     setup() ;
 
-    baseIndex.allocate( numBlock*dimBlock+row0 ) ;
-    baseValue.allocate( sizeBlock*numBlock + row0*col0 + rowN*colN ) ;
-    swapRC_blks = baseIndex( numBlock*dimBlock+row0 ) ;
+    baseIndex.allocate(size_t( numBlock*dimBlock+row0 )) ;
+    baseValue.allocate(size_t( sizeBlock*numBlock + row0*col0 + rowN*colN )) ;
+    swapRC_blks = baseIndex(size_t( numBlock*dimBlock+row0 )) ;
 
     factorize() ;
   }

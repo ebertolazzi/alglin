@@ -51,18 +51,18 @@ main() {
   alglin::Malloc<valueType>       baseValue("real") ;
   alglin::Malloc<alglin::integer> baseIndex("integer") ;
 
-  baseValue.allocate(nnz) ;
-  baseIndex.allocate(N) ;
+  baseValue.allocate(size_t(nnz)) ;
+  baseIndex.allocate(size_t(N)) ;
 
-  valueType * AdAu  = baseValue(2*n*n*nblk) ;
-  valueType * H0    = baseValue(nq*n) ;
-  valueType * HN    = baseValue(nq*n) ;
-  valueType * Hq    = baseValue(nq*q) ;
-  valueType * x     = baseValue(N) ;
-  valueType * xref  = baseValue(N) ;
-  valueType * xref1 = baseValue(N) ;
-  valueType * rhs   = baseValue(N) ;
-  valueType * resid = baseValue(N) ;
+  valueType * AdAu  = baseValue(size_t(2*n*n*nblk)) ;
+  valueType * H0    = baseValue(size_t(nq*n)) ;
+  valueType * HN    = baseValue(size_t(nq*n)) ;
+  valueType * Hq    = baseValue(size_t(nq*q)) ;
+  valueType * x     = baseValue(size_t(N)) ;
+  valueType * xref  = baseValue(size_t(N)) ;
+  valueType * xref1 = baseValue(size_t(N)) ;
+  valueType * rhs   = baseValue(size_t(N)) ;
+  valueType * resid = baseValue(size_t(N)) ;
 
   for ( int i = 0 ; i < nq ; ++i ) {
     for ( int j = 0 ; j < n ; ++j ) {

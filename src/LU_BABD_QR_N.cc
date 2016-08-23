@@ -588,7 +588,7 @@ namespace alglin {
     #endif
 
   }
-  /*
+
   template class BabdQR_N<double,2> ;
   template class BabdQR_N<double,3> ;
   template class BabdQR_N<double,4> ;
@@ -597,7 +597,6 @@ namespace alglin {
   template class BabdQR_N<double,7> ;
   template class BabdQR_N<double,8> ;
   template class BabdQR_N<double,9> ;
-  */
   template class BabdQR_N<double,10> ;
   /*
   template class BabdQR_N<double,11> ;
@@ -608,5 +607,4 @@ namespace alglin {
   template class BabdQR_N<double,16> ;
   */
   //template class BabdQR_N<float> ;
-
 }

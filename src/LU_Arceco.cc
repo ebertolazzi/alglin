@@ -40,7 +40,7 @@ namespace alglin {
   void
   ArcecoLU<t_Value>::load( integer      numInitialBc,
                            integer      numFinalBc,
-                           integer      numInitialETA,
+                           integer      _numInitialETA,
                            integer      numFinalETA,
                            integer      numBlock,
                            valuePointer AdAu,
@@ -48,7 +48,7 @@ namespace alglin {
                            valuePointer HN,
                            valuePointer Hq ) {
 
-    this -> numInitialETA = numInitialETA ;
+    numInitialETA = _numInitialETA ;
 
     integer nq = numInitialBc + numFinalBc ;
     integer q  = numInitialETA + numFinalETA ;

@@ -401,7 +401,7 @@ namespace alglin {
   #if defined(ALGLIN_USE_OPENBLAS)
   { return LAPACK_NAME(slamch)( const_cast<character*>(WHAT) ) ; }
   #elif defined(ALGLIN_USE_ACCELERATE)
-  { return CLAPACKNAME(slamch)( const_cast<character*>(WHAT) ) ; }
+  { return real(CLAPACKNAME(slamch)( const_cast<character*>(WHAT) )) ; }
   #else
   { return LAPACKNAME(slamch)( const_cast<character*>(WHAT) ) ; }
   #endif
@@ -1245,7 +1245,7 @@ namespace alglin {
   #if defined(ALGLIN_USE_OPENBLAS)
   { return LAPACK_NAME(slapy2)( &x, &y ) ; }
   #elif defined(ALGLIN_USE_ACCELERATE)
-  { return CLAPACKNAME(slapy2)( &x, &y ) ; }
+  { return real(CLAPACKNAME(slapy2)( &x, &y )) ; }
   #else
   { return LAPACKNAME(slapy2)( &x, &y ) ; }
   #endif
@@ -5448,8 +5448,8 @@ namespace alglin {
   #elif defined(ALGLIN_USE_OPENBLAS)
   { return LAPACK_NAME(slange)( const_cast<character*>("1"), &N, &M, A, &LDA, nullptr ) ; }
   #elif defined(ALGLIN_USE_ACCELERATE)
-  { return CLAPACKNAME(slange)( const_cast<character*>("1"), &N, &M,
-                                const_cast<real*>(A), &LDA, nullptr ) ; }
+  { return real(CLAPACKNAME(slange)( const_cast<character*>("1"), &N, &M,
+                                     const_cast<real*>(A), &LDA, nullptr ) ) ; }
   #else
   { return LAPACKNAME(slange)( const_cast<character*>("1"), &N, &M, A, &LDA, nullptr ) ; }
   #endif
@@ -5518,8 +5518,8 @@ namespace alglin {
           real const A[],
           integer    LDA )
   #if defined(ALGLIN_USE_ACCELERATE)
-  { return CLAPACKNAME(slange)( const_cast<character*>("M"), &N, &M,
-                                const_cast<real*>(A), &LDA, nullptr ) ; }
+  { return real(CLAPACKNAME(slange)( const_cast<character*>("M"), &N, &M,
+                                     const_cast<real*>(A), &LDA, nullptr )) ; }
   #elif defined(ALGLIN_USE_OPENBLAS)
   { return LAPACK_NAME(slange)( const_cast<character*>("M"), &N, &M, A, &LDA, nullptr ) ; }
   #else

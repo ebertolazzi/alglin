@@ -165,12 +165,12 @@ namespace alglin {
     integer
     factorize( integer N, valueType const A[], integer LDA ) {
       nRC = N ;
-      allocReals.allocate(nRC*nRC+4*nRC) ;
-      allocIntegers.allocate(2*nRC) ;
-      this -> Amat    = allocReals(nRC*nRC) ;
-      this -> Work    = allocReals(4*nRC) ;
-      this -> i_pivot = allocIntegers(nRC) ;
-      this -> Iwork   = allocIntegers(nRC) ;
+      allocReals.allocate(size_t(nRC*nRC+4*nRC)) ;
+      allocIntegers.allocate(size_t(2*nRC)) ;
+      this -> Amat    = allocReals(size_t(nRC*nRC)) ;
+      this -> Work    = allocReals(size_t(4*nRC)) ;
+      this -> i_pivot = allocIntegers(size_t(nRC)) ;
+      this -> Iwork   = allocIntegers(size_t(nRC)) ;
       integer info = gecopy( nRC, nRC, A, LDA, Amat, nRC ) ;
       ALGLIN_ASSERT( info == 0, "LU::factorize gecopy INFO = " << info ) ;
       info = getrf( nRC, nRC, Amat, nRC, i_pivot ) ;
@@ -409,23 +409,23 @@ namespace alglin {
 
     void
     factorize( integer         N,
-               valueType const L[],
-               valueType const D[],
-               valueType const U[] ) {
+               valueType const _L[],
+               valueType const _D[],
+               valueType const _U[] ) {
       this -> nRC = N ;
       allocReals.allocate(6*N) ;
       allocIntegers.allocate(2*N) ;
-      this -> L     = allocReals(N) ;
-      this -> D     = allocReals(N) ;
-      this -> U     = allocReals(N) ;
-      this -> U2    = allocReals(N) ;
-      this -> WORK  = allocReals(2*N) ;
-      this -> IPIV  = allocIntegers(N) ;
-      this -> IWORK = allocIntegers(N) ;
-      copy( N, L, 1, this->L, 1 ) ;
-      copy( N, D, 1, this->D, 1 ) ;
-      copy( N, U, 1, this->U, 1 ) ;
-      integer info = gttrf( N, this->L, this->D, this->U, this->U2, IPIV ) ;
+      L     = allocReals(N) ;
+      D     = allocReals(N) ;
+      U     = allocReals(N) ;
+      U2    = allocReals(N) ;
+      WORK  = allocReals(2*N) ;
+      IPIV  = allocIntegers(N) ;
+      IWORK = allocIntegers(N) ;
+      copy( N, _L, 1, L, 1 ) ;
+      copy( N, _D, 1, D, 1 ) ;
+      copy( N, _U, 1, U, 1 ) ;
+      integer info = gttrf( N, L, D, U, U2, IPIV ) ;
       ALGLIN_ASSERT( info == 0, "Tridiagonal::factorize, return info = " << info ) ;
     }
 
@@ -467,14 +467,14 @@ namespace alglin {
   
   private:
 
-    integer     nRC ;
     valueType * C   ; // rotazioni givens
     valueType * S   ;
     valueType * BD  ; // band triangular matrix
     valueType * BU  ; // band triangular matrix
     valueType * BU2 ; // band triangular matrix
-    
+
     valueType   normInfA ;
+    integer     nRC ;
   
     Malloc<valueType> allocReals ;
 

@@ -334,8 +334,8 @@ namespace alglin {
     nm     = n+m ;
 
     integer nnzADAU = nblock*nxnx2 ;
-    baseValue.allocate(nnzADAU) ;
-    AdAu_blk = baseValue(nnzADAU) ;
+    baseValue.allocate(size_t(nnzADAU)) ;
+    AdAu_blk = baseValue(size_t(nnzADAU)) ;
 
     v1_n    . resize(n) ;
     v2_n    . resize(n) ;

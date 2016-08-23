@@ -56,9 +56,9 @@ main() {
   valueType * M2 = baseValue(N*N) ;
   valueType * M3 = baseValue(N*N) ;
   
-  typedef Eigen::Matrix<valueType,N,1> vec_t ;
+  //typedef Eigen::Matrix<valueType,N,1> vec_t ;
   typedef Eigen::Matrix<valueType,N,N> mat_t ;
-  typedef Eigen::Matrix<valueType,Eigen::Dynamic,1>              dvec_t ;
+  //typedef Eigen::Matrix<valueType,Eigen::Dynamic,1>              dvec_t ;
   typedef Eigen::Matrix<valueType,Eigen::Dynamic,Eigen::Dynamic> dmat_t ;
   
   mat_t m1, m2, m3 ;
@@ -81,8 +81,7 @@ main() {
 
   tm.tic() ;
   for ( int i = 0 ; i < N_TIMES ; ++i ) {
-    gemm( Transposition::NO_TRANSPOSE,
-          Transposition::NO_TRANSPOSE,
+    gemm( NO_TRANSPOSE, NO_TRANSPOSE,
           N, N, N,
           -1.0, M1, N,
           M2, N,

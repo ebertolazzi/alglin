@@ -32,15 +32,15 @@ namespace alglin {
   */
   template <typename t_Value>
   void
-  Arceco<t_Value>::loadByRef ( integer      numberOfBlocks,
-                               integer *    matrixStructure,
-                               valuePointer array,
-                               integer *    pivot ) {
+  Arceco<t_Value>::loadByRef ( integer      _numberOfBlocks,
+                               integer *    _matrixStructure,
+                               valuePointer _array,
+                               integer *    _pivot ) {
 
-    this -> numberOfBlocks  = numberOfBlocks  ;
-    this -> matrixStructure = matrixStructure ;
-    this -> array           = array           ;
-    this -> pivot           = pivot           ;
+    numberOfBlocks  = _numberOfBlocks  ;
+    matrixStructure = _matrixStructure ;
+    array           = _array           ;
+    pivot           = _pivot           ;
   }
 
   /*  

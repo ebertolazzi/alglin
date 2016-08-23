@@ -511,17 +511,17 @@ namespace alglin {
     integer nv = nnzG + nnzADAU + nnzLU + nm ;
     integer ni = nblock*n + nm ;
 
-    baseValue   . allocate(nv) ;
-    baseInteger . allocate(ni) ;
+    baseValue   . allocate(size_t(nv)) ;
+    baseInteger . allocate(size_t(ni)) ;
 
-    AdAu_blk = baseValue( nnzADAU ) ;
-    G_blk    = baseValue( nnzG ) - nxn ; // 1 based
-    LU_blk   = baseValue( nnzLU ) ;
+    AdAu_blk = baseValue(size_t( nnzADAU )) ;
+    G_blk    = baseValue(size_t( nnzG )) - nxn ; // 1 based
+    LU_blk   = baseValue(size_t( nnzLU )) ;
     tmpM     = LU_blk ;
-    tmpV     = baseValue( nm ) ;
+    tmpV     = baseValue(size_t( nm )) ;
 
-    ipiv_blk    = baseInteger( nblock*n ) ;
-    LU_ipiv_blk = baseInteger( nm ) ;
+    ipiv_blk    = baseInteger(size_t( nblock*n )) ;
+    LU_ipiv_blk = baseInteger(size_t( nm )) ;
 
     LU_rows_blk.resize( nblock ) ;
     for ( integer i = 0 ; i < nblock ; ++i )

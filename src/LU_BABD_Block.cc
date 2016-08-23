@@ -52,14 +52,14 @@ namespace alglin {
 
     nnz = nnzAdH + nnzAu + nnzFF + nnzDD ;
 
-    baseValue   . allocate( nnz ) ;
-    baseInteger . allocate( N   ) ;
+    baseValue   . allocate(size_t( nnz )) ;
+    baseInteger . allocate(size_t( N   )) ;
 
-    AdH_blk  = baseValue( nnzAdH ) ;
-    Au_blk   = baseValue( nnzAu  ) ;
-    FF_blk   = baseValue( nnzFF  ) ;
-    DD_blk   = baseValue( nnzDD  ) ;
-    ipiv_blk = baseInteger( N ) ;
+    AdH_blk  = baseValue(size_t( nnzAdH )) ;
+    Au_blk   = baseValue(size_t( nnzAu  )) ;
+    FF_blk   = baseValue(size_t( nnzFF  )) ;
+    DD_blk   = baseValue(size_t( nnzDD  )) ;
+    ipiv_blk = baseInteger(size_t( N )) ;
 
     // Initialize structures
     zero( nnz, AdH_blk, 1 ) ;
