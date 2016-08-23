@@ -38,15 +38,15 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  ArcecoLU<t_Value>::load( integer      numInitialBc,
-                           integer      numFinalBc,
-                           integer      _numInitialETA,
-                           integer      numFinalETA,
-                           integer      numBlock,
-                           valuePointer AdAu,
-                           valuePointer H0,
-                           valuePointer HN,
-                           valuePointer Hq ) {
+  ArcecoLU<t_Value>::factorize( integer      numInitialBc,
+                                integer      numFinalBc,
+                                integer      _numInitialETA,
+                                integer      numFinalETA,
+                                integer      numBlock,
+                                valuePointer AdAu,
+                                valuePointer H0,
+                                valuePointer HN,
+                                valuePointer Hq ) {
 
     numInitialETA = _numInitialETA ;
 
