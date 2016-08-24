@@ -17,7 +17,7 @@
  |                                                                          |
 \*--------------------------------------------------------------------------*/
 
-#include "LU_BABD_AmodioN.hh"
+#include "BABD_AmodioN.hh"
 #include "Alglin_tmpl.hh"
 #include <iostream>
 #include <algorithm>
@@ -131,22 +131,22 @@ namespace alglin {
 
   using namespace std ;
 
-  #ifdef LU_BABD_AMODIO_N_USE_THREAD
+  #ifdef BABD_AMODIO_N_USE_THREAD
   template <typename t_Value, integer n>
   AmodioN<t_Value,n>::AmodioN( integer nth )
-  : baseValue("AmodioLU_value")
-  , baseInteger("AmodioLU_index")
+  : baseValue("AmodioN_values")
+  , baseInteger("AmodioN_integers")
   , numThread(nth)
   {
-    ALGLIN_ASSERT( numThread > 0 && numThread <= LU_BABD_AMODIO_MAX_THREAD,
+    ALGLIN_ASSERT( numThread > 0 && numThread <= BABD_AMODIO_MAX_THREAD,
                    "Bad number of thread specification [" << numThread << "]\n"
-                   "must be a number > 0 and <= " << LU_BABD_AMODIO_MAX_THREAD ) ;
+                   "must be a number > 0 and <= " << BABD_AMODIO_MAX_THREAD ) ;
   }
   #else
   template <typename t_Value, integer n>
   AmodioN<t_Value,n>::AmodioN()
-  : baseValue("AmodioLU_value")
-  , baseInteger("AmodioLU_index")
+  : baseValue("AmodioN_values")
+  , baseInteger("AmodioN_integers")
   { }
   #endif
 
@@ -362,7 +362,7 @@ namespace alglin {
     }
   }
 
-  #ifdef LU_BABD_AMODIO_N_USE_THREAD
+  #ifdef BABD_AMODIO_N_USE_THREAD
   template <typename t_Value, integer n>
   void
   AmodioN<t_Value,n>::reduction_mt( integer nth ) {
@@ -490,7 +490,7 @@ namespace alglin {
     integer nnzG    = (nblock-1)*nxn ;
     integer nnzADAU = nblock*nxnx2 ;
 
-    #ifdef LU_BABD_AMODIO_N_USE_THREAD
+    #ifdef BABD_AMODIO_N_USE_THREAD
     integer nnzLU = numThread*nxnx2 ;
     if ( nnzLU < nm*nm ) nnzLU = nm*nm ;
     #else
@@ -524,13 +524,13 @@ namespace alglin {
      | !!!!!!!!!!!!!!!!!!!!!!!!!
     \*/
 
-    #ifdef LU_BABD_AMODIO_N_USE_THREAD
+    #ifdef BABD_AMODIO_N_USE_THREAD
     usedThread        = numThread ;
     jump_block_max_mt = nblock>>(usedThread-1) ;
     #endif
 
     jump_block = 1 ;
-    #ifdef LU_BABD_AMODIO_N_USE_THREAD
+    #ifdef BABD_AMODIO_N_USE_THREAD
     // esegue un numero di livelli in parallelo
     to_be_done = usedThread ;
     for ( integer nt = 0 ; nt < usedThread ; ++nt )
@@ -610,7 +610,7 @@ namespace alglin {
     }
   }
 
-  #ifdef LU_BABD_AMODIO_N_USE_THREAD
+  #ifdef BABD_AMODIO_N_USE_THREAD
   template <typename t_Value, integer n>
   void
   AmodioN<t_Value,n>::forward_reduce_mt( integer nth ) const {
@@ -704,7 +704,7 @@ namespace alglin {
     }
   }
 
-  #ifdef LU_BABD_AMODIO_N_USE_THREAD
+  #ifdef BABD_AMODIO_N_USE_THREAD
 
   template <typename t_Value, integer n>
   void
@@ -768,7 +768,7 @@ namespace alglin {
   void
   AmodioN<t_Value,n>::solve( valuePointer y ) const {
 
-    #ifdef LU_BABD_AMODIO_N_USE_THREAD
+    #ifdef BABD_AMODIO_N_USE_THREAD
     usedThread        = numThread ;
     jump_block_max_mt = nblock>>(usedThread-1) ;
     y_thread          = y ;
@@ -780,7 +780,7 @@ namespace alglin {
      | !!!!!!!!!!!!!!!!!!!!!!!!!
     \*/
     jump_block = 1 ;
-    #ifdef LU_BABD_AMODIO_N_USE_THREAD
+    #ifdef BABD_AMODIO_N_USE_THREAD
     if ( usedThread > 0 ) {
       to_be_done = usedThread ;
       for ( integer nt = 0 ; nt < usedThread ; ++nt )
@@ -811,7 +811,7 @@ namespace alglin {
      | !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     \*/
     jump_block /= 2 ;
-    #ifdef LU_BABD_AMODIO_N_USE_THREAD
+    #ifdef BABD_AMODIO_N_USE_THREAD
     if ( usedThread > 0 ) {
       back_substitute( y, jump_block_max_mt ) ;
       to_be_done = usedThread ;

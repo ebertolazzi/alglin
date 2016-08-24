@@ -32,15 +32,15 @@
 #endif
 
 #ifdef ALGLIN_USE_CXX11
-  //#define LU_BABD_QR_USE_THREAD
+  //#define BABD_QR_USE_THREAD
 #endif
 
-#ifdef LU_BABD_QR_USE_THREAD
+#ifdef BABD_QR_USE_THREAD
   #include <thread>
   #include <mutex>
   #include <condition_variable>
   #include <atomic>
-  #define LU_BABD_QR_MAX_THREAD 256
+  #define BABD_QR_MAX_THREAD 256
 #endif
 
 namespace alglin {
@@ -144,10 +144,10 @@ namespace alglin {
 
     mutable matType M1_2n_n, M2_2n_n ;
 
-    #ifdef LU_BABD_QR_USE_THREAD
+    #ifdef BABD_QR_USE_THREAD
     mutable mutex              mtx0, mtx1, mtx2 ;
     mutable condition_variable cond0 ;
-    mutable std::thread        threads[LU_BABD_QR_MAX_THREAD] ;
+    mutable std::thread        threads[BABD_QR_MAX_THREAD] ;
     mutable integer            to_be_done ;
             integer const      numThread ;
     mutable integer            usedThread ;
@@ -157,7 +157,7 @@ namespace alglin {
 
     mutable integer jump_block ;
 
-    #ifdef LU_BABD_QR_USE_THREAD
+    #ifdef BABD_QR_USE_THREAD
     void forward_reduce_mt( integer nth ) const ;
     void back_substitute_mt( integer nth ) const ;
     void reduction_mt( integer nth ) ;
@@ -169,7 +169,7 @@ namespace alglin {
 
   public:
 
-    #ifdef LU_BABD_QR_USE_THREAD
+    #ifdef BABD_QR_USE_THREAD
     explicit BabdQR( integer nth = std::thread::hardware_concurrency() ) ;
     #else
     explicit BabdQR() ;

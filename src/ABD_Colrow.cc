@@ -18,10 +18,10 @@
 \*--------------------------------------------------------------------------*/
 
 ///
-/// file: LU_ABD_Colrow.cc
+/// file: ABD_Colrow.cc
 ///
 
-#include "LU_ABD_Colrow.hh"
+#include "ABD_Colrow.hh"
 #include <iomanip>
 #include <vector>
 #include <limits>
@@ -52,14 +52,13 @@ namespace alglin {
   template <> double const ColrowLU<double>::epsi = 1000*std::numeric_limits<double>::epsilon() ;
 
   template <typename t_Value>
-  ColrowLU<t_Value>::ColrowLU( bool _use_arceco )
-  : baseValue("ColrowLU reals")
-  , baseIndex("ColrowLU ints")
-  //, last_block(ColrowLU_LU)
-  //, last_block(ColrowLU_QR)
-  , last_block(ColrowLU_SVD)
+  ColrowLU<t_Value>::ColrowLU()
+  : baseValue("ColrowLU_values")
+  , baseIndex("ColrowLU_integers")
+  , last_block(COLROW_LASTBLOCK_LU)
+  //, last_block(COLROW_LASTBLOCK_QR)
+  //, last_block(COLROW_LASTBLOCK_SVD)
   , NB(25)
-  , use_arceco(_use_arceco)
   {
   }
   
@@ -143,15 +142,21 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  ColrowLU<t_Value>::factorize( integer           _row0,
+  ColrowLU<t_Value>::factorize( COLROW_LASTBLOCK_Choice choice,
+                                // ----------------------------
+                                integer           _row0,
                                 integer           _col0,
                                 valueConstPointer _block0,
+                                // ----------------------------
                                 integer           _numBlock,
                                 integer           _dimBlock,
                                 valueConstPointer _blocks,
+                                // ----------------------------
                                 integer           _rowN,
                                 integer           _colN,
                                 valueConstPointer _blockN ) {
+    last_block = choice ;
+
     numBlock = _numBlock ;
     dimBlock = _dimBlock ;
     row0     = _row0 ;
@@ -161,70 +166,41 @@ namespace alglin {
 
     setup() ;
 
-    if ( use_arceco ) {
+    // allocate
+    baseIndex.allocate(size_t( numBlock*dimBlock+row0 )) ;
+    baseValue.allocate(size_t( sizeBlock*numBlock + row0*col0 + rowN*colN )) ;
+    block0      = baseValue(size_t( row0*col0 )) ;
+    blocks      = baseValue(size_t( sizeBlock * numBlock )) ;
+    blockN      = baseValue(size_t( rowN*colN )) ;
+    swapRC_blks = baseIndex(size_t( numBlock*dimBlock+row0 )) ;
 
-      baseIndex.allocate(size_t(3*(numBlock+2) + neq)) ;
-      baseValue.allocate(size_t(sizeBlock*numBlock + row0*col0 + rowN*colN)) ;
+    // copy block
+    copy( row0*col0,          _block0, 1, block0, 1 ) ;
+    copy( sizeBlock*numBlock, _blocks, 1, blocks, 1 ) ;
+    copy( rowN*colN,          _blockN, 1, blockN, 1 ) ;
 
-      matrixStructure = baseIndex(size_t( 3*(numBlock+2) )) ;
-      array           = baseValue(size_t( sizeBlock*numBlock + row0*col0 + rowN*colN )) ;
-      pivot           = baseIndex(size_t( neq )) ;
-
-      integer * mS = matrixStructure ;
-      valuePointer      a = array ;
-      valueConstPointer b = _blocks ;
-      *mS++ = row0 ;
-      *mS++ = col0 ;
-      *mS++ = dimBlock ;
-      std::copy( _block0, _block0 + row0*col0, a ) ; a += row0*col0 ;
-      for ( integer nb = 0 ; nb < numBlock ; ++nb ) {
-        *mS++ = dimBlock ;
-        *mS++ = 2*dimBlock ;
-        *mS++ = dimBlock ;
-        std::copy( b, b+sizeBlock, a ) ;
-        a += sizeBlock ;
-        b += sizeBlock ;
-      }
-      *mS++ = rowN ;
-      *mS++ = colN ;
-      *mS++ = 0 ;
-      std::copy( _blockN, _blockN+rowN*colN, a ) ;
-
-      LU_arceco.loadByRef( numBlock+2, matrixStructure, array, pivot ) ;
-      LU_arceco.factorize() ;
-
-    } else {
-
-      // allocate
-      baseIndex.allocate(size_t( numBlock*dimBlock+row0 )) ;
-      baseValue.allocate(size_t( sizeBlock*numBlock + row0*col0 + rowN*colN )) ;
-      block0      = baseValue(size_t( row0*col0 )) ;
-      blocks      = baseValue(size_t( sizeBlock * numBlock )) ;
-      blockN      = baseValue(size_t( rowN*colN )) ;
-      swapRC_blks = baseIndex(size_t( numBlock*dimBlock+row0 )) ;
-
-      // copy block
-      copy( row0*col0,          _block0, 1, block0, 1 ) ;
-      copy( sizeBlock*numBlock, _blocks, 1, blocks, 1 ) ;
-      copy( rowN*colN,          _blockN, 1, blockN, 1 ) ;
-
-      factorize() ;
-    }
+    factorize() ;
   }
 
   // ---------------------------------------------------------------------------
 
   template <typename t_Value>
   void
-  ColrowLU<t_Value>::factorize_inplace(  integer      _row0,
-                                         integer      _col0,
-                                         valuePointer _block0,
-                                         integer      _numBlock,
-                                         integer      _dimBlock,
-                                         valuePointer _blocks,
-                                         integer      _rowN,
-                                         integer      _colN,
-                                         valuePointer _blockN ) {
+  ColrowLU<t_Value>::factorize_inplace( COLROW_LASTBLOCK_Choice choice,
+                                        // ----------------------------
+                                        integer      _row0,
+                                        integer      _col0,
+                                        valuePointer _block0,
+                                        // ----------------------------
+                                        integer      _numBlock,
+                                        integer      _dimBlock,
+                                        valuePointer _blocks,
+                                        // ----------------------------
+                                        integer      _rowN,
+                                        integer      _colN,
+                                        valuePointer _blockN ) {
+    last_block = choice ;
+
     numBlock = _numBlock ;
     dimBlock = _dimBlock ;
     row0     = _row0 ;
@@ -243,95 +219,6 @@ namespace alglin {
     swapRC_blks = baseIndex(size_t( numBlock*dimBlock+row0 )) ;
 
     factorize() ;
-  }
-
-  template <typename t_Value>
-  void
-  ColrowLU<t_Value>::factorize( integer      numInitialBc,
-                                integer      numFinalBc,
-                                integer      numInitialETA,
-                                integer      numFinalETA,
-                                integer      _numBlock,
-                                valuePointer AdAu,
-                                valuePointer H0,
-                                valuePointer HN,
-                                valuePointer Hq ) {
-
-    integer nq = numInitialBc + numFinalBc ;
-    integer q  = numInitialETA + numFinalETA ;
-
-    numBlock = _numBlock + 2 ;
-    dimBlock = nq - q ;
-    row0     = numInitialBc ;
-    col0     = dimBlock + numInitialETA ;
-    rowN     = numFinalBc ;
-    colN     = dimBlock + numFinalETA ;
-
-    setup() ;
-
-    // allocate
-    baseIndex.allocate(size_t( numBlock*dimBlock+row0 )) ;
-    baseValue.allocate(size_t( sizeBlock*numBlock + row0*col0 + rowN*colN )) ;
-    block0      = baseValue(size_t( row0*col0 )) ;
-    blocks      = baseValue(size_t( sizeBlock * numBlock )) ;
-    blockN      = baseValue(size_t( rowN*colN )) ;
-    swapRC_blks = baseIndex(size_t( numBlock*dimBlock+row0 )) ;
-
-    /*
-    //  +                     +
-    //  |  Ad Au              |
-    //  |     Ad Au           |
-    //  |          ...        |
-    //  |            Ad Au    |
-    //  |  H0           HN Hq |
-    //  +                     +
-    //
-    //  H0 = nq x n
-    //  HN = nq x n
-    //  Hq = nq x q
-    //
-    //       +-------+       +-------+       +---+
-    //       |  0    |       |  NZ   |       |y|0|
-    //  H0 = +-------+  HN = +-------+  Hq = +---+
-    //       |  NZ   |       |  0    |       |0|x|
-    //       |  NZ   |       |       |       |0|x|
-    //       +-------+       +-------+       +---+
-    //
-    //  Primo blocco per ARCECO (numInitialBc) x (n+numInitialETA) 
-    //
-    //  +-+-------+
-    //  |x|  NZ   |
-    //  |x|  NZ   |
-    //  +-+-------+
-    //
-    //  Ultimo blocco per ARCECO (numFinalBc) x (n+numFinalETA) 
-    //
-    //  +-------+-+
-    //  |  NZ   |y|
-    //  +-------+-+
-    //
-    */
-    
-    #define IDX0(I,J) ((I)+(J)*row0)
-    #define IDXN(I,J) ((I)+(J)*rowN)
-    
-    std::fill( block0, block0 + row0 * col0, 0 ) ;
-    std::fill( blockN, blockN + rowN * colN, 0 ) ;
-    
-    //  +-+-------+
-    //  |x|  NZ   |
-    //  |x|  NZ   |
-    //  +-+-------+
-    alglin::gecopy( row0, numInitialETA, Hq+rowN+numFinalETA*nq, nq, block0 + IDX0(0,0),             row0 ) ;
-    alglin::gecopy( row0, dimBlock,      H0+rowN,                nq, block0 + IDX0(0,numInitialETA), row0 ) ;
-
-    //  +-------+-+
-    //  |  NZ   |y|
-    //  +-------+-+
-    alglin::gecopy( rowN, dimBlock,    HN, nq, blockN + IDXN(0,0),        rowN ) ;
-    alglin::gecopy( rowN, numFinalETA, Hq, nq, blockN + IDXN(0,dimBlock), rowN ) ;
-    factorize() ;
-
   }
 
   /*
@@ -614,9 +501,9 @@ namespace alglin {
     // fattorizzazione ultimo blocco
     valuePointer D0 = blockN + row00 * rowN;
     switch ( last_block ) {
-      case ColrowLU_QR:  la_qr.factorize(rowN,rowN,D0,rowN)    ; break ;
-      case ColrowLU_LU:  la_lu.factorize(rowN,D0,rowN)         ; break ;
-      case ColrowLU_SVD: la_svd.factorize(rowN,rowN,D0,rowN,0) ; break ;
+      case COLROW_LASTBLOCK_LU:  la_lu.factorize(rowN,D0,rowN)         ; break ;
+      case COLROW_LASTBLOCK_QR:  la_qr.factorize(rowN,rowN,D0,rowN)    ; break ;
+      case COLROW_LASTBLOCK_SVD: la_svd.factorize(rowN,rowN,D0,rowN,0) ; break ;
     }
   }
 
@@ -625,11 +512,6 @@ namespace alglin {
   template <typename t_Value>
   void
   ColrowLU<t_Value>::solve( valuePointer in_out ) const {
-
-    if ( use_arceco ) {
-      LU_arceco.solve(in_out) ;
-      return ;
-    }
 
     // applico permutazione alla RHS
     integer const * swapR = swapRC_blks ;
@@ -695,10 +577,11 @@ namespace alglin {
           -1, blockN, rowN,
           io-ncol, 1,
           1, io, 1 ) ;
+
     switch ( last_block ) {
-      case ColrowLU_LU:  la_lu.solve(io)     ; break ;
-      case ColrowLU_QR:  la_qr.solve(io,io)  ; break ;
-      case ColrowLU_SVD: la_svd.solve(io,io) ; break ;
+      case COLROW_LASTBLOCK_LU:  la_lu.solve(io)     ; break ;
+      case COLROW_LASTBLOCK_QR:  la_qr.solve(io,io)  ; break ;
+      case COLROW_LASTBLOCK_SVD: la_svd.solve(io,io) ; break ;
     }
 
     while ( nblk > 0 ) {

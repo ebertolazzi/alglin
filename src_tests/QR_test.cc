@@ -24,7 +24,7 @@
 #include "Alglin++.hh"
 #include "Alglin_aux.hh"
 #include "TicToc.hh"
-#include "LU_BABD_QR.hh"
+#include "BABD_QR.hh"
 
 using namespace std ;
 typedef double valueType ;

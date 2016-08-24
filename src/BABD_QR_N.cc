@@ -18,7 +18,7 @@
 \*--------------------------------------------------------------------------*/
 
 #include "Alglin_tmpl.hh"
-#include "LU_BABD_QR_N.hh"
+#include "BABD_QR_N.hh"
 #include <iostream>
 
 /*\
@@ -87,14 +87,14 @@ namespace alglin {
 
   using namespace std ;
 
-  #ifdef LU_BABD_QR_N_USE_THREAD
+  #ifdef BABD_QR_N_USE_THREAD
   template <typename t_Value, integer n>
   BabdQR_N<t_Value,n>::BabdQR_N( integer nth )
   : numThread(nth)
   {
-    ALGLIN_ASSERT( numThread > 0 && numThread <= LU_BABD_QR_N_MAX_THREAD,
+    ALGLIN_ASSERT( numThread > 0 && numThread <= BABD_QR_N_MAX_THREAD,
                    "Bad number of thread specification [" << numThread << "]\n"
-                   "must be a number > 0 and <= " << LU_BABD_QR_N_MAX_THREAD ) ;
+                   "must be a number > 0 and <= " << BABD_QR_N_MAX_THREAD ) ;
   }
   #else
   template <typename t_Value, integer n>
@@ -198,7 +198,7 @@ namespace alglin {
     }
   }
 
-  #ifdef LU_BABD_QR_N_USE_THREAD
+  #ifdef BABD_QR_N_USE_THREAD
   template <typename t_Value, integer n>
   void
   BabdQR_N<t_Value,n>::reduction_mt( integer nth ) {
@@ -299,13 +299,13 @@ namespace alglin {
      | !!!!!!!!!!!!!!!!!!!!!!!!!
     \*/
 
-    #ifdef LU_BABD_QR_N_USE_THREAD
+    #ifdef BABD_QR_N_USE_THREAD
     usedThread        = numThread ;
     jump_block_max_mt = nblock>>(usedThread-1) ;
     #endif
 
     jump_block = 1 ;
-    #ifdef LU_BABD_QR_N_USE_THREAD
+    #ifdef BABD_QR_N_USE_THREAD
     to_be_done = usedThread ;
     for ( integer nt = 0 ; nt < usedThread ; ++nt )
       threads[nt] = std::thread( &BabdQR_N<t_Value,n>::reduction_mt, this, nt ) ;
@@ -373,7 +373,7 @@ namespace alglin {
     }
   }
 
-  #ifdef LU_BABD_QR_N_USE_THREAD
+  #ifdef BABD_QR_N_USE_THREAD
   template <typename t_Value, integer n>
   void
   BabdQR_N<t_Value,n>::forward_reduce_mt( integer nth ) const {
@@ -453,7 +453,7 @@ namespace alglin {
           .template triangularView<Eigen::Upper>()
           .template solveInPlace<Eigen::OnTheLeft>(v1_n) ;
 
-        #ifdef LU_BABD_QR_N_USE_PIVOTING
+        #ifdef BABD_QR_N_USE_PIVOTING
         v2_n.noalias() = QR.colsPermutation()*v1_n;
         Copy<t_Value,n,1,1>::eval( v2_n.data(), yk1 ) ;
         #else
@@ -464,7 +464,7 @@ namespace alglin {
     }
   }
 
-  #ifdef LU_BABD_QR_N_USE_THREAD
+  #ifdef BABD_QR_N_USE_THREAD
 
   template <typename t_Value, integer n>
   void
@@ -497,7 +497,7 @@ namespace alglin {
           .topLeftCorner(n,n)
           .template triangularView<Eigen::Upper>()
           .template solveInPlace<Eigen::OnTheLeft>(v1_n) ;
-        #ifdef LU_BABD_QR_N_USE_PIVOTING
+        #ifdef BABD_QR_N_USE_PIVOTING
         v2_n.noalias() = QR.colsPermutation()*v1_n;
         Copy<t_Value,n,1,1>::eval( v2_n.data(), yk1 ) ;
         #else
@@ -531,7 +531,7 @@ namespace alglin {
   
     integer const m = n+q ;
 
-    #ifdef LU_BABD_QR_N_USE_THREAD
+    #ifdef BABD_QR_N_USE_THREAD
     usedThread        = numThread ;
     jump_block_max_mt = nblock>>(usedThread-1) ;
     y_thread          = y ;
@@ -543,7 +543,7 @@ namespace alglin {
      | !!!!!!!!!!!!!!!!!!!!!!!!!
     \*/
     jump_block = 1 ;
-    #ifdef LU_BABD_QR_N_USE_THREAD
+    #ifdef BABD_QR_N_USE_THREAD
     if ( usedThread > 0 ) {
       to_be_done = usedThread ;
       for ( integer nt = 0 ; nt < usedThread ; ++nt )
@@ -572,7 +572,7 @@ namespace alglin {
      | !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     \*/
     jump_block /= 2 ;
-    #ifdef LU_BABD_QR_N_USE_THREAD
+    #ifdef BABD_QR_N_USE_THREAD
     if ( usedThread > 0 ) {
       back_substitute( y, jump_block_max_mt ) ;
       to_be_done = usedThread ;

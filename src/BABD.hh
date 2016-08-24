@@ -17,17 +17,40 @@
  |                                                                          |
 \*--------------------------------------------------------------------------*/
 
-#ifndef LU_ARCECO_HH
-#define LU_ARCECO_HH
+#ifndef BABD_HH
+#define BABD_HH
 
 #include "Alglin.hh"
 #include "Alglin++.hh"
-#include "LU_ArcecoSolver.hh"
+
+#include "ABD_Colrow.hh"
+#include "ABD_Arceco.hh"
+#include "BABD_Amodio.hh"
+#include "BABD_Block.hh"
+#include "BABD_QR.hh"
 
 namespace alglin {
 
   using namespace ::std ;
-  
+
+  //! available LU factorization code
+  typedef enum {
+    BABD_AUTOMATIC  = 0,
+    // ----------------
+    BABD_COLROW_LU  = 1,
+    BABD_COLROW_QR  = 2,
+    BABD_COLROW_SVD = 3,
+    // ----------------
+    BABD_ARCECO     = 4,
+    // ----------------
+    BABD_AMODIO_LU  = 5,
+    BABD_AMODIO_QR  = 6,
+    BABD_AMODIO_SVD = 7,
+    // ----------------
+    BABD_BLOCK_LU   = 8,
+    BABD_BLOCK_QR   = 9
+  } BABD_Choice;
+
   /*
    * NB: prima le condizioni finali, poi quelle iniziali.
    *
@@ -50,85 +73,49 @@ namespace alglin {
    * 
    */
   template <typename t_Value>
-  class ArcecoLU {
+  class BABD {
   private:
 
     typedef t_Value         valueType ;
     typedef t_Value*        valuePointer ;
     typedef t_Value const * valueConstPointer ;
 
-    Malloc<valueType> baseValue ;
-    Malloc<integer>   baseInteger ;
+    BABD( BABD<t_Value> const & ) ;
+    BABD<t_Value> const & operator = ( BABD<t_Value> const & ) ;
 
-    ArcecoLU( ArcecoLU<t_Value> const & ) ;
-    ArcecoLU<t_Value> const & operator = ( ArcecoLU<t_Value> const & ) ;
+    integer row0, col0 ;
+    integer rowN, colN ;
+    integer numEquations ;
 
-    integer      nRow0, nCol0 ;
-    integer      nRowN, nColN ;
-    integer      numEquations ;
-    integer      numInitialETA ;
+    integer numInitialBc ;
+    integer numFinalBc ;
+    integer numCyclicBC ;
+    integer numInitialETA ;
+    integer numFinalETA ;
+    integer numCyclicOMEGA ;
 
-    valuePointer AR, X  ;
-    integer *    PIVOT  ;
-    integer *    MTR    ;
-    integer      NBLOCK ;
-    
-    Arceco<t_Value> arcecoSolver ;
+    // allocate temporary
+    std::vector<valueType> block0, blockN ;
+
+    ColrowLU<t_Value> colrow_LU ;
+    ArcecoLU<t_Value> arceco_LU ;
+    // -------------------------
+    AmodioLU<t_Value> amodio_LU ;
+    BlockLU<t_Value>  block_LU ;
+    BabdQR<t_Value>   block_QR ;
+
+    BABD_Choice solver_used ;
+
+    void shift( valuePointer in_out ) const ;
+    void unshift( valuePointer in_out ) const ;
 
   public:
 
-    explicit ArcecoLU() ;
-    ~ArcecoLU() ;
-
-    //! load matrix in the class
-    /*!
-      \param numInitialBc   number of initial boundary condition
-      \param numFinalBc     number of final boundary condition
-      \param numInitialETA  initial bc blocks
-      \param numFinalETA    final bc blocks
-      \param numBlock       number of diagonal blocks
-      \param AdAu           diagonal blocks
-      \param H0             pointer to the block \f$ H_0 \f$
-      \param HN             pointer to the block \f$ H_N \f$
-      \param Hq             pointer to the block \f$ H_q \f$
-
-      \code
-      
-      nq = numInitialBc + numFinalBc
-      q  = numInitialETA + numFinalETA
-      n  = nq - q
-      
-      compatibility conditions
-      numFinalETA + numInitialETA == numInitialBc + numFinalBc - n
-
-      Matrix structure
+    explicit BABD()
+    : solver_used(BABD_AMODIO_LU)
+    {}
     
-       +                     +
-       |  Ad Au              |
-       |     Ad Au           |
-       |          ...        |
-       |            Ad Au    |
-       |  H0           HN Hq |
-       +                     +
-    
-              nq x n         nq x n         nq x q
-            +-------+       +-------+       +---+
-            |  0    |       |  NZ   |       |y|0|
-       H0 = +-------+  HN = +-------+  Hq = +---+
-            |  NZ   |       |  0    |       |0|x|
-            |  NZ   |       |       |       |0|x|
-            +-------+       +-------+       +---+
-    
-       +-+
-       |y| numFinalBc x numFinalETA
-       +-+
-
-       +-+
-       |x| numInitialBc x numInitialETA
-       |x|
-       +-+
-      \endcode
-    */
+    ~BABD() {}
 
     /*
     //    __            _             _
@@ -138,16 +125,21 @@ namespace alglin {
     //  |_|  \__,_|\___|\__\___/|_|  |_/___\___|
     */
     void
-    factorize( integer      numInitialBc,
+    factorize( BABD_Choice  solver,
+               // ----------------------
+               integer      numInitialBc,
                integer      numFinalBc,
+               integer      numCyclicBC,
+               // ----------------------
                integer      numInitialETA,
                integer      numFinalETA,
+               integer      numCyclicOMEGA,
+               // ----------------------
                integer      numBlock,
                valuePointer AdAu,
                valuePointer H0,
                valuePointer HN,
                valuePointer Hq ) ;
-
     /*             _
     //   ___  ___ | |_   _____
     //  / __|/ _ \| \ \ / / _ \
@@ -156,13 +148,8 @@ namespace alglin {
     */
     //! solve linear sistem using internal factorized matrix
     void
-    solve( valuePointer in_out ) {
-      alglin::copy( numEquations - nRow0, in_out, 1, X + nRow0, 1 ) ;
-      alglin::copy( nRow0, in_out + numEquations - nRow0, 1, X, 1 ) ;
-      arcecoSolver.solve ( X ) ;
-      alglin::copy( numEquations - numInitialETA, X + numInitialETA, 1, in_out, 1 ) ;
-      alglin::copy( numInitialETA, X, 1, in_out + numEquations - numInitialETA, 1 ) ;
-    }
+    solve( valuePointer in_out ) const ;
+
   } ;
 }
 

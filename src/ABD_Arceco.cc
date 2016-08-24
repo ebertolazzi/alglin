@@ -17,7 +17,7 @@
  |                                                                          |
 \*--------------------------------------------------------------------------*/
 
-#include "LU_ArcecoSolver.hh"
+#include "ABD_Arceco.hh"
 #include "Alglin.hh"
 
 namespace alglin {
@@ -32,10 +32,10 @@ namespace alglin {
   */
   template <typename t_Value>
   void
-  Arceco<t_Value>::loadByRef ( integer      _numberOfBlocks,
-                               integer *    _matrixStructure,
-                               valuePointer _array,
-                               integer *    _pivot ) {
+  ArcecoLU<t_Value>::loadByRef ( integer      _numberOfBlocks,
+                                 integer *    _matrixStructure,
+                                 valuePointer _array,
+                                 integer *    _pivot ) {
 
     numberOfBlocks  = _numberOfBlocks  ;
     matrixStructure = _matrixStructure ;
@@ -52,11 +52,11 @@ namespace alglin {
   */
   template <typename t_Value>
   void
-  Arceco<t_Value>::checkStructure( integer neq ) {
+  ArcecoLU<t_Value>::checkStructure( integer neq ) {
   
     ALGLIN_ASSERT( numOverlap(numberOfBlocks-1) == 0,
-            "Arceco::checkStructure: numOverlap(" << numberOfBlocks-1 << ") = " <<
-            numOverlap(numberOfBlocks-1) << " expected zero!" ) ;
+                   "Arceco::checkStructure: numOverlap(" << numberOfBlocks-1 << ") = " <<
+                    numOverlap(numberOfBlocks-1) << " expected zero!" ) ;
 
     // check index
     for ( integer k = 0 ; k < numberOfBlocks ; ++k ) {
@@ -71,7 +71,7 @@ namespace alglin {
     // check ovelapping
     for ( integer k = 1 ; k < numberOfBlocks ; ++k )
       ALGLIN_ASSERT( numOverlap(k-1) + numOverlap(k) <= numCols(k),
-              "Arceco::checkStructure: at block " << k << " three consecutive block overlap" ) ;
+                     "Arceco::checkStructure: at block " << k << " three consecutive block overlap" ) ;
 
     // controlla che i blocchi atraversino la diagonale
     //             c                  c+numCol
@@ -103,9 +103,69 @@ namespace alglin {
   //  |  _| (_| | (__| || (_) | |  | |/ /  __/
   //  |_|  \__,_|\___|\__\___/|_|  |_/___\___|
   */
+
+  //! factorize the matrix
   template <typename t_Value>
   void
-  Arceco<t_Value>::factorize () {
+  ArcecoLU<t_Value>::factorize( integer           row0,
+                                integer           col0,
+                                valueConstPointer block0,
+                                integer           nblk,
+                                integer           n,
+                                valueConstPointer blocks,
+                                integer           rowN,
+                                integer           colN,
+                                valueConstPointer blockN ) {
+
+    numberOfBlocks = nblk + 2 ;
+
+    integer size0        = row0 * col0 ;
+    integer sizeN        = rowN * colN ;
+    integer BLK_size     = 2*n*n*nblk ;
+    integer numEquations = nblk * n + row0 + rowN ;
+
+    // allocazione dinamica
+    baseValue   . allocate( size_t( BLK_size + size0 + sizeN ) ) ;
+    baseInteger . allocate( size_t( 3*numberOfBlocks + numEquations ) ) ;
+
+    array           = baseValue( size_t( BLK_size + size0 + sizeN ) ) ;
+    pivot           = baseInteger( size_t( numEquations ) ) ;
+    matrixStructure = baseInteger( size_t( 3*numberOfBlocks ) ) ;
+    
+    #define IDX0(I,J) ((I)+(J)*row0)
+    #define IDXN(I,J) ((I)+(J)*rowN)
+
+    // Fill structures
+    alglin::copy( size0,    block0, 1, array, 1 ) ;
+    alglin::copy( BLK_size, blocks, 1, array + size0, 1 ) ;
+    alglin::copy( sizeN,    blockN, 1, array + size0 + BLK_size, 1 ) ;
+
+    integer * mtr = matrixStructure ;
+    *mtr++ = row0 ;
+    *mtr++ = col0 ;
+    *mtr++ = n ;
+    for ( integer i = 0 ; i < nblk ; ++i ) {
+      *mtr++ = n ;
+      *mtr++ = 2*n ;
+      *mtr++ = n ;
+    }
+    *mtr++ = rowN ;
+    *mtr++ = colN ;
+    *mtr++ = 0 ;
+
+    factorize() ;
+  }
+
+  /*
+  //    __            _             _         
+  //   / _| __ _  ___| |_ ___  _ __(_)_______ 
+  //  | |_ / _` |/ __| __/ _ \| '__| |_  / _ \
+  //  |  _| (_| | (__| || (_) | |  | |/ /  __/
+  //  |_|  \__,_|\___|\__\___/|_|  |_/___\___|
+  */
+  template <typename t_Value>
+  void
+  ArcecoLU<t_Value>::factorize () {
 
     integer index1 = 0 ;
     integer indpiv = 0 ;
@@ -157,11 +217,11 @@ namespace alglin {
   */
   template <typename t_Value>
   void
-  Arceco<t_Value>::rowElimination ( valuePointer block,
-                                    integer      numRowsBlock,
-                                    integer      numColsBlock,
-                                    integer      numRowsPivot,
-                                    integer *    pivot ) {
+  ArcecoLU<t_Value>::rowElimination ( valuePointer block,
+                                      integer      numRowsBlock,
+                                      integer      numColsBlock,
+                                      integer      numRowsPivot,
+                                      integer *    pivot ) {
 
     #define BLOCK(I,J) block[(I) + (J) * numRowsBlock]
 
@@ -195,13 +255,13 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  Arceco<t_Value>::columnElimination ( valuePointer topblk,
-                                       integer      numRowsTopBlock,
-                                       integer      numOverlapCols,
-                                       valuePointer botblk,
-                                       integer      numRowsBottomBlock,
-                                       integer      numColsPivot,
-                                       integer *    pivot ) {
+  ArcecoLU<t_Value>::columnElimination ( valuePointer topblk,
+                                         integer      numRowsTopBlock,
+                                         integer      numOverlapCols,
+                                         valuePointer botblk,
+                                         integer      numRowsBottomBlock,
+                                         integer      numColsPivot,
+                                         integer *    pivot ) {
 
     #define TOPBLK(I,J) topblk[(I) + (J) * numRowsTopBlock]
     #define BOTBLK(I,J) botblk[(I) + (J) * numRowsBottomBlock]
@@ -245,7 +305,7 @@ namespace alglin {
   */
   template <typename t_Value>
   void
-  Arceco<t_Value>::solve( valuePointer b ) const {
+  ArcecoLU<t_Value>::solve( valuePointer b ) const {
     integer indpiv         = 0 ;
     integer indexa         = 0 ;
     integer numRowsBlock   = numRows(0) ;
@@ -325,11 +385,11 @@ namespace alglin {
   */
   template <typename t_Value>
   void
-  Arceco<t_Value>::forwardElimination ( valuePointer block,
-                                        integer      numRowsBlock,
-                                        integer      numRowsPivot,
-                                        integer *    pivot,
-                                        valuePointer b ) const {
+  ArcecoLU<t_Value>::forwardElimination ( valuePointer block,
+                                          integer      numRowsBlock,
+                                          integer      numRowsPivot,
+                                          integer *    pivot,
+                                          valuePointer b ) const {
     valueConstPointer blockI = block ;
     for ( integer i = 0 ; i < numRowsPivot ; ++i, blockI += numRowsBlock ) {
       integer pivoti = pivot[i];
@@ -348,11 +408,11 @@ namespace alglin {
   */
   template <typename t_Value>
   void
-  Arceco<t_Value>::forwardSolution ( valuePointer block,
-                                     integer      numRowsBlock,
-                                     integer      numColsPivot,
-                                     integer      /* numOverlapCols */,
-                                     valuePointer b ) const {
+  ArcecoLU<t_Value>::forwardSolution ( valuePointer block,
+                                       integer      numRowsBlock,
+                                       integer      numColsPivot,
+                                       integer      /* numOverlapCols */,
+                                       valuePointer b ) const {
     integer      kk      = numRowsBlock - numColsPivot ;
     valuePointer blockJS = block + kk ;
     for ( integer j = 0 ; j < numColsPivot ; ++j, blockJS += numRowsBlock ) {
@@ -371,10 +431,10 @@ namespace alglin {
   */
   template <typename t_Value>
   void
-  Arceco<t_Value>::forwardModification ( valuePointer block,
-                                         integer      numRowsBlock,
-                                         integer      numColsPivot,
-                                         valuePointer b ) const {
+  ArcecoLU<t_Value>::forwardModification ( valuePointer block,
+                                           integer      numRowsBlock,
+                                           integer      numColsPivot,
+                                           valuePointer b ) const {
     valuePointer blockJ = block ;
     for ( integer j = 0 ; j < numColsPivot ; ++j, blockJ += numRowsBlock ) {
       valueType xj = b[j];
@@ -398,11 +458,11 @@ namespace alglin {
   */
   template <typename t_Value>
   void
-  Arceco<t_Value>::backwardModification ( valuePointer block,
-                                          integer      numRowsBlock,
-                                          integer      numColsBlock,
-                                          integer      numRowsPivot,
-                                          valuePointer b ) const {
+  ArcecoLU<t_Value>::backwardModification ( valuePointer block,
+                                            integer      numRowsBlock,
+                                            integer      numColsBlock,
+                                            integer      numRowsPivot,
+                                            valuePointer b ) const {
     valuePointer blockJ = block + numRowsPivot * numRowsBlock ;
     for ( integer j = numRowsPivot ; j < numColsBlock ; ++j, blockJ += numRowsBlock ) {
       valueType xj = b[j] ;
@@ -420,11 +480,11 @@ namespace alglin {
   */
   template <typename t_Value>
   void
-  Arceco<t_Value>::backwardSolution ( valuePointer block,
-                                      integer      numRowsBlock,
-                                      integer      /* numColsBlock */,
-                                      integer      numRowsPivot,
-                                      valuePointer b ) const {
+  ArcecoLU<t_Value>::backwardSolution ( valuePointer block,
+                                        integer      numRowsBlock,
+                                        integer      /* numColsBlock */,
+                                        integer      numRowsPivot,
+                                        valuePointer b ) const {
     for ( integer j = numRowsPivot - 1 ; j >= 0 ; --j ) {
       valuePointer blockJ = block + j * numRowsBlock ;
       valueType xj = (b[j] /= blockJ[j]) ;
@@ -441,12 +501,12 @@ namespace alglin {
   */
   template <typename t_Value>
   void
-  Arceco<t_Value>::backwardElimination( valuePointer block,
-                                        integer      numRowsBlock,
-                                        integer      numColsPivot,
-                                        integer      numOverlapCols,
-                                        integer *    pivot,
-                                        valuePointer x )  const {
+  ArcecoLU<t_Value>::backwardElimination( valuePointer block,
+                                          integer      numRowsBlock,
+                                          integer      numColsPivot,
+                                          integer      numOverlapCols,
+                                          integer *    pivot,
+                                          valuePointer x )  const {
     integer kk = numRowsBlock - numColsPivot ;
     integer j1 = numColsPivot ;
     while ( j1 > 0 ) {
@@ -460,7 +520,7 @@ namespace alglin {
     }
   }
   
-  template class Arceco<float> ;
-  template class Arceco<double> ;
+  template class ArcecoLU<float> ;
+  template class ArcecoLU<double> ;
 
 }

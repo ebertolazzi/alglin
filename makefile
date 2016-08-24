@@ -6,7 +6,7 @@ LIB_ALGLIN = libAlglin.a
 
 CC   = gcc
 CXX  = g++
-INC  = -I./src -I./include -I/usr/local/include/eigen3
+INC  = -I./src -I./include -I/usr/local/include -I/usr/local/include/eigen3
 LIBS = -L./lib -lAlglin
 DEFS =
 
@@ -28,32 +28,33 @@ ifneq (,$(findstring Darwin, $(OS)))
 endif
 
 SRCS = \
+src/ABD_Arceco.cc \
+src/ABD_Colrow.cc \
 src/Alglin++.cc \
 src/Alglin.cc \
-src/LU_ABD_Colrow.cc \
-src/LU_Arceco.cc \
-src/LU_ArcecoSolver.cc \
-src/LU_BABD_Amodio.cc \
-src/LU_BABD_AmodioN.cc \
-src/LU_BABD_Block.cc \
-src/LU_BABD_QR.cc \
-src/LU_BABD_QR_N.cc
+src/BABD.cc \
+src/BABD_Amodio.cc \
+src/BABD_AmodioN.cc \
+src/BABD_Block.cc \
+src/BABD_QR.cc \
+src/BABD_QR_N.cc \
+src/BABD_SuperLU.cc
 
 OBJS  = $(SRCS:.cc=.o)
 DEPS  = \
+src/ABD_Arceco.hh \
+src/ABD_Colrow.hh \
 src/Alglin++.hh \
 src/Alglin.hh \
 src/Alglin_aux.hh \
 src/Alglin_tmpl.hh \
-src/LU_ABD_Colrow.hh \
-src/LU_Arceco.hh \
-src/LU_ArcecoSolver.hh \
-src/LU_BABD_Amodio.hh \
-src/LU_BABD_AmodioN.hh \
-src/LU_BABD_Block.hh \
-src/LU_BABD_QR.hh \
-src/LU_BABD_QR_N.hh \
-src/TicToc.hh
+src/BABD.hh \
+src/BABD_Amodio.hh \
+src/BABD_AmodioN.hh \
+src/BABD_Block.hh \
+src/BABD_QR.hh \
+src/BABD_QR_N.hh \
+src/BABD_SuperLU.hh
 
 MKDIR = mkdir -p
 

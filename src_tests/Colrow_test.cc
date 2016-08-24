@@ -23,8 +23,8 @@
 #include "Alglin.hh"
 #include "Alglin_aux.hh"
 #include "TicToc.hh"
-#include "LU_Arceco.hh"
-#include "LU_ABD_Colrow.hh"
+#include "ABD_Arceco.hh"
+#include "ABD_Colrow.hh"
 
 using namespace std ;
 typedef double valueType ;
@@ -95,8 +95,8 @@ main() {
   for ( int i = 0 ; i < rowN ; ++i )
     blockN[i*(rowN+1)+colN-rowN] += diag ;
 
-  alglin::ColrowLU<valueType> LU(false) ;
-  alglin::ColrowLU<valueType> LU_arceco(true) ;
+  alglin::ColrowLU<valueType> LU ;
+  alglin::ArcecoLU<valueType> LU_arceco ;
 
   cout << "N = " << N << '\n' ;
 
@@ -107,15 +107,56 @@ main() {
                              rowN, colN, blockN,
                              1.0, x, 1, 0, rhs, 1 ) ;
 
+
+  alglin::COLROW_LASTBLOCK_Choice ch[3] = { alglin::COLROW_LASTBLOCK_LU,
+                                            alglin::COLROW_LASTBLOCK_QR,
+                                            alglin::COLROW_LASTBLOCK_SVD } ;
+  char const * kind[] = { "LU", "QR", "SVD" } ;
+
   TicToc tm ;
   tm.reset() ;
 
-  tm.tic() ;
-  LU.factorize( row0, col0, block0,
-                numBlock, dim, blocks,
-                rowN, colN, blockN ) ;
-  tm.toc() ;
-  cout << "(ColrowLU) Factorize = " << tm.elapsedMilliseconds() << " [ms]\n" ;
+  for ( int test = 0 ; test < 3 ; ++test ) {
+    cout << "\n\n\ntest N." << test << "\n" ;
+
+    tm.tic() ;
+    LU.factorize( ch[test],
+                  row0, col0, block0,
+                  numBlock, dim, blocks,
+                  rowN, colN, blockN ) ;
+    tm.toc() ;
+    cout << "(Colrow" << kind[test] << ") Factorize = " << tm.elapsedMilliseconds() << " [ms]\n" ;
+
+    std::copy( rhs, rhs+N, x ) ;
+    tm.tic() ;
+    LU.solve( x ) ;
+    tm.toc() ;
+    cout << "(Colrow" << kind[test] << ") Solve = " << tm.elapsedMilliseconds() << " [ms]\n" ;
+
+    alglin::copy( N, xref, 1, xref1, 1 ) ;
+    alglin::axpy( N, -1.0, x, 1, xref1, 1 ) ;
+    cout << "Check |err|_inf = " << alglin::absmax( N, xref1, 1 ) << '\n' ;
+
+    alglin::abd_residue<valueType>( row0, col0, block0,
+                                    numBlock, dim, blocks,
+                                    rowN, colN, blockN,
+                                    rhs, 1, x, 1, resid, 1 ) ;
+
+    cout << "Check |r|_inf = " << alglin::absmax( N, resid, 1 ) << '\n' ;
+  
+    LU.solve( resid ) ;
+    alglin::axpy( N, +1.0, resid, 1, x, 1 ) ;
+
+    alglin::copy( N, xref, 1, xref1, 1 ) ;
+    alglin::axpy( N, -1.0, x, 1, xref1, 1 ) ;
+    cout << "Check |err|_inf = " << alglin::absmax( N, xref1, 1 ) << '\n' ;
+
+    alglin::abd_residue<valueType>( row0, col0, block0,
+                                    numBlock, dim, blocks,
+                                    rowN, colN, blockN,
+                                    rhs, 1, x, 1, resid, 1 ) ;
+    cout << "Check |r|_inf = " << alglin::absmax( N, resid, 1 ) << '\n' ; 
+  }
 
   tm.tic() ;
   LU_arceco.factorize( row0, col0, block0,
@@ -123,38 +164,6 @@ main() {
                        rowN, colN, blockN ) ;
   tm.toc() ;
   cout << "(arceco) Factorize = " << tm.elapsedMilliseconds() << " [ms]\n" ;
-
-  std::copy( rhs, rhs+N, x ) ;
-  tm.tic() ;
-  LU.solve( x ) ;
-  tm.toc() ;
-  cout << "(ColrowLU) Solve = " << tm.elapsedMilliseconds() << " [ms]\n" ;
-
-  alglin::copy( N, xref, 1, xref1, 1 ) ;
-  alglin::axpy( N, -1.0, x, 1, xref1, 1 ) ;
-  cout << "Check |err|_inf = " << alglin::absmax( N, xref1, 1 ) << '\n' ;
-
-  alglin::abd_residue<valueType>( row0, col0, block0,
-                                  numBlock, dim, blocks,
-                                  rowN, colN, blockN,
-                                  rhs, 1, x, 1, resid, 1 ) ;
-
-  cout << "Check |r|_inf = " << alglin::absmax( N, resid, 1 ) << '\n' ;
-  
-  LU.solve( resid ) ;
-  alglin::axpy( N, +1.0, resid, 1, x, 1 ) ;
-
-  alglin::copy( N, xref, 1, xref1, 1 ) ;
-  alglin::axpy( N, -1.0, x, 1, xref1, 1 ) ;
-  cout << "Check |err|_inf = " << alglin::absmax( N, xref1, 1 ) << '\n' ;
-
-  alglin::abd_residue<valueType>( row0, col0, block0,
-                                  numBlock, dim, blocks,
-                                  rowN, colN, blockN,
-                                  rhs, 1, x, 1, resid, 1 ) ;
-  cout << "Check |r|_inf = " << alglin::absmax( N, resid, 1 ) << '\n' ;
-
-
 
   std::copy( rhs, rhs+N, x ) ;
   tm.tic() ;

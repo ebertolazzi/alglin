@@ -17,24 +17,31 @@
  |                                                                          |
 \*--------------------------------------------------------------------------*/
 
-#ifndef LU_BABD_AMODIO_HH
-#define LU_BABD_AMODIO_HH
+#ifndef LU_BABD_QR_N_HH
+#define LU_BABD_QR_N_HH
 
 #include "Alglin.hh"
-#include "Alglin++.hh"
-
 #include <vector>
 
-#ifdef ALGLIN_USE_CXX11
-  #define LU_BABD_AMODIO_USE_THREAD
+// Eigen3
+#ifdef USE_MECHATRONIX_EIGEN
+  #include <MechatronixCore/Eigen/Dense>
+#else
+  #include <Eigen/Dense>
 #endif
 
-#ifdef LU_BABD_AMODIO_USE_THREAD
+#ifdef ALGLIN_USE_CXX11
+  #define BABD_QR_N_USE_THREAD
+#endif
+
+#define BABD_QR_N_USE_PIVOTING
+
+#ifdef BABD_QR_N_USE_THREAD
   #include <thread>
   #include <mutex>
   #include <condition_variable>
   #include <atomic>
-  #define LU_BABD_AMODIO_MAX_THREAD 256
+  #define BABD_QR_N_MAX_THREAD 256
 #endif
 
 namespace alglin {
@@ -42,11 +49,11 @@ namespace alglin {
   using namespace std ;
 
   /*
-  //      _                        _ _       _    _   _ 
-  //     / \   _ __ ___   ___   __| (_) ___ | |  | | | |
-  //    / _ \ | '_ ` _ \ / _ \ / _` | |/ _ \| |  | | | |
-  //   / ___ \| | | | | | (_) | (_| | | (_) | |__| |_| |
-  //  /_/   \_\_| |_| |_|\___/ \__,_|_|\___/|_____\___/ 
+  //    ___  ____
+  //   / _ \|  _ \
+  //  | | | | |_) |
+  //  | |_| |  _ <
+  //   \__\_\_| \_\
   */
 
   //! LU decomposition of a BABD matrix
@@ -60,35 +67,33 @@ namespace alglin {
    *
    * \par      Affiliation:
    *           Department of Industrial Engineering<br>
-   *           University of Trento <br>
+   *           University of Trento<br>
    *           Via Sommarive 9, I-38123 Povo, Trento, Italy<br>
    *           `enrico.bertolazzi@unitn.it`
    *
    */
-  template <typename t_Value>
-  class AmodioLU {
+  template <typename t_Value, integer N>
+  class BabdQR_N {
   private:
   
     typedef t_Value         valueType ;
     typedef t_Value*        valuePointer ;
     typedef t_Value const * valueConstPointer ;
 
-    Malloc<valueType> baseValue ;
-    Malloc<integer>   baseInteger ;
-    std::vector<std::vector<bool> > LU_rows_blk ;
+    typedef Eigen::Matrix<t_Value,N,1>     vecTypeN ;
+    typedef Eigen::Matrix<t_Value,2*N,1>   vecType2N ;
+    typedef Eigen::Matrix<t_Value,N,N>     matTypeNN ;
+    typedef Eigen::Matrix<t_Value,2*N,N>   matType2NN ;
+    typedef Eigen::Matrix<t_Value,2*N,2*N> matType2N2N ;
 
-    AmodioLU(AmodioLU const &) ;
-    AmodioLU const & operator = (AmodioLU const &) ;
+    typedef Eigen::Matrix<t_Value,Eigen::Dynamic,1>              vecType ;
+    typedef Eigen::Matrix<t_Value,Eigen::Dynamic,Eigen::Dynamic> matType ;
+
+    BabdQR_N(BabdQR_N const &) ;
+    BabdQR_N const & operator = (BabdQR_N const &) ;
 
     integer nblock ; //!< total number of blocks
-    integer n      ; //!< size of square blocks
-    integer m      ; //!< number final rows (m>=n)
-
-    // some derived constants
-    integer nx2 ;
-    integer nxn ;
-    integer nxnx2 ;
-    integer nm ;
+    integer q      ;
 
     /*
     //
@@ -123,38 +128,35 @@ namespace alglin {
     */
 
     ///////////////////////////////////////////////////////
+    #ifdef BABD_QR_N_USE_PIVOTING
+    typedef Eigen::ColPivHouseholderQR<matType2NN> QR_type_2NN ;
+    typedef Eigen::ColPivHouseholderQR<matType>    QR_type ;
+    #else
+    typedef Eigen::HouseholderQR<matType2NN> QR_type_2NN ;
+    typedef Eigen::HouseholderQR<matType>    QR_type ;
+    #endif
 
-    integer      NB ; // blocking factor
+    std::vector<QR_type_2NN> QR_blk ;
+    QR_type                  QR_last_blk ; // last QR and working space
+    std::vector<matTypeNN>   AdAu_blk ;
 
-    valuePointer G_blk ;
-    valuePointer AdAu_blk ;
-    valuePointer LU_blk ; // last LU and working space
-    valuePointer tmpV ;
-    valuePointer tmpM ;
+    mutable vecType v1_nm, v2_nm  ;
+    mutable matType M_nm_nm ;
 
-    integer * ipiv_blk ;
-    integer * LU_ipiv_blk ;
-
-    #ifdef LU_BABD_AMODIO_USE_THREAD
+    #ifdef BABD_QR_N_USE_THREAD
     mutable mutex              mtx0, mtx1, mtx2 ;
     mutable condition_variable cond0 ;
-    mutable std::thread        threads[LU_BABD_AMODIO_MAX_THREAD] ;
+    mutable std::thread        threads[BABD_QR_N_MAX_THREAD] ;
     mutable integer            to_be_done ;
             integer const      numThread ;
     mutable integer            usedThread ;
-    mutable integer            jump_block_max_mt ;
     mutable valuePointer       y_thread ;
+    mutable integer            jump_block_max_mt ;
     #endif
 
     mutable integer jump_block ;
 
-    integer
-    LU_2_block( integer      n,
-                valuePointer A,
-                valuePointer B,
-                integer      ipiv[] ) const ;
-
-    #ifdef LU_BABD_AMODIO_USE_THREAD
+    #ifdef BABD_QR_N_USE_THREAD
     void forward_reduce_mt( integer nth ) const ;
     void back_substitute_mt( integer nth ) const ;
     void reduction_mt( integer nth ) ;
@@ -166,18 +168,17 @@ namespace alglin {
 
   public:
 
-    #ifdef LU_BABD_AMODIO_USE_THREAD
-    explicit AmodioLU( integer nth = std::thread::hardware_concurrency() ) ;
+    #ifdef BABD_QR_N_USE_THREAD
+    explicit BabdQR_N( integer nth = std::thread::hardware_concurrency() ) ;
     #else
-    explicit AmodioLU() ;
+    explicit BabdQR_N() ;
     #endif
 
-    ~AmodioLU() ;
+    ~BabdQR_N() {}
 
     //! load matrix in the class
     /*!
       \param nblk number of (square) blocks
-      \param n    size of the blocks
       \param q    extra bc
       \param AdAu pointer to the blocks diagonal ad upper diagonal
       \param H0   pointer to the block \f$ H_0 \f$
@@ -215,7 +216,6 @@ namespace alglin {
     */
     void
     factorize( integer           nblk,
-               integer           n,
                integer           q,
                valueConstPointer AdAu,
                valueConstPointer H0,

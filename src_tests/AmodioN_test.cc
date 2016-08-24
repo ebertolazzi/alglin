@@ -24,8 +24,8 @@
 #include "Alglin++.hh"
 #include "Alglin_aux.hh"
 #include "TicToc.hh"
-#include "LU_BABD_AmodioN.hh"
-#include "LU_BABD_Amodio.hh"
+#include "BABD_AmodioN.hh"
+#include "BABD_Amodio.hh"
 
 using namespace std ;
 typedef double valueType ;
@@ -64,9 +64,9 @@ main() {
   cout << "Factorize (AmodioN) = " << tm.elapsedMilliseconds() << " [ms]\n" ;
 
   tm.tic() ;
-  for ( int k = 0 ; k < 10 ; ++k ) LU.factorize( nblk, NSIZE, q, AdAu, H0, HN, Hq ) ;
+  for ( int k = 0 ; k < 10 ; ++k ) LU.factorize( alglin::AMODIO_LASTBLOCK_LU, nblk, NSIZE, q, AdAu, H0, HN, Hq ) ;
   tm.toc() ;
-  cout << "Factorize (Amodio)  = " << tm.elapsedMilliseconds() << " [ms]\n" ;
+  cout << "Factorize (AmodioLU)  = " << tm.elapsedMilliseconds() << " [ms]\n" ;
 
   cout << "\n\n" ;
 

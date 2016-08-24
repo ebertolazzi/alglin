@@ -17,23 +17,23 @@
  |                                                                          |
 \*--------------------------------------------------------------------------*/
 
-#ifndef LU_BABD_AMODIO_N_HH
-#define LU_BABD_AMODIO_N_HH
+#ifndef ABD_AMODIO_N_HH
+#define ABD_AMODIO_N_HH
 
 #include "Alglin.hh"
 #include "Alglin++.hh"
 #include <vector>
 
 #ifdef ALGLIN_USE_CXX11
-  #define LU_BABD_AMODIO_N_USE_THREAD
+  #define BABD_AMODIO_N_USE_THREAD
 #endif
 
-#ifdef LU_BABD_AMODIO_N_USE_THREAD
+#ifdef BABD_AMODIO_N_USE_THREAD
   #include <thread>
   #include <mutex>
   #include <condition_variable>
   #include <atomic>
-  #define LU_BABD_AMODIO_MAX_THREAD 256
+  #define BABD_AMODIO_MAX_THREAD 256
 #endif
 
 namespace alglin {
@@ -134,10 +134,10 @@ namespace alglin {
                 valuePointer B,
                 integer      ipiv[] ) const ;
 
-    #ifdef LU_BABD_AMODIO_N_USE_THREAD
+    #ifdef BABD_AMODIO_N_USE_THREAD
     mutable mutex              mtx0, mtx1, mtx2 ;
     mutable condition_variable cond0 ;
-    mutable std::thread        threads[LU_BABD_AMODIO_MAX_THREAD] ;
+    mutable std::thread        threads[BABD_AMODIO_MAX_THREAD] ;
     mutable integer            to_be_done ;
             integer const      numThread ;
     mutable integer            usedThread ;
@@ -155,7 +155,7 @@ namespace alglin {
 
   public:
 
-    #ifdef LU_BABD_AMODIO_N_USE_THREAD
+    #ifdef BABD_AMODIO_N_USE_THREAD
     explicit AmodioN( integer nth = std::thread::hardware_concurrency() ) ;
     #else
     explicit AmodioN() ;

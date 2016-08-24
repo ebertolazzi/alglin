@@ -199,7 +199,7 @@ namespace alglin {
 
     //! solve linear system previously factorized
     void
-    solve( valuePointer in_out ) ;
+    solve( valuePointer in_out ) const ;
 
   } ;
 

@@ -17,10 +17,11 @@
  |                                                                          |
 \*--------------------------------------------------------------------------*/
 
-#ifndef LU_ARCECO_SOLVER_HH
-#define LU_ARCECO_SOLVER_HH
+#ifndef ABD_ARCECO_HH
+#define ABD_ARCECO_HH
 
 #include "Alglin.hh"
+#include "Alglin++.hh"
 
 namespace alglin {
 
@@ -54,14 +55,17 @@ namespace alglin {
    *  of the matrix, and array contains the data of the matrix.
    */
   template <typename t_Value>
-  class Arceco {
+  class ArcecoLU {
 
     typedef t_Value         valueType ;
     typedef t_Value*        valuePointer ;
     typedef t_Value const * valueConstPointer ;
 
-    Arceco (Arceco<t_Value> const &);
-    Arceco<t_Value> const &operator = (Arceco<t_Value> const &) ;
+    Malloc<valueType> baseValue ;
+    Malloc<integer>   baseInteger ;
+
+    ArcecoLU(ArcecoLU<t_Value> const &);
+    ArcecoLU<t_Value> const &operator = (ArcecoLU<t_Value> const &) ;
 
     integer      numberOfBlocks  ; //!< total number of blocks of the matrix A
     integer *    matrixStructure ; //!< structure of the matrix
@@ -156,13 +160,13 @@ namespace alglin {
 
   public:
   
-    explicit Arceco ()
-    {
-    }
+    explicit ArcecoLU()
+    : baseValue("ArcecoLU_values")
+    , baseInteger("ArcecoLU_integers")
+    {}
 
-    ~Arceco ()
-    {
-    }
+    ~ArcecoLU()
+    {}
 
     /*!
      *  loadByRef function gives to the class the sizes of the problem and the pointers to the memory
@@ -197,6 +201,20 @@ namespace alglin {
      */
     void
     factorize() ;
+
+    //! factorize the matrix
+    void
+    factorize( integer           _row0,
+               integer           _col0,
+               valueConstPointer _block0,
+               // ----------------
+               integer           _numBlock,
+               integer           _dimBlock,
+               valueConstPointer _blocks,
+               // ----------------
+               integer           _rowN,
+               integer           _colN,
+               valueConstPointer _blockN ) ;
 
     /*!
      *  Solve supervises the solution of the linear system

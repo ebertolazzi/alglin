@@ -17,7 +17,7 @@
  |                                                                          |
 \*--------------------------------------------------------------------------*/
 
-#include "LU_BABD_Block.hh"
+#include "BABD_Block.hh"
 #include "Alglin.hh"
 
 namespace alglin {
@@ -173,7 +173,7 @@ namespace alglin {
   */
   template <typename t_Value>
   void
-  BlockLU<t_Value>::solve( valuePointer y ) {
+  BlockLU<t_Value>::solve( valuePointer y ) const {
 
     // solve L
     integer nm    = n+m ;

@@ -18,19 +18,24 @@
 \*--------------------------------------------------------------------------*/
 
 ///
-/// file: LU_ABD_Colrow.hh
+/// file: ABD_Colrow.hh
 ///
 
-#ifndef LU_ABD_COLROW_HH
-#define LU_ABD_COLROW_HH
+#ifndef ABD_COLROW_HH
+#define ABD_COLROW_HH
 
 #include "Alglin.hh"
 #include "Alglin++.hh"
-
-#include "LU_ArcecoSolver.hh"
 #include <iostream>
 
 namespace alglin {
+
+  //! available LU factorization code
+  typedef enum {
+    COLROW_LASTBLOCK_LU  = 0,
+    COLROW_LASTBLOCK_QR  = 1,
+    COLROW_LASTBLOCK_SVD = 2
+  } COLROW_LASTBLOCK_Choice;
 
   //! LU decomposition of a ABD matrix
   /*!
@@ -77,14 +82,6 @@ namespace alglin {
     typedef t_Value*        valuePointer ;
     typedef t_Value const * valueConstPointer ;
 
-    typedef enum { ColrowLU_LU  = 0,
-                   ColrowLU_QR  = 1,
-                   ColrowLU_SVD = 2 } LAST_BLOCK ;
-
-    LU<t_Value>  la_lu ;
-    QR<t_Value>  la_qr ;
-    SVD<t_Value> la_svd ;
-
     static
     void
     print( std::ostream & stream,
@@ -103,9 +100,14 @@ namespace alglin {
     Malloc<valueType> baseValue ;
     Malloc<integer>   baseIndex ;
 
+    LU<t_Value>  la_lu ;
+    QR<t_Value>  la_qr ;
+    SVD<t_Value> la_svd ;
+    COLROW_LASTBLOCK_Choice last_block ;
+
     ColrowLU( ColrowLU const & ) ;
     ColrowLU const & operator = ( ColrowLU const & ) ;
-    
+
     static valueType const epsi ;
     
     integer      neq ;
@@ -118,7 +120,6 @@ namespace alglin {
     valuePointer blocks ;
     valuePointer blockN ;
     integer *    swapRC_blks ;
-    LAST_BLOCK   last_block ;
 
     integer      sizeBlock ;
     integer      hSizeBlock ;
@@ -126,7 +127,7 @@ namespace alglin {
     integer      rowNN, colNN ;
     integer      dimBlock_m_row00 ;
     integer      NB ;
-    
+
     mutable integer nblk ;
 
     void setup() ;
@@ -153,54 +154,42 @@ namespace alglin {
     integer *    pivot           ; //!< permutation array
     valuePointer array           ; //!< the matrix data
 
-    bool            use_arceco ;
-    Arceco<t_Value> LU_arceco ;
-
   public:
 
-    explicit ColrowLU( bool use_arceco ) ;
+    explicit ColrowLU() ;
     ~ColrowLU() ;
 
     //! factorize the matrix
     void
-    factorize( integer           _row0,
+    factorize( COLROW_LASTBLOCK_Choice choice,
+               // ----------------------------
+               integer           _row0,
                integer           _col0,
                valueConstPointer _block0,
+               // ----------------------------
                integer           _numBlock,
                integer           _dimBlock,
                valueConstPointer _blocks,
+               // ----------------------------
                integer           _rowN,
                integer           _colN,
                valueConstPointer _blockN ) ;
 
     //! factorize the matrix
     void
-    factorize_inplace( integer      _row0,
+    factorize_inplace( COLROW_LASTBLOCK_Choice choice,
+                       // ----------------------------
+                       integer      _row0,
                        integer      _col0,
                        valuePointer _block0,
+                       // ----------------------------
                        integer      _numBlock,
                        integer      _dimBlock,
                        valuePointer _blocks,
+                       // ----------------------------
                        integer      _rowN,
                        integer      _colN,
                        valuePointer _blockN ) ;
-    /*
-    //    __            _             _
-    //   / _| __ _  ___| |_ ___  _ __(_)_______
-    //  | |_ / _` |/ __| __/ _ \| '__| |_  / _ \
-    //  |  _| (_| | (__| || (_) | |  | |/ /  __/
-    //  |_|  \__,_|\___|\__\___/|_|  |_/___\___|
-    */
-    void
-    factorize( integer      numInitialBc,
-               integer      numFinalBc,
-               integer      numInitialETA,
-               integer      numFinalETA,
-               integer      numBlock,
-               valuePointer AdAu,
-               valuePointer H0,
-               valuePointer HN,
-               valuePointer Hq ) ;
 
     //! solve linear sistem using internal factorized matrix
     void solve( valuePointer in_out ) const ;
@@ -213,6 +202,6 @@ namespace alglin {
 #endif
 
 ///
-/// eof: LU_ABD_Colrow.hh
+/// eof: ABD_Colrow.hh
 ///
 

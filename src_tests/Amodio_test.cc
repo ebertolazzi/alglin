@@ -24,7 +24,7 @@
 #include "Alglin++.hh"
 #include "Alglin_aux.hh"
 #include "TicToc.hh"
-#include "LU_BABD_Amodio.hh"
+#include "BABD_Amodio.hh"
 
 using namespace std ;
 typedef double valueType ;
@@ -52,36 +52,44 @@ main() {
 
   //alglin::babd_print<valueType>( cout, nblk, n, q, AdAu, H0, HN, Hq ) ;
 
-  TicToc tm ;
-  tm.reset() ;
+  alglin::AMODIO_LASTBLOCK_Choice ch[3] = { alglin::AMODIO_LASTBLOCK_LU,
+                                            alglin::AMODIO_LASTBLOCK_QR,
+                                            alglin::AMODIO_LASTBLOCK_SVD } ;
+  char const * kind[] = { "LU", "QR", "SVD" } ;
 
-  tm.tic() ;
-  LU.factorize( nblk, n, q, AdAu, H0, HN, Hq ) ;
-  tm.toc() ;
-  cout << "Factorize (Amodio) = " << tm.elapsedMilliseconds() << " [ms]\n" ;
+  for ( int test = 0 ; test < 3 ; ++test ) {
+    cout << "\n\n\ntest N." << test << "\n" ;
+    TicToc tm ;
+    tm.reset() ;
 
-  tm.tic() ;
-  //for ( int k = 0 ; k < 10 ; ++k ) {
-    std::copy( rhs, rhs+N, x ) ;
-    LU.solve( x ) ;
-  //}
-  tm.toc() ;
-  cout << "Solve (Amodio) = " << tm.elapsedMilliseconds() << " [ms]\n" ;
+    tm.tic() ;
+    LU.factorize( ch[test], nblk, n, q, AdAu, H0, HN, Hq ) ;
+    tm.toc() ;
+    cout << "Factorize (Amodio" << kind[test] << ") = " << tm.elapsedMilliseconds() << " [ms]\n" ;
 
-  //for ( alglin::integer i = 0 ; i < N ; ++i )
-  //  cout << "x[" << i << "] = " << x[i] << '\n' ;
+    tm.tic() ;
+    //for ( int k = 0 ; k < 10 ; ++k ) {
+      std::copy( rhs, rhs+N, x ) ;
+      LU.solve( x ) ;
+    //}
+    tm.toc() ;
+    cout << "Solve (Amodio" << kind[test] << ") = " << tm.elapsedMilliseconds() << " [ms]\n" ;
 
-  alglin::copy( N, xref, 1, xref1, 1 ) ;
-  alglin::axpy( N, -1.0, x, 1, xref1, 1 ) ;
-  cout << "Check |err|_inf = " << alglin::absmax( N, xref1, 1 ) << '\n' ;
+    //for ( alglin::integer i = 0 ; i < N ; ++i )
+    //  cout << "x[" << i << "] = " << x[i] << '\n' ;
 
-  alglin::babd_residue<valueType>( nblk, n, q, AdAu, H0, HN, Hq,
-                                   rhs, 1, x, 1, resid, 1 ) ;
+    alglin::copy( N, xref, 1, xref1, 1 ) ;
+    alglin::axpy( N, -1.0, x, 1, xref1, 1 ) ;
+    cout << "Check |err|_inf = " << alglin::absmax( N, xref1, 1 ) << '\n' ;
 
-  cout << "Check |r|_inf = " << alglin::absmax( N, resid, 1 ) << '\n' ;
+    alglin::babd_residue<valueType>( nblk, n, q, AdAu, H0, HN, Hq,
+                                     rhs, 1, x, 1, resid, 1 ) ; 
 
-  LU.solve( resid ) ;
-  alglin::axpy( N, +1.0, resid, 1, x, 1 ) ;
+    cout << "Check |r|_inf = " << alglin::absmax( N, resid, 1 ) << '\n' ;
+
+    //LU.solve( resid ) ;
+    //alglin::axpy( N, +1.0, resid, 1, x, 1 ) ;
+  }
 
   cout << "All done!\n" ;
 
