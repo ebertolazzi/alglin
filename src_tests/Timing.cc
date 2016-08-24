@@ -24,7 +24,11 @@
 #include "Alglin++.hh"
 #include "TicToc.hh"
 
-#include <Eigen/Dense>
+#ifdef USE_MECHATRONIX_EIGEN
+  #include <MechatronixCore/Eigen/Dense>
+#else
+  #include <Eigen/Dense>
+#endif
 
 using namespace std ;
 typedef double valueType ;

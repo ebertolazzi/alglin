@@ -25,7 +25,11 @@
 #include <vector>
 
 // Eigen3
-#include <Eigen/Dense>
+#ifdef USE_MECHATRONIX_EIGEN
+  #include <MechatronixCore/Eigen/Dense>
+#else
+  #include <Eigen/Dense>
+#endif
 
 #ifdef ALGLIN_USE_CXX11
   //#define LU_BABD_QR_USE_THREAD
