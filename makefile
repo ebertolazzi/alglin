@@ -6,13 +6,14 @@ LIB_ALGLIN = libAlglin.a
 
 CC   = gcc
 CXX  = g++
-INC  = -I./src -I./include -I/usr/local/include -I/usr/local/include/eigen3
+INC  = -I./src -I./include
 LIBS = -L./lib -lAlglin
 DEFS =
 
 # check if the OS string contains 'Linux'
 ifneq (,$(findstring Linux, $(OS)))
-  CXXFLAGS = -Wall -O3 -fPIC -Wno-sign-compare
+  INC     += -I/usr/include/atlas -I/usr/include/eigen3
+  CXXFLAGS = -Wall -O3 -fPIC -Wno-sign-compare -std=c++11
   AR       = ar rcs
   LIBS     = -L./lib -lAlglin -llapack -lblas
 endif
@@ -22,6 +23,7 @@ ifneq (,$(findstring Darwin, $(OS)))
   WARN     = -Weverything -Wno-reserved-id-macro -Wno-padded -Wno-documentation-unknown-command -Wno-float-equal -Wimplicit-fallthrough
   CC       = clang
   CXX      = clang++
+  INC     += -I/usr/local/include -I/usr/local/include/eigen3
   CXXFLAGS = -Wall -O3 -fPIC -Wno-sign-compare
   AR       = libtool -static -o
   LIBS     = -L./lib -lAlglin -framework Accelerate

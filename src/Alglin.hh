@@ -81,6 +81,14 @@
   #elif defined(__x86_64__)
     #define ALGLIN_ARCH64 1
   #endif
+  #if !defined(ALGLIN_USE_ACCELERATE) && \
+      !defined(ALGLIN_USE_ATLAS)      && \
+      !defined(ALGLIN_USE_OPENBLAS)   && \
+      !defined(ALGLIN_USE_LAPACK)
+    #define ALGLIN_USE_ATLAS 1
+  #endif
+  #include <cmath>
+  #include <cstring>
 #elif defined(_WIN32) || defined(WIN32) || defined(_WIN64) || defined(WIN64)
   // windows architecture
   #define ALGLIN_OS_WINDOWS 1
@@ -93,6 +101,12 @@
     #define WIN32_LEAN_AND_MEAN
   #endif
   #include <windows.h>
+  #if !defined(ALGLIN_USE_ACCELERATE) && \
+      !defined(ALGLIN_USE_ATLAS)      && \
+      !defined(ALGLIN_USE_OPENBLAS)   && \
+      !defined(ALGLIN_USE_LAPACK)
+    #define ALGLIN_USE_LAPACK 1
+  #endif
 #else
   #error "unsupported OS!"
 #endif
@@ -166,6 +180,7 @@
 #endif
 
 #include <iostream>
+#include <sstream>
 #include <iomanip>
 #include <stdexcept>
 

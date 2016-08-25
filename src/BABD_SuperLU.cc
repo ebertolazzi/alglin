@@ -20,6 +20,8 @@
 #include "BABD_SuperLU.hh"
 
 #include <iostream>
+#include <algorithm>
+
 using namespace std ;
 
 namespace alglin {
