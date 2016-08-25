@@ -589,6 +589,8 @@ namespace alglin {
 
   }
 
+  // speedup for windows
+  #ifndef ALGLIN_OS_WINDOWS
   template class BabdQR_N<double,2> ;
   template class BabdQR_N<double,3> ;
   template class BabdQR_N<double,4> ;
@@ -607,4 +609,5 @@ namespace alglin {
   template class BabdQR_N<double,16> ;
   */
   //template class BabdQR_N<float> ;
+  #endif
 }

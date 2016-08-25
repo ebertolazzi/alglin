@@ -827,6 +827,8 @@ namespace alglin {
     #endif
   }
 
+  // speedup for windows
+  #ifndef ALGLIN_OS_WINDOWS
   template class AmodioN<double,1> ;
   template class AmodioN<double,2> ;
   template class AmodioN<double,3> ;
@@ -852,5 +854,6 @@ namespace alglin {
   //template class AmodioN<double,23> ;
   //template class AmodioN<double,24> ;
   //template class AmodioN<double,25> ;
+  #endif
 
 }
