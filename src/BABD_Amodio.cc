@@ -178,7 +178,7 @@ namespace alglin {
     // LU DECOMPOSITION, ROW INTERCHANGES
     valuePointer Ajj = A ;
     valuePointer Bj  = B ;
-    integer nb = std::min(NB,n) ;
+    integer nb = min_index(NB,n) ;
     for ( integer j = 0 ; j < n ; Ajj += n+1, Bj += n  ) {
       integer MX1 = iamax( n-j, Ajj, 1 ) ;
       integer MX2 = iamax( n,   Bj,  1 ) ;

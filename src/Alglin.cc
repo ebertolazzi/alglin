@@ -104,7 +104,7 @@ namespace alglin {
     if ( M == 0 || N == 0 ) return 0 ;
     REAL * Ajj = A ;
     for ( integer j = 0 ; j < M ; j += MB, Ajj += MB*(LDA+1) ) {
-      integer JB = std::min(M-j, MB) ;
+      integer JB = min_index(M-j, MB) ;
       // FACTORIZE DIAGONAL AND SUBDIAGONAL BLOCKS AND TEST FOR SINGULARITY
       integer INFO = gtx( JB, N-j, Ajj, LDA, IPIV+j ) ;
       if ( INFO != 0 ) return INFO + j ;
@@ -175,7 +175,7 @@ namespace alglin {
     if ( M == 0 || N == 0 ) return 0 ;
     REAL * Ajj = A ;
     for ( integer j = 0 ; j < N ; j += NB, Ajj += NB*(LDA+1) ) {
-      integer JB = std::min(N-j, NB) ;
+      integer JB = min_index(N-j, NB) ;
       // FACTORIZE DIAGONAL AND SUBDIAGONAL BLOCKS AND TEST FOR SINGULARITY
       integer INFO = gty( M-j, JB, Ajj, LDA, IPIV+j ) ;
       // APPLY INTERCHANGES TO PREVIOUS BLOCKS

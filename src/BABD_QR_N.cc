@@ -284,10 +284,10 @@ namespace alglin {
     nblock = _nblock ;
     q      = _q ;
 
-    AdAu_blk . resize(2*nblock) ;
-    QR_blk   . resize(nblock) ;
-    v1_nm    . resize(nm) ;
-    v2_nm    . resize(nm) ;
+    AdAu_blk . resize(size_t(2*nblock)) ;
+    QR_blk   . resize(size_t(nblock)) ;
+    v1_nm    . resize(size_t(nm)) ;
+    v2_nm    . resize(size_t(nm)) ;
     M_nm_nm  . resize(nm,nm) ;
     
     for ( integer k = 0 ; k < 2*nblock ; ++k, AdAu += nxn )

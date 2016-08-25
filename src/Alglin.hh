@@ -352,6 +352,18 @@ namespace alglin {
   bool isUnsigned( long double x )
   { return isInteger(x) && x >= 0 ; }
 
+  static
+  inline  
+  integer
+  min_index( integer a, integer b)
+  { return a < b ? a : b ; }
+
+  static
+  inline  
+  integer
+  max_index( integer a, integer b)
+  { return a > b ? a : b ; }
+
   /*
   //   _                      _
   //  | | __ _ _ __ ___   ___| |__
@@ -5239,7 +5251,7 @@ namespace alglin {
         real    diag = 1 )
   #if defined(ALGLIN_USE_ATLAS)
   { alglin::gezero( M, N, A, LDA ) ;
-    integer MN = std::min(M,N) ;
+    integer MN = min_index(M,N) ;
     alglin::copy( MN, &diag, 0, A, LDA+1 ) ; }
   #elif defined(ALGLIN_USE_OPENBLAS)
   { real zero = 0 ; LAPACK_NAME(slaset)( const_cast<character*>("A"), &M, &N, &zero, &diag, A, &LDA ) ; }
@@ -5258,7 +5270,7 @@ namespace alglin {
         doublereal diag = 1 )
   #if defined(ALGLIN_USE_ATLAS)
   { alglin::gezero( M, N, A, LDA ) ;
-    integer MN = std::min(M,N) ;
+    integer MN = min_index(M,N) ;
     alglin::copy( MN, &diag, 0, A, LDA+1 ) ; }
   #elif defined(ALGLIN_USE_OPENBLAS)
   { doublereal zero = 0 ; LAPACK_NAME(dlaset)( const_cast<character*>("A"), &M, &N, &zero, &diag, A, &LDA ) ; }

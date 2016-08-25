@@ -156,7 +156,7 @@ namespace alglin {
     ALGLIN_ASSERT( LWORK >= 2*N, "large, LWORK = " << LWORK << " must be >= " << 2*N ) ;
     // Test the input arguments
     if ( N < 0 ) return -1 ;
-    if ( LDA < std::max( 1, N ) ) return -3 ;
+    if ( LDA < max_index( 1, N ) ) return -3 ;
     // pre- and post-multiply A by random orthogonal matrix
     for ( integer i = N-1 ; i >= 0 ; --i ) {
       // generate random reflection
@@ -301,7 +301,7 @@ namespace alglin {
     ALGLIN_ASSERT( LWORK >= 2*N, "large, LWORK = " << LWORK << " must be >= " << 2*N ) ;
     // Test the input arguments
     if ( N < 0 ) return -1 ;
-    if ( LDA < std::max( 1, N ) ) return -3 ;
+    if ( LDA < max_index( 1, N ) ) return -3 ;
     
     if ( LR == LEFT ) {
       // pre-multiply A by random orthogonal matrix
