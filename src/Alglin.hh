@@ -305,6 +305,53 @@ namespace alglin {
   extern character const *mtype_blas[5] ;
   extern character const *equilibrate_blas[4] ;
 
+  /*
+  //    ____                _              _       
+  //   / ___|___  _ __  ___| |_ __ _ _ __ | |_ ___ 
+  //  | |   / _ \| '_ \/ __| __/ _` | '_ \| __/ __|
+  //  | |__| (_) | | | \__ \ || (_| | | | | |_\__ \
+  //   \____\___/|_| |_|___/\__\__,_|_| |_|\__|___/
+  */
+
+  extern doublereal const NaN            ; //!< Not a number constant
+  extern doublereal const machineEps     ; //!< machine espilon
+  extern doublereal const sqrtMachineEps ; //!< square root of machine espilon
+  extern doublereal const maximumValue   ; //!< maximum floating point value
+  extern doublereal const minimumValue   ; //!< minimum floating point value
+
+  //! `m_e` the value of \f$ e \f$.
+  static doublereal const m_e = 2.718281828459045235360287471352662497757 ;
+
+  //! `m_pi` the value of \f$ \pi \f$.
+  static doublereal const m_pi = 3.141592653589793238462643383279502884197 ;
+
+  //! `m_2pi` the value of \f$ 2\pi \f$.
+  static doublereal const m_2pi = 6.283185307179586476925286766559005768394 ;
+
+  //! `m_pi_2` the value of \f$ \pi/2 \f$.
+  static doublereal const m_pi_2 = 1.570796326794896619231321691639751442098 ;
+
+  //! `m_pi_4` the value of \f$ \pi/4 \f$.
+  static doublereal const m_pi_4 = 0.7853981633974483096156608458198757210492 ;
+
+  //! `m_1_pi` the value of \f$ 1/\pi \f$.
+  static doublereal const m_1_pi = 0.3183098861837906715377675267450287240689 ;
+
+  //! `m_2_pi` the value of \f$ 2/\pi \f$.
+  static doublereal const m_2_pi = 0.6366197723675813430755350534900574481378 ;
+  
+  //! `m_sqrtpi` the value of \f$ \sqrt{\pi} \f$.
+  static doublereal const m_sqrtpi = 1.772453850905516027298167483341145182798 ;
+
+  //! `m_2_sqrtpi` the value of \f$ 2/\sqrt{\pi} \f$.
+  static doublereal const m_2_sqrtpi = 1.128379167095512573896158903121545171688 ;
+
+  //! `m_sqrt2` the value of \f$ \sqrt{2} \f$.
+  static doublereal const m_sqrt2 = 1.414213562373095048801688724209698078570 ;
+
+  //! `m_1_sqrt2` the value of \f$ 1/\sqrt{2} \f$.
+  static doublereal const m_1_sqrt2 = 0.7071067811865475244008443621048490392850 ;
+
   //============================================================================
 
   static

@@ -19,6 +19,7 @@
 
 #include "Alglin.hh"
 #include <vector>
+#include <limits>
 
 namespace alglin {
 
@@ -53,6 +54,28 @@ namespace alglin {
   } ;
 
   character const *equilibrate_blas[4]  = { "N", "R", "C", "B" } ;
+
+  /*
+  //    ____                _              _       
+  //   / ___|___  _ __  ___| |_ __ _ _ __ | |_ ___ 
+  //  | |   / _ \| '_ \/ __| __/ _` | '_ \| __/ __|
+  //  | |__| (_) | | | \__ \ || (_| | | | | |_\__ \
+  //   \____\___/|_| |_|___/\__\__,_|_| |_|\__|___/
+  */
+
+  //! \cond NODOC
+  #ifdef ALGLIN_OS_WINDOWS
+    unsigned _int64 lNaN = ((unsigned _int64) 1 << 63) - 1;
+    doublereal const NaN = (*(doublereal*)&lNaN) ;
+  #else
+    doublereal const NaN = __builtin_nan("") ;
+  #endif
+  //! \endcond
+
+  doublereal const machineEps     = std::numeric_limits<doublereal>::epsilon() ;
+  doublereal const sqrtMachineEps = sqrt(std::numeric_limits<doublereal>::epsilon()) ;
+  doublereal const maximumValue   = std::numeric_limits<doublereal>::max() ;
+  doublereal const minimumValue   = std::numeric_limits<doublereal>::min() ;
 
   // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
