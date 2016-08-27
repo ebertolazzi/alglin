@@ -60,6 +60,10 @@
 // rankEstimate
 */
 
+#include <cmath>
+#include <ctgmath>
+#include <cstring>
+
 // osx architecture
 #if defined(__APPLE__) && defined(__MACH__)
   #define ALGLIN_OS_OSX 1
@@ -87,8 +91,6 @@
       !defined(ALGLIN_USE_LAPACK)
     #define ALGLIN_USE_ATLAS 1
   #endif
-  #include <cmath>
-  #include <cstring>
 #elif defined(_WIN32) || defined(WIN32) || defined(_WIN64) || defined(WIN64)
   // windows architecture
   #define ALGLIN_OS_WINDOWS 1
@@ -184,11 +186,15 @@
 #include <iomanip>
 #include <stdexcept>
 
-#ifndef ALGLIN_ASSERT
-  #define ALGLIN_ASSERT(COND,MSG) if ( !(COND) ) { \
-    std::ostringstream ost ; ost << "in alglin::" << MSG << '\n' ; \
+#ifndef ALGLIN_ERROR
+  #define ALGLIN_ERROR(MSG) { \
+    std::ostringstream ost ; ost << MSG << '\n' ; \
     throw std::runtime_error(ost.str()) ; \
   }
+#endif
+
+#ifndef ALGLIN_ASSERT
+  #define ALGLIN_ASSERT(COND,MSG) if ( !(COND) ) ALGLIN_ERROR( "in alglin::" << MSG )
 #endif
 
 namespace alglin {
@@ -319,6 +325,90 @@ namespace alglin {
   extern doublereal const maximumValue   ; //!< maximum floating point value
   extern doublereal const minimumValue   ; //!< minimum floating point value
 
+  static
+  inline
+  bool isZero( doublereal x )
+  { return FP_ZERO == std::fpclassify(x) ; }
+
+  static
+  inline
+  bool isZero( real x )
+  { return FP_ZERO == std::fpclassify(x) ; }
+
+  static
+  inline
+  bool isInfinite( doublereal x )
+  { return FP_INFINITE == std::fpclassify(x) ; }
+
+  static
+  inline
+  bool isInfinite( real x )
+  { return FP_INFINITE == std::fpclassify(x) ; }
+
+  static
+  inline
+  bool isNaN( doublereal x )
+  { return FP_NAN == std::fpclassify(x) ; }
+
+  static
+  inline
+  bool isNaN( real x )
+  { return FP_NAN == std::fpclassify(x) ; }
+
+  static
+  inline
+  bool isRegular( doublereal x )
+  { return !( FP_INFINITE == std::fpclassify(x) || FP_NAN == std::fpclassify(x) ) ; }
+
+  static
+  inline
+  bool isRegular( real x )
+  { return !( FP_INFINITE == std::fpclassify(x) || FP_NAN == std::fpclassify(x) ) ; }
+
+  static
+  inline
+  bool isInteger( doublereal x )
+  { return isZero(x-floor(x)) ; }
+
+  static
+  inline
+  bool isInteger( real x )
+  { return isZero(x-floor(x)) ; }
+
+  static
+  inline
+  bool isUnsigned( doublereal x )
+  { return isInteger(x) && x >= 0 ; }
+
+  static
+  inline
+  bool isUnsigned( real x )
+  { return isInteger(x) && x >= 0 ; }
+
+  //============================================================================
+
+  bool
+  foundNaN( doublereal const pv[], integer DIM ) ;
+
+  bool
+  foundNaN( real const pv[], integer DIM ) ;
+
+  void
+  checkNaN( doublereal const pv[],
+            char       const v_name[],
+            integer          DIM,
+            integer          line,
+            char       const file[] ) ;
+
+  void
+  checkNaN( real const pv[],
+            char const v_name[],
+            integer    DIM,
+            integer    line,
+            char const file[] ) ;
+
+  //============================================================================
+
   //! `m_e` the value of \f$ e \f$.
   static doublereal const m_e = 2.718281828459045235360287471352662497757 ;
 
@@ -353,51 +443,6 @@ namespace alglin {
   static doublereal const m_1_sqrt2 = 0.7071067811865475244008443621048490392850 ;
 
   //============================================================================
-
-  static
-  inline
-  bool isZero( float x )
-  { return FP_ZERO == fpclassify(x) ; }
-
-  static
-  inline
-  bool isInteger( float x )
-  { return isZero(x-floor(x)) ; }
-
-  static
-  inline
-  bool isUnsigned( float x )
-  { return isInteger(x) && x >= 0 ; }
-
-  static
-  inline
-  bool isZero( double x )
-  { return FP_ZERO == fpclassify(x) ; }
-
-  static
-  inline
-  bool isInteger( double x )
-  { return isZero(x-floor(x)) ; }
-
-  static
-  inline
-  bool isUnsigned( double x )
-  { return isInteger(x) && x >= 0 ; }
-
-  static
-  inline
-  bool isZero( long double x )
-  { return FP_ZERO == fpclassify(x) ; }
-
-  static
-  inline
-  bool isInteger( long double x )
-  { return isZero(x-floor(x)) ; }
-
-  static
-  inline
-  bool isUnsigned( long double x )
-  { return isInteger(x) && x >= 0 ; }
 
   static
   inline  

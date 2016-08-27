@@ -21,6 +21,21 @@
 #include <vector>
 #include <limits>
 
+#ifdef ALGLIN_OS_WINDOWS
+#include <cstdlib>
+static
+char * basename(char *path) {
+   char *drive = nullptr;
+   char *dir   = nullptr;
+   char *fname = nullptr;
+   char *ext   = nullptr;
+   _splitpath(path, drive, dir, fname, ext);
+  return dir;
+}
+#else
+#include <libgen.h>
+#endif
+
 namespace alglin {
 
   #ifdef ALGLIN_USE_CBLAS
@@ -76,6 +91,93 @@ namespace alglin {
   doublereal const sqrtMachineEps = sqrt(std::numeric_limits<doublereal>::epsilon()) ;
   doublereal const maximumValue   = std::numeric_limits<doublereal>::max() ;
   doublereal const minimumValue   = std::numeric_limits<doublereal>::min() ;
+
+  //============================================================================
+
+  /*    __                       _ _   _       _   _ 
+  //   / _| ___  _   _ _ __   __| | \ | | __ _| \ | |
+  //  | |_ / _ \| | | | '_ \ / _` |  \| |/ _` |  \| |
+  //  |  _| (_) | |_| | | | | (_| | |\  | (_| | |\  |
+  //  |_|  \___/ \__,_|_| |_|\__,_|_| \_|\__,_|_| \_|
+  */
+  //! check if the vector `pv` os size `DIM` contains only regular floats
+  bool
+  foundNaN( doublereal const pv[], integer DIM ) {
+    for ( integer i = 0 ; i < DIM ; ++i )
+      if ( !isRegular(pv[i]) )
+        return true ;
+    return false ;
+  }
+
+  bool
+  foundNaN( real const pv[], integer DIM ) {
+    for ( integer i = 0 ; i < DIM ; ++i )
+      if ( !isRegular(pv[i]) )
+        return true ;
+    return false ;
+  }
+
+  /*       _               _    _   _       _   _ 
+  //   ___| |__   ___  ___| | _| \ | | __ _| \ | |
+  //  / __| '_ \ / _ \/ __| |/ /  \| |/ _` |  \| |
+  // | (__| | | |  __/ (__|   <| |\  | (_| | |\  |
+  //  \___|_| |_|\___|\___|_|\_\_| \_|\__,_|_| \_|
+  */
+  
+  #define LINE_LINE_LINE_LINE "--------------------------------------------------------------------------------"
+
+  //! check if the vector `pv` os size `DIM` contains only regular floats. If not an error is issued
+  void
+  checkNaN( doublereal const pv[],
+            char       const v_name[],
+            integer          DIM,
+            integer          line,
+            char       const file[] ) {
+    for ( integer i = 0 ; i < DIM ; ++i ) {
+      if ( isInfinite(pv[i]) ) {
+        ALGLIN_ERROR( LINE_LINE_LINE_LINE <<
+                      "\n(" << basename(const_cast<char*>(file)) <<
+                      ':' << line <<
+                      ") found Infinity at " << v_name << "[" << i << "]\n" <<
+                      LINE_LINE_LINE_LINE )
+      } else if ( isNaN(pv[i]) ) {
+        ALGLIN_ERROR( LINE_LINE_LINE_LINE <<
+                      "\n(" << basename(const_cast<char*>(file)) <<
+                      ':' << line <<
+                      ") found NaN at " << v_name << "[" << i << "]\n" <<
+                      LINE_LINE_LINE_LINE ) ;
+      }
+    }
+  }
+
+  void
+  checkNaN( real const pv[],
+            char const v_name[],
+            integer    DIM,
+            integer    line,
+            char const file[] ) {
+    for ( integer i = 0 ; i < DIM ; ++i ) {
+      if ( isInfinite(pv[i]) ) {
+        ALGLIN_ERROR( LINE_LINE_LINE_LINE <<
+                      "\n(" << basename(const_cast<char*>(file)) <<
+                      ':' << line <<
+                      ") found Infinity at " << v_name << "[" << i << "]\n" <<
+                      LINE_LINE_LINE_LINE )
+      } else if ( isNaN(pv[i]) ) {
+        ALGLIN_ERROR( LINE_LINE_LINE_LINE <<
+                      "\n(" << basename(const_cast<char*>(file)) <<
+                      ':' << line <<
+                      ") found NaN at " << v_name << "[" << i << "]\n" <<
+                      LINE_LINE_LINE_LINE ) ;
+      }
+    }
+  }
+
+  bool
+  foundNaN( doublereal pv[], integer DIM ) ;
+
+  bool
+  foundNaN( real pv[], integer DIM ) ;
 
   // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
