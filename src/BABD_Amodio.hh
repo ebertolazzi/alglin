@@ -178,7 +178,7 @@ namespace alglin {
   public:
 
     #ifdef BABD_AMODIO_USE_THREAD
-    explicit AmodioLU( integer nth = std::thread::hardware_concurrency() ) ;
+    explicit AmodioLU( integer nth = integer(std::thread::hardware_concurrency()) ) ;
     #else
     explicit AmodioLU() ;
     #endif

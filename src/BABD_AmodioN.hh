@@ -160,7 +160,7 @@ namespace alglin {
   public:
 
     #ifdef BABD_AMODIO_N_USE_THREAD
-    explicit AmodioN( integer nth = std::thread::hardware_concurrency() ) ;
+    explicit AmodioN( integer nth = integer(std::thread::hardware_concurrency()) ) ;
     #else
     explicit AmodioN() ;
     #endif

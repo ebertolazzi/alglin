@@ -120,7 +120,9 @@
   #endif
 #else
   #if __cplusplus > 199711L
-    #define ALGLIN_USE_CXX11
+    #ifndef DO_NOT_USE_CXX11
+      #define ALGLIN_USE_CXX11
+    #endif
   #endif
 #endif
 

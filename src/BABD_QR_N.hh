@@ -163,7 +163,7 @@ namespace alglin {
   public:
 
     #ifdef BABD_QR_N_USE_THREAD
-    explicit BabdQR_N( integer nth = std::thread::hardware_concurrency() ) ;
+    explicit BabdQR_N( integer nth = integer(std::thread::hardware_concurrency()) ) ;
     #else
     explicit BabdQR_N() ;
     #endif
