@@ -131,9 +131,6 @@ namespace alglin {
     array           = baseValue( size_t( BLK_size + size0 + sizeN ) ) ;
     pivot           = baseInteger( size_t( numEquations ) ) ;
     matrixStructure = baseInteger( size_t( 3*numberOfBlocks ) ) ;
-    
-    #define IDX0(I,J) ((I)+(J)*row0)
-    #define IDXN(I,J) ((I)+(J)*rowN)
 
     // Fill structures
     alglin::copy( size0,    block0, 1, array, 1 ) ;

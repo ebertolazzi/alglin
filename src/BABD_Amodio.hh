@@ -82,11 +82,6 @@ namespace alglin {
     Malloc<integer>   baseInteger ;
     std::vector<std::vector<bool> > LU_rows_blk ;
 
-    LU<t_Value>  la_lu ;
-    QR<t_Value>  la_qr ;
-    SVD<t_Value> la_svd ;
-    AMODIO_LASTBLOCK_Choice last_block ;
-
     AmodioLU(AmodioLU const &) ;
     AmodioLU const & operator = (AmodioLU const &) ;
 
@@ -155,6 +150,12 @@ namespace alglin {
     mutable integer            jump_block_max_mt ;
     mutable valuePointer       y_thread ;
     #endif
+
+    LU<t_Value>  la_lu ;
+    QR<t_Value>  la_qr ;
+    SVD<t_Value> la_svd ;
+
+    AMODIO_LASTBLOCK_Choice last_block ;
 
     mutable integer jump_block ;
 

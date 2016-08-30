@@ -20,14 +20,9 @@
 #ifndef BABD_SUPERLU_HH
 #define BABD_SUPERLU_HH
 
-#ifdef USE_MECHATRONIX_SUPERLU
-  #include <MechatronixCore/superlu/slu_ddefs.h>
-#else
-  #include <superlu/slu_ddefs.h>
-#endif
-
 #include "Alglin.hh"
 #include "Alglin++.hh"
+#include "AlglinSuperLU.hh"
 
 namespace alglin {
 
@@ -68,6 +63,8 @@ namespace alglin {
     integer m      ; //!< number final rows (m>=n)
     integer nnz    ; //!< total number of non zeros
     integer neq    ;
+
+    integer __padding ; // quite warning
 
     //int               info ;
     //mem_usage_t       mem_usage;

@@ -68,6 +68,8 @@ namespace alglin {
     integer N      ; //!< n * (nblock+1) + q
     integer nnz    ; //!< total number of non zeros
 
+    integer __padding ;
+
     /*!
     //
     //  Matrix structure

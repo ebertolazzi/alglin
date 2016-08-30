@@ -672,7 +672,7 @@ namespace alglin {
               integer LDA,
               integer IPIV[],
               integer JPIV[] ) {
-    ALGLIN_ASSERT(false, "NOT YET IMPLEMENTED" ) ;
+    ALGLIN_ERROR("NOT YET IMPLEMENTED" ) ;
   }
 
   template <typename T>
@@ -683,7 +683,7 @@ namespace alglin {
               T             RHS[],
               integer const IPIV[],
               integer const JPIV[] ) {
-    ALGLIN_ASSERT(false, "NOT YET IMPLEMENTED" ) ;
+    ALGLIN_ERROR("NOT YET IMPLEMENTED" ) ;
   }
 
   template <typename T>
@@ -698,7 +698,7 @@ namespace alglin {
               T                   COLCND,
               T                   AMAX,
               EquilibrationType & equ ) {
-    ALGLIN_ASSERT(false, "NOT YET IMPLEMENTED" ) ;
+    ALGLIN_ERROR("NOT YET IMPLEMENTED" ) ;
   }
 
   #endif

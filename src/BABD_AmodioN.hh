@@ -79,6 +79,12 @@ namespace alglin {
     AmodioN(AmodioN const &) ;
     AmodioN const & operator = (AmodioN const &) ;
 
+    #ifdef BABD_AMODIO_N_USE_THREAD
+    mutable mutex              mtx0, mtx1, mtx2 ;
+    mutable condition_variable cond0 ;
+    mutable std::thread        threads[BABD_AMODIO_MAX_THREAD] ;
+    #endif
+
     integer nblock ; //!< total number of blocks
     integer q      ; //!< number final rows (m>=n)
     integer m      ;
@@ -135,13 +141,11 @@ namespace alglin {
                 integer      ipiv[] ) const ;
 
     #ifdef BABD_AMODIO_N_USE_THREAD
-    mutable mutex              mtx0, mtx1, mtx2 ;
-    mutable condition_variable cond0 ;
-    mutable std::thread        threads[BABD_AMODIO_MAX_THREAD] ;
     mutable integer            to_be_done ;
             integer const      numThread ;
     mutable integer            usedThread ;
     mutable integer            jump_block_max_mt ;
+            integer            __padding ;
     mutable valuePointer       y_thread ;
 
     void forward_reduce_mt( integer nth ) const ;

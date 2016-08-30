@@ -179,7 +179,7 @@ namespace alglin {
       block_QR.factorize( numBlock, n, q, AdAu, H0, HN, Hq ) ;
       break ;
     case BABD_AUTOMATIC:
-      ALGLIN_ASSERT(false, "BABD<t_Value>::factorize -- no solver selected") ;
+      ALGLIN_ERROR("BABD<t_Value>::factorize -- no solver selected") ;
     }
   }
 
@@ -218,7 +218,7 @@ namespace alglin {
       block_QR.solve( in_out ) ;
       break ;
     case BABD_AUTOMATIC:
-      ALGLIN_ASSERT( false, "BABD<t_Value>::solve -- no solver selected" ) ;
+      ALGLIN_ERROR( "BABD<t_Value>::solve -- no solver selected" ) ;
     }
   }
   

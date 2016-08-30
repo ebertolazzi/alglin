@@ -103,23 +103,20 @@ namespace alglin {
     LU<t_Value>  la_lu ;
     QR<t_Value>  la_qr ;
     SVD<t_Value> la_svd ;
+
     COLROW_LASTBLOCK_Choice last_block ;
 
     ColrowLU( ColrowLU const & ) ;
     ColrowLU const & operator = ( ColrowLU const & ) ;
 
     static valueType const epsi ;
-    
+
     integer      neq ;
     integer      numBlock ;
     integer      dimBlock ;
     integer      Nlast ;
     integer      row0, col0 ;
     integer      rowN, colN ;
-    valuePointer block0 ;
-    valuePointer blocks ;
-    valuePointer blockN ;
-    integer *    swapRC_blks ;
 
     integer      sizeBlock ;
     integer      hSizeBlock ;
@@ -129,6 +126,11 @@ namespace alglin {
     integer      NB ;
 
     mutable integer nblk ;
+
+    valuePointer block0 ;
+    valuePointer blocks ;
+    valuePointer blockN ;
+    integer *    swapRC_blks ;
 
     void setup() ;
     void factorize() ;

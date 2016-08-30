@@ -218,8 +218,8 @@ namespace alglin {
   BABD_SuperLU::cond( valueType & rcond_1, valueType & rcond_inf ) const {
     int info1 = 0, info2 = 0 ;
     StatInit(&slu_stats);
-    dgscon(	(char*)"1", &L, &U, one_norm_A, &rcond_1, &slu_stats, &info1 ) ;
-    if ( info1 == 0 ) dgscon( (char*)"I", &L, &U, inf_norm_A, &rcond_inf, &slu_stats, &info2 ) ;
+    dgscon(	const_cast<char*>("1"), &L, &U, one_norm_A, &rcond_1, &slu_stats, &info1 ) ;
+    if ( info1 == 0 ) dgscon( const_cast<char*>("I"), &L, &U, inf_norm_A, &rcond_inf, &slu_stats, &info2 ) ;
     StatFree(&slu_stats);
     ALGLIN_ASSERT( info1 == 0, "BABD_SuperLU::cond -- dgscon() error returns INFO= " << info1 ) ;
     ALGLIN_ASSERT( info2 == 0, "BABD_SuperLU::cond -- dgscon() error returns INFO= " << info2 ) ;

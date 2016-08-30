@@ -222,7 +222,9 @@ namespace alglin {
   
   private:
 
-    integer     rank ;
+    Malloc<valueType> allocReals ;
+    Malloc<integer>   allocIntegers ;
+
     integer     nRow, nCol, nReflector, Lwork ;
     valueType * Amat ;
     valueType * Work ;
@@ -232,24 +234,23 @@ namespace alglin {
     valueType * xbtmp ;
     valueType   SVAL[3] ;
     valueType   mxabs ;
-  
-    Malloc<valueType> allocReals ;
-    Malloc<integer>   allocIntegers ;
+    integer     rank ;
 
     mutable bool top_factorized ;
+    bool __pad[3] ;
 
     void topFactorize() const ;
 
   public:
 
     QR()
-    : rank(-1)
+    : allocReals("allocReals")
+    , allocIntegers("allocIntegers")
     , nRow(0)
     , nCol(0)
     , nReflector(0)
     , Lwork(0)
-    , allocReals("allocReals")
-    , allocIntegers("allocIntegers")
+    , rank(-1)
     , top_factorized(false)
     {}
 
@@ -322,28 +323,32 @@ namespace alglin {
     typedef T valueType ;
   
   private:
-    integer     nRow, nCol, minRC, _rank, Lwork ;
+
+    Malloc<valueType> allocReals ;
+
     valueType * Amat ;
     valueType * Work ;
     valueType * Umat ;
     valueType * VTmat ;
     valueType * Svec ;
     valueType * invSvec ;
-    valueType   mxabs ;
-    bool        use_gesvd ;
 
-    Malloc<valueType> allocReals ;
+    valueType   mxabs ;
+
+    integer     nRow, nCol, minRC, _rank ;
+    integer     Lwork ;
+    bool        use_gesvd ;
 
   public:
 
     SVD()
-    : nRow(0)
+    : allocReals("allocReals")
+    , mxabs(0)
+    , nRow(0)
     , nCol(0)
     , _rank(0)
     , Lwork(0)
-    , mxabs(0)
     , use_gesvd(true)
-    , allocReals("allocReals")
     {}
 
     ~SVD() { allocReals.free() ; }
@@ -467,6 +472,8 @@ namespace alglin {
   
   private:
 
+    Malloc<valueType> allocReals ;
+
     valueType * C   ; // rotazioni givens
     valueType * S   ;
     valueType * BD  ; // band triangular matrix
@@ -475,8 +482,6 @@ namespace alglin {
 
     valueType   normInfA ;
     integer     nRC ;
-  
-    Malloc<valueType> allocReals ;
 
     void Rsolve( valueType xb[] ) const ;
     void RsolveTransposed( valueType xb[] ) const ;
@@ -484,8 +489,8 @@ namespace alglin {
   public:
 
     TridiagonalQR()
-    : nRC(0)
-    , allocReals("allocReals")
+    : allocReals("allocReals")
+    , nRC(0)
     {}
 
     ~TridiagonalQR() {
@@ -522,7 +527,10 @@ namespace alglin {
     typedef T valueType ;
 
   private:
-    integer     nRow, nCol, Lwork ;
+
+    Malloc<valueType> allocReals ;
+    Malloc<integer>   allocIntegers ;
+
     valueType * Amat ;
     valueType * Work ;
     valueType * Tau ;
@@ -530,18 +538,17 @@ namespace alglin {
     integer   * JPVT ;
     valueType   mxabs ;
 
-    Malloc<valueType> allocReals ;
-    Malloc<integer>   allocIntegers ;
+    integer     nRow, nCol, Lwork ;
 
   public:
 
     LeastSquares()
-    : nRow(0)
+    : allocReals("allocReals")
+    , allocIntegers("allocIntegers")
+    , mxabs(0)
+    , nRow(0)
     , nCol(0)
     , Lwork(0)
-    , mxabs(0)
-    , allocReals("allocReals")
-    , allocIntegers("allocIntegers")
     {}
 
     ~LeastSquares() {

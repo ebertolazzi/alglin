@@ -22,14 +22,8 @@
 
 #include "Alglin.hh"
 #include "Alglin++.hh"
+#include "AlglinEigen.hh"
 #include <vector>
-
-// Eigen3
-#ifdef USE_MECHATRONIX_EIGEN
-  #include <MechatronixCore/Eigen/Dense>
-#else
-  #include <Eigen/Dense>
-#endif
 
 #ifdef ALGLIN_USE_CXX11
   //#define BABD_QR_USE_THREAD
@@ -97,6 +91,8 @@ namespace alglin {
     integer nxnx2 ;
     integer nm ;
 
+    mutable integer jump_block ;
+
     /*
     //
     //  Matrix structure
@@ -151,11 +147,9 @@ namespace alglin {
     mutable integer            to_be_done ;
             integer const      numThread ;
     mutable integer            usedThread ;
-    mutable valuePointer       y_thread ;
     mutable integer            jump_block_max_mt ;
+    mutable valuePointer       y_thread ;
     #endif
-
-    mutable integer jump_block ;
 
     #ifdef BABD_QR_USE_THREAD
     void forward_reduce_mt( integer nth ) const ;

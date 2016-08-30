@@ -67,10 +67,12 @@ namespace alglin {
     ArcecoLU(ArcecoLU<t_Value> const &);
     ArcecoLU<t_Value> const &operator = (ArcecoLU<t_Value> const &) ;
 
-    integer      numberOfBlocks  ; //!< total number of blocks of the matrix A
     integer *    matrixStructure ; //!< structure of the matrix
     integer *    pivot           ; //!< permutation array
     valuePointer array           ; //!< the matrix data
+
+    integer      numberOfBlocks  ; //!< total number of blocks of the matrix A
+    integer      __padding ;
 
     /*!
      *  RowElimination performs numRowsPivot row elimination on the matrix block.

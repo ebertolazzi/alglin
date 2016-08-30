@@ -83,6 +83,17 @@ namespace alglin {
     BABD( BABD<t_Value> const & ) ;
     BABD<t_Value> const & operator = ( BABD<t_Value> const & ) ;
 
+    // allocate temporary
+    std::vector<valueType> block0 ;
+    std::vector<valueType> blockN ;
+
+    ColrowLU<t_Value> colrow_LU ;
+    ArcecoLU<t_Value> arceco_LU ;
+    // -------------------------
+    AmodioLU<t_Value> amodio_LU ;
+    BlockLU<t_Value>  block_LU ;
+    BabdQR<t_Value>   block_QR ;
+
     integer row0, col0 ;
     integer rowN, colN ;
     integer numEquations ;
@@ -93,16 +104,6 @@ namespace alglin {
     integer numInitialETA ;
     integer numFinalETA ;
     integer numCyclicOMEGA ;
-
-    // allocate temporary
-    std::vector<valueType> block0, blockN ;
-
-    ColrowLU<t_Value> colrow_LU ;
-    ArcecoLU<t_Value> arceco_LU ;
-    // -------------------------
-    AmodioLU<t_Value> amodio_LU ;
-    BlockLU<t_Value>  block_LU ;
-    BabdQR<t_Value>   block_QR ;
 
     BABD_Choice solver_used ;
 
