@@ -5383,6 +5383,16 @@ namespace alglin {
   /*
    * C <- alpha * A + beta * B
    */
+
+  #ifdef __GCC__
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Wpartial-availability"
+  #endif
+  #ifdef __clang__
+  #pragma clang diagnostic push
+  #pragma clang diagnostic ignored "-Wpartial-availability"
+  #endif
+
   inline
   void
   geadd( integer    M,
@@ -5392,7 +5402,7 @@ namespace alglin {
          real       beta,
          real const B[], integer LDB,
          real       C[], integer LDC )
-  #ifdef ALGLIN_USE_ACCELERATE
+  #if defined(ALGLIN_USE_ACCELERATE) && MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_10
   { appleblas_sgeadd( CblasColMajor, CblasNoTrans, CblasNoTrans,
                       M, N, alpha, A, LDA, beta, B, LDB, C, LDC ) ; }
   #else
@@ -5417,7 +5427,7 @@ namespace alglin {
          doublereal       beta,
          doublereal const B[], integer LDB,
          doublereal       C[], integer LDC )
-  #ifdef ALGLIN_USE_ACCELERATE
+  #if defined(ALGLIN_USE_ACCELERATE) && MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_10
   { appleblas_dgeadd( CblasColMajor, CblasNoTrans, CblasNoTrans,
                       M, N, alpha, A, LDA, beta, B, LDB, C, LDC ) ; }
   #else
@@ -5431,6 +5441,13 @@ namespace alglin {
       alglin::axpy( M, alpha, Aj, 1, Cj, 1 ) ;
     }
   }
+  #endif
+
+  #ifdef __GCC__
+  #pragma GCC diagnostic pop
+  #endif
+  #ifdef __clang__
+  #pragma clang diagnostic pop
   #endif
 
   /*
