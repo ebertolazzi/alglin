@@ -112,20 +112,16 @@
   #endif
 #endif
 
-// if C++11
-#ifdef ALGLIN_OS_WINDOWS
-  #if _MSC_VER >= 1900 && !defined(DO_NOT_USE_CXX11)
+// check if compiler is C++11
+#if (defined(_MSC_VER) &&  _MSC_VER >= 1900) || \
+    (defined(__cplusplus) && __cplusplus > 199711L)
+  #ifndef DO_NOT_USE_CXX11
     #define ALGLIN_USE_CXX11
-  #elif defined(ALGLIN_USE_THREAD)
-    #error "Alglin libray compiled without c++11 support, cannot use thread"
   #endif
-#else
-  #if __cplusplus > 199711L && !defined(DO_NOT_USE_CXX11)
-    #define ALGLIN_USE_CXX11
-  #elif defined(ALGLIN_USE_THREAD)
-    #error "Alglin libray compiled without c++11 support, cannot use thread"
-  #else
-  #endif
+#endif
+
+#if defined(ALGLIN_USE_THREAD) && !defined(ALGLIN_USE_CXX11)
+  #error "Alglin libray compiled without c++11 support, cannot use thread"
 #endif
 
 // find Headers for Lapack/Blas
