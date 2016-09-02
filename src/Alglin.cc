@@ -577,10 +577,10 @@ namespace alglin {
     std::vector<T> Wmin(MN), Wmax(MN) ;
 
     // Test the input scalar arguments.
-    if ( M < 0 )          return -1 ;
-    if ( N < 0 )          return -2 ;
-    if ( LDA < max(1,M) ) return -4 ;
-    if ( RCOND < 0 )      return -5 ;
+    if ( M < 0 )                return -1 ;
+    if ( N < 0 )                return -2 ;
+    if ( LDA < max_index(1,M) ) return -4 ;
+    if ( RCOND < 0 )            return -5 ;
 
     // Quick return if possible
     RANK    = 0 ;
