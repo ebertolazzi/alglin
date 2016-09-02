@@ -115,7 +115,7 @@
 // check if compiler is C++11
 #if (defined(_MSC_VER) &&  _MSC_VER >= 1900) || \
     (defined(__cplusplus) && __cplusplus > 199711L)
-  #ifndef DO_NOT_USE_CXX11
+  #ifndef ALGLIN_DO_NOT_USE_CXX11
     #define ALGLIN_USE_CXX11
   #endif
 #endif
