@@ -21,6 +21,16 @@
 #include <vector>
 #include <limits>
 
+// workaround for windows
+#ifdef _MSC_VER
+  #ifdef max
+    #undef max
+  #endif
+  #ifdef min
+    #undef min
+  #endif
+#endif
+
 #ifdef ALGLIN_OS_WINDOWS
 #include <cstdlib>
 static
