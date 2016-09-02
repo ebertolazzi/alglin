@@ -24,18 +24,14 @@
 #include "AlglinEigen.hh"
 #include <vector>
 
-#ifdef ALGLIN_USE_CXX11
-  #define BABD_QR_N_USE_THREAD
-#endif
-
-#define BABD_QR_N_USE_PIVOTING
-
 #ifdef BABD_QR_N_USE_THREAD
   #include <thread>
   #include <mutex>
   #include <condition_variable>
   #include <atomic>
-  #define BABD_QR_N_MAX_THREAD 256
+  #ifndef BABD_QR_N_MAX_THREAD
+    #define BABD_QR_N_MAX_THREAD 256
+  #endif
 #endif
 
 namespace alglin {

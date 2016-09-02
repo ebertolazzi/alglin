@@ -25,16 +25,14 @@
 
 #include <vector>
 
-#ifdef ALGLIN_USE_CXX11
-  #define BABD_AMODIO_USE_THREAD
-#endif
-
 #ifdef BABD_AMODIO_USE_THREAD
   #include <thread>
   #include <mutex>
   #include <condition_variable>
   #include <atomic>
-  #define BABD_AMODIO_MAX_THREAD 256
+  #ifndef BABD_AMODIO_MAX_THREAD
+    #define BABD_AMODIO_MAX_THREAD 256
+  #endif
 #endif
 
 namespace alglin {

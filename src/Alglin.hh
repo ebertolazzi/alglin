@@ -21,6 +21,8 @@
 /// file: alglin.hh
 ///
 
+#include "AlglinConfig.hh"
+
 #ifndef ALGLIN_HH
 #define ALGLIN_HH
 
@@ -64,32 +66,21 @@
 #include <ctgmath>
 #include <cstring>
 
-// osx architecture
 #if defined(__APPLE__) && defined(__MACH__)
+  // osx architecture
   #define ALGLIN_OS_OSX 1
   #if defined(__i386__)
     #define ALGLIN_ARCH32 1
   #elif defined(__x86_64__)
     #define ALGLIN_ARCH64 1
   #endif
-  #if !defined(ALGLIN_USE_ACCELERATE) && \
-      !defined(ALGLIN_USE_ATLAS)      && \
-      !defined(ALGLIN_USE_OPENBLAS)   && \
-      !defined(ALGLIN_USE_LAPACK)
-    #define ALGLIN_USE_ACCELERATE 1
-  #endif
 #elif defined(__unix__)
+  // linux architecture
   #define ALGLIN_OS_LINUX 1
   #if defined(__i386__)
     #define ALGLIN_ARCH32 1
   #elif defined(__x86_64__)
     #define ALGLIN_ARCH64 1
-  #endif
-  #if !defined(ALGLIN_USE_ACCELERATE) && \
-      !defined(ALGLIN_USE_ATLAS)      && \
-      !defined(ALGLIN_USE_OPENBLAS)   && \
-      !defined(ALGLIN_USE_LAPACK)
-    #define ALGLIN_USE_ATLAS 1
   #endif
 #elif defined(_WIN32) || defined(WIN32) || defined(_WIN64) || defined(WIN64)
   // windows architecture
@@ -103,26 +94,37 @@
     #define WIN32_LEAN_AND_MEAN
   #endif
   #include <windows.h>
-  #if !defined(ALGLIN_USE_ACCELERATE) && \
-      !defined(ALGLIN_USE_ATLAS)      && \
-      !defined(ALGLIN_USE_OPENBLAS)   && \
-      !defined(ALGLIN_USE_LAPACK)
-    #define ALGLIN_USE_LAPACK 1
-  #endif
 #else
   #error "unsupported OS!"
 #endif
 
+// if not choosed the linear algebra package select a defaulf one
+#if !defined(ALGLIN_USE_ACCELERATE) && \
+    !defined(ALGLIN_USE_ATLAS)      && \
+    !defined(ALGLIN_USE_OPENBLAS)   && \
+    !defined(ALGLIN_USE_LAPACK)
+  #if defined(ALGLIN_OS_OSX)
+    #define ALGLIN_USE_ACCELERATE 1
+  #elif defined(ALGLIN_OS_LINUX)
+    #define ALGLIN_USE_ATLAS 1
+  #elif defined(ALGLIN_OS_WINDOWS)
+    #define ALGLIN_USE_LAPACK 1
+  #endif
+#endif
+
 // if C++11
 #ifdef ALGLIN_OS_WINDOWS
-  #if _MSC_VER >= 1900
+  #if _MSC_VER >= 1900 && !defined(DO_NOT_USE_CXX11)
     #define ALGLIN_USE_CXX11
+  #elif defined(ALGLIN_USE_THREAD)
+    #error "Alglin libray compiled without c++11 support, cannot use thread"
   #endif
 #else
-  #if __cplusplus > 199711L
-    #ifndef DO_NOT_USE_CXX11
-      #define ALGLIN_USE_CXX11
-    #endif
+  #if __cplusplus > 199711L && !defined(DO_NOT_USE_CXX11)
+    #define ALGLIN_USE_CXX11
+  #elif defined(ALGLIN_USE_THREAD)
+    #error "Alglin libray compiled without c++11 support, cannot use thread"
+  #else
   #endif
 #endif
 
