@@ -46,6 +46,8 @@ char * basename(char *path) {
 #include <libgen.h>
 #endif
 
+#include <algorithm>
+
 namespace alglin {
 
   #ifdef ALGLIN_USE_CBLAS
@@ -393,13 +395,13 @@ namespace alglin {
     for ( integer j = 0 ; j < M ; ++j ) {
       T bf(0) ;
       for ( integer i = 0 ; i < N ; ++i )
-        bf = max( bf, std::abs(A[i+j*LDA]) ) ;
+        bf = std::max( bf, std::abs(A[i+j*LDA]) ) ;
       C[j] = 1/bf ;
     }
     for ( integer i = 0 ; i < N ; ++i ) {
       T bf(0) ;
       for ( integer j = 0 ; j < M ; ++j )
-        bf = max( bf, C[j]*std::abs(A[i+j*LDA]) ) ;
+        bf = std::max( bf, C[j]*std::abs(A[i+j*LDA]) ) ;
       R[i] = 1/bf ;
     }
     for ( integer k = 0 ; k < maxIter ; ++k ) {
@@ -420,17 +422,17 @@ namespace alglin {
     for ( integer j = 0 ; j < M ; ++j ) {
       T bf(0) ;
       for ( integer i = 0 ; i < N ; ++i )
-        bf = max( bf, R[i]*std::abs(A[i+j*LDA]) ) ;
+        bf = std::max( bf, R[i]*std::abs(A[i+j*LDA]) ) ;
       C[j] = 1/bf ;
-      normCinf = max( normCinf, std::abs(C[j]) ) ;
+      normCinf = std::max( normCinf, std::abs(C[j]) ) ;
     }
     T normRinf(0) ;
     for ( integer i = 0 ; i < N ; ++i ) {
       T bf(0) ;
       for ( integer j = 0 ; j < M ; ++j )
-        bf = max( bf, C[j]*std::abs(A[i+j*LDA]) ) ;
+        bf = std::max( bf, C[j]*std::abs(A[i+j*LDA]) ) ;
       R[i] = 1/bf ;
-      normRinf = max( normRinf, std::abs(R[i]) ) ;
+      normRinf = std::max( normRinf, std::abs(R[i]) ) ;
     }
     T alpha = sqrt(normRinf/normCinf) ;
     alglin::scal(  M, alpha, C, 1 ) ;
@@ -571,7 +573,7 @@ namespace alglin {
                 integer & RANK,
                 T         SVAL[3] ) {
 
-    integer MN = min(M, N) ;
+    integer MN = std::min(M, N) ;
     std::vector<T> Wmin(MN), Wmax(MN) ;
 
     // Test the input scalar arguments.
