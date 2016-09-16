@@ -227,6 +227,7 @@ namespace alglin {
     switch ( solver_used ) {
     case BABD_COLROW_LU:
     case BABD_COLROW_QR:
+    case BABD_COLROW_QRP:
     case BABD_COLROW_SVD:
       shift(in_out) ;
       colrow_LU.solve( in_out ) ;
@@ -239,6 +240,7 @@ namespace alglin {
       break ;
     case BABD_AMODIO_LU:
     case BABD_AMODIO_QR:
+    case BABD_AMODIO_QRP:
     case BABD_AMODIO_SVD:
       amodio_LU.solve( in_out ) ;
       break ;
