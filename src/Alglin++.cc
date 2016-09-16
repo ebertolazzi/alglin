@@ -22,6 +22,102 @@
 #include <vector>
 
 namespace alglin {
+  /*
+  //   _    _   _
+  //  | |  | | | |
+  //  | |  | | | |
+  //  | |__| |_| |
+  //  |_____\___/
+  */
+  template <typename T>
+  LU<T>::LU()
+  : nRow(0)
+  , nCol(0)
+  , Lwork(0)
+  , allocReals("allocReals")
+  , allocIntegers("allocIntegers")
+  {}
+
+  template <typename T>
+  LU<T>::~LU() {
+    allocReals.free() ;
+    allocIntegers.free() ;
+  }
+
+  template <typename T>
+  void
+  LU<T>::factorize( integer NR, integer NC, valueType const A[], integer LDA ) {
+    if ( nRow != NR || nCol != NC ) {
+      nRow = NR ;
+      nCol = NC ;
+      allocReals.allocate(size_t(nRow*nCol+2*(nRow+nCol))) ;
+      allocIntegers.allocate(size_t(2*nRow)) ;
+      this -> Amat    = allocReals(size_t(nRow*nCol)) ;
+      this -> Work    = allocReals(size_t(2*(nRow+nCol))) ;
+      this -> i_pivot = allocIntegers(size_t(nRow)) ;
+      this -> Iwork   = allocIntegers(size_t(nRow)) ;
+    }
+    integer info = gecopy( nRow, nCol, A, LDA, Amat, nRow ) ;
+    ALGLIN_ASSERT( info == 0, "LU::factorize gecopy INFO = " << info ) ;
+    info = getrf( nRow, nCol, Amat, nRow, i_pivot ) ;
+    ALGLIN_ASSERT( info == 0, "LU::factorize getrf INFO = " << info ) ;
+  }
+
+  template <typename T>
+  void
+  LU<T>::check_ls( char const who[] ) const {
+    ALGLIN_ASSERT( nRow == nCol, "LU<T>::" << who << ", rectangular matrix " << nRow << " x " << nCol ) ;
+  }
+
+  template <typename T>
+  void
+  LU<T>::solve( valueType xb[] ) const {
+    check_ls("solve") ;
+    integer info = getrs( NO_TRANSPOSE, nRow, 1, Amat, nRow, i_pivot, xb, nRow ) ;
+    ALGLIN_ASSERT( info == 0, "LU::solve getrs INFO = " << info ) ;
+  }
+
+  template <typename T>
+  void
+  LU<T>::t_solve( valueType xb[] ) const {
+    check_ls("t_solve") ;
+    integer info = getrs( TRANSPOSE, nRow, 1, Amat, nRow, i_pivot, xb, nRow ) ;
+    ALGLIN_ASSERT( info == 0, "LU::t_solve getrs INFO = " << info ) ;
+  }
+
+  template <typename T>
+  void
+  LU<T>::solve( integer nrhs, valueType B[], integer ldB ) const {
+    check_ls("solve") ;
+    integer info = getrs( NO_TRANSPOSE, nRow, nrhs, Amat, nRow, i_pivot, B, ldB ) ;
+    ALGLIN_ASSERT( info == 0, "LU::solve getrs INFO = " << info ) ;
+  }
+
+  template <typename T>
+  void
+  LU<T>::t_solve( integer nrhs, valueType B[], integer ldB ) const {
+    check_ls("t_solve") ;
+    integer info = getrs( TRANSPOSE, nRow, nrhs, Amat, nRow, i_pivot, B, ldB ) ;
+    ALGLIN_ASSERT( info >= 0, "LU::t_solve getrs INFO = " << info ) ;
+  }
+
+  template <typename T>
+  T
+  LU<T>::cond1( valueType norm1 ) const {
+    valueType rcond ;
+    integer info = gecon1( nRow, Amat, nRow, norm1, rcond, Work, Iwork ) ;
+    ALGLIN_ASSERT( info == 0, "LU::cond1, gecon1 return info = " << info ) ;
+    return rcond ;
+  }
+
+  template <typename T>
+  T
+  LU<T>::condInf( valueType normInf ) const {
+    valueType rcond ;
+    integer info = geconInf( nRow, Amat, nRow, normInf, rcond, Work, Iwork ) ;
+    ALGLIN_ASSERT( info == 0, "LU::condInf, geconInf return info = " << info ) ;
+    return rcond ;
+  }
 
   /*
   //    ___  ____
@@ -30,200 +126,209 @@ namespace alglin {
   //  | |_| |  _ <
   //   \__\_\_| \_\
   */
-
   template <typename T>
   void
-  QR<T>::factorize( integer NR, integer NC, valueType const A[], integer LDA ) {
-    mxabs = maxabs( NR, NC, A, LDA ) ;
-    ALGLIN_ASSERT( mxabs > 0, "QR::factorize, mxabs = " << mxabs ) ;
-
-    // calcolo fattorizzazione QR della matrice A
-    nRow       = NR ;
-    nCol       = NC ;
-    nReflector = min(nRow,nCol) ;
-    integer mm = max(nRow,nCol) ;
-    valueType tmp ; // get optimal allocation
-    integer info = geqp3( NR, NC, nullptr, NR, nullptr, nullptr, &tmp, -1 ) ;
-    ALGLIN_ASSERT( info == 0, "QR::factorize call alglin::geqp3 return info = " << info ) ;
-    Lwork = integer(tmp) ;
-    info = tzrzf( NR, NC, nullptr, NR, nullptr, &tmp, -1 ) ;
-    ALGLIN_ASSERT( info == 0, "QR::factorize call alglin::tzrzf return info = " << info ) ;
-    if ( Lwork < integer(tmp) ) Lwork = integer(tmp) ;
-    if ( Lwork < nRow*nCol    ) Lwork = nRow*nCol ;
-    allocReals.allocate(size_t(nRow*nCol+Lwork+nCol+2*nReflector+mm)) ;
-    allocIntegers.allocate(size_t(nCol)) ;
-    Amat   = allocReals(size_t(nRow*nCol)) ;
-    Work   = allocReals(size_t(Lwork)) ;
-    Tau    = allocReals(size_t(nReflector)) ;
-    TauTop = allocReals(size_t(nReflector)) ;
-    JPVT   = allocIntegers(size_t(nCol)) ;
-    xbtmp  = allocReals(size_t(mm)) ;
-    info   = gecopy( NR, NC, A, LDA, Amat, nRow ) ;
-    ALGLIN_ASSERT( info == 0, "QR::factorize call alglin::gecopy return info = " << info ) ;
-    info = lascl( FULL_MATRIX, 0, 0, mxabs, 1, nRow, nCol, Amat, nRow ) ;
-    ALGLIN_ASSERT( info == 0, "QR::factorize call alglin::lascl return info = " << info ) ;
-    std::fill( JPVT, JPVT + nCol, 0 ) ;
-    ///outMAPLE( nRow, nCol, Amat, nRow, cout ) ;
-    info = geqp3( nRow, nCol, Amat, nRow, JPVT, Tau, Work, Lwork ) ;
-    ALGLIN_ASSERT( info == 0, "QR::factorize call alglin::geqp3 return info = " << info ) ;
-    top_factorized = false ;
-    rank           = nReflector ;
+  QR<T>::allocate( integer NR, integer NC ) {
+    if ( nRow != NR || nCol != NC ) {
+      nRow       = NR ;
+      nCol       = NC ;
+      nReflector = min(nRow,nCol) ;
+      valueType tmp ; // get optimal allocation
+      integer info = geqrf( NR, NC, nullptr, NR, nullptr, &tmp, -1 ) ;
+      ALGLIN_ASSERT( info == 0, "QR::factorize call alglin::geqrf return info = " << info ) ;
+      Lwork = integer(tmp) ;
+      allocReals.allocate(size_t(nRow*nCol+Lwork+nReflector)) ;
+      Amat = allocReals(size_t(nRow*nCol)) ;
+      Work = allocReals(size_t(Lwork)) ;
+      Tau  = allocReals(size_t(nReflector)) ;
+    }
   }
 
   template <typename T>
   void
-  QR<T>::applyQ( SideMultiply  const & SIDE,
-                 Transposition const & TRANS,
-                 integer NR, integer NC,
-                 valueType C[], integer ldC ) const {
+  QR<T>::factorize( integer NR, integer NC, valueType const A[], integer LDA ) {
+    // calcolo fattorizzazione QR della matrice A
+    allocate( NR, NC ) ;
+    integer info = gecopy( NR, NC, A, LDA, Amat, nRow ) ;
+    ALGLIN_ASSERT( info == 0, "QR::factorize call alglin::gecopy return info = " << info ) ;
+    info = geqrf( nRow, nCol, Amat, nRow, Tau, Work, Lwork ) ;
+    ALGLIN_ASSERT( info == 0, "QR::factorize call alglin::geqrf return info = " << info ) ;
+  }
+
+  template <typename T>
+  void
+  QR<T>::t_factorize( integer NR, integer NC, valueType const A[], integer LDA ) {
+    // calcolo fattorizzazione QR della matrice A
+    allocate( NC, NR ) ;
+    for ( integer i = 0 ; i < NR ; ++i ) copy( NC, A+i, LDA, Amat + i*nRow, 1 ) ;
+    integer info = geqrf( nRow, nCol, Amat, nRow, Tau, Work, Lwork ) ;
+    ALGLIN_ASSERT( info == 0, "QR::factorize call alglin::geqrf return info = " << info ) ;
+  }
+
+  template <typename T>
+  void
+  QR<T>::applyQ( SideMultiply  SIDE,
+                 Transposition TRANS,
+                 integer       nRefl,
+                 integer       NR,
+                 integer       NC,
+                 valueType     C[],
+                 integer       ldC ) const {
     ALGLIN_ASSERT( (SIDE == alglin::LEFT  && NR == nRow) ||
                    (SIDE == alglin::RIGHT && NC == nRow),
                    "QR::applyQ NR = " << NR << " NC = " << NC << " nRow = " << nRow ) ;
     integer info = ormqr( SIDE, TRANS,
                           NR, NC,
-                          nReflector,  // numero riflettori Q
+                          nRefl,  // numero riflettori usati nel prodotto Q
                           Amat, nRow /*ldA*/,
                           Tau,
                           C, ldC,
                           Work, Lwork ) ;
     ALGLIN_ASSERT( info == 0, "QR::applyQ call alglin::ormqr return info = " << info ) ;
   }
-    
+      
   template <typename T>
   void
-  QR<T>::solveT( Transposition const & TRANS,
-                 integer rk, valueType x[], integer incx ) const {
-    // risolvo R
-    trsv( UPPER, TRANS, NON_UNIT, rk, Amat, nRow, x, incx ) ;
-  }
-    
-  template <typename T>
-  void
-  QR<T>::solveT( SideMultiply  const & SIDE,
-                 Transposition const & TRANS,
-                 integer N, integer M,
-                 valueType alpha, valueType Bmat[], integer ldB ) const {
-    // risolvo R
-    trsm( SIDE, UPPER, TRANS, NON_UNIT, N, M, alpha, Amat, nRow, Bmat, ldB ) ;
+  QR<T>::getR( valueType R[], integer ldR ) const {
+    integer minRC = std::min( nRow, nCol ) ;
+    gezero( minRC, minRC, R, ldR ) ;
+    for ( integer i = 0 ; i < minRC ; ++i )
+      for ( integer j = i ; j < minRC ; ++j )
+        R[i+j*ldR] = Amat[ i+j*nRow] ;
   }
 
   template <typename T>
   void
-  QR<T>::permute( valueType x[] ) const {
+  QR<T>::solve( valueType xb[] ) const {
+    ALGLIN_ASSERT( nRow == nCol,
+                   "in QR::solve, factored matrix must be square" ) ;
+    Qt_mul(xb) ;
+    invR_mul(xb) ;
+  }
+
+  template <typename T>
+  void
+  QR<T>::t_solve( valueType xb[] ) const {
+    ALGLIN_ASSERT( nRow == nCol,
+                   "in QR::solve_t, factored matrix must be square" ) ;
+    invRt_mul(xb) ;
+    Q_mul(xb) ;
+  }
+
+  template <typename T>
+  void
+  QR<T>::solve( integer nrhs, valueType XB[], integer ldXB ) const {
+    ALGLIN_ASSERT( nRow == nCol,
+                   "in QR::solve, factored matrix must be square" ) ;
+    Qt_mul( nRow, nrhs, XB, ldXB ) ;
+    invR_mul( nRow, nrhs, XB, ldXB ) ;
+  }
+
+  template <typename T>
+  void
+  QR<T>::t_solve( integer nrhs, valueType XB[], integer ldXB ) const {
+    ALGLIN_ASSERT( nRow == nCol,
+                   "in QR::solve_t, factored matrix must be square" ) ;
+    invRt_mul( nRow, nrhs, XB, ldXB ) ;
+    Q_mul( nRow, nrhs, XB, ldXB ) ;
+  }
+
+  /*
+  //    ___  ____  ____
+  //   / _ \|  _ \|  _ \
+  //  | | | | |_) | |_) |
+  //  | |_| |  _ <|  __/
+  //   \__\_\_| \_\_|
+  */
+
+  template <typename T>
+  void
+  QRP<T>::factorize( integer NR, integer NC, valueType const A[], integer LDA ) {
+    // calcolo fattorizzazione QR della matrice A
+    this->allocate( NR, NC ) ;
+    allocIntegers.allocate(size_t(this->nCol)) ;
+    JPVT = allocIntegers(size_t(this->nCol)) ;
+    integer info = gecopy( NR, NC, A, LDA, this->Amat, this->nRow ) ;
+    ALGLIN_ASSERT( info == 0, "QR::factorize call alglin::gecopy return info = " << info ) ;
+    info = geqp3( this->nRow, this->nCol,
+                  this->Amat, this->nRow,
+                  JPVT,
+                  this->Tau,
+                  this->Work, this->Lwork ) ;
+    ALGLIN_ASSERT( info == 0, "QRP::factorize call alglin::geqrf return info = " << info ) ;
+  }
+
+  template <typename T>
+  void
+  QRP<T>::t_factorize( integer NR, integer NC, valueType const A[], integer LDA ) {
+    // calcolo fattorizzazione QR della matrice A
+    this->allocate( NC, NR ) ;
+    allocIntegers.allocate(size_t(this->nCol)) ;
+    JPVT = allocIntegers(size_t(this->nCol)) ;
+    for ( integer i = 0 ; i < NR ; ++i )
+      copy( NC, A+i, LDA, this->Amat + i*this->nRow, 1 ) ;
+    integer info = geqp3( this->nRow, this->nCol,
+                          this->Amat, this->nRow,
+                          JPVT,
+                          this->Tau,
+                          this->Work, this->Lwork ) ;
+    ALGLIN_ASSERT( info == 0, "QRP::factorize call alglin::geqrf return info = " << info ) ;
+  }
+
+  template <typename T>
+  void
+  QRP<T>::permute( valueType x[] ) const {
     // applico permutazione
-    for ( integer i = 0 ; i < nCol ; ++i ) Work[JPVT[i]-1] = x[i] ;
-    copy( nCol, Work, 1, x, 1 ) ;
+    for ( integer i = 0 ; i < this->nCol ; ++i ) this->Work[JPVT[i]-1] = x[i] ;
+    copy( this->nCol, this->Work, 1, x, 1 ) ;
   }
 
   template <typename T>
   void
-  QR<T>::permute( integer ncolC, valueType C[], integer ldC ) const {
+  QRP<T>::inv_permute( valueType x[] ) const {
     // applico permutazione
-    for ( integer j = 0 ; j < ncolC ; ++j ) permute( C + ldC*j ) ;
+    for ( integer i = 0 ; i < this->nCol ; ++i ) this->Work[i] = x[JPVT[i]-1] ;
+    copy( this->nCol, this->Work, 1, x, 1 ) ;
   }
 
   template <typename T>
   void
-  QR<T>::topFactorize() const {
-    integer info = tzrzf( rank, nCol, Amat, nRow, TauTop, Work, Lwork ) ;
-    ALGLIN_ASSERT( info == 0, "QR::topFactorize call alglin::tzrzf return info = " << info ) ;
-    top_factorized = true ;
+  QRP<T>::solve( valueType xb[] ) {
+    ALGLIN_ASSERT( this->nRow == this->nCol,
+                   "in QRP::solve, factored matrix must be square" ) ;
+    this->Qt_mul(xb) ;
+    this->invR_mul(xb) ;
+    this->permute( xb ) ; // da aggiungere!
   }
 
   template <typename T>
   void
-  QR<T>::solve( valueType const rhs[], valueType x[] ) const {
-    copy( nRow, rhs, 1, xbtmp, 1 ) ;
-    applyQ( LEFT, TRANSPOSE, nRow, 1, xbtmp, nRow ) ;
-    solveT( NO_TRANSPOSE, rank, xbtmp, 1 ) ;
-    for ( integer i = 0 ; i < nCol ; ++i ) x[JPVT[i]-1] = xbtmp[i] ;
-    integer info = lascl( FULL_MATRIX, 0, 0, mxabs, 1, nCol, 1, x, nCol ) ;
-    ALGLIN_ASSERT( info == 0, "QR::minq call alglin::lascl return info = " << info ) ;
+  QRP<T>::t_solve( valueType xb[] ) {
+    ALGLIN_ASSERT( this->nRow == this->nCol,
+                   "in QRP::solve_t, factored matrix must be square" ) ;
+    this->inv_permute( xb ) ; // da aggiungere!
+    this->invRt_mul(xb) ;
+    this->Q_mul(xb) ;
   }
 
   template <typename T>
   void
-  QR<T>::minq( valueType const rhs[], valueType x[], valueType lambda ) const {
-
-    // se NR > NC |x| < |rhs|
-    copy( nRow, rhs, 1, xbtmp, 1 ) ;
-    applyQ( LEFT, TRANSPOSE, nRow, 1, xbtmp, nRow ) ;
-
-    if ( rank < nCol && !top_factorized ) topFactorize() ;
-
-    if ( lambda > 0 ) triTikhonov( rank, Amat, nRow, 1, xbtmp, rank, lambda ) ;
-    else              solveT( NO_TRANSPOSE, rank, xbtmp, 1 ) ;
-
-    if ( rank < nCol ) {
-      for ( integer i = rank ; i < nCol ; ++i ) xbtmp[i] = 0 ;
-      integer info = ormrz( LEFT, TRANSPOSE,
-                            nCol, 1, rank, nCol-rank,
-                            Amat, nRow,
-                            TauTop,
-                            xbtmp, nCol,
-                            Work, Lwork ) ;
-      ALGLIN_ASSERT( info == 0, "QR::minq call alglin::ormrz return info = " << info ) ;
-    }
-    for ( integer i = 0 ; i < nCol ; ++i ) x[JPVT[i]-1] = xbtmp[i] ;
-
-    integer info = lascl( FULL_MATRIX, 0, 0, mxabs, 1, nCol, 1, x, nCol ) ;
-    ALGLIN_ASSERT( info == 0, "QR::minq call alglin::lascl return info = " << info ) ;
-
+  QRP<T>::solve( integer nrhs, valueType XB[], integer ldXB ) const {
+    ALGLIN_ASSERT( this->nRow == this->nCol,
+                   "in QRP::solve, factored matrix must be square" ) ;
+    this->Qt_mul( this->nRow, nrhs, XB, ldXB ) ;
+    this->invR_mul( this->nRow, nrhs, XB, ldXB ) ;
+    this->permute_rows( this->nRow, nrhs, XB, ldXB ) ; // da aggiungere!
   }
 
   template <typename T>
   void
-  QR<T>::minq( integer nrhs,
-               valueType const rhs[], integer ldRHS,
-               valueType       x[],   integer ldX,
-               valueType lambda ) const {
-    ALGLIN_ASSERT( ldRHS >= nRow, "QR::minq ldRHS = " << ldRHS << " < " << nRow << " = nRow" ) ;
-    ALGLIN_ASSERT( ldX   >= nCol, "QR::minq ldX = " << ldX << " < " << nCol << " = nCol" ) ;
-
-    // se NR > NC |x| < |rhs|
-    for ( integer j = 0 ; j < nrhs ; ++j ) {
-      copy( nRow, rhs+j*ldRHS, 1, xbtmp, 1 ) ;
-      applyQ( LEFT, TRANSPOSE, nRow, 1, xbtmp, nRow ) ;
-      copy( nRow, xbtmp, 1, x+j*ldX, 1 ) ;
-    }
-
-    if ( rank < nCol && !top_factorized ) topFactorize() ;
-
-    if ( lambda > 0 ) triTikhonov( rank, Amat, nRow, nrhs, x, rank, lambda ) ;
-    else              solveT( LEFT, NO_TRANSPOSE, rank, nrhs, 1.0, x, ldX ) ;
-
-    if ( rank < nCol ) {
-      for ( integer j = 0 ; j < nrhs ; ++j ) {
-        valueType * xj = x+j*ldX ;
-        copy( rank, xj, 1, xbtmp, 1 ) ;
-        zero( nCol-rank, xbtmp+rank, 1 ) ;
-        integer info = ormrz( LEFT, TRANSPOSE,
-                              nCol, 1, rank, nCol-rank,
-                              Amat, nRow,
-                              TauTop,
-                              xbtmp, nCol,
-                              Work, Lwork ) ;
-        ALGLIN_ASSERT( info == 0, "QR::minq call alglin::ormrz return info = " << info ) ;
-        for ( integer i = 0 ; i < nCol ; ++i ) xj[JPVT[i]-1] = xbtmp[i] ;
-      }
-    }
-
-    integer info = lascl( FULL_MATRIX, 0, 0, mxabs, 1, nCol, nrhs, x, ldX ) ;
-    ALGLIN_ASSERT( info == 0, "QR::minq call alglin::lascl return info = " << info ) ;
-
-  }
-
-  template <typename T>
-  void
-  QR<T>::print( ostream & stream, integer prec ) const {
-    stream << "R " << nRow << " x " << nCol << " =\n" ;
-    outMATRIX( UPPER_TRIANGULAR_MATRIX, nRow, nCol, Amat, nRow, stream, prec ) ;
-    stream << "A " << nRow << " x " << nCol << " =\n" ;
-    outMATRIX( FULL_MATRIX, nRow, nCol, Amat, nRow, stream, prec ) ;
-    stream << "TAU 1 x " << nReflector << " =\n" ;
-    outMATRIX( FULL_MATRIX, 1, nReflector, Tau, 1, stream, prec ) ;
-    stream << "JPVT 1 x " << nReflector << " =\n" ;
-    outMATRIX( FULL_MATRIX, 1, nReflector, JPVT, 1, stream, prec ) ;
+  QRP<T>::t_solve( integer nrhs, valueType XB[], integer ldXB ) const {
+    ALGLIN_ASSERT( this->nRow == this->nCol,
+                   "in QRP::solve_t, factored matrix must be square" ) ;
+    this->inv_permute_rows( this->nRow, nrhs, XB, ldXB ) ; // da aggiungere!
+    this->invRt_mul( this->nRow, nrhs, XB, ldXB ) ;
+    this->Q_mul( this->nRow, nrhs, XB, ldXB ) ;
   }
 
   /*
@@ -233,69 +338,72 @@ namespace alglin {
   //   ___) |\ V / | |_| |
   //  |____/  \_/  |____/
   */
+  template <typename T>
+  void
+  SVD<T>::allocate( integer NR, integer NC, integer LDA ) {
+  
+    if ( nRow != NR || nCol != NC ) {
+      nRow  = NR ;
+      nCol  = NC ;
+      minRC = min(NR,NC) ;
+      valueType tmp ;
+      integer info = gesvd( REDUCED, REDUCED,
+                            NR, NC,
+                            nullptr, LDA,
+                            nullptr,
+                            nullptr, NR,
+                            nullptr, minRC,
+                            &tmp, -1 ) ;
+      ALGLIN_ASSERT( info == 0,
+                     "alglin::SVD::allocate, in gesvd info = " << info ) ;
+      Lwork = integer(tmp) ;
+      info = gesdd( REDUCED,
+                    NR, NC,
+                    nullptr, LDA,
+                    nullptr,
+                    nullptr, NR,
+                    nullptr, minRC,
+                    &tmp, -1, nullptr ) ;
+       if ( integer(tmp) > Lwork ) Lwork = integer(tmp) ;
+       allocReals.allocate(nRow*nCol+minRC*(nRow+nCol+1)+Lwork) ;
+       Amat    = allocReals(nRow*nCol) ;
+       Svec    = allocReals(minRC) ;
+       Umat    = allocReals(minRC*nRow) ;
+       VTmat   = allocReals(minRC*nCol) ;
+       Work    = allocReals(Lwork) ;
+       allocIntegers.allocate(8*minRC) ;
+       IWork   = allocIntegers(8*minRC) ;
+    }
+  }
 
   template <typename T>
   void
-  SVD<T>::factorize( integer NR,
-                     integer NC,
-                     T const A[],
-                     integer LDA,
-                     T       threshold ) {
-    mxabs = maxabs( NR, NC, A, LDA ) ;
-    ALGLIN_ASSERT( mxabs > 0, "SVD::factorize, mxabs = " << mxabs ) ;
-    nRow  = NR ;
-    nCol  = NC ;
-    minRC = min(NR,NC) ;
-    valueType tmp ;
-    integer info = use_gesvd ? gesvd( REDUCED,
-                                      REDUCED,
-                                      NR, NC,
-                                      nullptr, LDA,
-                                      nullptr,
-                                      nullptr, NR,
-                                      nullptr, minRC,
-                                      &tmp, -1 ) :
-                               gesdd( REDUCED,
-                                      NR, NC,
-                                      nullptr, LDA,
-                                      nullptr,
-                                      nullptr, NR,
-                                      nullptr, minRC,
-                                      &tmp, -1, nullptr ) ;
-    Lwork = integer(tmp) ;
-    allocReals.allocate(nRow*nCol+minRC*(nRow+nCol+2)+Lwork) ;
-    Amat    = allocReals(nRow*nCol) ;
-    Svec    = allocReals(minRC) ;
-    invSvec = allocReals(minRC) ;
-    Umat    = allocReals(minRC*nRow) ;
-    VTmat   = allocReals(minRC*nCol) ;
-    Work    = allocReals(Lwork) ;
-    info    = gecopy( NR, NC, A, LDA, Amat, nRow ) ;
+  SVD<T>::factorize( integer         NR,
+                     integer         NC,
+                     valueType const A[],
+                     integer         LDA ) {
+
+    allocate( NR, NC, LDA ) ;
+    integer info = gecopy( nRow, nCol, A, LDA, Amat, nRow ) ;
     ALGLIN_ASSERT( info == 0, "SVD::factorize call alglin::gecopy return info = " << info ) ;
-    info = lascl( FULL_MATRIX, 0, 0, mxabs, 1, nRow, nCol, Amat, nRow ) ;
-    ALGLIN_ASSERT( info == 0, "SVD::factorize call alglin::lascl return info = " << info ) ;
     if ( use_gesvd ) {
       info = gesvd( REDUCED,
                     REDUCED,
-                    NR, NC, Amat, NR,
+                    nRow, nCol, Amat, nRow,
                     Svec,
-                    Umat, NR,
+                    Umat, nRow,
                     VTmat, minRC,
                     Work, Lwork ) ;
       ALGLIN_ASSERT( info == 0, "SVD::factorize call alglin::gesvd return info = " << info ) ;
     } else {
-      std::vector<integer> IWork(8*minRC) ;
       info = gesdd( REDUCED,
-                    NR, NC, Amat, NR,
+                    nRow, nCol, Amat, nRow,
                     Svec,
-                    Umat, NR,
+                    Umat, nRow,
                     VTmat, minRC,
-                    Work, Lwork, &IWork.front() ) ;
+                    Work, Lwork, IWork ) ;
       ALGLIN_ASSERT( info == 0, "SVD::factorize call alglin::gesdd return info = " << info ) ;
     }
-    tmp = threshold*Svec[0] ;
-    for ( _rank = 0 ; _rank < minRC && Svec[_rank] > tmp; ++_rank ) invSvec[_rank] = 1/Svec[_rank] ;
-    for ( integer i = _rank+1 ; i < minRC ; ++i ) invSvec[i] = 2/hypot(tmp,Svec[i]) ;
   }
 
   template <typename T>
@@ -305,24 +413,9 @@ namespace alglin {
     // U*S*VT*x=b --> VT^T S^+ U^T b
     // U  nRow x minRC
     // VT minRC x nCol
-    gemv( TRANSPOSE,
-          nRow,
-          minRC,
-          1.0, Umat, nRow,
-          in, 1,
-          0.0, Work, 1 ) ;
-
-    for ( integer i = 0 ; i < minRC ; ++i ) Work[i] *= invSvec[i] ;
-
-    gemv( TRANSPOSE,
-          minRC,
-          nCol,
-          1.0, VTmat, minRC,
-          Work, 1,
-          0.0, out, 1 ) ;
-
-    integer info = lascl( FULL_MATRIX, 0, 0, mxabs, 1, nCol, 1, out, nCol ) ;
-    ALGLIN_ASSERT( info == 0, "SVD::solve call alglin::lascl return info = " << info ) ;
+    Ut_mul( 1.0, in, 1, 0.0, Work, 1 ) ;
+    for ( integer i = 0 ; i < minRC ; ++i ) Work[i] /= Svec[i] ;
+    V_mul( 1.0, Work, 1, 0.0, out, 1 ) ;
   }
 
   template <typename T>
@@ -333,12 +426,150 @@ namespace alglin {
     for ( integer i = 0 ; i < nrhs ; ++i ) solve( rhs + i*ldRHS, x + i*ldX ) ; 
   }
 
+  template <typename T>
+  void
+  SVD<T>::t_solve( valueType const in[], valueType out[] ) const {
+    // A = U*S*VT
+    // U*S*VT*x=b --> VT^T S^+ U^T b
+    // U  nRow x minRC
+    // VT minRC x nCol
+    Vt_mul( 1.0, in, 1, 0.0, Work, 1 ) ;
+    for ( integer i = 0 ; i < minRC ; ++i ) Work[i] /= Svec[i] ;
+    U_mul( 1.0, Work, 1, 0.0, out, 1 ) ;
+  }
+
+  template <typename T>
+  void
+  SVD<T>::t_solve( integer         nrhs,
+                   valueType const rhs[], integer ldRHS,
+                   valueType       x[],   integer ldX ) const {
+    for ( integer i = 0 ; i < nrhs ; ++i ) t_solve( rhs + i*ldRHS, x + i*ldX ) ;
+  }
+
+  template <typename valueType>
+  inline
+  void
+  tridiag_axpy( integer         N,
+                valueType       alpha,
+                valueType const L[],
+                valueType const D[],
+                valueType const U[],
+                valueType const x[],
+                valueType       beta,
+                valueType       y[] ) {
+    if ( isZero(beta) ) {
+      y[0] = alpha*(D[0]*x[0] + U[0] * x[1]) ;
+      for ( integer i = 1 ; i < N-1 ; ++i )
+        y[i] = alpha*(D[i]*x[i] + U[i] * x[i+1] + L[i-1] * x[i-1]) ;
+      y[N-1] = alpha*(D[N-1]*x[N-1] + L[N-2] * x[N-2]) ;
+    } else {
+      y[0] = beta*y[0] + alpha*(D[0]*x[0] + U[0] * x[1]) ;
+      for ( integer i = 1 ; i < N-1 ; ++i )
+        y[i] = beta*y[i] + alpha*(D[i]*x[i] + U[i] * x[i+1] + L[i-1] * x[i-1]) ;
+      y[N-1] = beta*y[N-1] + alpha*(D[N-1]*x[N-1] + L[N-2] * x[N-2]) ;
+    }
+  }
+
+  //============================================================================
   /*
-  //   _____     _     _ _                               _
-  //  |_   _| __(_) __| (_) __ _  __ _  ___  _ __   __ _| |
-  //    | || '__| |/ _` | |/ _` |/ _` |/ _ \| '_ \ / _` | |
-  //    | || |  | | (_| | | (_| | (_| | (_) | | | | (_| | |
-  //    |_||_|  |_|\__,_|_|\__,_|\__, |\___/|_| |_|\__,_|_|
+  //   _____     _     _ _                               _ _    _   _
+  //  |_   _| __(_) __| (_) __ _  __ _  ___  _ __   __ _| | |  | | | |
+  //    | || '__| |/ _` | |/ _` |/ _` |/ _ \| '_ \ / _` | | |  | | | |
+  //    | || |  | | (_| | | (_| | (_| | (_) | | | | (_| | | |__| |_| |
+  //    |_||_|  |_|\__,_|_|\__,_|\__, |\___/|_| |_|\__,_|_|_____\___/
+  //                             |___/
+  */
+  template <typename T>
+  void
+  TridiagonalLU<T>::factorize( integer         N,
+                               valueType const _L[],
+                               valueType const _D[],
+                               valueType const _U[] ) {
+    if ( this -> nRC != N ) {
+      this -> nRC = N ;
+      allocReals.allocate(6*N) ;
+      allocIntegers.allocate(2*N) ;
+      L     = allocReals(N) ;
+      D     = allocReals(N) ;
+      U     = allocReals(N) ;
+      U2    = allocReals(N) ;
+      WORK  = allocReals(2*N) ;
+      IPIV  = allocIntegers(N) ;
+      IWORK = allocIntegers(N) ;
+    }
+    copy( N, _L, 1, L, 1 ) ;
+    copy( N, _D, 1, D, 1 ) ;
+    copy( N, _U, 1, U, 1 ) ;
+    integer info = gttrf( N, L, D, U, U2, IPIV ) ;
+    ALGLIN_ASSERT( info == 0, "Tridiagonal::factorize, return info = " << info ) ;
+  }
+  
+  template <typename T>
+  T
+  TridiagonalLU<T>::cond1( valueType norm1 ) const {
+    valueType rcond ;
+    integer info = gtcon1( nRC, L, D, U, U2, IPIV, norm1, rcond, WORK, IWORK ) ;
+    ALGLIN_ASSERT( info == 0, "Tridiagonal::cond1, return info = " << info ) ;
+    return rcond ;
+  }
+
+  template <typename T>
+  T
+  TridiagonalLU<T>::condInf( valueType normInf ) const {
+    valueType rcond ;
+    integer info = gtconInf( nRC, L, D, U, U2, IPIV, normInf, rcond, WORK, IWORK ) ;
+    ALGLIN_ASSERT( info == 0, "Tridiagonal::cond1, return info = " << info ) ;
+    return rcond ;
+  }
+
+  template <typename T>
+  void
+  TridiagonalLU<T>::solve( valueType xb[] ) const {
+    integer info = gttrs( NO_TRANSPOSE, nRC, 1, L, D, U, U2, IPIV, xb, nRC ) ;
+    ALGLIN_ASSERT( info == 0, "Tridiagonal::solve, return info = " << info ) ;
+  }
+
+  template <typename T>
+  void
+  TridiagonalLU<T>::t_solve( valueType xb[] ) const {
+    integer info = gttrs( TRANSPOSE, nRC, 1, L, D, U, U2, IPIV, xb, nRC ) ;
+    ALGLIN_ASSERT( info == 0, "Tridiagonal::solve, return info = " << info ) ;
+  }
+
+  template <typename T>
+  void
+  TridiagonalLU<T>::solve( integer nrhs, valueType xb[], integer ldXB ) const {
+    integer info = gttrs( NO_TRANSPOSE, nRC, nrhs, L, D, U, U2, IPIV, xb, ldXB ) ;
+    ALGLIN_ASSERT( info == 0, "Tridiagonal::solve, return info = " << info ) ;
+  }
+
+  template <typename T>
+  void
+  TridiagonalLU<T>::t_solve( integer nrhs, valueType xb[], integer ldXB ) const {
+    integer info = gttrs( TRANSPOSE, nRC, nrhs, L, D, U, U2, IPIV, xb, ldXB ) ;
+    ALGLIN_ASSERT( info == 0, "Tridiagonal::solve, return info = " << info ) ;
+  }
+
+  template <typename T>
+  void
+  TridiagonalLU<T>::axpy( integer         N,
+                          valueType       alpha,
+                          valueType const L[],
+                          valueType const D[],
+                          valueType const U[],
+                          valueType const x[],
+                          valueType       beta,
+                          valueType       y[] ) const {
+    tridiag_axpy( N, alpha, L, D, U, x, beta, y ) ;
+  }
+
+  //============================================================================
+  /*
+  //   _____     _     _ _                               _  ___  ____
+  //  |_   _| __(_) __| (_) __ _  __ _  ___  _ __   __ _| |/ _ \|  _ \
+  //    | || '__| |/ _` | |/ _` |/ _` |/ _ \| '_ \ / _` | | | | | |_) |
+  //    | || |  | | (_| | | (_| | (_| | (_) | | | | (_| | | |_| |  _ <
+  //    |_||_|  |_|\__,_|_|\__,_|\__, |\___/|_| |_|\__,_|_|\__\_\_| \_\
   //                             |___/
   */
 
@@ -410,38 +641,53 @@ namespace alglin {
 
   template <typename T>
   void
-  TridiagonalQR<T>::solve( valueType xb[], Transposition const & TRANS ) const {
-    if ( TRANS == NO_TRANSPOSE ) {
-      // A x = b --> Q A x = Q b --> R x = Q b
-      // applico Q b
-      for ( integer i = 0 ; i < nRC-1 ; ++i )
-        rot( 1, &xb[i], 1, &xb[i+1], 1, C[i], S[i] ) ;
-      Rsolve( xb ) ;
-    } else {
-      // A^T x = b --> A^T Q^T Q x = b --> R^T Q x = b --> R^T y = b  x = Q^T y
-      RsolveTransposed( xb ) ;
-      // applico Q^T b
-      for ( integer i = nRC-2 ; i >= 0 ; --i )
-        rot( 1, &xb[i], 1, &xb[i+1], 1, C[i], -S[i] ) ;
-    }
+  TridiagonalQR<T>::solve( valueType xb[] ) const {
+    // A x = b --> Q A x = Q b --> R x = Q b
+    // applico Q b
+    for ( integer i = 0 ; i < nRC-1 ; ++i )
+      rot( 1, &xb[i], 1, &xb[i+1], 1, C[i], S[i] ) ;
+    Rsolve( xb ) ;
   }
 
   template <typename T>
   void
-  TridiagonalQR<T>::solve( integer nrhs, valueType xb[], integer ldXB,
-                           Transposition const & TRANS ) const {
-    if ( TRANS == NO_TRANSPOSE ) {
-      // A x = b --> Q A x = Q b --> R x = Q b
-      // applico Q b
-      for ( integer i = 0 ; i < nRC-1 ; ++i ) rot( nrhs, &xb[i], ldXB, &xb[i+1], ldXB, C[i], S[i] ) ;
-      for ( integer i = 0 ; i < nrhs  ; ++i ) Rsolve( xb+i*ldXB ) ;
-    } else {
-      // A^T x = b --> A^T Q^T Q x = b --> R^T Q x = b --> R^T y = b  x = Q^T y
-      for ( integer i = 0     ; i < nrhs ; ++i ) RsolveTransposed(xb+i*ldXB) ;
-      for ( integer i = nRC-2 ; i >= 0   ; --i ) rot( nrhs, &xb[i], ldXB, &xb[i+1], ldXB, C[i], -S[i] ) ;
-    }
+  TridiagonalQR<T>::t_solve( valueType xb[] ) const {
+    // A^T x = b --> A^T Q^T Q x = b --> R^T Q x = b --> R^T y = b  x = Q^T y
+    RsolveTransposed( xb ) ;
+    // applico Q^T b
+    for ( integer i = nRC-2 ; i >= 0 ; --i )
+      rot( 1, &xb[i], 1, &xb[i+1], 1, C[i], -S[i] ) ;
   }
 
+  template <typename T>
+  void
+  TridiagonalQR<T>::solve( integer nrhs, valueType xb[], integer ldXB ) const {
+    // A x = b --> Q A x = Q b --> R x = Q b
+    // applico Q b
+    for ( integer i = 0 ; i < nRC-1 ; ++i ) rot( nrhs, &xb[i], ldXB, &xb[i+1], ldXB, C[i], S[i] ) ;
+    for ( integer i = 0 ; i < nrhs  ; ++i ) Rsolve( xb+i*ldXB ) ;
+  }
+
+  template <typename T>
+  void
+  TridiagonalQR<T>::t_solve( integer nrhs, valueType xb[], integer ldXB ) const {
+    // A^T x = b --> A^T Q^T Q x = b --> R^T Q x = b --> R^T y = b  x = Q^T y
+    for ( integer i = 0     ; i < nrhs ; ++i ) RsolveTransposed(xb+i*ldXB) ;
+    for ( integer i = nRC-2 ; i >= 0   ; --i ) rot( nrhs, &xb[i], ldXB, &xb[i+1], ldXB, C[i], -S[i] ) ;
+  }
+
+  template <typename T>
+  void
+  TridiagonalQR<T>::axpy( integer         N,
+                          valueType       alpha,
+                          valueType const L[],
+                          valueType const D[],
+                          valueType const U[],
+                          valueType const x[],
+                          valueType       beta,
+                          valueType       y[] ) const {
+    tridiag_axpy( N, alpha, L, D, U, x, beta, y ) ;
+  }
 
   /*\
    *
@@ -626,14 +872,23 @@ namespace alglin {
     copy( nCol, tmp, 1, out, 1 ) ;
   }
 
+  template class LU<real> ;
+  template class LU<doublereal> ;
+
   template class QR<real> ;
   template class QR<doublereal> ;
 
-  template class TridiagonalQR<real> ;
-  template class TridiagonalQR<doublereal> ;
+  template class QRP<real> ;
+  template class QRP<doublereal> ;
 
   template class SVD<real> ;
   template class SVD<doublereal> ;
+
+  template class TridiagonalLU<real> ;
+  template class TridiagonalLU<doublereal> ;
+
+  template class TridiagonalQR<real> ;
+  template class TridiagonalQR<doublereal> ;
 
   template class LeastSquares<real> ;
   template class LeastSquares<doublereal> ;

@@ -9582,7 +9582,7 @@ namespace alglin {
                         integer    * N,
                         integer    * K,
                         integer    * L,
-                        doublereal A[],
+                        doublereal   A[],
                         integer    * LDA,
                         doublereal   TAU[],
                         doublereal   C[],
@@ -9699,9 +9699,9 @@ namespace alglin {
          integer               N,
          integer               K,
          integer               L,
-         real                  A[],
+         real const            A[],
          integer               LDA,
-         real                  TAU[],
+         real const            TAU[],
          real                  C[],
          integer               LDC,
          real                  WORK[],
@@ -9710,15 +9710,24 @@ namespace alglin {
     #if defined(ALGLIN_USE_OPENBLAS)
     LAPACK_NAME(sormrz)( const_cast<character*>(side_blas[SIDE]),
                          const_cast<character*>(trans_blas[TRANS]),
-                         &M, &N, &K, &L, A, &LDA, TAU, C, &LDC, WORK, &LWORK, &info);
+                         &M, &N, &K, &L,
+                         const_cast<real*>(A), &LDA,
+                         const_cast<real*>(TAU),
+                         C, &LDC, WORK, &LWORK, &info );
     #elif defined(ALGLIN_USE_ACCELERATE)
     CLAPACKNAME(sormrz)( const_cast<character*>(side_blas[SIDE]),
                          const_cast<character*>(trans_blas[TRANS]),
-                         &M, &N, &K, &L, A, &LDA, TAU, C, &LDC, WORK, &LWORK, &info ) ;
+                         &M, &N, &K, &L,
+                         const_cast<real*>(A), &LDA,
+                         const_cast<real*>(TAU),
+                         C, &LDC, WORK, &LWORK, &info ) ;
     #else
     LAPACKNAME(sormrz)( const_cast<character*>(side_blas[SIDE]),
                         const_cast<character*>(trans_blas[TRANS]),
-                        &M, &N, &K, &L, A, &LDA, TAU, C, &LDC, WORK, &LWORK, &info ) ;
+                        &M, &N, &K, &L,
+                        const_cast<real*>(A), &LDA,
+                        const_cast<real*>(TAU),
+                        C, &LDC, WORK, &LWORK, &info ) ;
     #endif
     return info ;
   }
@@ -9731,9 +9740,9 @@ namespace alglin {
          integer               N,
          integer               K,
          integer               L,
-         doublereal            A[],
+         doublereal const      A[],
          integer               LDA,
-         doublereal            TAU[],
+         doublereal const      TAU[],
          doublereal            C[],
          integer               LDC,
          doublereal            WORK[],
@@ -9742,15 +9751,24 @@ namespace alglin {
     #if defined(ALGLIN_USE_OPENBLAS)
     LAPACK_NAME(dormrz)( const_cast<character*>(side_cblas[SIDE]),
                          const_cast<character*>(trans_cblas[TRANS]),
-                         &M, &N, &K, &L, A, &LDA, TAU, C, &LDC, WORK, &LWORK, &info);
+                         &M, &N, &K, &L,
+                         const_cast<doublereal*>(A), &LDA,
+                         const_cast<doublereal*>(TAU),
+                         C, &LDC, WORK, &LWORK, &info );
     #elif defined(ALGLIN_USE_ACCELERATE)
     CLAPACKNAME(dormrz)( const_cast<character*>(side_blas[SIDE]),
                          const_cast<character*>(trans_blas[TRANS]),
-                         &M, &N, &K, &L, A, &LDA, TAU, C, &LDC, WORK, &LWORK, &info ) ;
+                         &M, &N, &K, &L,
+                         const_cast<doublereal*>(A), &LDA,
+                         const_cast<doublereal*>(TAU),
+                         C, &LDC, WORK, &LWORK, &info ) ;
     #else
     LAPACKNAME(dormrz)( const_cast<character*>(side_blas[SIDE]),
                         const_cast<character*>(trans_blas[TRANS]),
-                        &M, &N, &K, &L, A, &LDA, TAU, C, &LDC, WORK, &LWORK, &info ) ;
+                        &M, &N, &K, &L,
+                        const_cast<doublereal*>(A), &LDA,
+                        const_cast<doublereal*>(TAU),
+                        C, &LDC, WORK, &LWORK, &info ) ;
     #endif
     return info ;
   }

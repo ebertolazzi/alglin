@@ -61,7 +61,7 @@ namespace alglin {
   character const *uplo_blas[2]    = { "Upper", "Lower" } ;
   character const *diag_blas[2]    = { "Unit",  "NonUnit" } ;
   character const *side_blas[2]    = { "Left",  "Right" } ;
-  character const *balance_blas[4] = { "N",
+  character const *balance_blas[4] = { "No Balance",
                                        "Permute Only",
                                        "Scale Only",
                                        "Both permute and scale" } ;
@@ -70,7 +70,7 @@ namespace alglin {
   character const *sense_blas[4] = { "N", "E", "V", "B" } ;
 
   character const *direct_blas[2] = { "Forward", "Backward" } ;
-  character const *store_blas[2]  = { "Row", "Column" } ;
+  character const *store_blas[2]  = { "ColumnWise", "RowWise" } ;
 
   character const *mtype_blas[5]  = {
     "G", // A is a full matrix.

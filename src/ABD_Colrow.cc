@@ -501,9 +501,9 @@ namespace alglin {
     // fattorizzazione ultimo blocco
     valuePointer D0 = blockN + row00 * rowN;
     switch ( last_block ) {
-      case COLROW_LASTBLOCK_LU:  la_lu.factorize(rowN,D0,rowN)         ; break ;
-      case COLROW_LASTBLOCK_QR:  la_qr.factorize(rowN,rowN,D0,rowN)    ; break ;
-      case COLROW_LASTBLOCK_SVD: la_svd.factorize(rowN,rowN,D0,rowN,0) ; break ;
+      case COLROW_LASTBLOCK_LU:  la_lu.factorize(rowN,rowN,D0,rowN)  ; break ;
+      case COLROW_LASTBLOCK_QR:  la_qr.factorize(rowN,rowN,D0,rowN)  ; break ;
+      case COLROW_LASTBLOCK_SVD: la_svd.factorize(rowN,rowN,D0,rowN) ; break ;
     }
   }
 
@@ -580,7 +580,7 @@ namespace alglin {
 
     switch ( last_block ) {
       case COLROW_LASTBLOCK_LU:  la_lu.solve(io)     ; break ;
-      case COLROW_LASTBLOCK_QR:  la_qr.solve(io,io)  ; break ;
+      case COLROW_LASTBLOCK_QR:  la_qr.solve(io)     ; break ;
       case COLROW_LASTBLOCK_SVD: la_svd.solve(io,io) ; break ;
     }
 

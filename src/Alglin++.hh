@@ -131,7 +131,13 @@ namespace alglin {
   } ;
 
   //============================================================================
-
+  /*
+  //   _    _   _
+  //  | |  | | | |
+  //  | |  | | | |
+  //  | |__| |_| |
+  //  |_____\___/
+  */
   template <typename T>
   class LU {
   public:
@@ -139,7 +145,7 @@ namespace alglin {
   
   private:
 
-    integer     nRC, Lwork ;
+    integer     nRow, nCol, Lwork, __padding ;
     valueType * Amat ;
     valueType * Work ;
     integer   * Iwork ;
@@ -147,74 +153,48 @@ namespace alglin {
   
     Malloc<valueType> allocReals ;
     Malloc<integer>   allocIntegers ;
+    
+    void check_ls( char const who[] ) const ;
 
   public:
 
-    LU()
-    : nRC(0)
-    , Lwork(0)
-    , allocReals("allocReals")
-    , allocIntegers("allocIntegers")
-    {}
+    LU() ;
+    ~LU() ;
 
-    ~LU() {
-      allocReals.free() ;
-      allocIntegers.free() ;
-    }
-
-    integer
-    factorize( integer N, valueType const A[], integer LDA ) {
-      nRC = N ;
-      allocReals.allocate(size_t(nRC*nRC+4*nRC)) ;
-      allocIntegers.allocate(size_t(2*nRC)) ;
-      this -> Amat    = allocReals(size_t(nRC*nRC)) ;
-      this -> Work    = allocReals(size_t(4*nRC)) ;
-      this -> i_pivot = allocIntegers(size_t(nRC)) ;
-      this -> Iwork   = allocIntegers(size_t(nRC)) ;
-      integer info = gecopy( nRC, nRC, A, LDA, Amat, nRC ) ;
-      ALGLIN_ASSERT( info == 0, "LU::factorize gecopy INFO = " << info ) ;
-      info = getrf( nRC, nRC, Amat, nRC, i_pivot ) ;
-      ALGLIN_ASSERT( info >= 0, "LU::factorize getrf INFO = " << info ) ;
-      return info ;
-    }
+    integer numRow() const { return nRow ; }
+    integer numCol() const { return nCol ; }
 
     void
-    solve( valueType xb[], Transposition const & TRANS = NO_TRANSPOSE ) const {
-      integer info = getrs( TRANS, nRC, 1, Amat, nRC, i_pivot, xb, nRC ) ;
-      ALGLIN_ASSERT( info >= 0, "LU::solve getrs INFO = " << info ) ;
-    }
+    factorize( integer NR, integer NC, valueType const A[], integer LDA ) ;
 
     void
-    solve( integer   nrhs,
-           valueType B[],
-           integer   ldB,
-           Transposition const & TRANS = NO_TRANSPOSE ) const {
-      integer info = getrs( TRANS, nRC, nrhs, Amat, nRC, i_pivot, B, ldB ) ;
-      ALGLIN_ASSERT( info >= 0, "LU::solve getrs INFO = " << info ) ;
-    }
+    t_factorize( integer NR, integer NC, valueType const A[], integer LDA ) ;
 
-    valueType
-    cond1( valueType norm1 ) const {
-      valueType rcond ;
-      integer info = gecon1( nRC, Amat, nRC, norm1, rcond, Work, Iwork ) ;
-      ALGLIN_ASSERT( info == 0, "LU::cond1, gecon1 return info = " << info ) ;
-      return rcond ;
-    }
+    void
+    solve( valueType xb[] ) const ;
 
-    valueType
-    condInf( valueType normInf ) const {
-      valueType rcond ;
-      integer info = geconInf( nRC, Amat, nRC, normInf, rcond, Work, Iwork ) ;
-      ALGLIN_ASSERT( info == 0, "LU::condInf, geconInf return info = " << info ) ;
-      return rcond ;
-    }
+    void
+    t_solve( valueType xb[] ) const ;
 
+    void
+    solve( integer nrhs, valueType B[], integer ldB ) const ;
+
+    void
+    t_solve( integer nrhs, valueType B[], integer ldB ) const ;
+
+    valueType cond1( valueType norm1 ) const ;
+    valueType condInf( valueType normInf ) const ;
     void print( ostream & stream, integer prec = 4 ) const ;
-
   } ;
 
   //============================================================================
-
+  /*
+  //    ___  ____
+  //   / _ \|  _ \
+  //  | | | | |_) |
+  //  | |_| |  _ <
+  //   \__\_\_| \_\
+  */
   template <typename T>
   class QR {
   public:
@@ -223,64 +203,75 @@ namespace alglin {
   private:
 
     Malloc<valueType> allocReals ;
-    Malloc<integer>   allocIntegers ;
 
-    integer     nRow, nCol, nReflector, Lwork ;
+  protected:
+
     valueType * Amat ;
     valueType * Work ;
     valueType * Tau ;
-    valueType * TauTop ;
-    integer   * JPVT ;
-    valueType * xbtmp ;
-    valueType   SVAL[3] ;
-    valueType   mxabs ;
-    integer     rank ;
 
-    mutable bool top_factorized ;
-    bool __pad[3] ;
+    integer nRow, nCol, nReflector, Lwork ;
 
-    void topFactorize() const ;
+    void allocate( integer nr, integer nc ) ;
 
   public:
 
     QR()
-    : allocReals("allocReals")
-    , allocIntegers("allocIntegers")
+    : allocReals("QR-allocReals")
     , nRow(0)
     , nCol(0)
     , nReflector(0)
     , Lwork(0)
-    , rank(-1)
-    , top_factorized(false)
     {}
 
     ~QR() {
       allocReals.free() ;
-      allocIntegers.free() ;
     }
 
+    integer numRow() const { return nRow ; }
+    integer numCol() const { return nCol ; }
+
+    /*!
+      Do QR factorization of a rectangular matrix
+      \param NR  number of rows of the matrix
+      \param NC  number of columns of the matrix
+      \param A   pointer to the matrix
+      \param LDA Leading dimension of the matrix
+    \*/
     void
     factorize( integer NR, integer NC, valueType const A[], integer LDA ) ;
 
+    /*!
+      Do QR factorization of the transpose of a rectangular matrix
+      \param NR  number of rows of the matrix
+      \param NC  number of columns of the matrix
+      \param A   pointer to the matrix
+      \param LDA Leading dimension of the matrix
+    \*/
     void
-    evalNumericRank( valueType rcond ) {
-      integer info = rankEstimate<valueType>( nRow, nCol, Amat, nRow, rcond, rank, SVAL ) ;
-      ALGLIN_ASSERT( info == 0, "QR::evalNumericRank, return info = " << info ) ;
-    }
+    t_factorize( integer NR, integer NC, valueType const A[], integer LDA ) ;
 
-    integer numericRank() const { return rank ; }
+    /*!
+      In case of QR factorization of a square matrix solve the 
+      linear system \f$ QR x = b \f$
+      \param xb on input the rhs of linear system on output the solution
+    \*/
+    void
+    solve( valueType xb[] ) const ;
+
+    /*!
+      In case of QR factorization of a square matrix solve the 
+      linear system \f$ (QR)^T x = b \f$
+      \param xb on input the rhs of linear system on output the solution
+    \*/
+    void
+    t_solve( valueType xb[] ) const ;
 
     void
-    solve( valueType const rhs[], valueType x[] ) const ;
+    solve( integer nrhs, valueType B[], integer ldB ) const ;
 
     void
-    minq( valueType const rhs[], valueType x[], valueType lambda = 0 ) const ;
-
-    void
-    minq( integer nrhs,
-          valueType const rhs[], integer ldRHS,
-          valueType       x[],   integer ldX,
-          valueType lambda = 0 ) const ;
+    t_solve( integer nrhs, valueType B[], integer ldB ) const ;
 
     /*\
      *  overwrites the general real M-by-N matrix C with
@@ -290,79 +281,242 @@ namespace alglin {
      *  TRANS = 'T':      Q**T * C       C * Q**T
     \*/
     void
-    applyQ( SideMultiply  const & SIDE,
-            Transposition const & TRANS,
-            integer rank,
-            integer ncol,
-            valueType C[], integer ldC ) const ;
+    applyQ( SideMultiply  SIDE,
+            Transposition TRANS,
+            integer       nRefl,
+            integer       nr,
+            integer       nc,
+            valueType     C[],
+            integer       ldC ) const ;
+    //! x <- Q*x
+    void
+    Q_mul( valueType x[] ) const
+    { applyQ( LEFT, NO_TRANSPOSE, nReflector, nRow, 1, x, nRow ) ; }
+    
+    //! x <- Q'*x
+    void
+    Qt_mul( valueType x[] ) const
+    { applyQ( LEFT, TRANSPOSE, nReflector, nRow, 1, x, nRow ) ; }
+
+    //! C <- Q*C
+    void
+    Q_mul( integer nr, integer nc, valueType C[], integer ldC ) const
+    { applyQ( LEFT, NO_TRANSPOSE, nReflector, nr, nc, C, ldC ) ; }
+
+    //! C <- Q'*C
+    void
+    Qt_mul( integer nr, integer nc, valueType C[], integer ldC ) const
+    { applyQ( LEFT, TRANSPOSE, nReflector, nr, nc, C, ldC ) ; }
+    
+    //! C <- C*Q
+    void
+    mul_Q( integer nr, integer nc, valueType C[], integer ldC ) const
+    { applyQ( RIGHT, NO_TRANSPOSE, nReflector, nr, nc, C, ldC ) ; }
+    
+    //! C <- C*Q'
+    void
+    mul_Qt( integer nr, integer nc, valueType C[], integer ldC ) const
+    { applyQ( RIGHT, TRANSPOSE, nReflector, nr, nc, C, ldC ) ; }
+
+    // -------------------------------------------------------------------------
 
     void
-    solveT( Transposition const & TRANS,
-            integer rank,
-            valueType x[], integer incx ) const ;
+    Rsolve( Transposition TRANS,
+            integer       rk,
+            valueType     x[],
+            integer       incx ) const {
+      trsv( UPPER, TRANS, NON_UNIT, rk, Amat, nRow, x, incx ) ;
+    }
+
+    void
+    Rsolve( SideMultiply  SIDE,
+            Transposition TRANS,
+            integer       nr,
+            integer       nc,
+            valueType     alpha,
+            valueType     Bmat[],
+            integer       ldB ) const {
+      trsm( SIDE, UPPER, TRANS, NON_UNIT, nr, nc, alpha, Amat, nRow, Bmat, ldB ) ;
+    }
+    
+    //! x <- R^(-1) * x
+    void
+    invR_mul( valueType x[], integer incx = 1 ) const
+    { trsv( UPPER, NO_TRANSPOSE, NON_UNIT, nReflector, Amat, nRow, x, incx ) ; }
+
+    //! x <- R^(-T) * x
+    void
+    invRt_mul( valueType x[], integer incx = 1 ) const
+    { trsv( UPPER, TRANSPOSE, NON_UNIT, nReflector, Amat, nRow, x, incx ) ; }
+
+    //! C <- R^(-1) * C
+    void
+    invR_mul( integer nr, integer nc, valueType C[], integer ldC ) const
+    { Rsolve( LEFT, NO_TRANSPOSE, nr, nc, 1.0, C, ldC ) ; }
+
+    //! C <- R^(-T) * C
+    void
+    invRt_mul( integer nr, integer nc, valueType C[], integer ldC ) const
+    { Rsolve( LEFT, TRANSPOSE, nr, nc, 1.0, C, ldC ) ; }
+
+    //! C <- C * R^(-1)
+    void
+    mul_invR( integer nr, integer nc, valueType C[], integer ldC ) const
+    { Rsolve( RIGHT, NO_TRANSPOSE, nr, nc, 1.0, C, ldC ) ; }
+
+    void
+    mul_invRt( integer nr, integer nc, valueType C[], integer ldC ) const
+    { Rsolve( RIGHT, TRANSPOSE,  nr, nc, 1.0, C, ldC ) ; }
     
     void
-    solveT( SideMultiply  const & SIDE,
-            Transposition const & TRANS,
-            integer rank, integer ncol,
-            valueType alpha,
-            valueType B[], integer ldB ) const ;
-
-    void permute( valueType x[] ) const ;
-    void permute( integer ncolC, valueType C[], integer ldC ) const ;
-
-    void print( ostream & stream, integer prec = 4 ) const ;
+    getR( valueType R[], integer ldR ) const ;
 
   } ;
 
-  //============================================================================
+  /*
+  //    ___  ____  ____
+  //   / _ \|  _ \|  _ \
+  //  | | | | |_) | |_) |
+  //  | |_| |  _ <|  __/
+  //   \__\_\_| \_\_|
+  */
+  template <typename T>
+  class QRP : public QR<T> {
+  public:
+    typedef typename QR<T>::valueType valueType ;
 
+  private:
+    Malloc<integer> allocIntegers ;
+    integer * JPVT ;
+
+  public:
+
+    QRP()
+    : allocIntegers("QRP-allocIntegers")
+    {}
+
+    ~QRP() {
+      allocIntegers.free() ;
+    }
+
+    integer numRow() const { return this->nRow ; }
+    integer numCol() const { return this->nCol ; }
+
+    /*!
+      Do QR factorization with column pivoting of a rectangular matrix
+      \param NR  number of rows of the matrix
+      \param NC  number of columns of the matrix
+      \param A   pointer to the matrix
+      \param LDA Leading dimension of the matrix
+    \*/
+    void
+    factorize( integer NR, integer NC, valueType const A[], integer LDA ) ;
+
+    /*!
+      Do QR factorization with column pivoting of the transpose of a rectangular matrix
+      \param NR  number of rows of the matrix
+      \param NC  number of columns of the matrix
+      \param A   pointer to the matrix
+      \param LDA Leading dimension of the matrix
+    \*/
+    void
+    t_factorize( integer NR, integer NC, valueType const A[], integer LDA ) ;
+
+    /*!
+      In case of QR factorization of a square matrix solve the 
+      linear system \f$ QR x = b \f$
+      \param xb on input the rhs of linear system on output the solution
+    \*/
+    void
+    solve( valueType xb[] ) ;
+
+    /*!
+      In case of QR factorization of a square matrix solve the 
+      linear system \f$ (QR)^T x = b \f$
+      \param xb on input the rhs of linear system on output the solution
+    \*/
+    void
+    t_solve( valueType xb[] ) ;
+
+    void
+    solve( integer nrhs, valueType B[], integer ldB ) const ;
+
+    void
+    t_solve( integer nrhs, valueType B[], integer ldB ) const ;
+
+    // -------------------------------------------------------------------------
+    void
+    permute( valueType x[] ) const ;
+
+    void
+    inv_permute( valueType x[] ) const ;
+    
+    void
+    permute_rows( integer nr, integer nc, valueType C[], integer ldC ) const {
+      for ( integer j = 0 ; j < nc ; ++j ) permute( C + ldC*j ) ;
+    }
+    
+    void
+    inv_permute_rows( integer nr, integer nc, valueType C[], integer ldC ) const {
+      for ( integer j = 0 ; j < nc ; ++j ) inv_permute( C + ldC*j ) ;
+    }
+  } ;
+
+  //============================================================================
+  /*
+  //   ______     ______
+  //  / ___\ \   / /  _ \
+  //  \___ \\ \ / /| | | |
+  //   ___) |\ V / | |_| |
+  //  |____/  \_/  |____/
+  */
   template <typename T>
   class SVD {
   public:
     typedef T valueType ;
   
-  private:
+  protected:
 
     Malloc<valueType> allocReals ;
+    Malloc<integer>   allocIntegers ;
 
     valueType * Amat ;
     valueType * Work ;
     valueType * Umat ;
     valueType * VTmat ;
     valueType * Svec ;
-    valueType * invSvec ;
+    integer   * IWork ;
 
-    valueType   mxabs ;
-
-    integer     nRow, nCol, minRC, _rank ;
-    integer     Lwork ;
+    integer     nRow, nCol, minRC, Lwork ;
     bool        use_gesvd ;
+    
+    void allocate( integer NR, integer NC, integer LDA ) ;
 
   public:
 
     SVD()
-    : allocReals("allocReals")
-    , mxabs(0)
+    : allocReals("SVD-allocReals")
+    , allocIntegers("SVD-allocIntegers")
     , nRow(0)
     , nCol(0)
-    , _rank(0)
     , Lwork(0)
     , use_gesvd(true)
     {}
 
     ~SVD() { allocReals.free() ; }
 
-    void
-    factorize( integer         NR,
-               integer         NC,
-               valueType const A[],
-               integer         LDA,
-               valueType       threshold ) ;
-
     integer numRow() const { return nRow ; }
     integer numCol() const { return nCol ; }
-    integer rank()   const { return _rank ; }
+
+    /*!
+      Do SVD factorization of a rectangular matrix
+      \param NR  number of rows of the matrix
+      \param NC  number of columns of the matrix
+      \param A   pointer to the matrix
+      \param LDA Leading dimension of the matrix
+    \*/
+    void
+    factorize( integer NR, integer NC, valueType const A[], integer LDA ) ;
 
     valueType U( integer i, integer j ) const { return Umat[i+j*nRow] ; }
     valueType V( integer i, integer j ) const { return VTmat[j+i*nCol] ; }
@@ -376,10 +530,69 @@ namespace alglin {
            valueType const rhs[], integer ldRHS,
            valueType       x[],   integer ldX ) const ;
 
+    void
+    t_solve( valueType const in[], valueType out[] ) const ;
+
+    void
+    t_solve( integer         nrhs,
+             valueType const rhs[], integer ldRHS,
+             valueType       x[],   integer ldX ) const ;
+
+    //! y <- alpha * U * x + beta * y
+    void
+    U_mul( valueType alpha, valueType const x[], integer incx,
+           valueType beta,  valueType       y[], integer incy ) const {
+      gemv( NO_TRANSPOSE,
+            nRow, minRC,
+            alpha, Umat, nRow,
+            x, incx,
+            beta, y, incy ) ;
+    }
+
+    //! y <- alpha * U' * x + beta * y
+    void
+    Ut_mul( valueType alpha, valueType const x[], integer incx,
+            valueType beta,  valueType       y[], integer incy ) const {
+      gemv( TRANSPOSE,
+            nRow, minRC,
+            alpha, Umat, nRow,
+            x, incx,
+            beta, y, incy ) ;
+    }
+
+    //! y <- alpha * V * x + beta * y
+    void
+    V_mul( valueType alpha, valueType const x[], integer incx,
+           valueType beta,  valueType       y[], integer incy ) const {
+      gemv( TRANSPOSE,
+            minRC, nCol,
+            alpha, VTmat, nRow,
+            x, incx,
+            beta, y, incy ) ;
+    }
+
+    //! y <- alpha * V' * x + beta * y
+    void
+    Vt_mul( valueType alpha, valueType const x[], integer incx,
+            valueType beta,  valueType       y[], integer incy ) const {
+      gemv( NO_TRANSPOSE,
+            minRC, nCol,
+            alpha, VTmat, nRow,
+            x, incx,
+            beta, y, incy ) ;
+    }
+
   } ;
 
   //============================================================================
-
+  /*
+  //   _____     _     _ _                               _ _    _   _
+  //  |_   _| __(_) __| (_) __ _  __ _  ___  _ __   __ _| | |  | | | |
+  //    | || '__| |/ _` | |/ _` |/ _` |/ _ \| '_ \ / _` | | |  | | | |
+  //    | || |  | | (_| | | (_| | (_| | (_) | | | | (_| | | |__| |_| |
+  //    |_||_|  |_|\__,_|_|\__,_|\__, |\___/|_| |_|\__,_|_|_____\___/
+  //                             |___/
+  */
   template <typename T>
   class TridiagonalLU {
   public:
@@ -416,55 +629,36 @@ namespace alglin {
     factorize( integer         N,
                valueType const _L[],
                valueType const _D[],
-               valueType const _U[] ) {
-      this -> nRC = N ;
-      allocReals.allocate(6*N) ;
-      allocIntegers.allocate(2*N) ;
-      L     = allocReals(N) ;
-      D     = allocReals(N) ;
-      U     = allocReals(N) ;
-      U2    = allocReals(N) ;
-      WORK  = allocReals(2*N) ;
-      IPIV  = allocIntegers(N) ;
-      IWORK = allocIntegers(N) ;
-      copy( N, _L, 1, L, 1 ) ;
-      copy( N, _D, 1, D, 1 ) ;
-      copy( N, _U, 1, U, 1 ) ;
-      integer info = gttrf( N, L, D, U, U2, IPIV ) ;
-      ALGLIN_ASSERT( info == 0, "Tridiagonal::factorize, return info = " << info ) ;
-    }
+               valueType const _U[] ) ;
 
-    valueType
-    cond1( valueType norm1 ) const {
-      valueType rcond ;
-      integer info = gtcon1( nRC, L, D, U, U2, IPIV, norm1, rcond, WORK, IWORK ) ;
-      ALGLIN_ASSERT( info == 0, "Tridiagonal::cond1, return info = " << info ) ;
-      return rcond ;
-    }
+    valueType cond1( valueType norm1 ) const ;
+    valueType condInf( valueType normInf ) const ;
 
-    valueType
-    condInf( valueType normInf ) const {
-      valueType rcond ;
-      integer info = gtconInf( nRC, L, D, U, U2, IPIV, normInf, rcond, WORK, IWORK ) ;
-      ALGLIN_ASSERT( info == 0, "Tridiagonal::cond1, return info = " << info ) ;
-      return rcond ;
-    }
+    void solve( valueType xb[] ) const ;
+    void t_solve( valueType xb[] ) const ;
+    void solve( integer nrhs, valueType xb[], integer ldXB ) const ;
+    void t_solve( integer nrhs, valueType xb[], integer ldXB ) const ;
 
     void
-    solve( valueType xb[], Transposition const & TRANS = NO_TRANSPOSE ) const {
-      integer info = gttrs( TRANS, nRC, 1, L, D, U, U2, IPIV, xb, nRC ) ;
-      ALGLIN_ASSERT( info == 0, "Tridiagonal::solve, return info = " << info ) ;
-    }
-
-    void
-    solve( integer nrhs, valueType xb[], integer ldXB, Transposition const & TRANS = NO_TRANSPOSE ) const {
-      integer info = gttrs( TRANS, nRC, nrhs, L, D, U, U2, IPIV, xb, ldXB ) ;
-      ALGLIN_ASSERT( info == 0, "Tridiagonal::solve, return info = " << info ) ;
-    }
+    axpy( integer         N,
+          valueType       alpha,
+          valueType const L[],
+          valueType const D[],
+          valueType const U[],
+          valueType const x[],
+          valueType       beta,
+          valueType       y[] ) const ;
   } ;
 
   //============================================================================
-
+  /*
+  //   _____     _     _ _                               _  ___  ____
+  //  |_   _| __(_) __| (_) __ _  __ _  ___  _ __   __ _| |/ _ \|  _ \
+  //    | || '__| |/ _` | |/ _` |/ _` |/ _ \| '_ \ / _` | | | | | |_) |
+  //    | || |  | | (_| | | (_| | (_| | (_) | | | | (_| | | |_| |  _ <
+  //    |_||_|  |_|\__,_|_|\__,_|\__, |\___/|_| |_|\__,_|_|\__\_\_| \_\
+  //                             |___/
+  */
   template <typename T>
   class TridiagonalQR {
   public:
@@ -503,13 +697,20 @@ namespace alglin {
                valueType const D[],
                valueType const U[] ) ;
 
-    void
-    solve( valueType xb[],
-           Transposition const & TRANS = NO_TRANSPOSE ) const ;
+    void solve( valueType xb[] ) const ;
+    void t_solve( valueType xb[] ) const ;
+    void solve( integer nrhs, valueType xb[], integer ldXB ) const ;
+    void t_solve( integer nrhs, valueType xb[], integer ldXB ) const ;
 
     void
-    solve( integer nrhs, valueType xb[], integer ldXB,
-           Transposition const & TRANS = NO_TRANSPOSE ) const ;
+    axpy( integer         N,
+          valueType       alpha,
+          valueType const L[],
+          valueType const D[],
+          valueType const U[],
+          valueType const x[],
+          valueType       beta,
+          valueType       y[] ) const ;
 
     void
     minq( integer nrhs,
