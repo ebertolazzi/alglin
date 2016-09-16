@@ -50,6 +50,8 @@ namespace alglin {
     BABD_BLOCK_LU   = 8,
     BABD_BLOCK_QR   = 9
   } BABD_Choice;
+  
+  extern string BABD_Choice_to_string( BABD_Choice c ) ;
 
   /*
    * NB: prima le condizioni finali, poi quelle iniziali.

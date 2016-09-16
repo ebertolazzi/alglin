@@ -572,18 +572,13 @@ namespace alglin {
     }
 
     // fattorizzazione ultimo blocco
-#if 1
     switch ( last_block ) {
       case AMODIO_LASTBLOCK_LU:  la_lu.factorize(nm,nm,LU_blk,nm)  ; break ;
       case AMODIO_LASTBLOCK_QR:  la_qr.factorize(nm,nm,LU_blk,nm)  ; break ;
       case AMODIO_LASTBLOCK_SVD: la_svd.factorize(nm,nm,LU_blk,nm) ; break ;
       ALGLIN_ERROR("AmodioLU<t_Value>::factorize -- no last block solver selected") ;
     }
-#else
-    integer INFO = getrf( nm, nm, LU_blk, nm, LU_ipiv_blk ) ;
-    ALGLIN_ASSERT( INFO==0,
-                   "AmodioLU::factorize(), singular matrix, getrf INFO = " << INFO ) ;
-#endif
+
   }
 
   /*
@@ -820,7 +815,6 @@ namespace alglin {
     copy( n, y,  1, tmpV,   1 ) ;
     copy( m, ye, 1, tmpV+n, 1 ) ;
 
-#if 1
     switch ( last_block ) {
       case AMODIO_LASTBLOCK_LU:  la_lu.solve(tmpV)       ; break ;
       case AMODIO_LASTBLOCK_QR:  la_qr.solve(tmpV)       ; break ;
@@ -828,11 +822,7 @@ namespace alglin {
       default:
       ALGLIN_ERROR("AmodioLU<t_Value>::solve -- no last block solver selected") ;
     }
-#else
-    integer INFO = getrs( NO_TRANSPOSE, nm, 1, LU_blk, nm, LU_ipiv_blk, tmpV, nm ) ;
-    ALGLIN_ASSERT( INFO==0,
-                   "AmodioLU::solve(), singular matrix, getrs INFO = " << INFO ) ;
-#endif
+
     copy( n, tmpV,   1, y,  1 ) ;
     copy( m, tmpV+n, 1, ye, 1 ) ;
 

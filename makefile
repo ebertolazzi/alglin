@@ -22,7 +22,7 @@ endif
 ifneq (,$(findstring Darwin, $(OS)))
   WARN     = -Weverything -Wno-reserved-id-macro -Wno-padded -Wno-documentation-unknown-command -Wno-float-equal -Wimplicit-fallthrough
   CC       = clang
-  CXX      = clang++
+  CXX      = clang++ -std=c++11
   INC     += -I/usr/local/include -I/usr/local/include/eigen3
   CXXFLAGS = -Wall -O3 -fPIC -Wno-sign-compare
   AR       = libtool -static -o

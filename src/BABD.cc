@@ -21,6 +21,24 @@
 
 namespace alglin {
 
+  string
+  BABD_Choice_to_string( BABD_Choice c ) {
+    string res ;
+    switch ( c ) {
+    case alglin::BABD_AUTOMATIC:  res = "Automatic"  ; break ;
+    case alglin::BABD_COLROW_LU:  res = "Colrow+LU"  ; break ;
+    case alglin::BABD_COLROW_QR:  res = "Colrow+QR"  ; break ;
+    case alglin::BABD_COLROW_SVD: res = "Colrow+SVD" ; break ;
+    case alglin::BABD_ARCECO:     res = "Arceco"     ; break ;
+    case alglin::BABD_AMODIO_LU:  res = "Amodio+LU"  ; break ;
+    case alglin::BABD_AMODIO_QR:  res = "Amodio+QR"  ; break ;
+    case alglin::BABD_AMODIO_SVD: res = "Amodio+SVD" ; break ;
+    case alglin::BABD_BLOCK_LU:   res = "BlockLU"    ; break ;
+    case alglin::BABD_BLOCK_QR:   res = "BlockQR"    ; break ;
+    }
+    return res ;
+  }
+
   template <typename t_Value>
   void
   BABD<t_Value>::shift( valuePointer in_out ) const {
