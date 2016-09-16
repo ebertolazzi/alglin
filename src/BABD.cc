@@ -28,10 +28,12 @@ namespace alglin {
     case alglin::BABD_AUTOMATIC:  res = "Automatic"  ; break ;
     case alglin::BABD_COLROW_LU:  res = "Colrow+LU"  ; break ;
     case alglin::BABD_COLROW_QR:  res = "Colrow+QR"  ; break ;
+    case alglin::BABD_COLROW_QRP: res = "Colrow+QRP" ; break ;
     case alglin::BABD_COLROW_SVD: res = "Colrow+SVD" ; break ;
     case alglin::BABD_ARCECO:     res = "Arceco"     ; break ;
     case alglin::BABD_AMODIO_LU:  res = "Amodio+LU"  ; break ;
     case alglin::BABD_AMODIO_QR:  res = "Amodio+QR"  ; break ;
+    case alglin::BABD_AMODIO_QRP: res = "Amodio+QRP" ; break ;
     case alglin::BABD_AMODIO_SVD: res = "Amodio+SVD" ; break ;
     case alglin::BABD_BLOCK_LU:   res = "BlockLU"    ; break ;
     case alglin::BABD_BLOCK_QR:   res = "BlockQR"    ; break ;
@@ -114,6 +116,7 @@ namespace alglin {
     switch ( solver_used ) {
     case BABD_COLROW_LU:
     case BABD_COLROW_QR:
+    case BABD_COLROW_QRP:
     case BABD_COLROW_SVD:
     case BABD_ARCECO:
       if ( numCyclicOMEGA == 0 && numCyclicBC == 0 ) {
@@ -150,6 +153,7 @@ namespace alglin {
       break;
     case BABD_AMODIO_LU:
     case BABD_AMODIO_QR:
+    case BABD_AMODIO_QRP:
     case BABD_AMODIO_SVD:
     case BABD_BLOCK_LU:
     case BABD_BLOCK_QR:
@@ -170,6 +174,12 @@ namespace alglin {
                            numBlock, n, AdAu,
                            rowN, colN, &blockN.front() ) ;
       break ;
+    case BABD_COLROW_QRP:
+      colrow_LU.factorize( COLROW_LASTBLOCK_QRP,
+                           row0, col0, &block0.front(),
+                           numBlock, n, AdAu,
+                           rowN, colN, &blockN.front() ) ;
+      break ;
     case BABD_COLROW_SVD:
       colrow_LU.factorize( COLROW_LASTBLOCK_SVD,
                            row0, col0, &block0.front(),
@@ -186,6 +196,9 @@ namespace alglin {
       break ;
     case BABD_AMODIO_QR:
       amodio_LU.factorize( AMODIO_LASTBLOCK_QR, numBlock, n, q, AdAu, H0, HN, Hq ) ;
+      break ;
+    case BABD_AMODIO_QRP:
+      amodio_LU.factorize( AMODIO_LASTBLOCK_QRP, numBlock, n, q, AdAu, H0, HN, Hq ) ;
       break ;
     case BABD_AMODIO_SVD:
       amodio_LU.factorize( AMODIO_LASTBLOCK_SVD, numBlock, n, q, AdAu, H0, HN, Hq ) ;

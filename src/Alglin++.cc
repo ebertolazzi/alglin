@@ -293,7 +293,7 @@ namespace alglin {
 
   template <typename T>
   void
-  QRP<T>::solve( valueType xb[] ) {
+  QRP<T>::solve( valueType xb[] ) const {
     ALGLIN_ASSERT( this->nRow == this->nCol,
                    "in QRP::solve, factored matrix must be square" ) ;
     this->Qt_mul(xb) ;
@@ -303,7 +303,7 @@ namespace alglin {
 
   template <typename T>
   void
-  QRP<T>::t_solve( valueType xb[] ) {
+  QRP<T>::t_solve( valueType xb[] ) const {
     ALGLIN_ASSERT( this->nRow == this->nCol,
                    "in QRP::solve_t, factored matrix must be square" ) ;
     this->inv_permute( xb ) ; // da aggiungere!

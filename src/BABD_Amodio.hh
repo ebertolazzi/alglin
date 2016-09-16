@@ -41,7 +41,8 @@ namespace alglin {
   typedef enum {
     AMODIO_LASTBLOCK_LU  = 0,
     AMODIO_LASTBLOCK_QR  = 1,
-    AMODIO_LASTBLOCK_SVD = 2
+    AMODIO_LASTBLOCK_QRP = 2,
+    AMODIO_LASTBLOCK_SVD = 3
   } AMODIO_LASTBLOCK_Choice;
 
   /*
@@ -151,6 +152,7 @@ namespace alglin {
 
     LU<t_Value>  la_lu ;
     QR<t_Value>  la_qr ;
+    QRP<t_Value> la_qrp ;
     SVD<t_Value> la_svd ;
 
     AMODIO_LASTBLOCK_Choice last_block ;

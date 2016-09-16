@@ -108,10 +108,11 @@ main() {
                              1.0, x, 1, 0, rhs, 1 ) ;
 
 
-  alglin::COLROW_LASTBLOCK_Choice ch[3] = { alglin::COLROW_LASTBLOCK_LU,
+  alglin::COLROW_LASTBLOCK_Choice ch[4] = { alglin::COLROW_LASTBLOCK_LU,
                                             alglin::COLROW_LASTBLOCK_QR,
+                                            alglin::COLROW_LASTBLOCK_QRP,
                                             alglin::COLROW_LASTBLOCK_SVD } ;
-  char const * kind[] = { "LU", "QR", "SVD" } ;
+  char const * kind[] = { "LU", "QR", "QRP", "SVD" } ;
 
   TicToc tm ;
   tm.reset() ;

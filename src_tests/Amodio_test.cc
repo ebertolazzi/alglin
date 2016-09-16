@@ -52,10 +52,11 @@ main() {
 
   //alglin::babd_print<valueType>( cout, nblk, n, q, AdAu, H0, HN, Hq ) ;
 
-  alglin::AMODIO_LASTBLOCK_Choice ch[3] = { alglin::AMODIO_LASTBLOCK_LU,
+  alglin::AMODIO_LASTBLOCK_Choice ch[4] = { alglin::AMODIO_LASTBLOCK_LU,
                                             alglin::AMODIO_LASTBLOCK_QR,
+                                            alglin::AMODIO_LASTBLOCK_QRP,
                                             alglin::AMODIO_LASTBLOCK_SVD } ;
-  char const * kind[] = { "LU", "QR", "SVD" } ;
+  char const * kind[] = { "LU", "QR", "QRP", "SVD" } ;
 
   for ( int test = 0 ; test < 3 ; ++test ) {
     cout << "\n\n\ntest N." << test << "\n" ;

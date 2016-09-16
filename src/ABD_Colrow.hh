@@ -34,7 +34,8 @@ namespace alglin {
   typedef enum {
     COLROW_LASTBLOCK_LU  = 0,
     COLROW_LASTBLOCK_QR  = 1,
-    COLROW_LASTBLOCK_SVD = 2
+    COLROW_LASTBLOCK_QRP = 2,
+    COLROW_LASTBLOCK_SVD = 3
   } COLROW_LASTBLOCK_Choice;
 
   //! LU decomposition of a ABD matrix
@@ -102,6 +103,7 @@ namespace alglin {
 
     LU<t_Value>  la_lu ;
     QR<t_Value>  la_qr ;
+    QRP<t_Value> la_qrp ;
     SVD<t_Value> la_svd ;
 
     COLROW_LASTBLOCK_Choice last_block ;

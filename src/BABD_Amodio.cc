@@ -575,6 +575,7 @@ namespace alglin {
     switch ( last_block ) {
       case AMODIO_LASTBLOCK_LU:  la_lu.factorize(nm,nm,LU_blk,nm)  ; break ;
       case AMODIO_LASTBLOCK_QR:  la_qr.factorize(nm,nm,LU_blk,nm)  ; break ;
+      case AMODIO_LASTBLOCK_QRP: la_qrp.factorize(nm,nm,LU_blk,nm) ; break ;
       case AMODIO_LASTBLOCK_SVD: la_svd.factorize(nm,nm,LU_blk,nm) ; break ;
       ALGLIN_ERROR("AmodioLU<t_Value>::factorize -- no last block solver selected") ;
     }
@@ -818,6 +819,7 @@ namespace alglin {
     switch ( last_block ) {
       case AMODIO_LASTBLOCK_LU:  la_lu.solve(tmpV)       ; break ;
       case AMODIO_LASTBLOCK_QR:  la_qr.solve(tmpV)       ; break ;
+      case AMODIO_LASTBLOCK_QRP: la_qrp.solve(tmpV)      ; break ;
       case AMODIO_LASTBLOCK_SVD: la_svd.solve(tmpV,tmpV) ; break ;
       default:
       ALGLIN_ERROR("AmodioLU<t_Value>::solve -- no last block solver selected") ;

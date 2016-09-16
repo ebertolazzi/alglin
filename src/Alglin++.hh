@@ -428,7 +428,7 @@ namespace alglin {
       \param xb on input the rhs of linear system on output the solution
     \*/
     void
-    solve( valueType xb[] ) ;
+    solve( valueType xb[] ) const ;
 
     /*!
       In case of QR factorization of a square matrix solve the 
@@ -436,7 +436,7 @@ namespace alglin {
       \param xb on input the rhs of linear system on output the solution
     \*/
     void
-    t_solve( valueType xb[] ) ;
+    t_solve( valueType xb[] ) const ;
 
     void
     solve( integer nrhs, valueType B[], integer ldB ) const ;

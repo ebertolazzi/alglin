@@ -503,6 +503,7 @@ namespace alglin {
     switch ( last_block ) {
       case COLROW_LASTBLOCK_LU:  la_lu.factorize(rowN,rowN,D0,rowN)  ; break ;
       case COLROW_LASTBLOCK_QR:  la_qr.factorize(rowN,rowN,D0,rowN)  ; break ;
+      case COLROW_LASTBLOCK_QRP: la_qrp.factorize(rowN,rowN,D0,rowN) ; break ;
       case COLROW_LASTBLOCK_SVD: la_svd.factorize(rowN,rowN,D0,rowN) ; break ;
     }
   }
@@ -581,6 +582,7 @@ namespace alglin {
     switch ( last_block ) {
       case COLROW_LASTBLOCK_LU:  la_lu.solve(io)     ; break ;
       case COLROW_LASTBLOCK_QR:  la_qr.solve(io)     ; break ;
+      case COLROW_LASTBLOCK_QRP: la_qrp.solve(io)    ; break ;
       case COLROW_LASTBLOCK_SVD: la_svd.solve(io,io) ; break ;
     }
 

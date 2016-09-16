@@ -39,16 +39,18 @@ namespace alglin {
     // ----------------
     BABD_COLROW_LU  = 1,
     BABD_COLROW_QR  = 2,
-    BABD_COLROW_SVD = 3,
+    BABD_COLROW_QRP = 3,
+    BABD_COLROW_SVD = 4,
     // ----------------
-    BABD_ARCECO     = 4,
+    BABD_ARCECO     = 5,
     // ----------------
-    BABD_AMODIO_LU  = 5,
-    BABD_AMODIO_QR  = 6,
-    BABD_AMODIO_SVD = 7,
+    BABD_AMODIO_LU  = 6,
+    BABD_AMODIO_QR  = 7,
+    BABD_AMODIO_QRP = 8,
+    BABD_AMODIO_SVD = 9,
     // ----------------
-    BABD_BLOCK_LU   = 8,
-    BABD_BLOCK_QR   = 9
+    BABD_BLOCK_LU   = 10,
+    BABD_BLOCK_QR   = 11
   } BABD_Choice;
   
   extern string BABD_Choice_to_string( BABD_Choice c ) ;
