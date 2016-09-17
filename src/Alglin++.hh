@@ -212,8 +212,6 @@ namespace alglin {
 
     integer nRow, nCol, nReflector, Lwork ;
 
-    void allocate( integer nr, integer nc ) ;
-
   public:
 
     QR()
@@ -224,12 +222,43 @@ namespace alglin {
     , Lwork(0)
     {}
 
+    QR( integer nr, integer nc )
+    : allocReals("QR-allocReals")
+    , nRow(0)
+    , nCol(0)
+    , nReflector(0)
+    , Lwork(0)
+    { allocate(nr,nc) ; }
+
     ~QR() {
       allocReals.free() ;
     }
 
     integer numRow() const { return nRow ; }
     integer numCol() const { return nCol ; }
+
+    void allocate( integer nr, integer nc ) ;
+
+    void
+    block_zero( integer nr, integer nc, integer irow, integer icol ) {
+      valueType * Ablk = Amat + irow + icol * nRow ;
+      gezero( nr, nc, Ablk, nRow ) ;
+    }
+
+    void
+    block_load( integer nr, integer nc,
+                valueType const B[], integer ldB,
+                integer irow, integer icol ) {
+      valueType * Ablk = Amat + irow + icol * nRow ;
+      integer info = gecopy( nr, nc, B, ldB, Ablk, nRow ) ;
+      ALGLIN_ASSERT( info == 0, "QR::block_load call alglin::gecopy return info = " << info ) ;
+    }
+
+    void
+    factorize() {
+      integer info = geqrf( nRow, nCol, Amat, nRow, Tau, Work, Lwork ) ;
+      ALGLIN_ASSERT( info == 0, "QR::factorize call alglin::geqrf return info = " << info ) ;
+    }
 
     /*!
       Do QR factorization of a rectangular matrix
@@ -239,7 +268,12 @@ namespace alglin {
       \param LDA Leading dimension of the matrix
     \*/
     void
-    factorize( integer NR, integer NC, valueType const A[], integer LDA ) ;
+    factorize( integer NR, integer NC, valueType const A[], integer LDA ) {
+      allocate( NR, NC ) ;
+      integer info = gecopy( NR, NC, A, LDA, Amat, nRow ) ;
+      ALGLIN_ASSERT( info == 0, "QR::factorize call alglin::gecopy return info = " << info ) ;
+      factorize() ;
+    }
 
     /*!
       Do QR factorization of the transpose of a rectangular matrix
@@ -249,7 +283,11 @@ namespace alglin {
       \param LDA Leading dimension of the matrix
     \*/
     void
-    t_factorize( integer NR, integer NC, valueType const A[], integer LDA ) ;
+    t_factorize( integer NR, integer NC, valueType const A[], integer LDA ) {
+      allocate( NC, NR ) ;
+      for ( integer i = 0 ; i < NR ; ++i ) copy( NC, A+i, LDA, Amat + i*nRow, 1 ) ;
+      factorize() ;
+    }
 
     /*!
       In case of QR factorization of a square matrix solve the 
@@ -370,7 +408,13 @@ namespace alglin {
     
     void
     getR( valueType R[], integer ldR ) const ;
-
+    
+    // -------------------------------------------------------------------------
+    // dummy routines
+    void permute( valueType x[] ) const {}
+    void inv_permute( valueType x[] ) const {}
+    void permute_rows( integer nr, integer nc, valueType C[], integer ldC ) const { }
+    void inv_permute_rows( integer nr, integer nc, valueType C[], integer ldC ) const { }
   } ;
 
   /*
@@ -392,8 +436,12 @@ namespace alglin {
   public:
 
     QRP()
-    : allocIntegers("QRP-allocIntegers")
+    : QR<T>(), allocIntegers("QRP-allocIntegers")
     {}
+
+    QRP( integer nr, integer nc )
+    : QR<T>(), allocIntegers("QRP-allocIntegers")
+    { allocate(nr,nc) ; }
 
     ~QRP() {
       allocIntegers.free() ;
@@ -401,6 +449,23 @@ namespace alglin {
 
     integer numRow() const { return this->nRow ; }
     integer numCol() const { return this->nCol ; }
+    
+    void
+    allocate( integer NR, integer NC ) {
+      QR<T>::allocate( NR, NC ) ;
+      allocIntegers.allocate(size_t(NC)) ;
+      JPVT = allocIntegers(size_t(NC)) ;
+    }
+
+    void
+    factorize() {
+      integer info = geqp3( this->nRow, this->nCol,
+                            this->Amat, this->nRow,
+                            JPVT,
+                            this->Tau,
+                            this->Work, this->Lwork ) ;
+      ALGLIN_ASSERT( info == 0, "QRP::factorize call alglin::geqrf return info = " << info ) ;
+    }
 
     /*!
       Do QR factorization with column pivoting of a rectangular matrix
@@ -410,7 +475,13 @@ namespace alglin {
       \param LDA Leading dimension of the matrix
     \*/
     void
-    factorize( integer NR, integer NC, valueType const A[], integer LDA ) ;
+    factorize( integer NR, integer NC, valueType const A[], integer LDA ) {
+      // calcolo fattorizzazione QR della matrice A
+      allocate( NC, NR ) ;
+      integer info = gecopy( NR, NC, A, LDA, this->Amat, this->nRow ) ;
+      ALGLIN_ASSERT( info == 0, "QR::factorize call alglin::gecopy return info = " << info ) ;
+      factorize() ;
+    }
 
     /*!
       Do QR factorization with column pivoting of the transpose of a rectangular matrix
@@ -420,7 +491,13 @@ namespace alglin {
       \param LDA Leading dimension of the matrix
     \*/
     void
-    t_factorize( integer NR, integer NC, valueType const A[], integer LDA ) ;
+    t_factorize( integer NR, integer NC, valueType const A[], integer LDA ) {
+      // calcolo fattorizzazione QR della matrice A
+      allocate( NC, NR ) ;
+      for ( integer i = 0 ; i < NR ; ++i )
+        copy( NC, A+i, LDA, this->Amat + i*this->nRow, 1 ) ;
+      factorize() ;
+    }
 
     /*!
       In case of QR factorization of a square matrix solve the 
@@ -489,7 +566,7 @@ namespace alglin {
 
     integer     nRow, nCol, minRC, Lwork ;
     bool        use_gesvd ;
-    
+
     void allocate( integer NR, integer NC, integer LDA ) ;
 
   public:
@@ -600,7 +677,6 @@ namespace alglin {
   
   private:
 
-    integer     nRC ;
     valueType * L ;
     valueType * D ;
     valueType * U ;
@@ -608,6 +684,8 @@ namespace alglin {
     valueType * WORK ;
     integer   * IPIV ;
     integer   * IWORK ;
+
+    integer     nRC, __padding ;
   
     Malloc<valueType> allocReals ;
     Malloc<integer>   allocIntegers ;
@@ -615,9 +693,9 @@ namespace alglin {
   public:
 
     TridiagonalLU()
-    : nRC(0)
-    , allocReals("allocReals")
+    : allocReals("allocReals")
     , allocIntegers("allocIntegers")
+    , nRC(0)
     {}
 
     ~TridiagonalLU() {
@@ -675,7 +753,7 @@ namespace alglin {
     valueType * BU2 ; // band triangular matrix
 
     valueType   normInfA ;
-    integer     nRC ;
+    integer     nRC, __padding ;
 
     void Rsolve( valueType xb[] ) const ;
     void RsolveTransposed( valueType xb[] ) const ;
@@ -713,10 +791,10 @@ namespace alglin {
           valueType       y[] ) const ;
 
     void
-    minq( integer nrhs,
-          T       RHS[],
-          integer ldRHS,
-          T       lambda ) const ;
+    lsq( integer nrhs,
+         T       RHS[],
+         integer ldRHS,
+         T       lambda ) const ;
 
   } ;
 

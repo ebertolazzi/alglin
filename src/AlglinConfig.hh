@@ -35,7 +35,7 @@
 #ifdef ALGLIN_USE_THREAD
   #define BABD_AMODIO_USE_THREAD
   #define BABD_AMODIO_N_USE_THREAD
-  //#define BABD_QR_USE_THREAD
+  #define BABD_QR_USE_THREAD
   #define BABD_QR_N_USE_THREAD
   #define BABD_QR_N_USE_PIVOTING
 #endif

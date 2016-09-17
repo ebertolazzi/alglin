@@ -36,7 +36,12 @@ namespace alglin {
     case alglin::BABD_AMODIO_QRP: res = "Amodio+QRP" ; break ;
     case alglin::BABD_AMODIO_SVD: res = "Amodio+SVD" ; break ;
     case alglin::BABD_BLOCK_LU:   res = "BlockLU"    ; break ;
-    case alglin::BABD_BLOCK_QR:   res = "BlockQR"    ; break ;
+    case alglin::BABD_CYCLIC_REDUCTION_QR:
+      res = "babdQR" ;
+      break ;
+    case alglin::BABD_CYCLIC_REDUCTION_QRP:
+      res = "babdQRP" ;
+      break ;
     }
     return res ;
   }
@@ -156,7 +161,8 @@ namespace alglin {
     case BABD_AMODIO_QRP:
     case BABD_AMODIO_SVD:
     case BABD_BLOCK_LU:
-    case BABD_BLOCK_QR:
+    case BABD_CYCLIC_REDUCTION_QR:
+    case BABD_CYCLIC_REDUCTION_QRP:
     case BABD_AUTOMATIC:
       break ;
     }
@@ -206,8 +212,11 @@ namespace alglin {
     case BABD_BLOCK_LU:
       block_LU.factorize( numBlock, n, q, AdAu, H0, HN, Hq ) ;
       break ;
-    case BABD_BLOCK_QR:
-      block_QR.factorize( numBlock, n, q, AdAu, H0, HN, Hq ) ;
+    case BABD_CYCLIC_REDUCTION_QR:
+      babd_QR.factorize( numBlock, n, q, AdAu, H0, HN, Hq ) ;
+      break ;
+    case BABD_CYCLIC_REDUCTION_QRP:
+      babd_QRP.factorize( numBlock, n, q, AdAu, H0, HN, Hq ) ;
       break ;
     case BABD_AUTOMATIC:
       ALGLIN_ERROR("BABD<t_Value>::factorize -- no solver selected") ;
@@ -247,8 +256,11 @@ namespace alglin {
     case BABD_BLOCK_LU:
       block_LU.solve( in_out ) ;
       break ;
-    case BABD_BLOCK_QR:
-      block_QR.solve( in_out ) ;
+    case BABD_CYCLIC_REDUCTION_QR:
+      babd_QR.solve( in_out ) ;
+      break ;
+    case BABD_CYCLIC_REDUCTION_QRP:
+      babd_QRP.solve( in_out ) ;
       break ;
     case BABD_AUTOMATIC:
       ALGLIN_ERROR( "BABD<t_Value>::solve -- no solver selected" ) ;

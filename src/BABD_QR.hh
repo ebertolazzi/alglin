@@ -22,7 +22,6 @@
 
 #include "Alglin.hh"
 #include "Alglin++.hh"
-#include "AlglinEigen.hh"
 #include <vector>
 
 #ifdef BABD_QR_USE_THREAD
@@ -63,16 +62,13 @@ namespace alglin {
    *           `enrico.bertolazzi@unitn.it`
    *
    */
-  template <typename t_Value>
+  template <typename QR_type>
   class BabdQR {
   private:
-  
-    typedef t_Value         valueType ;
-    typedef t_Value*        valuePointer ;
-    typedef t_Value const * valueConstPointer ;
 
-    typedef Eigen::Matrix<t_Value,Eigen::Dynamic,1>              vecType ;
-    typedef Eigen::Matrix<t_Value,Eigen::Dynamic,Eigen::Dynamic> matType ;
+    typedef typename QR_type::valueType         valueType ;
+    typedef typename QR_type::valueType*        valuePointer ;
+    typedef typename QR_type::valueType const * valueConstPointer ;
 
     Malloc<valueType> baseValue ;
 
@@ -124,19 +120,12 @@ namespace alglin {
     */
 
     ///////////////////////////////////////////////////////
-    
-    //typedef Eigen::HouseholderQR<matType>       QR_type ;
-    typedef Eigen::ColPivHouseholderQR<matType> QR_type ;
 
-    std::vector<QR_type> QR_blk ;
-    QR_type              QR_last_blk ; // last QR and working space
-    valuePointer         AdAu_blk ;
+    std::vector<QR_type*> QR_blk ;
+    QR_type               QR_last_blk ; // last QR and working space
+    valuePointer          AdAu_blk ;
 
-    mutable vecType v1_n,   v2_n   ;
-    mutable vecType v1_nx2, v2_nx2 ;
-    mutable vecType v1_nm,  v2_nm  ;
-
-    mutable matType M1_2n_n, M2_2n_n ;
+    mutable valuePointer  M_2n_2n, v_nx2, v_nm ;
 
     #ifdef BABD_QR_USE_THREAD
     mutable mutex              mtx0, mtx1, mtx2 ;
@@ -147,17 +136,22 @@ namespace alglin {
     mutable integer            usedThread ;
     mutable integer            jump_block_max_mt ;
     mutable valuePointer       y_thread ;
+    
+    mutable valuePointer  M_2n_2n_mt[BABD_QR_MAX_THREAD],
+                          v_nx2_mt[BABD_QR_MAX_THREAD],
+                          v_nm_mt[BABD_QR_MAX_THREAD] ;
     #endif
 
     #ifdef BABD_QR_USE_THREAD
-    void forward_reduce_mt( integer nth ) const ;
-    void back_substitute_mt( integer nth ) const ;
+    void forward_reduce_mt( integer nth, valuePointer y ) const ;
+    void back_substitute_mt( integer nth, valuePointer y, integer jump_block_min ) const ;
     void reduction_mt( integer nth ) ;
     #endif
 
     void forward_reduce( valuePointer y ) const ;
     void back_substitute( valuePointer y, integer jump_block_min ) const ;
     void reduction() ;
+    void allocate( integer nblk, integer n, integer q ) ;
 
   public:
 

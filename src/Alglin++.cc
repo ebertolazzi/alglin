@@ -146,27 +146,6 @@ namespace alglin {
 
   template <typename T>
   void
-  QR<T>::factorize( integer NR, integer NC, valueType const A[], integer LDA ) {
-    // calcolo fattorizzazione QR della matrice A
-    allocate( NR, NC ) ;
-    integer info = gecopy( NR, NC, A, LDA, Amat, nRow ) ;
-    ALGLIN_ASSERT( info == 0, "QR::factorize call alglin::gecopy return info = " << info ) ;
-    info = geqrf( nRow, nCol, Amat, nRow, Tau, Work, Lwork ) ;
-    ALGLIN_ASSERT( info == 0, "QR::factorize call alglin::geqrf return info = " << info ) ;
-  }
-
-  template <typename T>
-  void
-  QR<T>::t_factorize( integer NR, integer NC, valueType const A[], integer LDA ) {
-    // calcolo fattorizzazione QR della matrice A
-    allocate( NC, NR ) ;
-    for ( integer i = 0 ; i < NR ; ++i ) copy( NC, A+i, LDA, Amat + i*nRow, 1 ) ;
-    integer info = geqrf( nRow, nCol, Amat, nRow, Tau, Work, Lwork ) ;
-    ALGLIN_ASSERT( info == 0, "QR::factorize call alglin::geqrf return info = " << info ) ;
-  }
-
-  template <typename T>
-  void
   QR<T>::applyQ( SideMultiply  SIDE,
                  Transposition TRANS,
                  integer       nRefl,
@@ -243,40 +222,6 @@ namespace alglin {
 
   template <typename T>
   void
-  QRP<T>::factorize( integer NR, integer NC, valueType const A[], integer LDA ) {
-    // calcolo fattorizzazione QR della matrice A
-    this->allocate( NR, NC ) ;
-    allocIntegers.allocate(size_t(this->nCol)) ;
-    JPVT = allocIntegers(size_t(this->nCol)) ;
-    integer info = gecopy( NR, NC, A, LDA, this->Amat, this->nRow ) ;
-    ALGLIN_ASSERT( info == 0, "QR::factorize call alglin::gecopy return info = " << info ) ;
-    info = geqp3( this->nRow, this->nCol,
-                  this->Amat, this->nRow,
-                  JPVT,
-                  this->Tau,
-                  this->Work, this->Lwork ) ;
-    ALGLIN_ASSERT( info == 0, "QRP::factorize call alglin::geqrf return info = " << info ) ;
-  }
-
-  template <typename T>
-  void
-  QRP<T>::t_factorize( integer NR, integer NC, valueType const A[], integer LDA ) {
-    // calcolo fattorizzazione QR della matrice A
-    this->allocate( NC, NR ) ;
-    allocIntegers.allocate(size_t(this->nCol)) ;
-    JPVT = allocIntegers(size_t(this->nCol)) ;
-    for ( integer i = 0 ; i < NR ; ++i )
-      copy( NC, A+i, LDA, this->Amat + i*this->nRow, 1 ) ;
-    integer info = geqp3( this->nRow, this->nCol,
-                          this->Amat, this->nRow,
-                          JPVT,
-                          this->Tau,
-                          this->Work, this->Lwork ) ;
-    ALGLIN_ASSERT( info == 0, "QRP::factorize call alglin::geqrf return info = " << info ) ;
-  }
-
-  template <typename T>
-  void
   QRP<T>::permute( valueType x[] ) const {
     // applico permutazione
     for ( integer i = 0 ; i < this->nCol ; ++i ) this->Work[JPVT[i]-1] = x[i] ;
@@ -298,7 +243,7 @@ namespace alglin {
                    "in QRP::solve, factored matrix must be square" ) ;
     this->Qt_mul(xb) ;
     this->invR_mul(xb) ;
-    this->permute( xb ) ; // da aggiungere!
+    this->permute(xb) ; // da aggiungere!
   }
 
   template <typename T>
@@ -306,7 +251,7 @@ namespace alglin {
   QRP<T>::t_solve( valueType xb[] ) const {
     ALGLIN_ASSERT( this->nRow == this->nCol,
                    "in QRP::solve_t, factored matrix must be square" ) ;
-    this->inv_permute( xb ) ; // da aggiungere!
+    this->inv_permute(xb) ; // da aggiungere!
     this->invRt_mul(xb) ;
     this->Q_mul(xb) ;
   }
@@ -713,10 +658,10 @@ namespace alglin {
 
   template <typename T>
   void
-  TridiagonalQR<T>::minq( integer nrhs,
-                          T       RHS[],
-                          integer ldRHS,
-                          T       lambda_in) const {
+  TridiagonalQR<T>::lsq( integer nrhs,
+                         T       RHS[],
+                         integer ldRHS,
+                         T       lambda_in) const {
 
     valueType lambda = normInfA * lambda_in ;
     std::vector<T> D(nRC),

@@ -425,6 +425,67 @@ test6() {
 }
 
 
+static
+void
+test7() {
+  alglin::QRP<valueType> qrp ;
+
+  integer const M   = 5 ;
+  integer const LDA = 5 ;
+  valueType A[] = {
+    0.001,      2,     3,       2,      3,
+    0.001,  0.001,     0,   0.001,  1e-10,
+    0,      0.001,     0,   0.001,  1e-12,
+    0.001,     -1, 1e-6+1,     -1, -1e-12,
+    0.000001,   5,     3,  1e-6+5,      3+1
+  } ;
+
+  valueType rhs[M], b[M] ;
+  valueType x[M] = {1,2,3,4,5} ;
+  alglin::gemv( alglin::TRANSPOSE, M, M, 1, A, LDA, x, 1, 0, rhs, 1 ) ;
+  alglin::gemv( alglin::TRANSPOSE, M, M, 1, A, LDA, x, 1, 0, b, 1 ) ;
+
+  cout << "\n\n\nTest5:\n\nInitial A\n" ;
+  alglin::print_matrix( cout, M, M, A, M ) ;
+
+  cout << "\n\nDo QRP factorization of A\n" ;
+  qrp.factorize( M, M, A, LDA ) ;
+
+  cout << "QRP solution of A x = b" ;
+  alglin::copy( M, rhs, 1, x, 1 ) ;
+  alglin::copy( M, rhs, 1, b, 1 ) ;
+  qrp.t_solve( x ) ;
+  //qrp.t_solve( 1, x, M ) ;
+  cout << "x=\n" ;
+  alglin::print_matrix( cout, 5, 1, x, 5 ) ;
+
+  alglin::gemv( alglin::TRANSPOSE, M, M, -1, A, LDA, x, 1, 1, b, 1 ) ;
+  cout << "residual=\n" ;
+  alglin::print_matrix( cout, M, 1, b, M ) ;
+
+
+
+  cout << "\n\nDo QRP factorization of A\n" ;
+  qrp.allocate( M, M ) ;
+  qrp.block_load( 2, 5, A,   LDA, 0, 0 ) ;
+  qrp.block_load( 3, 5, A+2, LDA, 2, 0 ) ;
+  qrp.factorize() ;
+  
+  cout << "QRP solution of A x = b" ;
+  alglin::copy( M, rhs, 1, x, 1 ) ;
+  alglin::copy( M, rhs, 1, b, 1 ) ;
+  qrp.t_solve( x ) ;
+  //qrp.t_solve( 1, x, M ) ;
+  cout << "x=\n" ;
+  alglin::print_matrix( cout, 5, 1, x, 5 ) ;
+
+  alglin::gemv( alglin::TRANSPOSE, M, M, -1, A, LDA, x, 1, 1, b, 1 ) ;
+  cout << "residual=\n" ;
+  alglin::print_matrix( cout, M, 1, b, M ) ;
+
+}
+
+
 int
 main() {
 
@@ -434,7 +495,8 @@ main() {
     //test3() ;
     //test4() ;
     //test5() ;
-    test6() ;
+    //test6() ;
+    test7() ;
   } catch ( exception const & exc ) {
     cerr << exc.what() << '\n' ;
   } catch ( ... ) {

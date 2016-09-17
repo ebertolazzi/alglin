@@ -43,7 +43,7 @@ main() {
 
   #include "LU_test.hxx"
 
-  alglin::BabdQR<valueType> LU ;
+  alglin::BabdQR<alglin::QRP<valueType> > LU ;
 
   //alglin::babd_print<valueType>( cout, nblk, n, q, AdAu, H0, HN, Hq ) ;
 

@@ -49,8 +49,9 @@ namespace alglin {
     BABD_AMODIO_QRP = 8,
     BABD_AMODIO_SVD = 9,
     // ----------------
-    BABD_BLOCK_LU   = 10,
-    BABD_BLOCK_QR   = 11
+    BABD_BLOCK_LU             = 10,
+    BABD_CYCLIC_REDUCTION_QR  = 11,
+    BABD_CYCLIC_REDUCTION_QRP = 12
   } BABD_Choice;
   
   extern string BABD_Choice_to_string( BABD_Choice c ) ;
@@ -94,9 +95,10 @@ namespace alglin {
     ColrowLU<t_Value> colrow_LU ;
     ArcecoLU<t_Value> arceco_LU ;
     // -------------------------
-    AmodioLU<t_Value> amodio_LU ;
-    BlockLU<t_Value>  block_LU ;
-    BabdQR<t_Value>   block_QR ;
+    AmodioLU<t_Value>     amodio_LU ;
+    BlockLU<t_Value>      block_LU ;
+    BabdQR<QR<t_Value> >  babd_QR ;
+    BabdQR<QRP<t_Value> > babd_QRP ;
 
     integer row0, col0 ;
     integer rowN, colN ;

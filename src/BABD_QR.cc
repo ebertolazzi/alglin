@@ -87,10 +87,9 @@ namespace alglin {
   using namespace std ;
 
   #ifdef BABD_QR_USE_THREAD
-  template <typename t_Value>
-  BabdQR<t_Value>::BabdQR( integer nth )
+  template <typename QR_type>
+  BabdQR<QR_type>::BabdQR( integer nth )
   : baseValue("BabdQR_value")
-  , baseInteger("BabdQR_index")
   , numThread(nth)
   {
     ALGLIN_ASSERT( numThread > 0 && numThread <= BABD_QR_MAX_THREAD,
@@ -98,14 +97,14 @@ namespace alglin {
                    "must be a number > 0 and <= " << BABD_QR_MAX_THREAD ) ;
   }
   #else
-  template <typename t_Value>
-  BabdQR<t_Value>::BabdQR()
+  template <typename QR_type>
+  BabdQR<QR_type>::BabdQR()
   : baseValue("BabdQR_value")
   { }
   #endif
 
-  template <typename t_Value>
-  BabdQR<t_Value>::~BabdQR() {
+  template <typename QR_type>
+  BabdQR<QR_type>::~BabdQR() {
     baseValue.free() ;
   }
 
@@ -150,9 +149,9 @@ namespace alglin {
   // 0  -  -  -  -  -  -  -  8  -  -  -  -  -  -  -
   // 0  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
   
-  template <typename t_Value>
+  template <typename QR_type>
   void
-  BabdQR<t_Value>::reduction() {
+  BabdQR<QR_type>::reduction() {
 
     while ( jump_block < nblock ) {
 
@@ -174,130 +173,88 @@ namespace alglin {
         valuePointer F  = E  + nxn ;
         valuePointer F1 = E1 + nxn ;
 
-        QR_type & QR = QR_blk[k1] ;
+        QR_type & QR = *QR_blk[k1] ;
 
         /*\
          |  / F \ = Q / R \
          |  \ E1/     \ 0 /
         \*/
-        gecopy( n, n, F,  n, M1_2n_n.data(),   nx2 ) ;
-        gecopy( n, n, E1, n, M1_2n_n.data()+n, nx2 ) ;
-        QR.compute(M1_2n_n) ;
+        QR.block_load( n, n, F,  n, 0, 0 ) ;
+        QR.block_load( n, n, E1, n, n, 0 ) ;
+        QR.factorize() ;
 
         /*\
          |   / 0 I \ Q^T / F \ = / 0 \
          |   \ I 0 /     \ E1/   \ R /
         \*/
+        gecopy( n, n, E, n,  M_2n_2n,         nx2 ) ;
+        gezero( n, n,        M_2n_2n+n,       nx2 ) ;
+        gezero( n, n,        M_2n_2n+n*nx2,   nx2 ) ;
+        gecopy( n, n, F1, n, M_2n_2n+n*nx2+n, nx2 ) ;
 
-        gecopy( n, n, E, n, M1_2n_n.data(),   nx2 ) ;
-        gezero( n, n,       M1_2n_n.data()+n, nx2 ) ;
-        M2_2n_n.noalias() = QR.householderQ().transpose() * M1_2n_n ;
-        gecopy( n, n, M2_2n_n.data(),   nx2, E1, n ) ; // memorizzo scambiate
-        gecopy( n, n, M2_2n_n.data()+n, nx2, E,  n ) ;
+        QR.Qt_mul( nx2, nx2, M_2n_2n, nx2 ) ;
 
-        gezero( n, n,        M1_2n_n.data(),   nx2 ) ;
-        gecopy( n, n, F1, n, M1_2n_n.data()+n, nx2 ) ;
-        M2_2n_n.noalias() = QR.householderQ().transpose() * M1_2n_n ;
-        gecopy( n, n, M2_2n_n.data(),   nx2, F1, n ) ; // memorizzo scambiate
-        gecopy( n, n, M2_2n_n.data()+n, nx2, F,  n ) ;
+        gecopy( n, n, M_2n_2n,         nx2, E1, n ) ; // memorizzo scambiate
+        gecopy( n, n, M_2n_2n+n,       nx2, E,  n ) ;
+        gecopy( n, n, M_2n_2n+n*nx2,   nx2, F1, n ) ; // memorizzo scambiate
+        gecopy( n, n, M_2n_2n+n*nx2+n, nx2, F,  n ) ;
       }
       jump_block *= 2 ;
     }
   }
-
-  #ifdef BABD_QR_USE_THREAD
-  template <typename t_Value>
+  
+#ifdef BABD_QR_USE_THREAD
+  template <typename QR_type>
   void
-  BabdQR<t_Value>::reduction_mt( integer nth ) {
-    valuePointer EE = tmpM+nth*nxnx2 ;
-    valuePointer FF = EE+nxn ;
-
+  BabdQR<QR_type>::reduction_mt( integer nth ) {
+    valuePointer M = M_2n_2n_mt[nth] ;
     while ( jump_block < jump_block_max_mt ) {
-
+        
       integer k_step = 2*usedThread*jump_block ;
       integer k0     = 2*nth*jump_block ;
       integer kend   = nblock-jump_block ;
 
       for ( integer k = k0 ; k < kend ; k += k_step ) {
-
         integer k1 = k+jump_block ;
-
-        valuePointer BLK0 = AdAu_blk + k  * nxnx2 ;
-        valuePointer BLK1 = AdAu_blk + k1 * nxnx2 ;
-        valuePointer G    = G_blk    + k1 * nxn ;
-
-        valuePointer E   = BLK0 ;       // <-- Ad'' - G*Ad'
-        valuePointer F   = BLK0 + nxn ; // <-- Bu'' - G*Bu'
-        valuePointer LU  = BLK1 ;
-        valuePointer Adu = BLK1 + nxn ;
-
         /*\
-         | factorize RS by means of the LU factorization
-         | P * / Au \ = / G \ (L*U)
-         |     \ Bd /   \ I /
-        \*/
-        copy( nxn, F, 1, G, 1 ) ;
-        integer info = LU_2_block( n, LU, G, ipiv ) ;
-        ALGLIN_ASSERT( info == 0,
-                       "AmodioLU::factorize, at block N." << k <<
-                       " singular matrix, info = " << info );
-
-
-        /*\
-         |   +-----+-----+ - - +
-         |   | E*  |  0 <=  F*   <-- messo al posto dell "0"
-         |   +-----+-----+-----+
-         |     Ad''| L\U | Au''| <-- memorizzazione compatta
-         |   + - - +-----+-----+
-         |
-         |   applico permutazione
-         |   +-----+             +-----+-----+
-         |   | Ad  |             |  E  |  F  |
-         |   +-----+-----+  -->  +-----+-----+
-         |         | Bu  |       | Ad''+Bu'' | compattato
-         |         +-----+       +-----------+
-        \*/
-
-        // determine the permutation vector and select row vectors
-        for ( integer i = 0 ; i < n ; ++i ) {
-          LU_rows[i]   = true ;
-          LU_rows[n+i] = false ;
-        }
-        for ( integer i = 0 ; i < n ; ++i ) {
-          integer ip = ipiv[i] ;
-          if ( ip > i ) {
-            std::swap( LU_rows[i], LU_rows[ip] ) ;
-            if ( ip < n ) swap( n, Adu + i, n, Adu + ip, n ) ; // scambia righe
-            else          swap( n, Adu + i, n, E + ip-n, n ) ; // scambia righe
-          }
-        }
-        zero( nxn, F, 1 ) ;
-        zero( nxnx2, EE, 1 ) ;
-        for ( integer i = 0 ; i < n ; ++i ) {
-          if ( LU_rows[i+n] ) {
-            copy( n, E+i, n, F+i, n ) ;
-            zero( n, E+i, n ) ;
-          }
-          if ( LU_rows[i] ) copy( n, Adu+i, n, FF+i, n ) ;
-          else              copy( n, Adu+i, n, EE+i, n ) ;
-        }
-        gemm( NO_TRANSPOSE, NO_TRANSPOSE,
-              n, n, n,
-              -1.0, G, n,
-              EE, n,
-              1.0, E, n ) ;
-        gemm( NO_TRANSPOSE, NO_TRANSPOSE,
-              n, n, n,
-              -1.0, G, n,
-              FF, n,
-              1.0, F, n ) ;
-        /*\
-         |  +-----+-----+ - - +
-         |  | E*  |  0  | F*    <-- messo al posto dell "0"
+         |  +-----+-----+
+         |  |  E  |  F  |
          |  +-----+-----+-----+
-         |    Ad' | L\U | Bu' | <-- memorizzazione compatta
-         |  + - - +-----+-----+-----+ - - +
+         |        |  E1 |  F1 |
+         |        +-----+-----+
         \*/
+
+        valuePointer E  = AdAu_blk + k  * nxnx2 ;
+        valuePointer E1 = AdAu_blk + k1 * nxnx2 ;
+        valuePointer F  = E  + nxn ;
+        valuePointer F1 = E1 + nxn ;
+
+        QR_type & QR = *QR_blk[k1] ;
+
+        /*\
+         |  / F \ = Q / R \
+         |  \ E1/     \ 0 /
+        \*/
+        QR.block_load( n, n, F,  n, 0, 0 ) ;
+        QR.block_load( n, n, E1, n, n, 0 ) ;
+        QR.factorize() ;
+
+        /*\
+         |   / 0 I \ Q^T / F \ = / 0 \
+         |   \ I 0 /     \ E1/   \ R /
+        \*/
+        gecopy( n, n, E, n,  M,         nx2 ) ;
+        gezero( n, n,        M+n,       nx2 ) ;
+        gezero( n, n,        M+n*nx2,   nx2 ) ;
+        gecopy( n, n, F1, n, M+n*nx2+n, nx2 ) ;
+
+        QR.Qt_mul( nx2, nx2, M, nx2 ) ;
+
+        gecopy( n, n, M,         nx2, E1, n ) ; // memorizzo scambiate
+        gecopy( n, n, M+n,       nx2, E,  n ) ;
+        gecopy( n, n, M+n*nx2,   nx2, F1, n ) ; // memorizzo scambiate
+        gecopy( n, n, M+n*nx2+n, nx2, F,  n ) ;
+
       }
 
       // aspetta le altre thread
@@ -314,15 +271,11 @@ namespace alglin {
   }
   #endif
 
-  template <typename t_Value>
+  template <typename QR_type>
   void
-  BabdQR<t_Value>::factorize( integer           _nblock,
-                              integer           _n,
-                              integer           _q,
-                              valueConstPointer AdAu,
-                              valueConstPointer H0,
-                              valueConstPointer HN,
-                              valueConstPointer Hq ) {
+  BabdQR<QR_type>::allocate( integer _nblock, integer _n, integer _q ) {
+
+    if ( _nblock == nblock && n == _n && _q == m-n ) return ;
 
     nblock = _nblock ;
     n      = _n ;
@@ -333,21 +286,44 @@ namespace alglin {
     nxnx2  = nxn*2 ;
     nm     = n+m ;
 
-    integer nnzADAU = nblock*nxnx2 ;
-    baseValue.allocate(size_t(nnzADAU)) ;
-    AdAu_blk = baseValue(size_t(nnzADAU)) ;
+    integer mem = nblock*nxnx2+4*nxn+nx2+nm ;
+    #ifdef BABD_QR_USE_THREAD
+    mem += (4*nxn+nx2+nm)* BABD_QR_MAX_THREAD ;
+    #endif
+    baseValue.allocate(size_t(mem)) ;
+    AdAu_blk = baseValue(size_t(nblock*nxnx2)) ;
+    M_2n_2n  = baseValue(size_t(4*nxn)) ;
+    v_nx2    = baseValue(size_t(nx2)) ;
+    v_nm     = baseValue(size_t(nm)) ;
 
-    v1_n    . resize(n) ;
-    v2_n    . resize(n) ;
-    v1_nx2  . resize(nx2) ;
-    v2_nx2  . resize(nx2) ;
-    v1_nm   . resize(nm) ;
-    v2_nm   . resize(nm) ;
-    M1_2n_n . resize(nx2,n) ;
-    M2_2n_n . resize(nx2,n) ;
-    QR_blk  . resize(nblock) ;
+    #ifdef BABD_QR_USE_THREAD
+    for ( integer nth = 0 ; nth < BABD_QR_MAX_THREAD ; ++nth ) {
+      M_2n_2n_mt[nth]  = baseValue(size_t(4*nxn)) ;
+      v_nx2_mt[nth]    = baseValue(size_t(nx2)) ;
+      v_nm_mt[nth]     = baseValue(size_t(nm)) ;
+    }
+    #endif
 
-    alglin::copy( nnzADAU, AdAu, 1, AdAu_blk, 1 ) ;
+    QR_blk.resize(nblock) ;
+    for ( integer i = 0 ; i < nblock ; ++i )
+      QR_blk[i] = new QR_type( nx2, n ) ;
+
+    QR_last_blk.allocate(nm,nm) ;
+
+  }
+
+  template <typename QR_type>
+  void
+  BabdQR<QR_type>::factorize( integer           _nblock,
+                              integer           _n,
+                              integer           _q,
+                              valueConstPointer AdAu,
+                              valueConstPointer H0,
+                              valueConstPointer HN,
+                              valueConstPointer Hq ) {
+
+    allocate( _nblock, _n, _q ) ;
+    alglin::copy( nblock*nxnx2, AdAu, 1, AdAu_blk, 1 ) ;
 
     /*\
      | !!!!!!!!!!!!!!!!!!!!!!!!!
@@ -364,7 +340,7 @@ namespace alglin {
     #ifdef BABD_QR_USE_THREAD
     to_be_done = usedThread ;
     for ( integer nt = 0 ; nt < usedThread ; ++nt )
-      threads[nt] = std::thread( &BabdQR<t_Value>::reduction_mt, this, nt ) ;
+      threads[nt] = std::thread( &BabdQR<QR_type>::reduction_mt, this, nt ) ;
     for ( integer nt = 0 ; nt < usedThread ; ++nt )
       threads[nt].join() ;
     #endif
@@ -379,15 +355,14 @@ namespace alglin {
     // / S  R  0  \ /x(0)\  = b(0)
     // \ H0 HN Hq / \x(N)/  = b(N)
     */
-    matType M(nm,nm) ;
-    gecopy( n, nx2, AdAu_blk, n, M.data(), nm ) ;
-    gecopy( m, n, H0, m, M.data()+n,      nm ) ;
-    gecopy( m, n, HN, m, M.data()+n+n*nm, nm ) ;
+    QR_last_blk.block_load( n, nx2, AdAu_blk, n, 0, 0 ) ;
+    QR_last_blk.block_load( m, n,         H0, m, n, 0 ) ;
+    QR_last_blk.block_load( m, n,         HN, m, n, n ) ;
     if ( _q > 0 ) {
-      gezero( n, _q,        M.data()+nx2*nm,   nm ) ;
-      gecopy( m, _q, Hq, m, M.data()+nx2*nm+n, nm ) ;
+      QR_last_blk.block_zero( n, _q,        0, nx2 ) ;
+      QR_last_blk.block_load( m, _q, Hq, m, n, nx2 ) ;
     }
-    QR_last_blk.compute(M) ;
+    QR_last_blk.factorize() ;
   }
 
   /*
@@ -399,9 +374,9 @@ namespace alglin {
   //                                       |_____|
   */
 
-  template <typename t_Value>
+  template <typename QR_type>
   void
-  BabdQR<t_Value>::forward_reduce( valuePointer y ) const {
+  BabdQR<QR_type>::forward_reduce( valuePointer y ) const {
     while ( jump_block < nblock ) {
 
       integer k_step = 2*jump_block ;
@@ -409,19 +384,17 @@ namespace alglin {
 
       for ( integer k = 0 ; k < kend ; k += k_step ) {
         integer k1 = k+jump_block ;
-        QR_type const & QR = QR_blk[k1] ;
+        QR_type const & QR = *QR_blk[k1] ;
         valuePointer yk  = y + k  * n ;
         valuePointer yk1 = y + k1 * n ;
-
-        copy( n, yk,  1, v1_nx2.data(),   1 ) ;
-        copy( n, yk1, 1, v1_nx2.data()+n, 1 ) ;
-
         /*\
          |   applico Q^T e scambio
         \*/
-        v2_nx2.noalias() = QR.householderQ().transpose() * v1_nx2 ;
-        copy( n, v2_nx2.data(),   1, yk1, 1 ) ;
-        copy( n, v2_nx2.data()+n, 1, yk,  1 ) ;
+        copy( n, yk,  1, v_nx2,   1 ) ;
+        copy( n, yk1, 1, v_nx2+n, 1 ) ;
+        QR.Qt_mul( v_nx2 ) ;
+        copy( n, v_nx2,   1, yk1, 1 ) ;
+        copy( n, v_nx2+n, 1, yk,  1 ) ;
       }
 
       // aspetta le altre thread
@@ -430,9 +403,10 @@ namespace alglin {
   }
 
   #ifdef BABD_QR_USE_THREAD
-  template <typename t_Value>
+  template <typename QR_type>
   void
-  BabdQR<t_Value>::forward_reduce_mt( integer nth ) const {
+  BabdQR<QR_type>::forward_reduce_mt( integer nth, valuePointer y ) const {
+    valuePointer v_tmp = v_nx2_mt[nth] ;
     while ( jump_block < jump_block_max_mt ) {
 
       integer k_step = 2*usedThread*jump_block ;
@@ -440,27 +414,18 @@ namespace alglin {
       integer kend   = nblock-jump_block ;
 
       for ( integer k = k0 ; k < kend ; k += k_step ) {
-
-        integer     k1 = k+jump_block ;
-        valuePointer G = G_blk    + k1 * nxn ;
-        integer * ipiv = ipiv_blk + k1 * n ;
-
-        valuePointer yk  = y_thread + k  * n ;
-        valuePointer yk1 = y_thread + k1 * n ;
-
+        integer k1 = k+jump_block ;
+        QR_type const & QR = *QR_blk[k1] ;
+        valuePointer yk  = y + k  * n ;
+        valuePointer yk1 = y + k1 * n ;
         /*\
-         |   applico permutazione e moltiplico per / I -G \
-         |                                         \    I /
+         |   applico Q^T e scambio
         \*/
-        for ( integer i = 0 ; i < n ; ++i ) {
-          integer ip = ipiv[i] ;
-          if ( ip > i ) {
-            if ( ip < n ) std::swap( yk1[i], yk1[ip] ) ;
-            else          std::swap( yk1[i], yk[ip-n] ) ;
-          }
-        }
-        // yk -= G * yk1
-        gemv( NO_TRANSPOSE, n, n, -1.0, G, n, yk1, 1, 1.0, yk, 1 ) ;
+        copy( n, yk,  1, v_tmp,   1 ) ;
+        copy( n, yk1, 1, v_tmp+n, 1 ) ;
+        QR.Qt_mul( v_tmp ) ;
+        copy( n, v_tmp,   1, yk1, 1 ) ;
+        copy( n, v_tmp+n, 1, yk,  1 ) ;
       }
 
       // aspetta le altre thread
@@ -487,9 +452,9 @@ namespace alglin {
   //                       |_____|
   */
 
-  template <typename t_Value>
+  template <typename QR_type>
   void
-  BabdQR<t_Value>::back_substitute( valuePointer y, integer jump_block_min ) const {
+  BabdQR<QR_type>::back_substitute( valuePointer y, integer jump_block_min ) const {
     while ( jump_block > jump_block_min ) {
       integer k_step = 2*jump_block ;
       integer kend   = nblock-jump_block ;
@@ -499,7 +464,7 @@ namespace alglin {
         valuePointer E1 = AdAu_blk + k1 * nxnx2 ;
         valuePointer F1 = E1 + nxn ;
 
-        QR_type const & QR = QR_blk[k1] ;
+        QR_type const & QR = *QR_blk[k1] ;
 
         valuePointer yk  = y + k  * n ;
         valuePointer yk1 = y + k1 * n ;
@@ -516,25 +481,17 @@ namespace alglin {
               -1.0, F1, n,
               yk2, 1,
               1, yk1, 1 ) ;
-        copy( n, yk1, 1, v1_n.data(), 1 ) ;
-        QR.matrixQR()
-          .topLeftCorner(n,n)
-          .template triangularView<Eigen::Upper>()
-          .template solveInPlace<Eigen::OnTheLeft>(v1_n) ;
-
-        v2_n.noalias() = QR.colsPermutation()*v1_n;
-        copy( n, v2_n.data(), 1, yk1, 1 ) ;
-
+        QR.invR_mul( yk1 ) ;
+        QR.permute( yk1 ) ;
       }
       jump_block /= 2 ;
     }
   }
 
   #ifdef BABD_QR_USE_THREAD
-
-  template <typename t_Value>
+  template <typename QR_type>
   void
-  BabdQR<t_Value>::back_substitute_mt( integer nth ) const {
+  BabdQR<QR_type>::back_substitute_mt( integer nth, valuePointer y, integer jump_block_min ) const {
 
     while ( jump_block > 0 ) {
 
@@ -543,30 +500,30 @@ namespace alglin {
       integer kend   = nblock-jump_block ;
 
       for ( integer k = k0 ; k < kend ; k += k_step ) {
+        integer      k1 = k+jump_block ;
+        integer      k2 = min(k1+jump_block,nblock) ;
+        valuePointer E1 = AdAu_blk + k1 * nxnx2 ;
+        valuePointer F1 = E1 + nxn ;
 
-        integer k1 = k+jump_block ;
-        integer k2 = min(k1+jump_block,nblock) ;
-        valuePointer LU  = AdAu_blk + k1 * nxnx2 ;
-        valuePointer Adu = LU + nxn ;
-        std::vector<bool> const & LU_rows = LU_rows_blk[k1] ;
+        QR_type const & QR = *QR_blk[k1] ;
 
-        valuePointer yk1 = y_thread + k1 * n ;
-        for ( integer i = 0 ; i < n ; ++i ) {
-          valuePointer LR = y_thread + ( LU_rows[i] ? k2 : k ) * n ;
-          yk1[i] -= dot( n, Adu+i, n, LR, 1 ) ;
-        }
-
-        // (LU)^(-1) = U^(-1) L^(-1)
-        trsv( LOWER, NO_TRANSPOSE, UNIT, n, LU, n, yk1, 1 ) ;
-        trsv( UPPER, NO_TRANSPOSE, NON_UNIT, n, LU, n, yk1, 1 ) ;
-
-        /*\
-         |  +-----+-----+ - - +
-         |  | E*  |  0  | F*    <-- messo al posto dell "0"
-         |  +-----+-----+-----+
-         |    Ad' | L\U | Bu' | <-- memorizzazione compatta
-         |  + - - +-----+-----+-----+ - - +
-        \*/
+        valuePointer yk  = y + k  * n ;
+        valuePointer yk1 = y + k1 * n ;
+        valuePointer yk2 = y + k2 * n ;
+        
+        // io -= M*io1
+        gemv( NO_TRANSPOSE,
+              n, n,
+              -1.0, E1, n,
+              yk, 1,
+              1, yk1, 1 ) ;
+        gemv( NO_TRANSPOSE,
+              n, n,
+              -1.0, F1, n,
+              yk2, 1,
+              1, yk1, 1 ) ;
+        QR.invR_mul( yk1 ) ;
+        QR.permute( yk1 ) ;
       }
       // aspetta le altre thread
       { unique_lock<mutex> lck(mtx0);
@@ -589,9 +546,9 @@ namespace alglin {
   //  |___/\___/|_| \_/ \___|
   */
 
-  template <typename t_Value>
+  template <typename QR_type>
   void
-  BabdQR<t_Value>::solve( valuePointer y ) const {
+  BabdQR<QR_type>::solve( valuePointer y ) const {
 
     #ifdef BABD_QR_USE_THREAD
     usedThread        = numThread ;
@@ -609,7 +566,7 @@ namespace alglin {
     if ( usedThread > 0 ) {
       to_be_done = usedThread ;
       for ( integer nt = 0 ; nt < usedThread ; ++nt )
-        threads[nt] = std::thread( &BabdQR<t_Value>::forward_reduce_mt, this, nt ) ;
+        threads[nt] = std::thread( &BabdQR<QR_type>::forward_reduce_mt, this, nt, y ) ;
       for ( integer nt = 0 ; nt < usedThread ; ++nt )
         threads[nt].join() ;
     }
@@ -622,11 +579,11 @@ namespace alglin {
      | !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     \*/
     valuePointer ye = y + nblock * n ;
-    copy( n, y,  1, v1_nm.data(),   1 ) ;
-    copy( m, ye, 1, v1_nm.data()+n, 1 ) ;
-    v2_nm = QR_last_blk.solve(v1_nm) ;
-    copy( n, v2_nm.data(),   1, y,  1 ) ;
-    copy( m, v2_nm.data()+n, 1, ye, 1 ) ;
+    copy( n, y,  1, v_nm,   1 ) ;
+    copy( m, ye, 1, v_nm+n, 1 ) ;
+    QR_last_blk.solve(v_nm) ;
+    copy( n, v_nm,   1, y,  1 ) ;
+    copy( m, v_nm+n, 1, ye, 1 ) ;
 
     /*\
      | !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -639,7 +596,7 @@ namespace alglin {
       back_substitute( y, jump_block_max_mt ) ;
       to_be_done = usedThread ;
       for ( integer nt = 0 ; nt < usedThread ; ++nt )
-        threads[nt] = std::thread( &BabdQR<t_Value>::back_substitute_mt, this, nt ) ;
+        threads[nt] = std::thread( &BabdQR<QR_type>::back_substitute_mt, this, nt, y, jump_block_max_mt ) ;
       for ( integer nt = 0 ; nt < usedThread ; ++nt )
         threads[nt].join() ;
     } else {
@@ -651,7 +608,9 @@ namespace alglin {
 
   }
 
-  template class BabdQR<double> ;
-  template class BabdQR<float> ;
+  template class BabdQR<QR<double> > ;
+  template class BabdQR<QR<float> > ;
+  template class BabdQR<QRP<double> > ;
+  template class BabdQR<QRP<float> > ;
 
 }
