@@ -9976,16 +9976,6 @@ namespace alglin {
   // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
   template <typename T>
-  integer
-  rankEstimate( integer   M,
-                integer   N,
-                T         A[],
-                integer   LDA,
-                T         RCOND,
-                integer & RANK,
-                T         SVAL[3] ) ;
-
-  template <typename T>
   void
   triTikhonov( integer N,
                T const Tmat[],

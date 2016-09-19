@@ -130,6 +130,17 @@ namespace alglin {
     }
   } ;
 
+  // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+  template <typename T>
+  integer
+  rankEstimate( integer   M,
+                integer   N,
+                T         A[],
+                integer   LDA,
+                T         RCOND,
+                T         SVAL[3] ) ;
+
   //============================================================================
   /*
   //   _    _   _
@@ -411,10 +422,10 @@ namespace alglin {
     
     // -------------------------------------------------------------------------
     // dummy routines
-    void permute( valueType x[] ) const {}
-    void inv_permute( valueType x[] ) const {}
-    void permute_rows( integer nr, integer nc, valueType C[], integer ldC ) const { }
-    void inv_permute_rows( integer nr, integer nc, valueType C[], integer ldC ) const { }
+    void permute( valueType [] ) const {}
+    void inv_permute( valueType [] ) const {}
+    void permute_rows( integer, integer, valueType [], integer ) const { }
+    void inv_permute_rows( integer, integer, valueType [], integer ) const { }
   } ;
 
   /*
@@ -530,12 +541,26 @@ namespace alglin {
     
     void
     permute_rows( integer nr, integer nc, valueType C[], integer ldC ) const {
+      ALGLIN_ASSERT( nr == this->nRow,
+                     "QRP::permute_rows, bad number of row, expected " << this->nRow <<
+                     " find " << nr ) ;
       for ( integer j = 0 ; j < nc ; ++j ) permute( C + ldC*j ) ;
     }
     
     void
     inv_permute_rows( integer nr, integer nc, valueType C[], integer ldC ) const {
+      ALGLIN_ASSERT( nr == this->nRow,
+                     "QRP::permute_rows, bad number of row, expected " << this->nRow <<
+                     " find " << nr ) ;
       for ( integer j = 0 ; j < nc ; ++j ) inv_permute( C + ldC*j ) ;
+    }
+    
+    integer
+    rankEstimate( valueType rcond ) const {
+      valueType SVAL[3] ;
+      return alglin::rankEstimate( this->nRow, this->nCol,
+                                   this->Amat, this->nRow,
+                                   rcond, SVAL ) ;
     }
   } ;
 

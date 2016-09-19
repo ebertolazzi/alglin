@@ -60,23 +60,23 @@ namespace alglin {
     this -> nnz    = 2*nblock*n*n + (n+m)*m ;
     this -> neq    = nblock*n + m ;
 
-    baseInteger.allocate(2*nnz+4*neq+1) ;
-    baseValue.allocate(nnz+2*neq) ;
+    baseInteger.allocate(size_t(2*nnz+4*neq+1)) ;
+    baseValue.allocate(size_t(nnz+2*neq)) ;
     
     set_default_options(&slu_options);
 
     // Initialize the statistics variables.
     StatInit(&slu_stats);
 
-    perm_r = baseInteger(neq) ; /* row permutations from partial pivoting */
-    perm_c = baseInteger(neq) ; /* column permutation vector */
-    etree  = baseInteger(neq) ;
+    perm_r = baseInteger(size_t(neq)) ; /* row permutations from partial pivoting */
+    perm_c = baseInteger(size_t(neq)) ; /* column permutation vector */
+    etree  = baseInteger(size_t(neq)) ;
 
-    double * values = baseValue(nnz) ;
-    double * sumR   = baseValue(neq) ;
-    double * sumC   = baseValue(neq) ;
-    int    * rowind = baseInteger(nnz) ;
-    int    * colptr = baseInteger(neq+1) ;
+    double * values = baseValue(size_t(nnz)) ;
+    double * sumR   = baseValue(size_t(neq)) ;
+    double * sumC   = baseValue(size_t(neq)) ;
+    int    * rowind = baseInteger(size_t(nnz)) ;
+    int    * colptr = baseInteger(size_t(neq+1)) ;
     
     integer kk = 0 ;
     integer jj = 0 ;
