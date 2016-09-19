@@ -141,6 +141,62 @@ namespace alglin {
                 T         RCOND,
                 T         SVAL[3] ) ;
 
+  template <typename T>
+  class Factorization {
+  public:
+    typedef T valueType ;
+  
+  protected:
+
+    valueType * Amat ;
+    integer     nRow ;
+    integer     nCol ;
+
+  public:
+
+    Factorization()
+    : nRow(0)
+    , nCol(0)
+    {}
+
+    ~Factorization()
+    {}
+
+    integer numRow() const { return nRow ; }
+    integer numCol() const { return nCol ; }
+
+    void
+    zero_block( integer nr,
+                integer nc,
+                integer irow,
+                integer icol ) {
+      valueType * Ablk = Amat + irow + icol * nRow ;
+      gezero( nr, nc, Ablk, nRow ) ;
+    }
+
+    void
+    load_block( integer         nr,
+                integer         nc,
+                valueType const B[],
+                integer         ldB,
+                integer         irow,
+                integer         icol ) {
+      valueType * Ablk = Amat + irow + icol * nRow ;
+      integer info = gecopy( nr, nc, B, ldB, Ablk, nRow ) ;
+      ALGLIN_ASSERT( info == 0, "block_load call alglin::gecopy return info = " << info ) ;
+    }
+
+    void
+    load_column( valueType const column[], integer icol ) {
+      copy( nRow, column, 1, Amat + icol * nRow, 1 ) ;
+    }
+
+    void
+    load_row( valueType const row[], integer irow ) {
+      copy( nRow, row, 1, Amat + irow, nRow ) ;
+    }
+  } ;
+
   //============================================================================
   /*
   //   _    _   _
@@ -150,14 +206,13 @@ namespace alglin {
   //  |_____\___/
   */
   template <typename T>
-  class LU {
+  class LU : public Factorization<T> {
   public:
-    typedef T valueType ;
+    typedef typename Factorization<T>::valueType valueType ;
   
   private:
 
-    integer     nRow, nCol, Lwork, __padding ;
-    valueType * Amat ;
+    integer     Lwork, __padding ;
     valueType * Work ;
     integer   * Iwork ;
     integer   * i_pivot ;
@@ -171,9 +226,6 @@ namespace alglin {
 
     LU() ;
     ~LU() ;
-
-    integer numRow() const { return nRow ; }
-    integer numCol() const { return nCol ; }
 
     void
     factorize( integer NR, integer NC, valueType const A[], integer LDA ) ;
@@ -207,9 +259,9 @@ namespace alglin {
   //   \__\_\_| \_\
   */
   template <typename T>
-  class QR {
+  class QR : public Factorization<T> {
   public:
-    typedef T valueType ;
+    typedef typename Factorization<T>::valueType valueType ;
   
   private:
 
@@ -217,26 +269,23 @@ namespace alglin {
 
   protected:
 
-    valueType * Amat ;
     valueType * Work ;
     valueType * Tau ;
 
-    integer nRow, nCol, nReflector, Lwork ;
+    integer nReflector, Lwork ;
 
   public:
 
     QR()
-    : allocReals("QR-allocReals")
-    , nRow(0)
-    , nCol(0)
+    : Factorization<T>()
+    , allocReals("QR-allocReals")
     , nReflector(0)
     , Lwork(0)
     {}
 
     QR( integer nr, integer nc )
-    : allocReals("QR-allocReals")
-    , nRow(0)
-    , nCol(0)
+    : Factorization<T>()
+    , allocReals("QR-allocReals")
     , nReflector(0)
     , Lwork(0)
     { allocate(nr,nc) ; }
@@ -245,29 +294,11 @@ namespace alglin {
       allocReals.free() ;
     }
 
-    integer numRow() const { return nRow ; }
-    integer numCol() const { return nCol ; }
-
     void allocate( integer nr, integer nc ) ;
 
     void
-    block_zero( integer nr, integer nc, integer irow, integer icol ) {
-      valueType * Ablk = Amat + irow + icol * nRow ;
-      gezero( nr, nc, Ablk, nRow ) ;
-    }
-
-    void
-    block_load( integer nr, integer nc,
-                valueType const B[], integer ldB,
-                integer irow, integer icol ) {
-      valueType * Ablk = Amat + irow + icol * nRow ;
-      integer info = gecopy( nr, nc, B, ldB, Ablk, nRow ) ;
-      ALGLIN_ASSERT( info == 0, "QR::block_load call alglin::gecopy return info = " << info ) ;
-    }
-
-    void
     factorize() {
-      integer info = geqrf( nRow, nCol, Amat, nRow, Tau, Work, Lwork ) ;
+      integer info = geqrf( this->nRow, this->nCol, this->Amat, this->nRow, Tau, Work, Lwork ) ;
       ALGLIN_ASSERT( info == 0, "QR::factorize call alglin::geqrf return info = " << info ) ;
     }
 
@@ -281,7 +312,7 @@ namespace alglin {
     void
     factorize( integer NR, integer NC, valueType const A[], integer LDA ) {
       allocate( NR, NC ) ;
-      integer info = gecopy( NR, NC, A, LDA, Amat, nRow ) ;
+      integer info = gecopy( NR, NC, A, LDA, this->Amat, this->nRow ) ;
       ALGLIN_ASSERT( info == 0, "QR::factorize call alglin::gecopy return info = " << info ) ;
       factorize() ;
     }
@@ -296,7 +327,7 @@ namespace alglin {
     void
     t_factorize( integer NR, integer NC, valueType const A[], integer LDA ) {
       allocate( NC, NR ) ;
-      for ( integer i = 0 ; i < NR ; ++i ) copy( NC, A+i, LDA, Amat + i*nRow, 1 ) ;
+      for ( integer i = 0 ; i < NR ; ++i ) copy( NC, A+i, LDA, this->Amat + i*this->nRow, 1 ) ;
       factorize() ;
     }
 
@@ -340,12 +371,12 @@ namespace alglin {
     //! x <- Q*x
     void
     Q_mul( valueType x[] ) const
-    { applyQ( LEFT, NO_TRANSPOSE, nReflector, nRow, 1, x, nRow ) ; }
+    { applyQ( LEFT, NO_TRANSPOSE, nReflector, this->nRow, 1, x, this->nRow ) ; }
     
     //! x <- Q'*x
     void
     Qt_mul( valueType x[] ) const
-    { applyQ( LEFT, TRANSPOSE, nReflector, nRow, 1, x, nRow ) ; }
+    { applyQ( LEFT, TRANSPOSE, nReflector, this->nRow, 1, x, this->nRow ) ; }
 
     //! C <- Q*C
     void
@@ -374,7 +405,7 @@ namespace alglin {
             integer       rk,
             valueType     x[],
             integer       incx ) const {
-      trsv( UPPER, TRANS, NON_UNIT, rk, Amat, nRow, x, incx ) ;
+      trsv( UPPER, TRANS, NON_UNIT, rk, this->Amat, this->nRow, x, incx ) ;
     }
 
     void
@@ -385,18 +416,18 @@ namespace alglin {
             valueType     alpha,
             valueType     Bmat[],
             integer       ldB ) const {
-      trsm( SIDE, UPPER, TRANS, NON_UNIT, nr, nc, alpha, Amat, nRow, Bmat, ldB ) ;
+      trsm( SIDE, UPPER, TRANS, NON_UNIT, nr, nc, alpha, this->Amat, this->nRow, Bmat, ldB ) ;
     }
     
     //! x <- R^(-1) * x
     void
     invR_mul( valueType x[], integer incx = 1 ) const
-    { trsv( UPPER, NO_TRANSPOSE, NON_UNIT, nReflector, Amat, nRow, x, incx ) ; }
+    { trsv( UPPER, NO_TRANSPOSE, NON_UNIT, nReflector, this->Amat, this->nRow, x, incx ) ; }
 
     //! x <- R^(-T) * x
     void
     invRt_mul( valueType x[], integer incx = 1 ) const
-    { trsv( UPPER, TRANSPOSE, NON_UNIT, nReflector, Amat, nRow, x, incx ) ; }
+    { trsv( UPPER, TRANSPOSE, NON_UNIT, nReflector, this->Amat, this->nRow, x, incx ) ; }
 
     //! C <- R^(-1) * C
     void
@@ -457,9 +488,6 @@ namespace alglin {
     ~QRP() {
       allocIntegers.free() ;
     }
-
-    integer numRow() const { return this->nRow ; }
-    integer numCol() const { return this->nCol ; }
     
     void
     allocate( integer NR, integer NC ) {
@@ -573,23 +601,22 @@ namespace alglin {
   //  |____/  \_/  |____/
   */
   template <typename T>
-  class SVD {
+  class SVD : public Factorization<T> {
   public:
-    typedef T valueType ;
+    typedef typename Factorization<T>::valueType valueType ;
   
   protected:
 
     Malloc<valueType> allocReals ;
     Malloc<integer>   allocIntegers ;
 
-    valueType * Amat ;
     valueType * Work ;
     valueType * Umat ;
     valueType * VTmat ;
     valueType * Svec ;
     integer   * IWork ;
 
-    integer     nRow, nCol, minRC, Lwork ;
+    integer     minRC, Lwork ;
     bool        use_gesvd ;
 
     void allocate( integer NR, integer NC, integer LDA ) ;
@@ -597,18 +624,14 @@ namespace alglin {
   public:
 
     SVD()
-    : allocReals("SVD-allocReals")
+    : Factorization<T>()
+    , allocReals("SVD-allocReals")
     , allocIntegers("SVD-allocIntegers")
-    , nRow(0)
-    , nCol(0)
     , Lwork(0)
     , use_gesvd(true)
     {}
 
     ~SVD() { allocReals.free() ; }
-
-    integer numRow() const { return nRow ; }
-    integer numCol() const { return nCol ; }
 
     /*!
       Do SVD factorization of a rectangular matrix
@@ -620,8 +643,8 @@ namespace alglin {
     void
     factorize( integer NR, integer NC, valueType const A[], integer LDA ) ;
 
-    valueType U( integer i, integer j ) const { return Umat[i+j*nRow] ; }
-    valueType V( integer i, integer j ) const { return VTmat[j+i*nCol] ; }
+    valueType U( integer i, integer j ) const { return Umat[i+j*this->nRow] ; }
+    valueType V( integer i, integer j ) const { return VTmat[j+i*this->nCol] ; }
     valueType sigma( integer i ) const { return Svec[i] ; }
 
     void
@@ -645,8 +668,8 @@ namespace alglin {
     U_mul( valueType alpha, valueType const x[], integer incx,
            valueType beta,  valueType       y[], integer incy ) const {
       gemv( NO_TRANSPOSE,
-            nRow, minRC,
-            alpha, Umat, nRow,
+            this->nRow, minRC,
+            alpha, Umat, this->nRow,
             x, incx,
             beta, y, incy ) ;
     }
@@ -656,8 +679,8 @@ namespace alglin {
     Ut_mul( valueType alpha, valueType const x[], integer incx,
             valueType beta,  valueType       y[], integer incy ) const {
       gemv( TRANSPOSE,
-            nRow, minRC,
-            alpha, Umat, nRow,
+            this->nRow, minRC,
+            alpha, Umat, this->nRow,
             x, incx,
             beta, y, incy ) ;
     }
@@ -667,8 +690,8 @@ namespace alglin {
     V_mul( valueType alpha, valueType const x[], integer incx,
            valueType beta,  valueType       y[], integer incy ) const {
       gemv( TRANSPOSE,
-            minRC, nCol,
-            alpha, VTmat, nRow,
+            minRC, this->nCol,
+            alpha, VTmat, this->nRow,
             x, incx,
             beta, y, incy ) ;
     }
@@ -678,8 +701,8 @@ namespace alglin {
     Vt_mul( valueType alpha, valueType const x[], integer incx,
             valueType beta,  valueType       y[], integer incy ) const {
       gemv( NO_TRANSPOSE,
-            minRC, nCol,
-            alpha, VTmat, nRow,
+            minRC, this->nCol,
+            alpha, VTmat, this->nRow,
             x, incx,
             beta, y, incy ) ;
     }
@@ -826,32 +849,30 @@ namespace alglin {
   //============================================================================
 
   template <typename T>
-  class LeastSquares {
+  class LeastSquares : public Factorization<T> {
   public:
-    typedef T valueType ;
+    typedef typename Factorization<T>::valueType valueType ;
 
   private:
 
     Malloc<valueType> allocReals ;
     Malloc<integer>   allocIntegers ;
 
-    valueType * Amat ;
     valueType * Work ;
     valueType * Tau ;
     valueType * tmp ;
     integer   * JPVT ;
     valueType   mxabs ;
 
-    integer     nRow, nCol, Lwork ;
+    integer     Lwork ;
 
   public:
 
     LeastSquares()
-    : allocReals("allocReals")
+    : Factorization<T>()
+    , allocReals("allocReals")
     , allocIntegers("allocIntegers")
     , mxabs(0)
-    , nRow(0)
-    , nCol(0)
     , Lwork(0)
     {}
 

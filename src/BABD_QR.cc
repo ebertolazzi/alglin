@@ -179,8 +179,8 @@ namespace alglin {
          |  / F \ = Q / R \
          |  \ E1/     \ 0 /
         \*/
-        QR.block_load( n, n, F,  n, 0, 0 ) ;
-        QR.block_load( n, n, E1, n, n, 0 ) ;
+        QR.load_block( n, n, F,  n, 0, 0 ) ;
+        QR.load_block( n, n, E1, n, n, 0 ) ;
         QR.factorize() ;
 
         /*\
@@ -235,8 +235,8 @@ namespace alglin {
          |  / F \ = Q / R \
          |  \ E1/     \ 0 /
         \*/
-        QR.block_load( n, n, F,  n, 0, 0 ) ;
-        QR.block_load( n, n, E1, n, n, 0 ) ;
+        QR.load_block( n, n, F,  n, 0, 0 ) ;
+        QR.load_block( n, n, E1, n, n, 0 ) ;
         QR.factorize() ;
 
         /*\
@@ -355,12 +355,12 @@ namespace alglin {
     // / S  R  0  \ /x(0)\  = b(0)
     // \ H0 HN Hq / \x(N)/  = b(N)
     */
-    QR_last_blk.block_load( n, nx2, AdAu_blk, n, 0, 0 ) ;
-    QR_last_blk.block_load( m, n,         H0, m, n, 0 ) ;
-    QR_last_blk.block_load( m, n,         HN, m, n, n ) ;
+    QR_last_blk.load_block( n, nx2, AdAu_blk, n, 0, 0 ) ;
+    QR_last_blk.load_block( m, n,         H0, m, n, 0 ) ;
+    QR_last_blk.load_block( m, n,         HN, m, n, n ) ;
     if ( _q > 0 ) {
-      QR_last_blk.block_zero( n, _q,        0, nx2 ) ;
-      QR_last_blk.block_load( m, _q, Hq, m, n, nx2 ) ;
+      QR_last_blk.zero_block( n, _q,        0, nx2 ) ;
+      QR_last_blk.load_block( m, _q, Hq, m, n, nx2 ) ;
     }
     QR_last_blk.factorize() ;
   }
