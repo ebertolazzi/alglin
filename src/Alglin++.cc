@@ -225,7 +225,7 @@ namespace alglin {
 
   template <typename T>
   void
-  LU<T>::factorize( integer NR, integer NC, valueType const A[], integer LDA ) {
+  LU<T>::allocate( integer NR, integer NC ) {
     if ( this->nRow != NR || this->nCol != NC ) {
       this->nRow = NR ;
       this->nCol = NC ;
@@ -236,10 +236,22 @@ namespace alglin {
       this -> i_pivot = allocIntegers(size_t(this->nRow)) ;
       this -> Iwork   = allocIntegers(size_t(this->nRow)) ;
     }
+  }
+
+  template <typename T>
+  void
+  LU<T>::factorize() {
+    integer info = getrf( this->nRow, this->nCol, this->Amat, this->nRow, i_pivot ) ;
+    ALGLIN_ASSERT( info == 0, "LU::factorize getrf INFO = " << info ) ;
+  }
+
+  template <typename T>
+  void
+  LU<T>::factorize( integer NR, integer NC, valueType const A[], integer LDA ) {
+    allocate( NR, NC ) ;
     integer info = gecopy( this->nRow, this->nCol, A, LDA, this->Amat, this->nRow ) ;
     ALGLIN_ASSERT( info == 0, "LU::factorize gecopy INFO = " << info ) ;
-    info = getrf( this->nRow, this->nCol, this->Amat, this->nRow, i_pivot ) ;
-    ALGLIN_ASSERT( info == 0, "LU::factorize getrf INFO = " << info ) ;
+    factorize() ;
   }
 
   template <typename T>

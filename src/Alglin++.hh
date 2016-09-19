@@ -228,10 +228,13 @@ namespace alglin {
     ~LU() ;
 
     void
-    factorize( integer NR, integer NC, valueType const A[], integer LDA ) ;
+    allocate( integer NR, integer NC ) ;
 
     void
-    t_factorize( integer NR, integer NC, valueType const A[], integer LDA ) ;
+    factorize() ;
+
+    void
+    factorize( integer NR, integer NC, valueType const A[], integer LDA ) ;
 
     void
     solve( valueType xb[] ) const ;
