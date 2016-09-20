@@ -195,6 +195,37 @@ namespace alglin {
     load_row( valueType const row[], integer irow ) {
       copy( nRow, row, 1, Amat + irow, nRow ) ;
     }
+
+    void
+    load_sparse_column( integer         nnz,
+                        valueType const values[],
+                        integer   const row[],
+                        integer         icol ) {
+      valueType * Acol = Amat + icol * nRow ;
+      zero( nRow, Acol, 1 ) ;
+      for ( integer i = 0 ; i < nnz ; ++i ) Acol[row[i]] = values[i] ;
+    }
+
+    void
+    load_sparse_row( integer         nnz,
+                     valueType const values[],
+                     integer   const col[],
+                     integer         irow ) {
+      valueType * Arow = Amat + irow ;
+      zero( nRow, Arow, nRow ) ;
+      for ( integer i = 0 ; i < nnz ; ++i ) Arow[col[i]] = values[i] ;
+    }
+
+    void
+    load_sparse( integer         nnz,
+                 valueType const values[],
+                 integer   const row[],
+                 integer   const col[] ) {
+      zero( nRow*nCol, Amat, 1 ) ;
+      for ( integer i = 0 ; i < nnz ; ++i )
+        Amat[row[i] + col[i] * nRow] = values[i] ;
+    }
+
   } ;
 
   //============================================================================
