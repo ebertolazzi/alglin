@@ -17,6 +17,16 @@
  |                                                                          |
 \*--------------------------------------------------------------------------*/
 
+#ifdef __GCC__
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wweak-template-vtables"
+
+#endif
+#ifdef __clang__
+#pragma clang diagnostic ignored "-Wsign-conversion"
+#pragma clang diagnostic ignored "-Wweak-template-vtables"
+#endif
+
 #include "Alglin++.hh"
 #include <iomanip>
 #include <vector>
@@ -155,7 +165,7 @@ namespace alglin {
                 T         SVAL[3] ) {
 
     integer MN = std::min(M, N) ;
-    std::vector<T> Wmin(MN), Wmax(MN) ;
+    std::vector<T> Wmin( MN ), Wmax( MN ) ;
 
     // Test the input scalar arguments.
     ALGLIN_ASSERT( M >= 0 && N >= 0,
@@ -534,7 +544,8 @@ namespace alglin {
     allocate( NR, NC, LDA ) ;
     integer info = gecopy( this->nRow, this->nCol, A, LDA, this->Amat, this->nRow ) ;
     ALGLIN_ASSERT( info == 0, "SVD::factorize call alglin::gecopy return info = " << info ) ;
-    if ( use_gesvd ) {
+    switch ( svd_used ) {
+    case USE_GESVD:
       info = gesvd( REDUCED,
                     REDUCED,
                     this->nRow, this->nCol, this->Amat, this->nRow,
@@ -543,7 +554,8 @@ namespace alglin {
                     VTmat, minRC,
                     Work, Lwork ) ;
       ALGLIN_ASSERT( info == 0, "SVD::factorize call alglin::gesvd return info = " << info ) ;
-    } else {
+      break ;
+    case USE_GESDD:
       info = gesdd( REDUCED,
                     this->nRow, this->nCol, this->Amat, this->nRow,
                     Svec,
@@ -551,47 +563,32 @@ namespace alglin {
                     VTmat, minRC,
                     Work, Lwork, IWork ) ;
       ALGLIN_ASSERT( info == 0, "SVD::factorize call alglin::gesdd return info = " << info ) ;
+      break ;
     }
   }
 
   template <typename T>
   void
-  SVD<T>::solve( valueType const in[], valueType out[] ) const {
+  SVD<T>::solve( valueType xb[] ) const {
     // A = U*S*VT
     // U*S*VT*x=b --> VT^T S^+ U^T b
     // U  nRow x minRC
     // VT minRC x nCol
-    Ut_mul( 1.0, in, 1, 0.0, Work, 1 ) ;
+    Ut_mul( 1.0, xb, 1, 0.0, Work, 1 ) ;
     for ( integer i = 0 ; i < minRC ; ++i ) Work[i] /= Svec[i] ;
-    V_mul( 1.0, Work, 1, 0.0, out, 1 ) ;
+    V_mul( 1.0, Work, 1, 0.0, xb, 1 ) ;
   }
 
   template <typename T>
   void
-  SVD<T>::solve( integer         nrhs,
-                 valueType const rhs[], integer ldRHS,
-                 valueType       x[],   integer ldX ) const {
-    for ( integer i = 0 ; i < nrhs ; ++i ) solve( rhs + i*ldRHS, x + i*ldX ) ; 
-  }
-
-  template <typename T>
-  void
-  SVD<T>::t_solve( valueType const in[], valueType out[] ) const {
+  SVD<T>::t_solve( valueType xb[] ) const {
     // A = U*S*VT
     // U*S*VT*x=b --> VT^T S^+ U^T b
     // U  nRow x minRC
     // VT minRC x nCol
-    Vt_mul( 1.0, in, 1, 0.0, Work, 1 ) ;
+    Vt_mul( 1.0, xb, 1, 0.0, Work, 1 ) ;
     for ( integer i = 0 ; i < minRC ; ++i ) Work[i] /= Svec[i] ;
-    U_mul( 1.0, Work, 1, 0.0, out, 1 ) ;
-  }
-
-  template <typename T>
-  void
-  SVD<T>::t_solve( integer         nrhs,
-                   valueType const rhs[], integer ldRHS,
-                   valueType       x[],   integer ldX ) const {
-    for ( integer i = 0 ; i < nrhs ; ++i ) t_solve( rhs + i*ldRHS, x + i*ldX ) ;
+    U_mul( 1.0, Work, 1, 0.0, xb, 1 ) ;
   }
 
   template <typename valueType>
@@ -702,13 +699,13 @@ namespace alglin {
   void
   TridiagonalLU<T>::axpy( integer         N,
                           valueType       alpha,
-                          valueType const L[],
-                          valueType const D[],
-                          valueType const U[],
+                          valueType const _L[],
+                          valueType const _D[],
+                          valueType const _U[],
                           valueType const x[],
                           valueType       beta,
                           valueType       y[] ) const {
-    tridiag_axpy( N, alpha, L, D, U, x, beta, y ) ;
+    tridiag_axpy( N, alpha, _L, _D, _U, x, beta, y ) ;
   }
 
   //============================================================================

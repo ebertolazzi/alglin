@@ -23,6 +23,7 @@
 #include "Alglin++.hh"
 #include "Alglin_aux.hh"
 #include "TicToc.hh"
+#include "KKT_like.hh"
 
 using namespace std ;
 typedef double valueType ;
@@ -261,7 +262,7 @@ test4() {
   cout << "SVD solution of A x = b" ;
   alglin::copy( M, rhs, 1, b, 1 ) ;
   //svd.solve( rhs, x ) ;
-  alglin::copy( M, rhs, 1, b, 1 ) ;
+  alglin::copy( M, rhs, 1, x, 1 ) ;
   svd.solve( 1, x, M ) ;
   cout << "x=\n" ;
   alglin::print_matrix( cout, 5, 1, x, 5 ) ;
@@ -363,7 +364,7 @@ test5() {
   alglin::copy( M, rhs, 1, b, 1 ) ;
   alglin::copy( M, rhs, 1, x, 1 ) ;
   svd.t_solve( x ) ;
-  //svd.t_solve( 1, rhs, M, x, M ) ;
+  //svd.t_solve( 1, x, M ) ;
   cout << "x=\n" ;
   alglin::print_matrix( cout, 5, 1, x, 5 ) ;
 

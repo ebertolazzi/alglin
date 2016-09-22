@@ -59,7 +59,7 @@ namespace alglin {
    *           Department of Industrial Engineering<br>
    *           University of Trento<br>
    *           Via Sommarive 9, I-38123 Povo, Trento, Italy<br>
-   *           `enrico.bertolazzi@unitn.it`
+   *           enrico.bertolazzi\@unitn.it
    *
    */
   template <typename t_Value, integer N>

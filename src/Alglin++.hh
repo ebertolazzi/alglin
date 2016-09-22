@@ -141,8 +141,44 @@ namespace alglin {
                 T         RCOND,
                 T         SVAL[3] ) ;
 
+  //! base class for linear systema solver
   template <typename T>
-  class Factorization {
+  class LinearSystemSolver {
+  public:
+    typedef T valueType ;
+
+  public:
+
+    LinearSystemSolver()
+    {}
+
+    ~LinearSystemSolver()
+    {}
+
+    virtual
+    void
+    solve( valueType xb[] ) const = 0 ;
+
+    virtual
+    void
+    t_solve( valueType xb[] ) const = 0 ;
+
+    virtual
+    void
+    solve( integer nrhs, valueType B[], integer ldB ) const {
+      for ( integer i = 0 ; i < nrhs ; ++i ) solve( B + i*ldB ) ;
+    }
+
+    virtual
+    void
+    t_solve( integer nrhs, valueType B[], integer ldB ) const {
+      for ( integer i = 0 ; i < nrhs ; ++i ) t_solve( B + i*ldB ) ;
+    }
+
+  } ;
+
+  template <typename T>
+  class Factorization : public LinearSystemSolver<T> {
   public:
     typedef T valueType ;
   
@@ -651,18 +687,23 @@ namespace alglin {
     integer   * IWork ;
 
     integer     minRC, Lwork ;
-    bool        use_gesvd ;
+    
+    typedef enum { USE_GESVD = 0, USE_GESDD = 1} SVD_USED ;
+    SVD_USED    svd_used, __padding ;
 
     void allocate( integer NR, integer NC, integer LDA ) ;
 
   public:
+  
+    using Factorization<T>::solve ;
+    using Factorization<T>::t_solve ;
 
-    SVD()
+    SVD( SVD_USED _svd_used = USE_GESVD )
     : Factorization<T>()
     , allocReals("SVD-allocReals")
     , allocIntegers("SVD-allocIntegers")
     , Lwork(0)
-    , use_gesvd(true)
+    , svd_used(_svd_used)
     {}
 
     ~SVD() { allocReals.free() ; }
@@ -682,20 +723,10 @@ namespace alglin {
     valueType sigma( integer i ) const { return Svec[i] ; }
 
     void
-    solve( valueType const in[], valueType out[] ) const ;
+    solve( valueType xb[] ) const ;
 
     void
-    solve( integer         nrhs,
-           valueType const rhs[], integer ldRHS,
-           valueType       x[],   integer ldX ) const ;
-
-    void
-    t_solve( valueType const in[], valueType out[] ) const ;
-
-    void
-    t_solve( integer         nrhs,
-             valueType const rhs[], integer ldRHS,
-             valueType       x[],   integer ldX ) const ;
+    t_solve( valueType xb[] ) const ;
 
     //! y <- alpha * U * x + beta * y
     void
@@ -758,6 +789,9 @@ namespace alglin {
     typedef T valueType ;
   
   private:
+  
+    Malloc<valueType> allocReals ;
+    Malloc<integer>   allocIntegers ;
 
     valueType * L ;
     valueType * D ;
@@ -768,9 +802,6 @@ namespace alglin {
     integer   * IWORK ;
 
     integer     nRC, __padding ;
-  
-    Malloc<valueType> allocReals ;
-    Malloc<integer>   allocIntegers ;
 
   public:
 

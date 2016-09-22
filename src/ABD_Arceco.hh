@@ -40,7 +40,7 @@ namespace alglin {
    *           Department of Industrial Engineering<br>
    *           University of Trento <br>
    *           Via Sommarive 9, I-38123 Povo, Trento, Italy<br>
-   *           enrico.bertolazzi@unitn.it
+   *           enrico.bertolazzi\@unitn.it
    *
    * \par Abstract
    *  This program solves the linear system A*X = B where A is
@@ -68,7 +68,7 @@ namespace alglin {
     ArcecoLU<t_Value> const &operator = (ArcecoLU<t_Value> const &) ;
 
     integer *    matrixStructure ; //!< structure of the matrix
-    integer *    pivot           ; //!< permutation array
+    integer *    pivot_array     ; //!< permutation array
     valuePointer array           ; //!< the matrix data
 
     integer      numberOfBlocks  ; //!< total number of blocks of the matrix A

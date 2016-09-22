@@ -17,6 +17,13 @@
  |                                                                          |
 \*--------------------------------------------------------------------------*/
 
+#ifdef __GCC__
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#endif
+#ifdef __clang__
+#pragma clang diagnostic ignored "-Wsign-conversion"
+#endif
+
 #include "ABD_Arceco.hh"
 #include "Alglin.hh"
 
@@ -40,7 +47,7 @@ namespace alglin {
     numberOfBlocks  = _numberOfBlocks  ;
     matrixStructure = _matrixStructure ;
     array           = _array           ;
-    pivot           = _pivot           ;
+    pivot_array     = _pivot           ;
   }
 
   /*  
@@ -129,7 +136,7 @@ namespace alglin {
     baseInteger . allocate( size_t( 3*numberOfBlocks + numEquations ) ) ;
 
     array           = baseValue( size_t( BLK_size + size0 + sizeN ) ) ;
-    pivot           = baseInteger( size_t( numEquations ) ) ;
+    pivot_array     = baseInteger( size_t( numEquations ) ) ;
     matrixStructure = baseInteger( size_t( 3*numberOfBlocks ) ) ;
 
     // Fill structures
@@ -180,7 +187,9 @@ namespace alglin {
     //            +------------------+
     */
 
-    rowElimination ( array + index1, numRowsBlock, numColsBlock, numRowsPivot, pivot + indpiv ) ;
+    rowElimination ( array + index1,
+                     numRowsBlock, numColsBlock, numRowsPivot,
+                     pivot_array + indpiv ) ;
 
     for ( integer k = 1 ; k < numberOfBlocks ; ++k ) {
       indpiv += numRowsPivot ;
@@ -191,7 +200,7 @@ namespace alglin {
 
       columnElimination ( array + index2, numRowsBlock,  numOverlapCols, 
                           array + index3, numRowsBlock2, numColsPivot,
-                          pivot + indpiv ) ;
+                          pivot_array + indpiv ) ;
 
       numRowsBlock   = numRowsBlock2 ;
       index1         = index3 + numRowsBlock * numColsPivot ;
@@ -200,7 +209,9 @@ namespace alglin {
       numRowsPivot   = numColsBlock - numOverlapCols ;
       indpiv        += numColsPivot ;
 
-      rowElimination ( array + index1, numRowsBlock, numColsBlock, numRowsPivot, pivot + indpiv );
+      rowElimination ( array + index1,
+                       numRowsBlock, numColsBlock, numRowsPivot,
+                       pivot_array + indpiv );
 
     }
   }
@@ -310,7 +321,9 @@ namespace alglin {
     integer numOverlapCols = numOverlap(0) ;
     integer numRowsPivot   = numColsBlock - numOverlapCols ;
 
-    forwardElimination( array + indexa, numRowsBlock, numRowsPivot, pivot + indpiv, b + indpiv ) ;
+    forwardElimination( array + indexa,
+                        numRowsBlock, numRowsPivot,
+                        pivot_array + indpiv, b + indpiv ) ;
 
     integer numColsPivot = 0 ;
     for ( integer k = 1 ; k < numberOfBlocks ; ++k ) {
@@ -334,7 +347,9 @@ namespace alglin {
       indpiv        += numColsPivot;
       
       //if ( numRowsPivot > 0 )  
-      forwardElimination ( array + indexa, numRowsBlock, numRowsPivot, pivot + indpiv, b + indpiv ) ;
+      forwardElimination ( array + indexa,
+                           numRowsBlock, numRowsPivot,
+                           pivot_array + indpiv, b + indpiv ) ;
     }
     // BACKWARD LOOP
     for ( integer k = numberOfBlocks - 2 ; k >= 0 ; --k ) {
@@ -351,7 +366,9 @@ namespace alglin {
       indpiv        -= numColsPivot ;
 
       //if ( numColsPivot > 0 ) 
-      backwardElimination ( array + indexa, numRowsBlock, numColsPivot, numOverlapCols, pivot + indpiv, b + indpiv ) ;
+      backwardElimination ( array + indexa,
+                            numRowsBlock, numColsPivot, numOverlapCols,
+                            pivot_array + indpiv, b + indpiv ) ;
 
       numRowsPivot = numRowsBlock - numColsPivot ;
       numColsBlock = numOverlapCols + numRowsPivot ;

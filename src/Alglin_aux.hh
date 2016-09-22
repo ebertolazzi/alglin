@@ -601,7 +601,7 @@ namespace alglin {
   template <typename t_Value>
   inline
   void
-  babd_print( std::ostream & stream,
+  babd_print( std::ostream &  stream,
               integer         nblk,
               integer         n,
               integer         q,
@@ -610,7 +610,7 @@ namespace alglin {
               t_Value const * HN,
               t_Value const * Hq ) {
     integer sizeBlock = 2*n*n ;
-    for ( integer k = 0 ; k < n ; ++k ) {
+    for ( integer k = 0 ; k < nblk ; ++k ) {
       stream << "Block " << k+1 << '\n' ;
       t_Value const * blk = AdAu+k*sizeBlock ;
       for ( integer i = 0 ; i < n ; ++i ) {

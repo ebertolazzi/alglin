@@ -17,6 +17,13 @@
  |                                                                          |
 \*--------------------------------------------------------------------------*/
 
+#ifdef __GCC__
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#endif
+#ifdef __clang__
+#pragma clang diagnostic ignored "-Wsign-conversion"
+#endif
+
 ///
 /// file: ABD_Colrow.cc
 ///
@@ -580,10 +587,10 @@ namespace alglin {
           1, io, 1 ) ;
 
     switch ( last_block ) {
-      case COLROW_LASTBLOCK_LU:  la_lu.solve(io)     ; break ;
-      case COLROW_LASTBLOCK_QR:  la_qr.solve(io)     ; break ;
-      case COLROW_LASTBLOCK_QRP: la_qrp.solve(io)    ; break ;
-      case COLROW_LASTBLOCK_SVD: la_svd.solve(io,io) ; break ;
+      case COLROW_LASTBLOCK_LU:  la_lu.solve(io)  ; break ;
+      case COLROW_LASTBLOCK_QR:  la_qr.solve(io)  ; break ;
+      case COLROW_LASTBLOCK_QRP: la_qrp.solve(io) ; break ;
+      case COLROW_LASTBLOCK_SVD: la_svd.solve(io) ; break ;
     }
 
     while ( nblk > 0 ) {

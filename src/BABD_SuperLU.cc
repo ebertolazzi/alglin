@@ -17,6 +17,13 @@
  |                                                                          |
 \*--------------------------------------------------------------------------*/
 
+#ifdef __GCC__
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#endif
+#ifdef __clang__
+#pragma clang diagnostic ignored "-Wsign-conversion"
+#endif
+
 #include "BABD_SuperLU.hh"
 
 #include <iostream>
@@ -46,19 +53,19 @@ namespace alglin {
   //  |_|\___/ \__,_|\__,_|
   */
   void
-  BABD_SuperLU::factorize( integer           nblock,
-                           integer           n,
+  BABD_SuperLU::factorize( integer           _nblock,
+                           integer           _n,
                            integer           q,
                            valueConstPointer AdAu,
                            valueConstPointer H0,
                            valueConstPointer HN,
                            valueConstPointer Hq ) {
 
-    this -> nblock = nblock ;
-    this -> n      = n ;
-    this -> m      = n+q ;
-    this -> nnz    = 2*nblock*n*n + (n+m)*m ;
-    this -> neq    = nblock*n + m ;
+    nblock = _nblock ;
+    n      = _n ;
+    m      = _n+q ;
+    nnz    = 2*nblock*n*n + (n+m)*m ;
+    neq    = nblock*n + m ;
 
     baseInteger.allocate(size_t(2*nnz+4*neq+1)) ;
     baseValue.allocate(size_t(nnz+2*neq)) ;

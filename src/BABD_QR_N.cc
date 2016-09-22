@@ -17,6 +17,13 @@
  |                                                                          |
 \*--------------------------------------------------------------------------*/
 
+#ifdef __GCC__
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#endif
+#ifdef __clang__
+#pragma clang diagnostic ignored "-Wsign-conversion"
+#endif
+
 #include "Alglin_tmpl.hh"
 #include "BABD_QR_N.hh"
 #include <iostream>

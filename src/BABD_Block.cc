@@ -17,6 +17,13 @@
  |                                                                          |
 \*--------------------------------------------------------------------------*/
 
+#ifdef __GCC__
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#endif
+#ifdef __clang__
+#pragma clang diagnostic ignored "-Wsign-conversion"
+#endif
+
 #include "BABD_Block.hh"
 #include "Alglin.hh"
 
@@ -32,18 +39,18 @@ namespace alglin {
   */
   template <typename t_Value>
   void
-  BlockLU<t_Value>::factorize( integer           nblk,
-                               integer           n,
+  BlockLU<t_Value>::factorize( integer           _nblock,
+                               integer           _n,
                                integer           q,
                                valueConstPointer AdAu,
                                valueConstPointer H0,
                                valueConstPointer HN,
                                valueConstPointer Hq ) {
 
-    this -> nblock = nblk ;
-    this -> n      = n ;
-    this -> m      = n+q ;
-    this -> N      = nblock*n+m ;
+    nblock = _nblock ;
+    n      = _n ;
+    m      = n+q ;
+    N      = nblock*n+m ;
     
     integer nnzAdH = nblock*(n*(n+m)) ; // blocchi AdH
     integer nnzAu  = nblock*(n*n)+n*q ; // blocchi Au

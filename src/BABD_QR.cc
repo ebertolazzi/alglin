@@ -17,6 +17,13 @@
  |                                                                          |
 \*--------------------------------------------------------------------------*/
 
+#ifdef __GCC__
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#endif
+#ifdef __clang__
+#pragma clang diagnostic ignored "-Wsign-conversion"
+#endif
+
 #include "BABD_QR.hh"
 #include <iostream>
 
@@ -491,7 +498,7 @@ namespace alglin {
   #ifdef BABD_QR_USE_THREAD
   template <typename QR_type>
   void
-  BabdQR<QR_type>::back_substitute_mt( integer nth, valuePointer y, integer jump_block_min ) const {
+  BabdQR<QR_type>::back_substitute_mt( integer nth, valuePointer y ) const {
 
     while ( jump_block > 0 ) {
 
@@ -596,7 +603,7 @@ namespace alglin {
       back_substitute( y, jump_block_max_mt ) ;
       to_be_done = usedThread ;
       for ( integer nt = 0 ; nt < usedThread ; ++nt )
-        threads[nt] = std::thread( &BabdQR<QR_type>::back_substitute_mt, this, nt, y, jump_block_max_mt ) ;
+        threads[nt] = std::thread( &BabdQR<QR_type>::back_substitute_mt, this, nt, y ) ;
       for ( integer nt = 0 ; nt < usedThread ; ++nt )
         threads[nt].join() ;
     } else {

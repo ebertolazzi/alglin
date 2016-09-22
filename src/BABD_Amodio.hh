@@ -66,7 +66,7 @@ namespace alglin {
    *           Department of Industrial Engineering<br>
    *           University of Trento <br>
    *           Via Sommarive 9, I-38123 Povo, Trento, Italy<br>
-   *           `enrico.bertolazzi@unitn.it`
+   *           enrico.bertolazzi\@unitn.it
    *
    */
   template <typename t_Value>
@@ -145,8 +145,8 @@ namespace alglin {
     mutable std::thread        threads[BABD_AMODIO_MAX_THREAD] ;
     mutable integer            to_be_done ;
             integer const      numThread ;
-    mutable integer            usedThread ;
     mutable integer            jump_block_max_mt ;
+    mutable integer            usedThread ;
     mutable valuePointer       y_thread ;
     #endif
 

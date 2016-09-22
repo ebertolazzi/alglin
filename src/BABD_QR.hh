@@ -59,7 +59,7 @@ namespace alglin {
    *           Department of Industrial Engineering<br>
    *           University of Trento<br>
    *           Via Sommarive 9, I-38123 Povo, Trento, Italy<br>
-   *           `enrico.bertolazzi@unitn.it`
+   *           enrico.bertolazzi\@unitn.it
    *
    */
   template <typename QR_type>
@@ -144,7 +144,7 @@ namespace alglin {
 
     #ifdef BABD_QR_USE_THREAD
     void forward_reduce_mt( integer nth, valuePointer y ) const ;
-    void back_substitute_mt( integer nth, valuePointer y, integer jump_block_min ) const ;
+    void back_substitute_mt( integer nth, valuePointer y ) const ;
     void reduction_mt( integer nth ) ;
     #endif
 

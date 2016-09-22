@@ -125,6 +125,13 @@
  |
 \*/
 
+#ifdef __GCC__
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#endif
+#ifdef __clang__
+#pragma clang diagnostic ignored "-Wsign-conversion"
+#endif
+
 namespace alglin {
 
   using namespace std ;
@@ -171,51 +178,51 @@ namespace alglin {
   */
   template <typename t_Value>
   integer
-  AmodioLU<t_Value>::LU_2_block( integer      n,
+  AmodioLU<t_Value>::LU_2_block( integer      N,
                                  valuePointer A,
                                  valuePointer B,
                                  integer      ipiv[] ) const {
     // LU DECOMPOSITION, ROW INTERCHANGES
     valuePointer Ajj = A ;
     valuePointer Bj  = B ;
-    integer nb = min_index(NB,n) ;
-    for ( integer j = 0 ; j < n ; Ajj += n+1, Bj += n  ) {
-      integer MX1 = iamax( n-j, Ajj, 1 ) ;
-      integer MX2 = iamax( n,   Bj,  1 ) ;
+    integer nb = min_index(NB,N) ;
+    for ( integer j = 0 ; j < N ; Ajj += n+1, Bj += N  ) {
+      integer MX1 = iamax( N-j, Ajj, 1 ) ;
+      integer MX2 = iamax( N,   Bj,  1 ) ;
       if ( std::abs(Ajj[MX1]) < std::abs(Bj[MX2]) ) {
-        ipiv[j] = MX2 + n ; // C-based
-        swap( n, A + j, n, B + MX2, n ) ;
+        ipiv[j] = MX2 + N ; // C-based
+        swap( N, A + j, N, B + MX2, N ) ;
       } else {
         ipiv[j] = MX1 + j ; // C-based
-        if ( MX1 > 0 ) swap( n, A + j, n, A + ipiv[j], n ) ;
+        if ( MX1 > 0 ) swap( N, A + j, N, A + ipiv[j], N ) ;
       }
       if ( isZero(Ajj[0]) ) return j+1 ;
       valueType ROWM = 1/Ajj[0] ;
       ++j ;
-      scal(n-j, ROWM, Ajj+1, 1) ;
-      scal(n,   ROWM, Bj,    1) ;
+      scal(N-j, ROWM, Ajj+1, 1) ;
+      scal(N,   ROWM, Bj,    1) ;
       if ( nb == j ) { // applico al prox blocco
         /*
         // / L 0 \-1   /  L^(-1)      \
         // \ M I /   = \ -M*L^(-1)  I /
         */
         nb += NB ;
-        if ( nb > n-NB/2 ) nb = n ;
+        if ( nb > n-NB/2 ) nb = N ;
         trsm( LEFT, LOWER, NO_TRANSPOSE, UNIT,
-              j, nb-j, 1.0, A, n, A+j*n, n ) ;
+              j, nb-j, 1.0, A, N, A+j*N, N ) ;
         gemm( NO_TRANSPOSE, NO_TRANSPOSE,
-              n-j, nb-j, j,
-              -1.0, A+j,       n,
-                    A+j*n,     n,
-               1.0, A+j*(n+1), n ) ;
+              N-j, nb-j, j,
+              -1.0, A+j,       N,
+                    A+j*N,     N,
+               1.0, A+j*(N+1), N ) ;
         gemm( NO_TRANSPOSE, NO_TRANSPOSE,
-              n, nb-j, j,
-              -1.0, B,     n,
-                    A+j*n, n,
-               1.0, B+j*n, n ) ;
+              N, nb-j, j,
+              -1.0, B,     N,
+                    A+j*N, N,
+               1.0, B+j*N, N ) ;
       } else {
-        ger(n-j, nb-j, -1.0, Ajj+1, 1, Ajj+n, n, Ajj+n+1, n ) ;
-        ger(n,   nb-j, -1.0, Bj,    1, Ajj+n, n, Bj+n,    n ) ;
+        ger(N-j, nb-j, -1.0, Ajj+1, 1, Ajj+N, N, Ajj+N+1, N ) ;
+        ger(N,   nb-j, -1.0, Bj,    1, Ajj+N, N, Bj+N,    N ) ;
       }
     }
     /*
@@ -225,7 +232,7 @@ namespace alglin {
     //  \ M /       \ M * L^(-1) /          \ G /
     */
     trsm( RIGHT, LOWER, NO_TRANSPOSE, UNIT,
-          n, n, 1.0, A, n, B, n ) ;
+          N, N, 1.0, A, N, B, N ) ;
     return 0 ;
   }
 
@@ -817,12 +824,12 @@ namespace alglin {
     copy( m, ye, 1, tmpV+n, 1 ) ;
 
     switch ( last_block ) {
-      case AMODIO_LASTBLOCK_LU:  la_lu.solve(tmpV)       ; break ;
-      case AMODIO_LASTBLOCK_QR:  la_qr.solve(tmpV)       ; break ;
-      case AMODIO_LASTBLOCK_QRP: la_qrp.solve(tmpV)      ; break ;
-      case AMODIO_LASTBLOCK_SVD: la_svd.solve(tmpV,tmpV) ; break ;
-      default:
-      ALGLIN_ERROR("AmodioLU<t_Value>::solve -- no last block solver selected") ;
+      case AMODIO_LASTBLOCK_LU:  la_lu.solve(tmpV)  ; break ;
+      case AMODIO_LASTBLOCK_QR:  la_qr.solve(tmpV)  ; break ;
+      case AMODIO_LASTBLOCK_QRP: la_qrp.solve(tmpV) ; break ;
+      case AMODIO_LASTBLOCK_SVD: la_svd.solve(tmpV) ; break ;
+      //default:
+      //ALGLIN_ERROR("AmodioLU<t_Value>::solve -- no last block solver selected") ;
     }
 
     copy( n, tmpV,   1, y,  1 ) ;

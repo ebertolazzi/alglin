@@ -43,7 +43,7 @@ namespace alglin {
    *           Dipartimento di Ingegneria Industriale<br>
    *           Universita di Trento<br>
    *           via Sommarive 9, I -- 38123 Povo, Trento, Italy<br>
-   *           enrico.bertolazzi@unitn.it
+   *           enrico.bertolazzi\@unitn.it
    */
   class BABD_SuperLU {
   private:
