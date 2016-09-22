@@ -179,8 +179,8 @@ test2() {
                  B, N, false,
                  C, M, false,
                  D, M, false ) ;
-  valueType x[N+M] = { 1, 2, 3, 4, 5 } ;
-  valueType rhs[N+M] ;
+  valueType x[] = { 1, 2, 3, 4, 5, 1, 2, 3, 4, 5 } ;
+  valueType rhs[2*(N+M)] ;
 
   alglin::gemv(alglin::NO_TRANSPOSE,
                N, N, 1.0, A, N,
@@ -202,12 +202,85 @@ test2() {
                x+N, 1,
                1,
                rhs+N, 1 ) ;
+  std::copy( rhs, rhs + N+M, rhs+N+M ) ;
   for ( integer i = 0 ; i < N+M ; ++i )
     cout << "rhs[" << i << "] = " << rhs[i] << '\n' ;
-  kkt.solve( rhs ) ;
+  //kkt.solve( rhs ) ;
+  kkt.solve( 2, rhs, N+M ) ;
   for ( integer i = 0 ; i < N+M ; ++i )
     cout << "x[" << i << "] = " << rhs[i] << '\n' ;
 
+}
+
+static
+void
+test3() {
+
+  alglin::KKT<valueType> kkt ;
+  integer const N = 3 ;
+  integer const M = 2 ;
+
+  valueType A[] = {
+    0.001,      2,     3,
+    0.001,      0.001, 0,
+    0,          0.001, 2,
+  } ;
+
+  valueType B[] = {
+    0.001,      3,
+    0.001,     -0.001,
+    1,          2,
+  } ;
+
+  valueType C[] = {
+     2,       3,
+    -0.001,  -0.001,
+     1,       2,
+  } ;
+
+  valueType D[] = {
+    1,      4,
+    -1,      1
+  } ;
+  
+  kkt.factorize( N, M,
+                 A, N, false,
+                 B, N, false,
+                 C, M, false,
+                 D, M, false ) ;
+  valueType x[] = { 1, 2, 3, 4, 5, 1, 2, 3, 4, 5 } ;
+  valueType rhs[2*(N+M)] ;
+
+  alglin::gemv(alglin::TRANSPOSE,
+               N, N, 1.0, A, N,
+               x, 1,
+               0,
+               rhs, 1 ) ;
+  alglin::gemv(alglin::TRANSPOSE,
+               M, N, 1.0, C, M,
+               x+N, 1,
+               1,
+               rhs, 1 ) ;
+
+  alglin::gemv(alglin::TRANSPOSE,
+               M, M, 1.0, D, M,
+               x+N, 1,
+               0,
+               rhs+N, 1 ) ;
+
+  alglin::gemv(alglin::TRANSPOSE,
+               N, M, 1.0, B, N,
+               x, 1,
+               1,
+               rhs+N, 1 ) ;
+
+  std::copy( rhs, rhs+N+M, rhs+N+M ) ;
+
+  for ( integer i = 0 ; i < N+M ; ++i )
+    cout << "rhs[" << i << "] = " << rhs[i] << '\n' ;
+  kkt.t_solve( 2, rhs, N+M ) ;
+  for ( integer i = 0 ; i < N+M ; ++i )
+    cout << "x[" << i << "] = " << rhs[i] << '\n' ;
 }
 
 
@@ -215,9 +288,10 @@ int
 main() {
 
   try {
-    test0() ;
-    test1() ;
-    test2() ;
+    //test0() ;
+    //test1() ;
+    //test2() ;
+    test3() ;
   } catch ( exception const & exc ) {
     cerr << exc.what() << '\n' ;
   } catch ( ... ) {

@@ -237,19 +237,68 @@ namespace alglin {
   template <typename t_Value>
   void
   KKT<t_Value>::t_solve( valueType xb[] ) const {
-  
+    // b' = Z^T*a -b
+    gemv( TRANSPOSE,
+          n, m,
+          1, Zmat, n,
+          xb, 1,
+          -1, xb+n, 1 ) ;
+    // y  = W^(-T)*b'
+    W_lu.t_solve( xb+n ) ;
+    // a' = a - C^T*y
+    gemv( TRANSPOSE,
+          m, n,
+          -1, Cmat, m,
+          xb+n, 1,
+          1, xb, 1 ) ;
+    // x = A^(-T) a'
+    pAsolver->t_solve( xb ) ;
   }
 
   template <typename t_Value>
   void
   KKT<t_Value>::solve( integer nrhs, valueType B[], integer ldB ) const {
-  
+    // a' = A^(-1)*a
+    pAsolver->solve( nrhs, B, ldB ) ;
+    // b' = C*a' - b
+    gemm( NO_TRANSPOSE,
+          NO_TRANSPOSE,
+          m, nrhs, n,
+          1, Cmat, m,
+          B, ldB,
+          -1, B+n, ldB ) ;
+    // y = W^(-1) * b'
+    W_lu.solve( nrhs, B+n, ldB ) ;
+    // x = a' - Z*y
+    gemm( NO_TRANSPOSE,
+          NO_TRANSPOSE,
+          n, nrhs, m,
+          -1, Zmat, n,
+          B+n, ldB,
+          1, B, ldB ) ;
   }
 
   template <typename t_Value>
   void
   KKT<t_Value>::t_solve( integer nrhs, valueType B[], integer ldB ) const {
-  
+    // b' = Z^T*a -b
+    gemm( TRANSPOSE,
+          NO_TRANSPOSE,
+          m, nrhs, n,
+          1, Zmat, n,
+          B, ldB,
+          -1, B+n, ldB ) ;
+    // y  = W^(-T)*b'
+    W_lu.t_solve( nrhs, B+n, ldB ) ;
+    // a' = a - C^T*y
+    gemm( TRANSPOSE,
+          NO_TRANSPOSE,
+          n, nrhs, m,
+          -1, Cmat, m,
+          B+n, ldB,
+          1, B, ldB ) ;
+    // x = A^(-T) a'
+    pAsolver->t_solve( nrhs, B, ldB ) ;
   }
 
   template class KKT<float> ;
