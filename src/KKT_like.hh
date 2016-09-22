@@ -57,7 +57,7 @@ namespace alglin {
    *  Z = A^(-1)*B
    *  W = C*Z - D
    *
-   *  solver the system
+   *  solve the system
    *  a' = A^(-1)*a
    *  b' = C*a' - b
    *
@@ -76,20 +76,18 @@ namespace alglin {
    *
    *  x = A^(-T) * ( a - C^T*y )
    *  B^T*A^(-T)*a -b = B^T*A^(-T)*C^T*y - D^T*y
+   *                  = (A^(-1)B)^T*C^T*y - D^T*y
+   *                  = (C*(A^(-1)B))^T*y - D^T*y
+   *                  = W^T*y
+   *  (A^(-1)*B)^T*a -b = W^T*y
+   *           Z^T*a -b = W^T*y
    *
    *  Solution procedure
    *
-   *  Compute aux matrix
-   *  Z = A^(-T)*C^T
-   *  W = B^T*Z - D^T
-   *
-   *  solver the system
-   *  a' = A^(-T)*a
-   *  b' = B^T*a' - b
-   *
-   *  y = W^(-1) * b'
-   *  x = a' - Z*y
-   *
+   *  b' = Z^T*a -b
+   *  y  = W^(-T)*b'
+   *  a' = a - C^T*y
+   *  x = A^(-T) a'
   \*/
   template <typename t_Value>
   class KKT : public LinearSystemSolver<t_Value> {
@@ -100,8 +98,13 @@ namespace alglin {
 
     typedef LinearSystemSolver<t_Value> LSS ;
     
-    LSS *       pAsolver ;
-    LU<t_Value> lu_solver ;
+    Malloc<valueType> allocReals ;
+    
+    LSS const * pAsolver ;
+    LU<t_Value> A_lu ;
+    LU<t_Value> W_lu ;
+
+    valuePointer Zmat, Cmat ;
 
   private:
 
@@ -119,17 +122,22 @@ namespace alglin {
     //
     //     n     m
     //  +-----+-----+
-    //  |  A  |  B  |
+    //  |  A  |  B  | n
     //  +-----+-----+
-    //  |  C  |  D  |
+    //  |  C  |  D  | m
     //  +-----+-----+
     */
 
   public:
 
-    explicit KKT() ;
-    ~KKT() ;
-    
+    explicit
+    KKT()
+    : allocReals("KKT-reals")
+    , n(0)
+    , m(0)
+    {}
+    ~KKT() {}
+
     void
     allocate( integer n, integer m ) ;
 
@@ -176,8 +184,8 @@ namespace alglin {
 
     //! load matrix in the class
     /*!
-      \param n        # of row and column of the first block
-      \param m        # of rows of block C and columns o B
+      \param _n       # of row and column of the first block
+      \param _m       # of rows of block C and columns o B
 
       \param A_values elements `Aij` of the matrix `A`
       \param A_row    row index of the corresponding element in `A_values`
@@ -200,8 +208,8 @@ namespace alglin {
       \param D_nnz    number of entries in the vectors `values`, `row` and `col`
     */
     void
-    factorize( integer           n,
-               integer           m,
+    factorize( integer           _n,
+               integer           _m,
                // -----------------------
                valueConstPointer A_values,
                integer const *   A_row,
@@ -222,7 +230,7 @@ namespace alglin {
                integer const *   D_row,
                integer const *   D_col,
                integer           D_nnz ) {
-      allocate( m, n ) ;
+      allocate( _n, _m ) ;
       load_A( A_values, A_row, A_col, A_nnz ) ;
       load_B( B_values, B_row, B_col, B_nnz ) ;
       load_C( C_values, C_row, C_col, C_nnz ) ;
@@ -232,8 +240,8 @@ namespace alglin {
 
     //! load matrix in the class
     /*!
-      \param n        # of row and column of the first block
-      \param m        # of rows of block C and columns o B
+      \param _n           # of row and column of the first block
+      \param _m           # of rows of block C and columns o B
 
       \param A_values     elements `Aij` of the matrix `A`
       \param ldA          leading dimension of matrix `A`
@@ -252,8 +260,8 @@ namespace alglin {
       \param D_transposed true if matrix `D` must be loaded transposed
     */
     void
-    factorize( integer           n,
-               integer           m,
+    factorize( integer           _n,
+               integer           _m,
                // -----------------------
                valueConstPointer A_values,
                integer           ldA,
@@ -270,7 +278,7 @@ namespace alglin {
                valueConstPointer D_values,
                integer           ldD,
                bool              D_transposed ) {
-      allocate( m, n ) ;
+      allocate( _n, _m ) ;
       load_A( A_values, ldA, A_transposed ) ;
       load_B( B_values, ldB, B_transposed ) ;
       load_C( C_values, ldC, C_transposed ) ;
@@ -280,8 +288,8 @@ namespace alglin {
 
     //! load matrix in the class
     /*!
-      \param n        # of row and column of the first block
-      \param m        # of rows of block C and columns o B
+      \param _n        # of row and column of the first block
+      \param _m        # of rows of block C and columns o B
 
       \param Asystem  pointer to a class with `solve` and `t_solve` method
 
@@ -301,8 +309,8 @@ namespace alglin {
       \param D_nnz    number of entries in the vectors `values`, `row` and `col`
     */
     void
-    factorize( integer           n,
-               integer           m,
+    factorize( integer           _n,
+               integer           _m,
                // -----------------------
                LSS     const *   Asystem,
                // -----------------------
@@ -320,7 +328,7 @@ namespace alglin {
                integer const *   D_row,
                integer const *   D_col,
                integer           D_nnz ) {
-      allocate( m, n ) ;
+      allocate( _n, _m ) ;
       load_A( Asystem ) ;
       load_B( B_values, B_row, B_col, B_nnz ) ;
       load_C( C_values, C_row, C_col, C_nnz ) ;
@@ -330,8 +338,8 @@ namespace alglin {
 
     //! load matrix in the class
     /*!
-      \param n        # of row and column of the first block
-      \param m        # of rows of block C and columns o B
+      \param _n        # of row and column of the first block
+      \param _m        # of rows of block C and columns o B
 
       \param Asystem  pointer to a class with `solve` and `t_solve` method
 
@@ -348,8 +356,8 @@ namespace alglin {
       \param D_transposed true if matrix `D` must be loaded transposed
     */
     void
-    factorize( integer           n,
-               integer           m,
+    factorize( integer           _n,
+               integer           _m,
                // -----------------------
                LSS const *       Asystem,
                // -----------------------
@@ -364,7 +372,7 @@ namespace alglin {
                valueConstPointer D_values,
                integer           ldD,
                bool              D_transposed ) {
-      allocate( m, n ) ;
+      allocate( _n, _m ) ;
       load_A( Asystem ) ;
       load_B( B_values, ldB, B_transposed ) ;
       load_C( C_values, ldC, C_transposed ) ;

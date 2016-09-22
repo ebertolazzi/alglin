@@ -198,8 +198,10 @@ namespace alglin {
     ~Factorization()
     {}
 
-    integer numRow() const { return nRow ; }
-    integer numCol() const { return nCol ; }
+    integer           numRow()   const { return nRow ; }
+    integer           numCol()   const { return nCol ; }
+    valueType *       Apointer()       { return Amat ; }
+    valueType const * Apointer() const { return Amat ; }
 
     void
     zero_block( integer nr,
@@ -215,8 +217,8 @@ namespace alglin {
                 integer         nc,
                 valueType const B[],
                 integer         ldB,
-                integer         irow,
-                integer         icol ) {
+                integer         irow = 0,
+                integer         icol = 0 ) {
       valueType * Ablk = Amat + irow + icol * nRow ;
       integer info = gecopy( nr, nc, B, ldB, Ablk, nRow ) ;
       ALGLIN_ASSERT( info == 0, "block_load call alglin::gecopy return info = " << info ) ;
@@ -688,7 +690,7 @@ namespace alglin {
 
     integer     minRC, Lwork ;
     
-    typedef enum { USE_GESVD = 0, USE_GESDD = 1} SVD_USED ;
+    typedef enum { USE_GESVD = 0, USE_GESDD = 1 } SVD_USED ;
     SVD_USED    svd_used, __padding ;
 
     void allocate( integer NR, integer NC, integer LDA ) ;
