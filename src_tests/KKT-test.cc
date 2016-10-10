@@ -288,9 +288,9 @@ int
 main() {
 
   try {
-    //test0() ;
-    //test1() ;
-    //test2() ;
+    test0() ;
+    test1() ;
+    test2() ;
     test3() ;
   } catch ( exception const & exc ) {
     cerr << exc.what() << '\n' ;

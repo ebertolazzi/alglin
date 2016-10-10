@@ -152,7 +152,7 @@ namespace alglin {
     LinearSystemSolver()
     {}
 
-    ~LinearSystemSolver()
+    virtual ~LinearSystemSolver()
     {}
 
     virtual
@@ -195,6 +195,7 @@ namespace alglin {
     , nCol(0)
     {}
 
+    virtual
     ~Factorization()
     {}
 
@@ -294,6 +295,8 @@ namespace alglin {
   public:
 
     LU() ;
+    
+    virtual
     ~LU() ;
 
     void
@@ -362,6 +365,7 @@ namespace alglin {
     , Lwork(0)
     { allocate(nr,nc) ; }
 
+    virtual
     ~QR() {
       allocReals.free() ;
     }
@@ -557,6 +561,7 @@ namespace alglin {
     : QR<T>(), allocIntegers("QRP-allocIntegers")
     { allocate(nr,nc) ; }
 
+    virtual
     ~QRP() {
       allocIntegers.free() ;
     }
@@ -708,7 +713,9 @@ namespace alglin {
     , svd_used(_svd_used)
     {}
 
-    ~SVD() { allocReals.free() ; }
+    virtual
+    ~SVD()
+    { allocReals.free() ; }
 
     /*!
       Do SVD factorization of a rectangular matrix
@@ -813,6 +820,7 @@ namespace alglin {
     , nRC(0)
     {}
 
+    virtual
     ~TridiagonalLU() {
       allocReals.free() ;
       allocIntegers.free() ;
@@ -880,6 +888,7 @@ namespace alglin {
     , nRC(0)
     {}
 
+    virtual
     ~TridiagonalQR() {
       allocReals.free() ;
     }
@@ -943,6 +952,7 @@ namespace alglin {
     , Lwork(0)
     {}
 
+    virtual
     ~LeastSquares() {
       allocReals.free() ;
       allocIntegers.free() ;

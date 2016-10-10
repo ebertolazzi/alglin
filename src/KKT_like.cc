@@ -19,9 +19,11 @@
 
 #ifdef __GCC__
 #pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wweak-template-vtables"
 #endif
 #ifdef __clang__
 #pragma clang diagnostic ignored "-Wsign-conversion"
+#pragma clang diagnostic ignored "-Wweak-template-vtables"
 #endif
 
 #include "KKT_like.hh"

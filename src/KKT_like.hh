@@ -401,6 +401,28 @@ namespace alglin {
 
   } ;
 
+  //! LU decomposition of a KKT like matrix
+  /*!
+   *
+   *  Solve the linear system of the form
+   *  -----------------------------------
+   *
+   *  / A B \ / x \   / a \
+   *  |     | |   | = |   |
+   *  \ C D / \ y /   \ b /
+   *
+   *  A*x + B*y = a
+   *  C*x + D*y = b
+   * 
+   *  / L  0 \ / U  U' \
+   *  |      | |       |
+   *  \ L' I / \ 0  0  /
+   *
+   *  L*U*x + B*y = a
+   *  C*x + D*y = b
+   * 
+  \*/
+
 }
 
 #endif
