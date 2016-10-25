@@ -24,10 +24,12 @@
 #endif
 
   #define NSIZE 10
+  //#define NSIZE 2
 
   alglin::integer n    = NSIZE ;
   alglin::integer nblk = 100000 ;
   alglin::integer q    = 40 ;
+  //alglin::integer q    = 3 ;
   alglin::integer nq   = n+q ;
 /*
   alglin::integer n    = 2 ;

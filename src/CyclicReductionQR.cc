@@ -17,14 +17,7 @@
  |                                                                          |
 \*--------------------------------------------------------------------------*/
 
-#ifdef __GCC__
-#pragma GCC diagnostic ignored "-Wsign-conversion"
-#endif
-#ifdef __clang__
-#pragma clang diagnostic ignored "-Wsign-conversion"
-#endif
-
-#include "BABD_QR.hh"
+#include "CyclicReductionQR.hh"
 #include <iostream>
 
 /*\
@@ -54,21 +47,18 @@
  |
  |  Esempio
  |  +-----+-----+
- |  |  E  |  F  |
+ |  |  Ad | Au  |
  |  +-----+-----+-----+
- |        |  E  |  F  |
+ |        | Ad  | Au  |
  |        +-----+-----+-----+
- |              |  E  |  F  |
+ |              | Ad  | Au  |
  |              +-----+-----+-----+
- |                    |  E  |  F  |
+ |                    | Ad  | Au  |
  |                    +-----+-----+-----+
- |                          |  E  |  F  |
+ |                          | Ad  | Au  |
  |                          +-----+-----+-----+
- |                                |  E  |  F  |
- |  +----+                        +-----+-----+--+
- |  | H0 |                              | HN  |  |
- |  |    |                              |     |  |
- |  +----+                              +-----+--+
+ |                                | Ad  | Au  |
+ |                                +-----+-----+
  |
  |  Applicazione riduzione
  |  ----------------------
@@ -83,46 +73,106 @@
  |        | E*  | F*  |
  |        +-----+-----+-----+
  |              | E*  | F*  |
- |  +----+      +-----+-----+--+
- |  | H0 |            | HN  |  |
- |  |    |            |     |  |
- |  +----+            +-----+--+
+ |              +-----+-----+
+ |
+ |
 \*/
+
+#ifdef __GCC__
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#endif
+#ifdef __clang__
+#pragma clang diagnostic ignored "-Wsign-conversion"
+#endif
 
 namespace alglin {
 
   using namespace std ;
 
-  #ifdef BABD_QR_USE_THREAD
+  /*\
+   |   ____           _ _        ____          _            _   _
+   |  / ___|   _  ___| (_) ___  |  _ \ ___  __| |_   _  ___| |_(_) ___  _ __
+   | | |  | | | |/ __| | |/ __| | |_) / _ \/ _` | | | |/ __| __| |/ _ \| '_ \
+   | | |__| |_| | (__| | | (__  |  _ <  __/ (_| | |_| | (__| |_| | (_) | | | |
+   |  \____\__, |\___|_|_|\___| |_| \_\___|\__,_|\__,_|\___|\__|_|\___/|_| |_|
+   |       |___/
+  \*/
+
+  #ifdef CYCLIC_REDUCTION_USE_THREAD
   template <typename QR_type>
-  BabdQR<QR_type>::BabdQR( integer nth )
-  : baseValue("BabdQR_value")
+  CyclicReductionQR<QR_type>::CyclicReductionQR( integer nth )
+  : baseValue("CyclicReductionQR_value")
   , numThread(nth)
+  , NB(25)
   {
-    ALGLIN_ASSERT( numThread > 0 && numThread <= BABD_QR_MAX_THREAD,
+    ALGLIN_ASSERT( numThread > 0 && numThread <= CYCLIC_REDUCTION_MAX_THREAD,
                    "Bad number of thread specification [" << numThread << "]\n"
-                   "must be a number > 0 and <= " << BABD_QR_MAX_THREAD ) ;
+                   "must be a number > 0 and <= " << CYCLIC_REDUCTION_MAX_THREAD ) ;
   }
   #else
   template <typename QR_type>
-  BabdQR<QR_type>::BabdQR()
-  : baseValue("BabdQR_value")
+  CyclicReductionQR<QR_type>::CyclicReductionQR()
+  : baseValue("CyclicReduction_value")
+  , baseInteger("CyclicReduction_index")
+  , NB(25)
   { }
   #endif
 
   template <typename QR_type>
-  BabdQR<QR_type>::~BabdQR() {
+  CyclicReductionQR<QR_type>::~CyclicReductionQR() {
     baseValue.free() ;
   }
+  
+  /*\
+   |         _ _                 _
+   |    __ _| | | ___   ___ __ _| |_ ___
+   |   / _` | | |/ _ \ / __/ _` | __/ _ \
+   |  | (_| | | | (_) | (_| (_| | ||  __/
+   |   \__,_|_|_|\___/ \___\__,_|\__\___|
+  \*/
 
-  /*  
-  //    __            _             _         
-  //   / _| __ _  ___| |_ ___  _ __(_)_______ 
-  //  | |_ / _` |/ __| __/ _ \| '__| |_  / _ \
-  //  |  _| (_| | (__| || (_) | |  | |/ /  __/
-  //  |_|  \__,_|\___|\__\___/|_|  |_/___\___|
-  */
+  template <typename QR_type>
+  void
+  CyclicReductionQR<QR_type>::allocate( integer _nblock, integer _n ) {
 
+    if ( _nblock == nblock && n == _n ) return ;
+
+    nblock = _nblock ;
+    n      = _n ;
+    nx2    = 2*n ;
+    nxn    = n*n ;
+    nxnx2  = nxn*2 ;
+
+    integer mem = nblock*nxnx2+4*nxn+nx2 ;
+
+    #ifdef CYCLIC_REDUCTION_USE_THREAD
+    mem += (4*nxn+nx2)*CYCLIC_REDUCTION_MAX_THREAD ;
+    #endif
+    baseValue.allocate(size_t(mem)) ;
+    AdAu_blk = baseValue(size_t(nblock*nxnx2)) ;
+    M_2n_2n  = baseValue(size_t(4*nxn)) ;
+    v_nx2    = baseValue(size_t(nx2)) ;
+
+    #ifdef CYCLIC_REDUCTION_USE_THREAD
+    for ( integer nth = 0 ; nth < CYCLIC_REDUCTION_MAX_THREAD ; ++nth ) {
+      M_2n_2n_mt[nth] = baseValue(size_t(4*nxn)) ;
+      v_nx2_mt[nth]   = baseValue(size_t(nx2)) ;
+    }
+    #endif
+
+    QR_blk.resize(nblock) ;
+    for ( integer i = 0 ; i < nblock ; ++i )
+      QR_blk[i] = new QR_type( nx2, n ) ;
+
+  }
+
+  /*\
+   |                _
+   |   _ __ ___  __| |_   _  ___ ___
+   |  | '__/ _ \/ _` | | | |/ __/ _ \
+   |  | | |  __/ (_| | |_| | (_|  __/
+   |  |_|  \___|\__,_|\__,_|\___\___|
+  \*/
   /*\
    |  Based on the algorithm 
    |  Pierluigi Amodio and Giuseppe Romanazzi
@@ -155,10 +205,20 @@ namespace alglin {
   // 0  -  -  -  4  -  -  -  8  -  -  - 12  -  -  -
   // 0  -  -  -  -  -  -  -  8  -  -  -  -  -  -  -
   // 0  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
-  
+
   template <typename QR_type>
   void
-  BabdQR<QR_type>::reduction() {
+  CyclicReductionQR<QR_type>::reduce() {
+    jump_block = 1 ;
+
+    #ifdef CYCLIC_REDUCTION_USE_THREAD
+    to_be_done = usedThread = numThread ;
+    jump_block_max_mt = nblock>>(usedThread-1) ;
+    for ( integer nt = 0 ; nt < usedThread ; ++nt )
+      threads[nt] = std::thread( &CyclicReductionQR<QR_type>::reduce_mt, this, nt ) ;
+    for ( integer nt = 0 ; nt < usedThread ; ++nt )
+      threads[nt].join() ;
+    #endif
 
     while ( jump_block < nblock ) {
 
@@ -209,11 +269,11 @@ namespace alglin {
       jump_block *= 2 ;
     }
   }
-  
-#ifdef BABD_QR_USE_THREAD
+
+  #ifdef CYCLIC_REDUCTION_USE_THREAD
   template <typename QR_type>
   void
-  BabdQR<QR_type>::reduction_mt( integer nth ) {
+  CyclicReductionQR<QR_type>::reduce_mt( integer nth ) {
     valuePointer M = M_2n_2n_mt[nth] ;
     while ( jump_block < jump_block_max_mt ) {
 
@@ -278,112 +338,34 @@ namespace alglin {
   }
   #endif
 
+  /*\
+   |    __                                  _
+   |   / _| ___  _ ____      ____ _ _ __ __| |
+   |  | |_ / _ \| '__\ \ /\ / / _` | '__/ _` |
+   |  |  _| (_) | |   \ V  V / (_| | | | (_| |
+   |  |_|  \___/|_|    \_/\_/ \__,_|_|  \__,_|
+  \*/
   template <typename QR_type>
   void
-  BabdQR<QR_type>::allocate( integer _nblock, integer _n, integer _q ) {
-
-    if ( _nblock == nblock && n == _n && _q == m-n ) return ;
-
-    nblock = _nblock ;
-    n      = _n ;
-    m      = _n+_q ;
-
-    nx2    = 2*n ;
-    nxn    = n*n ;
-    nxnx2  = nxn*2 ;
-    nm     = n+m ;
-
-    integer mem = nblock*nxnx2+4*nxn+nx2+nm ;
-    #ifdef BABD_QR_USE_THREAD
-    mem += (4*nxn+nx2+nm)* BABD_QR_MAX_THREAD ;
-    #endif
-    baseValue.allocate(size_t(mem)) ;
-    AdAu_blk = baseValue(size_t(nblock*nxnx2)) ;
-    M_2n_2n  = baseValue(size_t(4*nxn)) ;
-    v_nx2    = baseValue(size_t(nx2)) ;
-    v_nm     = baseValue(size_t(nm)) ;
-
-    #ifdef BABD_QR_USE_THREAD
-    for ( integer nth = 0 ; nth < BABD_QR_MAX_THREAD ; ++nth ) {
-      M_2n_2n_mt[nth]  = baseValue(size_t(4*nxn)) ;
-      v_nx2_mt[nth]    = baseValue(size_t(nx2)) ;
-      v_nm_mt[nth]     = baseValue(size_t(nm)) ;
-    }
-    #endif
-
-    QR_blk.resize(nblock) ;
-    for ( integer i = 0 ; i < nblock ; ++i )
-      QR_blk[i] = new QR_type( nx2, n ) ;
-
-    QR_last_blk.allocate(nm,nm) ;
-
-  }
-
-  template <typename QR_type>
-  void
-  BabdQR<QR_type>::factorize( integer           _nblock,
-                              integer           _n,
-                              integer           _q,
-                              valueConstPointer AdAu,
-                              valueConstPointer H0,
-                              valueConstPointer HN,
-                              valueConstPointer Hq ) {
-
-    allocate( _nblock, _n, _q ) ;
-    alglin::copy( nblock*nxnx2, AdAu, 1, AdAu_blk, 1 ) ;
-
+  CyclicReductionQR<QR_type>::forward( valuePointer y ) const {
     /*\
      | !!!!!!!!!!!!!!!!!!!!!!!!!
      | !!!! reduction phase !!!!
      | !!!!!!!!!!!!!!!!!!!!!!!!!
     \*/
-
-    #ifdef BABD_QR_USE_THREAD
-    usedThread        = numThread ;
-    jump_block_max_mt = nblock>>(usedThread-1) ;
-    #endif
-
     jump_block = 1 ;
-    #ifdef BABD_QR_USE_THREAD
-    to_be_done = usedThread ;
-    for ( integer nt = 0 ; nt < usedThread ; ++nt )
-      threads[nt] = std::thread( &BabdQR<QR_type>::reduction_mt, this, nt ) ;
-    for ( integer nt = 0 ; nt < usedThread ; ++nt )
-      threads[nt].join() ;
-    #endif
-    reduction() ;
-
-    /*
-    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    // !!!! factorization of the last block !!!!
-    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    */
-    /*
-    // / S  R  0  \ /x(0)\  = b(0)
-    // \ H0 HN Hq / \x(N)/  = b(N)
-    */
-    QR_last_blk.load_block( n, nx2, AdAu_blk, n, 0, 0 ) ;
-    QR_last_blk.load_block( m, n,         H0, m, n, 0 ) ;
-    QR_last_blk.load_block( m, n,         HN, m, n, n ) ;
-    if ( _q > 0 ) {
-      QR_last_blk.zero_block( n, _q,        0, nx2 ) ;
-      QR_last_blk.load_block( m, _q, Hq, m, n, nx2 ) ;
+    #ifdef CYCLIC_REDUCTION_USE_THREAD
+    if ( usedThread > 0 ) {
+      y_thread = y ;
+      to_be_done = usedThread = numThread ;
+      jump_block_max_mt = nblock>>(usedThread-1) ;
+      for ( integer nt = 0 ; nt < usedThread ; ++nt )
+        threads[nt] = std::thread( &CyclicReductionQR<QR_type>::forward_mt, this, nt ) ;
+      for ( integer nt = 0 ; nt < usedThread ; ++nt )
+        threads[nt].join() ;
     }
-    QR_last_blk.factorize() ;
-  }
+    #endif
 
-  /*
-  //  __                                  _                  _
-  // / _| ___  _ ____      ____ _ _ __ __| |    _ __ ___  __| |_   _  ___ ___
-  // | |_ / _ \| '__\ \ /\ / / _` | '__/ _` |   | '__/ _ \/ _` | | | |/ __/ _ \
-  // |  _| (_) | |   \ V  V / (_| | | | (_| |   | | |  __/ (_| | |_| | (_|  __/
-  // |_|  \___/|_|    \_/\_/ \__,_|_|  \__,_|___|_|  \___|\__,_|\__,_|\___\___|
-  //                                       |_____|
-  */
-
-  template <typename QR_type>
-  void
-  BabdQR<QR_type>::forward_reduce( valuePointer y ) const {
     while ( jump_block < nblock ) {
 
       integer k_step = 2*jump_block ;
@@ -409,10 +391,10 @@ namespace alglin {
     }
   }
 
-  #ifdef BABD_QR_USE_THREAD
+  #ifdef CYCLIC_REDUCTION_USE_THREAD
   template <typename QR_type>
   void
-  BabdQR<QR_type>::forward_reduce_mt( integer nth, valuePointer y ) const {
+  CyclicReductionQR<QR_type>::forward_mt( integer nth ) const {
     valuePointer v_tmp = v_nx2_mt[nth] ;
     while ( jump_block < jump_block_max_mt ) {
 
@@ -423,8 +405,8 @@ namespace alglin {
       for ( integer k = k0 ; k < kend ; k += k_step ) {
         integer k1 = k+jump_block ;
         QR_type const & QR = *QR_blk[k1] ;
-        valuePointer yk  = y + k  * n ;
-        valuePointer yk1 = y + k1 * n ;
+        valuePointer yk  = y_thread + k  * n ;
+        valuePointer yk1 = y_thread + k1 * n ;
         /*\
          |   applico Q^T e scambio
         \*/
@@ -445,23 +427,20 @@ namespace alglin {
           cond0.wait(lck);
         }
       }
-
     }
   }
   #endif
 
-  /*
-  //   _                _                  _         _   _ _         _
-  //  | |__   __ _  ___| | __    ___ _   _| |__  ___| |_(_) |_ _   _| |_ ___
-  //  | '_ \ / _` |/ __| |/ /   / __| | | | '_ \/ __| __| | __| | | | __/ _ \
-  //  | |_) | (_| | (__|   <    \__ \ |_| | |_) \__ \ |_| | |_| |_| | ||  __/
-  //  |_.__/ \__,_|\___|_|\_\___|___/\__,_|_.__/|___/\__|_|\__|\__,_|\__\___|
-  //                       |_____|
-  */
-
+  /*\
+   |   _                _                           _
+   |  | |__   __ _  ___| | ____      ____ _ _ __ __| |
+   |  | '_ \ / _` |/ __| |/ /\ \ /\ / / _` | '__/ _` |
+   |  | |_) | (_| | (__|   <  \ V  V / (_| | | | (_| |
+   |  |_.__/ \__,_|\___|_|\_\  \_/\_/ \__,_|_|  \__,_|
+  \*/
   template <typename QR_type>
   void
-  BabdQR<QR_type>::back_substitute( valuePointer y, integer jump_block_min ) const {
+  CyclicReductionQR<QR_type>::backward( valuePointer y, integer jump_block_min ) const {
     while ( jump_block > jump_block_min ) {
       integer k_step = 2*jump_block ;
       integer kend   = nblock-jump_block ;
@@ -495,10 +474,11 @@ namespace alglin {
     }
   }
 
-  #ifdef BABD_QR_USE_THREAD
+  #ifdef CYCLIC_REDUCTION_USE_THREAD
+
   template <typename QR_type>
   void
-  BabdQR<QR_type>::back_substitute_mt( integer nth, valuePointer y ) const {
+  CyclicReductionQR<QR_type>::backward_mt( integer nth ) const {
 
     while ( jump_block > 0 ) {
 
@@ -514,9 +494,9 @@ namespace alglin {
 
         QR_type const & QR = *QR_blk[k1] ;
 
-        valuePointer yk  = y + k  * n ;
-        valuePointer yk1 = y + k1 * n ;
-        valuePointer yk2 = y + k2 * n ;
+        valuePointer yk  = y_thread + k  * n ;
+        valuePointer yk1 = y_thread + k1 * n ;
+        valuePointer yk2 = y_thread + k2 * n ;
         
         // io -= M*io1
         gemv( NO_TRANSPOSE,
@@ -546,78 +526,30 @@ namespace alglin {
   }
   #endif
 
-  /*             _
-  //   ___  ___ | |_   _____ 
-  //  / __|/ _ \| \ \ / / _ \
-  //  \__ \ (_) | |\ V /  __/
-  //  |___/\___/|_| \_/ \___|
-  */
-
   template <typename QR_type>
   void
-  BabdQR<QR_type>::solve( valuePointer y ) const {
-
-    #ifdef BABD_QR_USE_THREAD
-    usedThread        = numThread ;
-    jump_block_max_mt = nblock>>(usedThread-1) ;
-    y_thread          = y ;
-    #endif
-
-    /*\
-     | !!!!!!!!!!!!!!!!!!!!!!!!!
-     | !!!! reduction phase !!!!
-     | !!!!!!!!!!!!!!!!!!!!!!!!!
-    \*/
-    jump_block = 1 ;
-    #ifdef BABD_QR_USE_THREAD
-    if ( usedThread > 0 ) {
-      to_be_done = usedThread ;
-      for ( integer nt = 0 ; nt < usedThread ; ++nt )
-        threads[nt] = std::thread( &BabdQR<QR_type>::forward_reduce_mt, this, nt, y ) ;
-      for ( integer nt = 0 ; nt < usedThread ; ++nt )
-        threads[nt].join() ;
-    }
-    #endif
-    forward_reduce(y) ;
-
-    /*\
-     | !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-     | !!!! 2 by 2 block linear system solution !!!!
-     | !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    \*/
-    valuePointer ye = y + nblock * n ;
-    copy( n, y,  1, v_nm,   1 ) ;
-    copy( m, ye, 1, v_nm+n, 1 ) ;
-    QR_last_blk.solve(v_nm) ;
-    copy( n, v_nm,   1, y,  1 ) ;
-    copy( m, v_nm+n, 1, ye, 1 ) ;
-
-    /*\
-     | !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-     | !!!! back-substitution phase !!!!
-     | !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    \*/
+  CyclicReductionQR<QR_type>::backward( valuePointer y ) const {
+    for ( jump_block = 1 ; jump_block < nblock ; jump_block *= 2 ) {}
     jump_block /= 2 ;
-    #ifdef BABD_QR_USE_THREAD
+    #ifdef CYCLIC_REDUCTION_USE_THREAD
     if ( usedThread > 0 ) {
-      back_substitute( y, jump_block_max_mt ) ;
+      backward( y, jump_block_max_mt ) ;
       to_be_done = usedThread ;
       for ( integer nt = 0 ; nt < usedThread ; ++nt )
-        threads[nt] = std::thread( &BabdQR<QR_type>::back_substitute_mt, this, nt, y ) ;
+        threads[nt] = std::thread( &CyclicReductionQR<QR_type>::backward_mt, this, nt ) ;
       for ( integer nt = 0 ; nt < usedThread ; ++nt )
         threads[nt].join() ;
     } else {
-      back_substitute( y, 0 ) ;
+      backward( y, 0 ) ;
     }
     #else
-    back_substitute( y, 0 ) ;
+    backward( y, 0 ) ;
     #endif
-
   }
 
-  template class BabdQR<QR<double> > ;
-  template class BabdQR<QR<float> > ;
-  template class BabdQR<QRP<double> > ;
-  template class BabdQR<QRP<float> > ;
+  template class CyclicReductionQR<QR<double> > ;
+  template class CyclicReductionQR<QR<float> > ;
+  template class CyclicReductionQR<QRP<double> > ;
+  template class CyclicReductionQR<QRP<float> > ;
 
 }

@@ -140,9 +140,7 @@ namespace alglin {
     mutable valuePointer  M_2n_2n_mt[BABD_QR_MAX_THREAD],
                           v_nx2_mt[BABD_QR_MAX_THREAD],
                           v_nm_mt[BABD_QR_MAX_THREAD] ;
-    #endif
 
-    #ifdef BABD_QR_USE_THREAD
     void forward_reduce_mt( integer nth, valuePointer y ) const ;
     void back_substitute_mt( integer nth, valuePointer y ) const ;
     void reduction_mt( integer nth ) ;

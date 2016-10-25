@@ -116,10 +116,12 @@ namespace alglin {
 
       X[i] = temp-h ; // modify the vector only at i position
       ok = fun( X, value0 ) && isRegular(value0) ;
-      if ( ok ) gradi = (value1-value0)/(2*h) ;
+      if ( ok ) {
+        gradi = (value1-value0)/(2*h) ;
+        ok    = isRegular(gradi) ;
+      }
 
       X[i] = temp ; // restore i position
-      ok = isRegular(gradi) ;
       if ( ok ) {
         Number scale = std::max(Number(1),std::max(std::abs(gradi),std::abs(grad[i]))) ;
         Number err   = std::abs(gradi-grad[i]) ;
