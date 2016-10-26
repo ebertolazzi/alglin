@@ -152,6 +152,13 @@ namespace alglin {
   CyclicReduction<t_Value>::FixedSize<n>::FixedSize( CyclicReduction * const _pCR )
   : pCR(_pCR) {}
 
+  /*\
+   |                _
+   |   _ __ ___  __| |_   _  ___ ___
+   |  | '__/ _ \/ _` | | | |/ __/ _ \
+   |  | | |  __/ (_| | |_| | (_|  __/
+   |  |_|  \___|\__,_|\__,_|\___\___|
+  \*/
   template <typename t_Value>
   template <integer N>
   void
@@ -370,6 +377,13 @@ namespace alglin {
   }
   #endif
 
+  /*\
+   |    __                                  _
+   |   / _| ___  _ ____      ____ _ _ __ __| |
+   |  | |_ / _ \| '__\ \ /\ / / _` | '__/ _` |
+   |  |  _| (_) | |   \ V  V / (_| | | | (_| |
+   |  |_|  \___/|_|    \_/\_/ \__,_|_|  \__,_|
+  \*/
   template <typename t_Value>
   template <integer N>
   void
@@ -478,6 +492,13 @@ namespace alglin {
   }
   #endif
 
+  /*\
+   |   _                _                           _
+   |  | |__   __ _  ___| | ____      ____ _ _ __ __| |
+   |  | '_ \ / _` |/ __| |/ /\ \ /\ / / _` | '__/ _` |
+   |  | |_) | (_| | (__|   <  \ V  V / (_| | | | (_| |
+   |  |_.__/ \__,_|\___|_|\_\  \_/\_/ \__,_|_|  \__,_|
+  \*/
   template <typename t_Value>
   template <integer N>
   void
@@ -584,8 +605,6 @@ namespace alglin {
     }  
   }
   #endif
-
-
 
   template class CyclicReduction<float>::FixedSize<1> ;
   template class CyclicReduction<double>::FixedSize<1> ;

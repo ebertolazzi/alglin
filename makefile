@@ -40,7 +40,11 @@ src/BABD_AmodioN.cc \
 src/BABD_Block.cc \
 src/BABD_QR.cc \
 src/BABD_QR_N.cc \
-src/BABD_SuperLU.cc
+src/BABD_SuperLU.cc \
+src/CyclicReduction.cc \
+src/CyclicReductionN.cc \
+src/CyclicReductionQR.cc \
+src/KKT_like.cc
 
 OBJS  = $(SRCS:.cc=.o)
 DEPS  = \
@@ -48,6 +52,10 @@ src/ABD_Arceco.hh \
 src/ABD_Colrow.hh \
 src/Alglin++.hh \
 src/Alglin.hh \
+src/AlglinConfig.hh \
+src/AlglinEigen.hh \
+src/AlglinFD.hh \
+src/AlglinSuperLU.hh \
 src/Alglin_aux.hh \
 src/Alglin_tmpl.hh \
 src/BABD.hh \
@@ -56,7 +64,11 @@ src/BABD_AmodioN.hh \
 src/BABD_Block.hh \
 src/BABD_QR.hh \
 src/BABD_QR_N.hh \
-src/BABD_SuperLU.hh
+src/BABD_SuperLU.hh \
+src/CyclicReduction.hh \
+src/CyclicReductionQR.hh \
+src/KKT_like.hh \
+src/TicToc.hh
 
 MKDIR = mkdir -p
 
