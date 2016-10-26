@@ -20,6 +20,15 @@
 #include "CyclicReductionQR.hh"
 #include <iostream>
 
+#ifdef __GCC__
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wpadded"
+#endif
+#ifdef __clang__
+#pragma clang diagnostic ignored "-Wsign-conversion"
+#pragma clang diagnostic ignored "-Wpadded"
+#endif
+
 /*\
  |  reduces a 2x3 block matrix / Ad  Au     \ to a 1x2 block matrix ( Ad' Au' )
  |                             \     Bd  Bu /
@@ -113,7 +122,6 @@ namespace alglin {
   template <typename QR_type>
   CyclicReductionQR<QR_type>::CyclicReductionQR()
   : baseValue("CyclicReduction_value")
-  , baseInteger("CyclicReduction_index")
   , NB(25)
   { }
   #endif

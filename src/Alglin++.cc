@@ -20,11 +20,12 @@
 #ifdef __GCC__
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 #pragma GCC diagnostic ignored "-Wweak-template-vtables"
-
+#pragma GCC diagnostic ignored "-Wpadded"
 #endif
 #ifdef __clang__
 #pragma clang diagnostic ignored "-Wsign-conversion"
 #pragma clang diagnostic ignored "-Wweak-template-vtables"
+#pragma clang diagnostic ignored "-Wpadded"
 #endif
 
 #include "Alglin++.hh"
@@ -498,7 +499,7 @@ namespace alglin {
   */
   template <typename T>
   void
-  SVD<T>::allocate( integer NR, integer NC, integer LDA ) {
+  SVD<T>::allocate( integer NR, integer NC ) {
   
     if ( this->nRow != NR || this->nCol != NC ) {
       this->nRow = NR ;
@@ -507,7 +508,7 @@ namespace alglin {
       valueType tmp ;
       integer info = gesvd( REDUCED, REDUCED,
                             NR, NC,
-                            nullptr, LDA,
+                            nullptr, NR,
                             nullptr,
                             nullptr, NR,
                             nullptr, minRC,
@@ -517,7 +518,7 @@ namespace alglin {
       Lwork = integer(tmp) ;
       info = gesdd( REDUCED,
                     NR, NC,
-                    nullptr, LDA,
+                    nullptr, NR,
                     nullptr,
                     nullptr, NR,
                     nullptr, minRC,
@@ -536,14 +537,8 @@ namespace alglin {
 
   template <typename T>
   void
-  SVD<T>::factorize( integer         NR,
-                     integer         NC,
-                     valueType const A[],
-                     integer         LDA ) {
-
-    allocate( NR, NC, LDA ) ;
-    integer info = gecopy( this->nRow, this->nCol, A, LDA, this->Amat, this->nRow ) ;
-    ALGLIN_ASSERT( info == 0, "SVD::factorize call alglin::gecopy return info = " << info ) ;
+  SVD<T>::factorize() {
+    integer info ;
     switch ( svd_used ) {
     case USE_GESVD:
       info = gesvd( REDUCED,

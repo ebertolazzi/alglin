@@ -22,18 +22,8 @@
 
 #include "Alglin.hh"
 #include "Alglin++.hh"
-
+#include "CyclicReduction.hh"
 #include <vector>
-
-#ifdef BABD_AMODIO_USE_THREAD
-  #include <thread>
-  #include <mutex>
-  #include <condition_variable>
-  #include <atomic>
-  #ifndef BABD_AMODIO_MAX_THREAD
-    #define BABD_AMODIO_MAX_THREAD 256
-  #endif
-#endif
 
 namespace alglin {
 
@@ -77,113 +67,35 @@ namespace alglin {
     typedef t_Value*        valuePointer ;
     typedef t_Value const * valueConstPointer ;
 
-    Malloc<valueType> baseValue ;
-    Malloc<integer>   baseInteger ;
-    std::vector<std::vector<bool> > LU_rows_blk ;
-
     AmodioLU(AmodioLU const &) ;
     AmodioLU const & operator = (AmodioLU const &) ;
 
-    integer nblock ; //!< total number of blocks
-    integer n      ; //!< size of square blocks
-    integer m      ; //!< number final rows (m>=n)
-
-    // some derived constants
-    integer nx2 ;
-    integer nxn ;
-    integer nxnx2 ;
-    integer nm ;
-
-    /*
-    //
-    //  Matrix structure
-    //
-    //                  n * nblock
-    //    ________________^_________________
-    //   /                                  \
-    //     n     n     n                        n     q
-    //  +-----+-----+-----+----.........-----+-----+-----+    \
-    //  |  Ad | Au  |  0  |                  |  0  |  0  | n   |
-    //  +-----+-----+-----+             -----+-----+-----+     |
-    //  |  0  | Ad  | Au  |  0               |  0  |  0  | n   |
-    //  +-----+-----+-----+-----+       -----+-----+-----+     |
-    //  |  0  |  0  | Ad  | Au  |            |  0  |  0  | n   |
-    //  +-----+-----+-----+-----+       -----+-----+-----+     |   
-    //  |                                                :     |
-    //  :                                                :      > n * nblock
-    //  :                                                :     | 
-    //  :                                                :     |
-    //  :                                                :     |
-    //  :                              +-----+-----+-----+     |
-    //  :                              | Au  |  0  |  0  |     |
-    //  :                        +-----+-----+-----+-----+     |
-    //  :                        |  0  | Ad  | Au  |  0  | n   |
-    //  +-----+-----+---......---+-----+-----+=====+=====+    /
-    //  |     |     |            |     |     !     |     !
-    //  | H0  |  0  |            |     |  0  ! HN  | Hq  ! m
-    //  |     |     |            |     |     !     |     !
-    //  +-----+-----+---......---+-----+-----+=====+=====+
-    //
-    */
-
-    ///////////////////////////////////////////////////////
-
-    integer      NB ; // blocking factor
-
-    valuePointer G_blk ;
-    valuePointer AdAu_blk ;
-    valuePointer LU_blk ; // last LU and working space
-    valuePointer tmpV ;
-    valuePointer tmpM ;
-
-    integer * ipiv_blk ;
-    integer * LU_ipiv_blk ;
-
-    #ifdef BABD_AMODIO_USE_THREAD
-    mutable mutex              mtx0, mtx1, mtx2 ;
-    mutable condition_variable cond0 ;
-    mutable std::thread        threads[BABD_AMODIO_MAX_THREAD] ;
-    mutable integer            to_be_done ;
-            integer const      numThread ;
-    mutable integer            jump_block_max_mt ;
-    mutable integer            usedThread ;
-    mutable valuePointer       y_thread ;
-    #endif
-
+    mutable vector<t_Value>  tmpV ;
+    CyclicReduction<t_Value> CR ;
     LU<t_Value>  la_lu ;
     QR<t_Value>  la_qr ;
     QRP<t_Value> la_qrp ;
     SVD<t_Value> la_svd ;
 
+    integer n ;
+    integer m ;
+    
+    Factorization<t_Value> * factorization ;
+
     AMODIO_LASTBLOCK_Choice last_block ;
-
-    mutable integer jump_block ;
-
-    integer
-    LU_2_block( integer      n,
-                valuePointer A,
-                valuePointer B,
-                integer      ipiv[] ) const ;
-
-    #ifdef BABD_AMODIO_USE_THREAD
-    void forward_reduce_mt( integer nth ) const ;
-    void back_substitute_mt( integer nth ) const ;
-    void reduction_mt( integer nth ) ;
-    #endif
-
-    void forward_reduce( valuePointer y ) const ;
-    void back_substitute( valuePointer y, integer jump_block_min ) const ;
-    void reduction() ;
 
   public:
 
-    #ifdef BABD_AMODIO_USE_THREAD
-    explicit AmodioLU( integer nth = integer(std::thread::hardware_concurrency()) ) ;
+    #ifdef CYCLIC_REDUCTION_USE_THREAD
+    explicit
+    AmodioLU( integer nth = integer(std::thread::hardware_concurrency()) )
+    : CR(nth)
+    {}
     #else
-    explicit AmodioLU() ;
+    explicit AmodioLU() : CR() {}
     #endif
 
-    ~AmodioLU() ;
+    ~AmodioLU() {}
 
     //! load matrix in the class
     /*!

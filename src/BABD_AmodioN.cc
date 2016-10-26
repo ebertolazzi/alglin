@@ -162,6 +162,7 @@ namespace alglin {
     baseValue   . free() ;
     baseInteger . free() ;
   }
+
   /*
   //
   // +--------+

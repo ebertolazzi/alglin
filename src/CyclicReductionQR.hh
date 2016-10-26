@@ -154,7 +154,10 @@ namespace alglin {
 
     //! load matrix in the class
     void allocate( integer nblk, integer n ) ;
-    
+
+    integer getNblock() const { return nblock ; }
+    integer getN() const { return n ; }
+
     void
     loadBlock( integer           nbl,
                valueConstPointer AdAu,
@@ -175,7 +178,9 @@ namespace alglin {
                     integer           ldA ) {
       gecopy( n, n, Au, ldA, AdAu_blk + nbl*nxnx2 + nxn, n ) ;
     }
-    
+
+    valueConstPointer getPointer_LR() const { return AdAu_blk ; }
+
     void
     getBlock_LR( valuePointer LR, integer ldA ) const
     { gecopy( n, nx2, AdAu_blk, n, LR, ldA ) ; }

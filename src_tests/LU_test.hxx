@@ -23,11 +23,11 @@
 #pragma clang diagnostic ignored "-Wsign-conversion"
 #endif
 
-  #define NSIZE 10
-  //#define NSIZE 2
+  //#define NSIZE 10
+  #define NSIZE 5
 
   alglin::integer n    = NSIZE ;
-  alglin::integer nblk = 100000 ;
+  alglin::integer nblk = 1000000 ;
   alglin::integer q    = 40 ;
   //alglin::integer q    = 3 ;
   alglin::integer nq   = n+q ;

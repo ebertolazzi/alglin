@@ -25,6 +25,13 @@
 
 #include <vector>
 
+#ifdef __GCC__
+#pragma GCC diagnostic ignored "-Wpadded"
+#endif
+#ifdef __clang__
+#pragma clang diagnostic ignored "-Wpadded"
+#endif
+
 #ifdef CYCLIC_REDUCTION_USE_THREAD
   #include <thread>
   #include <mutex>
@@ -44,6 +51,12 @@ namespace alglin {
               t_Value B[],
               integer ipiv[],
               integer NB ) ;
+
+  template <typename t_Value, integer n>
+  integer
+  LU_2_block( t_Value A[],
+              t_Value B[],
+              integer ipiv[] ) ;
 
   /*\
    |   ____           _ _        ____          _            _   _
@@ -124,7 +137,7 @@ namespace alglin {
     integer * ipiv_blk ;
 
     #ifdef CYCLIC_REDUCTION_USE_THREAD
-    mutable mutex              mtx0, mtx1, mtx2 ;
+    mutable mutex              mtx0 ;
     mutable condition_variable cond0 ;
     mutable std::thread        threads[CYCLIC_REDUCTION_MAX_THREAD] ;
     mutable integer            to_be_done ;
@@ -136,6 +149,33 @@ namespace alglin {
     void forward_mt( integer nth ) const ;
     void backward_mt( integer nth ) const ;
     void reduce_mt( integer nth ) ;
+    #endif
+
+    #ifdef CYCLIC_REDUCTION_USE_FIXED_SIZE
+    template <integer N>
+    class FixedSize {
+      CyclicReduction * const pCR ;
+    public:
+      FixedSize( CyclicReduction * _pCR ) ;
+      void reduce() ;
+      void forward( valuePointer y ) const ;
+      void backward( valuePointer y, integer jump_block_min ) const ;
+      #ifdef CYCLIC_REDUCTION_USE_THREAD
+      void reduce_mt( integer nth ) ;
+      void forward_mt( integer nth ) const ;
+      void backward_mt( integer nth ) const ;
+      #endif
+    } ;
+    
+    FixedSize<2>  fixed2 ;
+    FixedSize<3>  fixed3 ;
+    FixedSize<4>  fixed4 ;
+    FixedSize<5>  fixed5 ;
+    FixedSize<6>  fixed6 ;
+    FixedSize<7>  fixed7 ;
+    FixedSize<8>  fixed8 ;
+    FixedSize<9>  fixed9 ;
+    FixedSize<10> fixed10 ;
     #endif
 
     void backward( valuePointer y, integer jump_block_min ) const ;
@@ -152,16 +192,21 @@ namespace alglin {
   public:
 
     #ifdef CYCLIC_REDUCTION_USE_THREAD
-    explicit CyclicReduction( integer nth = integer(std::thread::hardware_concurrency()) ) ;
+    explicit
+    CyclicReduction( integer nth = integer(std::thread::hardware_concurrency()) ) ;
     #else
-    explicit CyclicReduction() ;
+    explicit
+    CyclicReduction() ;
     #endif
 
     ~CyclicReduction() ;
 
     //! load matrix in the class
     void allocate( integer nblk, integer n ) ;
-    
+
+    integer getNblock() const { return nblock ; }
+    integer getN() const { return n ; }
+
     void
     loadBlock( integer           nbl,
                valueConstPointer AdAu,
@@ -182,7 +227,9 @@ namespace alglin {
                     integer           ldA ) {
       gecopy( n, n, Au, ldA, AdAu_blk + nbl*nxnx2 + nxn, n ) ;
     }
-    
+
+    valueConstPointer getPointer_LR() const { return AdAu_blk ; }
+
     void
     getBlock_LR( valuePointer LR, integer ldA ) const
     { gecopy( n, nx2, AdAu_blk, n, LR, ldA ) ; }

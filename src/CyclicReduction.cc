@@ -20,6 +20,17 @@
 #include "CyclicReduction.hh"
 #include <iostream>
 
+#ifdef __GCC__
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wshadow"
+#pragma GCC diagnostic ignored "-Wpadded"
+#endif
+#ifdef __clang__
+#pragma clang diagnostic ignored "-Wsign-conversion"
+#pragma clang diagnostic ignored "-Wshadow"
+#pragma clang diagnostic ignored "-Wpadded"
+#endif
+
 /*\
  |  reduces a 2x3 block matrix / Ad  Au     \ to a 1x2 block matrix ( Ad' Au' )
  |                             \     Bd  Bu /
@@ -205,26 +216,36 @@ namespace alglin {
    |       |___/
   \*/
 
-  #ifdef CYCLIC_REDUCTION_USE_THREAD
   template <typename t_Value>
+  #ifdef CYCLIC_REDUCTION_USE_THREAD
   CyclicReduction<t_Value>::CyclicReduction( integer nth )
+  #else
+  CyclicReduction<t_Value>::CyclicReduction()
+  #endif
   : baseValue("CyclicReduction_value")
   , baseInteger("CyclicReduction_index")
+  #ifdef CYCLIC_REDUCTION_USE_THREAD
   , numThread(nth)
+  #endif
+  #ifdef CYCLIC_REDUCTION_USE_FIXED_SIZE
+  , fixed2(this)
+  , fixed3(this)
+  , fixed4(this)
+  , fixed5(this)
+  , fixed6(this)
+  , fixed7(this)
+  , fixed8(this)
+  , fixed9(this)
+  , fixed10(this)
+  #endif
   , NB(25)
   {
+    #ifdef CYCLIC_REDUCTION_USE_THREAD
     ALGLIN_ASSERT( numThread > 0 && numThread <= CYCLIC_REDUCTION_MAX_THREAD,
                    "Bad number of thread specification [" << numThread << "]\n"
                    "must be a number > 0 and <= " << CYCLIC_REDUCTION_MAX_THREAD ) ;
+    #endif
   }
-  #else
-  template <typename t_Value>
-  CyclicReduction<t_Value>::CyclicReduction()
-  : baseValue("CyclicReduction_value")
-  , baseInteger("CyclicReduction_index")
-  , NB(25)
-  { }
-  #endif
 
   template <typename t_Value>
   CyclicReduction<t_Value>::~CyclicReduction() {
@@ -335,10 +356,40 @@ namespace alglin {
     #ifdef CYCLIC_REDUCTION_USE_THREAD
     to_be_done = usedThread = numThread ;
     jump_block_max_mt = nblock>>(usedThread-1) ;
-    for ( integer nt = 0 ; nt < usedThread ; ++nt )
+    for ( integer nt = 0 ; nt < usedThread ; ++nt ) {
+      #ifdef CYCLIC_REDUCTION_USE_FIXED_SIZE
+      switch ( n ) {
+      case 2:  threads[nt] = std::thread( &CyclicReduction<t_Value>::FixedSize<2>::reduce_mt, &fixed2, nt ) ; break ;
+      case 3:  threads[nt] = std::thread( &CyclicReduction<t_Value>::FixedSize<3>::reduce_mt, &fixed3, nt ) ; break ;
+      case 4:  threads[nt] = std::thread( &CyclicReduction<t_Value>::FixedSize<4>::reduce_mt, &fixed4, nt ) ; break ;
+      case 5:  threads[nt] = std::thread( &CyclicReduction<t_Value>::FixedSize<5>::reduce_mt, &fixed5, nt ) ; break ;
+      case 6:  threads[nt] = std::thread( &CyclicReduction<t_Value>::FixedSize<6>::reduce_mt, &fixed6, nt ) ; break ;
+      case 7:  threads[nt] = std::thread( &CyclicReduction<t_Value>::FixedSize<7>::reduce_mt, &fixed7, nt ) ; break ;
+      case 8:  threads[nt] = std::thread( &CyclicReduction<t_Value>::FixedSize<8>::reduce_mt, &fixed8, nt ) ; break ;
+      case 9:  threads[nt] = std::thread( &CyclicReduction<t_Value>::FixedSize<9>::reduce_mt, &fixed9, nt ) ; break ;
+      case 10: threads[nt] = std::thread( &CyclicReduction<t_Value>::FixedSize<10>::reduce_mt, &fixed10, nt ) ; break ;
+      default: threads[nt] = std::thread( &CyclicReduction<t_Value>::reduce_mt, this, nt ) ;
+      }
+      #else
       threads[nt] = std::thread( &CyclicReduction<t_Value>::reduce_mt, this, nt ) ;
+      #endif
+    }
     for ( integer nt = 0 ; nt < usedThread ; ++nt )
       threads[nt].join() ;
+    #endif
+
+    #ifdef CYCLIC_REDUCTION_USE_FIXED_SIZE
+    switch ( n ) {
+    case 2:  fixed2.reduce() ; return ;
+    case 3:  fixed3.reduce() ; return ;
+    case 4:  fixed4.reduce() ; return ;
+    case 5:  fixed5.reduce() ; return ;
+    case 6:  fixed6.reduce() ; return ;
+    case 7:  fixed7.reduce() ; return ;
+    case 8:  fixed8.reduce() ; return ;
+    case 9:  fixed9.reduce() ; return ;
+    case 10: fixed10.reduce() ; return ;
+    }
     #endif
 
     valuePointer EE = tmpM ;
@@ -568,13 +619,43 @@ namespace alglin {
       y_thread = y ;
       to_be_done = usedThread = numThread ;
       jump_block_max_mt = nblock>>(usedThread-1) ;
-      for ( integer nt = 0 ; nt < usedThread ; ++nt )
+      for ( integer nt = 0 ; nt < usedThread ; ++nt ) {
+        #ifdef CYCLIC_REDUCTION_USE_FIXED_SIZE
+        switch ( n ) {
+        case 2:  threads[nt] = std::thread( &CyclicReduction<t_Value>::FixedSize<2>::forward_mt, &fixed2, nt ) ; break ;
+        case 3:  threads[nt] = std::thread( &CyclicReduction<t_Value>::FixedSize<3>::forward_mt, &fixed3, nt ) ; break ;
+        case 4:  threads[nt] = std::thread( &CyclicReduction<t_Value>::FixedSize<4>::forward_mt, &fixed4, nt ) ; break ;
+        case 5:  threads[nt] = std::thread( &CyclicReduction<t_Value>::FixedSize<5>::forward_mt, &fixed5, nt ) ; break ;
+        case 6:  threads[nt] = std::thread( &CyclicReduction<t_Value>::FixedSize<6>::forward_mt, &fixed6, nt ) ; break ;
+        case 7:  threads[nt] = std::thread( &CyclicReduction<t_Value>::FixedSize<7>::forward_mt, &fixed7, nt ) ; break ;
+        case 8:  threads[nt] = std::thread( &CyclicReduction<t_Value>::FixedSize<8>::forward_mt, &fixed8, nt ) ; break ;
+        case 9:  threads[nt] = std::thread( &CyclicReduction<t_Value>::FixedSize<9>::forward_mt, &fixed9, nt ) ; break ;
+        case 10: threads[nt] = std::thread( &CyclicReduction<t_Value>::FixedSize<10>::forward_mt, &fixed10, nt ) ; break ;
+        default: threads[nt] = std::thread( &CyclicReduction<t_Value>::forward_mt, this, nt ) ;
+        }
+        #else
         threads[nt] = std::thread( &CyclicReduction<t_Value>::forward_mt, this, nt ) ;
+        #endif
+      }
       for ( integer nt = 0 ; nt < usedThread ; ++nt )
         threads[nt].join() ;
     }
     #endif
  
+    #ifdef CYCLIC_REDUCTION_USE_FIXED_SIZE
+    switch ( n ) {
+    case 2:  fixed2.forward(y) ; return ;
+    case 3:  fixed3.forward(y) ; return ;
+    case 4:  fixed4.forward(y) ; return ;
+    case 5:  fixed5.forward(y) ; return ;
+    case 6:  fixed6.forward(y) ; return ;
+    case 7:  fixed7.forward(y) ; return ;
+    case 8:  fixed8.forward(y) ; return ;
+    case 9:  fixed9.forward(y) ; return ;
+    case 10: fixed10.forward(y) ; return ;
+    }
+    #endif
+
     while ( jump_block < nblock ) {
 
       integer k_step = 2*jump_block ;
@@ -760,15 +841,46 @@ namespace alglin {
     if ( usedThread > 0 ) {
       backward( y, jump_block_max_mt ) ;
       to_be_done = usedThread ;
-      for ( integer nt = 0 ; nt < usedThread ; ++nt )
+      for ( integer nt = 0 ; nt < usedThread ; ++nt ) {
+        #ifdef CYCLIC_REDUCTION_USE_FIXED_SIZE
+        switch ( n ) {
+        case 2:  threads[nt] = std::thread( &CyclicReduction<t_Value>::FixedSize<2>::backward_mt, &fixed2, nt ) ; break ;
+        case 3:  threads[nt] = std::thread( &CyclicReduction<t_Value>::FixedSize<3>::backward_mt, &fixed3, nt ) ; break ;
+        case 4:  threads[nt] = std::thread( &CyclicReduction<t_Value>::FixedSize<4>::backward_mt, &fixed4, nt ) ; break ;
+        case 5:  threads[nt] = std::thread( &CyclicReduction<t_Value>::FixedSize<5>::backward_mt, &fixed5, nt ) ; break ;
+        case 6:  threads[nt] = std::thread( &CyclicReduction<t_Value>::FixedSize<6>::backward_mt, &fixed6, nt ) ; break ;
+        case 7:  threads[nt] = std::thread( &CyclicReduction<t_Value>::FixedSize<7>::backward_mt, &fixed7, nt ) ; break ;
+        case 8:  threads[nt] = std::thread( &CyclicReduction<t_Value>::FixedSize<8>::backward_mt, &fixed8, nt ) ; break ;
+        case 9:  threads[nt] = std::thread( &CyclicReduction<t_Value>::FixedSize<9>::backward_mt, &fixed9, nt ) ; break ;
+        case 10: threads[nt] = std::thread( &CyclicReduction<t_Value>::FixedSize<10>::backward_mt, &fixed10, nt ) ; break ;
+        default: threads[nt] = std::thread( &CyclicReduction<t_Value>::backward_mt, this, nt ) ;
+        }
+        #else
         threads[nt] = std::thread( &CyclicReduction<t_Value>::backward_mt, this, nt ) ;
+        #endif
+      }
       for ( integer nt = 0 ; nt < usedThread ; ++nt )
         threads[nt].join() ;
     } else {
+    #endif
+      #ifdef CYCLIC_REDUCTION_USE_FIXED_SIZE
+      switch ( n ) {
+      case 2:  fixed2.backward( y, 0 ) ; break ;
+      case 3:  fixed3.backward( y, 0 ) ; break ;
+      case 4:  fixed4.backward( y, 0 ) ; break ;
+      case 5:  fixed5.backward( y, 0 ) ; break ;
+      case 6:  fixed6.backward( y, 0 ) ; break ;
+      case 7:  fixed7.backward( y, 0 ) ; break ;
+      case 8:  fixed8.backward( y, 0 ) ; break ;
+      case 9:  fixed9.backward( y, 0 ) ; break ;
+      case 10: fixed10.backward( y, 0 ) ; break ;
+      default: backward( y, 0 ) ;
+      }
+      #else
       backward( y, 0 ) ;
+      #endif
+    #ifdef CYCLIC_REDUCTION_USE_THREAD
     }
-    #else
-    backward( y, 0 ) ;
     #endif
   }
 
@@ -777,6 +889,5 @@ namespace alglin {
   
   template integer LU_2_block( integer N, double A[], double B[], integer ipiv[], integer NB ) ;
   template integer LU_2_block( integer N, float A[], float B[], integer ipiv[], integer NB ) ;
-
 
 }

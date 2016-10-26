@@ -204,6 +204,40 @@ namespace alglin {
     valueType *       Apointer()       { return Amat ; }
     valueType const * Apointer() const { return Amat ; }
 
+    virtual
+    void
+    allocate( integer NR, integer NC ) = 0 ;
+
+    virtual
+    void
+    factorize() = 0 ;
+
+    virtual
+    void
+    factorize( integer NR, integer NC, valueType const A[], integer LDA ) = 0 ;
+
+    virtual
+    void
+    solve( valueType xb[] ) const = 0 ;
+
+    virtual
+    void
+    t_solve( valueType xb[] ) const = 0 ;
+
+    virtual
+    void
+    solve( integer nrhs, valueType B[], integer ldB ) const {
+      for ( integer k = 0 ; k < nrhs ; ++k )
+        solve( B + k * ldB ) ;
+    }
+
+    virtual
+    void
+    t_solve( integer nrhs, valueType B[], integer ldB ) const {
+      for ( integer k = 0 ; k < nrhs ; ++k )
+        t_solve( B + k * ldB ) ;
+    }
+
     void
     zero_block( integer nr,
                 integer nc,
@@ -299,24 +333,31 @@ namespace alglin {
     virtual
     ~LU() ;
 
+    virtual
     void
     allocate( integer NR, integer NC ) ;
 
+    virtual
     void
     factorize() ;
 
+    virtual
     void
     factorize( integer NR, integer NC, valueType const A[], integer LDA ) ;
 
+    virtual
     void
     solve( valueType xb[] ) const ;
 
+    virtual
     void
     t_solve( valueType xb[] ) const ;
 
+    virtual
     void
     solve( integer nrhs, valueType B[], integer ldB ) const ;
 
+    virtual
     void
     t_solve( integer nrhs, valueType B[], integer ldB ) const ;
 
@@ -370,8 +411,11 @@ namespace alglin {
       allocReals.free() ;
     }
 
-    void allocate( integer nr, integer nc ) ;
+    virtual
+    void
+    allocate( integer nr, integer nc ) ;
 
+    virtual
     void
     factorize() {
       integer info = geqrf( this->nRow, this->nCol, this->Amat, this->nRow, Tau, Work, Lwork ) ;
@@ -385,6 +429,7 @@ namespace alglin {
       \param A   pointer to the matrix
       \param LDA Leading dimension of the matrix
     \*/
+    virtual
     void
     factorize( integer NR, integer NC, valueType const A[], integer LDA ) {
       allocate( NR, NC ) ;
@@ -400,6 +445,7 @@ namespace alglin {
       \param A   pointer to the matrix
       \param LDA Leading dimension of the matrix
     \*/
+    virtual
     void
     t_factorize( integer NR, integer NC, valueType const A[], integer LDA ) {
       allocate( NC, NR ) ;
@@ -412,6 +458,7 @@ namespace alglin {
       linear system \f$ QR x = b \f$
       \param xb on input the rhs of linear system on output the solution
     \*/
+    virtual
     void
     solve( valueType xb[] ) const ;
 
@@ -420,12 +467,15 @@ namespace alglin {
       linear system \f$ (QR)^T x = b \f$
       \param xb on input the rhs of linear system on output the solution
     \*/
+    virtual
     void
     t_solve( valueType xb[] ) const ;
 
+    virtual
     void
     solve( integer nrhs, valueType B[], integer ldB ) const ;
 
+    virtual
     void
     t_solve( integer nrhs, valueType B[], integer ldB ) const ;
 
@@ -566,6 +616,7 @@ namespace alglin {
       allocIntegers.free() ;
     }
     
+    virtual
     void
     allocate( integer NR, integer NC ) {
       QR<T>::allocate( NR, NC ) ;
@@ -573,6 +624,7 @@ namespace alglin {
       JPVT = allocIntegers(size_t(NC)) ;
     }
 
+    virtual
     void
     factorize() {
       integer info = geqp3( this->nRow, this->nCol,
@@ -590,6 +642,7 @@ namespace alglin {
       \param A   pointer to the matrix
       \param LDA Leading dimension of the matrix
     \*/
+    virtual
     void
     factorize( integer NR, integer NC, valueType const A[], integer LDA ) {
       // calcolo fattorizzazione QR della matrice A
@@ -606,6 +659,7 @@ namespace alglin {
       \param A   pointer to the matrix
       \param LDA Leading dimension of the matrix
     \*/
+    virtual
     void
     t_factorize( integer NR, integer NC, valueType const A[], integer LDA ) {
       // calcolo fattorizzazione QR della matrice A
@@ -620,6 +674,7 @@ namespace alglin {
       linear system \f$ QR x = b \f$
       \param xb on input the rhs of linear system on output the solution
     \*/
+    virtual
     void
     solve( valueType xb[] ) const ;
 
@@ -628,12 +683,15 @@ namespace alglin {
       linear system \f$ (QR)^T x = b \f$
       \param xb on input the rhs of linear system on output the solution
     \*/
+    virtual
     void
     t_solve( valueType xb[] ) const ;
 
+    virtual
     void
     solve( integer nrhs, valueType B[], integer ldB ) const ;
 
+    virtual
     void
     t_solve( integer nrhs, valueType B[], integer ldB ) const ;
 
@@ -698,8 +756,6 @@ namespace alglin {
     typedef enum { USE_GESVD = 0, USE_GESDD = 1 } SVD_USED ;
     SVD_USED    svd_used, __padding ;
 
-    void allocate( integer NR, integer NC, integer LDA ) ;
-
   public:
   
     using Factorization<T>::solve ;
@@ -717,6 +773,14 @@ namespace alglin {
     ~SVD()
     { allocReals.free() ; }
 
+    virtual
+    void
+    allocate( integer NR, integer NC ) ;
+
+    virtual
+    void
+    factorize() ;
+
     /*!
       Do SVD factorization of a rectangular matrix
       \param NR  number of rows of the matrix
@@ -724,16 +788,24 @@ namespace alglin {
       \param A   pointer to the matrix
       \param LDA Leading dimension of the matrix
     \*/
+    virtual
     void
-    factorize( integer NR, integer NC, valueType const A[], integer LDA ) ;
+    factorize( integer NR, integer NC, valueType const A[], integer LDA ) {
+      allocate( NR, NC ) ;
+      integer info = gecopy( this->nRow, this->nCol, A, LDA, this->Amat, this->nRow ) ;
+      ALGLIN_ASSERT( info == 0, "SVD::factorize call alglin::gecopy return info = " << info ) ;
+      factorize() ;
+    }
 
     valueType U( integer i, integer j ) const { return Umat[i+j*this->nRow] ; }
     valueType V( integer i, integer j ) const { return VTmat[j+i*this->nCol] ; }
     valueType sigma( integer i ) const { return Svec[i] ; }
 
+    virtual
     void
     solve( valueType xb[] ) const ;
 
+    virtual
     void
     t_solve( valueType xb[] ) const ;
 
