@@ -176,25 +176,25 @@ namespace alglin {
 
     switch ( solver_used ) {
     case BABD_COLROW_LU:
-      colrow_LU.factorize( COLROW_LASTBLOCK_LU, 
+      colrow_LU.factorize( LASTBLOCK_LU,
                            row0, col0, &block0.front(),
                            numBlock, n, AdAu,
                            rowN, colN, &blockN.front() ) ;
       break ;
     case BABD_COLROW_QR:
-      colrow_LU.factorize( COLROW_LASTBLOCK_QR,
+      colrow_LU.factorize( LASTBLOCK_QR,
                            row0, col0, &block0.front(),
                            numBlock, n, AdAu,
                            rowN, colN, &blockN.front() ) ;
       break ;
     case BABD_COLROW_QRP:
-      colrow_LU.factorize( COLROW_LASTBLOCK_QRP,
+      colrow_LU.factorize( LASTBLOCK_QRP,
                            row0, col0, &block0.front(),
                            numBlock, n, AdAu,
                            rowN, colN, &blockN.front() ) ;
       break ;
     case BABD_COLROW_SVD:
-      colrow_LU.factorize( COLROW_LASTBLOCK_SVD,
+      colrow_LU.factorize( LASTBLOCK_SVD,
                            row0, col0, &block0.front(),
                            numBlock, n, AdAu,
                            rowN, colN, &blockN.front() ) ;

@@ -24,19 +24,10 @@
 #ifndef ABD_COLROW_HH
 #define ABD_COLROW_HH
 
-#include "Alglin.hh"
-#include "Alglin++.hh"
+#include "BlockBidiagonal.hh"
 #include <iostream>
 
 namespace alglin {
-
-  //! available LU factorization code
-  typedef enum {
-    COLROW_LASTBLOCK_LU  = 0,
-    COLROW_LASTBLOCK_QR  = 1,
-    COLROW_LASTBLOCK_QRP = 2,
-    COLROW_LASTBLOCK_SVD = 3
-  } COLROW_LASTBLOCK_Choice;
 
   //! LU decomposition of a ABD matrix
   /*!
@@ -76,7 +67,7 @@ namespace alglin {
                                  colN
   */
   template <typename t_Value>
-  class ColrowLU {
+  class ColrowLU : public BlockBidiagonal<t_Value> {
   public:
 
     typedef t_Value         valueType ;
@@ -90,7 +81,7 @@ namespace alglin {
            integer         col0,
            t_Value const * block0,
            integer         numBlock,
-           integer         dimBlock,
+           integer         n,
            t_Value const * blocks,
            integer         rowN,
            integer         colN,
@@ -106,7 +97,7 @@ namespace alglin {
     QRP<t_Value> la_qrp ;
     SVD<t_Value> la_svd ;
 
-    COLROW_LASTBLOCK_Choice last_block ;
+    LASTBLOCK_Choice last_block ;
 
     ColrowLU( ColrowLU const & ) ;
     ColrowLU const & operator = ( ColrowLU const & ) ;
@@ -114,28 +105,20 @@ namespace alglin {
     static valueType const epsi ;
 
     integer      neq ;
-    integer      numBlock ;
-    integer      dimBlock ;
     integer      Nlast ;
     integer      row0, col0 ;
     integer      rowN, colN ;
 
-    integer      sizeBlock ;
-    integer      hSizeBlock ;
     integer      row00, col00 ;
     integer      rowNN, colNN ;
-    integer      dimBlock_m_row00 ;
+    integer      n_m_row00 ;
     integer      NB ;
 
     mutable integer nblk ;
 
     valuePointer block0 ;
-    valuePointer blocks ;
     valuePointer blockN ;
     integer *    swapRC_blks ;
-
-    void setup() ;
-    void factorize() ;
 
     void
     LU_left_right( integer nrA,
@@ -165,38 +148,28 @@ namespace alglin {
 
     //! factorize the matrix
     void
-    factorize( COLROW_LASTBLOCK_Choice choice,
+    factorize( LASTBLOCK_Choice choice,
                // ----------------------------
                integer           _row0,
                integer           _col0,
                valueConstPointer _block0,
                // ----------------------------
                integer           _numBlock,
-               integer           _dimBlock,
+               integer           _n,
                valueConstPointer _blocks,
                // ----------------------------
                integer           _rowN,
                integer           _colN,
                valueConstPointer _blockN ) ;
-
-    //! factorize the matrix
+    
+    virtual
     void
-    factorize_inplace( COLROW_LASTBLOCK_Choice choice,
-                       // ----------------------------
-                       integer      _row0,
-                       integer      _col0,
-                       valuePointer _block0,
-                       // ----------------------------
-                       integer      _numBlock,
-                       integer      _dimBlock,
-                       valuePointer _blocks,
-                       // ----------------------------
-                       integer      _rowN,
-                       integer      _colN,
-                       valuePointer _blockN ) ;
+    factorize() ;
 
     //! solve linear sistem using internal factorized matrix
-    void solve( valuePointer in_out ) const ;
+    virtual
+    void
+    solve( valuePointer in_out ) const ;
 
     void print( std::ostream & stream ) const ;
 

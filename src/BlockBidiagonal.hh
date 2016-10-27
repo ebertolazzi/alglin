@@ -32,6 +32,21 @@
 
 namespace alglin {
 
+  //! available LU factorization code
+  typedef enum {
+    LASTBLOCK_LU  = 0,
+    LASTBLOCK_QR  = 1,
+    LASTBLOCK_QRP = 2,
+    LASTBLOCK_SVD = 3
+  } LASTBLOCK_Choice;
+
+  //! available LU factorization code
+  typedef enum {
+    CYCLIC_REDUCTION_LU  = 0,
+    CYCLIC_REDUCTION_QR  = 1,
+    CYCLIC_REDUCTION_QRP = 2
+  } CYCLIC_REDUCTION_Choice;
+
   /*\
    |  ____  _            _      ____  _     _ _                               _
    | | __ )| | ___   ___| | __ | __ )(_) __| (_) __ _  __ _  ___  _ __   __ _| |
@@ -144,9 +159,9 @@ namespace alglin {
     integer getN() const { return n ; }
 
     void
-    loadBlock( integer           nbl,
-               valueConstPointer AdAu,
-               integer           ldA ) {
+    loadBlocks( integer           nbl,
+                valueConstPointer AdAu,
+                integer           ldA ) {
       gecopy( n, nx2, AdAu, ldA, AdAu_blk + nbl*nxnx2, n ) ;
     }
 
@@ -226,7 +241,8 @@ namespace alglin {
     //                 | yn |
     //                 +----+
     */
-    virtual void reduce() = 0 ;
+    virtual void reduce()
+    { ALGLIN_ERROR("BlockBidiagonal::reduce() not defined!") ; }
 
     /*
     //  Apply reduction to the RHS of the linear system.
@@ -239,12 +255,20 @@ namespace alglin {
     //                 | yn |   | cn |
     //                 +----+   +----+
     */
-    virtual void forward( valuePointer rhs ) const = 0 ;
+    virtual void forward( valuePointer ) const
+    { ALGLIN_ERROR("BlockBidiagonal::forward( valuePointer ) not defined!") ; }
 
     /*
     //  Given y1 and yn of the reduced linear system compute y2, y3, ... y(n-1)
     */
-    virtual void backward( valuePointer y ) const = 0 ;
+    virtual void backward( valuePointer ) const
+    { ALGLIN_ERROR("BlockBidiagonal::backward( valuePointer ) not defined!") ; }
+
+    virtual void factorize()
+    { ALGLIN_ERROR("BlockBidiagonal::factorize( valuePointer ) not defined!") ; }
+
+    virtual void solve( valuePointer ) const
+    { ALGLIN_ERROR("BlockBidiagonal::solve( valuePointer ) not defined!") ; }
 
   } ;
 }

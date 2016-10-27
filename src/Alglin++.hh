@@ -1030,6 +1030,7 @@ namespace alglin {
       allocIntegers.free() ;
     }
 
+    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
     integer
     factorize( integer NR, integer NC,
                valueType const A[], integer LDA,

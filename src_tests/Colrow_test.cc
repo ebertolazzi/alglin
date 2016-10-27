@@ -108,10 +108,10 @@ main() {
                              1.0, x, 1, 0, rhs, 1 ) ;
 
 
-  alglin::COLROW_LASTBLOCK_Choice ch[4] = { alglin::COLROW_LASTBLOCK_LU,
-                                            alglin::COLROW_LASTBLOCK_QR,
-                                            alglin::COLROW_LASTBLOCK_QRP,
-                                            alglin::COLROW_LASTBLOCK_SVD } ;
+  alglin::LASTBLOCK_Choice ch[4] = { alglin::LASTBLOCK_LU,
+                                     alglin::LASTBLOCK_QR,
+                                     alglin::LASTBLOCK_QRP,
+                                     alglin::LASTBLOCK_SVD } ;
   char const * kind[] = { "LU", "QR", "QRP", "SVD" } ;
 
   TicToc tm ;
@@ -121,10 +121,18 @@ main() {
     cout << "\n\n\ntest N." << test << "\n" ;
 
     tm.tic() ;
-    LU.factorize( ch[test],
+        LU.factorize( ch[test],
                   row0, col0, block0,
                   numBlock, dim, blocks,
                   rowN, colN, blockN ) ;
+/*
+    LU.allocate( numBlock, dim ) ;
+    LU.loadBlocks( numBlock, blocks, dim ) ;
+    LU.loadTopBot( ch[test],
+                   row0, col0, block0, row0,
+                   rowN, colN, blockN, rowN ) ;
+    LU.factorize() ;
+    */
     tm.toc() ;
     cout << "(Colrow" << kind[test] << ") Factorize = " << tm.elapsedMilliseconds() << " [ms]\n" ;
 

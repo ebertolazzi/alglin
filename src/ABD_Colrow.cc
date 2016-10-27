@@ -62,7 +62,7 @@ namespace alglin {
   ColrowLU<t_Value>::ColrowLU()
   : baseValue("ColrowLU_values")
   , baseIndex("ColrowLU_integers")
-  , last_block(COLROW_LASTBLOCK_LU)
+  , last_block(LASTBLOCK_LU)
   //, last_block(COLROW_LASTBLOCK_QR)
   //, last_block(COLROW_LASTBLOCK_SVD)
   , NB(25)
@@ -85,10 +85,10 @@ namespace alglin {
   //       |   :          |
   //       +---+----------+----------+
   //     col00 |                     |
-  //           |                     | dimBlock
+  //           |                     | n
   //           |                     |
   //           +----------+----------+
-  //                 2*dimBlock
+  //                 2*n
   //
   //     +----------+----------+
   //     |                     |
@@ -105,125 +105,77 @@ namespace alglin {
   */
   template <typename t_Value>
   void
-  ColrowLU<t_Value>::setup() {
-
-    hSizeBlock = dimBlock*dimBlock ;
-    sizeBlock  = 2*hSizeBlock ;
-
-    col00 = col0 - dimBlock ;
-    colNN = colN - dimBlock ;
-    row00 = row0 - col00 ;
-    rowNN = rowN - colNN ;
-    neq   = numBlock * dimBlock + row0 + rowN ;
-
-    integer neq1 = (numBlock+1) * dimBlock + col00 + colNN ;
-
-    dimBlock_m_row00 = dimBlock - row00 ;
-
-    ALGLIN_ASSERT( row0 > 0 && rowN > 0 && row00 >= 0 && col00 >= 0 &&
-                   col0 >= dimBlock && colN >= dimBlock && dimBlock > 0,
-                   "Bad parameter(s):" <<
-                   "\nrow0     = " << row0 <<
-                   "\ncol0     = " << col0 <<
-                   "\ncol00    = " << col00 <<
-                   "\nrowN     = " << rowN <<
-                   "\ncolN     = " << colN <<
-                   "\ncolNN    = " << colNN <<
-                   "\ndimBlock = " << dimBlock ) ;
-
-    ALGLIN_ASSERT( neq == neq1,
-                   "Bad parameter(s):" <<
-                   "\nrow0     = " << row0 <<
-                   "\ncol0     = " << col0 <<
-                   "\ncol00    = " << col00 <<
-                   "\nrowN     = " << rowN <<
-                   "\ncolN     = " << colN <<
-                   "\ncolNN    = " << colNN <<
-                   "\ndimBlock = " << dimBlock <<
-                   "\nneq      = " << neq <<
-                   "\nneq1     = " << neq1 <<
-                   "\nneq and neq1 = (numBlock+1) * dimBlock + col00 + colNN must be equal" ) ;
-  }
-
-  // ---------------------------------------------------------------------------
-
-  template <typename t_Value>
-  void
-  ColrowLU<t_Value>::factorize( COLROW_LASTBLOCK_Choice choice,
+  ColrowLU<t_Value>::factorize( LASTBLOCK_Choice choice,
                                 // ----------------------------
                                 integer           _row0,
                                 integer           _col0,
                                 valueConstPointer _block0,
                                 // ----------------------------
-                                integer           _numBlock,
-                                integer           _dimBlock,
+                                integer           _nblock,
+                                integer           _n,
                                 valueConstPointer _blocks,
                                 // ----------------------------
                                 integer           _rowN,
                                 integer           _colN,
                                 valueConstPointer _blockN ) {
     last_block = choice ;
+    
+    this->allocate( _nblock, _n ) ;
 
-    numBlock = _numBlock ;
-    dimBlock = _dimBlock ;
-    row0     = _row0 ;
-    col0     = _col0 ;
-    rowN     = _rowN ;
-    colN     = _colN ;
+    integer & n      = this->n ;
+    integer & nxnx2  = this->nxnx2 ;
+    integer & nblock = this->nblock ;
 
-    setup() ;
+    row0 = _row0 ;
+    col0 = _col0 ;
+    rowN = _rowN ;
+    colN = _colN ;
+
+    col00 = col0 - n ;
+    colNN = colN - n ;
+    row00 = row0 - col00 ;
+    rowNN = rowN - colNN ;
+    neq   = nblock * n + row0 + rowN ;
+
+    integer neq1 = (nblock+1) * n + col00 + colNN ;
+
+    n_m_row00 = n - row00 ;
+
+    ALGLIN_ASSERT( row0 > 0 && rowN > 0 && row00 >= 0 && col00 >= 0 &&
+                   col0 >= n && colN >= n && n > 0,
+                   "Bad parameter(s):" <<
+                   "\nrow0     = " << row0 <<
+                   "\ncol0     = " << col0 <<
+                   "\ncol00    = " << col00 <<
+                   "\nrowN     = " << rowN <<
+                   "\ncolN     = " << colN <<
+                   "\ncolNN    = " << colNN <<
+                   "\nn        = " << n ) ;
+
+    ALGLIN_ASSERT( neq == neq1,
+                   "Bad parameter(s):" <<
+                   "\nrow0  = " << row0 <<
+                   "\ncol0  = " << col0 <<
+                   "\ncol00 = " << col00 <<
+                   "\nrowN  = " << rowN <<
+                   "\ncolN  = " << colN <<
+                   "\ncolNN = " << colNN <<
+                   "\nn     = " << n <<
+                   "\nneq   = " << neq <<
+                   "\nneq1  = " << neq1 <<
+                   "\nneq and neq1 = (nblock+1) * n + col00 + colNN must be equal" ) ;
 
     // allocate
-    baseIndex.allocate(size_t( numBlock*dimBlock+row0 )) ;
-    baseValue.allocate(size_t( sizeBlock*numBlock + row0*col0 + rowN*colN )) ;
+    baseIndex.allocate(size_t( nblock*n+row0 )) ;
+    baseValue.allocate(size_t( row0*col0 + rowN*colN )) ;
     block0      = baseValue(size_t( row0*col0 )) ;
-    blocks      = baseValue(size_t( sizeBlock * numBlock )) ;
     blockN      = baseValue(size_t( rowN*colN )) ;
-    swapRC_blks = baseIndex(size_t( numBlock*dimBlock+row0 )) ;
+    swapRC_blks = baseIndex(size_t( nblock*n+row0 )) ;
 
     // copy block
-    copy( row0*col0,          _block0, 1, block0, 1 ) ;
-    copy( sizeBlock*numBlock, _blocks, 1, blocks, 1 ) ;
-    copy( rowN*colN,          _blockN, 1, blockN, 1 ) ;
-
-    factorize() ;
-  }
-
-  // ---------------------------------------------------------------------------
-
-  template <typename t_Value>
-  void
-  ColrowLU<t_Value>::factorize_inplace( COLROW_LASTBLOCK_Choice choice,
-                                        // ----------------------------
-                                        integer      _row0,
-                                        integer      _col0,
-                                        valuePointer _block0,
-                                        // ----------------------------
-                                        integer      _numBlock,
-                                        integer      _dimBlock,
-                                        valuePointer _blocks,
-                                        // ----------------------------
-                                        integer      _rowN,
-                                        integer      _colN,
-                                        valuePointer _blockN ) {
-    last_block = choice ;
-
-    numBlock = _numBlock ;
-    dimBlock = _dimBlock ;
-    row0     = _row0 ;
-    col0     = _col0 ;
-    rowN     = _rowN ;
-    colN     = _colN ;
-    
-    block0   = _block0 ;
-    blocks   = _blocks ;
-    blockN   = _blockN ;
-
-    setup() ;
-
-    baseIndex.allocate(size_t( numBlock*dimBlock+row0 )) ;
-    baseValue.allocate(size_t( sizeBlock*numBlock + row0*col0 + rowN*colN )) ;
-    swapRC_blks = baseIndex(size_t( numBlock*dimBlock+row0 )) ;
+    copy( row0*col0,    _block0, 1, block0, 1 ) ;
+    copy( nxnx2*nblock, _blocks, 1, this->AdAu_blk, 1 ) ;
+    copy( rowN*colN,    _blockN, 1, blockN, 1 ) ;
 
     factorize() ;
   }
@@ -424,6 +376,12 @@ namespace alglin {
   template <typename t_Value>
   void
   ColrowLU<t_Value>::factorize() {
+
+    integer & n      = this->n ;
+    integer & nxnx2  = this->nxnx2 ;
+    integer & nxn    = this->nxn      ;
+    integer & nblock = this->nblock ;
+
     // primo blocco
     integer * swapRC = swapRC_blks ;
     if ( col00 > 0 ) {
@@ -432,7 +390,7 @@ namespace alglin {
     }
 
     /*
-    //    dimA   dimBlock
+    //    dimA   n
     //  +--///--+----------+
     //  |  ---  | B0       | ldA-row00
     //  +       +----------+
@@ -446,37 +404,35 @@ namespace alglin {
     */
 
     // blocchi intermedi (n-1)
-    if ( numBlock > 0 ) {
+    if ( nblock > 0 ) {
       valuePointer B1 = block0 + (row0+1)*col00 ;
       LU_top_bottom( col00, row00,
-                     dimBlock, B1, row0,
-                     dimBlock, blocks, dimBlock, swapRC ) ;
+                     n, B1, row0,
+                     n, this->AdAu_blk, n, swapRC ) ;
       swapRC += row00 ;
-      valuePointer D = blocks + row00 * dimBlock ;
+      valuePointer D = this->AdAu_blk + row00 * n ;
       //                 NR          NC            L       R
-      LU_left_right( dimBlock, dimBlock_m_row00, row00, dimBlock,
-                     D, dimBlock, swapRC ) ;
-      swapRC += dimBlock_m_row00 ;
+      LU_left_right( n, n_m_row00, row00, n, D, n, swapRC ) ;
+      swapRC += n_m_row00 ;
     }
     
-    valuePointer C = blocks ;
-    for ( nblk = 1 ; nblk < numBlock ; ++nblk ) {
-      C += sizeBlock;
-      valuePointer B1 = C - hSizeBlock + dimBlock_m_row00 ;
-      LU_top_bottom( dimBlock_m_row00, row00,
-                     dimBlock, B1, dimBlock,
-                     dimBlock,  C, dimBlock, swapRC ) ;
+    valuePointer C = this->AdAu_blk ;
+    for ( nblk = 1 ; nblk < nblock ; ++nblk ) {
+      C += nxnx2;
+      valuePointer B1 = C - nxn + n_m_row00 ;
+      LU_top_bottom( n_m_row00, row00,
+                     n, B1, n,
+                     n,  C, n, swapRC ) ;
       swapRC += row00 ;
-      valuePointer D = C + row00 * dimBlock ;
+      valuePointer D = C + row00 * n ;
       //                 NR          NC            L       R
-      LU_left_right( dimBlock, dimBlock_m_row00, row00, dimBlock,
-                     D, dimBlock, swapRC ) ;
-      swapRC += dimBlock_m_row00 ;
+      LU_left_right( n, n_m_row00, row00, n, D, n, swapRC ) ;
+      swapRC += n_m_row00 ;
     }
 
     // ultimo blocco
     /*
-    //    dimA   dimBlock
+    //    dimA   n
     //  +--///--+----------+
     //  |  ---  | B0       | row11 = ldA-row00 o col00
     //  +       +----------+
@@ -489,18 +445,18 @@ namespace alglin {
     //          row00       colNN
     */
 
-    swapRC = swapRC_blks + ( col00 + numBlock*dimBlock ) ;
+    swapRC = swapRC_blks + ( col00 + nblock*n ) ;
 
-    if ( numBlock == 0 ) {
+    if ( nblock == 0 ) {
       valuePointer B1 = block0 + (row0+1) * col00 ;
-      LU_top_bottom( col00, row00, dimBlock,
+      LU_top_bottom( col00, row00, n,
                      B1, row0,
                      rowN, blockN, rowN,
                      swapRC ) ;
     } else {
-      valuePointer B1 = blocks + numBlock * sizeBlock - hSizeBlock + dimBlock_m_row00 ;
-      LU_top_bottom( dimBlock_m_row00, row00, dimBlock,
-                     B1, dimBlock,
+      valuePointer B1 = this->AdAu_blk + nblock * nxnx2 - nxn + n_m_row00 ;
+      LU_top_bottom( n_m_row00, row00, n,
+                     B1, n,
                      rowN, blockN, rowN,
                      swapRC ) ;
     }
@@ -508,10 +464,10 @@ namespace alglin {
     // fattorizzazione ultimo blocco
     valuePointer D0 = blockN + row00 * rowN;
     switch ( last_block ) {
-      case COLROW_LASTBLOCK_LU:  la_lu.factorize(rowN,rowN,D0,rowN)  ; break ;
-      case COLROW_LASTBLOCK_QR:  la_qr.factorize(rowN,rowN,D0,rowN)  ; break ;
-      case COLROW_LASTBLOCK_QRP: la_qrp.factorize(rowN,rowN,D0,rowN) ; break ;
-      case COLROW_LASTBLOCK_SVD: la_svd.factorize(rowN,rowN,D0,rowN) ; break ;
+      case LASTBLOCK_LU:  la_lu.factorize(rowN,rowN,D0,rowN)  ; break ;
+      case LASTBLOCK_QR:  la_qr.factorize(rowN,rowN,D0,rowN)  ; break ;
+      case LASTBLOCK_QRP: la_qrp.factorize(rowN,rowN,D0,rowN) ; break ;
+      case LASTBLOCK_SVD: la_svd.factorize(rowN,rowN,D0,rowN) ; break ;
     }
   }
 
@@ -520,6 +476,10 @@ namespace alglin {
   template <typename t_Value>
   void
   ColrowLU<t_Value>::solve( valuePointer in_out ) const {
+    integer const & n      = this->n ;
+    integer const & nxnx2  = this->nxnx2 ;
+    integer const & nxn    = this->nxn      ;
+    integer const & nblock = this->nblock ;
 
     // applico permutazione alla RHS
     integer const * swapR = swapRC_blks ;
@@ -530,13 +490,13 @@ namespace alglin {
     } ;
     io    += row0 ;
     swapR += row0 ;
-    for ( nblk = 0 ; nblk < numBlock ; ++nblk )  {
-      for ( integer k = 0 ; k < dimBlock_m_row00 ; ++k ) {
+    for ( nblk = 0 ; nblk < nblock ; ++nblk )  {
+      for ( integer k = 0 ; k < n_m_row00 ; ++k ) {
         integer k1 = swapR[k] ; // 0 based
         if ( k1 > k ) std::swap( io[k], io[k1] ) ;
       } ;
-      io    += dimBlock ;
-      swapR += dimBlock ;
+      io    += n ;
+      swapR += n ;
     }
 
     // primo blocco
@@ -548,7 +508,7 @@ namespace alglin {
     io += row0 ;
     // blocchi intermedi
     nblk = 0 ;
-    while ( nblk < numBlock ) {
+    while ( nblk < nblock ) {
 
       /*
       //
@@ -560,21 +520,20 @@ namespace alglin {
       */
 
       valuePointer io1 = io - row00 ;
-      valuePointer M   = blocks + nblk * sizeBlock ;
-      valuePointer L   = M + row00 * dimBlock ;
+      valuePointer M   = this->AdAu_blk + nblk * nxnx2 ;
+      valuePointer L   = M + row00 * n ;
 
       // io -= M*io1
       gemv( NO_TRANSPOSE,
-            dimBlock, row00,
-            -1, M, dimBlock,
+            n, row00,
+            -1, M, n,
             io1, 1,
             1, io, 1 ) ;
 
       trsv( LOWER, NO_TRANSPOSE, UNIT,
-            dimBlock,
-            L, dimBlock, io, 1 ) ;
+            n, L, n, io, 1 ) ;
 
-      io += dimBlock ;
+      io += n ;
       ++nblk ;
     }
 
@@ -587,15 +546,15 @@ namespace alglin {
           1, io, 1 ) ;
 
     switch ( last_block ) {
-      case COLROW_LASTBLOCK_LU:  la_lu.solve(io)  ; break ;
-      case COLROW_LASTBLOCK_QR:  la_qr.solve(io)  ; break ;
-      case COLROW_LASTBLOCK_QRP: la_qrp.solve(io) ; break ;
-      case COLROW_LASTBLOCK_SVD: la_svd.solve(io) ; break ;
+      case LASTBLOCK_LU:  la_lu.solve(io)  ; break ;
+      case LASTBLOCK_QR:  la_qr.solve(io)  ; break ;
+      case LASTBLOCK_QRP: la_qrp.solve(io) ; break ;
+      case LASTBLOCK_SVD: la_svd.solve(io) ; break ;
     }
 
     while ( nblk > 0 ) {
       --nblk ;
-      io -= dimBlock ;
+      io -= n ;
 
       /*
       //  +---------+---+-------+
@@ -605,19 +564,18 @@ namespace alglin {
       //  row00
       */
 
-      valuePointer io1 = io + dimBlock ;
-      valuePointer U   = blocks + nblk * sizeBlock + row00 * dimBlock ;
-      valuePointer M   = U + hSizeBlock ;
+      valuePointer io1 = io + n ;
+      valuePointer U   = this->AdAu_blk + nblk * nxnx2 + row00 * n ;
+      valuePointer M   = U + nxn ;
 
       gemv( NO_TRANSPOSE,
-            dimBlock, dimBlock_m_row00,
-            -1, M, dimBlock,
+            n, n_m_row00,
+            -1, M, n,
             io1, 1,
             1, io, 1 ) ;
 
       trsv( UPPER, NO_TRANSPOSE, NON_UNIT,
-            dimBlock,
-            U, dimBlock, io, 1 ) ;
+            n, U, n, io, 1 ) ;
     }
     
     // primo blocco
@@ -635,16 +593,16 @@ namespace alglin {
           block0, row0, io, 1 ) ;
 
     // applico permutazione alla Soluzione
-    integer const * swapC = swapRC_blks+(numBlock*dimBlock+col00) ;
-    io = in_out + numBlock*dimBlock + col00 ;
+    integer const * swapC = swapRC_blks+(nblock*n+col00) ;
+    io = in_out + nblock*n + col00 ;
     integer k = row00 ;
     while ( k > 0 ) {
       integer k1 = swapC[--k] ; // 0 based
       if ( k1 > k ) std::swap( io[k], io[k1] ) ;
     } ;
-    for ( nblk = 0 ; nblk < numBlock ; ++nblk )  {
-      io    -= dimBlock ;
-      swapC -= dimBlock ;
+    for ( nblk = 0 ; nblk < nblock ; ++nblk )  {
+      io    -= n ;
+      swapC -= n ;
       k      = row00 ;
       while ( k > 0 ) {
         integer k1 = swapC[--k] ; // 0 based
@@ -658,9 +616,13 @@ namespace alglin {
   template <typename t_Value>
   void
   ColrowLU<t_Value>::print( std::ostream & stream ) const {
+    integer const & n      = this->n ;
+    integer const & nxnx2  = this->nxnx2 ;
+    integer const & nxn    = this->nxn      ;
+    integer const & nblock = this->nblock ;
     cout << "\nneq         = " << neq
-         << "\nnumBlock    = " << numBlock
-         << "\ndimBlock    = " << dimBlock
+         << "\nnblock      = " << nblock
+         << "\nn           = " << n
          << "\n(row0,col0) = (" << row0 << "," << col0 << ")"
          << "\n(rowN,colN) = (" << rowN << "," << colN << ")"
          << "\ncol00       = " << col00
@@ -672,13 +634,13 @@ namespace alglin {
         stream << ' ' << setw(8) << block0[i+j*row0] ;
       stream << '\n' ;
     }
-    for ( integer k = 0 ; k < numBlock ; ++k ) {
+    for ( integer k = 0 ; k < nblock ; ++k ) {
       stream << "Block " << k+1 << '\n' ;
-      valueConstPointer blk = blocks+k*sizeBlock ;
-      for ( integer i = 0 ; i < dimBlock ; ++i ) {
+      valueConstPointer blk = this->AdAu_blk+k*nxnx2 ;
+      for ( integer i = 0 ; i < n ; ++i ) {
         stream << setw(8) << blk[i] ;
-        for ( integer j = 1 ; j < 2*dimBlock ; ++j )
-          stream << ' ' << setw(8) << blk[i+j*dimBlock] ;
+        for ( integer j = 1 ; j < 2*n ; ++j )
+          stream << ' ' << setw(8) << blk[i+j*n] ;
         stream << '\n' ;
       }
     }
@@ -699,13 +661,13 @@ namespace alglin {
                             integer         row0,
                             integer         col0,
                             t_Value const * block0,
-                            integer         numBlock,
-                            integer         dimBlock,
+                            integer         nblock,
+                            integer         n,
                             t_Value const * blocks,
                             integer         rowN,
                             integer         colN,
                             t_Value const * blockN ) {
-    integer sizeBlock = 2*dimBlock*dimBlock ;
+    integer sizeBlock = 2*n*n ;
     stream << "Block 0\n" ;
     for ( integer i = 0 ; i < row0 ; ++i ) {
       stream << setw(8) << block0[i] ;
@@ -713,13 +675,13 @@ namespace alglin {
         stream << ' ' << setw(8) << block0[i+j*row0] ;
       stream << '\n' ;
     }
-    for ( integer k = 0 ; k < numBlock ; ++k ) {
+    for ( integer k = 0 ; k < nblock ; ++k ) {
       stream << "Block " << k+1 << '\n' ;
       t_Value const * blk = blocks+k*sizeBlock ;
-      for ( integer i = 0 ; i < dimBlock ; ++i ) {
+      for ( integer i = 0 ; i < n ; ++i ) {
         stream << setw(8) << blk[i] ;
-        for ( integer j = 1 ; j < 2*dimBlock ; ++j )
-          stream << ' ' << setw(8) << blk[i+j*dimBlock] ;
+        for ( integer j = 1 ; j < 2*n ; ++j )
+          stream << ' ' << setw(8) << blk[i+j*n] ;
         stream << '\n' ;
       }
     }
