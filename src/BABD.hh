@@ -94,6 +94,7 @@ namespace alglin {
 
     ColrowLU<t_Value> colrow_LU ;
     ArcecoLU<t_Value> arceco_LU ;
+
     // -------------------------
     AmodioLU<t_Value>     amodio_LU ;
     BlockLU<t_Value>      block_LU ;

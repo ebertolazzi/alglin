@@ -134,13 +134,13 @@ namespace alglin {
 
     //! load matrix in the class
     /*!
-      \param nblk number of (square) blocks
-      \param n    size of the blocks
-      \param q    extra bc
-      \param AdAu pointer to the blocks diagonal ad upper diagonal
-      \param H0   pointer to the block \f$ H_0 \f$
-      \param HN   pointer to the block \f$ H_N \f$
-      \param Hq   pointer to the block \f$ H_q \f$
+      \param nblock number of (square) blocks
+      \param n      size of the blocks
+      \param q      extra bc
+      \param AdAu   pointer to the blocks diagonal ad upper diagonal
+      \param H0     pointer to the block \f$ H_0 \f$
+      \param HN     pointer to the block \f$ H_N \f$
+      \param Hq     pointer to the block \f$ H_q \f$
       \code
       Matrix structure
       

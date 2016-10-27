@@ -24,11 +24,13 @@
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 #pragma GCC diagnostic ignored "-Wshadow"
 #pragma GCC diagnostic ignored "-Wpadded"
+#pragma GCC diagnostic ignored "-Wweak-template-vtables"
 #endif
 #ifdef __clang__
 #pragma clang diagnostic ignored "-Wsign-conversion"
 #pragma clang diagnostic ignored "-Wshadow"
 #pragma clang diagnostic ignored "-Wpadded"
+#pragma clang diagnostic ignored "-Wweak-template-vtables"
 #endif
 
 /*\
@@ -137,14 +139,16 @@ namespace alglin {
   template <typename QR_type>
   void
   CyclicReductionQR<QR_type>::allocate( integer _nblock, integer _n ) {
+  
+    if ( _nblock == this->nblock && this->n == _n ) return ;
 
-    if ( _nblock == nblock && n == _n ) return ;
+    BlockBidiagonal<valueType>::allocate( _nblock, _n ) ;
 
-    nblock = _nblock ;
-    n      = _n ;
-    nx2    = 2*n ;
-    nxn    = n*n ;
-    nxnx2  = nxn*2 ;
+    integer & nblock = this->nblock ;
+    integer & n      = this->n ;
+    integer & nxn    = this->nxn ;
+    integer & nx2    = this->nx2 ;
+    integer & nxnx2  = this->nxnx2 ;
 
     integer mem = nblock*nxnx2+4*nxn+nx2 ;
 
@@ -152,9 +156,9 @@ namespace alglin {
     mem += (4*nxn+nx2)*CYCLIC_REDUCTION_MAX_THREAD ;
     #endif
     baseValue.allocate(size_t(mem)) ;
-    AdAu_blk = baseValue(size_t(nblock*nxnx2)) ;
-    M_2n_2n  = baseValue(size_t(4*nxn)) ;
-    v_nx2    = baseValue(size_t(nx2)) ;
+    this->AdAu_blk = baseValue(size_t(nblock*nxnx2)) ;
+    M_2n_2n        = baseValue(size_t(4*nxn)) ;
+    v_nx2          = baseValue(size_t(nx2)) ;
 
     #ifdef CYCLIC_REDUCTION_USE_THREAD
     for ( integer nth = 0 ; nth < CYCLIC_REDUCTION_MAX_THREAD ; ++nth ) {
@@ -212,6 +216,13 @@ namespace alglin {
   template <typename QR_type>
   void
   CyclicReductionQR<QR_type>::reduce() {
+
+    integer & nblock = this->nblock ;
+    integer & n      = this->n ;
+    integer & nxn    = this->nxn ;
+    integer & nx2    = this->nx2 ;
+    integer & nxnx2  = this->nxnx2 ;
+
     jump_block = 1 ;
 
     #ifdef CYCLIC_REDUCTION_USE_THREAD
@@ -238,8 +249,8 @@ namespace alglin {
          |        +-----+-----+
         \*/
 
-        valuePointer E  = AdAu_blk + k  * nxnx2 ;
-        valuePointer E1 = AdAu_blk + k1 * nxnx2 ;
+        valuePointer E  = this->AdAu_blk + k  * nxnx2 ;
+        valuePointer E1 = this->AdAu_blk + k1 * nxnx2 ;
         valuePointer F  = E  + nxn ;
         valuePointer F1 = E1 + nxn ;
 
@@ -277,7 +288,15 @@ namespace alglin {
   template <typename QR_type>
   void
   CyclicReductionQR<QR_type>::reduce_mt( integer nth ) {
+
+    integer & nblock = this->nblock ;
+    integer & n      = this->n ;
+    integer & nxn    = this->nxn ;
+    integer & nx2    = this->nx2 ;
+    integer & nxnx2  = this->nxnx2 ;
+
     valuePointer M = M_2n_2n_mt[nth] ;
+
     while ( jump_block < jump_block_max_mt ) {
 
       integer k_step = 2*usedThread*jump_block ;
@@ -294,8 +313,8 @@ namespace alglin {
          |        +-----+-----+
         \*/
 
-        valuePointer E  = AdAu_blk + k  * nxnx2 ;
-        valuePointer E1 = AdAu_blk + k1 * nxnx2 ;
+        valuePointer E  = this->AdAu_blk + k  * nxnx2 ;
+        valuePointer E1 = this->AdAu_blk + k1 * nxnx2 ;
         valuePointer F  = E  + nxn ;
         valuePointer F1 = E1 + nxn ;
 
@@ -351,6 +370,10 @@ namespace alglin {
   template <typename QR_type>
   void
   CyclicReductionQR<QR_type>::forward( valuePointer y ) const {
+
+    integer const & nblock = this->nblock ;
+    integer const & n      = this->n ;
+
     /*\
      | !!!!!!!!!!!!!!!!!!!!!!!!!
      | !!!! reduction phase !!!!
@@ -398,6 +421,10 @@ namespace alglin {
   template <typename QR_type>
   void
   CyclicReductionQR<QR_type>::forward_mt( integer nth ) const {
+
+    integer const & nblock = this->nblock ;
+    integer const & n      = this->n ;
+
     valuePointer v_tmp = v_nx2_mt[nth] ;
     while ( jump_block < jump_block_max_mt ) {
 
@@ -444,13 +471,19 @@ namespace alglin {
   template <typename QR_type>
   void
   CyclicReductionQR<QR_type>::backward( valuePointer y, integer jump_block_min ) const {
+
+    integer const & nblock = this->nblock ;
+    integer const & n      = this->n ;
+    integer const & nxn    = this->nxn ;
+    integer const & nxnx2  = this->nxnx2 ;
+
     while ( jump_block > jump_block_min ) {
       integer k_step = 2*jump_block ;
       integer kend   = nblock-jump_block ;
       for ( integer k = 0 ; k < kend ; k += k_step ) {
         integer      k1 = k+jump_block ;
         integer      k2 = min(k1+jump_block,nblock) ;
-        valuePointer E1 = AdAu_blk + k1 * nxnx2 ;
+        valuePointer E1 = this->AdAu_blk + k1 * nxnx2 ;
         valuePointer F1 = E1 + nxn ;
 
         QR_type const & QR = *QR_blk[k1] ;
@@ -483,6 +516,11 @@ namespace alglin {
   void
   CyclicReductionQR<QR_type>::backward_mt( integer nth ) const {
 
+    integer const & nblock = this->nblock ;
+    integer const & n      = this->n ;
+    integer const & nxn    = this->nxn ;
+    integer const & nxnx2  = this->nxnx2 ;
+
     while ( jump_block > 0 ) {
 
       integer k_step = 2*usedThread*jump_block ;
@@ -492,7 +530,7 @@ namespace alglin {
       for ( integer k = k0 ; k < kend ; k += k_step ) {
         integer      k1 = k+jump_block ;
         integer      k2 = min(k1+jump_block,nblock) ;
-        valuePointer E1 = AdAu_blk + k1 * nxnx2 ;
+        valuePointer E1 = this->AdAu_blk + k1 * nxnx2 ;
         valuePointer F1 = E1 + nxn ;
 
         QR_type const & QR = *QR_blk[k1] ;
@@ -532,7 +570,11 @@ namespace alglin {
   template <typename QR_type>
   void
   CyclicReductionQR<QR_type>::backward( valuePointer y ) const {
+
+    integer const & nblock = this->nblock ;
+
     for ( jump_block = 1 ; jump_block < nblock ; jump_block *= 2 ) {}
+
     jump_block /= 2 ;
     #ifdef CYCLIC_REDUCTION_USE_THREAD
     if ( usedThread > 0 ) {

@@ -24,11 +24,13 @@
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 #pragma GCC diagnostic ignored "-Wshadow"
 #pragma GCC diagnostic ignored "-Wpadded"
+#pragma GCC diagnostic ignored "-Wweak-template-vtables"
 #endif
 #ifdef __clang__
 #pragma clang diagnostic ignored "-Wsign-conversion"
 #pragma clang diagnostic ignored "-Wshadow"
 #pragma clang diagnostic ignored "-Wpadded"
+#pragma clang diagnostic ignored "-Wweak-template-vtables"
 #endif
 
 /*\
@@ -258,22 +260,25 @@ namespace alglin {
   void
   CyclicReduction<t_Value>::allocate( integer _nblock, integer _n ) {
 
-    nblock = _nblock ;
-    n      = _n ;
-    nx2    = 2*n ;
-    nxn    = n*n ;
-    nxnx2  = nxn*2 ;
+    if ( _nblock == this->nblock && this->n == _n ) return ;
 
-    integer nnzG    = (nblock-1)*nxn ;
-    integer nnzADAU = nblock*nxnx2 ;
+    BlockBidiagonal<t_Value>::allocate( _nblock, _n ) ;
+
+    integer & nblock = this->nblock ;
+    integer & n      = this->n ;
+    integer & nxn    = this->nxn ;
+    integer & nx2    = this->nx2 ;
+    integer & nxnx2  = this->nxnx2 ;
+    
+    integer nnzG = (nblock-1)*nxn ;
 
     #ifdef CYCLIC_REDUCTION_USE_THREAD
     integer nnzLU = numThread*nxnx2 ;
     #else
-    integer nnzLU = n*n ;
+    integer nnzLU = nxnx2 ;
     #endif
 
-    integer nv = nnzG + nnzADAU + nnzLU ;
+    integer nv = nnzG + nnzLU ;
     integer ni = nblock*n ;
 
     #ifdef CYCLIC_REDUCTION_USE_THREAD
@@ -285,14 +290,8 @@ namespace alglin {
     baseValue   . allocate(size_t(nv)) ;
     baseInteger . allocate(size_t(ni)) ;
 
-    AdAu_blk = baseValue(size_t( nnzADAU )) ;
-    G_blk    = baseValue(size_t( nnzG )) - nxn ; // 1 based
-
-    #ifdef CYCLIC_REDUCTION_USE_THREAD
-    tmpM = baseValue(size_t( numThread*nxnx2 )) ;
-    #else
-    tmpM = baseValue(size_t( nxnx2 )) ;
-    #endif
+    G_blk = baseValue(size_t(nnzG)) - nxn ; // 1 based
+    tmpM  = baseValue(size_t(nnzLU)) ;
 
     ipiv_blk = baseInteger(size_t( nblock*n )) ;
 
@@ -344,6 +343,13 @@ namespace alglin {
   template <typename t_Value>
   void
   CyclicReduction<t_Value>::reduce() {
+
+    integer      & nblock   = this->nblock ;
+    integer      & n        = this->n ;
+    integer      & nxn      = this->nxn ;
+    integer      & nxnx2    = this->nxnx2 ;
+    valuePointer & AdAu_blk = this->AdAu_blk ;
+
     jump_block = 1 ;
 
     #ifdef CYCLIC_REDUCTION_USE_THREAD
@@ -484,6 +490,13 @@ namespace alglin {
   template <typename t_Value>
   void
   CyclicReduction<t_Value>::reduce_mt( integer nth ) {
+
+    integer      & nblock   = this->nblock ;
+    integer      & n        = this->n ;
+    integer      & nxn      = this->nxn ;
+    integer      & nxnx2    = this->nxnx2 ;
+    valuePointer & AdAu_blk = this->AdAu_blk ;
+
     valuePointer EE = tmpM+nth*nxnx2 ;
     valuePointer FF = EE+nxn ;
 
@@ -601,6 +614,11 @@ namespace alglin {
   template <typename t_Value>
   void
   CyclicReduction<t_Value>::forward( valuePointer y ) const {
+
+    integer const & nblock = this->nblock ;
+    integer const & n      = this->n ;
+    integer const & nxn    = this->nxn ;
+
     /*\
      | !!!!!!!!!!!!!!!!!!!!!!!!!
      | !!!! reduction phase !!!!
@@ -687,6 +705,11 @@ namespace alglin {
   template <typename t_Value>
   void
   CyclicReduction<t_Value>::forward_mt( integer nth ) const {
+
+    integer const & nblock = this->nblock ;
+    integer const & n      = this->n ;
+    integer const & nxn    = this->nxn ;
+
     while ( jump_block < jump_block_max_mt ) {
 
       integer k_step = 2*usedThread*jump_block ;
@@ -742,13 +765,19 @@ namespace alglin {
   template <typename t_Value>
   void
   CyclicReduction<t_Value>::backward( valuePointer y, integer jump_block_min ) const {
+
+    integer const & nblock = this->nblock ;
+    integer const & n      = this->n ;
+    integer const & nxn    = this->nxn ;
+    integer const & nxnx2  = this->nxnx2 ;
+
     while ( jump_block > jump_block_min ) {
       integer k_step = 2*jump_block ;
       integer kend   = nblock-jump_block ;
       for ( integer k = 0 ; k < kend ; k += k_step ) {
         integer      k1  = k+jump_block ;
         integer      k2  = min(k1+jump_block,nblock) ;
-        valuePointer LU  = AdAu_blk + k1 * nxnx2 ;
+        valuePointer LU  = this->AdAu_blk + k1 * nxnx2 ;
         valuePointer Adu = LU + nxn ;
         std::vector<bool> const & LU_rows = LU_rows_blk[k1] ;
 
@@ -781,6 +810,11 @@ namespace alglin {
   void
   CyclicReduction<t_Value>::backward_mt( integer nth ) const {
 
+    integer const & nblock = this->nblock ;
+    integer const & n      = this->n ;
+    integer const & nxn    = this->nxn ;
+    integer const & nxnx2  = this->nxnx2 ;
+
     while ( jump_block > 0 ) {
 
       integer k_step = 2*usedThread*jump_block ;
@@ -791,7 +825,7 @@ namespace alglin {
 
         integer k1 = k+jump_block ;
         integer k2 = min(k1+jump_block,nblock) ;
-        valuePointer LU  = AdAu_blk + k1 * nxnx2 ;
+        valuePointer LU  = this->AdAu_blk + k1 * nxnx2 ;
         valuePointer Adu = LU + nxn ;
         std::vector<bool> const & LU_rows = LU_rows_blk[k1] ;
 
@@ -828,7 +862,12 @@ namespace alglin {
   template <typename t_Value>
   void
   CyclicReduction<t_Value>::backward( valuePointer y ) const {
+
+    integer const & nblock = this->nblock ;
+    integer const & n      = this->n ;
+
     for ( jump_block = 1 ; jump_block < nblock ; jump_block *= 2 ) {}
+
     jump_block /= 2 ;
     #ifdef CYCLIC_REDUCTION_USE_THREAD
     if ( usedThread > 0 ) {

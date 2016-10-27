@@ -41,7 +41,6 @@
   #define BABD_QR_N_USE_PIVOTING
 #endif
 
-
 #endif
 
 ///

@@ -20,9 +20,7 @@
 #ifndef CYCLIC_REDUCTION_HH
 #define CYCLIC_REDUCTION_HH
 
-#include "Alglin.hh"
-#include "Alglin++.hh"
-
+#include "BlockBidiagonal.hh"
 #include <vector>
 
 #ifdef __GCC__
@@ -84,7 +82,7 @@ namespace alglin {
    *
    */
   template <typename t_Value>
-  class CyclicReduction {
+  class CyclicReduction : public BlockBidiagonal<t_Value> {
   private:
 
     typedef t_Value         valueType ;
@@ -97,9 +95,6 @@ namespace alglin {
 
     CyclicReduction(CyclicReduction const &) ;
     CyclicReduction const & operator = (CyclicReduction const &) ;
-
-    integer nblock ; //!< total number of blocks
-    integer n      ; //!< size of square blocks
 
     /*
     //
@@ -131,7 +126,6 @@ namespace alglin {
 
     ///////////////////////////////////////////////////////
     valuePointer G_blk ;
-    valuePointer AdAu_blk ;
     valuePointer tmpM ;
 
     integer * ipiv_blk ;
@@ -182,14 +176,11 @@ namespace alglin {
 
     mutable integer jump_block ;
 
-    // some derived constants
-    integer nx2 ;
-    integer nxn ;
-    integer nxnx2 ;
-
     integer NB ; // blocking factor
 
   public:
+
+    using BlockBidiagonal<t_Value>::reduce ;
 
     #ifdef CYCLIC_REDUCTION_USE_THREAD
     explicit
@@ -202,55 +193,9 @@ namespace alglin {
     ~CyclicReduction() ;
 
     //! load matrix in the class
-    void allocate( integer nblk, integer n ) ;
-
-    integer getNblock() const { return nblock ; }
-    integer getN() const { return n ; }
-
+    virtual
     void
-    loadBlock( integer           nbl,
-               valueConstPointer AdAu,
-               integer           ldA ) {
-      gecopy( n, nx2, AdAu, ldA, AdAu_blk + nbl*nxnx2, n ) ;
-    }
-
-    void
-    loadBlockLeft( integer           nbl,
-                   valueConstPointer Ad,
-                   integer           ldA ) {
-      gecopy( n, n, Ad, ldA, AdAu_blk + nbl*nxnx2, n ) ;
-    }
-    
-    void
-    loadBlockRight( integer           nbl,
-                    valueConstPointer Au,
-                    integer           ldA ) {
-      gecopy( n, n, Au, ldA, AdAu_blk + nbl*nxnx2 + nxn, n ) ;
-    }
-
-    valueConstPointer getPointer_LR() const { return AdAu_blk ; }
-
-    void
-    getBlock_LR( valuePointer LR, integer ldA ) const
-    { gecopy( n, nx2, AdAu_blk, n, LR, ldA ) ; }
-
-    void
-    getBlock_L( valuePointer L, integer ldA ) const
-    { gecopy( n, n, AdAu_blk, n, L, ldA ) ; }
-    
-    void
-    getBlock_R( valuePointer R, integer ldA ) const
-    { gecopy( n, n, AdAu_blk+nxn, n, R, ldA ) ; }
-
-    //! load matrix in the class
-    void
-    reduce( integer           _nblk,
-            integer           _n,
-            valueConstPointer AdAu ) {
-      allocate( _nblk, _n ) ;
-      copy( nblock*nxnx2, AdAu, 1, AdAu_blk, 1 ) ;
-      reduce() ;
-    }
+    allocate( integer nblk, integer n ) ;
 
     /*
     //
@@ -287,7 +232,7 @@ namespace alglin {
     //                 | yn |
     //                 +----+
     */
-    void reduce() ;
+    virtual void reduce() ;
 
     /*
     //  Apply reduction to the RHS of the linear system.
@@ -300,12 +245,12 @@ namespace alglin {
     //                 | yn |   | cn |
     //                 +----+   +----+
     */
-    void forward( valuePointer rhs ) const ;
+    virtual void forward( valuePointer rhs ) const ;
 
     /*
     //  Given y1 and yn of the reduced linear system compute y2, y3, ... y(n-1)
     */
-    void backward( valuePointer y ) const ;
+    virtual void backward( valuePointer y ) const ;
 
   } ;
 }

@@ -116,7 +116,7 @@ namespace alglin {
     n = _n ;
     m = n+q ;
     last_block = choice ;
-    CR.reduce( nblock, n, AdAu ) ;
+    CR.reduce( nblock, n, AdAu, n ) ;
 
     // fattorizzazione ultimo blocco
     switch ( last_block ) {

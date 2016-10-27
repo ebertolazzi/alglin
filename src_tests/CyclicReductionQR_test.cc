@@ -55,11 +55,11 @@ main() {
   tm.reset() ;
   tm.tic() ;
   //CR( nblk, n ) ;
-  CR.reduce( nblk, n, AdAu ) ;
+  CR.reduce( nblk, n, AdAu, n ) ;
 
   // q, AdAu, H0, HN, Hq ) ;
   tm.toc() ;
-  cout << "Reduction = " << tm.elapsedMilliseconds() << " [ms]\n" ;
+  cout << "Reduction (QR) = " << tm.elapsedMilliseconds() << " [ms]\n" ;
 
   tm.tic() ;
   alglin::integer nnq = 2*n+q ;
@@ -81,7 +81,7 @@ main() {
   tm.tic() ;
   CR.forward( x ) ;
   tm.toc() ;
-  cout << "\nForward = " << tm.elapsedMilliseconds() << " [ms]\n\n" ;
+  cout << "\nForward (QR) = " << tm.elapsedMilliseconds() << " [ms]\n\n" ;
 
   alglin::copy( n,   x,        1, tmp,   1 ) ;
   alglin::copy( n+q, x+nblk*n, 1, tmp+n, 1 ) ;
@@ -92,7 +92,7 @@ main() {
   tm.tic() ;
   CR.backward( x ) ;
   tm.toc() ;
-  cout << "\nBackward = " << tm.elapsedMilliseconds() << " [ms]\n\n" ;
+  cout << "\nBackward (QR) = " << tm.elapsedMilliseconds() << " [ms]\n\n" ;
 
   alglin::copy( N, xref, 1, xref1, 1 ) ;
   alglin::axpy( N, -1.0, x, 1, xref1, 1 ) ;

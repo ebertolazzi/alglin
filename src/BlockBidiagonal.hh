@@ -17,10 +17,11 @@
  |                                                                          |
 \*--------------------------------------------------------------------------*/
 
-#ifndef CYCLIC_REDUCTION_QR_HH
-#define CYCLIC_REDUCTION_QR_HH
+#ifndef BLOCK_BIDIAGONAL_HH
+#define BLOCK_BIDIAGONAL_HH
 
-#include "BlockBidiagonal.hh"
+#include "Alglin.hh"
+#include "Alglin++.hh"
 
 #ifdef __GCC__
 #pragma GCC diagnostic ignored "-Wpadded"
@@ -29,27 +30,15 @@
 #pragma clang diagnostic ignored "-Wpadded"
 #endif
 
-#include <vector>
-
-#ifdef CYCLIC_REDUCTION_USE_THREAD
-  #include <thread>
-  #include <mutex>
-  #include <condition_variable>
-  #include <atomic>
-  #ifndef CYCLIC_REDUCTION_MAX_THREAD
-    #define CYCLIC_REDUCTION_MAX_THREAD 256
-  #endif
-#endif
-
 namespace alglin {
 
   /*\
-   |   ____           _ _        ____          _            _   _
-   |  / ___|   _  ___| (_) ___  |  _ \ ___  __| |_   _  ___| |_(_) ___  _ __
-   | | |  | | | |/ __| | |/ __| | |_) / _ \/ _` | | | |/ __| __| |/ _ \| '_ \
-   | | |__| |_| | (__| | | (__  |  _ <  __/ (_| | |_| | (__| |_| | (_) | | | |
-   |  \____\__, |\___|_|_|\___| |_| \_\___|\__,_|\__,_|\___|\__|_|\___/|_| |_|
-   |       |___/
+   |  ____  _            _      ____  _     _ _                               _
+   | | __ )| | ___   ___| | __ | __ )(_) __| (_) __ _  __ _  ___  _ __   __ _| |
+   | |  _ \| |/ _ \ / __| |/ / |  _ \| |/ _` | |/ _` |/ _` |/ _ \| '_ \ / _` | |
+   | | |_) | | (_) | (__|   <  | |_) | | (_| | | (_| | (_| | (_) | | | | (_| | |
+   | |____/|_|\___/ \___|_|\_\ |____/|_|\__,_|_|\__,_|\__, |\___/|_| |_|\__,_|_|
+   |                                                  |___/
   \*/
 
   //! Cyclic reduction of a block bidiagonal matrix
@@ -68,18 +57,22 @@ namespace alglin {
    *           enrico.bertolazzi\@unitn.it
    *
    */
-  template <typename QR_type>
-  class CyclicReductionQR : public BlockBidiagonal<typename QR_type::valueType> {
+  template <typename t_Value>
+  class BlockBidiagonal {
   private:
 
-    typedef typename QR_type::valueType         valueType ;
-    typedef typename QR_type::valueType*        valuePointer ;
-    typedef typename QR_type::valueType const * valueConstPointer ;
+    typedef t_Value         valueType ;
+    typedef t_Value*        valuePointer ;
+    typedef t_Value const * valueConstPointer ;
 
     Malloc<valueType> baseValue ;
 
-    CyclicReductionQR(CyclicReductionQR const &) ;
-    CyclicReductionQR const & operator = (CyclicReductionQR const &) ;
+    BlockBidiagonal(BlockBidiagonal const &) ;
+    BlockBidiagonal const & operator = (BlockBidiagonal const &) ;
+
+  protected:
+    integer nblock ; //!< total number of blocks
+    integer n      ; //!< size of square blocks
 
     /*
     //
@@ -110,50 +103,93 @@ namespace alglin {
     */
 
     ///////////////////////////////////////////////////////
-    std::vector<QR_type*> QR_blk ;
+    valuePointer AdAu_blk ;
 
-    mutable valuePointer  M_2n_2n, v_nx2 ;
-
-    #ifdef CYCLIC_REDUCTION_USE_THREAD
-    mutable mutex              mtx0 ;
-    mutable condition_variable cond0 ;
-    mutable std::thread        threads[CYCLIC_REDUCTION_MAX_THREAD] ;
-    mutable integer            to_be_done ;
-            integer const      numThread ;
-    mutable integer            usedThread ;
-    mutable integer            jump_block_max_mt ;
-    mutable valuePointer       y_thread ;
-    
-    mutable valuePointer  M_2n_2n_mt[CYCLIC_REDUCTION_MAX_THREAD],
-                          v_nx2_mt[CYCLIC_REDUCTION_MAX_THREAD] ;
-
-    void forward_mt( integer nth ) const ;
-    void backward_mt( integer nth ) const ;
-    void reduce_mt( integer nth ) ;
-    #endif
-
-    void backward( valuePointer y, integer jump_block_min ) const ;
-
-    mutable integer jump_block ;
-
-    integer NB ; // blocking factor
+    // some derived constants
+    integer nx2 ;
+    integer nxn ;
+    integer nxnx2 ;
 
   public:
 
-    using BlockBidiagonal<valueType>::reduce ;
+    explicit
+    BlockBidiagonal()
+    : baseValue("BlockBidiagonal_values")
+    , nblock(0)
+    , n(0)
+    , nx2(0)
+    , nxn(0)
+    , nxnx2(0)
+    {}
 
-    #ifdef CYCLIC_REDUCTION_USE_THREAD
-    explicit CyclicReductionQR( integer nth = integer(std::thread::hardware_concurrency()) ) ;
-    #else
-    explicit CyclicReductionQR() ;
-    #endif
-
-    ~CyclicReductionQR() ;
+    virtual ~BlockBidiagonal()
+    {}
 
     //! load matrix in the class
     virtual
     void
-    allocate( integer nblk, integer n ) ;
+    allocate( integer _nblock, integer _n ) {
+      if ( _nblock != nblock || n != _n ) {
+        nblock = _nblock ;
+        n      = _n ;
+        nx2    = 2*n ;
+        nxn    = n*n ;
+        nxnx2  = nxn*2 ;
+        baseValue.allocate(size_t(nblock*nxnx2)) ;
+        AdAu_blk = baseValue(size_t(nblock*nxnx2)) ;
+      }
+    }
+
+    integer getNblock() const { return nblock ; }
+    integer getN() const { return n ; }
+
+    void
+    loadBlock( integer           nbl,
+               valueConstPointer AdAu,
+               integer           ldA ) {
+      gecopy( n, nx2, AdAu, ldA, AdAu_blk + nbl*nxnx2, n ) ;
+    }
+
+    void
+    loadBlockLeft( integer           nbl,
+                   valueConstPointer Ad,
+                   integer           ldA ) {
+      gecopy( n, n, Ad, ldA, AdAu_blk + nbl*nxnx2, n ) ;
+    }
+    
+    void
+    loadBlockRight( integer           nbl,
+                    valueConstPointer Au,
+                    integer           ldA ) {
+      gecopy( n, n, Au, ldA, AdAu_blk + nbl*nxnx2 + nxn, n ) ;
+    }
+
+    valueConstPointer
+    getPointer_LR() const
+    { return AdAu_blk ; }
+
+    void
+    getBlock_LR( valuePointer LR, integer ldA ) const
+    { gecopy( n, nx2, AdAu_blk, n, LR, ldA ) ; }
+
+    void
+    getBlock_L( valuePointer L, integer ldA ) const
+    { gecopy( n, n, AdAu_blk, n, L, ldA ) ; }
+    
+    void
+    getBlock_R( valuePointer R, integer ldA ) const
+    { gecopy( n, n, AdAu_blk+nxn, n, R, ldA ) ; }
+
+    //! load matrix in the class
+    void
+    reduce( integer           _nblk,
+            integer           _n,
+            valueConstPointer AdAu,
+            integer           ldAdDu ) {
+      allocate( _nblk, _n ) ;
+      gecopy( n, nblock*nx2, AdAu, ldAdDu, AdAu_blk, n ) ;
+      reduce() ;
+    }
 
     /*
     //
@@ -190,7 +226,7 @@ namespace alglin {
     //                 | yn |
     //                 +----+
     */
-    virtual void reduce() ;
+    virtual void reduce() = 0 ;
 
     /*
     //  Apply reduction to the RHS of the linear system.
@@ -203,12 +239,12 @@ namespace alglin {
     //                 | yn |   | cn |
     //                 +----+   +----+
     */
-    virtual void forward( valuePointer rhs ) const ;
+    virtual void forward( valuePointer rhs ) const = 0 ;
 
     /*
     //  Given y1 and yn of the reduced linear system compute y2, y3, ... y(n-1)
     */
-    virtual void backward( valuePointer y ) const ;
+    virtual void backward( valuePointer y ) const = 0 ;
 
   } ;
 }

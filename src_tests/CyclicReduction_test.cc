@@ -54,7 +54,7 @@ main() {
   TicToc tm ;
   tm.reset() ;
   tm.tic() ;
-  CR.reduce( nblk, n, AdAu ) ;
+  CR.reduce( nblk, n, AdAu, n ) ;
   //for ( int i = 0 ; i < 10 ; ++i ) CR.reduce( nblk, n, AdAu ) ;
   tm.toc() ;
   cout << "\nReduction = " << tm.elapsedMilliseconds() << " [ms]\n\n" ;
