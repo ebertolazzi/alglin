@@ -24,7 +24,7 @@
 #include "Alglin_aux.hh"
 #include "TicToc.hh"
 #include "ABD_Arceco.hh"
-#include "ABD_Colrow.hh"
+#include "ABD_Diaz.hh"
 
 using namespace std ;
 typedef double valueType ;
@@ -95,7 +95,7 @@ main() {
   for ( int i = 0 ; i < rowN ; ++i )
     blockN[i*(rowN+1)+colN-rowN] += diag ;
 
-  alglin::ColrowLU<valueType> LU ;
+  alglin::DiazLU<valueType>   LU ;
   alglin::ArcecoLU<valueType> LU_arceco ;
 
   cout << "N = " << N << '\n' ;
@@ -121,18 +121,12 @@ main() {
     cout << "\n\n\ntest N." << test << "\n" ;
 
     tm.tic() ;
-        LU.factorize( ch[test],
-                  row0, col0, block0,
-                  numBlock, dim, blocks,
-                  rowN, colN, blockN ) ;
-/*
-    LU.allocate( numBlock, dim ) ;
-    LU.loadBlocks( numBlock, blocks, dim ) ;
-    LU.loadTopBot( ch[test],
-                   row0, col0, block0, row0,
+    LU.allocate( numBlock, dim );
+    LU.loadBlocks( blocks, dim ) ;
+    LU.loadTopBot( row0, col0, block0, row0,
                    rowN, colN, blockN, rowN ) ;
+    LU.selectLastBlockSolver( ch[test] ) ;
     LU.factorize() ;
-    */
     tm.toc() ;
     cout << "(Colrow" << kind[test] << ") Factorize = " << tm.elapsedMilliseconds() << " [ms]\n" ;
 

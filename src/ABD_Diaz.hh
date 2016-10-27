@@ -18,11 +18,11 @@
 \*--------------------------------------------------------------------------*/
 
 ///
-/// file: ABD_Colrow.hh
+/// file: ABD_Diaz.hh
 ///
 
-#ifndef ABD_COLROW_HH
-#define ABD_COLROW_HH
+#ifndef ABD_DIAZ_HH
+#define ABD_DIAZ_HH
 
 #include "BlockBidiagonal.hh"
 #include <iostream>
@@ -67,25 +67,12 @@ namespace alglin {
                                  colN
   */
   template <typename t_Value>
-  class ColrowLU : public BlockBidiagonal<t_Value> {
+  class DiazLU : public BlockBidiagonal<t_Value> {
   public:
 
     typedef t_Value         valueType ;
     typedef t_Value*        valuePointer ;
     typedef t_Value const * valueConstPointer ;
-
-    static
-    void
-    print( std::ostream & stream,
-           integer         row0,
-           integer         col0,
-           t_Value const * block0,
-           integer         numBlock,
-           integer         n,
-           t_Value const * blocks,
-           integer         rowN,
-           integer         colN,
-           t_Value const * blockN ) ;
 
   private:
 
@@ -96,23 +83,22 @@ namespace alglin {
     QR<t_Value>  la_qr ;
     QRP<t_Value> la_qrp ;
     SVD<t_Value> la_svd ;
+    Factorization<t_Value> * la_factorization ;
 
-    LASTBLOCK_Choice last_block ;
-
-    ColrowLU( ColrowLU const & ) ;
-    ColrowLU const & operator = ( ColrowLU const & ) ;
+    DiazLU( DiazLU const & ) ;
+    DiazLU const & operator = ( DiazLU const & ) ;
 
     static valueType const epsi ;
 
-    integer      neq ;
-    integer      Nlast ;
-    integer      row0, col0 ;
-    integer      rowN, colN ;
+    integer neq ;
+    integer Nlast ;
+    integer row0, col0 ;
+    integer rowN, colN ;
 
-    integer      row00, col00 ;
-    integer      rowNN, colNN ;
-    integer      n_m_row00 ;
-    integer      NB ;
+    integer row00, col00 ;
+    integer rowNN, colNN ;
+    integer n_m_row00 ;
+    integer NB ;
 
     mutable integer nblk ;
 
@@ -137,30 +123,27 @@ namespace alglin {
                    t_Value * B, integer ldB,
                    integer swapC[] ) ;
 
-    integer *    matrixStructure ; //!< structure of the matrix
-    integer *    pivot           ; //!< permutation array
-    valuePointer array           ; //!< the matrix data
-
   public:
 
-    explicit ColrowLU() ;
-    ~ColrowLU() ;
+    explicit DiazLU() ;
+    ~DiazLU() ;
 
     //! factorize the matrix
     void
-    factorize( LASTBLOCK_Choice choice,
-               // ----------------------------
-               integer           _row0,
-               integer           _col0,
-               valueConstPointer _block0,
-               // ----------------------------
-               integer           _numBlock,
-               integer           _n,
-               valueConstPointer _blocks,
-               // ----------------------------
-               integer           _rowN,
-               integer           _colN,
-               valueConstPointer _blockN ) ;
+    selectLastBlockSolver( LASTBLOCK_Choice choice ) ;
+
+    //! factorize the matrix
+    void
+    loadTopBot( // ----------------------------
+                integer           _row0,
+                integer           _col0,
+                valueConstPointer _block0,
+                integer           ld0,
+                // ----------------------------
+                integer           _rowN,
+                integer           _colN,
+                valueConstPointer _blockN,
+                integer           ldN ) ;
     
     virtual
     void
@@ -170,8 +153,6 @@ namespace alglin {
     virtual
     void
     solve( valuePointer in_out ) const ;
-
-    void print( std::ostream & stream ) const ;
 
   } ;
 }

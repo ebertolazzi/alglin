@@ -28,7 +28,7 @@
 /// file: ABD_Colrow.cc
 ///
 
-#include "ABD_Colrow.hh"
+#include "ABD_Diaz.hh"
 #include <iomanip>
 #include <vector>
 #include <limits>
@@ -55,26 +55,35 @@
 
 namespace alglin {
 
-  template <> float  const ColrowLU<float>::epsi  = 100*std::numeric_limits<float>::epsilon() ;
-  template <> double const ColrowLU<double>::epsi = 1000*std::numeric_limits<double>::epsilon() ;
+  template <> float  const DiazLU<float>::epsi  = 100*std::numeric_limits<float>::epsilon() ;
+  template <> double const DiazLU<double>::epsi = 1000*std::numeric_limits<double>::epsilon() ;
 
   template <typename t_Value>
-  ColrowLU<t_Value>::ColrowLU()
-  : baseValue("ColrowLU_values")
-  , baseIndex("ColrowLU_integers")
-  , last_block(LASTBLOCK_LU)
-  //, last_block(COLROW_LASTBLOCK_QR)
-  //, last_block(COLROW_LASTBLOCK_SVD)
+  DiazLU<t_Value>::DiazLU()
+  : baseValue("DiazLU_values")
+  , baseIndex("DiazLU_integers")
+  , la_factorization(&la_lu)
   , NB(25)
   {
   }
   
   template <typename t_Value>
-  ColrowLU<t_Value>::~ColrowLU() {
+  DiazLU<t_Value>::~DiazLU() {
     baseValue.free() ;
     baseIndex.free() ;
   }
-  
+
+  template <typename t_Value>
+  void
+  DiazLU<t_Value>::selectLastBlockSolver( LASTBLOCK_Choice choice ) {
+    switch ( choice ) {
+      case LASTBLOCK_LU:  la_factorization = &la_lu  ; break ;
+      case LASTBLOCK_QR:  la_factorization = &la_qr  ; break ;
+      case LASTBLOCK_QRP: la_factorization = &la_qrp ; break ;
+      case LASTBLOCK_SVD: la_factorization = &la_svd ; break ;
+    }
+  }
+
   /*
   // ---------------------------------------------------------------------------
   //             col0
@@ -105,25 +114,17 @@ namespace alglin {
   */
   template <typename t_Value>
   void
-  ColrowLU<t_Value>::factorize( LASTBLOCK_Choice choice,
-                                // ----------------------------
-                                integer           _row0,
-                                integer           _col0,
-                                valueConstPointer _block0,
-                                // ----------------------------
-                                integer           _nblock,
-                                integer           _n,
-                                valueConstPointer _blocks,
-                                // ----------------------------
-                                integer           _rowN,
-                                integer           _colN,
-                                valueConstPointer _blockN ) {
-    last_block = choice ;
-    
-    this->allocate( _nblock, _n ) ;
+  DiazLU<t_Value>::loadTopBot( integer           _row0,
+                               integer           _col0,
+                               valueConstPointer _block0,
+                               integer           ld0,
+                               // ----------------------------
+                               integer           _rowN,
+                               integer           _colN,
+                               valueConstPointer _blockN,
+                               integer           ldN ) {
 
     integer & n      = this->n ;
-    integer & nxnx2  = this->nxnx2 ;
     integer & nblock = this->nblock ;
 
     row0 = _row0 ;
@@ -173,11 +174,8 @@ namespace alglin {
     swapRC_blks = baseIndex(size_t( nblock*n+row0 )) ;
 
     // copy block
-    copy( row0*col0,    _block0, 1, block0, 1 ) ;
-    copy( nxnx2*nblock, _blocks, 1, this->AdAu_blk, 1 ) ;
-    copy( rowN*colN,    _blockN, 1, blockN, 1 ) ;
-
-    factorize() ;
+    gecopy( row0, col0, _block0, ld0, block0, row0 ) ;
+    gecopy( rowN, colN, _blockN, ldN, blockN, rowN ) ;
   }
 
   /*
@@ -199,12 +197,12 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  ColrowLU<t_Value>::LU_left_right( integer nrA,
-                                    integer ncA,
-                                    integer ncL,
-                                    integer ncR,
-                                    t_Value * A, integer ldA,
-                                    integer swapR[] ) {
+  DiazLU<t_Value>::LU_left_right( integer nrA,
+                                  integer ncA,
+                                  integer ncL,
+                                  integer ncR,
+                                  t_Value * A, integer ldA,
+                                  integer swapR[] ) {
 #if 1
     integer ierr ;
     if ( 2*NB < nrA ) ierr = getry( nrA, ncA, A, ldA, swapR, NB ) ;
@@ -289,13 +287,13 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  ColrowLU<t_Value>::LU_top_bottom( integer nrT,
-                                    integer nrA,
-                                    integer ncA,
-                                    t_Value * A, integer ldA,
-                                    integer nrB,
-                                    t_Value * B, integer ldB,
-                                    integer swapC[] ) {
+  DiazLU<t_Value>::LU_top_bottom( integer nrT,
+                                  integer nrA,
+                                  integer ncA,
+                                  t_Value * A, integer ldA,
+                                  integer nrB,
+                                  t_Value * B, integer ldB,
+                                  integer swapC[] ) {
 #if 1
     integer ierr ;
     if ( 2*NB < ncA ) ierr = getrx( nrA, ncA, A, ldA, swapC, NB ) ;
@@ -375,7 +373,7 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  ColrowLU<t_Value>::factorize() {
+  DiazLU<t_Value>::factorize() {
 
     integer & n      = this->n ;
     integer & nxnx2  = this->nxnx2 ;
@@ -463,19 +461,15 @@ namespace alglin {
 
     // fattorizzazione ultimo blocco
     valuePointer D0 = blockN + row00 * rowN;
-    switch ( last_block ) {
-      case LASTBLOCK_LU:  la_lu.factorize(rowN,rowN,D0,rowN)  ; break ;
-      case LASTBLOCK_QR:  la_qr.factorize(rowN,rowN,D0,rowN)  ; break ;
-      case LASTBLOCK_QRP: la_qrp.factorize(rowN,rowN,D0,rowN) ; break ;
-      case LASTBLOCK_SVD: la_svd.factorize(rowN,rowN,D0,rowN) ; break ;
-    }
+    la_factorization->factorize(rowN,rowN,D0,rowN) ;
   }
 
   // ---------------------------------------------------------------------------
 
   template <typename t_Value>
   void
-  ColrowLU<t_Value>::solve( valuePointer in_out ) const {
+  DiazLU<t_Value>::solve( valuePointer in_out ) const {
+
     integer const & n      = this->n ;
     integer const & nxnx2  = this->nxnx2 ;
     integer const & nxn    = this->nxn      ;
@@ -545,12 +539,7 @@ namespace alglin {
           io-ncol, 1,
           1, io, 1 ) ;
 
-    switch ( last_block ) {
-      case LASTBLOCK_LU:  la_lu.solve(io)  ; break ;
-      case LASTBLOCK_QR:  la_qr.solve(io)  ; break ;
-      case LASTBLOCK_QRP: la_qrp.solve(io) ; break ;
-      case LASTBLOCK_SVD: la_svd.solve(io) ; break ;
-    }
+    la_factorization->solve(io) ;
 
     while ( nblk > 0 ) {
       --nblk ;
@@ -611,91 +600,8 @@ namespace alglin {
     }
   }
  
-  // ---------------------------------------------------------------------------
-
-  template <typename t_Value>
-  void
-  ColrowLU<t_Value>::print( std::ostream & stream ) const {
-    integer const & n      = this->n ;
-    integer const & nxnx2  = this->nxnx2 ;
-    integer const & nxn    = this->nxn      ;
-    integer const & nblock = this->nblock ;
-    cout << "\nneq         = " << neq
-         << "\nnblock      = " << nblock
-         << "\nn           = " << n
-         << "\n(row0,col0) = (" << row0 << "," << col0 << ")"
-         << "\n(rowN,colN) = (" << rowN << "," << colN << ")"
-         << "\ncol00       = " << col00
-         << "\ncolNN       = " << colNN ;
-    stream << "\nBlock 0\n" ;
-    for ( integer i = 0 ; i < row0 ; ++i ) {
-      stream << setw(8) << block0[i] ;
-      for ( integer j = 1 ; j < col0 ; ++j )
-        stream << ' ' << setw(8) << block0[i+j*row0] ;
-      stream << '\n' ;
-    }
-    for ( integer k = 0 ; k < nblock ; ++k ) {
-      stream << "Block " << k+1 << '\n' ;
-      valueConstPointer blk = this->AdAu_blk+k*nxnx2 ;
-      for ( integer i = 0 ; i < n ; ++i ) {
-        stream << setw(8) << blk[i] ;
-        for ( integer j = 1 ; j < 2*n ; ++j )
-          stream << ' ' << setw(8) << blk[i+j*n] ;
-        stream << '\n' ;
-      }
-    }
-    stream << "Block N\n" ;
-    for ( integer i = 0 ; i < rowN ; ++i ) {
-      stream << setw(8) << blockN[i] ;
-      for ( integer j = 1 ; j < colN ; ++j )
-        stream << ' ' << setw(8) << blockN[i+j*rowN] ;
-      stream << '\n' ;
-    }
-  }
-  
-  // ---------------------------------------------------------------------------
-
-  template <typename t_Value>
-  void
-  ColrowLU<t_Value>::print( std::ostream & stream,
-                            integer         row0,
-                            integer         col0,
-                            t_Value const * block0,
-                            integer         nblock,
-                            integer         n,
-                            t_Value const * blocks,
-                            integer         rowN,
-                            integer         colN,
-                            t_Value const * blockN ) {
-    integer sizeBlock = 2*n*n ;
-    stream << "Block 0\n" ;
-    for ( integer i = 0 ; i < row0 ; ++i ) {
-      stream << setw(8) << block0[i] ;
-      for ( integer j = 1 ; j < col0 ; ++j )
-        stream << ' ' << setw(8) << block0[i+j*row0] ;
-      stream << '\n' ;
-    }
-    for ( integer k = 0 ; k < nblock ; ++k ) {
-      stream << "Block " << k+1 << '\n' ;
-      t_Value const * blk = blocks+k*sizeBlock ;
-      for ( integer i = 0 ; i < n ; ++i ) {
-        stream << setw(8) << blk[i] ;
-        for ( integer j = 1 ; j < 2*n ; ++j )
-          stream << ' ' << setw(8) << blk[i+j*n] ;
-        stream << '\n' ;
-      }
-    }
-    stream << "Block N\n" ;
-    for ( integer i = 0 ; i < rowN ; ++i ) {
-      stream << setw(8) << blockN[i] ;
-      for ( integer j = 1 ; j < colN ; ++j )
-        stream << ' ' << setw(8) << blockN[i+j*rowN] ;
-      stream << '\n' ;
-    }
-  }
-
-  template class ColrowLU<double> ;
-  template class ColrowLU<float> ;
+  template class DiazLU<double> ;
+  template class DiazLU<float> ;
 
 }
 

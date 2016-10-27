@@ -175,6 +175,7 @@ namespace alglin {
     }
 
     switch ( solver_used ) {
+    /*
     case BABD_COLROW_LU:
       colrow_LU.factorize( LASTBLOCK_LU,
                            row0, col0, &block0.front(),
@@ -198,7 +199,8 @@ namespace alglin {
                            row0, col0, &block0.front(),
                            numBlock, n, AdAu,
                            rowN, colN, &blockN.front() ) ;
-      break ;
+      break ;*/
+      //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
     case BABD_ARCECO:
       arceco_LU.factorize( row0, col0, &block0.front(),
                            numBlock, n, AdAu,
@@ -246,7 +248,7 @@ namespace alglin {
     case BABD_COLROW_QRP:
     case BABD_COLROW_SVD:
       shift(in_out) ;
-      colrow_LU.solve( in_out ) ;
+      diaz_LU.solve( in_out ) ;
       unshift(in_out) ;
       break ;
     case BABD_ARCECO:

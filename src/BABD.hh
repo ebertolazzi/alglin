@@ -23,7 +23,7 @@
 #include "Alglin.hh"
 #include "Alglin++.hh"
 
-#include "ABD_Colrow.hh"
+#include "ABD_Diaz.hh"
 #include "ABD_Arceco.hh"
 #include "BABD_Amodio.hh"
 #include "BABD_Block.hh"
@@ -92,7 +92,7 @@ namespace alglin {
     std::vector<valueType> block0 ;
     std::vector<valueType> blockN ;
 
-    ColrowLU<t_Value> colrow_LU ;
+    DiazLU<t_Value>   diaz_LU ;
     ArcecoLU<t_Value> arceco_LU ;
 
     // -------------------------

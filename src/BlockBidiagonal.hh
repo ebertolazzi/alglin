@@ -159,9 +159,14 @@ namespace alglin {
     integer getN() const { return n ; }
 
     void
-    loadBlocks( integer           nbl,
-                valueConstPointer AdAu,
-                integer           ldA ) {
+    loadBlocks( valueConstPointer AdAu, integer ldA ) {
+      gecopy( n, nblock * nx2, AdAu, ldA, AdAu_blk, n ) ;
+    }
+
+    void
+    loadBlock( integer           nbl,
+               valueConstPointer AdAu,
+               integer           ldA ) {
       gecopy( n, nx2, AdAu, ldA, AdAu_blk + nbl*nxnx2, n ) ;
     }
 
