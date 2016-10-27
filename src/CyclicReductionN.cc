@@ -635,25 +635,6 @@ namespace alglin {
 
   template class CyclicReduction<float>::FixedSize<10> ;
   template class CyclicReduction<double>::FixedSize<10> ;
-
-  template class CyclicReduction<float>::FixedSize<11> ;
-  template class CyclicReduction<double>::FixedSize<11> ;
-
-  template class CyclicReduction<float>::FixedSize<12> ;
-  template class CyclicReduction<double>::FixedSize<12> ;
-
-  template class CyclicReduction<float>::FixedSize<13> ;
-  template class CyclicReduction<double>::FixedSize<13> ;
-
-  template class CyclicReduction<float>::FixedSize<14> ;
-  template class CyclicReduction<double>::FixedSize<14> ;
-
-  template class CyclicReduction<float>::FixedSize<15> ;
-  template class CyclicReduction<double>::FixedSize<15> ;
-
-  template class CyclicReduction<float>::FixedSize<16> ;
-  template class CyclicReduction<double>::FixedSize<16> ;
-
 }
 
 #endif

@@ -23,6 +23,13 @@
 #include "Alglin.hh"
 #include "Alglin++.hh"
 
+#ifdef __GCC__
+#pragma GCC diagnostic ignored "-Wpadded"
+#endif
+#ifdef __clang__
+#pragma clang diagnostic ignored "-Wpadded"
+#endif
+
 #include <vector>
 
 #ifdef CYCLIC_REDUCTION_USE_THREAD
@@ -108,13 +115,12 @@ namespace alglin {
 
     ///////////////////////////////////////////////////////
     std::vector<QR_type*> QR_blk ;
-    QR_type               QR_last_blk ; // last QR and working space
     valuePointer          AdAu_blk ;
 
     mutable valuePointer  M_2n_2n, v_nx2 ;
 
     #ifdef CYCLIC_REDUCTION_USE_THREAD
-    mutable mutex              mtx0, mtx1, mtx2 ;
+    mutable mutex              mtx0 ;
     mutable condition_variable cond0 ;
     mutable std::thread        threads[CYCLIC_REDUCTION_MAX_THREAD] ;
     mutable integer            to_be_done ;

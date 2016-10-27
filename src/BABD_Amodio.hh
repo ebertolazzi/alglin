@@ -72,6 +72,7 @@ namespace alglin {
 
     mutable vector<t_Value>  tmpV ;
     CyclicReduction<t_Value> CR ;
+
     LU<t_Value>  la_lu ;
     QR<t_Value>  la_qr ;
     QRP<t_Value> la_qrp ;

@@ -19,9 +19,11 @@
 
 #ifdef __GCC__
 #pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wpadded"
 #endif
 #ifdef __clang__
 #pragma clang diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wpadded"
 #endif
 
 #include "Alglin_tmpl.hh"

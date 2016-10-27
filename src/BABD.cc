@@ -220,10 +220,10 @@ namespace alglin {
       block_LU.factorize( numBlock, n, q, AdAu, H0, HN, Hq ) ;
       break ;
     case BABD_CYCLIC_REDUCTION_QR:
-      babd_QR.factorize( numBlock, n, q, AdAu, H0, HN, Hq ) ;
+      babd_QR.factorize( BABD_QR_LASTBLOCK_QR, numBlock, n, q, AdAu, H0, HN, Hq ) ;
       break ;
     case BABD_CYCLIC_REDUCTION_QRP:
-      babd_QRP.factorize( numBlock, n, q, AdAu, H0, HN, Hq ) ;
+      babd_QRP.factorize( BABD_QR_LASTBLOCK_QRP, numBlock, n, q, AdAu, H0, HN, Hq ) ;
       break ;
     case BABD_AUTOMATIC:
       ALGLIN_ERROR("BABD<t_Value>::factorize -- no solver selected") ;

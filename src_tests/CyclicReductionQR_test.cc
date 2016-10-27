@@ -78,13 +78,21 @@ main() {
   lu.factorize( nnq, nnq, LB, nnq ) ;
 
   std::copy( rhs, rhs+N, x ) ;
+  tm.tic() ;
   CR.forward( x ) ;
+  tm.toc() ;
+  cout << "\nForward = " << tm.elapsedMilliseconds() << " [ms]\n\n" ;
+
   alglin::copy( n,   x,        1, tmp,   1 ) ;
   alglin::copy( n+q, x+nblk*n, 1, tmp+n, 1 ) ;
   lu.solve(tmp) ;
   alglin::copy( n,   tmp,   1, x,        1 ) ;
   alglin::copy( n+q, tmp+n, 1, x+nblk*n, 1 ) ;
+
+  tm.tic() ;
   CR.backward( x ) ;
+  tm.toc() ;
+  cout << "\nBackward = " << tm.elapsedMilliseconds() << " [ms]\n\n" ;
 
   alglin::copy( N, xref, 1, xref1, 1 ) ;
   alglin::axpy( N, -1.0, x, 1, xref1, 1 ) ;

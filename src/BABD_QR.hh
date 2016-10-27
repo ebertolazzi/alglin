@@ -20,23 +20,20 @@
 #ifndef LU_BABD_QR_HH
 #define LU_BABD_QR_HH
 
-#include "Alglin.hh"
-#include "Alglin++.hh"
+#include "CyclicReductionQR.hh"
 #include <vector>
-
-#ifdef BABD_QR_USE_THREAD
-  #include <thread>
-  #include <mutex>
-  #include <condition_variable>
-  #include <atomic>
-  #ifndef BABD_QR_MAX_THREAD
-    #define BABD_QR_MAX_THREAD 256
-  #endif
-#endif
 
 namespace alglin {
 
   using namespace std ;
+
+  //! available LU factorization code
+  typedef enum {
+    BABD_QR_LASTBLOCK_LU  = 0,
+    BABD_QR_LASTBLOCK_QR  = 1,
+    BABD_QR_LASTBLOCK_QRP = 2,
+    BABD_QR_LASTBLOCK_SVD = 3
+  } BABD_QR_LASTBLOCK_Choice;
 
   /*
   //    ___  ____
@@ -70,22 +67,8 @@ namespace alglin {
     typedef typename QR_type::valueType*        valuePointer ;
     typedef typename QR_type::valueType const * valueConstPointer ;
 
-    Malloc<valueType> baseValue ;
-
     BabdQR(BabdQR const &) ;
     BabdQR const & operator = (BabdQR const &) ;
-
-    integer nblock ; //!< total number of blocks
-    integer n      ; //!< size of square blocks
-    integer m      ; //!< number final rows (m>=n)
-
-    // some derived constanst
-    integer nx2 ;
-    integer nxn ;
-    integer nxnx2 ;
-    integer nm ;
-
-    mutable integer jump_block ;
 
     /*
     //
@@ -121,45 +104,33 @@ namespace alglin {
 
     ///////////////////////////////////////////////////////
 
-    std::vector<QR_type*> QR_blk ;
-    QR_type               QR_last_blk ; // last QR and working space
-    valuePointer          AdAu_blk ;
+    mutable vector<valueType>  tmpV ;
+    CyclicReductionQR<QR_type> CR ;
 
-    mutable valuePointer  M_2n_2n, v_nx2, v_nm ;
+    LU<valueType>  la_lu ;
+    QR<valueType>  la_qr ;
+    QRP<valueType> la_qrp ;
+    SVD<valueType> la_svd ;
 
-    #ifdef BABD_QR_USE_THREAD
-    mutable mutex              mtx0, mtx1, mtx2 ;
-    mutable condition_variable cond0 ;
-    mutable std::thread        threads[BABD_QR_MAX_THREAD] ;
-    mutable integer            to_be_done ;
-            integer const      numThread ;
-    mutable integer            usedThread ;
-    mutable integer            jump_block_max_mt ;
-    mutable valuePointer       y_thread ;
+    integer n ;
+    integer m ;
     
-    mutable valuePointer  M_2n_2n_mt[BABD_QR_MAX_THREAD],
-                          v_nx2_mt[BABD_QR_MAX_THREAD],
-                          v_nm_mt[BABD_QR_MAX_THREAD] ;
+    Factorization<valueType> * factorization ;
 
-    void forward_reduce_mt( integer nth, valuePointer y ) const ;
-    void back_substitute_mt( integer nth, valuePointer y ) const ;
-    void reduction_mt( integer nth ) ;
-    #endif
-
-    void forward_reduce( valuePointer y ) const ;
-    void back_substitute( valuePointer y, integer jump_block_min ) const ;
-    void reduction() ;
-    void allocate( integer nblk, integer n, integer q ) ;
+    BABD_QR_LASTBLOCK_Choice last_block ;
 
   public:
 
-    #ifdef BABD_QR_USE_THREAD
-    explicit BabdQR( integer nth = integer(std::thread::hardware_concurrency()) ) ;
+    #ifdef CYCLIC_REDUCTION_USE_THREAD
+    explicit
+    BabdQR( integer nth = integer(std::thread::hardware_concurrency()) )
+    : CR(nth)
+    {}
     #else
-    explicit BabdQR() ;
+    explicit BabdQR() : CR() {}
     #endif
 
-    ~BabdQR() ;
+    ~BabdQR() {}
 
     //! load matrix in the class
     /*!
@@ -201,7 +172,9 @@ namespace alglin {
       \endcode
     */
     void
-    factorize( integer           nblk,
+    factorize( BABD_QR_LASTBLOCK_Choice choice,
+               // ----------------------------
+               integer           nblock,
                integer           n,
                integer           q,
                valueConstPointer AdAu,

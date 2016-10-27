@@ -29,8 +29,8 @@
 using namespace std ;
 typedef double valueType ;
 
-unsigned seed1 = 2 ;
-std::mt19937 generator(seed1);
+static unsigned seed1 = 2 ;
+static std::mt19937 generator(seed1);
 
 valueType
 rand( valueType xmin, valueType xmax ) {
@@ -43,40 +43,55 @@ main() {
 
   #include "LU_test.hxx"
 
-  alglin::BabdQR<alglin::QRP<valueType> > LU ;
+  cout << "nblk = " << nblk << "\n"
+       << "n    = " << n << "\n"
+       << "q    = " << q << "\n" ;
+
+
+  alglin::BabdQR<alglin::QR<valueType> > LU ;
 
   //alglin::babd_print<valueType>( cout, nblk, n, q, AdAu, H0, HN, Hq ) ;
 
-  TicToc tm ;
-  tm.reset() ;
+  alglin::BABD_QR_LASTBLOCK_Choice ch[4] = { alglin::BABD_QR_LASTBLOCK_LU,
+                                             alglin::BABD_QR_LASTBLOCK_QR,
+                                             alglin::BABD_QR_LASTBLOCK_QRP,
+                                             alglin::BABD_QR_LASTBLOCK_SVD } ;
 
-  tm.tic() ;
-  LU.factorize( nblk, n, q, AdAu, H0, HN, Hq ) ;
-  tm.toc() ;
-  cout << "Factorize (QR) = " << tm.elapsedMilliseconds() << " [ms]\n" ;
+  char const * kind[] = { "LU", "QR", "QRP", "SVD" } ;
 
-  tm.tic() ;
-  //for ( int k = 0 ; k < 10 ; ++k ) {
-    std::copy( rhs, rhs+N, x ) ;
-    LU.solve( x ) ;
-  //}
-  tm.toc() ;
-  cout << "Solve (QR) = " << tm.elapsedMilliseconds() << " [ms]\n" ;
+  for ( int test = 0 ; test < 3 ; ++test ) {
+    cout << "\n\n\ntest N." << test << "\n" ;
+    TicToc tm ;
+    tm.reset() ;
 
-  //for ( alglin::integer i = 0 ; i < N ; ++i )
-  //  cout << "x[" << i << "] = " << x[i] << '\n' ;
+    tm.tic() ;
+    LU.factorize( ch[test], nblk, n, q, AdAu, H0, HN, Hq ) ;
+    tm.toc() ;
+    cout << "Factorize (BabdQR" << kind[test] << ") = " << tm.elapsedMilliseconds() << " [ms]\n" ;
 
-  alglin::copy( N, xref, 1, xref1, 1 ) ;
-  alglin::axpy( N, -1.0, x, 1, xref1, 1 ) ;
-  cout << "Check |err|_inf = " << alglin::absmax( N, xref1, 1 ) << '\n' ;
+    tm.tic() ;
+    //for ( int k = 0 ; k < 10 ; ++k ) {
+      std::copy( rhs, rhs+N, x ) ;
+      LU.solve( x ) ;
+    //}
+    tm.toc() ;
+    cout << "Solve (BabdQR" << kind[test] << ") = " << tm.elapsedMilliseconds() << " [ms]\n" ;
 
-  alglin::babd_residue<valueType>( nblk, n, q, AdAu, H0, HN, Hq,
-                                   rhs, 1, x, 1, resid, 1 ) ;
+    //for ( alglin::integer i = 0 ; i < N ; ++i )
+    //  cout << "x[" << i << "] = " << x[i] << '\n' ;
 
-  cout << "Check |r|_inf = " << alglin::absmax( N, resid, 1 ) << '\n' ;
+    alglin::copy( N, xref, 1, xref1, 1 ) ;
+    alglin::axpy( N, -1.0, x, 1, xref1, 1 ) ;
+    cout << "Check |err|_inf = " << alglin::absmax( N, xref1, 1 ) << '\n' ;
 
-  LU.solve( resid ) ;
-  alglin::axpy( N, +1.0, resid, 1, x, 1 ) ;
+    alglin::babd_residue<valueType>( nblk, n, q, AdAu, H0, HN, Hq,
+                                     rhs, 1, x, 1, resid, 1 ) ; 
+
+    cout << "Check |r|_inf = " << alglin::absmax( N, resid, 1 ) << '\n' ;
+
+    //LU.solve( resid ) ;
+    //alglin::axpy( N, +1.0, resid, 1, x, 1 ) ;
+  }
 
   cout << "All done!\n" ;
 

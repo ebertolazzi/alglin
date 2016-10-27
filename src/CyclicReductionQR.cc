@@ -22,10 +22,12 @@
 
 #ifdef __GCC__
 #pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wshadow"
 #pragma GCC diagnostic ignored "-Wpadded"
 #endif
 #ifdef __clang__
 #pragma clang diagnostic ignored "-Wsign-conversion"
+#pragma clang diagnostic ignored "-Wshadow"
 #pragma clang diagnostic ignored "-Wpadded"
 #endif
 
@@ -87,13 +89,6 @@
  |
 \*/
 
-#ifdef __GCC__
-#pragma GCC diagnostic ignored "-Wsign-conversion"
-#endif
-#ifdef __clang__
-#pragma clang diagnostic ignored "-Wsign-conversion"
-#endif
-
 namespace alglin {
 
   using namespace std ;
@@ -107,24 +102,24 @@ namespace alglin {
    |       |___/
   \*/
 
-  #ifdef CYCLIC_REDUCTION_USE_THREAD
   template <typename QR_type>
+  #ifdef CYCLIC_REDUCTION_USE_THREAD
   CyclicReductionQR<QR_type>::CyclicReductionQR( integer nth )
+  #else
+  CyclicReductionQR<QR_type>::CyclicReductionQR()
+  #endif
   : baseValue("CyclicReductionQR_value")
+  #ifdef CYCLIC_REDUCTION_USE_THREAD
   , numThread(nth)
+  #endif
   , NB(25)
   {
+    #ifdef CYCLIC_REDUCTION_USE_THREAD
     ALGLIN_ASSERT( numThread > 0 && numThread <= CYCLIC_REDUCTION_MAX_THREAD,
                    "Bad number of thread specification [" << numThread << "]\n"
                    "must be a number > 0 and <= " << CYCLIC_REDUCTION_MAX_THREAD ) ;
+    #endif
   }
-  #else
-  template <typename QR_type>
-  CyclicReductionQR<QR_type>::CyclicReductionQR()
-  : baseValue("CyclicReduction_value")
-  , NB(25)
-  { }
-  #endif
 
   template <typename QR_type>
   CyclicReductionQR<QR_type>::~CyclicReductionQR() {
