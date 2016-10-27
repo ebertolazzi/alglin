@@ -47,15 +47,14 @@ main() {
        << "n    = " << n << "\n"
        << "q    = " << q << "\n" ;
 
-
   alglin::AmodioLU<valueType> LU ;
 
   //alglin::babd_print<valueType>( cout, nblk, n, q, AdAu, H0, HN, Hq ) ;
 
-  alglin::AMODIO_LASTBLOCK_Choice ch[4] = { alglin::AMODIO_LASTBLOCK_LU,
-                                            alglin::AMODIO_LASTBLOCK_QR,
-                                            alglin::AMODIO_LASTBLOCK_QRP,
-                                            alglin::AMODIO_LASTBLOCK_SVD } ;
+  alglin::LASTBLOCK_Choice ch[4] = { alglin::LASTBLOCK_LU,
+                                     alglin::LASTBLOCK_QR,
+                                     alglin::LASTBLOCK_QRP,
+                                     alglin::LASTBLOCK_SVD } ;
   char const * kind[] = { "LU", "QR", "QRP", "SVD" } ;
 
   for ( int test = 0 ; test < 3 ; ++test ) {
@@ -64,7 +63,12 @@ main() {
     tm.reset() ;
 
     tm.tic() ;
-    LU.factorize( ch[test], nblk, n, q, AdAu, H0, HN, Hq ) ;
+    LU.allocate( nblk, n );
+    LU.loadBlocks( AdAu, n ) ;
+    LU.loadBottom( q, H0, n+q, HN, n+q, Hq, n+q ) ;
+    LU.selectLastBlockSolver( ch[test] ) ;
+    LU.factorize() ;
+
     tm.toc() ;
     cout << "Factorize (Amodio" << kind[test] << ") = " << tm.elapsedMilliseconds() << " [ms]\n" ;
 

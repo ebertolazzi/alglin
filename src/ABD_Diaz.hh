@@ -47,11 +47,29 @@ namespace alglin {
    */
   /*
       Matrix NNZ structure
+        col0-col00
+     |    +----+----+                        |
+     |    |    |    |                        | <- sizeBlock
+     |    +----+----+----+                   |
+     |         |    |    |                   |
+     |         +----+----+----+              |
+     |              |    |    |              |
+     |              +----+----+----+         |
+     |                   |    |    |         |
+     |                   +----+----+---+     |
+     |                        |        |     | <-- rowN
+     |                        | BOTTOM |     |
+     |    +----+              +--------+--+  |
+     |    | TOP|                       |  |  | <-- row0
+     |    +----+                       +--+  |
+                                colN  col00
+
+      Matrix NNZ internal structure
           col0
        |       |
      / +-------+                         \
      | |  TOP  |                         | <-- row0
-     | +-------+----+                    |
+     | +--+----+----+                    |
      |    |    |    |                    | <- sizeBlock
      |    +----+----+----+               |
      |         |    |    |               |
@@ -79,19 +97,11 @@ namespace alglin {
     Malloc<valueType> baseValue ;
     Malloc<integer>   baseIndex ;
 
-    LU<t_Value>  la_lu ;
-    QR<t_Value>  la_qr ;
-    QRP<t_Value> la_qrp ;
-    SVD<t_Value> la_svd ;
-    Factorization<t_Value> * la_factorization ;
-
     DiazLU( DiazLU const & ) ;
     DiazLU const & operator = ( DiazLU const & ) ;
 
     static valueType const epsi ;
 
-    integer neq ;
-    integer Nlast ;
     integer row0, col0 ;
     integer rowN, colN ;
 
@@ -129,22 +139,33 @@ namespace alglin {
     ~DiazLU() ;
 
     //! factorize the matrix
+    virtual
     void
-    selectLastBlockSolver( LASTBLOCK_Choice choice ) ;
+    loadTopBottom( // ----------------------------
+                   integer           _row0,
+                   integer           _col0,
+                   valueConstPointer _block0,
+                   integer           ld0,
+                   // ----------------------------
+                   integer           _rowN,
+                   integer           _colN,
+                   valueConstPointer _blockN,
+                   integer           ldN ) ;
 
-    //! factorize the matrix
+    virtual
     void
-    loadTopBot( // ----------------------------
-                integer           _row0,
-                integer           _col0,
-                valueConstPointer _block0,
-                integer           ld0,
-                // ----------------------------
-                integer           _rowN,
-                integer           _colN,
-                valueConstPointer _blockN,
-                integer           ldN ) ;
-    
+    loadBC( integer numInitialBc,
+            integer numFinalBc,
+            integer numCyclicBC,
+            // ----------------------
+            integer numInitialETA,
+            integer numFinalETA,
+            integer numCyclicOMEGA,
+            // ----------------------
+            valueConstPointer H0, integer ld0,
+            valueConstPointer HN, integer ldN,
+            valueConstPointer Hq, integer ldQ ) ;
+
     virtual
     void
     factorize() ;
@@ -160,6 +181,6 @@ namespace alglin {
 #endif
 
 ///
-/// eof: ABD_Colrow.hh
+/// eof: ABD_Diaz.hh
 ///
 

@@ -31,12 +31,125 @@ namespace alglin {
 
   using namespace std ;
   
-  /*    __            _             _         
-  //   / _| __ _  ___| |_ ___  _ __(_)_______ 
-  //  | |_ / _` |/ __| __/ _ \| '__| |_  / _ \
-  //  |  _| (_| | (__| || (_) | |  | |/ /  __/
-  //  |_|  \__,_|\___|\__\___/|_|  |_/___\___|
-  */
+  /*\
+   |   _                 _ ____        _   _
+   |  | | ___   __ _  __| | __ )  ___ | |_| |_ ___  _ __ ___
+   |  | |/ _ \ / _` |/ _` |  _ \ / _ \| __| __/ _ \| '_ ` _ \
+   |  | | (_) | (_| | (_| | |_) | (_) | |_| || (_) | | | | | |
+   |  |_|\___/ \__,_|\__,_|____/ \___/ \__|\__\___/|_| |_| |_|
+  \*/
+
+  template <typename t_Value>
+  void
+  BlockLU<t_Value>::loadBottom( integer           q,
+                                valueConstPointer H0, integer ld0,
+                                valueConstPointer HN, integer ldN,
+                                valueConstPointer Hq, integer ldQ ) {
+
+    integer & n = this->n ;
+
+    m = n+q ;
+    H0Nq.resize( size_t(m*(n+m)) ) ;
+
+    gecopy( m, n, H0, ld0, &H0Nq[0],     m ) ;
+    gecopy( m, n, HN, ldN, &H0Nq[m*n],   m ) ;
+    gecopy( m, q, Hq, ldQ, &H0Nq[2*m*n], m ) ;
+  }
+
+  /*\
+   |   _                 _ _____           ____        _   _
+   |  | | ___   __ _  __| |_   _|__  _ __ | __ )  ___ | |_| |_ ___  _ __ ___
+   |  | |/ _ \ / _` |/ _` | | |/ _ \| '_ \|  _ \ / _ \| __| __/ _ \| '_ ` _ \
+   |  | | (_) | (_| | (_| | | | (_) | |_) | |_) | (_) | |_| || (_) | | | | | |
+   |  |_|\___/ \__,_|\__,_| |_|\___/| .__/|____/ \___/ \__|\__\___/|_| |_| |_|
+   |                                |_|
+  \*/
+
+  template <typename t_Value>
+  void
+  BlockLU<t_Value>::loadTopBottom( // ----------------------------
+                                   integer           row0,
+                                   integer           col0,
+                                   valueConstPointer block0,
+                                   integer           ld0,
+                                   // ----------------------------
+                                   integer           rowN,
+                                   integer           colN,
+                                   valueConstPointer blockN,
+                                   integer           ldN ) {
+
+    integer & n = this->n ;
+
+    m = col0+colN-n ;
+    
+    H0Nq.resize(size_t(m*(n+m))) ;
+    
+    /*\
+     |  +----+-----+---+
+     |  | H0 | HN  |Hq |
+     |  |    |     |   |
+     |  +----+-----+---+
+     |  +----+------+---------+
+     |  | 0  | blkN |blkN: 0  |
+     |  |blk0|  0   |    :blk0|
+     |  +----+------+---------+
+    \*/
+
+    zero( m*(n+m), &H0Nq[0], 1 ) ;
+    gecopy( rowN, colN, blockN, ldN, &H0Nq[m*n], m ) ;
+
+    valuePointer H0 = &H0Nq[rowN] ;
+    valuePointer Hq = H0+m*(n+colN) ;
+    gecopy( row0, col0-n, block0,              ld0, Hq, m ) ;
+    gecopy( row0, n,      block0+(col0-n)*ld0, ld0, H0, m ) ;
+
+  }
+  
+  /*\
+   |         _ _                 _
+   |    __ _| | | ___   ___ __ _| |_ ___
+   |   / _` | | |/ _ \ / __/ _` | __/ _ \
+   |  | (_| | | | (_) | (_| (_| | ||  __/
+   |   \__,_|_|_|\___/ \___\__,_|\__\___|
+  \*/
+
+  template <typename t_Value>
+  void
+  BlockLU<t_Value>::allocate( integer _n, integer q, integer _nblock ) {
+
+    BlockBidiagonal<t_Value>::allocate(_nblock,_n) ;
+
+    integer & n      = this->n ;
+    integer & nblock = this->nblock ;
+
+    m = n+q ;
+    N = nblock*n+m ;
+
+    integer nnzAdH = nblock*(n*(n+m)) ; // blocchi AdH
+    integer nnzAu  = nblock*(n*n)+n*q ; // blocchi Au
+    integer nnzFF  = (nblock-1)*(n*m) ; // blocchi FF
+    integer nnzDD  = m*m ;            ; // blocco  DD
+
+    nnz = nnzAdH + nnzAu + nnzFF + nnzDD ;
+
+    baseValue.allocate(size_t( nnz )) ;
+    baseInteger.allocate(size_t( N   )) ;
+
+    AdH_blk  = baseValue(size_t( nnzAdH )) ;
+    Au_blk   = baseValue(size_t( nnzAu  )) ;
+    FF_blk   = baseValue(size_t( nnzFF  )) ;
+    DD_blk   = baseValue(size_t( nnzDD  )) ;
+    ipiv_blk = baseInteger(size_t( N )) ;
+  }
+
+  /*\
+   |    __            _             _
+   |   / _| __ _  ___| |_ ___  _ __(_)_______
+   |  | |_ / _` |/ __| __/ _ \| '__| |_  / _ \
+   |  |  _| (_| | (__| || (_) | |  | |/ /  __/
+   |  |_|  \__,_|\___|\__\___/|_|  |_/___\___|
+  \*/
+
   template <typename t_Value>
   void
   BlockLU<t_Value>::factorize( integer           _nblock,
@@ -47,26 +160,12 @@ namespace alglin {
                                valueConstPointer HN,
                                valueConstPointer Hq ) {
 
-    nblock = _nblock ;
-    n      = _n ;
-    m      = n+q ;
-    N      = nblock*n+m ;
-    
-    integer nnzAdH = nblock*(n*(n+m)) ; // blocchi AdH
-    integer nnzAu  = nblock*(n*n)+n*q ; // blocchi Au
-    integer nnzFF  = (nblock-1)*(n*m) ; // blocchi FF
-    integer nnzDD  = m*m ;            ; // blocco  DD
+    allocate( _n, q, _nblock ) ;
+    integer & n      = this->n ;
+    integer & nblock = this->nblock ;
 
-    nnz = nnzAdH + nnzAu + nnzFF + nnzDD ;
-
-    baseValue   . allocate(size_t( nnz )) ;
-    baseInteger . allocate(size_t( N   )) ;
-
-    AdH_blk  = baseValue(size_t( nnzAdH )) ;
-    Au_blk   = baseValue(size_t( nnzAu  )) ;
-    FF_blk   = baseValue(size_t( nnzFF  )) ;
-    DD_blk   = baseValue(size_t( nnzDD  )) ;
-    ipiv_blk = baseInteger(size_t( N )) ;
+    this->loadBlocks( AdAu, n ) ;
+    this->loadBottom( q, H0, m, HN, m, Hq, m ) ;
 
     // Initialize structures
     zero( nnz, AdH_blk, 1 ) ;
@@ -172,15 +271,19 @@ namespace alglin {
     ALGLIN_ASSERT( INFO==0, "BlockLU::factorize(), singular matrix" ) ;
   }
 
-  /*             _           
-  //   ___  ___ | |_   _____ 
-  //  / __|/ _ \| \ \ / / _ \
-  //  \__ \ (_) | |\ V /  __/
-  //  |___/\___/|_| \_/ \___|
-  */
+  /*\
+   |             _
+   |   ___  ___ | |_   _____
+   |  / __|/ _ \| \ \ / / _ \
+   |  \__ \ (_) | |\ V /  __/
+   |  |___/\___/|_| \_/ \___|
+  \*/
   template <typename t_Value>
   void
   BlockLU<t_Value>::solve( valuePointer y ) const {
+
+    integer const & n      = this->n ;
+    integer const & nblock = this->nblock ;
 
     // solve L
     integer nm    = n+m ;
@@ -206,7 +309,7 @@ namespace alglin {
 
     integer const * ipive = ipiv_blk + nblock * n ;
     integer            ok = getrs( NO_TRANSPOSE, m, 1, DD_blk, m, ipive, ye, m ) ;
-    
+
     ALGLIN_ASSERT( ok == 0, "BlockLU::solve(...) failed" ) ;
 
     if ( rowFF > 0 ) gemv( NO_TRANSPOSE, rowFF, m, -1, FF_blk, rowFF, ye, 1, 1, y, 1 ) ;

@@ -20,8 +20,8 @@
 #ifndef LU_BABD_BLOCK_HH
 #define LU_BABD_BLOCK_HH
 
-#include "Alglin.hh"
-#include "Alglin++.hh"
+#include "BlockBidiagonal.hh"
+#include <vector>
 
 //! Various LU decomposition classes
 namespace alglin {
@@ -50,7 +50,7 @@ namespace alglin {
    *           enrico.bertolazzi\@unitn.it
    */
   template <typename t_Value>
-  class BlockLU {
+  class BlockLU : public BlockBidiagonal<t_Value> {
 
     typedef t_Value         valueType ;
     typedef t_Value*        valuePointer ;
@@ -62,12 +62,9 @@ namespace alglin {
     BlockLU(BlockLU const &) ;
     BlockLU const & operator = (BlockLU const &) ;
 
-    integer nblock ; //!< total number of blocks
-    integer n      ; //!< size of square blocks
-    integer m      ; //!< number final rows (m>=n)
-    integer N      ; //!< n * (nblock+1) + q
-    integer nnz    ; //!< total number of non zeros
-
+    integer m   ; //!< number final rows (m>=n)
+    integer N   ; //!< n * (nblock+1) + q
+    integer nnz ; //!< total number of non zeros
     integer __padding ;
 
     /*!
@@ -149,7 +146,7 @@ namespace alglin {
     //
     */    
     valuePointer DD_blk ;
-    
+
     /*!
     //
     //  Working block FF_blk [ size = nblock * (n*m) ]
@@ -176,6 +173,8 @@ namespace alglin {
 
     // pivot vector
     integer * ipiv_blk ;
+    
+    std::vector<valueType> H0Nq ;
 
   public:
 
@@ -185,9 +184,32 @@ namespace alglin {
     { }
 
     ~BlockLU() {
-      baseValue   . free() ;
-      baseInteger . free() ;
+      baseValue.free() ;
+      baseInteger.free() ;
     }
+
+    void
+    allocate( integer n, integer q, integer nblock ) ;
+
+    virtual
+    void
+    loadBottom( integer           q,
+                valueConstPointer H0, integer ld0,
+                valueConstPointer HN, integer ldN,
+                valueConstPointer Hq, integer ldQ ) ;
+
+    virtual
+    void
+    loadTopBottom( // ----------------------------
+                   integer           row0,
+                   integer           col0,
+                   valueConstPointer block0,
+                   integer           ld0,
+                   // ----------------------------
+                   integer           rowN,
+                   integer           colN,
+                   valueConstPointer blockN,
+                   integer           ldN ) ;
 
     //! load BABD linear system to class
     void

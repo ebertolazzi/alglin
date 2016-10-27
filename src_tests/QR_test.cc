@@ -52,10 +52,10 @@ main() {
 
   //alglin::babd_print<valueType>( cout, nblk, n, q, AdAu, H0, HN, Hq ) ;
 
-  alglin::BABD_QR_LASTBLOCK_Choice ch[4] = { alglin::BABD_QR_LASTBLOCK_LU,
-                                             alglin::BABD_QR_LASTBLOCK_QR,
-                                             alglin::BABD_QR_LASTBLOCK_QRP,
-                                             alglin::BABD_QR_LASTBLOCK_SVD } ;
+  alglin::LASTBLOCK_Choice ch[4] = { alglin::LASTBLOCK_LU,
+                                     alglin::LASTBLOCK_QR,
+                                     alglin::LASTBLOCK_QRP,
+                                     alglin::LASTBLOCK_SVD } ;
 
   char const * kind[] = { "LU", "QR", "QRP", "SVD" } ;
 

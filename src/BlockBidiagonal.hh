@@ -40,12 +40,7 @@ namespace alglin {
     LASTBLOCK_SVD = 3
   } LASTBLOCK_Choice;
 
-  //! available LU factorization code
-  typedef enum {
-    CYCLIC_REDUCTION_LU  = 0,
-    CYCLIC_REDUCTION_QR  = 1,
-    CYCLIC_REDUCTION_QRP = 2
-  } CYCLIC_REDUCTION_Choice;
+  extern string LastBlock_to_string( LASTBLOCK_Choice c ) ;
 
   /*\
    |  ____  _            _      ____  _     _ _                               _
@@ -89,6 +84,11 @@ namespace alglin {
     integer nblock ; //!< total number of blocks
     integer n      ; //!< size of square blocks
 
+    // some derived constants
+    integer nx2 ;
+    integer nxn ;
+    integer nxnx2 ;
+
     /*
     //
     //  Matrix structure
@@ -120,10 +120,12 @@ namespace alglin {
     ///////////////////////////////////////////////////////
     valuePointer AdAu_blk ;
 
-    // some derived constants
-    integer nx2 ;
-    integer nxn ;
-    integer nxnx2 ;
+    LU<t_Value>  la_lu ;
+    QR<t_Value>  la_qr ;
+    QRP<t_Value> la_qrp ;
+    SVD<t_Value> la_svd ;
+
+    Factorization<t_Value> * la_factorization ;
 
   public:
 
@@ -135,6 +137,7 @@ namespace alglin {
     , nx2(0)
     , nxn(0)
     , nxnx2(0)
+    , la_factorization(&la_lu)
     {}
 
     virtual ~BlockBidiagonal()
@@ -158,32 +161,28 @@ namespace alglin {
     integer getNblock() const { return nblock ; }
     integer getN() const { return n ; }
 
+    // filling bidiagonal part of the matrix
     void
     loadBlocks( valueConstPointer AdAu, integer ldA ) {
       gecopy( n, nblock * nx2, AdAu, ldA, AdAu_blk, n ) ;
     }
 
     void
-    loadBlock( integer           nbl,
-               valueConstPointer AdAu,
-               integer           ldA ) {
+    loadBlock( integer nbl, valueConstPointer AdAu, integer ldA ) {
       gecopy( n, nx2, AdAu, ldA, AdAu_blk + nbl*nxnx2, n ) ;
     }
 
     void
-    loadBlockLeft( integer           nbl,
-                   valueConstPointer Ad,
-                   integer           ldA ) {
+    loadBlockLeft( integer nbl, valueConstPointer Ad, integer ldA ) {
       gecopy( n, n, Ad, ldA, AdAu_blk + nbl*nxnx2, n ) ;
     }
     
     void
-    loadBlockRight( integer           nbl,
-                    valueConstPointer Au,
-                    integer           ldA ) {
+    loadBlockRight( integer nbl, valueConstPointer Au, integer ldA ) {
       gecopy( n, n, Au, ldA, AdAu_blk + nbl*nxnx2 + nxn, n ) ;
     }
 
+    // final blocks after cyclic reduction
     valueConstPointer
     getPointer_LR() const
     { return AdAu_blk ; }
@@ -246,7 +245,9 @@ namespace alglin {
     //                 | yn |
     //                 +----+
     */
-    virtual void reduce()
+    virtual
+    void
+    reduce()
     { ALGLIN_ERROR("BlockBidiagonal::reduce() not defined!") ; }
 
     /*
@@ -260,20 +261,75 @@ namespace alglin {
     //                 | yn |   | cn |
     //                 +----+   +----+
     */
-    virtual void forward( valuePointer ) const
+    virtual
+    void
+    forward( valuePointer ) const
     { ALGLIN_ERROR("BlockBidiagonal::forward( valuePointer ) not defined!") ; }
 
     /*
     //  Given y1 and yn of the reduced linear system compute y2, y3, ... y(n-1)
     */
-    virtual void backward( valuePointer ) const
+    virtual
+    void
+    backward( valuePointer ) const
     { ALGLIN_ERROR("BlockBidiagonal::backward( valuePointer ) not defined!") ; }
 
-    virtual void factorize()
+    virtual
+    void
+    factorize()
     { ALGLIN_ERROR("BlockBidiagonal::factorize( valuePointer ) not defined!") ; }
 
-    virtual void solve( valuePointer ) const
+    virtual
+    void
+    solve( valuePointer ) const
     { ALGLIN_ERROR("BlockBidiagonal::solve( valuePointer ) not defined!") ; }
+
+    virtual
+    void
+    loadBottom( integer           /*q*/,
+                valueConstPointer /*H0*/, integer /*ld0*/,
+                valueConstPointer /*HN*/, integer /*ldN*/,
+                valueConstPointer /*Hq*/, integer /*ldQ*/ )
+    { ALGLIN_ERROR("BlockBidiagonal::loadBottom( ... ) not defined!") ; }
+
+    virtual
+    void
+    loadBC( integer /*numInitialBc*/,
+            integer /*numFinalBc*/,
+            integer /*numCyclicBC*/,
+            // ----------------------
+            integer /*numInitialETA*/,
+            integer /*numFinalETA*/,
+            integer /*numCyclicOMEGA*/,
+            // ----------------------
+            valueConstPointer /*H0*/, integer /*ld0*/,
+            valueConstPointer /*HN*/, integer /*ldN*/,
+            valueConstPointer /*Hq*/, integer /*ldQ*/ )
+    { ALGLIN_ERROR("BlockBidiagonal::loadBC( ... ) not defined!") ; }
+
+    virtual
+    void
+    loadTopBottom( // ----------------------------
+                   integer           /*row0*/,
+                   integer           /*col0*/,
+                   valueConstPointer /*block0*/,
+                   integer           /*ld0*/,
+                   // ----------------------------
+                   integer           /*rowN*/,
+                   integer           /*colN*/,
+                   valueConstPointer /*blockN*/,
+                   integer           /*ldN*/ )
+    { ALGLIN_ERROR("BlockBidiagonal::loadTopBottom( ... ) not defined!") ; }
+
+    void
+    selectLastBlockSolver( LASTBLOCK_Choice choice ) {
+      switch ( choice ) {
+        case LASTBLOCK_LU:  la_factorization = &la_lu  ; break ;
+        case LASTBLOCK_QR:  la_factorization = &la_qr  ; break ;
+        case LASTBLOCK_QRP: la_factorization = &la_qrp ; break ;
+        case LASTBLOCK_SVD: la_factorization = &la_svd ; break ;
+      }
+    }
 
   } ;
 }

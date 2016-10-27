@@ -27,14 +27,6 @@
 
 namespace alglin {
 
-  //! available LU factorization code
-  typedef enum {
-    AMODIO_LASTBLOCK_LU  = 0,
-    AMODIO_LASTBLOCK_QR  = 1,
-    AMODIO_LASTBLOCK_QRP = 2,
-    AMODIO_LASTBLOCK_SVD = 3
-  } AMODIO_LASTBLOCK_Choice;
-
   /*
   //      _                        _ _       _    _   _ 
   //     / \   _ __ ___   ___   __| (_) ___ | |  | | | |
@@ -60,7 +52,7 @@ namespace alglin {
    *
    */
   template <typename t_Value>
-  class AmodioLU {
+  class AmodioLU : public CyclicReduction<t_Value> {
   private:
   
     typedef t_Value         valueType ;
@@ -70,40 +62,32 @@ namespace alglin {
     AmodioLU(AmodioLU const &) ;
     AmodioLU const & operator = (AmodioLU const &) ;
 
-    mutable vector<t_Value>  tmpV ;
-    CyclicReduction<t_Value> CR ;
+    Malloc<valueType> baseValue ;
 
-    LU<t_Value>  la_lu ;
-    QR<t_Value>  la_qr ;
-    QRP<t_Value> la_qrp ;
-    SVD<t_Value> la_svd ;
+    mutable valuePointer tmpV ;
+    valuePointer H0Nq ;
 
-    integer n ;
     integer m ;
-    
-    Factorization<t_Value> * factorization ;
-
-    AMODIO_LASTBLOCK_Choice last_block ;
 
   public:
+  
+    using CyclicReduction<valueType>::allocate ;
 
     #ifdef CYCLIC_REDUCTION_USE_THREAD
     explicit
     AmodioLU( integer nth = integer(std::thread::hardware_concurrency()) )
-    : CR(nth)
+    : CyclicReduction<valueType>(nth)
+    , baseValue("AmodioLU_values")
     {}
     #else
-    explicit AmodioLU() : CR() {}
+    explicit AmodioLU() : CyclicReduction<valueType>() {}
     #endif
 
     ~AmodioLU() {}
 
     //! load matrix in the class
     /*!
-      \param nblk number of (square) blocks
-      \param n    size of the blocks
       \param q    extra bc
-      \param AdAu pointer to the blocks diagonal ad upper diagonal
       \param H0   pointer to the block \f$ H_0 \f$
       \param HN   pointer to the block \f$ H_N \f$
       \param Hq   pointer to the block \f$ H_q \f$
@@ -137,21 +121,51 @@ namespace alglin {
       +-----+-----+---......---+-----+-----+=====+=====+
       \endcode
     */
+
+    virtual
     void
-    factorize( AMODIO_LASTBLOCK_Choice choice,
-               // ----------------------------
+    loadBottom( integer           q,
+                valueConstPointer H0, integer ld0,
+                valueConstPointer HN, integer ldN,
+                valueConstPointer Hq, integer ldQ ) ;
+
+    virtual
+    void
+    loadTopBottom( // ----------------------------
+                   integer           row0,
+                   integer           col0,
+                   valueConstPointer block0,
+                   integer           ld0,
+                   // ----------------------------
+                   integer           rowN,
+                   integer           colN,
+                   valueConstPointer blockN,
+                   integer           ldN ) ;
+
+    virtual
+    void
+    factorize() ;
+
+    //! solve linear sistem using internal factorized matrix
+    virtual
+    void
+    solve( valuePointer in_out ) const ;
+    
+    void
+    factorize( LASTBLOCK_Choice  choice,
                integer           nblk,
                integer           n,
                integer           q,
                valueConstPointer AdAu,
                valueConstPointer H0,
                valueConstPointer HN,
-               valueConstPointer Hq ) ;
-
-    //! solve linear sistem using internal factorized matrix
-    void
-    solve( valuePointer in_out ) const ;
-
+               valueConstPointer Hq ) {
+      this->allocate( nblk, n );
+      this->loadBlocks( AdAu, n ) ;
+      loadBottom( q, H0, n+q, HN, n+q, Hq, n+q ) ;
+      this->selectLastBlockSolver( choice ) ;
+      factorize() ;
+    }
   } ;
 }
 

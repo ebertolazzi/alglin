@@ -31,7 +31,7 @@ endif
 
 SRCS = \
 src/ABD_Arceco.cc \
-src/ABD_Colrow.cc \
+src/ABD_Diaz.cc \
 src/Alglin++.cc \
 src/Alglin.cc \
 src/BABD.cc \
@@ -41,6 +41,7 @@ src/BABD_Block.cc \
 src/BABD_QR.cc \
 src/BABD_QR_N.cc \
 src/BABD_SuperLU.cc \
+src/BlockBidiagonal.cc \
 src/CyclicReduction.cc \
 src/CyclicReductionN.cc \
 src/CyclicReductionQR.cc \
@@ -49,7 +50,7 @@ src/KKT_like.cc
 OBJS  = $(SRCS:.cc=.o)
 DEPS  = \
 src/ABD_Arceco.hh \
-src/ABD_Colrow.hh \
+src/ABD_Diaz.hh \
 src/Alglin++.hh \
 src/Alglin.hh \
 src/AlglinConfig.hh \
@@ -65,6 +66,7 @@ src/BABD_Block.hh \
 src/BABD_QR.hh \
 src/BABD_QR_N.hh \
 src/BABD_SuperLU.hh \
+src/BlockBidiagonal.hh \
 src/CyclicReduction.hh \
 src/CyclicReductionQR.hh \
 src/KKT_like.hh \
@@ -79,12 +81,21 @@ FRAMEWORK = Alglin
 
 all: lib
 	mkdir -p bin
-	$(CXX) $(INC) $(CXXFLAGS) -o bin/AmodioN_test src_tests/AmodioN_test.cc $(LIBS)
-	$(CXX) $(INC) $(CXXFLAGS) -o bin/Amodio_test  src_tests/Amodio_test.cc $(LIBS)
-	$(CXX) $(INC) $(CXXFLAGS) -o bin/Block_test   src_tests/Block_test.cc $(LIBS)
-	$(CXX) $(INC) $(CXXFLAGS) -o bin/Colrow_test  src_tests/Colrow_test.cc $(LIBS)
-	$(CXX) $(INC) $(CXXFLAGS) -o bin/QR_N_test    src_tests/QR_N_test.cc $(LIBS)
-	$(CXX) $(INC) $(CXXFLAGS) -o bin/Timing       src_tests/Timing.cc $(LIBS)
+	$(CXX) $(INC) $(CXXFLAGS) -o bin/AmodioN_test           src_tests/AmodioN_test.cc $(LIBS)
+	$(CXX) $(INC) $(CXXFLAGS) -o bin/Amodio_test            src_tests/Amodio_test.cc $(LIBS)
+	$(CXX) $(INC) $(CXXFLAGS) -o bin/Block_test             src_tests/Block_test.cc $(LIBS)
+	$(CXX) $(INC) $(CXXFLAGS) -o bin/Diaz_test              src_tests/Diaz_test.cc $(LIBS)
+	$(CXX) $(INC) $(CXXFLAGS) -o bin/QR_N_test              src_tests/QR_N_test.cc $(LIBS)
+	$(CXX) $(INC) $(CXXFLAGS) -o bin/Timing                 src_tests/Timing.cc $(LIBS)
+	$(CXX) $(INC) $(CXXFLAGS) -o bin/CyclicReductionQR_test src_tests/CyclicReductionQR_test.cc $(LIBS)
+	$(CXX) $(INC) $(CXXFLAGS) -o bin/CyclicReduction_test   src_tests/CyclicReduction_test.cc $(LIBS)
+	$(CXX) $(INC) $(CXXFLAGS) -o bin/QR_test                src_tests/QR_test.cc $(LIBS)
+	$(CXX) $(INC) $(CXXFLAGS) -o bin/TestFD                 src_tests/TestFD.cc $(LIBS)
+	$(CXX) $(INC) $(CXXFLAGS) -o bin/KKT-test               src_tests/KKT-test.cc $(LIBS)
+	$(CXX) $(INC) $(CXXFLAGS) -o bin/SMALL-test             src_tests/SMALL-test.cc $(LIBS)
+	$(CXX) $(INC) $(CXXFLAGS) -o bin/KKT-test               src_tests/KKT-test.cc $(LIBS)
+	$(CXX) $(INC) $(CXXFLAGS) -o bin/BABD_test              src_tests/BABD_test.cc $(LIBS)
+	$(CXX) $(INC) $(CXXFLAGS) -o bin/BABD_test2             src_tests/BABD_test2.cc $(LIBS)
 
 lib: lib/$(LIB_ALGLIN)
 
@@ -119,9 +130,18 @@ run:
 	./bin/AmodioN_test
 	./bin/Amodio_test
 	./bin/Block_test
-	./bin/Colrow_test
+	./bin/Diaz_test
 	./bin/QR_N_test
 	./bin/Timing
+	./bin/CyclicReductionQR_test
+	./bin/CyclicReduction_test
+	./bin/QR_test
+	./bin/TestFD
+	./bin/KKT-test
+	./bin/SMALL-test
+	./bin/KKT-test
+	./bin/BABD_test
+	./bin/BABD_test2
 
 doc:
 	doxygen

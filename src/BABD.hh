@@ -35,25 +35,12 @@ namespace alglin {
 
   //! available LU factorization code
   typedef enum {
-    BABD_AUTOMATIC  = 0,
-    // ----------------
-    BABD_COLROW_LU  = 1,
-    BABD_COLROW_QR  = 2,
-    BABD_COLROW_QRP = 3,
-    BABD_COLROW_SVD = 4,
-    // ----------------
-    BABD_ARCECO     = 5,
-    // ----------------
-    BABD_AMODIO_LU  = 6,
-    BABD_AMODIO_QR  = 7,
-    BABD_AMODIO_QRP = 8,
-    BABD_AMODIO_SVD = 9,
-    // ----------------
-    BABD_BLOCK_LU             = 10,
-    BABD_CYCLIC_REDUCTION_QR  = 11,
-    BABD_CYCLIC_REDUCTION_QRP = 12
+    BABD_DIAZ                 = 1, // no CR
+    BABD_AMODIO               = 2, // CR_LU
+    BABD_CICLIC_REDUCTION_QR  = 3, // CR+QR
+    BABD_CICLIC_REDUCTION_QRP = 4  // CR+QR
   } BABD_Choice;
-  
+
   extern string BABD_Choice_to_string( BABD_Choice c ) ;
 
   /*
@@ -88,75 +75,122 @@ namespace alglin {
     BABD( BABD<t_Value> const & ) ;
     BABD<t_Value> const & operator = ( BABD<t_Value> const & ) ;
 
-    // allocate temporary
-    std::vector<valueType> block0 ;
-    std::vector<valueType> blockN ;
-
-    DiazLU<t_Value>   diaz_LU ;
-    ArcecoLU<t_Value> arceco_LU ;
-
-    // -------------------------
+    DiazLU<t_Value>       diaz_LU ;
     AmodioLU<t_Value>     amodio_LU ;
-    BlockLU<t_Value>      block_LU ;
     BabdQR<QR<t_Value> >  babd_QR ;
     BabdQR<QRP<t_Value> > babd_QRP ;
-
-    integer row0, col0 ;
-    integer rowN, colN ;
-    integer numEquations ;
-
-    integer numInitialBc ;
-    integer numFinalBc ;
-    integer numCyclicBC ;
-    integer numInitialETA ;
-    integer numFinalETA ;
-    integer numCyclicOMEGA ;
-
-    BABD_Choice solver_used ;
-
-    void shift( valuePointer in_out ) const ;
-    void unshift( valuePointer in_out ) const ;
+    
+    BlockBidiagonal<t_Value> * babd_solver ;
 
   public:
 
     explicit BABD()
-    : solver_used(BABD_AMODIO_LU)
+    : babd_solver(&amodio_LU)
     {}
-    
+
     ~BABD() {}
 
-    /*
-    //    __            _             _
-    //   / _| __ _  ___| |_ ___  _ __(_)_______
-    //  | |_ / _` |/ __| __/ _ \| '__| |_  / _ \
-    //  |  _| (_| | (__| || (_) | |  | |/ /  __/
-    //  |_|  \__,_|\___|\__\___/|_|  |_/___\___|
-    */
     void
-    factorize( BABD_Choice  solver,
-               // ----------------------
-               integer      numInitialBc,
-               integer      numFinalBc,
-               integer      numCyclicBC,
-               // ----------------------
-               integer      numInitialETA,
-               integer      numFinalETA,
-               integer      numCyclicOMEGA,
-               // ----------------------
-               integer      numBlock,
-               valuePointer AdAu,
-               valuePointer H0,
-               valuePointer HN,
-               valuePointer Hq ) ;
-    /*             _
-    //   ___  ___ | |_   _____
-    //  / __|/ _ \| \ \ / / _ \
-    //  \__ \ (_) | |\ V /  __/
-    //  |___/\___/|_| \_/ \___|
-    */
+    loadBlocks( valueConstPointer AdAu, integer ldA )
+    { babd_solver->loadBlocks( AdAu, ldA ) ; }
+
+    void
+    loadBlock( integer nbl, valueConstPointer AdAu, integer ldA )
+    { babd_solver->loadBlock( nbl, AdAu, ldA ) ; }
+
+    void
+    loadBlockLeft( integer nbl, valueConstPointer Ad, integer ldA )
+    { babd_solver->loadBlockLeft( nbl, Ad, ldA ) ; }
+
+    void
+    loadBlockRight( integer nbl, valueConstPointer Au, integer ldA )
+    { babd_solver->loadBlockRight( nbl, Au, ldA ) ; }
+
+    void
+    loadBottom( integer           q,
+                valueConstPointer H0, integer ld0,
+                valueConstPointer HN, integer ldN,
+                valueConstPointer Hq, integer ldQ )
+    { babd_solver->loadBottom( q, H0, ld0, HN, ldN, Hq, ldQ ) ; }
+
+    void
+    loadTopBottom( integer           _row0,
+                   integer           _col0,
+                   valueConstPointer _block0,
+                   integer           _ld0,
+                   // ----------------------------
+                   integer           _rowN,
+                   integer           _colN,
+                   valueConstPointer _blockN,
+                   integer           _ldN )
+    { babd_solver->loadTopBottom( _row0, _col0, _block0, _ld0,
+                                  _rowN, _colN, _blockN, _ldN ) ; }
+
+    void
+    selectLastBlockSolver( LASTBLOCK_Choice choice )
+    { babd_solver->selectLastBlockSolver( choice ) ; }
+
+    void
+    allocate( integer nblk, integer n )
+    { babd_solver->allocate( nblk, n ) ; }
+
+    void
+    selectSolver( BABD_Choice choice ) {
+      switch ( choice ) {
+        case BABD_DIAZ:                 babd_solver = &diaz_LU   ; break ;
+        case BABD_AMODIO:               babd_solver = &amodio_LU ; break ;
+        case BABD_CICLIC_REDUCTION_QR:  babd_solver = &babd_QR   ; break ;
+        case BABD_CICLIC_REDUCTION_QRP: babd_solver = &babd_QRP  ; break ;
+      } ;
+    }
+
+    /*\
+     |   _                 _ ____   ____
+     |  | | ___   __ _  __| | __ ) / ___|
+     |  | |/ _ \ / _` |/ _` |  _ \| |
+     |  | | (_) | (_| | (_| | |_) | |___
+     |  |_|\___/ \__,_|\__,_|____/ \____|
+    \*/
+    void
+    loadBC( // ----------------------
+            integer      numInitialBc,
+            integer      numFinalBc,
+            integer      numCyclicBC,
+            // ----------------------
+            integer      numInitialETA,
+            integer      numFinalETA,
+            integer      numCyclicOMEGA,
+            // ----------------------
+            valuePointer H0, integer ld0,
+            valuePointer HN, integer ldN,
+            valuePointer Hq, integer ldq ) {
+      babd_solver->loadBC( numInitialBc,  numFinalBc,  numCyclicBC,
+                           numInitialETA, numFinalETA, numCyclicOMEGA,
+                           H0, ld0, HN, ldN, Hq, ldq ) ;
+    }
+
+    /*\
+     |    __            _             _
+     |   / _| __ _  ___| |_ ___  _ __(_)_______
+     |  | |_ / _` |/ __| __/ _ \| '__| |_  / _ \
+     |  |  _| (_| | (__| || (_) | |  | |/ /  __/
+     |  |_|  \__,_|\___|\__\___/|_|  |_/___\___|
+    \*/
+    void
+    factorize()
+    { babd_solver->factorize() ; }
+
+    /*\
+     |             _
+     |   ___  ___ | |_   _____
+     |  / __|/ _ \| \ \ / / _ \
+     |  \__ \ (_) | |\ V /  __/
+     |  |___/\___/|_| \_/ \___|
+    \*/
     //! solve linear sistem using internal factorized matrix
     void
-    solve( valuePointer in_out ) const ;
+    solve( valuePointer in_out ) const
+    { babd_solver->solve( in_out ) ; }
 
   } ;
 }

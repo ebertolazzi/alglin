@@ -19,13 +19,15 @@
 
 #ifdef __GCC__
 #pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wweak-template-vtables"
 #endif
 #ifdef __clang__
 #pragma clang diagnostic ignored "-Wsign-conversion"
+#pragma clang diagnostic ignored "-Wweak-template-vtables"
 #endif
 
 ///
-/// file: ABD_Colrow.cc
+/// file: ABD_Diaz.cc
 ///
 
 #include "ABD_Diaz.hh"
@@ -62,7 +64,6 @@ namespace alglin {
   DiazLU<t_Value>::DiazLU()
   : baseValue("DiazLU_values")
   , baseIndex("DiazLU_integers")
-  , la_factorization(&la_lu)
   , NB(25)
   {
   }
@@ -71,17 +72,6 @@ namespace alglin {
   DiazLU<t_Value>::~DiazLU() {
     baseValue.free() ;
     baseIndex.free() ;
-  }
-
-  template <typename t_Value>
-  void
-  DiazLU<t_Value>::selectLastBlockSolver( LASTBLOCK_Choice choice ) {
-    switch ( choice ) {
-      case LASTBLOCK_LU:  la_factorization = &la_lu  ; break ;
-      case LASTBLOCK_QR:  la_factorization = &la_qr  ; break ;
-      case LASTBLOCK_QRP: la_factorization = &la_qrp ; break ;
-      case LASTBLOCK_SVD: la_factorization = &la_svd ; break ;
-    }
   }
 
   /*
@@ -112,17 +102,25 @@ namespace alglin {
   //                      colN
   //
   */
+  /*\
+   |   _                 _ _____           ____        _   _
+   |  | | ___   __ _  __| |_   _|__  _ __ | __ )  ___ | |_| |_ ___  _ __ ___
+   |  | |/ _ \ / _` |/ _` | | |/ _ \| '_ \|  _ \ / _ \| __| __/ _ \| '_ ` _ \
+   |  | | (_) | (_| | (_| | | | (_) | |_) | |_) | (_) | |_| || (_) | | | | | |
+   |  |_|\___/ \__,_|\__,_| |_|\___/| .__/|____/ \___/ \__|\__\___/|_| |_| |_|
+   |                                |_|
+  \*/
   template <typename t_Value>
   void
-  DiazLU<t_Value>::loadTopBot( integer           _row0,
-                               integer           _col0,
-                               valueConstPointer _block0,
-                               integer           ld0,
-                               // ----------------------------
-                               integer           _rowN,
-                               integer           _colN,
-                               valueConstPointer _blockN,
-                               integer           ldN ) {
+  DiazLU<t_Value>::loadTopBottom( integer           _row0,
+                                  integer           _col0,
+                                  valueConstPointer _block0,
+                                  integer           ld0,
+                                  // ----------------------------
+                                  integer           _rowN,
+                                  integer           _colN,
+                                  valueConstPointer _blockN,
+                                  integer           ldN ) {
 
     integer & n      = this->n ;
     integer & nblock = this->nblock ;
@@ -136,14 +134,12 @@ namespace alglin {
     colNN = colN - n ;
     row00 = row0 - col00 ;
     rowNN = rowN - colNN ;
-    neq   = nblock * n + row0 + rowN ;
-
-    integer neq1 = (nblock+1) * n + col00 + colNN ;
 
     n_m_row00 = n - row00 ;
 
     ALGLIN_ASSERT( row0 > 0 && rowN > 0 && row00 >= 0 && col00 >= 0 &&
-                   col0 >= n && colN >= n && n > 0,
+                   col0 >= n && colN >= n && n > 0 &&
+                   row0 + rowN + n == col0 + colN,
                    "Bad parameter(s):" <<
                    "\nrow0     = " << row0 <<
                    "\ncol0     = " << col0 <<
@@ -152,19 +148,6 @@ namespace alglin {
                    "\ncolN     = " << colN <<
                    "\ncolNN    = " << colNN <<
                    "\nn        = " << n ) ;
-
-    ALGLIN_ASSERT( neq == neq1,
-                   "Bad parameter(s):" <<
-                   "\nrow0  = " << row0 <<
-                   "\ncol0  = " << col0 <<
-                   "\ncol00 = " << col00 <<
-                   "\nrowN  = " << rowN <<
-                   "\ncolN  = " << colN <<
-                   "\ncolNN = " << colNN <<
-                   "\nn     = " << n <<
-                   "\nneq   = " << neq <<
-                   "\nneq1  = " << neq1 <<
-                   "\nneq and neq1 = (nblock+1) * n + col00 + colNN must be equal" ) ;
 
     // allocate
     baseIndex.allocate(size_t( nblock*n+row0 )) ;
@@ -176,6 +159,77 @@ namespace alglin {
     // copy block
     gecopy( row0, col0, _block0, ld0, block0, row0 ) ;
     gecopy( rowN, colN, _blockN, ldN, blockN, rowN ) ;
+  }
+
+  template <typename t_Value>
+  void
+  DiazLU<t_Value>::loadBC( integer numInitialBc,
+                           integer numFinalBc,
+                           integer numCyclicBC,
+                           // ----------------------
+                           integer numInitialETA,
+                           integer numFinalETA,
+                           integer numCyclicOMEGA,
+                           // ----------------------
+                           valueConstPointer H0, integer ld0,
+                           valueConstPointer HN, integer ldN,
+                           valueConstPointer Hq, integer ldQ ) {
+    
+    integer & n      = this->n ;
+    integer & nblock = this->nblock ;
+
+    integer nq = numInitialBc  + numFinalBc  + numCyclicBC ;
+    integer q  = numInitialETA + numFinalETA + numCyclicOMEGA ;
+
+    ALGLIN_ASSERT( n+q == nq,
+                   "Bad parameter(s):" <<
+                   "\nn              = " << n <<
+                   "\nnumInitialBc   = " << numInitialBc   <<
+                   "\nnumFinalBc     = " << numFinalBc     <<
+                   "\nnumCyclicBC    = " << numCyclicBC    <<
+                   "\nnumInitialETA  = " << numInitialETA  <<
+                   "\nnumFinalETA    = " << numFinalETA    <<
+                   "\nnumCyclicOMEGA = " << numCyclicOMEGA ) ;
+    
+    ALGLIN_ASSERT( numCyclicOMEGA == 0 && numCyclicBC == 0,
+                   "DiazLU cannot manage cyclic BC" ) ;
+
+    col00 = numInitialETA ;
+    colNN = numFinalETA ;
+
+    row0 = numInitialBc ;
+    col0 = n + col00 ;
+    rowN = numFinalBc ;
+    colN = n + colNN ;
+
+    row00 = row0 - col00 ;
+    rowNN = rowN - colNN ;
+
+    // allocate
+    baseIndex.allocate(size_t( nblock*n+row0 )) ;
+    baseValue.allocate(size_t( row0*col0 + rowN*colN )) ;
+    block0      = baseValue(size_t( row0*col0 )) ;
+    blockN      = baseValue(size_t( rowN*colN )) ;
+    swapRC_blks = baseIndex(size_t( nblock*n+row0 )) ;
+
+    // zeros block
+    zero( row0*col0 + rowN*colN, block0, 1 ) ;
+
+    #define IDX0(I,J) ((I)+(J)*row0)
+    #define IDXN(I,J) ((I)+(J)*rowN)
+    //  +-+-------+
+    //  |x|  NZ   |
+    //  |x|  NZ   |
+    //  +-+-------+
+    gecopy( row0, col00, Hq+rowN+colNN*nq, ldQ, block0+IDX0(0,0),     row0 ) ;
+    gecopy( row0, n,     H0+rowN,          ld0, block0+IDX0(0,col00), row0 ) ;
+    //  +-------+-+
+    //  |  NZ   |y|
+    //  +-------+-+
+    gecopy( rowN, n,     HN, ldN, blockN+IDXN(0,0), rowN ) ;
+    gecopy( rowN, colNN, Hq, ldQ, blockN+IDXN(0,n), rowN ) ;
+    #undef IDX0
+    #undef IDXN
   }
 
   /*
@@ -209,7 +263,7 @@ namespace alglin {
     else              ierr = gty( nrA, ncA, A, ldA, swapR ) ;
 
     ALGLIN_ASSERT( ierr == 0,
-                   "ColrowLU::LU_left_right, found ierr: " << ierr ) ;
+                   "DiazLU::LU_left_right, found ierr: " << ierr ) ;
     // applico permutazione al blocco
     t_Value * R = A + ncA * ldA ;
     t_Value * L = A - ncL * ldA ;
@@ -251,7 +305,7 @@ namespace alglin {
       }
       // controllo pivot non zero
       ALGLIN_ASSERT( amax > epsi,
-                     "ColrowLU::LU_left_right, found pivot: " << Akk[0] <<
+                     "DiazLU::LU_left_right, found pivot: " << Akk[0] <<
                      " at block nblk = " << nblk ) ;
       // memorizzo scambio
       swapR[k] = ipiv ;
@@ -300,7 +354,7 @@ namespace alglin {
     else              ierr = gtx( nrA, ncA, A, ldA, swapC ) ;
 
     ALGLIN_ASSERT( ierr == 0,
-                   "ColrowLU::LU_top_bottom, found ierr: " << ierr ) ;
+                   "DiazLU::LU_top_bottom, found ierr: " << ierr ) ;
     // applico permutazione al blocco
     t_Value * T = A - nrT ;
     for ( integer i = 0 ; i < nrA ; ++i ) {
@@ -340,7 +394,7 @@ namespace alglin {
       }
       // controllo pivot non zero
       ALGLIN_ASSERT( amax > epsi,
-                     "ColrowLU::LU_top_bottom, found pivot: " << Akk[0] <<
+                     "DiazLU::LU_top_bottom, found pivot: " << Akk[0] <<
                      " at block nblk = " << nblk ) ;
       // memorizzo scambio
       swapC[k] = jpiv ;
@@ -369,7 +423,13 @@ namespace alglin {
 #endif
   }
 
-  // ---------------------------------------------------------------------------
+  /*\
+   |    __            _             _
+   |   / _| __ _  ___| |_ ___  _ __(_)_______
+   |  | |_ / _` |/ __| __/ _ \| '__| |_  / _ \
+   |  |  _| (_| | (__| || (_) | |  | |/ /  __/
+   |  |_|  \__,_|\___|\__\___/|_|  |_/___\___|
+  \*/
 
   template <typename t_Value>
   void
@@ -461,7 +521,7 @@ namespace alglin {
 
     // fattorizzazione ultimo blocco
     valuePointer D0 = blockN + row00 * rowN;
-    la_factorization->factorize(rowN,rowN,D0,rowN) ;
+    this->la_factorization->factorize(rowN,rowN,D0,rowN) ;
   }
 
   // ---------------------------------------------------------------------------
@@ -469,11 +529,14 @@ namespace alglin {
   template <typename t_Value>
   void
   DiazLU<t_Value>::solve( valuePointer in_out ) const {
-
+  
     integer const & n      = this->n ;
     integer const & nxnx2  = this->nxnx2 ;
     integer const & nxn    = this->nxn      ;
     integer const & nblock = this->nblock ;
+
+    integer neq = nblock*n+row0+rowN ;
+    std::rotate( in_out, in_out + neq - row0, in_out + neq ) ;
 
     // applico permutazione alla RHS
     integer const * swapR = swapRC_blks ;
@@ -539,7 +602,7 @@ namespace alglin {
           io-ncol, 1,
           1, io, 1 ) ;
 
-    la_factorization->solve(io) ;
+    this->la_factorization->solve(io) ;
 
     while ( nblk > 0 ) {
       --nblk ;
@@ -598,6 +661,9 @@ namespace alglin {
         if ( k1 > k ) std::swap( io[k], io[k1] ) ;
       } ;
     }
+
+    // permuto le x
+    std::rotate( in_out, in_out + col00, in_out + neq ) ;
   }
  
   template class DiazLU<double> ;
@@ -606,6 +672,6 @@ namespace alglin {
 }
 
 ///
-/// eof: ColrowLU.cc
+/// eof: DiazLU.cc
 ///
 

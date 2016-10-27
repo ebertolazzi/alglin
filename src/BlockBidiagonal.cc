@@ -17,29 +17,19 @@
  |                                                                          |
 \*--------------------------------------------------------------------------*/
 
-#ifdef __GCC__
-#pragma GCC diagnostic ignored "-Wsign-conversion"
-#pragma GCC diagnostic ignored "-Wweak-template-vtables"
-#endif
-#ifdef __clang__
-#pragma clang diagnostic ignored "-Wsign-conversion"
-#pragma clang diagnostic ignored "-Wweak-template-vtables"
-#endif
-
-#include "BABD.hh"
+#include "BlockBidiagonal.hh"
 
 namespace alglin {
 
   string
-  BABD_Choice_to_string( BABD_Choice c ) {
-    string res = "none" ;
+  LastBlock_to_string( LASTBLOCK_Choice c ) {
     switch ( c ) {
-    case BABD_DIAZ:                 res = "Diaz" ;                break ;
-    case BABD_AMODIO:               res = "Amodio" ;              break ;
-    case BABD_CICLIC_REDUCTION_QR:  res = "CyclicReduction+QR" ;  break ;
-    case BABD_CICLIC_REDUCTION_QRP: res = "CyclicReduction+QRP" ; break ;
+      case LASTBLOCK_LU:  return "last block LU"  ;
+      case LASTBLOCK_QR:  return "last block QR"  ;
+      case LASTBLOCK_QRP: return "last block QRP" ;
+      case LASTBLOCK_SVD: return "last block SVD" ;
     }
-    return res ;
+    return "last block not selected" ;
   }
 
 }

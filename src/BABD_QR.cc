@@ -19,9 +19,11 @@
 
 #ifdef __GCC__
 #pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wweak-template-vtables"
 #endif
 #ifdef __clang__
 #pragma clang diagnostic ignored "-Wsign-conversion"
+#pragma clang diagnostic ignored "-Wweak-template-vtables"
 #endif
 
 #include "BABD_QR.hh"
@@ -93,39 +95,98 @@ namespace alglin {
 
   using namespace std ;
 
-  /*  
-  //    __            _             _         
-  //   / _| __ _  ___| |_ ___  _ __(_)_______ 
-  //  | |_ / _` |/ __| __/ _ \| '__| |_  / _ \
-  //  |  _| (_| | (__| || (_) | |  | |/ /  __/
-  //  |_|  \__,_|\___|\__\___/|_|  |_/___\___|
-  */
+  /*\
+   |   _                 _ ____        _   _
+   |  | | ___   __ _  __| | __ )  ___ | |_| |_ ___  _ __ ___
+   |  | |/ _ \ / _` |/ _` |  _ \ / _ \| __| __/ _ \| '_ ` _ \
+   |  | | (_) | (_| | (_| | |_) | (_) | |_| || (_) | | | | | |
+   |  |_|\___/ \__,_|\__,_|____/ \___/ \__|\__\___/|_| |_| |_|
+  \*/
 
   template <typename QR_type>
   void
-  BabdQR<QR_type>::factorize( BABD_QR_LASTBLOCK_Choice choice,
-                              // ----------------------------
-                              integer           nblock,
-                              integer           _n,
-                              integer           q,
-                              valueConstPointer AdAu,
-                              valueConstPointer H0,
-                              valueConstPointer HN,
-                              valueConstPointer Hq ) {
+  BabdQR<QR_type>::loadBottom( integer           q,
+                               valueConstPointer H0, integer ld0,
+                               valueConstPointer HN, integer ldN,
+                               valueConstPointer Hq, integer ldQ ) {
 
-    n = _n ;
+    integer & n = this->n ;
+
     m = n+q ;
-    last_block = choice ;
-    CR.reduce( nblock, n, AdAu, n ) ;
 
-    // fattorizzazione ultimo blocco
-    switch ( last_block ) {
-      case BABD_QR_LASTBLOCK_LU:  factorization = & la_lu  ; break ;
-      case BABD_QR_LASTBLOCK_QR:  factorization = & la_qr  ; break ;
-      case BABD_QR_LASTBLOCK_QRP: factorization = & la_qrp ; break ;
-      case BABD_QR_LASTBLOCK_SVD: factorization = & la_svd ; break ;
-      ALGLIN_ERROR("AmodioLU<t_Value>::factorize -- no last block solver selected") ;
-    }
+    baseValue.allocate( size_t((m+n)*(m+1)) ) ;
+    tmpV = baseValue( size_t(n+m) ) ;
+    H0Nq = baseValue( size_t(m*(n+m)) ) ;
+
+    gecopy( m, n, H0, ld0, H0Nq,       m ) ;
+    gecopy( m, n, HN, ldN, H0Nq+m*n,   m ) ;
+    gecopy( m, q, Hq, ldQ, H0Nq+2*m*n, m ) ;
+  }
+
+  /*\
+   |   _                 _ _____           ____        _   _
+   |  | | ___   __ _  __| |_   _|__  _ __ | __ )  ___ | |_| |_ ___  _ __ ___
+   |  | |/ _ \ / _` |/ _` | | |/ _ \| '_ \|  _ \ / _ \| __| __/ _ \| '_ ` _ \
+   |  | | (_) | (_| | (_| | | | (_) | |_) | |_) | (_) | |_| || (_) | | | | | |
+   |  |_|\___/ \__,_|\__,_| |_|\___/| .__/|____/ \___/ \__|\__\___/|_| |_| |_|
+   |                                |_|
+  \*/
+  template <typename QR_type>
+  void
+  BabdQR<QR_type>::loadTopBottom( // ----------------------------
+                                  integer           row0,
+                                  integer           col0,
+                                  valueConstPointer block0,
+                                  integer           ld0,
+                                  // ----------------------------
+                                  integer           rowN,
+                                  integer           colN,
+                                  valueConstPointer blockN,
+                                  integer           ldN ) {
+
+    integer & n = this->n ;
+
+    m = col0+colN-n ;
+
+    baseValue.allocate( size_t((m+n)*(m+1)) ) ;
+    tmpV = baseValue( size_t(n+m) ) ;
+    H0Nq = baseValue( size_t(m*(n+m)) ) ;
+    
+    /*\
+     |  +----+-----+---+
+     |  | H0 | HN  |Hq |
+     |  |    |     |   |
+     |  +----+-----+---+
+     |  +----+------+---------+
+     |  | 0  | blkN |blkN: 0  |
+     |  |blk0|  0   |    :blk0|
+     |  +----+------+---------+
+    \*/
+
+    zero( m*(n+m), H0Nq, 1 ) ;
+    gecopy( rowN, colN, blockN, ldN, H0Nq+m*n, m ) ;
+
+    valuePointer H0 = H0Nq+rowN ;
+    valuePointer Hq = H0+m*(n+colN) ;
+    gecopy( row0, col0-n, block0,              ld0, Hq, m ) ;
+    gecopy( row0, n,      block0+(col0-n)*ld0, ld0, H0, m ) ;
+
+  }
+
+  /*\
+   |    __            _             _
+   |   / _| __ _  ___| |_ ___  _ __(_)_______
+   |  | |_ / _` |/ __| __/ _ \| '__| |_  / _ \
+   |  |  _| (_| | (__| || (_) | |  | |/ /  __/
+   |  |_|  \__,_|\___|\__\___/|_|  |_/___\___|
+  \*/
+
+  template <typename QR_type>
+  void
+  BabdQR<QR_type>::factorize() {
+
+    integer & n = this->n ;
+    this->reduce() ;
 
     /*
     // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -136,47 +197,44 @@ namespace alglin {
     // / S  R  0  \ /x(0)\  = b(0)
     // \ H0 HN Hq / \x(N)/  = b(N)
     */
-    tmpV.resize( n+m ) ;
-    factorization->allocate(n+m,n+m) ;
-    factorization->load_block( n, 2*n, CR.getPointer_LR(), n ) ;
-    factorization->load_block( m, n, H0, m, n, 0 ) ;
-    factorization->load_block( m, n, HN, m, n, n ) ;
-    if ( q > 0 ) {
-      factorization->zero_block( n, q, 0, 2*n ) ;
-      factorization->load_block( m, q, Hq, m, n, 2*n ) ;
-    }
+    this->la_factorization->allocate(n+m,n+m) ;
+    this->la_factorization->load_block( n, 2*n, this->getPointer_LR(), n ) ;
+    this->la_factorization->load_block( m, m+n, H0Nq, m, n, 0 ) ;
+    if ( m > n ) this->la_factorization->zero_block( n, m-n, 0, 2*n ) ;
+
     // fattorizzazione ultimo blocco
-    factorization->factorize() ;
+    this->la_factorization->factorize() ;
   }
 
-  /*             _
-  //   ___  ___ | |_   _____ 
-  //  / __|/ _ \| \ \ / / _ \
-  //  \__ \ (_) | |\ V /  __/
-  //  |___/\___/|_| \_/ \___|
-  */
+  /*\
+   |             _
+   |   ___  ___ | |_   _____
+   |  / __|/ _ \| \ \ / / _ \
+   |  \__ \ (_) | |\ V /  __/
+   |  |___/\___/|_| \_/ \___|
+  \*/
 
   template <typename QR_type>
   void
   BabdQR<QR_type>::solve( valuePointer y ) const {
+    integer const & n = this->n ;
 
-    CR.forward(y) ;
+    this->forward(y) ;
     
-    valuePointer V0 = &tmpV[0] ;
-    valuePointer V1 = &tmpV[n] ;
+    valuePointer V0 = tmpV ;
+    valuePointer V1 = tmpV+n ;
     
-    valuePointer ye = y + CR.getNblock() * n ;
+    valuePointer ye = y + this->getNblock() * n ;
     copy( n, y,  1, V0, 1 ) ;
     copy( m, ye, 1, V1, 1 ) ;
 
-    factorization->solve( V0 ) ;
+    this->la_factorization->solve( V0 ) ;
 
     copy( n, V0, 1, y,  1 ) ;
     copy( m, V1, 1, ye, 1 ) ;
 
-    CR.backward( y ) ;
+    this->backward( y ) ;
   }
-
 
   template class BabdQR<QR<double> > ;
   template class BabdQR<QR<float> > ;

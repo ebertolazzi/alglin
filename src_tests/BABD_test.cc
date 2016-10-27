@@ -24,8 +24,7 @@
 #include "Alglin++.hh"
 #include "Alglin_aux.hh"
 #include "TicToc.hh"
-#include "BABD_AmodioN.hh"
-#include "BABD_Amodio.hh"
+#include "BABD.hh"
 
 using namespace std ;
 typedef double valueType ;
@@ -44,69 +43,57 @@ main() {
 
   #include "LU_test.hxx"
 
-  alglin::AmodioN<valueType,NSIZE> LU_N ;
-  alglin::AmodioLU<valueType>      LU ;
+  cout << "nblk = " << nblk << "\n"
+       << "n    = " << n << "\n"
+       << "q    = " << q << "\n" ;
 
-  //alglin::babd_print<valueType>( cout, nblk, n, q, AdAu, H0, HN, Hq ) ;
+  alglin::BABD<valueType> LU ;
 
-  cout << "nblk = " << nblk  << "\n"
-       << "N    = " << NSIZE << "\n"
-       << "q    = " << q     << "\n" ;
+  alglin::LASTBLOCK_Choice ch[4] = { alglin::LASTBLOCK_LU,
+                                     alglin::LASTBLOCK_QR,
+                                     alglin::LASTBLOCK_QRP,
+                                     alglin::LASTBLOCK_SVD } ;
 
-  TicToc tm ;
-  tm.reset() ;
+  alglin::BABD_Choice ch_sol[3] = { alglin::BABD_AMODIO,
+                                    alglin::BABD_CICLIC_REDUCTION_QR,
+                                    alglin::BABD_CICLIC_REDUCTION_QRP } ;
 
-  cout << "\n\n" ;
+  for ( int solver = 0 ; solver < 3 ; ++solver ) {
+    cout << "\n\n\nSOLVER: " << BABD_Choice_to_string(ch_sol[solver]) << '\n' ;
+    LU.selectSolver(ch_sol[solver]) ;
 
-  tm.tic() ;
-  for ( int k = 0 ; k < 10 ; ++k ) LU_N.factorize( nblk, q, AdAu, H0, HN, Hq ) ;
-  tm.toc() ;
-  cout << "Factorize (AmodioN) = " << tm.elapsedMilliseconds() << " [ms]\n" ;
+    for ( int test = 0 ; test < 4 ; ++test ) {
+      cout << "\n\nLAST_BLOCK: " << LastBlock_to_string(ch[test]) << '\n' ;
 
-  tm.tic() ;
-  for ( int k = 0 ; k < 10 ; ++k ) {
-    LU.allocate( nblk, n );
-    LU.loadBlocks( AdAu, n ) ;
-    LU.loadBottom( q, H0, n+q, HN, n+q, Hq, n+q ) ;
-    LU.selectLastBlockSolver( alglin::LASTBLOCK_LU ) ;
-    LU.factorize() ;
+      LU.allocate( nblk, n );
+      LU.loadBlocks( AdAu, n ) ;
+      LU.loadBottom( q, H0, n+q, HN, n+q, Hq, n+q ) ;
+      LU.selectLastBlockSolver( ch[test] ) ;
+
+      TicToc tm ;
+      tm.reset() ;
+      tm.tic() ;
+      LU.factorize() ;
+      tm.toc() ;
+      cout << "Factorize = " << tm.elapsedMilliseconds() << " [ms]\n" ;
+
+      tm.tic() ;
+      std::copy( rhs, rhs+N, x ) ;
+      LU.solve( x ) ;
+  
+      tm.toc() ;
+      cout << "Solve = " << tm.elapsedMilliseconds() << " [ms]\n" ;
+
+      alglin::copy( N, xref, 1, xref1, 1 ) ;
+      alglin::axpy( N, -1.0, x, 1, xref1, 1 ) ;
+      cout << "Check |err|_inf = " << alglin::absmax( N, xref1, 1 ) << '\n' ;
+
+      alglin::babd_residue<valueType>( nblk, n, q, AdAu, H0, HN, Hq,
+                                       rhs, 1, x, 1, resid, 1 ) ;
+
+      cout << "Check |r|_inf = " << alglin::absmax( N, resid, 1 ) << '\n' ;
+    }
   }
-  tm.toc() ;
-  cout << "Factorize (AmodioLU)  = " << tm.elapsedMilliseconds() << " [ms]\n" ;
-
-  cout << "\n\n" ;
-
-  tm.tic() ;
-  for ( int k = 0 ; k < 10 ; ++k ) {
-    std::copy( rhs, rhs+N, x ) ;
-    LU_N.solve( x ) ;
-  }
-  tm.toc() ;
-  cout << "Solve (AmodioN) = " << tm.elapsedMilliseconds() << " [ms]\n" ;
-
-  tm.tic() ;
-  for ( int k = 0 ; k < 10 ; ++k ) {
-    std::copy( rhs, rhs+N, x ) ;
-    LU.solve( x ) ;
-  }
-  tm.toc() ;
-  cout << "Solve (Amodio)  = " << tm.elapsedMilliseconds() << " [ms]\n" ;
-  cout << "\n\n" ;
-
-  //for ( alglin::integer i = 0 ; i < N ; ++i )
-  //  cout << "x[" << i << "] = " << x[i] << '\n' ;
-
-  alglin::copy( N, xref, 1, xref1, 1 ) ;
-  alglin::axpy( N, -1.0, x, 1, xref1, 1 ) ;
-  cout << "Check |err|_inf = " << alglin::absmax( N, xref1, 1 ) << '\n' ;
-
-  alglin::babd_residue<valueType>( nblk, n, q, AdAu, H0, HN, Hq,
-                                   rhs, 1, x, 1, resid, 1 ) ;
-
-  cout << "Check |r|_inf = " << alglin::absmax( N, resid, 1 ) << '\n' ;
-
-  LU_N.solve( resid ) ;
-  alglin::axpy( N, +1.0, resid, 1, x, 1 ) ;
 
   cout << "All done!\n" ;
 

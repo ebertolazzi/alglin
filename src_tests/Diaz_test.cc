@@ -107,6 +107,12 @@ main() {
                              rowN, colN, blockN,
                              1.0, x, 1, 0, rhs, 1 ) ;
 
+  // ruoto per mettere le BC in fondo
+  alglin::integer neq = numBlock*dim+row0+rowN ;
+  std::rotate( rhs, rhs + row0, rhs + neq ) ;
+
+  // ruoto la soluzione se sborda
+  std::rotate( xref, xref + col0-dim, xref + neq ) ;
 
   alglin::LASTBLOCK_Choice ch[4] = { alglin::LASTBLOCK_LU,
                                      alglin::LASTBLOCK_QR,
@@ -123,43 +129,34 @@ main() {
     tm.tic() ;
     LU.allocate( numBlock, dim );
     LU.loadBlocks( blocks, dim ) ;
-    LU.loadTopBot( row0, col0, block0, row0,
-                   rowN, colN, blockN, rowN ) ;
+    LU.loadTopBottom( row0, col0, block0, row0,
+                      rowN, colN, blockN, rowN ) ;
     LU.selectLastBlockSolver( ch[test] ) ;
     LU.factorize() ;
     tm.toc() ;
-    cout << "(Colrow" << kind[test] << ") Factorize = " << tm.elapsedMilliseconds() << " [ms]\n" ;
+    cout << "(Diaz " << kind[test] << ") Factorize = " << tm.elapsedMilliseconds() << " [ms]\n" ;
 
     std::copy( rhs, rhs+N, x ) ;
     tm.tic() ;
     LU.solve( x ) ;
     tm.toc() ;
-    cout << "(Colrow" << kind[test] << ") Solve = " << tm.elapsedMilliseconds() << " [ms]\n" ;
+    cout << "(Diaz " << kind[test] << ") Solve = " << tm.elapsedMilliseconds() << " [ms]\n" ;
 
     alglin::copy( N, xref, 1, xref1, 1 ) ;
     alglin::axpy( N, -1.0, x, 1, xref1, 1 ) ;
     cout << "Check |err|_inf = " << alglin::absmax( N, xref1, 1 ) << '\n' ;
 
-    alglin::abd_residue<valueType>( row0, col0, block0,
-                                    numBlock, dim, blocks,
-                                    rowN, colN, blockN,
-                                    rhs, 1, x, 1, resid, 1 ) ;
-
-    cout << "Check |r|_inf = " << alglin::absmax( N, resid, 1 ) << '\n' ;
-  
     LU.solve( resid ) ;
     alglin::axpy( N, +1.0, resid, 1, x, 1 ) ;
 
     alglin::copy( N, xref, 1, xref1, 1 ) ;
     alglin::axpy( N, -1.0, x, 1, xref1, 1 ) ;
     cout << "Check |err|_inf = " << alglin::absmax( N, xref1, 1 ) << '\n' ;
-
-    alglin::abd_residue<valueType>( row0, col0, block0,
-                                    numBlock, dim, blocks,
-                                    rowN, colN, blockN,
-                                    rhs, 1, x, 1, resid, 1 ) ;
-    cout << "Check |r|_inf = " << alglin::absmax( N, resid, 1 ) << '\n' ; 
   }
+
+  // rimetto rhs e x a posto
+  std::rotate( rhs, rhs + neq - row0, rhs + neq ) ;
+  std::rotate( xref, xref + neq - col0 + dim, xref + neq ) ;
 
   tm.tic() ;
   LU_arceco.factorize( row0, col0, block0,
