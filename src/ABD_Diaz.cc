@@ -57,8 +57,8 @@
 
 namespace alglin {
 
-  template <> float  const DiazLU<float>::epsi  = 100*std::numeric_limits<float>::epsilon() ;
-  template <> double const DiazLU<double>::epsi = 1000*std::numeric_limits<double>::epsilon() ;
+  //template <> float  const DiazLU<float>::epsi  = 100*std::numeric_limits<float>::epsilon() ;
+  //template <> double const DiazLU<double>::epsi = 1000*std::numeric_limits<double>::epsilon() ;
 
   template <typename t_Value>
   DiazLU<t_Value>::DiazLU()
@@ -197,7 +197,7 @@ namespace alglin {
                    "\nnumInitialETA  = " << numInitialETA  <<
                    "\nnumFinalETA    = " << numFinalETA    <<
                    "\nnumCyclicOMEGA = " << numCyclicOMEGA ) ;
-    
+
     ALGLIN_ASSERT( numCyclicOMEGA == 0 && numCyclicBC == 0,
                    "DiazLU cannot manage cyclic BC" ) ;
 
@@ -212,6 +212,13 @@ namespace alglin {
     row00 = row0 - col00 ;
     rowNN = rowN - colNN ;
 
+    n_m_row00 = n - row00 ;
+
+    ALGLIN_ASSERT( row00 >= 0 && rowNN >= 0,
+                   "Bad parameter(s):" <<
+                   "\nrow00 = " << row00 <<
+                   "\nrowNN = " << rowNN ) ;
+
     // allocate
     baseIndex.allocate(size_t( nblock*n+row0 )) ;
     baseValue.allocate(size_t( row0*col0 + rowN*colN )) ;
@@ -224,17 +231,17 @@ namespace alglin {
 
     #define IDX0(I,J) ((I)+(J)*row0)
     #define IDXN(I,J) ((I)+(J)*rowN)
-    //  +-+-------+
-    //  |x|  NZ   |
-    //  |x|  NZ   |
-    //  +-+-------+
-    gecopy( row0, col00, Hq+rowN+colNN*nq, ldQ, block0+IDX0(0,0),     row0 ) ;
-    gecopy( row0, n,     H0+rowN,          ld0, block0+IDX0(0,col00), row0 ) ;
     //  +-------+-+
     //  |  NZ   |y|
     //  +-------+-+
     gecopy( rowN, n,     HN, ldN, blockN+IDXN(0,0), rowN ) ;
     gecopy( rowN, colNN, Hq, ldQ, blockN+IDXN(0,n), rowN ) ;
+    //  +-+-------+
+    //  |x|  NZ   |
+    //  |x|  NZ   |
+    //  +-+-------+
+    gecopy( row0, col00, Hq+rowN+colNN*ldQ, ldQ, block0+IDX0(0,0),     row0 ) ;
+    gecopy( row0, n,     H0+rowN,           ld0, block0+IDX0(0,col00), row0 ) ;
     #undef IDX0
     #undef IDXN
   }
@@ -509,7 +516,6 @@ namespace alglin {
     //          +----+-----+-----+
     //          row00       colNN
     */
-
     swapRC = swapRC_blks + ( col00 + nblock*n ) ;
 
     if ( nblock == 0 ) {
@@ -529,6 +535,7 @@ namespace alglin {
     // fattorizzazione ultimo blocco
     valuePointer D0 = blockN + row00 * rowN;
     this->la_factorization->factorize(rowN,rowN,D0,rowN) ;
+
   }
 
   // ---------------------------------------------------------------------------
@@ -536,7 +543,7 @@ namespace alglin {
   template <typename t_Value>
   void
   DiazLU<t_Value>::solve( valuePointer in_out ) const {
-  
+
     integer const & n      = this->n ;
     integer const & nxnx2  = this->nxnx2 ;
     integer const & nxn    = this->nxn      ;
@@ -671,6 +678,7 @@ namespace alglin {
 
     // permuto le x
     std::rotate( in_out, in_out + col00, in_out + neq ) ;
+
   }
  
   template class DiazLU<double> ;
