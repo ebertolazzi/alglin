@@ -118,8 +118,8 @@ main() {
 
   alglin::BABD_Choice ch_sol[4] = { alglin::BABD_DIAZ,
                                     alglin::BABD_AMODIO,
-                                    alglin::BABD_CICLIC_REDUCTION_QR,
-                                    alglin::BABD_CICLIC_REDUCTION_QRP } ;
+                                    alglin::BABD_CYCLIC_REDUCTION_QR,
+                                    alglin::BABD_CYCLIC_REDUCTION_QRP } ;
 
   for ( int solver = 0 ; solver < 4 ; ++solver ) {
     cout << "\n\n\nSOLVER: " << BABD_Choice_to_string(ch_sol[solver]) << '\n' ;

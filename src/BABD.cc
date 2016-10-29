@@ -36,8 +36,8 @@ namespace alglin {
     switch ( c ) {
     case BABD_DIAZ:                 res = "Diaz" ;                break ;
     case BABD_AMODIO:               res = "Amodio" ;              break ;
-    case BABD_CICLIC_REDUCTION_QR:  res = "CyclicReduction+QR" ;  break ;
-    case BABD_CICLIC_REDUCTION_QRP: res = "CyclicReduction+QRP" ; break ;
+    case BABD_CYCLIC_REDUCTION_QR:  res = "CyclicReduction+QR" ;  break ;
+    case BABD_CYCLIC_REDUCTION_QRP: res = "CyclicReduction+QRP" ; break ;
     }
     return res ;
   }

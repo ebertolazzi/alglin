@@ -37,8 +37,8 @@ namespace alglin {
   typedef enum {
     BABD_DIAZ                 = 1, // no CR
     BABD_AMODIO               = 2, // CR_LU
-    BABD_CICLIC_REDUCTION_QR  = 3, // CR+QR
-    BABD_CICLIC_REDUCTION_QRP = 4  // CR+QR
+    BABD_CYCLIC_REDUCTION_QR  = 3, // CR+QR
+    BABD_CYCLIC_REDUCTION_QRP = 4  // CR+QR
   } BABD_Choice;
 
   extern string BABD_Choice_to_string( BABD_Choice c ) ;
@@ -139,8 +139,8 @@ namespace alglin {
       switch ( choice ) {
         case BABD_DIAZ:                 babd_solver = &diaz_LU   ; break ;
         case BABD_AMODIO:               babd_solver = &amodio_LU ; break ;
-        case BABD_CICLIC_REDUCTION_QR:  babd_solver = &babd_QR   ; break ;
-        case BABD_CICLIC_REDUCTION_QRP: babd_solver = &babd_QRP  ; break ;
+        case BABD_CYCLIC_REDUCTION_QR:  babd_solver = &babd_QR   ; break ;
+        case BABD_CYCLIC_REDUCTION_QRP: babd_solver = &babd_QRP  ; break ;
       } ;
     }
 
