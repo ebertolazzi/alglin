@@ -153,13 +153,13 @@ namespace alglin {
     \*/
     void
     loadBC( // ----------------------
-            integer      numInitialBc,
-            integer      numFinalBc,
-            integer      numCyclicBC,
+            integer numInitialBc,
+            integer numFinalBc,
+            integer numCyclicBC,
             // ----------------------
-            integer      numInitialETA,
-            integer      numFinalETA,
-            integer      numCyclicOMEGA,
+            integer numInitialETA,
+            integer numFinalETA,
+            integer numCyclicOMEGA,
             // ----------------------
             valuePointer H0, integer ld0,
             valuePointer HN, integer ldN,

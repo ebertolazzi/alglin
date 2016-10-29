@@ -160,7 +160,14 @@ namespace alglin {
     gecopy( row0, col0, _block0, ld0, block0, row0 ) ;
     gecopy( rowN, colN, _blockN, ldN, blockN, rowN ) ;
   }
-
+  
+  /*\
+   |  _                 _ ____   ____
+   | | | ___   __ _  __| | __ ) / ___|
+   | | |/ _ \ / _` |/ _` |  _ \| |
+   | | | (_) | (_| | (_| | |_) | |___
+   | |_|\___/ \__,_|\__,_|____/ \____|
+  \*/
   template <typename t_Value>
   void
   DiazLU<t_Value>::loadBC( integer numInitialBc,

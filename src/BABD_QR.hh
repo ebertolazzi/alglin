@@ -160,6 +160,23 @@ namespace alglin {
 
     virtual
     void
+    loadBC( integer /*numInitialBc*/,
+            integer /*numFinalBc*/,
+            integer /*numCyclicBC*/,
+            // ----------------------
+            integer numInitialETA,
+            integer numFinalETA,
+            integer numCyclicOMEGA,
+            // ----------------------
+            valueConstPointer H0, integer ld0,
+            valueConstPointer HN, integer ldN,
+            valueConstPointer Hq, integer ldQ ) {
+      this->loadBottom( numInitialETA + numFinalETA + numCyclicOMEGA,
+                        H0, ld0, HN, ldN, Hq, ldQ ) ;
+    }
+
+    virtual
+    void
     loadTopBottom( // ----------------------------
                    integer           row0,
                    integer           col0,
