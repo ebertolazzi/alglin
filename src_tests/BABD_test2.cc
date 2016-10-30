@@ -49,7 +49,7 @@ main() {
   alglin::integer numBlock = 100 ;
 
   alglin::integer N   = row0 + rowN + numBlock*dim ;
-  alglin::integer nnz = row0*col0 + rowN*colN + 2*dim*dim*numBlock + 5*N ;
+  alglin::integer nnz = row0*col0 + rowN*colN + 2*dim*dim*numBlock + 4*N ;
 
   alglin::Malloc<valueType>       baseValue("real") ;
   alglin::Malloc<alglin::integer> baseIndex("integer") ;
@@ -64,7 +64,6 @@ main() {
   valueType * xref   = baseValue(size_t(N)) ;
   valueType * xref1  = baseValue(size_t(N)) ;
   valueType * rhs    = baseValue(size_t(N)) ;
-  valueType * resid  = baseValue(size_t(N)) ;
   
   for ( int i = 0 ; i < row0 ; ++i )
     for ( int j = 0 ; j < col0 ; ++j )
@@ -128,7 +127,7 @@ main() {
     for ( int test = 0 ; test < 4 ; ++test ) {
       cout << "\n\nLAST_BLOCK: " << LastBlock_to_string(ch[test]) << '\n' ;
 
-      LU.allocate( numBlock, dim );
+      LU.allocate( numBlock, dim, row0+rowN-dim );
       LU.loadBlocks( blocks, dim ) ;
       LU.loadTopBottom( row0, col0, block0, row0,
                         rowN, colN, blockN, rowN ) ;

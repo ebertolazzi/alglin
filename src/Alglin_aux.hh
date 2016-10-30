@@ -353,11 +353,11 @@ namespace alglin {
   template <typename t_Value>
   inline
   void
-  print_matrix( std::ostream & stream,
-                integer        nr,
-                integer        nc,
-                t_Value const  A[],
-                integer        ldA ) {
+  print_matrix( std::basic_ostream<char> & stream,
+                integer                    nr,
+                integer                    nc,
+                t_Value const              A[],
+                integer                    ldA ) {
     for ( integer i = 0 ; i < nr ; ++i ) {
       for ( integer j = 0 ; j < nc ; ++j )
         stream << setw(14) << A[i+j*ldA] << " " ;
@@ -465,16 +465,16 @@ namespace alglin {
   template <typename t_Value>
   inline
   void
-  abd_print( std::ostream & stream,
-             integer         row0,
-             integer         col0,
-             t_Value const * block0,
-             integer         numBlock,
-             integer         dimBlock,
-             t_Value const * blocks,
-             integer         rowN,
-             integer         colN,
-             t_Value const * blockN ) {
+  abd_print( std::basic_ostream<char> & stream,
+             integer                    row0,
+             integer                    col0,
+             t_Value const *            block0,
+             integer                    numBlock,
+             integer                    dimBlock,
+             t_Value const *            blocks,
+             integer                    rowN,
+             integer                    colN,
+             t_Value const *            blockN ) {
     integer sizeBlock = 2*dimBlock*dimBlock ;
     stream << "Block 0\n" ;
     for ( integer i = 0 ; i < row0 ; ++i ) {
@@ -601,14 +601,14 @@ namespace alglin {
   template <typename t_Value>
   inline
   void
-  babd_print( std::ostream &  stream,
-              integer         nblk,
-              integer         n,
-              integer         q,
-              t_Value const * AdAu,
-              t_Value const * H0,
-              t_Value const * HN,
-              t_Value const * Hq ) {
+  babd_print( std::basic_ostream<char> & stream,
+              integer                    nblk,
+              integer                    n,
+              integer                    q,
+              t_Value const *            AdAu,
+              t_Value const *            H0,
+              t_Value const *            HN,
+              t_Value const *            Hq ) {
     integer sizeBlock = 2*n*n ;
     for ( integer k = 0 ; k < nblk ; ++k ) {
       stream << "Block " << k+1 << '\n' ;

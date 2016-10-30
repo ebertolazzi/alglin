@@ -42,4 +42,51 @@ namespace alglin {
     return res ;
   }
 
+  #if 0
+
+  static
+  void
+  dumpOneMatrix ( basic_ostream<char> & stream,
+                  charConstPointer      name,
+                  valueConstPointer     M,
+                  indexType             numRow,
+                  indexType             numCol ) {
+    stream << "# " << name << " Size: " << numRow << " x " << numCol << '\n' ;
+    stream << name << " := <" ;
+    for ( indexType nc = 0 ; nc < numCol ; ++nc ) {
+      stream << '<' ;
+      for ( indexType nr = 0 ; nr < numRow ; ++nr ) {
+        stream << M[ nr + nc * numRow ] ;
+        if ( nr+1 < numRow ) stream << ',' ;
+        else                 stream << '>' ;
+      }
+      if ( nc+1 < numCol ) stream << "|\n" ;
+      else                 stream << "> ;\n" ;
+    }
+  }
+
+  void
+  BVNLFD_System::dumpMatrix ( basic_ostream<char> & stream ) const {
+
+    stream << "interface( rtablesize = 40 ) ;\n" ;
+
+    indexType N       = numNodes-1 ;
+    indexType dim_z_z = 4*dim_x*dim_x ;
+    for ( indexType row = 0 ; row < N ; ++row ) {
+      valueConstPointer Ad = AdAu_blk + 2*row*dim_z_z ; 
+      valueConstPointer Au = Ad + dim_z_z ;
+      dumpOneMatrix( stream, "Ad", Ad, 2*dim_x, 2*dim_x ) ;
+      dumpOneMatrix( stream, "Au", Au, 2*dim_x, 2*dim_x ) ;
+    }
+
+    dumpOneMatrix( stream, "H0Np", H0Np, dim_bc, 4*dim_x + dim_omega ) ;
+
+    stream << "with(LinearAlgebra):\n" ;
+    stream << "Determinant(Ad);\n" ;
+    stream << "Determinant(Au);\n" ;
+    stream << "Rank(H0Np);\n" ;
+    stream << "Rank(<H0N|Hp>);\n" ;
+
+  }
+#endif
 }

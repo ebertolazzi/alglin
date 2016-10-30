@@ -53,11 +53,10 @@ main() {
 
   TicToc tm ;
   tm.reset() ;
+  CR.allocate( nblk, n, 0 ) ;
+  CR.loadBlocks( AdAu, n ) ;
   tm.tic() ;
-  //CR( nblk, n ) ;
-  CR.reduce( nblk, n, AdAu, n ) ;
-
-  // q, AdAu, H0, HN, Hq ) ;
+  CR.reduce() ;
   tm.toc() ;
   cout << "Reduction (QR) = " << tm.elapsedMilliseconds() << " [ms]\n" ;
 

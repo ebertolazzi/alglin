@@ -173,8 +173,6 @@ namespace alglin {
 
     // pivot vector
     integer * ipiv_blk ;
-    
-    std::vector<valueType> H0Nq ;
 
   public:
 
@@ -188,28 +186,18 @@ namespace alglin {
       baseInteger.free() ;
     }
 
+    virtual
     void
-    allocate( integer n, integer q, integer nblock ) ;
+    allocate( integer nblock, integer n, integer q ) ;
 
     virtual
     void
-    loadBottom( integer           q,
-                valueConstPointer H0, integer ld0,
-                valueConstPointer HN, integer ldN,
-                valueConstPointer Hq, integer ldQ ) ;
+    factorize() ;
 
+    //! solve linear system previously factorized
     virtual
     void
-    loadTopBottom( // ----------------------------
-                   integer           row0,
-                   integer           col0,
-                   valueConstPointer block0,
-                   integer           ld0,
-                   // ----------------------------
-                   integer           rowN,
-                   integer           colN,
-                   valueConstPointer blockN,
-                   integer           ldN ) ;
+    solve( valuePointer in_out ) const ;
 
     //! load BABD linear system to class
     void
@@ -219,11 +207,12 @@ namespace alglin {
                valueConstPointer AdAu,
                valueConstPointer H0,
                valueConstPointer HN,
-               valueConstPointer Hq ) ;
-
-    //! solve linear system previously factorized
-    void
-    solve( valuePointer in_out ) const ;
+               valueConstPointer Hq ) {
+      this->allocate( nblk, n, q );
+      this->loadBlocks( AdAu, n ) ;
+      this->loadBottom( H0, n+q, HN, n+q, Hq, n+q ) ;
+      factorize() ;
+    }
 
   } ;
 

@@ -93,13 +93,6 @@ namespace alglin {
     //  +-----+-----+---......---+-----+-----+=====+=====+
     //
     */
-
-    Malloc<valueType> baseValue ;
-
-    mutable valuePointer tmpV ;
-    valuePointer H0Nq ;
-
-    integer m ;
     
   public:
 
@@ -107,7 +100,6 @@ namespace alglin {
     explicit
     BabdQR( integer nth = integer(std::thread::hardware_concurrency()) )
     : CyclicReductionQR<QR_type>(nth)
-    , baseValue("BabdQR_values")
     {}
     #else
     explicit BabdQR() : CyclicReductionQR<QR_type>() {}
@@ -117,10 +109,6 @@ namespace alglin {
 
     //! load matrix in the class
     /*!
-      \param q  extra bc
-      \param H0 pointer to the block \f$ H_0 \f$
-      \param HN pointer to the block \f$ H_N \f$
-      \param Hq pointer to the block \f$ H_q \f$
       \code
       Matrix structure
       
@@ -151,25 +139,6 @@ namespace alglin {
       +-----+-----+---......---+-----+-----+=====+=====+
       \endcode
     */
-    virtual
-    void
-    loadBottom( integer           q,
-                valueConstPointer H0, integer ld0,
-                valueConstPointer HN, integer ldN,
-                valueConstPointer Hq, integer ldQ ) ;
-
-    virtual
-    void
-    loadTopBottom( // ----------------------------
-                   integer           row0,
-                   integer           col0,
-                   valueConstPointer block0,
-                   integer           ld0,
-                   // ----------------------------
-                   integer           rowN,
-                   integer           colN,
-                   valueConstPointer blockN,
-                   integer           ldN ) ;
 
     virtual
     void
@@ -189,9 +158,9 @@ namespace alglin {
                valueConstPointer H0,
                valueConstPointer HN,
                valueConstPointer Hq ) {
-      this->allocate( nblk, n );
+      this->allocate( nblk, n, q );
       this->loadBlocks( AdAu, n ) ;
-      loadBottom( q, H0, n+q, HN, n+q, Hq, n+q ) ;
+      this->loadBottom( H0, n+q, HN, n+q, Hq, n+q ) ;
       this->selectLastBlockSolver( choice ) ;
       factorize() ;
     }

@@ -138,11 +138,11 @@ namespace alglin {
 
   template <typename QR_type>
   void
-  CyclicReductionQR<QR_type>::allocate( integer _nblock, integer _n ) {
+  CyclicReductionQR<QR_type>::allocate( integer _nblock, integer _n, integer _q ) {
   
-    if ( _nblock == this->nblock && this->n == _n ) return ;
+    if ( _nblock == this->nblock && this->n == _n && this->q == _q ) return ;
 
-    BlockBidiagonal<valueType>::allocate( _nblock, _n ) ;
+    BlockBidiagonal<valueType>::allocate( _nblock, _n, _q ) ;
 
     integer & nblock = this->nblock ;
     integer & n      = this->n ;

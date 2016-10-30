@@ -64,13 +64,8 @@ namespace alglin {
 
     Malloc<valueType> baseValue ;
 
-    mutable valuePointer tmpV ;
-    valuePointer H0Nq ;
-
-    integer m ;
-
   public:
-  
+
     using CyclicReduction<valueType>::allocate ;
 
     #ifdef CYCLIC_REDUCTION_USE_THREAD
@@ -87,10 +82,6 @@ namespace alglin {
 
     //! load matrix in the class
     /*!
-      \param q    extra bc
-      \param H0   pointer to the block \f$ H_0 \f$
-      \param HN   pointer to the block \f$ H_N \f$
-      \param Hq   pointer to the block \f$ H_q \f$
       \code
       Matrix structure
       
@@ -124,26 +115,6 @@ namespace alglin {
 
     virtual
     void
-    loadBottom( integer           q,
-                valueConstPointer H0, integer ld0,
-                valueConstPointer HN, integer ldN,
-                valueConstPointer Hq, integer ldQ ) ;
-
-    virtual
-    void
-    loadTopBottom( // ----------------------------
-                   integer           row0,
-                   integer           col0,
-                   valueConstPointer block0,
-                   integer           ld0,
-                   // ----------------------------
-                   integer           rowN,
-                   integer           colN,
-                   valueConstPointer blockN,
-                   integer           ldN ) ;
-
-    virtual
-    void
     factorize() ;
 
     //! solve linear sistem using internal factorized matrix
@@ -160,9 +131,9 @@ namespace alglin {
                valueConstPointer H0,
                valueConstPointer HN,
                valueConstPointer Hq ) {
-      this->allocate( nblk, n );
+      this->allocate( nblk, n, q );
       this->loadBlocks( AdAu, n ) ;
-      loadBottom( q, H0, n+q, HN, n+q, Hq, n+q ) ;
+      this->loadBottom( H0, n+q, HN, n+q, Hq, n+q ) ;
       this->selectLastBlockSolver( choice ) ;
       factorize() ;
     }

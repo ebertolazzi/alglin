@@ -532,7 +532,7 @@ namespace alglin {
       if ( pivotj != j1 ) std::swap( x[pivotj], x[j1] ) ;
     }
   }
-  
+
   template class ArcecoLU<float> ;
   template class ArcecoLU<double> ;
 
