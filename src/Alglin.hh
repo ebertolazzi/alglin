@@ -9997,15 +9997,15 @@ namespace alglin {
   template <typename T>
   inline
   void
-  outMATRIX( MatrixType const & MT,
-             integer   NR,
-             integer   NC,
-             T const   A[],
-             integer   LDA,
-             ostream & s,
-             integer   prec = 4,
-             integer   rperm[] = nullptr,
-             integer   cperm[] = nullptr ) {
+  outMATRIX( MatrixType const &    MT,
+             integer               NR,
+             integer               NC,
+             T const               A[],
+             integer               LDA,
+             basic_ostream<char> & s,
+             integer               prec = 4,
+             integer               rperm[] = nullptr,
+             integer               cperm[] = nullptr ) {
     integer j0 = cperm == nullptr ? 0 : cperm[0]-1 ;
     for ( integer i = 0 ; i < NR ; ++i ) {
       integer ii = rperm == nullptr ? i : rperm[i]-1 ;
@@ -10027,11 +10027,11 @@ namespace alglin {
   template <typename T>
   inline
   void
-  outMAPLE( integer   NR,
-            integer   NC,
-            T const   A[],
-            integer   LDA,
-            ostream & s ) {
+  outMAPLE( integer               NR,
+            integer               NC,
+            T const               A[],
+            integer               LDA,
+            basic_ostream<char> & s ) {
     s << "<" ;
     for ( integer j = 0 ; j < NC ; ++j ) {
       s << "<" << std::setprecision(20) << A[j*LDA] ;

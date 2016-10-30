@@ -95,12 +95,12 @@ namespace alglin {
   template <typename FUNCTION, typename Number>
   inline
   void
-  finite_difference_check_gradient( Number const   x[],
-                                    integer        dim_x,
-                                    FUNCTION       fun,
-                                    Number const   grad[],
-                                    Number         epsi,
-                                    std::ostream & stream ) {
+  finite_difference_check_gradient( Number const               x[],
+                                    integer                    dim_x,
+                                    FUNCTION                   fun,
+                                    Number const               grad[],
+                                    Number                     epsi,
+                                    std::basic_ostream<char> & stream ) {
 
     Number const eps = sqrt(std::numeric_limits<Number>::epsilon()) ;
     Number * X = const_cast<Number*>(x) ;
@@ -223,14 +223,14 @@ namespace alglin {
 
   template <typename FUNCTION, typename Number>
   void
-  finite_difference_check_jacobian( Number const   x[],
-                                    integer        dim_x,
-                                    FUNCTION       fun,
-                                    integer        dim_f,
-                                    Number const   Jac[],
-                                    integer        ldJ,
-                                    Number         epsi,
-                                    std::ostream & stream  ) {
+  finite_difference_check_jacobian( Number const               x[],
+                                    integer                    dim_x,
+                                    FUNCTION                   fun,
+                                    integer                    dim_f,
+                                    Number const               Jac[],
+                                    integer                    ldJ,
+                                    Number                     epsi,
+                                    std::basic_ostream<char> & stream  ) {
 
     Number const eps = sqrt(std::numeric_limits<Number>::epsilon()) ;
 
@@ -334,13 +334,13 @@ namespace alglin {
   
   template <typename FUNCTION, typename Number>
   bool
-  finite_difference_check_hessian( Number const   x[],
-                                   integer        dim_x,
-                                   FUNCTION       fun,
-                                   Number const   Hess[],
-                                   integer        ldH,
-                                   Number         epsi,
-                                   std::ostream & stream ) {
+  finite_difference_check_hessian( Number const               x[],
+                                   integer                    dim_x,
+                                   FUNCTION                   fun,
+                                   Number const               Hess[],
+                                   integer                    ldH,
+                                   Number                     epsi,
+                                   std::basic_ostream<char> & stream ) {
 
     Number const eps = pow(std::numeric_limits<Number>::epsilon(),0.25) ;
     bool ok = true ;

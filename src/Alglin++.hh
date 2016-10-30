@@ -363,7 +363,7 @@ namespace alglin {
 
     valueType cond1( valueType norm1 ) const ;
     valueType condInf( valueType normInf ) const ;
-    void print( ostream & stream, integer prec = 4 ) const ;
+    void print( basic_ostream<char> & stream, integer prec = 4 ) const ;
   } ;
 
   //============================================================================

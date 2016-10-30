@@ -258,17 +258,17 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  CyclicReduction<t_Value>::allocate( integer _nblock, integer _n ) {
+  CyclicReduction<t_Value>::allocate( integer _nblock, integer _n, integer _q ) {
 
-    if ( _nblock == this->nblock && this->n == _n ) return ;
+    if ( _nblock == this->nblock && this->n == _n && this->q == _q ) return ;
 
-    BlockBidiagonal<t_Value>::allocate( _nblock, _n ) ;
+    BlockBidiagonal<t_Value>::allocate( _nblock, _n, _q ) ;
 
-    integer & nblock = this->nblock ;
-    integer & n      = this->n ;
-    integer & nxn    = this->nxn ;
-    integer & nx2    = this->nx2 ;
-    integer & nxnx2  = this->nxnx2 ;
+    integer const & nblock = this->nblock ;
+    integer const & n      = this->n ;
+    integer const & nxn    = this->nxn ;
+    integer const & nx2    = this->nx2 ;
+    integer const & nxnx2  = this->nxnx2 ;
     
     integer nnzG = (nblock-1)*nxn ;
 

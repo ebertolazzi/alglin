@@ -53,9 +53,10 @@ main() {
 
   TicToc tm ;
   tm.reset() ;
+  CR.allocate( nblk, n, 0 ) ;
+  CR.loadBlocks( AdAu, n ) ;
   tm.tic() ;
-  CR.reduce( nblk, n, AdAu, n ) ;
-  //for ( int i = 0 ; i < 10 ; ++i ) CR.reduce( nblk, n, AdAu ) ;
+  CR.reduce() ;
   tm.toc() ;
   cout << "\nReduction = " << tm.elapsedMilliseconds() << " [ms]\n\n" ;
 

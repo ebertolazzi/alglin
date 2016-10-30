@@ -65,10 +65,10 @@ main() {
     for ( int test = 0 ; test < 4 ; ++test ) {
       cout << "\n\nLAST_BLOCK: " << LastBlock_to_string(ch[test]) << '\n' ;
 
-      LU.allocate( nblk, n );
-      LU.loadBlocks( AdAu, n ) ;
-      LU.loadBottom( q, H0, n+q, HN, n+q, Hq, n+q ) ;
-      LU.selectLastBlockSolver( ch[test] ) ;
+      LU.allocate( nblk, n, q );
+      LU.loadBlocks( AdAu, n );
+      LU.loadBottom( H0, n+q, HN, n+q, Hq, n+q );
+      LU.selectLastBlockSolver( ch[test] );
 
       TicToc tm ;
       tm.reset() ;

@@ -107,11 +107,10 @@ namespace alglin {
     { babd_solver->loadBlockRight( nbl, Au, ldA ) ; }
 
     void
-    loadBottom( integer           q,
-                valueConstPointer H0, integer ld0,
+    loadBottom( valueConstPointer H0, integer ld0,
                 valueConstPointer HN, integer ldN,
                 valueConstPointer Hq, integer ldQ )
-    { babd_solver->loadBottom( q, H0, ld0, HN, ldN, Hq, ldQ ) ; }
+    { babd_solver->loadBottom( H0, ld0, HN, ldN, Hq, ldQ ) ; }
 
     void
     loadTopBottom( integer           _row0,
@@ -131,8 +130,8 @@ namespace alglin {
     { babd_solver->selectLastBlockSolver( choice ) ; }
 
     void
-    allocate( integer nblk, integer n )
-    { babd_solver->allocate( nblk, n ) ; }
+    allocate( integer nblk, integer n, integer q )
+    { babd_solver->allocate( nblk, n, q ) ; }
 
     void
     selectSolver( BABD_Choice choice ) {
@@ -153,19 +152,19 @@ namespace alglin {
     \*/
     void
     loadBC( // ----------------------
-            integer numInitialBc,
-            integer numFinalBc,
-            integer numCyclicBC,
+            integer      numInitialBc,
+            integer      numFinalBc,
+            integer      numCyclicBC,
             // ----------------------
-            integer numInitialETA,
-            integer numFinalETA,
-            integer numCyclicOMEGA,
+            integer      numInitialOMEGA,
+            integer      numFinalOMEGA,
+            integer      numCyclicOMEGA,
             // ----------------------
             valuePointer H0, integer ld0,
             valuePointer HN, integer ldN,
             valuePointer Hq, integer ldq ) {
       babd_solver->loadBC( numInitialBc,  numFinalBc,  numCyclicBC,
-                           numInitialETA, numFinalETA, numCyclicOMEGA,
+                           numInitialOMEGA, numFinalOMEGA, numCyclicOMEGA,
                            H0, ld0, HN, ldN, Hq, ldq ) ;
     }
 
@@ -191,6 +190,18 @@ namespace alglin {
     void
     solve( valuePointer in_out ) const
     { babd_solver->solve( in_out ) ; }
+
+    /*\
+     |   ____
+     |  |  _ \ _   _ _ __ ___  _ __
+     |  | | | | | | | '_ ` _ \| '_ \
+     |  | |_| | |_| | | | | | | |_) |
+     |  |____/ \__,_|_| |_| |_| .__/
+     |                        |_|
+    \*/
+    void
+    dumpMatrix( basic_ostream<char> & stream ) const
+    { babd_solver->dumpMatrix( stream ) ; }
 
   } ;
 }

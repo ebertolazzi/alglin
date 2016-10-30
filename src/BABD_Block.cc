@@ -17,93 +17,21 @@
  |                                                                          |
 \*--------------------------------------------------------------------------*/
 
+#include "BABD_Block.hh"
+#include "Alglin.hh"
+
 #ifdef __GCC__
 #pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wweak-template-vtables"
 #endif
 #ifdef __clang__
 #pragma clang diagnostic ignored "-Wsign-conversion"
+#pragma clang diagnostic ignored "-Wweak-template-vtables"
 #endif
-
-#include "BABD_Block.hh"
-#include "Alglin.hh"
 
 namespace alglin {
 
   using namespace std ;
-  
-  /*\
-   |   _                 _ ____        _   _
-   |  | | ___   __ _  __| | __ )  ___ | |_| |_ ___  _ __ ___
-   |  | |/ _ \ / _` |/ _` |  _ \ / _ \| __| __/ _ \| '_ ` _ \
-   |  | | (_) | (_| | (_| | |_) | (_) | |_| || (_) | | | | | |
-   |  |_|\___/ \__,_|\__,_|____/ \___/ \__|\__\___/|_| |_| |_|
-  \*/
-
-  template <typename t_Value>
-  void
-  BlockLU<t_Value>::loadBottom( integer           q,
-                                valueConstPointer H0, integer ld0,
-                                valueConstPointer HN, integer ldN,
-                                valueConstPointer Hq, integer ldQ ) {
-
-    integer & n = this->n ;
-
-    m = n+q ;
-    H0Nq.resize( size_t(m*(n+m)) ) ;
-
-    gecopy( m, n, H0, ld0, &H0Nq[0],     m ) ;
-    gecopy( m, n, HN, ldN, &H0Nq[m*n],   m ) ;
-    gecopy( m, q, Hq, ldQ, &H0Nq[2*m*n], m ) ;
-  }
-
-  /*\
-   |   _                 _ _____           ____        _   _
-   |  | | ___   __ _  __| |_   _|__  _ __ | __ )  ___ | |_| |_ ___  _ __ ___
-   |  | |/ _ \ / _` |/ _` | | |/ _ \| '_ \|  _ \ / _ \| __| __/ _ \| '_ ` _ \
-   |  | | (_) | (_| | (_| | | | (_) | |_) | |_) | (_) | |_| || (_) | | | | | |
-   |  |_|\___/ \__,_|\__,_| |_|\___/| .__/|____/ \___/ \__|\__\___/|_| |_| |_|
-   |                                |_|
-  \*/
-
-  template <typename t_Value>
-  void
-  BlockLU<t_Value>::loadTopBottom( // ----------------------------
-                                   integer           row0,
-                                   integer           col0,
-                                   valueConstPointer block0,
-                                   integer           ld0,
-                                   // ----------------------------
-                                   integer           rowN,
-                                   integer           colN,
-                                   valueConstPointer blockN,
-                                   integer           ldN ) {
-
-    integer & n = this->n ;
-
-    m = col0+colN-n ;
-    
-    H0Nq.resize(size_t(m*(n+m))) ;
-    
-    /*\
-     |  +----+-----+---+
-     |  | H0 | HN  |Hq |
-     |  |    |     |   |
-     |  +----+-----+---+
-     |  +----+------+---------+
-     |  | 0  | blkN |blkN: 0  |
-     |  |blk0|  0   |    :blk0|
-     |  +----+------+---------+
-    \*/
-
-    zero( m*(n+m), &H0Nq[0], 1 ) ;
-    gecopy( rowN, colN, blockN, ldN, &H0Nq[m*n], m ) ;
-
-    valuePointer H0 = &H0Nq[rowN] ;
-    valuePointer Hq = H0+m*(n+colN) ;
-    gecopy( row0, col0-n, block0,              ld0, Hq, m ) ;
-    gecopy( row0, n,      block0+(col0-n)*ld0, ld0, H0, m ) ;
-
-  }
   
   /*\
    |         _ _                 _
@@ -115,12 +43,13 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BlockLU<t_Value>::allocate( integer _n, integer q, integer _nblock ) {
+  BlockLU<t_Value>::allocate( integer _nblock, integer _n, integer _q ) {
 
-    BlockBidiagonal<t_Value>::allocate(_nblock,_n) ;
+    BlockBidiagonal<t_Value>::allocate( _nblock, _n, _q ) ;
 
-    integer & n      = this->n ;
     integer & nblock = this->nblock ;
+    integer & n      = this->n ;
+    integer & q      = this->q ;
 
     m = n+q ;
     N = nblock*n+m ;
@@ -152,36 +81,27 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BlockLU<t_Value>::factorize( integer           _nblock,
-                               integer           _n,
-                               integer           q,
-                               valueConstPointer AdAu,
-                               valueConstPointer H0,
-                               valueConstPointer HN,
-                               valueConstPointer Hq ) {
+  BlockLU<t_Value>::factorize() {
 
-    allocate( _n, q, _nblock ) ;
-    integer & n      = this->n ;
-    integer & nblock = this->nblock ;
+    integer const & nblock = this->nblock ;
+    integer const & n      = this->n ;
+    integer const & q      = this->q ;
+    integer const & nx2    = this->nx2 ;
+    integer const & nxn    = this->nxn ;
+    integer const & nxnx2  = this->nxnx2 ;
 
-    this->loadBlocks( AdAu, n ) ;
-    this->loadBottom( q, H0, m, HN, m, Hq, m ) ;
-
-    // Initialize structures
-    zero( nnz, AdH_blk, 1 ) ;
-    
     // fill matrix
     integer nm = n+m ;
     for ( integer k = 0 ; k < nblock ; ++k ) {
-      valueConstPointer Ad = AdAu + 2*k*n*n ;
-      valueConstPointer Au = Ad   + n*n ;
+      valueConstPointer Ad = this->AdAu_blk + k*nxnx2 ;
+      valueConstPointer Au = Ad + nxn ;
       gecopy( n, n, Ad, n, AdH_blk + k*nm*n, nm ) ;
       gecopy( n, n, Au, n, Au_blk  + k*n*n,  n  ) ;
     }
 
-    gecopy( m, n, H0, m, AdH_blk + n,  nm ) ;
-    gecopy( m, n, HN, m, DD_blk,       m  ) ;
-    gecopy( m, q, Hq, m, DD_blk + m*n, m  ) ;
+    gecopy( m, n, this->H0Nq,       m, AdH_blk + n,  nm ) ;
+    gecopy( m, n, this->H0Nq+n*m,   m, DD_blk,       m  ) ;
+    gecopy( m, q, this->H0Nq+nx2*m, m, DD_blk + m*n, m  ) ;
 
     integer rowFF = (nblock-1)*n ;
     integer INFO ;

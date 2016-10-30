@@ -100,14 +100,6 @@ namespace alglin {
     DiazLU( DiazLU const & ) ;
     DiazLU const & operator = ( DiazLU const & ) ;
 
-    static valueType const epsi ;
-
-    integer row0, col0 ;
-    integer rowN, colN ;
-
-    integer row00, col00 ;
-    integer rowNN, colNN ;
-    integer n_m_row00 ;
     integer NB ;
 
     mutable integer nblk ;
@@ -115,6 +107,8 @@ namespace alglin {
     valuePointer block0 ;
     valuePointer blockN ;
     integer *    swapRC_blks ;
+
+    void setup() ;
 
     void
     LU_left_right( integer nrA,
@@ -137,34 +131,6 @@ namespace alglin {
 
     explicit DiazLU() ;
     ~DiazLU() ;
-
-    //! factorize the matrix
-    virtual
-    void
-    loadTopBottom( // ----------------------------
-                   integer           _row0,
-                   integer           _col0,
-                   valueConstPointer _block0,
-                   integer           ld0,
-                   // ----------------------------
-                   integer           _rowN,
-                   integer           _colN,
-                   valueConstPointer _blockN,
-                   integer           ldN ) ;
-
-    virtual
-    void
-    loadBC( integer numInitialBc,
-            integer numFinalBc,
-            integer numCyclicBC,
-            // ----------------------
-            integer numInitialETA,
-            integer numFinalETA,
-            integer numCyclicOMEGA,
-            // ----------------------
-            valueConstPointer H0, integer ld0,
-            valueConstPointer HN, integer ldN,
-            valueConstPointer Hq, integer ldQ ) ;
 
     virtual
     void

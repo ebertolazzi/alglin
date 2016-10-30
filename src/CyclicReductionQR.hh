@@ -140,8 +140,6 @@ namespace alglin {
 
   public:
 
-    using BlockBidiagonal<valueType>::reduce ;
-
     #ifdef CYCLIC_REDUCTION_USE_THREAD
     explicit CyclicReductionQR( integer nth = integer(std::thread::hardware_concurrency()) ) ;
     #else
@@ -153,7 +151,7 @@ namespace alglin {
     //! load matrix in the class
     virtual
     void
-    allocate( integer nblk, integer n ) ;
+    allocate( integer nblk, integer n, integer q ) ;
 
     /*
     //

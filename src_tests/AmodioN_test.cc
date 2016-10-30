@@ -65,9 +65,9 @@ main() {
 
   tm.tic() ;
   for ( int k = 0 ; k < 10 ; ++k ) {
-    LU.allocate( nblk, n );
+    LU.allocate( nblk, n, q );
     LU.loadBlocks( AdAu, n ) ;
-    LU.loadBottom( q, H0, n+q, HN, n+q, Hq, n+q ) ;
+    LU.loadBottom( H0, n+q, HN, n+q, Hq, n+q ) ;
     LU.selectLastBlockSolver( alglin::LASTBLOCK_LU ) ;
     LU.factorize() ;
   }
