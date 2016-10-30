@@ -173,19 +173,19 @@ namespace alglin {
     valueConstPointer Hq, integer ldQ
   ) {
 
-    integer nBC = numInitialBc + numFinalBc + numCyclicBC ;
-    integer nOM = numInitialOMEGA + numFinalOMEGA + numCyclicOMEGA ;
+    integer nBC = _numInitialBc + _numFinalBc + _numCyclicBC ;
+    integer nOM = _numInitialOMEGA + _numFinalOMEGA + _numCyclicOMEGA ;
 
     ALGLIN_ASSERT( n+q == nBC && nOM == q,
-                   "Bad parameter(s):" <<
+                   "BlockBidiagonal::loadBC bad parameter(s):" <<
                    "\nn               = " << n <<
                    "\nq               = " << q <<
-                   "\nnumInitialBc    = " << numInitialBc    <<
-                   "\nnumFinalBc      = " << numFinalBc      <<
-                   "\nnumCyclicBC     = " << numCyclicBC     <<
-                   "\nnumInitialOMEGA = " << numInitialOMEGA <<
-                   "\nnumFinalOMEGA   = " << numFinalOMEGA   <<
-                   "\nnumCyclicOMEGA  = " << numCyclicOMEGA ) ;
+                   "\nnumInitialBc    = " << _numInitialBc    <<
+                   "\nnumFinalBc      = " << _numFinalBc      <<
+                   "\nnumCyclicBC     = " << _numCyclicBC     <<
+                   "\nnumInitialOMEGA = " << _numInitialOMEGA <<
+                   "\nnumFinalOMEGA   = " << _numFinalOMEGA   <<
+                   "\nnumCyclicOMEGA  = " << _numCyclicOMEGA ) ;
 
     numInitialBc    = _numInitialBc ;
     numFinalBc      = _numFinalBc ;
