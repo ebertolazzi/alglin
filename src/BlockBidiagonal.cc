@@ -201,8 +201,8 @@ namespace alglin {
       gecopy( rowN, n,     HN, ldN, blockN,        rowN ) ;
       gecopy( rowN, colNN, Hq, ldQ, blockN+n*rowN, rowN ) ;
 
-      gecopy( row0, col00, Hq+colNN*ldQ, ldQ, block0,            row0 ) ;
-      gecopy( row0, n,     H0,           ld0, block0+col00*row0, row0 ) ;
+      gecopy( row0, col00, Hq+rowN+colNN*ldQ, ldQ, block0,            row0 ) ;
+      gecopy( row0, n,     H0+rowN,           ld0, block0+col00*row0, row0 ) ;
 
     } else {
       integer m = n + q ;
