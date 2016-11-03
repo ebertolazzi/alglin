@@ -106,30 +106,8 @@ namespace alglin {
   template <typename QR_type>
   void
   BabdQR<QR_type>::factorize() {
-
     this->reduce() ;
-
-    /*
-    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    // !!!! factorization of the last block !!!!
-    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    */
-    /*
-    // / S  R  0  \ /x(0)\  = b(0)
-    // \ H0 HN Hq / \x(N)/  = b(N)
-    */
-
-    integer const & n = this->n ;
-    integer const & q = this->q ;
-    integer const   m = n+q ;
-    integer const  mn = m+n ;
-    this->la_factorization->allocate( mn, mn ) ;
-    this->la_factorization->load_block( n, 2*n, this->getPointer_LR(), n ) ;
-    this->la_factorization->load_block( m, mn, this->H0Nq, m, n, 0 ) ;
-    if ( m > n ) this->la_factorization->zero_block( n, q, 0, 2*n ) ;
-
-    // fattorizzazione ultimo blocco
-    this->la_factorization->factorize() ;
+    this->last_block_factorize() ;
   }
 
   /*\

@@ -110,12 +110,12 @@ namespace alglin {
   BlockBidiagonal<t_Value>::loadTopBottom(
     integer           row0,
     integer           col0,
-    valueConstPointer block0,
+    valueConstPointer block0_in,
     integer           ld0,
     // ----------------------------
     integer           rowN,
     integer           colN,
-    valueConstPointer blockN,
+    valueConstPointer blockN_in,
     integer           ldN
   ) {
 
@@ -126,26 +126,11 @@ namespace alglin {
     numFinalOMEGA   = colN - n ;
     numCyclicOMEGA  = 0 ;
 
-    /*\
-     |  +----+-----+---+
-     |  | H0 | HN  |Hq |
-     |  |    |     |   |
-     |  +----+-----+---+
-     |  +----+------+---------+
-     |  | 0  | blkN |blkN: 0  |
-     |  |blk0|  0   |    :blk0|
-     |  +----+------+---------+
-    \*/
-    
-    integer m = n + q ;
+    block0 = H0Nq ;
+    blockN = H0Nq+row0*col0 ;
 
-    zero( m*(n+m), H0Nq, 1 ) ;
-    gecopy( rowN, colN, blockN, ldN, H0Nq+m*n, m ) ;
-
-    valuePointer H0 = H0Nq+rowN ;
-    valuePointer Hq = H0+m*(n+colN) ;
-    gecopy( row0, col0-n, block0,              ld0, Hq, m ) ;
-    gecopy( row0, n,      block0+(col0-n)*ld0, ld0, H0, m ) ;
+    gecopy( row0, col0, block0_in, ld0, block0, row0 ) ;
+    gecopy( rowN, colN, blockN_in, ldN, blockN, rowN ) ;
 
   }
 
@@ -193,14 +178,99 @@ namespace alglin {
     numInitialOMEGA = _numInitialOMEGA ;
     numFinalOMEGA   = _numFinalOMEGA ;
     numCyclicOMEGA  = _numCyclicOMEGA ;
+    
+    if ( numCyclicBC == 0 && numCyclicOMEGA == 0 ) {
+      /*\
+       |  +----+-----+---+
+       |  | H0 | HN  |Hq |
+       |  |    |     |   |
+       |  +----+-----+---+
+       |  +----+------+---------+
+       |  | 0  | blkN |blkN: 0  |
+       |  |blk0|  0   |    :blk0|
+       |  +----+------+---------+
+      \*/
+      integer row0  = numInitialBc ;
+      integer rowN  = numFinalBc ;
+      integer col00 = numInitialOMEGA ;
+      integer colNN = numFinalOMEGA ;
 
-    integer m = n + q ;
-    gecopy( m, n, H0, ld0, H0Nq,       m ) ;
-    gecopy( m, n, HN, ldN, H0Nq+m*n,   m ) ;
-    gecopy( m, q, Hq, ldQ, H0Nq+2*m*n, m ) ;
+      block0 = H0Nq ;
+      blockN = H0Nq+row0*(n+col00) ;
 
+      gecopy( rowN, n,     HN, ldN, blockN,        rowN ) ;
+      gecopy( rowN, colNN, Hq, ldQ, blockN+n*rowN, rowN ) ;
+
+      gecopy( row0, col00, Hq+colNN*ldQ, ldQ, block0,            row0 ) ;
+      gecopy( row0, n,     H0,           ld0, block0+col00*row0, row0 ) ;
+
+    } else {
+      integer m = n + q ;
+      gecopy( m, n, H0, ld0, H0Nq,       m ) ;
+      gecopy( m, n, HN, ldN, H0Nq+m*n,   m ) ;
+      gecopy( m, q, Hq, ldQ, H0Nq+2*m*n, m ) ;
+    }
   }
   
+  /*\
+   |   _           _     _     _            _
+   |  | | __ _ ___| |_  | |__ | | ___   ___| | __
+   |  | |/ _` / __| __| | '_ \| |/ _ \ / __| |/ /
+   |  | | (_| \__ \ |_  | |_) | | (_) | (__|   <
+   |  |_|\__,_|___/\__| |_.__/|_|\___/ \___|_|\_\
+   |    __            _             _
+   |   / _| __ _  ___| |_ ___  _ __(_)_______
+   |  | |_ / _` |/ __| __/ _ \| '__| |_  / _ \
+   |  |  _| (_| | (__| || (_) | |  | |/ /  __/
+   |  |_|  \__,_|\___|\__\___/|_|  |_/___\___|
+  \*/
+
+  template <typename t_Value>
+  void
+  BlockBidiagonal<t_Value>::last_block_factorize() {
+    /*
+    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    // !!!! factorization of the last block !!!!
+    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    */
+    /*
+    // / S  R  0  \ /x(0)\  = b(0)
+    // \ H0 HN Hq / \x(N)/  = b(N)
+    */
+    integer m  = n+q ;
+    integer mn = m+n ;
+
+    la_factorization->allocate( mn, mn ) ;
+    if ( this->numCyclicBC == 0 && this->numCyclicOMEGA == 0 ) {
+      /*\
+       |  +----+-----+---+
+       |  | H0 | HN  |Hq |
+       |  |    |     |   |
+       |  +----+-----+---+
+       |  +----+------+---------+
+       |  | 0  | blkN |blkN: 0  |
+       |  |blk0|  0   |    :blk0|
+       |  +----+------+---------+
+      \*/
+      integer row0  = numInitialBc ;
+      integer rowN  = numFinalBc ;
+      integer col00 = numInitialOMEGA ;
+      integer colNN = numFinalOMEGA ;
+      la_factorization->load_block( n, nx2, AdAu_blk, n ) ;
+      la_factorization->zero_block( m, mn, n, 0 ) ;
+      la_factorization->load_block( rowN, n+colNN, blockN, rowN, n, n ) ;
+      la_factorization->load_block( row0, n,     block0+col00*row0, row0, n+rowN, 0 ) ;
+      la_factorization->load_block( row0, col00, block0,            row0, n+rowN, nx2+colNN ) ;
+    } else {
+      la_factorization->load_block( n, nx2, AdAu_blk, n ) ;
+      la_factorization->load_block( m, mn, H0Nq, m, n, 0 ) ;
+      if ( m > n ) la_factorization->zero_block( n, q, 0, nx2 ) ;
+    }
+
+    // fattorizzazione ultimo blocco
+    this->la_factorization->factorize() ;
+  }
+
   template <typename T>
   static
   void

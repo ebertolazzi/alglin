@@ -36,6 +36,7 @@ typedef double valueType ;
 unsigned seed1 = 2 ;
 std::mt19937 generator(seed1);
 
+static
 valueType
 rand( valueType xmin, valueType xmax ) {
   valueType random = valueType(generator())/generator.max();

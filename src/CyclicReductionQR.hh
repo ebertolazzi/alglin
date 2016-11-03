@@ -76,8 +76,6 @@ namespace alglin {
     typedef typename QR_type::valueType*        valuePointer ;
     typedef typename QR_type::valueType const * valueConstPointer ;
 
-    Malloc<valueType> baseValue ;
-
     CyclicReductionQR(CyclicReductionQR const &) ;
     CyclicReductionQR const & operator = (CyclicReductionQR const &) ;
 
@@ -124,8 +122,8 @@ namespace alglin {
     mutable integer            jump_block_max_mt ;
     mutable valuePointer       y_thread ;
     
-    mutable valuePointer  M_2n_2n_mt[CYCLIC_REDUCTION_MAX_THREAD],
-                          v_nx2_mt[CYCLIC_REDUCTION_MAX_THREAD] ;
+    mutable valuePointer M_2n_2n_mt[CYCLIC_REDUCTION_MAX_THREAD],
+                        v_nx2_mt[CYCLIC_REDUCTION_MAX_THREAD] ;
 
     void forward_mt( integer nth ) const ;
     void backward_mt( integer nth ) const ;

@@ -107,14 +107,11 @@ namespace alglin {
   template <typename QR_type>
   #ifdef CYCLIC_REDUCTION_USE_THREAD
   CyclicReductionQR<QR_type>::CyclicReductionQR( integer nth )
+  : numThread(nth), NB(25)
   #else
   CyclicReductionQR<QR_type>::CyclicReductionQR()
+  : NB(25)
   #endif
-  : baseValue("CyclicReductionQR_value")
-  #ifdef CYCLIC_REDUCTION_USE_THREAD
-  , numThread(nth)
-  #endif
-  , NB(25)
   {
     #ifdef CYCLIC_REDUCTION_USE_THREAD
     ALGLIN_ASSERT( numThread > 0 && numThread <= CYCLIC_REDUCTION_MAX_THREAD,
@@ -124,9 +121,8 @@ namespace alglin {
   }
 
   template <typename QR_type>
-  CyclicReductionQR<QR_type>::~CyclicReductionQR() {
-    baseValue.free() ;
-  }
+  CyclicReductionQR<QR_type>::~CyclicReductionQR()
+  { }
   
   /*\
    |         _ _                 _
@@ -139,31 +135,27 @@ namespace alglin {
   template <typename QR_type>
   void
   CyclicReductionQR<QR_type>::allocate( integer _nblock, integer _n, integer _q ) {
-  
-    if ( _nblock == this->nblock && this->n == _n && this->q == _q ) return ;
 
-    BlockBidiagonal<valueType>::allocate( _nblock, _n, _q ) ;
+    integer mem = _n*(_n*(2*_nblock+4)+2) ;
+
+    #ifdef CYCLIC_REDUCTION_USE_THREAD
+    mem += _n*(4*_n+2)*CYCLIC_REDUCTION_MAX_THREAD ;
+    #endif
+
+    BlockBidiagonal<valueType>::allocate( _nblock, _n, _q, mem, 0 ) ;
 
     integer & nblock = this->nblock ;
     integer & n      = this->n ;
     integer & nxn    = this->nxn ;
     integer & nx2    = this->nx2 ;
-    integer & nxnx2  = this->nxnx2 ;
 
-    integer mem = nblock*nxnx2+4*nxn+nx2 ;
-
-    #ifdef CYCLIC_REDUCTION_USE_THREAD
-    mem += (4*nxn+nx2)*CYCLIC_REDUCTION_MAX_THREAD ;
-    #endif
-    baseValue.allocate(size_t(mem)) ;
-    this->AdAu_blk = baseValue(size_t(nblock*nxnx2)) ;
-    M_2n_2n        = baseValue(size_t(4*nxn)) ;
-    v_nx2          = baseValue(size_t(nx2)) ;
+    M_2n_2n = this->baseValue(size_t(4*nxn)) ;
+    v_nx2   = this->baseValue(size_t(nx2)) ;
 
     #ifdef CYCLIC_REDUCTION_USE_THREAD
     for ( integer nth = 0 ; nth < CYCLIC_REDUCTION_MAX_THREAD ; ++nth ) {
-      M_2n_2n_mt[nth] = baseValue(size_t(4*nxn)) ;
-      v_nx2_mt[nth]   = baseValue(size_t(nx2)) ;
+      M_2n_2n_mt[nth] = this->baseValue(size_t(4*nxn)) ;
+      v_nx2_mt[nth]   = this->baseValue(size_t(nx2)) ;
     }
     #endif
 

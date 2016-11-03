@@ -62,8 +62,6 @@ namespace alglin {
     AmodioLU(AmodioLU const &) ;
     AmodioLU const & operator = (AmodioLU const &) ;
 
-    Malloc<valueType> baseValue ;
-
   public:
 
     using CyclicReduction<valueType>::allocate ;
@@ -72,7 +70,6 @@ namespace alglin {
     explicit
     AmodioLU( integer nth = integer(std::thread::hardware_concurrency()) )
     : CyclicReduction<valueType>(nth)
-    , baseValue("AmodioLU_values")
     {}
     #else
     explicit AmodioLU() : CyclicReduction<valueType>() {}

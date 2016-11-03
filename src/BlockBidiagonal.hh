@@ -75,12 +75,14 @@ namespace alglin {
     typedef t_Value*        valuePointer ;
     typedef t_Value const * valueConstPointer ;
 
-    Malloc<valueType> baseValue ;
-
     BlockBidiagonal(BlockBidiagonal const &) ;
     BlockBidiagonal const & operator = (BlockBidiagonal const &) ;
 
   protected:
+
+    Malloc<valueType> baseValue ;
+    Malloc<integer>   baseInteger ;
+
     integer nblock ; //!< total number of blocks
     integer n      ; //!< size of square blocks
     integer q      ; //!< extra BC
@@ -133,6 +135,8 @@ namespace alglin {
 
     valuePointer AdAu_blk ;
     valuePointer H0Nq ;
+    valuePointer block0 ;
+    valuePointer blockN ;
 
   private:
 
@@ -146,6 +150,7 @@ namespace alglin {
     explicit
     BlockBidiagonal()
     : baseValue("BlockBidiagonal_values")
+    , baseInteger("BlockBidiagonal_integers")
     , nblock(0)
     , n(0)
     , q(0)
@@ -167,23 +172,24 @@ namespace alglin {
     //! load matrix in the class
     virtual
     void
-    allocate( integer _nblock, integer _n, integer _q ) {
-      if ( _nblock != nblock || n != _n || q != _q ) {
-        nblock = _nblock ;
-        n      = _n ;
-        q      = _q ;
-        nx2    = 2*n ;
-        nxn    = n*n ;
-        nxnx2  = nxn*2 ;
-        baseValue.allocate(size_t(nblock*nxnx2+(n+q)*(2*n+q))) ;
-        AdAu_blk = baseValue(size_t(nblock*nxnx2)) ;
-        H0Nq     = baseValue(size_t((n+q)*(2*n+q))) ;
-      }
+    allocate( integer _nblock,
+              integer _n,
+              integer _q,
+              integer num_extra_r,
+              integer num_extra_i ) {
+      nblock = _nblock ;
+      n      = _n ;
+      q      = _q ;
+      nx2    = 2*n ;
+      nxn    = n*n ;
+      nxnx2  = nxn*2 ;
+      baseValue.allocate(size_t(nblock*nxnx2+(n+q)*(nx2+q)+num_extra_r)) ;
+      baseInteger.allocate(size_t(num_extra_i)) ;
+      AdAu_blk = baseValue(size_t(nblock*nxnx2)) ;
+      H0Nq     = baseValue(size_t((n+q)*(nx2+q))) ;
+      block0   = nullptr ;
+      blockN   = nullptr ;
     }
-
-    integer getNblock() const { return nblock ; }
-    integer getN()      const { return n ; }
-    integer getQ()      const { return q ; }
 
     // filling bidiagonal part of the matrix
     void
@@ -230,7 +236,12 @@ namespace alglin {
 
     void
     getBlock_Hq( valuePointer Hq, integer ldQ ) const
-    { gecopy( n+q, q, H0Nq+2*n*(n+q), n+q, Hq, ldQ ) ; }
+    { gecopy( n+q, q, H0Nq+nx2*(n+q), n+q, Hq, ldQ ) ; }
+
+    virtual
+    void
+    allocate( integer /*nblock*/, integer /*n*/, integer /*q*/ )
+    { ALGLIN_ERROR("BlockBidiagonal::allocate() not defined!") ; }
 
     virtual
     void
@@ -283,8 +294,10 @@ namespace alglin {
     }
 
     void
-    dumpMatrix ( basic_ostream<char> & stream ) const ;
+    last_block_factorize() ;
 
+    void
+    dumpMatrix ( basic_ostream<char> & stream ) const ;
 
   } ;
 }

@@ -56,9 +56,6 @@ namespace alglin {
     typedef t_Value*        valuePointer ;
     typedef t_Value const * valueConstPointer ;
 
-    Malloc<valueType> baseValue ;
-    Malloc<integer>   baseInteger ;
-
     BlockLU(BlockLU const &) ;
     BlockLU const & operator = (BlockLU const &) ;
 
@@ -176,15 +173,9 @@ namespace alglin {
 
   public:
 
-    explicit BlockLU()
-    : baseValue( "BlockLU_value" )
-    , baseInteger( "BlockLU_index" )
-    { }
+    explicit BlockLU() { }
 
-    ~BlockLU() {
-      baseValue.free() ;
-      baseInteger.free() ;
-    }
+    ~BlockLU() { }
 
     virtual
     void

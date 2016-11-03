@@ -89,8 +89,6 @@ namespace alglin {
     typedef t_Value*        valuePointer ;
     typedef t_Value const * valueConstPointer ;
 
-    Malloc<valueType> baseValue ;
-    Malloc<integer>   baseInteger ;
     std::vector<std::vector<bool> > LU_rows_blk ;
 
     CyclicReduction(CyclicReduction const &) ;
@@ -145,6 +143,8 @@ namespace alglin {
     void reduce_mt( integer nth ) ;
     #endif
 
+    integer NB ; // blocking factor
+
     #ifdef CYCLIC_REDUCTION_USE_FIXED_SIZE
     template <integer N>
     class FixedSize {
@@ -175,8 +175,6 @@ namespace alglin {
     void backward( valuePointer y, integer jump_block_min ) const ;
 
     mutable integer jump_block ;
-
-    integer NB ; // blocking factor
 
   public:
 

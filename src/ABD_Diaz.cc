@@ -57,109 +57,6 @@
 
 namespace alglin {
 
-  //template <> float  const DiazLU<float>::epsi  = 100*std::numeric_limits<float>::epsilon() ;
-  //template <> double const DiazLU<double>::epsi = 1000*std::numeric_limits<double>::epsilon() ;
-
-  template <typename t_Value>
-  DiazLU<t_Value>::DiazLU()
-  : baseValue("DiazLU_values")
-  , baseIndex("DiazLU_integers")
-  , NB(25)
-  {
-  }
-  
-  template <typename t_Value>
-  DiazLU<t_Value>::~DiazLU() {
-    baseValue.free() ;
-    baseIndex.free() ;
-  }
-
-  /*
-  // ---------------------------------------------------------------------------
-  //             col0
-  //       +---+----------+
-  // col00 |              |
-  //       +   + - - - -  |  row0
-  // row00 |   :          |
-  //       |   :          |
-  //       +---+----------+----------+
-  //     col00 |                     |
-  //           |                     | n
-  //           |                     |
-  //           +----------+----------+
-  //                 2*n
-  //
-  //     +----------+----------+
-  //     |                     |
-  //     |                     |
-  //     |                     | colNN
-  //     +----------+----------+-----+
-  //                |                |
-  //                |                | rowN
-  //                |                |
-  //                |                |
-  //                +----------------+
-  //                      colN
-  //
-  */
-  template <typename t_Value>
-  void
-  DiazLU<t_Value>::setup() {
-
-    integer const & n               = this->n ;
-    integer const & q               = this->q ;
-    integer const & nblock          = this->nblock ;
-    integer const & numInitialBc    = this->numInitialBc ;
-    integer const & numFinalBc      = this->numFinalBc ;
-    integer const & numCyclicBC     = this->numCyclicBC ;
-    integer const & numInitialOMEGA = this->numInitialOMEGA ;
-    integer const & numFinalOMEGA   = this->numFinalOMEGA ;
-    integer const & numCyclicOMEGA  = this->numCyclicOMEGA ;
-
-    ALGLIN_ASSERT( numCyclicOMEGA == 0 && numCyclicBC == 0,
-                   "DiazLU cannot manage cyclic BC" ) ;
-
-    integer const & col00 = numInitialOMEGA ;
-    integer const & colNN = numFinalOMEGA ;
-    integer const & row0  = numInitialBc ;
-    integer const & rowN  = numFinalBc ;
-
-    integer col0  = n + col00 ;
-    integer colN  = n + colNN ;
-
-    // allocate
-    baseIndex.allocate(size_t( nblock*n+row0 )) ;
-    baseValue.allocate(size_t( row0*col0 + rowN*colN )) ;
-    block0      = baseValue(size_t( row0*col0 )) ;
-    blockN      = baseValue(size_t( rowN*colN )) ;
-    swapRC_blks = baseIndex(size_t( nblock*n+row0 )) ;
-    
-    integer m = n+q ;
-
-    // zeros block
-    zero( row0*col0 + rowN*colN, block0, 1 ) ;
-    
-    valuePointer H0 = this->H0Nq ;
-    valuePointer HN = H0 + m*n ;
-    valuePointer Hq = HN + m*n ;
-
-    #define IDX0(I,J) ((I)+(J)*row0)
-    #define IDXN(I,J) ((I)+(J)*rowN)
-    //  +-+-------+
-    //  |x|  NZ   |
-    //  |x|  NZ   |
-    //  +-+-------+
-    gecopy( row0, col00, Hq+rowN+colNN*m, m, block0+IDX0(0,0),     row0 ) ;
-    gecopy( row0, n,     H0+rowN,         m, block0+IDX0(0,col00), row0 ) ;
-    //  +-------+-+
-    //  |  NZ   |y|
-    //  +-------+-+
-    gecopy( rowN, n,     HN, m, blockN+IDXN(0,0), rowN ) ;
-    gecopy( rowN, colNN, Hq, m, blockN+IDXN(0,n), rowN ) ;
-    #undef IDX0
-    #undef IDXN
-  }
-
   /*
   //
   // +---+-----+--------+
@@ -272,7 +169,8 @@ namespace alglin {
   void
   DiazLU<t_Value>::factorize() {
 
-    setup() ;
+    ALGLIN_ASSERT( this->numCyclicOMEGA == 0 && this->numCyclicBC == 0,
+                   "DiazLU cannot manage cyclic BC" ) ;
 
     integer const & n      = this->n ;
     integer const & nxnx2  = this->nxnx2 ;
@@ -286,6 +184,9 @@ namespace alglin {
     integer const col0      = n + col00 ;
     integer const row00     = row0 - col00 ;
     integer const n_m_row00 = n - row00 ;
+
+    valuePointer & block0 = this-> block0 ;
+    valuePointer & blockN = this-> blockN ;
 
     // primo blocco
     integer * swapRC = swapRC_blks ;
@@ -390,6 +291,9 @@ namespace alglin {
     integer const colN      = n + colNN ;
     integer const row00     = row0 - col00 ;
     integer const n_m_row00 = n - row00 ;
+
+    valueConstPointer const & block0 = this->block0 ;
+    valueConstPointer const & blockN = this->blockN ;
 
     integer neq = nblock*n+row0+rowN ;
     std::rotate( in_out, in_out + neq - row0, in_out + neq ) ;

@@ -45,30 +45,24 @@ namespace alglin {
   void
   BlockLU<t_Value>::allocate( integer _nblock, integer _n, integer _q ) {
 
-    BlockBidiagonal<t_Value>::allocate( _nblock, _n, _q ) ;
+    m = _n+_q ;
+    N = _nblock*_n+m ;
 
-    integer & nblock = this->nblock ;
-    integer & n      = this->n ;
-    integer & q      = this->q ;
-
-    m = n+q ;
-    N = nblock*n+m ;
-
-    integer nnzAdH = nblock*(n*(n+m)) ; // blocchi AdH
-    integer nnzAu  = nblock*(n*n)+n*q ; // blocchi Au
-    integer nnzFF  = (nblock-1)*(n*m) ; // blocchi FF
+    integer nnzAdH = _nblock*(_n*(2*_n+_q)) ; // blocchi AdH
+    integer nnzAu  = _nblock*(_n*_n)+_n*_q ; // blocchi Au
+    integer nnzFF  = (_nblock-1)*(_n*(_n+_q)) ; // blocchi FF
     integer nnzDD  = m*m ;            ; // blocco  DD
 
     nnz = nnzAdH + nnzAu + nnzFF + nnzDD ;
 
-    baseValue.allocate(size_t( nnz )) ;
-    baseInteger.allocate(size_t( N   )) ;
+    BlockBidiagonal<t_Value>::allocate( _nblock, _n, _q, nnz, N ) ;
 
-    AdH_blk  = baseValue(size_t( nnzAdH )) ;
-    Au_blk   = baseValue(size_t( nnzAu  )) ;
-    FF_blk   = baseValue(size_t( nnzFF  )) ;
-    DD_blk   = baseValue(size_t( nnzDD  )) ;
-    ipiv_blk = baseInteger(size_t( N )) ;
+    AdH_blk  = this->baseValue(size_t( nnzAdH )) ;
+    Au_blk   = this->baseValue(size_t( nnzAu  )) ;
+    FF_blk   = this->baseValue(size_t( nnzFF  )) ;
+    DD_blk   = this->baseValue(size_t( nnzDD  )) ;
+    ipiv_blk = this->baseInteger(size_t( N )) ;
+
   }
 
   /*\

@@ -214,13 +214,11 @@ namespace alglin {
   template <typename t_Value>
   #ifdef CYCLIC_REDUCTION_USE_THREAD
   CyclicReduction<t_Value>::CyclicReduction( integer nth )
+  : numThread(nth)
+  , NB(25)
   #else
   CyclicReduction<t_Value>::CyclicReduction()
-  #endif
-  : baseValue("CyclicReduction_value")
-  , baseInteger("CyclicReduction_index")
-  #ifdef CYCLIC_REDUCTION_USE_THREAD
-  , numThread(nth)
+  : NB(25)
   #endif
   #ifdef CYCLIC_REDUCTION_USE_FIXED_SIZE
   , fixed2(this)
@@ -233,7 +231,6 @@ namespace alglin {
   , fixed9(this)
   , fixed10(this)
   #endif
-  , NB(25)
   {
     #ifdef CYCLIC_REDUCTION_USE_THREAD
     ALGLIN_ASSERT( numThread > 0 && numThread <= CYCLIC_REDUCTION_MAX_THREAD,
@@ -243,10 +240,7 @@ namespace alglin {
   }
 
   template <typename t_Value>
-  CyclicReduction<t_Value>::~CyclicReduction() {
-    baseValue   . free() ;
-    baseInteger . free() ;
-  }
+  CyclicReduction<t_Value>::~CyclicReduction() { }
   
   /*\
    |         _ _                 _
@@ -260,40 +254,34 @@ namespace alglin {
   void
   CyclicReduction<t_Value>::allocate( integer _nblock, integer _n, integer _q ) {
 
-    if ( _nblock == this->nblock && this->n == _n && this->q == _q ) return ;
+    integer nnzG = (_nblock-1)*_n*_n ;
 
-    BlockBidiagonal<t_Value>::allocate( _nblock, _n, _q ) ;
+    #ifdef CYCLIC_REDUCTION_USE_THREAD
+    integer nnzLU = numThread*_n*_n*2 ;
+    #else
+    integer nnzLU = _n*_n*2 ;
+    #endif
+
+    integer nv = nnzG + nnzLU ;
+    integer ni = _nblock*_n ;
+
+    #ifdef CYCLIC_REDUCTION_USE_THREAD
+    nv += numThread*_n*_n*2 ;
+    #else
+    nv += _n*_n*2 ;
+    #endif
+
+    BlockBidiagonal<t_Value>::allocate( _nblock, _n, _q, nv, ni ) ;
 
     integer const & nblock = this->nblock ;
     integer const & n      = this->n ;
     integer const & nxn    = this->nxn ;
     integer const & nx2    = this->nx2 ;
-    integer const & nxnx2  = this->nxnx2 ;
-    
-    integer nnzG = (nblock-1)*nxn ;
 
-    #ifdef CYCLIC_REDUCTION_USE_THREAD
-    integer nnzLU = numThread*nxnx2 ;
-    #else
-    integer nnzLU = nxnx2 ;
-    #endif
+    G_blk = this->baseValue(size_t(nnzG)) - nxn ; // 1 based
+    tmpM  = this->baseValue(size_t(nnzLU)) ;
 
-    integer nv = nnzG + nnzLU ;
-    integer ni = nblock*n ;
-
-    #ifdef CYCLIC_REDUCTION_USE_THREAD
-    nv += numThread*nxnx2 ;
-    #else
-    nv += nxnx2 ;
-    #endif
-
-    baseValue   . allocate(size_t(nv)) ;
-    baseInteger . allocate(size_t(ni)) ;
-
-    G_blk = baseValue(size_t(nnzG)) - nxn ; // 1 based
-    tmpM  = baseValue(size_t(nnzLU)) ;
-
-    ipiv_blk = baseInteger(size_t( nblock*n )) ;
+    ipiv_blk = this->baseInteger(size_t( nblock*n )) ;
 
     LU_rows_blk.resize( nblock ) ;
     for ( integer i = 0 ; i < nblock ; ++i )

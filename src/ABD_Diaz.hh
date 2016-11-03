@@ -94,9 +94,6 @@ namespace alglin {
 
   private:
 
-    Malloc<valueType> baseValue ;
-    Malloc<integer>   baseIndex ;
-
     DiazLU( DiazLU const & ) ;
     DiazLU const & operator = ( DiazLU const & ) ;
 
@@ -104,11 +101,7 @@ namespace alglin {
 
     mutable integer nblk ;
 
-    valuePointer block0 ;
-    valuePointer blockN ;
-    integer *    swapRC_blks ;
-
-    void setup() ;
+    integer * swapRC_blks ;
 
     void
     LU_left_right( integer nrA,
@@ -129,8 +122,16 @@ namespace alglin {
 
   public:
 
-    explicit DiazLU() ;
-    ~DiazLU() ;
+    explicit DiazLU() : NB(25) {}
+    ~DiazLU() {}
+
+    virtual
+    void
+    allocate( integer _nblock, integer _n, integer _q ) {
+      integer inv = _nblock*_n+_q ;
+      BlockBidiagonal<t_Value>::allocate(_nblock, _n, _q, 0, inv) ;
+      swapRC_blks = this->baseInteger(size_t(inv)) ;
+    }
 
     virtual
     void
