@@ -143,7 +143,7 @@ main() {
 
       tm.tic() ;
       std::copy( rhs, rhs+N, x ) ;
-      LU.solve( x ) ;
+      LU.solve( 1, x, N ) ;
   
       tm.toc() ;
       cout << "Solve = " << tm.elapsedMilliseconds() << " [ms]\n" ;

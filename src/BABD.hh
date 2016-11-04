@@ -191,6 +191,10 @@ namespace alglin {
     solve( valuePointer in_out ) const
     { babd_solver->solve( in_out ) ; }
 
+    void
+    solve( integer nrhs, valuePointer in_out, integer ldIO ) const
+    { babd_solver->solve( nrhs, in_out, ldIO ) ; }
+
     /*\
      |   ____
      |  |  _ \ _   _ _ __ ___  _ __

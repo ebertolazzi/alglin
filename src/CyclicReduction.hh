@@ -177,7 +177,10 @@ namespace alglin {
     #endif
 
     void backward( valuePointer y, integer jump_block_min ) const ;
-    void backward( integer nrhs, valuePointer y, integer ldY, integer jump_block_min ) const ;
+    void backward( integer      nrhs,
+                   valuePointer y,
+                   integer      ldY,
+                   integer      jump_block_min ) const ;
 
     mutable integer jump_block ;
 

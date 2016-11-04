@@ -78,7 +78,7 @@ main() {
 
   std::copy( rhs, rhs+N, x ) ;
   tm.tic() ;
-  CR.forward( x ) ;
+  CR.forward(1,x,N) ;
   tm.toc() ;
   cout << "\nForward = " << tm.elapsedMilliseconds() << " [ms]\n\n" ;
 
@@ -88,7 +88,7 @@ main() {
   alglin::copy( n,   tmp,   1, x,        1 ) ;
   alglin::copy( n+q, tmp+n, 1, x+nblk*n, 1 ) ;
   tm.tic() ;
-  CR.backward( x ) ;
+  CR.backward(1,x,N) ;
   tm.toc() ;
   cout << "\nBackward = " << tm.elapsedMilliseconds() << " [ms]\n\n" ;
 

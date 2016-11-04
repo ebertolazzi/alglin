@@ -572,6 +572,7 @@ namespace alglin {
     if ( usedThread > 0 ) {
       backward( y, jump_block_max_mt ) ;
       to_be_done = usedThread ;
+      y_thread   = y ;
       for ( integer nt = 0 ; nt < usedThread ; ++nt )
         threads[nt] = std::thread( &CyclicReductionQR<QR_type>::backward_mt, this, nt ) ;
       for ( integer nt = 0 ; nt < usedThread ; ++nt )
@@ -581,6 +582,267 @@ namespace alglin {
     }
     #else
     backward( y, 0 ) ;
+    #endif
+  }
+
+  /*\
+   |                           _
+   |                _ __  _ __| |__  ___
+   |    _____ _____| '_ \| '__| '_ \/ __|_____ _____
+   |   |_____|_____| | | | |  | | | \__ \_____|_____|
+   |               |_| |_|_|  |_| |_|___/
+  \*/
+
+  /*\
+   |    __                                  _
+   |   / _| ___  _ ____      ____ _ _ __ __| |
+   |  | |_ / _ \| '__\ \ /\ / / _` | '__/ _` |
+   |  |  _| (_) | |   \ V  V / (_| | | | (_| |
+   |  |_|  \___/|_|    \_/\_/ \__,_|_|  \__,_|
+  \*/
+  template <typename QR_type>
+  void
+  CyclicReductionQR<QR_type>::forward( integer      nrhs,
+                                       valuePointer y,
+                                       integer      ldY ) const {
+
+    integer const & nblock = this->nblock ;
+    integer const & n      = this->n ;
+
+    /*\
+     | !!!!!!!!!!!!!!!!!!!!!!!!!
+     | !!!! reduction phase !!!!
+     | !!!!!!!!!!!!!!!!!!!!!!!!!
+    \*/
+    jump_block = 1 ;
+    #ifdef CYCLIC_REDUCTION_USE_THREAD
+    if ( usedThread > 0 ) {
+      y_thread    = y ;
+      nrhs_thread = nrhs ;
+      ldY_thread  = ldY ;
+      to_be_done  = usedThread = numThread ;
+      jump_block_max_mt = nblock>>(usedThread-1) ;
+      for ( integer nt = 0 ; nt < usedThread ; ++nt )
+        threads[nt] = std::thread( &CyclicReductionQR<QR_type>::forward_nrhs_mt, this, nt ) ;
+      for ( integer nt = 0 ; nt < usedThread ; ++nt )
+        threads[nt].join() ;
+    }
+    #endif
+
+    while ( jump_block < nblock ) {
+
+      integer k_step = 2*jump_block ;
+      integer kend   = nblock-jump_block ;
+
+      for ( integer k = 0 ; k < kend ; k += k_step ) {
+        integer k1 = k+jump_block ;
+        QR_type const & QR = *QR_blk[k1] ;
+        valuePointer yk  = y + k  * n ;
+        valuePointer yk1 = y + k1 * n ;
+        /*\
+         |   applico Q^T e scambio
+        \*/
+        for ( integer j = 0 ; j < nrhs ; ++j ) {
+          copy( n, yk  + j * ldY, 1, v_nx2,   1 ) ;
+          copy( n, yk1 + j * ldY, 1, v_nx2+n, 1 ) ;
+          QR.Qt_mul( v_nx2 ) ;
+          copy( n, v_nx2,   1, yk1 + j * ldY, 1 ) ;
+          copy( n, v_nx2+n, 1, yk  + j * ldY, 1 ) ;
+        }
+      }
+
+      // aspetta le altre thread
+      jump_block *= 2 ;
+    }
+  }
+
+  #ifdef CYCLIC_REDUCTION_USE_THREAD
+  template <typename QR_type>
+  void
+  CyclicReductionQR<QR_type>::forward_nrhs_mt( integer nth ) const {
+
+    integer const & nblock = this->nblock ;
+    integer const & n      = this->n ;
+
+    valuePointer v_tmp = v_nx2_mt[nth] ;
+    while ( jump_block < jump_block_max_mt ) {
+
+      integer k_step = 2*usedThread*jump_block ;
+      integer k0     = 2*nth*jump_block ;
+      integer kend   = nblock-jump_block ;
+
+      for ( integer k = k0 ; k < kend ; k += k_step ) {
+        integer k1 = k+jump_block ;
+        QR_type const & QR = *QR_blk[k1] ;
+        valuePointer yk  = y_thread + k  * n ;
+        valuePointer yk1 = y_thread + k1 * n ;
+        /*\
+         |   applico Q^T e scambio
+        \*/
+        for ( integer j = 0 ; j < nrhs_thread ; ++j ) {
+          copy( n, yk  + j * ldY_thread, 1, v_tmp,   1 ) ;
+          copy( n, yk1 + j * ldY_thread, 1, v_tmp+n, 1 ) ;
+          QR.Qt_mul( v_tmp ) ;
+          copy( n, v_tmp,   1, yk1 + j * ldY_thread, 1 ) ;
+          copy( n, v_tmp+n, 1, yk  + j * ldY_thread, 1 ) ;
+        }
+      }
+
+      // aspetta le altre thread
+      { unique_lock<mutex> lck(mtx0);
+        if ( --to_be_done == 0 ) {
+          cond0.notify_all() ; // wake up all tread
+          jump_block *= 2 ;
+          to_be_done = usedThread ;
+        } else {
+          cond0.wait(lck);
+        }
+      }
+    }
+  }
+  #endif
+
+  /*\
+   |   _                _                           _
+   |  | |__   __ _  ___| | ____      ____ _ _ __ __| |
+   |  | '_ \ / _` |/ __| |/ /\ \ /\ / / _` | '__/ _` |
+   |  | |_) | (_| | (__|   <  \ V  V / (_| | | | (_| |
+   |  |_.__/ \__,_|\___|_|\_\  \_/\_/ \__,_|_|  \__,_|
+  \*/
+  template <typename QR_type>
+  void
+  CyclicReductionQR<QR_type>::backward( integer      nrhs,
+                                        valuePointer y,
+                                        integer      ldY,
+                                        integer      jump_block_min ) const {
+
+    integer const & nblock = this->nblock ;
+    integer const & n      = this->n ;
+    integer const & nx2    = this->nx2 ;
+    integer const & nxn    = this->nxn ;
+    integer const & nxnx2  = this->nxnx2 ;
+
+    while ( jump_block > jump_block_min ) {
+      integer k_step = 2*jump_block ;
+      integer kend   = nblock-jump_block ;
+      for ( integer k = 0 ; k < kend ; k += k_step ) {
+        integer      k1 = k+jump_block ;
+        integer      k2 = min(k1+jump_block,nblock) ;
+        valuePointer E1 = this->AdAu_blk + k1 * nxnx2 ;
+        valuePointer F1 = E1 + nxn ;
+
+        QR_type const & QR = *QR_blk[k1] ;
+
+        valuePointer yk  = y + k  * n ;
+        valuePointer yk1 = y + k1 * n ;
+        valuePointer yk2 = y + k2 * n ;
+
+        // io -= M*io1
+        gemm( NO_TRANSPOSE, NO_TRANSPOSE,
+              n, nrhs, n,
+              -1.0, E1, n,
+              yk, ldY,
+              1, yk1, ldY ) ;
+        gemm( NO_TRANSPOSE, NO_TRANSPOSE,
+              n, nrhs, n,
+              -1.0, F1, n,
+              yk2, ldY,
+              1, yk1, ldY ) ;
+
+        QR.invR_mul( n, nrhs, yk1, ldY ) ;
+        QR.permute_rows( nx2, nrhs, yk1, ldY ) ;
+      }
+      jump_block /= 2 ;
+    }
+  }
+
+  #ifdef CYCLIC_REDUCTION_USE_THREAD
+
+  template <typename QR_type>
+  void
+  CyclicReductionQR<QR_type>::backward_nrhs_mt( integer nth ) const {
+
+    integer const & nblock = this->nblock ;
+    integer const & n      = this->n ;
+    integer const & nx2    = this->nx2 ;
+    integer const & nxn    = this->nxn ;
+    integer const & nxnx2  = this->nxnx2 ;
+
+    while ( jump_block > 0 ) {
+
+      integer k_step = 2*usedThread*jump_block ;
+      integer k0     = 2*nth*jump_block ;
+      integer kend   = nblock-jump_block ;
+
+      for ( integer k = k0 ; k < kend ; k += k_step ) {
+        integer      k1 = k+jump_block ;
+        integer      k2 = min(k1+jump_block,nblock) ;
+        valuePointer E1 = this->AdAu_blk + k1 * nxnx2 ;
+        valuePointer F1 = E1 + nxn ;
+
+        QR_type const & QR = *QR_blk[k1] ;
+
+        valuePointer yk  = y_thread + k  * n ;
+        valuePointer yk1 = y_thread + k1 * n ;
+        valuePointer yk2 = y_thread + k2 * n ;
+
+        // io -= M*io1
+        gemm( NO_TRANSPOSE, NO_TRANSPOSE,
+              n, nrhs_thread, n,
+              -1.0, E1, n,
+              yk, ldY_thread,
+              1, yk1, ldY_thread ) ;
+        gemm( NO_TRANSPOSE, NO_TRANSPOSE,
+              n, nrhs_thread, n,
+              -1.0, F1, n,
+              yk2, ldY_thread,
+              1, yk1, ldY_thread ) ;
+
+        QR.invR_mul( n, nrhs_thread, yk1, ldY_thread ) ;
+        QR.permute_rows( nx2, nrhs_thread, yk1, ldY_thread ) ;
+
+      }
+      // aspetta le altre thread
+      { unique_lock<mutex> lck(mtx0);
+        if ( --to_be_done == 0 ) {
+          cond0.notify_all() ; // wake up all tread
+          jump_block /= 2 ;
+          to_be_done = usedThread ;
+        } else {
+          cond0.wait(lck);
+        }
+      }
+    }
+  }
+  #endif
+
+  template <typename QR_type>
+  void
+  CyclicReductionQR<QR_type>::backward( integer      nrhs,
+                                        valuePointer y,
+                                        integer      ldY ) const {
+
+    integer const & nblock = this->nblock ;
+
+    for ( jump_block = 1 ; jump_block < nblock ; jump_block *= 2 ) {}
+
+    jump_block /= 2 ;
+    #ifdef CYCLIC_REDUCTION_USE_THREAD
+    if ( usedThread > 0 ) {
+      backward( nrhs, y, ldY, jump_block_max_mt ) ;
+      to_be_done = usedThread ;
+      y_thread    = y ;
+      nrhs_thread = nrhs ;
+      ldY_thread  = ldY ;
+      for ( integer nt = 0 ; nt < usedThread ; ++nt )
+        threads[nt] = std::thread( &CyclicReductionQR<QR_type>::backward_nrhs_mt, this, nt ) ;
+      for ( integer nt = 0 ; nt < usedThread ; ++nt )
+        threads[nt].join() ;
+    } else {
+      backward( nrhs, y, ldY, 0 ) ;
+    }
+    #else
+    backward( nrhs, y, ldY, 0 ) ;
     #endif
   }
 

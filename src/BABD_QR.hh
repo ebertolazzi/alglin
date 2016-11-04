@@ -148,7 +148,12 @@ namespace alglin {
     virtual
     void
     solve( valuePointer in_out ) const ;
-    
+
+    //! solve linear sistem using internal factorized matrix
+    virtual
+    void
+    solve( integer nrhs, valuePointer in_out, integer ldRhs ) const ;
+
     void
     factorize( LASTBLOCK_Choice  choice,
                integer           nblk,

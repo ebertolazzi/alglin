@@ -79,7 +79,7 @@ main() {
 
   std::copy( rhs, rhs+N, x ) ;
   tm.tic() ;
-  CR.forward( x ) ;
+  CR.forward(1,x,N) ;
   tm.toc() ;
   cout << "\nForward (QR) = " << tm.elapsedMilliseconds() << " [ms]\n\n" ;
 
@@ -90,7 +90,7 @@ main() {
   alglin::copy( n+q, tmp+n, 1, x+nblk*n, 1 ) ;
 
   tm.tic() ;
-  CR.backward( x ) ;
+  CR.backward(1,x,N) ;
   tm.toc() ;
   cout << "\nBackward (QR) = " << tm.elapsedMilliseconds() << " [ms]\n\n" ;
 

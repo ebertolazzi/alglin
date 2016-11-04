@@ -137,6 +137,29 @@ namespace alglin {
     this->backward( y ) ;
   }
 
+  template <typename QR_type>
+  void
+  BabdQR<QR_type>::solve( integer      nrhs,
+                          valuePointer y,
+                          integer      ldY ) const {
+
+    integer const & nblock = this->nblock ;
+    integer const & n      = this->n ;
+
+    this->forward( nrhs, y, ldY ) ;
+    
+    valuePointer ye   = y + nblock * n ;
+    valuePointer ytmp = ye - n ;
+
+    for ( integer j = 0 ; j < nrhs ; ++j )
+      swap( n, y + j*ldY, 1, ytmp + j*ldY, 1 ) ;
+    this->la_factorization->solve( nrhs, ytmp, ldY ) ;
+    for ( integer j = 0 ; j < nrhs ; ++j )
+      swap( n, y + j*ldY, 1, ytmp + j*ldY, 1 ) ;
+
+    this->backward( nrhs, y, ldY ) ;
+  }
+
   template class BabdQR<QR<double> > ;
   template class BabdQR<QR<float> > ;
   template class BabdQR<QRP<double> > ;
