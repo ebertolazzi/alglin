@@ -143,6 +143,12 @@ main() {
     tm.toc() ;
     cout << "(Diaz " << kind[test] << ") Solve = " << tm.elapsedMilliseconds() << " [ms]\n" ;
 
+    std::copy( rhs, rhs+N, x ) ;
+    tm.tic() ;
+    LU.solve( 1, x, N ) ;
+    tm.toc() ;
+    cout << "(Diaz " << kind[test] << ") Solve = " << tm.elapsedMilliseconds() << " [ms]\n" ;
+
     alglin::copy( N, xref, 1, xref1, 1 ) ;
     alglin::axpy( N, -1.0, x, 1, xref1, 1 ) ;
     cout << "Check |err|_inf = " << alglin::absmax( N, xref1, 1 ) << '\n' ;

@@ -426,6 +426,187 @@ namespace alglin {
     std::rotate( in_out, in_out + col00, in_out + neq ) ;
   }
  
+ 
+  // ---------------------------------------------------------------------------
+
+  template <typename t_Value>
+  void
+  DiazLU<t_Value>::solve( integer      nrhs,
+                          valuePointer in_out,
+                          integer      ldRhs ) const {
+  
+    integer const & n      = this->n ;
+    integer const & nxnx2  = this->nxnx2 ;
+    integer const & nxn    = this->nxn      ;
+    integer const & nblock = this->nblock ;
+    integer const & col00  = this->numInitialOMEGA ;
+    integer const & colNN  = this->numFinalOMEGA ;
+    integer const & row0   = this->numInitialBc ;
+    integer const & rowN   = this->numFinalBc ;
+
+    integer const col0      = n + col00 ;
+    integer const colN      = n + colNN ;
+    integer const row00     = row0 - col00 ;
+    integer const n_m_row00 = n - row00 ;
+
+    valueConstPointer const & block0 = this->block0 ;
+    valueConstPointer const & blockN = this->blockN ;
+
+    integer neq = nblock*n+row0+rowN ;
+
+    // permuto le x
+    valuePointer io = in_out ;
+    for ( integer k = 0 ; k < nrhs ; ++k ) {
+      std::rotate( io, io + neq - row0, io + neq ) ;
+      io += ldRhs ;
+    }
+
+    // applico permutazione alla RHS
+    integer const * swapR = swapRC_blks ;
+    io = in_out ;
+    for ( integer k = 0 ; k < col00 ; ++k ) {
+      integer k1 = swapR[k] ; // 0 based
+      if ( k1 > k )
+        swap( nrhs, io+k, ldRhs, io+k1, ldRhs ) ;
+    }
+    io    += row0 ;
+    swapR += row0 ;
+    for ( nblk = 0 ; nblk < nblock ; ++nblk )  {
+      for ( integer k = 0 ; k < n_m_row00 ; ++k ) {
+        integer k1 = swapR[k] ; // 0 based
+        if ( k1 > k )
+          swap( nrhs, io+k, ldRhs, io+k1, ldRhs ) ;
+      }
+      io    += n ;
+      swapR += n ;
+    }
+
+    // primo blocco
+    io = in_out ;
+    trsm( LEFT, LOWER, NO_TRANSPOSE, UNIT,
+          row0, nrhs,
+          1.0, block0, row0,
+          io, ldRhs ) ;
+
+    io += row0 ;
+    // blocchi intermedi
+    nblk = 0 ;
+    while ( nblk < nblock ) {
+
+      /*
+      //
+      //  +----+---+---+---+
+      //  |  M | L |   :   |
+      //  |  M | L | L :   |
+      //  +----+---+---+---+
+      //  row00
+      */
+
+      valuePointer io1 = io - row00 ;
+      valuePointer M   = this->AdAu_blk + nblk * nxnx2 ;
+      valuePointer L   = M + row00 * n ;
+
+      // io -= M*io1
+      gemm( NO_TRANSPOSE,
+            NO_TRANSPOSE,
+            n, nrhs, row00,
+            -1, M, n,
+            io1, ldRhs,
+            1, io, ldRhs ) ;
+
+      trsm( LEFT, LOWER, NO_TRANSPOSE, UNIT,
+            n, nrhs,
+            1.0, L, n,
+            io, ldRhs ) ;
+
+      io += n ;
+      ++nblk ;
+    }
+
+    // soluzione ultimo blocco
+    integer ncol = colN-rowN ;
+    gemm( NO_TRANSPOSE,
+          NO_TRANSPOSE,
+          rowN, nrhs, ncol,
+          -1, blockN, rowN,
+          io-ncol, ldRhs,
+          1, io, ldRhs ) ;
+
+    this->la_factorization->solve(nrhs,io,ldRhs) ;
+
+    while ( nblk > 0 ) {
+      --nblk ;
+      io -= n ;
+
+      /*
+      //  +---------+---+-------+
+      //  |       U |   |       |
+      //  |         | U |   M   |
+      //  +---------+---+-------+
+      //  row00
+      */
+
+      valuePointer io1 = io + n ;
+      valuePointer U   = this->AdAu_blk + nblk * nxnx2 + row00 * n ;
+      valuePointer M   = U + nxn ;
+
+      gemm( NO_TRANSPOSE,
+            NO_TRANSPOSE,
+            n, nrhs, n_m_row00,
+            -1, M, n,
+            io1, ldRhs,
+            1, io, ldRhs ) ;
+
+      trsm( LEFT, UPPER, NO_TRANSPOSE, NON_UNIT,
+            n, nrhs,
+            1.0, U, n,
+            io, ldRhs ) ;
+    }
+    
+    // primo blocco
+    io -= row0 ;
+  
+    // soluzione primo blocco
+    gemm( NO_TRANSPOSE,
+          NO_TRANSPOSE,
+          row0, nrhs, col0-row0,
+          -1, block0+row0*row0, row0,
+          io+row0, ldRhs,
+          1, io, ldRhs ) ;
+
+    trsm( LEFT, UPPER, NO_TRANSPOSE, NON_UNIT,
+          row0, nrhs,
+          1.0, block0, row0,
+          io, ldRhs ) ;
+
+    // applico permutazione alla Soluzione
+    integer const * swapC = swapRC_blks+(nblock*n+col00) ;
+    io = in_out + nblock*n + col00 ;
+    integer k = row00 ;
+    while ( k > 0 ) {
+      integer k1 = swapC[--k] ; // 0 based
+      if ( k1 > k )
+        swap( nrhs, io+k, ldRhs, io+k1, ldRhs ) ;
+    }
+    for ( nblk = 0 ; nblk < nblock ; ++nblk )  {
+      io    -= n ;
+      swapC -= n ;
+      k      = row00 ;
+      while ( k > 0 ) {
+        integer k1 = swapC[--k] ; // 0 based
+        if ( k1 > k )
+          swap( nrhs, io+k, ldRhs, io+k1, ldRhs ) ;
+      }
+    }
+
+    // permuto le x
+    io = in_out ;
+    for ( k = 0 ; k < nrhs ; ++k ) {
+      std::rotate( io, io + col00, io + neq ) ;
+      io += ldRhs ;
+    }
+  }
+
   template class DiazLU<double> ;
   template class DiazLU<float> ;
 

@@ -253,6 +253,13 @@ namespace alglin {
     solve( valuePointer ) const
     { ALGLIN_ERROR("BlockBidiagonal::solve() not defined!") ; }
 
+    virtual
+    void
+    solve( integer      /* nrhs*/,
+           valuePointer /*rhs*/,
+           integer      /*ldRhs*/ ) const
+    { ALGLIN_ERROR("BlockBidiagonal::solve() not defined!") ; }
+
     void
     loadBottom( valueConstPointer H0, integer ld0,
                 valueConstPointer HN, integer ldN,
