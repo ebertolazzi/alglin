@@ -38,7 +38,7 @@
   alglin::integer nq   = n+q ;
 */
   alglin::integer N   = nblk*n + nq ;
-  alglin::integer nnz = nblk*(2*n*n) + nq*(2*n+q) + 5*N ;
+  alglin::integer nnz = nblk*(2*n*n) + nq*(2*n+q) + 5*N+9*N ;
 
   alglin::Malloc<valueType>       baseValue("real") ;
   alglin::Malloc<alglin::integer> baseIndex("integer") ;
@@ -50,7 +50,7 @@
   valueType * H0    = baseValue(nq*n) ;
   valueType * HN    = baseValue(nq*n) ;
   valueType * Hq    = baseValue(nq*q) ;
-  valueType * x     = baseValue(N) ;
+  valueType * x     = baseValue(N*10) ; // extra space per multiple rhs
   valueType * xref  = baseValue(N) ;
   valueType * xref1 = baseValue(N) ;
   valueType * rhs   = baseValue(N) ;

@@ -860,6 +860,7 @@ namespace alglin {
     #ifdef CYCLIC_REDUCTION_USE_THREAD
     if ( usedThread > 0 ) {
       backward( y, jump_block_max_mt ) ;
+      y_thread   = y ;
       to_be_done = usedThread ;
       for ( integer nt = 0 ; nt < usedThread ; ++nt ) {
         #ifdef CYCLIC_REDUCTION_USE_FIXED_SIZE
@@ -899,6 +900,285 @@ namespace alglin {
       #else
       backward( y, 0 ) ;
       #endif
+    #ifdef CYCLIC_REDUCTION_USE_THREAD
+    }
+    #endif
+  }
+
+
+  /*\
+   |    __                                  _
+   |   / _| ___  _ ____      ____ _ _ __ __| |
+   |  | |_ / _ \| '__\ \ /\ / / _` | '__/ _` |
+   |  |  _| (_) | |   \ V  V / (_| | | | (_| |
+   |  |_|  \___/|_|    \_/\_/ \__,_|_|  \__,_|
+  \*/
+
+  template <typename t_Value>
+  void
+  CyclicReduction<t_Value>::forward( integer      nrhs,
+                                     valuePointer y,
+                                     integer      ldY ) const {
+
+    integer const & nblock = this->nblock ;
+    integer const & n      = this->n ;
+    integer const & nxn    = this->nxn ;
+
+    /*\
+     | !!!!!!!!!!!!!!!!!!!!!!!!!
+     | !!!! reduction phase !!!!
+     | !!!!!!!!!!!!!!!!!!!!!!!!!
+    \*/
+    jump_block = 1 ;
+    #ifdef CYCLIC_REDUCTION_USE_THREAD
+    if ( usedThread > 0 ) {
+      y_thread    = y ;
+      nrhs_thread = nrhs ;
+      ldY_thread  = ldY ;
+      to_be_done = usedThread = numThread ;
+      jump_block_max_mt = nblock>>(usedThread-1) ;
+      for ( integer nt = 0 ; nt < usedThread ; ++nt ) {
+        threads[nt] = std::thread( &CyclicReduction<t_Value>::forward_nrhs_mt, this, nt ) ;
+      }
+      for ( integer nt = 0 ; nt < usedThread ; ++nt )
+        threads[nt].join() ;
+    }
+    #endif
+ 
+    while ( jump_block < nblock ) {
+
+      integer k_step = 2*jump_block ;
+      integer kend   = nblock-jump_block ;
+
+      for ( integer k = 0 ; k < kend ; k += k_step ) {
+        integer k1 = k+jump_block ;
+
+        valuePointer G    = G_blk    + k1 * nxn ;
+        integer *    ipiv = ipiv_blk + k1 * n ;
+
+        valuePointer yk  = y + k  * n ;
+        valuePointer yk1 = y + k1 * n ;
+
+        /*\
+         |   applico permutazione e moltiplico per / I -G \
+         |                                         \    I /
+        \*/
+        for ( integer i = 0 ; i < n ; ++i ) {
+          integer ip = ipiv[i] ;
+          if ( ip > i ) {
+            if ( ip < n ) swap( nrhs, yk1+i, ldY, yk1+ip,  ldY ) ;
+            else          swap( nrhs, yk1+i, ldY, yk+ip-n, ldY ) ;
+          }
+        }
+        // yk -= G * yk1
+        gemm( NO_TRANSPOSE, NO_TRANSPOSE, n, nrhs, n, -1.0, G, n, yk1, ldY, 1.0, yk, ldY ) ;
+      }
+
+      // aspetta le altre thread
+      jump_block *= 2 ;
+    }
+  }
+
+  #ifdef CYCLIC_REDUCTION_USE_THREAD
+  template <typename t_Value>
+  void
+  CyclicReduction<t_Value>::forward_nrhs_mt( integer nth ) const {
+
+    integer const & nblock = this->nblock ;
+    integer const & n      = this->n ;
+    integer const & nxn    = this->nxn ;
+
+    while ( jump_block < jump_block_max_mt ) {
+
+      integer k_step = 2*usedThread*jump_block ;
+      integer k0     = 2*nth*jump_block ;
+      integer kend   = nblock-jump_block ;
+
+      for ( integer k = k0 ; k < kend ; k += k_step ) {
+
+        integer     k1 = k+jump_block ;
+        valuePointer G = G_blk    + k1 * nxn ;
+        integer * ipiv = ipiv_blk + k1 * n ;
+
+        valuePointer yk  = y_thread + k  * n ;
+        valuePointer yk1 = y_thread + k1 * n ;
+
+        /*\
+         |   applico permutazione e moltiplico per / I -G \
+         |                                         \    I /
+        \*/
+        for ( integer i = 0 ; i < n ; ++i ) {
+          integer ip = ipiv[i] ;
+          if ( ip > i ) {
+            if ( ip < n ) swap( nrhs_thread, yk1+i, ldY_thread, yk1+ip,  ldY_thread ) ;
+            else          swap( nrhs_thread, yk1+i, ldY_thread, yk+ip-n, ldY_thread ) ;
+          }
+        }
+        // yk -= G * yk1
+        gemm( NO_TRANSPOSE, NO_TRANSPOSE,
+              n, nrhs_thread, n,
+              -1.0, G, n,
+              yk1, ldY_thread,
+              1.0, yk, ldY_thread ) ;
+      }
+
+      // aspetta le altre thread
+      { unique_lock<mutex> lck(mtx0);
+        if ( --to_be_done == 0 ) {
+          cond0.notify_all() ; // wake up all tread
+          jump_block *= 2 ;
+          to_be_done = usedThread ;
+        } else {
+          cond0.wait(lck);
+        }
+      }
+    }
+  }
+  #endif
+
+  /*\
+   |   _                _                           _
+   |  | |__   __ _  ___| | ____      ____ _ _ __ __| |
+   |  | '_ \ / _` |/ __| |/ /\ \ /\ / / _` | '__/ _` |
+   |  | |_) | (_| | (__|   <  \ V  V / (_| | | | (_| |
+   |  |_.__/ \__,_|\___|_|\_\  \_/\_/ \__,_|_|  \__,_|
+  \*/
+  template <typename t_Value>
+  void
+  CyclicReduction<t_Value>::backward( integer      nrhs,
+                                      valuePointer y,
+                                      integer      ldY,
+                                      integer      jump_block_min ) const {
+
+    integer const & nblock = this->nblock ;
+    integer const & n      = this->n ;
+    integer const & nxn    = this->nxn ;
+    integer const & nxnx2  = this->nxnx2 ;
+
+    while ( jump_block > jump_block_min ) {
+      integer k_step = 2*jump_block ;
+      integer kend   = nblock-jump_block ;
+      for ( integer k = 0 ; k < kend ; k += k_step ) {
+        integer      k1  = k+jump_block ;
+        integer      k2  = min(k1+jump_block,nblock) ;
+        valuePointer LU  = this->AdAu_blk + k1 * nxnx2 ;
+        valuePointer Adu = LU + nxn ;
+        std::vector<bool> const & LU_rows = LU_rows_blk[k1] ;
+
+        valuePointer yk  = y + k  * n ;
+        valuePointer yk1 = y + k1 * n ;
+        valuePointer yk2 = y + k2 * n ;
+
+        for ( integer i = 0 ; i < n ; ++i ) {
+          valuePointer LR = LU_rows[i] ? yk2 : yk ;
+          for ( integer j = 0 ; j < nrhs ; ++j )
+            yk1[i+j*ldY] -= dot( n, Adu+i, n, LR+j*ldY, 1 ) ;
+        }
+        // (LU)^(-1) = U^(-1) L^(-1)
+        trsm( LEFT, LOWER, NO_TRANSPOSE, UNIT,
+              n, nrhs, 1.0,
+              LU, n,
+              yk1, ldY ) ;
+        trsm( LEFT, UPPER, NO_TRANSPOSE, NON_UNIT,
+              n, nrhs, 1.0,
+              LU, n,
+              yk1, ldY ) ;
+        /*\
+         |  +-----+-----+ - - +
+         |  | E*  |  0  | F*    <-- messo al posto dell "0"
+         |  +-----+-----+-----+
+         |    Ad' | L\U | Bu' | <-- memorizzazione compatta
+         |  + - - +-----+-----+-----+ - - +
+        \*/
+      }
+      jump_block /= 2 ;
+    }
+  }
+
+  #ifdef CYCLIC_REDUCTION_USE_THREAD
+
+  template <typename t_Value>
+  void
+  CyclicReduction<t_Value>::backward_nrhs_mt( integer nth ) const {
+
+    integer const & nblock = this->nblock ;
+    integer const & n      = this->n ;
+    integer const & nxn    = this->nxn ;
+    integer const & nxnx2  = this->nxnx2 ;
+
+    while ( jump_block > 0 ) {
+
+      integer k_step = 2*usedThread*jump_block ;
+      integer k0     = 2*nth*jump_block ;
+      integer kend   = nblock-jump_block ;
+
+      for ( integer k = k0 ; k < kend ; k += k_step ) {
+
+        integer k1 = k+jump_block ;
+        integer k2 = min(k1+jump_block,nblock) ;
+        valuePointer LU  = this->AdAu_blk + k1 * nxnx2 ;
+        valuePointer Adu = LU + nxn ;
+        std::vector<bool> const & LU_rows = LU_rows_blk[k1] ;
+
+        valuePointer yk1 = y_thread + k1 * n ;
+        for ( integer i = 0 ; i < n ; ++i ) {
+          valuePointer LR = y_thread + ( LU_rows[i] ? k2 : k ) * n ;
+          for ( integer j = 0 ; j < nrhs_thread ; ++j )
+            yk1[i+j*ldY_thread] -= dot( n, Adu+i, n, LR+j*ldY_thread, 1 ) ;
+        }
+        // (LU)^(-1) = U^(-1) L^(-1)
+        trsm( LEFT, LOWER, NO_TRANSPOSE, UNIT,
+              n, nrhs_thread, 1.0,
+              LU, n,
+              yk1, ldY_thread ) ;
+        trsm( LEFT, UPPER, NO_TRANSPOSE, NON_UNIT,
+              n, nrhs_thread, 1.0,
+              LU, n,
+              yk1, ldY_thread ) ;
+        /*\
+         |  +-----+-----+ - - +
+         |  | E*  |  0  | F*    <-- messo al posto dell "0"
+         |  +-----+-----+-----+
+         |    Ad' | L\U | Bu' | <-- memorizzazione compatta
+         |  + - - +-----+-----+-----+ - - +
+        \*/
+      }
+      // aspetta le altre thread
+      { unique_lock<mutex> lck(mtx0);
+        if ( --to_be_done == 0 ) {
+          cond0.notify_all() ; // wake up all tread
+          jump_block /= 2 ;
+          to_be_done = usedThread ;
+        } else {
+          cond0.wait(lck);
+        }
+      }
+    }
+  }
+  #endif
+
+  template <typename t_Value>
+  void
+  CyclicReduction<t_Value>::backward( integer nrhs, valuePointer y, integer ldY ) const {
+
+    integer const & nblock = this->nblock ;
+    for ( jump_block = 1 ; jump_block < nblock ; jump_block *= 2 ) {}
+
+    jump_block /= 2 ;
+    #ifdef CYCLIC_REDUCTION_USE_THREAD
+    if ( usedThread > 0 ) {
+      backward( nrhs, y, ldY, jump_block_max_mt ) ;
+      y_thread    = y ;
+      nrhs_thread = nrhs ;
+      ldY_thread  = ldY ;
+      to_be_done  = usedThread ;
+      for ( integer nt = 0 ; nt < usedThread ; ++nt )
+        threads[nt] = std::thread( &CyclicReduction<t_Value>::backward_nrhs_mt, this, nt ) ;
+      for ( integer nt = 0 ; nt < usedThread ; ++nt )
+        threads[nt].join() ;
+    } else {
+    #endif
+      backward( nrhs, y, ldY, 0 ) ;
     #ifdef CYCLIC_REDUCTION_USE_THREAD
     }
     #endif

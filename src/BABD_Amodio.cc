@@ -180,6 +180,26 @@ namespace alglin {
     this->backward( y ) ;
   }
 
+  //! solve linear sistem using internal factorized matrix
+  template <typename t_Value>
+  void
+  AmodioLU<t_Value>::solve( integer nrhs, valuePointer y, integer ldY ) const {
+  
+    integer const & nblock = this->nblock ;
+    integer const & n      = this->n ;
+
+    this->forward( nrhs, y, ldY ) ;
+
+    valuePointer ye   = y + nblock * n ;
+    valuePointer ytmp = ye - n ;
+
+    for ( integer k = 0 ; k < nrhs ; ++k ) swap( n, y+k*ldY, 1, ytmp+k*ldY, 1 ) ;
+    this->la_factorization->solve( nrhs, ytmp, ldY ) ;
+    for ( integer k = 0 ; k < nrhs ; ++k ) swap( n, y+k*ldY, 1, ytmp+k*ldY, 1 ) ;
+
+    this->backward( nrhs, y, ldY ) ;
+  }
+
   template class AmodioLU<double> ;
   template class AmodioLU<float> ;
 

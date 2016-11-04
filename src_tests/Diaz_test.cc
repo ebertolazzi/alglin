@@ -52,7 +52,7 @@ main() {
   alglin::integer numBlock = 100 ;
 
   alglin::integer N   = row0 + rowN + numBlock*dim ;
-  alglin::integer nnz = row0*col0 + rowN*colN + 2*dim*dim*numBlock + 5*N ;
+  alglin::integer nnz = row0*col0 + rowN*colN + 2*dim*dim*numBlock + 14*N ;
 
   alglin::Malloc<valueType>       baseValue("real") ;
   alglin::Malloc<alglin::integer> baseIndex("integer") ;
@@ -63,7 +63,7 @@ main() {
   valueType * block0 = baseValue(size_t(row0*col0)) ;
   valueType * blocks = baseValue(size_t(2*dim*dim*numBlock)) ;
   valueType * blockN = baseValue(size_t(rowN*colN)) ;
-  valueType * x      = baseValue(size_t(N)) ;
+  valueType * x      = baseValue(size_t(10*N)) ;
   valueType * xref   = baseValue(size_t(N)) ;
   valueType * xref1  = baseValue(size_t(N)) ;
   valueType * rhs    = baseValue(size_t(N)) ;
@@ -145,7 +145,7 @@ main() {
 
     std::copy( rhs, rhs+N, x ) ;
     tm.tic() ;
-    LU.solve( 1, x, N ) ;
+    LU.solve( 10, x, N ) ;
     tm.toc() ;
     cout << "(Diaz " << kind[test] << ") Solve = " << tm.elapsedMilliseconds() << " [ms]\n" ;
 

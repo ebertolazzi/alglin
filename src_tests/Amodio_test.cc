@@ -76,7 +76,7 @@ main() {
     tm.tic() ;
     //for ( int k = 0 ; k < 10 ; ++k ) {
       std::copy( rhs, rhs+N, x ) ;
-      LU.solve( x ) ;
+      LU.solve( 10, x, N ) ;
     //}
     tm.toc() ;
     cout << "Solve (Amodio" << kind[test] << ") = " << tm.elapsedMilliseconds() << " [ms]\n" ;

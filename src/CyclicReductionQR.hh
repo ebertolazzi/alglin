@@ -186,7 +186,7 @@ namespace alglin {
     //                 | yn |
     //                 +----+
     */
-    virtual void reduce() ;
+    void reduce() ;
 
     /*
     //  Apply reduction to the RHS of the linear system.
@@ -199,12 +199,12 @@ namespace alglin {
     //                 | yn |   | cn |
     //                 +----+   +----+
     */
-    virtual void forward( valuePointer rhs ) const ;
+    void forward( valuePointer rhs ) const ;
 
     /*
     //  Given y1 and yn of the reduced linear system compute y2, y3, ... y(n-1)
     */
-    virtual void backward( valuePointer y ) const ;
+    void backward( valuePointer y ) const ;
 
   } ;
 }

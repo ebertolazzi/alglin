@@ -137,10 +137,14 @@ namespace alglin {
     mutable integer            jump_block_max_mt ;
     mutable integer            usedThread ;
     mutable valuePointer       y_thread ;
-
+    mutable integer            nrhs_thread ;
+    mutable integer            ldY_thread ;
     void forward_mt( integer nth ) const ;
     void backward_mt( integer nth ) const ;
     void reduce_mt( integer nth ) ;
+
+    void forward_nrhs_mt( integer nth ) const ;
+    void backward_nrhs_mt( integer nth ) const ;
     #endif
 
     integer NB ; // blocking factor
@@ -173,6 +177,7 @@ namespace alglin {
     #endif
 
     void backward( valuePointer y, integer jump_block_min ) const ;
+    void backward( integer nrhs, valuePointer y, integer ldY, integer jump_block_min ) const ;
 
     mutable integer jump_block ;
 
@@ -228,7 +233,7 @@ namespace alglin {
     //                 | yn |
     //                 +----+
     */
-    virtual void reduce() ;
+    void reduce() ;
 
     /*
     //  Apply reduction to the RHS of the linear system.
@@ -241,12 +246,14 @@ namespace alglin {
     //                 | yn |   | cn |
     //                 +----+   +----+
     */
-    virtual void forward( valuePointer rhs ) const ;
+    void forward( valuePointer rhs ) const ;
+    void forward( integer nrhs, valuePointer rhs, integer ldRhs ) const ;
 
     /*
     //  Given y1 and yn of the reduced linear system compute y2, y3, ... y(n-1)
     */
-    virtual void backward( valuePointer y ) const ;
+    void backward( valuePointer y ) const ;
+    void backward( integer nrhs, valuePointer y, integer ldY ) const ;
 
   } ;
 }
