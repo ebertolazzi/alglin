@@ -86,11 +86,14 @@ namespace alglin {
     integer nblock ; //!< total number of blocks
     integer n      ; //!< size of square blocks
     integer q      ; //!< extra BC
+    integer nb     ; //!< border size
 
     // some derived constants
+    integer neq ;
     integer nx2 ;
     integer nxn ;
     integer nxnx2 ;
+    integer nxnb ;
 
     integer numInitialBc ;
     integer numFinalBc ;
@@ -131,12 +134,18 @@ namespace alglin {
     //  |     |                              |     |  |  | n+q
     //  +-----+-----+---......---+-----+-----+=====+--+  /
     //                                               q
+    //
+    //  Bordered matrix
+    //  / A  B \
+    //  \ C  D /
+    //
     */
 
     valuePointer AdAu_blk ;
     valuePointer H0Nq ;
     valuePointer block0 ;
     valuePointer blockN ;
+    valuePointer Bmat, Cmat, Dmat ;
 
   private:
 
@@ -154,9 +163,12 @@ namespace alglin {
     , nblock(0)
     , n(0)
     , q(0)
+    , nb(0)
+    , neq(0)
     , nx2(0)
     , nxn(0)
     , nxnx2(0)
+    , nxnb(0)
     , numInitialBc(0)
     , numFinalBc(0)
     , numCyclicBC(0)
@@ -170,23 +182,32 @@ namespace alglin {
     {}
 
     //! load matrix in the class
-    virtual
     void
     allocate( integer _nblock,
               integer _n,
               integer _q,
+              integer _nb,
               integer num_extra_r,
               integer num_extra_i ) {
       nblock = _nblock ;
       n      = _n ;
       q      = _q ;
-      nx2    = 2*n ;
+      nb     = _nb ;
+      neq    = (nblock+1)*n+q ;
+      nx2    = n*2 ;
       nxn    = n*n ;
       nxnx2  = nxn*2 ;
-      baseValue.allocate(size_t(nblock*nxnx2+(n+q)*(nx2+q)+num_extra_r)) ;
+      nxnb   = n*nb ;
+      integer AdAu_size = nblock*nxnx2;
+      integer H0Nq_size = (n+q)*(nx2+q);
+      integer BC_size   = nb*neq ;
+      baseValue.allocate(size_t(AdAu_size+H0Nq_size+2*BC_size+nb*nb+num_extra_r)) ;
       baseInteger.allocate(size_t(num_extra_i)) ;
-      AdAu_blk = baseValue(size_t(nblock*nxnx2)) ;
-      H0Nq     = baseValue(size_t((n+q)*(nx2+q))) ;
+      AdAu_blk = baseValue(size_t(AdAu_size)) ;
+      H0Nq     = baseValue(size_t(H0Nq_size)) ;
+      Bmat     = baseValue(size_t(BC_size)) ;
+      Cmat     = baseValue(size_t(BC_size)) ;
+      Dmat     = baseValue(size_t(nb*nb)) ;
       block0   = nullptr ;
       blockN   = nullptr ;
     }
@@ -207,6 +228,32 @@ namespace alglin {
     void
     loadBlockRight( integer nbl, valueConstPointer Au, integer ldA )
     { gecopy( n, n, Au, ldA, AdAu_blk + nbl*nxnx2 + nxn, n ) ; }
+
+    // Border Bottom blocks
+    void
+    loadBottomBlocks( valueConstPointer C, integer ldC )
+    { gecopy( nb, neq, C, ldC, Cmat, nb ) ; }
+
+    void
+    loadBottomBlock( integer nbl, valueConstPointer C, integer ldC )
+    { gecopy( nb, n, C, ldC, Cmat + nbl*nxnb, nb ) ; }
+
+    void
+    loadBottomLastBlock( valueConstPointer C, integer ldC )
+    { gecopy( nb, q, C, ldC, Cmat + (nblock+1)*nxnb, nb ) ; }
+
+    // Border Right blocks
+    void
+    loadRightBlocks( valueConstPointer B, integer ldB )
+    { gecopy( neq, nb, B, ldB, Bmat, neq ) ; }
+
+    void
+    loadRightBlock( integer nbl, valueConstPointer B, integer ldB )
+    { gecopy( n, nb, B, ldB, Bmat + nbl*n, n ) ; }
+
+    void
+    loadRightLastBlock( valueConstPointer B, integer ldB )
+    { gecopy( n+q, nb, B, ldB, Bmat + neq-n-q, n+q ) ; }
 
     // final blocks after cyclic reduction
     valueConstPointer

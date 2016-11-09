@@ -33,8 +33,8 @@
 using namespace std ;
 typedef double valueType ;
 
-unsigned seed1 = 2 ;
-std::mt19937 generator(seed1);
+static unsigned seed1 = 2 ;
+static std::mt19937 generator(seed1);
 
 static
 valueType

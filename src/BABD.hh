@@ -43,11 +43,6 @@ namespace alglin {
 
   extern string BABD_Choice_to_string( BABD_Choice c ) ;
 
-  /*
-   * NB: prima le condizioni finali, poi quelle iniziali.
-   *
-   */
-
   //! LU decomposition of a ABD matrix
   /*!
    * 

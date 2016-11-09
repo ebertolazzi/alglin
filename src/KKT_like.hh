@@ -97,9 +97,9 @@ namespace alglin {
     typedef t_Value const * valueConstPointer ;
 
     typedef LinearSystemSolver<t_Value> LSS ;
-    
+
     Malloc<valueType> allocReals ;
-    
+
     LSS const * pAsolver ;
     LU<t_Value> A_lu ;
     LU<t_Value> W_lu ;
@@ -115,7 +115,7 @@ namespace alglin {
     // m << n
     integer n ;
     integer m ;
- 
+
     /*
     //
     //  Matrix structure

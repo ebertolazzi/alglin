@@ -129,7 +129,7 @@ namespace alglin {
     void
     allocate( integer _nblock, integer _n, integer _q ) {
       integer inv = _nblock*_n+_q ;
-      BlockBidiagonal<t_Value>::allocate(_nblock, _n, _q, 0, inv) ;
+      BlockBidiagonal<t_Value>::allocate(_nblock, _n, _q, 0, 0, inv) ;
       swapRC_blks = this->baseInteger(size_t(inv)) ;
     }
 

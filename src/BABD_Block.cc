@@ -55,7 +55,7 @@ namespace alglin {
 
     nnz = nnzAdH + nnzAu + nnzFF + nnzDD ;
 
-    BlockBidiagonal<t_Value>::allocate( _nblock, _n, _q, nnz, N ) ;
+    BlockBidiagonal<t_Value>::allocate( _nblock, _n, _q, 0, nnz, N ) ;
 
     AdH_blk  = this->baseValue(size_t( nnzAdH )) ;
     Au_blk   = this->baseValue(size_t( nnzAu  )) ;

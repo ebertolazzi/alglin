@@ -142,7 +142,7 @@ namespace alglin {
     mem += _n*(4*_n+2)*CYCLIC_REDUCTION_MAX_THREAD ;
     #endif
 
-    BlockBidiagonal<valueType>::allocate( _nblock, _n, _q, mem, 0 ) ;
+    BlockBidiagonal<valueType>::allocate( _nblock, _n, _q, 0, mem, 0 ) ;
 
     integer & nblock = this->nblock ;
     integer & n      = this->n ;

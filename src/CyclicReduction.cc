@@ -271,7 +271,7 @@ namespace alglin {
     nv += _n*_n*2 ;
     #endif
 
-    BlockBidiagonal<t_Value>::allocate( _nblock, _n, _q, nv, ni ) ;
+    BlockBidiagonal<t_Value>::allocate( _nblock, _n, _q, 0, nv, ni ) ;
 
     integer const & nblock = this->nblock ;
     integer const & n      = this->n ;
