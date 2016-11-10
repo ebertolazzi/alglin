@@ -95,14 +95,15 @@ namespace alglin {
     integer nxnx2 ;
     integer nxnb ;
 
-    integer numInitialBc ;
-    integer numFinalBc ;
+    integer numInitialBC ;
+    integer numFinalBC ;
     integer numCyclicBC ;
     integer numInitialOMEGA ;
     integer numFinalOMEGA ;
     integer numCyclicOMEGA ;
 
     Factorization<t_Value> * la_factorization ;
+    Factorization<t_Value> * bb_factorization ;
 
     /*
     //
@@ -149,10 +150,10 @@ namespace alglin {
 
   private:
 
-    LU<t_Value>  la_lu ;
-    QR<t_Value>  la_qr ;
-    QRP<t_Value> la_qrp ;
-    SVD<t_Value> la_svd ;
+    LU<t_Value>  la_lu,  bb_lu  ;
+    QR<t_Value>  la_qr,  bb_qr  ;
+    QRP<t_Value> la_qrp, bb_qrp ;
+    SVD<t_Value> la_svd, bb_svd ;
 
   public:
 
@@ -169,13 +170,21 @@ namespace alglin {
     , nxn(0)
     , nxnx2(0)
     , nxnb(0)
-    , numInitialBc(0)
-    , numFinalBc(0)
+    , numInitialBC(0)
+    , numFinalBC(0)
     , numCyclicBC(0)
     , numInitialOMEGA(0)
     , numFinalOMEGA(0)
     , numCyclicOMEGA(0)
     , la_factorization(&la_lu)
+    , bb_factorization(&bb_lu)
+    , AdAu_blk(nullptr)
+    , H0Nq(nullptr)
+    , block0(nullptr)
+    , blockN(nullptr)
+    , Bmat(nullptr)
+    , Cmat(nullptr)
+    , Dmat(nullptr)
     {}
 
     virtual ~BlockBidiagonal()
@@ -255,6 +264,11 @@ namespace alglin {
     loadRightLastBlock( valueConstPointer B, integer ldB )
     { gecopy( n+q, nb, B, ldB, Bmat + neq-n-q, n+q ) ; }
 
+    // Border RBblock
+    void
+    loadRBblock( valueConstPointer D, integer ldD )
+    { gecopy( nb, nb, D, ldD, Dmat, nb ) ; }
+
     // final blocks after cyclic reduction
     valueConstPointer
     getPointer_LR() const
@@ -287,7 +301,10 @@ namespace alglin {
 
     virtual
     void
-    allocate( integer /*nblock*/, integer /*n*/, integer /*q*/ )
+    allocate( integer /* nblock */,
+              integer /* n      */,
+              integer /* q      */,
+              integer /* nb     */ )
     { ALGLIN_ERROR("BlockBidiagonal::allocate() not defined!") ; }
 
     virtual
@@ -302,9 +319,9 @@ namespace alglin {
 
     virtual
     void
-    solve( integer      /* nrhs*/,
-           valuePointer /*rhs*/,
-           integer      /*ldRhs*/ ) const
+    solve( integer      /* nrhs  */,
+           valuePointer /* rhs   */,
+           integer      /* ldRhs */ ) const
     { ALGLIN_ERROR("BlockBidiagonal::solve() not defined!") ; }
 
     void
@@ -325,8 +342,8 @@ namespace alglin {
                    integer           ldN ) ;
 
     void
-    loadBC( integer numInitialBc,
-            integer numFinalBc,
+    loadBC( integer numInitialBC,
+            integer numFinalBC,
             integer numCyclicBC,
             // ----------------------
             integer numInitialOMEGA,
@@ -348,10 +365,76 @@ namespace alglin {
     }
 
     void
+    selectLastBorderBlockSolver( LASTBLOCK_Choice choice ) {
+      switch ( choice ) {
+        case LASTBLOCK_LU:  bb_factorization = &bb_lu  ; break ;
+        case LASTBLOCK_QR:  bb_factorization = &bb_qr  ; break ;
+        case LASTBLOCK_QRP: bb_factorization = &bb_qrp ; break ;
+        case LASTBLOCK_SVD: bb_factorization = &bb_svd ; break ;
+      }
+    }
+
+    void
     last_block_factorize() ;
 
     void
-    dumpMatrix ( basic_ostream<char> & stream ) const ;
+    factorize_bordered() ;
+
+    void
+    solve_bordered( valuePointer ) const ;
+
+    void
+    solve_bordered( integer      /* nrhs  */,
+                    valuePointer /* rhs   */,
+                    integer      /* ldRhs */ ) const ;
+
+    void
+    dumpMatrix( basic_ostream<char> & stream ) const ;
+
+    // All in one
+    void
+    factorize( integer           nblk,
+               integer           _n,
+               integer           _q,
+               integer           _nb,
+               valueConstPointer AdAu,
+               valueConstPointer B,
+               valueConstPointer C,
+               valueConstPointer D,
+               valueConstPointer H0,
+               valueConstPointer HN,
+               valueConstPointer Hq ) {
+      this->allocate( nblk, _n, _q, _nb ) ;
+      this->loadBlocks( AdAu, n ) ;
+      this->loadBottom( H0, n+q, HN, n+q, Hq, n+q ) ;
+      if ( nb > 0 ) {
+        this->loadRightBlocks( B, neq ) ;
+        this->loadBottomBlocks( C, nb ) ;
+        this->loadRBblock( D, nb ) ;
+        this->factorize_bordered() ;
+      } else {
+        this->factorize() ;
+      }
+    }
+
+    // All in one
+    void
+    factorize( integer           nblk,
+               integer           _n,
+               integer           _q,
+               valueConstPointer AdAu,
+               valueConstPointer H0,
+               valueConstPointer HN,
+               valueConstPointer Hq ) {
+      this->allocate( nblk, _n, _q, 0 ) ;
+      this->loadBlocks( AdAu, n ) ;
+      this->loadBottom( H0, n+q, HN, n+q, Hq, n+q ) ;
+      this->factorize() ;
+    }
+
+    // aux function
+    void
+    Mv( valueConstPointer x, valuePointer res ) const ;
 
   } ;
 }

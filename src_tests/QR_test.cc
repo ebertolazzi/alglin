@@ -66,7 +66,8 @@ main() {
     tm.reset() ;
 
     tm.tic() ;
-    LU.factorize( ch[test], nblk, n, q, AdAu, H0, HN, Hq ) ;
+    LU.selectLastBlockSolver( ch[test] ) ;
+    LU.factorize( nblk, n, q, AdAu, H0, HN, Hq ) ;
     tm.toc() ;
     cout << "Factorize (BabdQR" << kind[test] << ") = " << tm.elapsedMilliseconds() << " [ms]\n" ;
 

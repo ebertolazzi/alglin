@@ -158,7 +158,7 @@ namespace alglin {
     //! load matrix in the class
     virtual
     void
-    allocate( integer nblk, integer n, integer q ) ;
+    allocate( integer nblk, integer n, integer q, integer nb ) ;
 
     /*
     //

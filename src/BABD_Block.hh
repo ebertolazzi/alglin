@@ -172,6 +172,8 @@ namespace alglin {
     integer * ipiv_blk ;
 
   public:
+  
+    using BlockBidiagonal<t_Value>::factorize ;
 
     explicit BlockLU() { }
 
@@ -179,7 +181,7 @@ namespace alglin {
 
     virtual
     void
-    allocate( integer nblock, integer n, integer q ) ;
+    allocate( integer nblock, integer n, integer q, integer nb ) ;
 
     virtual
     void
@@ -189,21 +191,6 @@ namespace alglin {
     virtual
     void
     solve( valuePointer in_out ) const ;
-
-    //! load BABD linear system to class
-    void
-    factorize( integer           nblk,
-               integer           n,
-               integer           q,
-               valueConstPointer AdAu,
-               valueConstPointer H0,
-               valueConstPointer HN,
-               valueConstPointer Hq ) {
-      this->allocate( nblk, n, q );
-      this->loadBlocks( AdAu, n ) ;
-      this->loadBottom( H0, n+q, HN, n+q, Hq, n+q ) ;
-      factorize() ;
-    }
 
   } ;
 

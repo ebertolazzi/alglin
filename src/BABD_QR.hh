@@ -96,6 +96,8 @@ namespace alglin {
     
   public:
 
+    using BlockBidiagonal<valueType>::factorize ;
+
     #ifdef CYCLIC_REDUCTION_USE_THREAD
     explicit
     BabdQR( integer nth = integer(std::thread::hardware_concurrency()) )
@@ -153,22 +155,6 @@ namespace alglin {
     virtual
     void
     solve( integer nrhs, valuePointer in_out, integer ldRhs ) const ;
-
-    void
-    factorize( LASTBLOCK_Choice  choice,
-               integer           nblk,
-               integer           n,
-               integer           q,
-               valueConstPointer AdAu,
-               valueConstPointer H0,
-               valueConstPointer HN,
-               valueConstPointer Hq ) {
-      this->allocate( nblk, n, q );
-      this->loadBlocks( AdAu, n ) ;
-      this->loadBottom( H0, n+q, HN, n+q, Hq, n+q ) ;
-      this->selectLastBlockSolver( choice ) ;
-      factorize() ;
-    }
 
   } ;
 }

@@ -178,8 +178,8 @@ namespace alglin {
     integer const & nblock = this->nblock ;
 
     integer const & col00  = this->numInitialOMEGA ;
-    integer const & row0   = this->numInitialBc ;
-    integer const & rowN   = this->numFinalBc ;
+    integer const & row0   = this->numInitialBC ;
+    integer const & rowN   = this->numFinalBC ;
 
     integer const col0      = n + col00 ;
     integer const row00     = row0 - col00 ;
@@ -284,8 +284,8 @@ namespace alglin {
     integer const & nblock = this->nblock ;
     integer const & col00  = this->numInitialOMEGA ;
     integer const & colNN  = this->numFinalOMEGA ;
-    integer const & row0   = this->numInitialBc ;
-    integer const & rowN   = this->numFinalBc ;
+    integer const & row0   = this->numInitialBC ;
+    integer const & rowN   = this->numFinalBC ;
 
     integer const col0      = n + col00 ;
     integer const colN      = n + colNN ;
@@ -441,8 +441,8 @@ namespace alglin {
     integer const & nblock = this->nblock ;
     integer const & col00  = this->numInitialOMEGA ;
     integer const & colNN  = this->numFinalOMEGA ;
-    integer const & row0   = this->numInitialBc ;
-    integer const & rowN   = this->numFinalBc ;
+    integer const & row0   = this->numInitialBC ;
+    integer const & rowN   = this->numFinalBC ;
 
     integer const col0      = n + col00 ;
     integer const colN      = n + colNN ;

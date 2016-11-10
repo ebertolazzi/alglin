@@ -125,8 +125,8 @@ namespace alglin {
     { babd_solver->selectLastBlockSolver( choice ) ; }
 
     void
-    allocate( integer nblk, integer n, integer q )
-    { babd_solver->allocate( nblk, n, q ) ; }
+    allocate( integer nblk, integer n, integer q, integer nb )
+    { babd_solver->allocate( nblk, n, q, nb ) ; }
 
     void
     selectSolver( BABD_Choice choice ) {
@@ -147,8 +147,8 @@ namespace alglin {
     \*/
     void
     loadBC( // ----------------------
-            integer      numInitialBc,
-            integer      numFinalBc,
+            integer      numInitialBC,
+            integer      numFinalBC,
             integer      numCyclicBC,
             // ----------------------
             integer      numInitialOMEGA,
@@ -158,7 +158,7 @@ namespace alglin {
             valuePointer H0, integer ld0,
             valuePointer HN, integer ldN,
             valuePointer Hq, integer ldq ) {
-      babd_solver->loadBC( numInitialBc,  numFinalBc,  numCyclicBC,
+      babd_solver->loadBC( numInitialBC,  numFinalBC,  numCyclicBC,
                            numInitialOMEGA, numFinalOMEGA, numCyclicOMEGA,
                            H0, ld0, HN, ldN, Hq, ldq ) ;
     }

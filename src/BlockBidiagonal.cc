@@ -55,8 +55,8 @@ namespace alglin {
     valueConstPointer Hq, integer ldQ
   ) {
 
-    numInitialBc    = 0 ;
-    numFinalBc      = 0 ;
+    numInitialBC    = 0 ;
+    numFinalBC      = 0 ;
     numCyclicBC     = n+q ;
     numInitialOMEGA = 0 ;
     numFinalOMEGA   = 0 ;
@@ -119,8 +119,8 @@ namespace alglin {
     integer           ldN
   ) {
 
-    numInitialBc    = row0 ;
-    numFinalBc      = rowN ;
+    numInitialBC    = row0 ;
+    numFinalBC      = rowN ;
     numCyclicBC     = 0 ;
     numInitialOMEGA = col0 - n ;
     numFinalOMEGA   = colN - n ;
@@ -145,8 +145,8 @@ namespace alglin {
   template <typename t_Value>
   void
   BlockBidiagonal<t_Value>::loadBC(
-    integer _numInitialBc,
-    integer _numFinalBc,
+    integer _numInitialBC,
+    integer _numFinalBC,
     integer _numCyclicBC,
     // ----------------------
     integer _numInitialOMEGA,
@@ -158,22 +158,22 @@ namespace alglin {
     valueConstPointer Hq, integer ldQ
   ) {
 
-    integer nBC = _numInitialBc + _numFinalBc + _numCyclicBC ;
+    integer nBC = _numInitialBC + _numFinalBC + _numCyclicBC ;
     integer nOM = _numInitialOMEGA + _numFinalOMEGA + _numCyclicOMEGA ;
 
     ALGLIN_ASSERT( n+q == nBC && nOM == q,
                    "BlockBidiagonal::loadBC bad parameter(s):" <<
                    "\nn               = " << n <<
                    "\nq               = " << q <<
-                   "\nnumInitialBc    = " << _numInitialBc    <<
-                   "\nnumFinalBc      = " << _numFinalBc      <<
+                   "\nnumInitialBC    = " << _numInitialBC    <<
+                   "\nnumFinalBC      = " << _numFinalBC      <<
                    "\nnumCyclicBC     = " << _numCyclicBC     <<
                    "\nnumInitialOMEGA = " << _numInitialOMEGA <<
                    "\nnumFinalOMEGA   = " << _numFinalOMEGA   <<
                    "\nnumCyclicOMEGA  = " << _numCyclicOMEGA ) ;
 
-    numInitialBc    = _numInitialBc ;
-    numFinalBc      = _numFinalBc ;
+    numInitialBC    = _numInitialBC ;
+    numFinalBC      = _numFinalBC ;
     numCyclicBC     = _numCyclicBC ;
     numInitialOMEGA = _numInitialOMEGA ;
     numFinalOMEGA   = _numFinalOMEGA ;
@@ -190,8 +190,8 @@ namespace alglin {
        |  |blk0|  0   |    :blk0|
        |  +----+------+---------+
       \*/
-      integer row0  = numInitialBc ;
-      integer rowN  = numFinalBc ;
+      integer row0  = numInitialBC ;
+      integer rowN  = numFinalBC ;
       integer col00 = numInitialOMEGA ;
       integer colNN = numFinalOMEGA ;
 
@@ -252,8 +252,8 @@ namespace alglin {
        |  |blk0|  0   |    :blk0|
        |  +----+------+---------+
       \*/
-      integer row0  = numInitialBc ;
-      integer rowN  = numFinalBc ;
+      integer row0  = numInitialBC ;
+      integer rowN  = numFinalBC ;
       integer col00 = numInitialOMEGA ;
       integer colNN = numFinalOMEGA ;
       la_factorization->load_block( n, nx2, AdAu_blk, n ) ;
@@ -270,6 +270,98 @@ namespace alglin {
     // fattorizzazione ultimo blocco
     this->la_factorization->factorize() ;
   }
+
+  /*\
+   |   _                   _                   _
+   |  | |__   ___  _ __ __| | ___ _ __ ___  __| |
+   |  | '_ \ / _ \| '__/ _` |/ _ \ '__/ _ \/ _` |
+   |  | |_) | (_) | | | (_| |  __/ | |  __/ (_| |
+   |  |_.__/ \___/|_|  \__,_|\___|_|  \___|\__,_|
+  \*/
+
+  template <typename t_Value>
+  void
+  BlockBidiagonal<t_Value>::factorize_bordered() {
+  
+    this->factorize() ; // factorize top left block
+    if ( nb > 0 ) {
+      // Compute aux matrix
+      // Z = A^(-1)*B
+      // W = C*Z - D
+      valuePointer Zmat = Bmat ;
+      this->solve( nb, Zmat, neq ) ;
+      gemm( NO_TRANSPOSE,
+            NO_TRANSPOSE,
+            nb, nb, neq,
+            1,
+            Cmat, nb,
+            Zmat, neq,
+            -1,
+            Dmat, nb ) ;
+      bb_factorization->factorize( nb, nb, Dmat, nb ) ;
+    }
+  }
+
+  template <typename t_Value>
+  void
+  BlockBidiagonal<t_Value>::solve_bordered( valuePointer xb ) const {
+    // a' = A^(-1)*a
+    this->solve( xb ) ;
+    if ( nb > 0 ) {
+      // b' = C*a' - b
+      gemv( NO_TRANSPOSE,
+            nb, neq,
+            1, Cmat, nb,
+            xb, 1,
+            -1, xb+neq, 1 ) ;
+      // y = W^(-1) * b'
+      bb_factorization->solve( xb+neq ) ;
+      // x = a' - Z*y
+      valuePointer Zmat = this->Bmat ;
+      gemv( NO_TRANSPOSE,
+            neq, nb,
+            -1, Zmat, neq,
+            xb+neq, 1,
+            1, xb, 1 ) ;
+    }
+  }
+
+  template <typename t_Value>
+  void
+  BlockBidiagonal<t_Value>::solve_bordered( integer      nrhs,
+                                            valuePointer xb,
+                                            integer      ldRhs ) const {
+    // a' = A^(-1)*a
+    this->solve( nrhs, xb, ldRhs ) ;
+    if ( nb > 0 ) {
+      // b' = C*a' - b
+      gemm( NO_TRANSPOSE,
+            NO_TRANSPOSE,
+            nb, nrhs, neq,
+            1, Cmat, nb,
+            xb, ldRhs,
+            -1, xb+neq, ldRhs ) ;
+      // y = W^(-1) * b'
+      bb_factorization->solve( nrhs, xb+neq, ldRhs ) ;
+      // x = a' - Z*y
+      valuePointer Zmat = this->Bmat ;
+      gemm( NO_TRANSPOSE,
+            NO_TRANSPOSE,
+            neq, nrhs, nb, 
+            -1, Zmat, neq,
+            xb+neq, ldRhs,
+            1, xb, ldRhs ) ;
+    }
+  }
+
+  /*\
+   |       _                       __  __       _        _
+   |    __| |_   _ _ __ ___  _ __ |  \/  | __ _| |_ _ __(_)_  __
+   |   / _` | | | | '_ ` _ \| '_ \| |\/| |/ _` | __| '__| \ \/ /
+   |  | (_| | |_| | | | | | | |_) | |  | | (_| | |_| |  | |>  <
+   |   \__,_|\__,_|_| |_| |_| .__/|_|  |_|\__,_|\__|_|  |_/_/\_\
+   |                        |_|
+  \*/
 
   template <typename T>
   static
@@ -313,6 +405,80 @@ namespace alglin {
     stream << "Rank(H0Np);\n" ;
     stream << "Rank(<H0N|Hp>);\n" ;
 
+  }
+
+  template <typename t_Value>
+  void
+  BlockBidiagonal<t_Value>::Mv( valueConstPointer x,
+                                valuePointer      res ) const {
+    zero( neq+nb, res, 1 ) ;
+    if ( numCyclicBC == 0 && numCyclicOMEGA == 0 ) {
+      integer row0  = numInitialBC ;
+      integer rowN  = numFinalBC ;
+      integer col00 = numInitialOMEGA ;
+      integer colNN = numFinalOMEGA ;
+      
+      valueConstPointer xe   = x+neq-(n+colNN+col00) ;
+      valuePointer      rese = res+neq-(row0+rowN) ;
+
+      gemv( NO_TRANSPOSE, rowN, n+colNN,
+            1.0, blockN, rowN,
+            xe, 1,
+            1.0, rese, 1 ) ;
+
+      gemv( NO_TRANSPOSE, row0, n,
+            1.0, block0+col00*row0, row0,
+            x, 1,
+            1.0, rese+rowN, 1 ) ;
+
+      gemv( NO_TRANSPOSE, row0, col00,
+            1.0, block0, row0,
+            xe+n+colNN, 1,
+            1.0, rese+rowN, 1 ) ;
+    } else {
+      integer m = n+q ;
+      valueConstPointer xe   = x+neq-(n+numInitialOMEGA+numFinalOMEGA+numCyclicOMEGA) ;
+      valuePointer      rese = res+neq-(numInitialBC+numFinalBC+numCyclicBC) ;
+
+      gemv( NO_TRANSPOSE, m, n,
+            1.0, H0Nq, m,
+            x, 1,
+            1.0, rese, 1 ) ;
+
+      gemv( NO_TRANSPOSE, m, n,
+            1.0, H0Nq+m*n, m,
+            xe, 1,
+            1.0, rese, 1 ) ;
+
+      gemv( NO_TRANSPOSE, m, q,
+            1.0, H0Nq+m*nx2, m,
+            xe+n, 1,
+            1.0, rese, 1 ) ;
+    }
+
+    // internal blocks block
+    t_Value const * xx   = x ;
+    t_Value *       yy   = res ;
+    t_Value const * AdAu = AdAu_blk ;
+    for ( integer i = 0 ; i < nblock ; ++i ) {
+      gemv( NO_TRANSPOSE, n, nx2,
+            1.0, AdAu, n,
+            xx, 1,
+            1.0, yy, 1 ) ;
+      xx   += n ;
+      yy   += n ;
+      AdAu += nxnx2 ;
+    }
+    if ( nb > 0 ) {
+      gemv( NO_TRANSPOSE, neq, nb,
+            1.0, Bmat, neq,
+            x+neq, 1,
+            1.0, res, 1 ) ;
+      gemv( NO_TRANSPOSE, nb, neq,
+            1.0, Cmat, nb,
+            x, 1,
+            1.0, res+neq, 1 ) ;
+    }
   }
 
   template class BlockBidiagonal<float> ;

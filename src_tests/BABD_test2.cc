@@ -128,7 +128,7 @@ main() {
     for ( int test = 0 ; test < 4 ; ++test ) {
       cout << "\n\nLAST_BLOCK: " << LastBlock_to_string(ch[test]) << '\n' ;
 
-      LU.allocate( numBlock, dim, row0+rowN-dim );
+      LU.allocate( numBlock, dim, row0+rowN-dim, 0 );
       LU.loadBlocks( blocks, dim ) ;
       LU.loadTopBottom( row0, col0, block0, row0,
                         rowN, colN, blockN, rowN ) ;

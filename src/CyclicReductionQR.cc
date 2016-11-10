@@ -134,7 +134,10 @@ namespace alglin {
 
   template <typename QR_type>
   void
-  CyclicReductionQR<QR_type>::allocate( integer _nblock, integer _n, integer _q ) {
+  CyclicReductionQR<QR_type>::allocate( integer _nblock,
+                                        integer _n,
+                                        integer _q,
+                                        integer _nb ) {
 
     integer mem = _n*(_n*(2*_nblock+4)+2) ;
 
@@ -142,7 +145,7 @@ namespace alglin {
     mem += _n*(4*_n+2)*CYCLIC_REDUCTION_MAX_THREAD ;
     #endif
 
-    BlockBidiagonal<valueType>::allocate( _nblock, _n, _q, 0, mem, 0 ) ;
+    BlockBidiagonal<valueType>::allocate( _nblock, _n, _q, _nb, mem, 0 ) ;
 
     integer & nblock = this->nblock ;
     integer & n      = this->n ;

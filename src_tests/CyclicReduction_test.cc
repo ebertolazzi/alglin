@@ -54,7 +54,7 @@ main() {
 
   TicToc tm ;
   tm.reset() ;
-  CR.allocate( nblk, n, 0 ) ;
+  CR.allocate( nblk, n, 0, 0 ) ;
   CR.loadBlocks( AdAu, n ) ;
   tm.tic() ;
   CR.reduce() ;

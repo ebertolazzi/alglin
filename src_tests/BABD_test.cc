@@ -66,7 +66,7 @@ main() {
     for ( int test = 0 ; test < 4 ; ++test ) {
       cout << "\n\nLAST_BLOCK: " << LastBlock_to_string(ch[test]) << '\n' ;
 
-      LU.allocate( nblk, n, q );
+      LU.allocate( nblk, n, q, 0 );
       LU.loadBlocks( AdAu, n );
       LU.loadBottom( H0, n+q, HN, n+q, Hq, n+q );
       LU.selectLastBlockSolver( ch[test] );

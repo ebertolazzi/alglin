@@ -128,7 +128,7 @@ main() {
     cout << "\n\n\ntest N." << test << "\n" ;
 
     tm.tic() ;
-    LU.allocate( numBlock, dim, row0+rowN-dim );
+    LU.allocate( numBlock, dim, row0+rowN-dim, 0 );
     LU.loadBlocks( blocks, dim ) ;
     LU.loadTopBottom( row0, col0, block0, row0,
                       rowN, colN, blockN, rowN ) ;

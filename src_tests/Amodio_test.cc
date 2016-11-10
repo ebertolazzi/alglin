@@ -64,7 +64,7 @@ main() {
     tm.reset() ;
 
     tm.tic() ;
-    LU.allocate( nblk, n, q );
+    LU.allocate( nblk, n, q, 0 );
     LU.loadBlocks( AdAu, n ) ;
     LU.loadBottom( H0, n+q, HN, n+q, Hq, n+q ) ;
     LU.selectLastBlockSolver( ch[test] ) ;

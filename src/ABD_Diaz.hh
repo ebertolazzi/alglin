@@ -122,14 +122,16 @@ namespace alglin {
 
   public:
 
+    using BlockBidiagonal<valueType>::factorize ;
+
     explicit DiazLU() : NB(25) {}
     ~DiazLU() {}
 
     virtual
     void
-    allocate( integer _nblock, integer _n, integer _q ) {
+    allocate( integer _nblock, integer _n, integer _q, integer _nb ) {
       integer inv = _nblock*_n+_q ;
-      BlockBidiagonal<t_Value>::allocate(_nblock, _n, _q, 0, 0, inv) ;
+      BlockBidiagonal<t_Value>::allocate(_nblock, _n, _q, _nb, 0, inv) ;
       swapRC_blks = this->baseInteger(size_t(inv)) ;
     }
 
