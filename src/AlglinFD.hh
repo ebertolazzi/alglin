@@ -126,8 +126,8 @@ namespace alglin {
         Number scale = std::max(Number(1),std::max(std::abs(gradi),std::abs(grad[i]))) ;
         Number err   = std::abs(gradi-grad[i]) ;
         if ( err > epsi*scale ) {
-          stream << "grad[" << i << "] = " << setw(14) << grad[i] << " --- "
-                 << setw(14) << gradi << "  rel err = " << err/scale
+          stream << "grad[" << i << "] = " << setw(14) << grad[i] << " [A] --- "
+                 << setw(14) << gradi << " [FD]  rel err = " << err/scale
                  << '\n' ;
         }
       }
@@ -259,8 +259,8 @@ namespace alglin {
         Number scale = std::max(Number(1),std::max(std::abs(d),std::abs(pjac[i]))) ;
         Number err   = std::abs(d-pjac[i]) ;
         if ( err > epsi*scale ) {
-          stream << "jac[" << i << ", " << j << "] = " << setw(14) << pjac[i] << " --- "
-                 << setw(14) << d << "  rel err = " << err/scale
+          stream << "jac[" << i << ", " << j << "] = " << setw(14) << pjac[i] << " [A] --- "
+                 << setw(14) << d << " [FD]  rel err = " << err/scale
                  << '\n' ;
         }
       }
@@ -368,8 +368,8 @@ namespace alglin {
       Number scale = std::max(Number(1),std::max(std::abs(dd),std::abs(dde))) ;
       Number err   = std::abs(dd-dde) ;
       if ( err > epsi*scale ) {
-        stream << "Hess[" << j << ", " << j << "] = " << setw(14) << dde << " --- "
-               << setw(14) << dd << "  rel err = " << err/scale
+        stream << "Hess[" << j << ", " << j << "] = " << setw(14) << dde << " [A] --- "
+               << setw(14) << dd << " [FD] rel err = " << err/scale
                << '\n' ;
       }
 
@@ -398,15 +398,15 @@ namespace alglin {
         scale = std::max(Number(1),std::max(std::abs(dd),std::abs(ddij))) ;
         err   = std::abs(dd-ddij) ;
         if ( err > epsi*scale ) {
-          stream << "Hess[" << i << ", " << j << "] = " << setw(14) << ddij << " --- "
-                 << setw(14) << dd << "  rel err = " << err/scale
+          stream << "Hess[" << i << ", " << j << "] = " << setw(14) << ddij << " [A] --- "
+                 << setw(14) << dd << " [FD]  rel err = " << err/scale
                  << '\n' ;
         }
         scale = std::max(Number(1),std::max(std::abs(dd),std::abs(ddji))) ;
         err   = std::abs(dd-ddji) ;
         if ( err > epsi*scale ) {
-          stream << "Hess[" << j << ", " << i << "] = " << setw(14) << ddij << " --- "
-                 << setw(14) << dd << "  rel err = " << err/scale
+          stream << "Hess[" << j << ", " << i << "] = " << setw(14) << ddij << " [A] --- "
+                 << setw(14) << dd << " [FD]  rel err = " << err/scale
                  << '\n' ;
         }
         X[i] = tempi ;
