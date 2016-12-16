@@ -104,6 +104,10 @@ namespace alglin {
 
     // Border Bottom blocks
     void
+    setZeroBottomBlocks()
+    {  babd_solver->setZeroBottomBlocks() ; }
+
+    void
     loadBottomBlocks( valueConstPointer C, integer ldC )
     {  babd_solver->loadBottomBlocks( C, ldC ) ; }
 
@@ -116,6 +120,10 @@ namespace alglin {
     { babd_solver->loadBottomLastBlock( C, ldC ) ; }
 
     // Border Right blocks
+    void
+    setZeroRightBlocks()
+    { babd_solver->setZeroRightBlocks() ; }
+
     void
     loadRightBlocks( valueConstPointer B, integer ldB )
     { babd_solver->loadRightBlocks( B, ldB ) ; }
@@ -130,9 +138,14 @@ namespace alglin {
 
     // Border RBblock
     void
+    setZeroRBblock()
+    { babd_solver->setZeroRBblock() ; }
+
+    void
     loadRBblock( valueConstPointer D, integer ldD )
     { babd_solver->loadRBblock( D, ldD ) ; }
 
+    // Bottom BC
     void
     loadBottom( valueConstPointer H0, integer ld0,
                 valueConstPointer HN, integer ldN,

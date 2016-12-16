@@ -240,6 +240,10 @@ namespace alglin {
 
     // Border Bottom blocks
     void
+    setZeroBottomBlocks()
+    { zero( nb*neq, Cmat, 1 ) ; }
+
+    void
     loadBottomBlocks( valueConstPointer C, integer ldC )
     { gecopy( nb, neq, C, ldC, Cmat, nb ) ; }
 
@@ -253,6 +257,10 @@ namespace alglin {
 
     // Border Right blocks
     void
+    setZeroRightBlocks()
+    { zero( neq*nb, Bmat, 1 ) ; }
+
+    void
     loadRightBlocks( valueConstPointer B, integer ldB )
     { gecopy( neq, nb, B, ldB, Bmat, neq ) ; }
 
@@ -265,6 +273,10 @@ namespace alglin {
     { gecopy( n+q, nb, B, ldB, Bmat + neq-n-q, n+q ) ; }
 
     // Border RBblock
+    void
+    setZeroRBblock()
+    { zero( nb*nb, Dmat, 1 ) ; }
+
     void
     loadRBblock( valueConstPointer D, integer ldD )
     { gecopy( nb, nb, D, ldD, Dmat, nb ) ; }
