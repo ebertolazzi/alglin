@@ -85,6 +85,7 @@ namespace alglin {
 
     ~BABD() {}
 
+    // filling bidiagonal part of the matrix
     void
     loadBlocks( valueConstPointer AdAu, integer ldA )
     { babd_solver->loadBlocks( AdAu, ldA ) ; }
@@ -100,6 +101,37 @@ namespace alglin {
     void
     loadBlockRight( integer nbl, valueConstPointer Au, integer ldA )
     { babd_solver->loadBlockRight( nbl, Au, ldA ) ; }
+
+    // Border Bottom blocks
+    void
+    loadBottomBlocks( valueConstPointer C, integer ldC )
+    {  babd_solver->loadBottomBlocks( C, ldC ) ; }
+
+    void
+    loadBottomBlock( integer nbl, valueConstPointer C, integer ldC )
+    { babd_solver->loadBottomBlock( nbl, C, ldC ) ; }
+
+    void
+    loadBottomLastBlock( valueConstPointer C, integer ldC )
+    { babd_solver->loadBottomLastBlock( C, ldC ) ; }
+
+    // Border Right blocks
+    void
+    loadRightBlocks( valueConstPointer B, integer ldB )
+    { babd_solver->loadRightBlocks( B, ldB ) ; }
+
+    void
+    loadRightBlock( integer nbl, valueConstPointer B, integer ldB )
+    { babd_solver->loadRightBlock( nbl, B, ldB ) ; }
+
+    void
+    loadRightLastBlock( valueConstPointer B, integer ldB )
+    { babd_solver->loadRightLastBlock( B, ldB ) ; }
+
+    // Border RBblock
+    void
+    loadRBblock( valueConstPointer D, integer ldD )
+    { babd_solver->loadRBblock( D, ldD ) ; }
 
     void
     loadBottom( valueConstPointer H0, integer ld0,
