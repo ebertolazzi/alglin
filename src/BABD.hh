@@ -206,6 +206,10 @@ namespace alglin {
     factorize()
     { babd_solver->factorize() ; }
 
+    void
+    factorize_bordered()
+    { babd_solver->factorize_bordered() ; }
+
     /*\
      |             _
      |   ___  ___ | |_   _____
@@ -221,6 +225,16 @@ namespace alglin {
     void
     solve( integer nrhs, valuePointer in_out, integer ldIO ) const
     { babd_solver->solve( nrhs, in_out, ldIO ) ; }
+
+    void
+    solve_bordered( valuePointer in_out ) const
+    { babd_solver->solve_bordered( in_out ) ; }
+
+    void
+    solve_bordered( integer      nrhs,
+                    valuePointer rhs,
+                    integer      ldRhs ) const
+    { babd_solver->solve_bordered( nrhs, rhs, ldRhs ) ; }
 
     /*\
      |   ____
