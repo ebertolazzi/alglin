@@ -387,7 +387,7 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BlockBidiagonal<t_Value>::dumpMatrix( basic_ostream<char> & stream ) const {
+  BlockBidiagonal<t_Value>::dump_to_Maple( basic_ostream<char> & stream ) const {
 
     stream << "interface( rtablesize = 40 ) ;\n" ;
     for ( integer row = 0 ; row < nblock ; ++row ) {

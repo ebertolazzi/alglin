@@ -400,9 +400,6 @@ namespace alglin {
                     valuePointer /* rhs   */,
                     integer      /* ldRhs */ ) const ;
 
-    void
-    dumpMatrix( basic_ostream<char> & stream ) const ;
-
     // All in one
     void
     factorize( integer           nblk,
@@ -450,6 +447,9 @@ namespace alglin {
 
     void
     dump_ccoord( ostream & stream ) const ;
+
+    void
+    dump_to_Maple( basic_ostream<char> & stream ) const ;
 
   } ;
 }

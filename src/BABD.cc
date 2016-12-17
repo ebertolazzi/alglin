@@ -66,7 +66,7 @@ namespace alglin {
   }
 
   void
-  BVNLFD_System::dumpMatrix ( basic_ostream<char> & stream ) const {
+  BVNLFD_System::dump_to_Maple ( basic_ostream<char> & stream ) const {
 
     stream << "interface( rtablesize = 40 ) ;\n" ;
 

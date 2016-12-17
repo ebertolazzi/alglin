@@ -258,8 +258,12 @@ namespace alglin {
      |                        |_|
     \*/
     void
-    dumpMatrix( basic_ostream<char> & stream ) const
-    { babd_solver->dumpMatrix( stream ) ; }
+    dump_to_Maple( basic_ostream<char> & stream ) const
+    { babd_solver->dump_to_Maple( stream ) ; }
+
+    void
+    dump_ccoord( basic_ostream<char> & stream ) const
+    { babd_solver->dump_ccoord( stream ) ; }
 
   } ;
 }
