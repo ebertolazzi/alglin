@@ -178,7 +178,7 @@ namespace alglin {
     numInitialOMEGA = _numInitialOMEGA ;
     numFinalOMEGA   = _numFinalOMEGA ;
     numCyclicOMEGA  = _numCyclicOMEGA ;
-    
+
     if ( numCyclicBC == 0 && numCyclicOMEGA == 0 ) {
       /*\
        |  +----+-----+---+
@@ -494,54 +494,73 @@ namespace alglin {
   template <typename t_Value>
   void
   BlockBidiagonal<t_Value>::dump_ccoord( std::ostream & stream ) const {
-    integer nnz = nblock*nxnx2 + (n+q)*(2*n+q) + 2*(nblock+1)*n*nb + nb*nb ;
+    integer nnz = nblock*nxnx2 + 2*(nblock+1)*n*nb + nb*nb ;
 
-    stream << nnz << '\n' ;
-    for ( integer k = 0 ; k < nblock ; ++k ) {
-      integer ii = k*n ;
-      valuePointer AdAu = AdAu_blk + k * nxnx2 ;
-      for ( integer i = 0 ; i < n ; ++i )
-        for ( integer j = 0 ; j < nx2 ; ++j )
-          stream
-            << ii+i        << '\t'
-            << ii+j        << '\t'
-            << AdAu[i+j*n] << '\n' ;
+    integer ii, jj ;
+    if ( numCyclicBC == 0 && numCyclicOMEGA == 0 ) {
+
+      integer row0  = numInitialBC ;
+      integer rowN  = numFinalBC ;
+      integer col00 = numInitialOMEGA ;
+      integer colNN = numFinalOMEGA ;
+
+      nnz += row0 * ( n + col00 ) + rowN * ( n + colNN ) ;
+      stream << nnz << '\n' ;
+
+      for ( integer i = 0 ; i < row0 ; ++i )
+        for ( integer j = 0 ; j < n+col00 ; ++j )
+          stream << i << '\t' << j << '\t' << block0[i+j*row0] << '\n' ;
+
+      ii = nblock*n+row0 ;
+      jj = nblock*n+col00 ;
+      for ( integer i = 0 ; i < rowN ; ++i )
+        for ( integer j = 0 ; j < n+colNN ; ++j )
+          stream << ii+i << '\t' << jj+j << '\t' << blockN[i+j*rowN] << '\n' ;
+
+      for ( integer k = 0 ; k < nblock ; ++k ) {
+        ii = k*n+row0 ;
+        jj = k*n+col00 ;
+        valuePointer AdAu = AdAu_blk + k * nxnx2 ;
+        for ( integer i = 0 ; i < n ; ++i )
+          for ( integer j = 0 ; j < nx2 ; ++j )
+            stream << ii+i << '\t' << jj+j << '\t' << AdAu[i+j*n] << '\n' ;
+      }
+
+    } else {
+
+      nnz += (n+q)*(2*n+q) ;
+      stream << nnz << '\n' ;
+
+      valuePointer H0 = H0Nq ;
+      ii = nblock*n ;
+      for ( integer i = 0 ; i < n+q ; ++i )
+        for ( integer j = 0 ; j < n ; ++j )
+          stream << ii+i << '\t' << j << '\t' << H0[i+j*(n+q)] << '\n' ;
+
+      valuePointer HNq = H0Nq+n*(n+q) ;
+      for ( integer i = 0 ; i < n+q ; ++i )
+        for ( integer j = 0 ; j < n+q ; ++j )
+          stream << ii+i << '\t' << ii+j << '\t' << HNq[i+j*(n+q)] << '\n' ;
+
+      for ( integer k = 0 ; k < nblock ; ++k ) {
+        ii = k*n ;
+        valuePointer AdAu = AdAu_blk + k * nxnx2 ;
+        for ( integer i = 0 ; i < n ; ++i )
+          for ( integer j = 0 ; j < nx2 ; ++j )
+            stream << ii+i << '\t' << ii+j << '\t' << AdAu[i+j*n] << '\n' ;
+      }
     }
-
-    valuePointer H0 = H0Nq ;
-    integer ii = nblock*n ;
-    for ( integer i = 0 ; i < n+q ; ++i )
-      for ( integer j = 0 ; j < n ; ++j )
-        stream
-            << ii+i          << '\t'
-            << j             << '\t'
-            << H0[i+j*(n+q)] << '\n' ;
-
-    valuePointer HNq = H0Nq+n*(n+q) ;
-    for ( integer i = 0 ; i < n+q ; ++i )
-      for ( integer j = 0 ; j < n+q ; ++j )
-        stream
-            << ii+i           << '\t'
-            << ii+j           << '\t'
-            << HNq[i+j*(n+q)] << '\n' ;
-
-    ii += n+q ;
+    
+    ii = (n+1)*nblock+q ;
     for ( integer i = 0 ; i < nb ; ++i )
       for ( integer j = 0 ; j < ii ; ++j )
-        stream
-            << ii+i         << '\t'
-            << j            << '\t'
-            << Cmat[i+j*nb] << '\n'
-            << j            << '\t'
-            << ii+i         << '\t'
-            << Bmat[j+i*ii] << '\n' ;
+        stream << ii+i << '\t' << j << '\t' << Cmat[i+j*nb] << '\n'
+               << j << '\t' << ii+i << '\t' << Bmat[j+i*ii] << '\n' ;
 
     for ( integer i = 0 ; i < nb ; ++i )
       for ( integer j = 0 ; j < nb ; ++j )
-        stream
-            << ii+i         << '\t'
-            << ii+j         << '\t'
-            << Dmat[i+j*nb] << '\n' ;
+        stream << ii+i << '\t' << ii+j << '\t' << Dmat[i+j*nb] << '\n' ;
+
   }
 
   template class BlockBidiagonal<float> ;
