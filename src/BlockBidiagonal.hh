@@ -448,6 +448,9 @@ namespace alglin {
     void
     Mv( valueConstPointer x, valuePointer res ) const ;
 
+    void
+    dump_ccoord( ostream & stream ) const ;
+
   } ;
 }
 

@@ -123,6 +123,7 @@ namespace alglin {
   public:
 
     using BlockBidiagonal<valueType>::factorize ;
+    using BlockBidiagonal<valueType>::dump_ccoord ;
 
     explicit DiazLU() : NB(25) {}
     ~DiazLU() {}

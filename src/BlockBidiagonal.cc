@@ -480,6 +480,69 @@ namespace alglin {
             1.0, res+neq, 1 ) ;
     }
   }
+  
+  /*\
+   |
+   |       _
+   |    __| |_   _ _ __ ___  _ __     ___ ___ ___   ___  _ __
+   |   / _` | | | | '_ ` _ \| '_ \   / __/ __/ _ \ / _ \| '__|
+   |  | (_| | |_| | | | | | | |_) | | (_| (_| (_) | (_) | |
+   |   \__,_|\__,_|_| |_| |_| .__/___\___\___\___/ \___/|_|
+   |                        |_| |_____|
+  \*/
+
+  template <typename t_Value>
+  void
+  BlockBidiagonal<t_Value>::dump_ccoord( std::ostream & stream ) const {
+    integer nnz = nblock*nxnx2 + (n+q)*(2*n+q) + 2*(nblock+1)*n*nb + nb*nb ;
+
+    stream << nnz << '\n' ;
+    for ( integer k = 0 ; k < nblock ; ++k ) {
+      integer ii = k*n ;
+      valuePointer AdAu = AdAu_blk + k * nxnx2 ;
+      for ( integer i = 0 ; i < n ; ++i )
+        for ( integer j = 0 ; j < nx2 ; ++j )
+          stream
+            << ii+i        << '\t'
+            << ii+j        << '\t'
+            << AdAu[i+j*n] << '\n' ;
+    }
+
+    valuePointer H0 = H0Nq ;
+    integer ii = nblock*n ;
+    for ( integer i = 0 ; i < n+q ; ++i )
+      for ( integer j = 0 ; j < n ; ++j )
+        stream
+            << ii+i          << '\t'
+            << j             << '\t'
+            << H0[i+j*(n+q)] << '\n' ;
+
+    valuePointer HNq = H0Nq+n*(n+q) ;
+    for ( integer i = 0 ; i < n+q ; ++i )
+      for ( integer j = 0 ; j < n+q ; ++j )
+        stream
+            << ii+i           << '\t'
+            << ii+j           << '\t'
+            << HNq[i+j*(n+q)] << '\n' ;
+
+    ii += n+q ;
+    for ( integer i = 0 ; i < nb ; ++i )
+      for ( integer j = 0 ; j < ii ; ++j )
+        stream
+            << ii+i         << '\t'
+            << j            << '\t'
+            << Cmat[i+j*nb] << '\n'
+            << j            << '\t'
+            << ii+i         << '\t'
+            << Bmat[j+i*ii] << '\n' ;
+
+    for ( integer i = 0 ; i < nb ; ++i )
+      for ( integer j = 0 ; j < nb ; ++j )
+        stream
+            << ii+i         << '\t'
+            << ii+j         << '\t'
+            << Dmat[i+j*nb] << '\n' ;
+  }
 
   template class BlockBidiagonal<float> ;
   template class BlockBidiagonal<double> ;

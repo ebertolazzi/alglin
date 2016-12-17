@@ -18,6 +18,7 @@
 \*--------------------------------------------------------------------------*/
 
 #include <iostream>
+#include <fstream>
 #include <vector>
 #include <random>
 #include "Alglin.hh"
@@ -129,6 +130,10 @@ main() {
       LU.loadTopBottom( row0, col0, block0, row0,
                         rowN, colN, blockN, rowN ) ;
       LU.selectLastBlockSolver( ch[test] ) ;
+      
+      ofstream file("dump_mat.txt");
+      LU.dump_ccoord( file ) ;
+      file.close() ;
 
       cout << "N = " << N << '\n' ;
       for ( alglin::integer i = 0 ; i < N ; ++i ) x[i] = i ;

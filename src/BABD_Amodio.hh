@@ -65,6 +65,7 @@ namespace alglin {
   public:
 
     using CyclicReduction<valueType>::allocate ;
+    using CyclicReduction<valueType>::dump_ccoord ;
 
     #ifdef CYCLIC_REDUCTION_USE_THREAD
     explicit

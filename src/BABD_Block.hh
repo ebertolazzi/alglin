@@ -174,6 +174,7 @@ namespace alglin {
   public:
   
     using BlockBidiagonal<t_Value>::factorize ;
+    using BlockBidiagonal<t_Value>::dump_ccoord ;
 
     explicit BlockLU() { }
 

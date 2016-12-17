@@ -97,6 +97,7 @@ namespace alglin {
   public:
 
     using BlockBidiagonal<valueType>::factorize ;
+    using BlockBidiagonal<valueType>::dump_ccoord ;
 
     #ifdef CYCLIC_REDUCTION_USE_THREAD
     explicit
