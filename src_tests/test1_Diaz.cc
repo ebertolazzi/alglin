@@ -51,19 +51,21 @@ main() {
 
     alglin::integer dim      = 100 ;
     alglin::integer row0     = 40 ;
-    alglin::integer col0     = dim+2 ;
-    alglin::integer colN     = dim+10 ;
-    alglin::integer rowN     = (dim-row0)+(col0+colN-2*dim) ;
+    alglin::integer col00    = 2 ;
+    alglin::integer colNN    = 10 ;
+    alglin::integer rowN     = (dim-row0)+(col00+colNN) ;
     alglin::integer numBlock = 1000 ;
 
     alglin::integer N   = row0 + rowN + numBlock*dim ;
-    alglin::integer nnz = row0*col0 + rowN*colN + 2*dim*dim + 13*(N+NB) + 2*N*NB + NB*NB ;
+    alglin::integer nnz = row0*(dim+col00) +
+                          rowN*(dim+colNN) +
+                          2*dim*dim + 13*(N+NB) + 2*N*NB + NB*NB ;
 
     alglin::Malloc<valueType> baseValue("real") ;
     baseValue.allocate(size_t(nnz)) ;
 
-    valueType * block0 = baseValue(size_t(row0*col0)) ;
-    valueType * blockN = baseValue(size_t(rowN*colN)) ;
+    valueType * block0 = baseValue(size_t(row0*(dim+col00))) ;
+    valueType * blockN = baseValue(size_t(rowN*(dim+colNN))) ;
     valueType * AdAu   = baseValue(size_t(2*dim*dim)) ;
 
     valueType * B = baseValue(size_t(N*NB)) ;
@@ -92,7 +94,7 @@ main() {
       cout << "\n\n\ntest N." << test << " NB = " << NB << "\n" ;
       valueType diag = 2*dim ;
 
-      alglin::integer nn = dim+row0-col0 ;
+      alglin::integer nn = row0-col00 ;
 
       for ( int k = 0 ; k < numBlock ; ++k ) {
         for ( int i = 0 ; i < dim ; ++i ) {
@@ -103,18 +105,17 @@ main() {
         LU.loadBlock( k, AdAu, dim ) ;
       }
       for ( int i = 0 ; i < row0 ; ++i ) {
-        for ( int j = 0 ; j < col0 ; ++j )
+        for ( int j = 0 ; j < dim+col00 ; ++j )
           block0[i+j*row0] = rand(-1,1) ;
         block0[i*(row0+1)] += diag ;
       }
       for ( int i = 0 ; i < rowN ; ++i ) {
-        for ( int j = 0 ; j < colN ; ++j )
+        for ( int j = 0 ; j < dim+colNN ; ++j )
           blockN[i+j*rowN] = rand(-1,1) ;
         blockN[i*(rowN+1)+nn*rowN] += diag ;
       }
       for ( int j = 0 ; j < NB ; ++j ) {
-        for ( int i = 0 ; i < N ; ++i ) B[i+j*N] = rand(-1,1) ;
-        B[j*(N+1)] += 10 ;
+        for ( int i = 0 ; i < N ; ++i ) B[i+j*N] = 1 ;
       }
       for ( int i = 0 ; i < NB ; ++i ) {
         for ( int j = 0 ; j < N ; ++j ) C[i+j*NB] = rand(-1,1) ;
@@ -122,24 +123,47 @@ main() {
       }
       for ( int i = 0 ; i < NB ; ++i )
         for ( int j = 0 ; j < NB ; ++j )
-          D[i+j*NB] = 0 ;
-      
+          D[i+j*NB] = rand(-1,1)+(i==j?10:0) ;
+
       LU.loadRightBlocks( B, N ) ;
+      
       LU.loadBottomBlocks( C, NB ) ;
       LU.loadRBblock( D, NB ) ;
-      LU.loadTopBottom( row0, col0, block0, row0,
-                        rowN, colN, blockN, rowN ) ;
+      LU.loadTopBottom( row0, dim+col00, block0, row0,
+                        rowN, dim+colNN, blockN, rowN ) ;
       LU.selectLastBlockSolver( ch[test] ) ;
       
       ofstream file("dump_mat.txt");
       LU.dump_ccoord( file ) ;
       file.close() ;
 
-      cout << "N = " << N << '\n' ;
-      for ( alglin::integer i = 0 ; i < N ; ++i ) x[i] = i ;
+      cout << "N = " << N << ' '
+           << "n = " << dim << ' '
+           << "col00 = " << col00 << ' '
+           << "colNN = " << colNN << ' '
+           << "row0 = " << row0 << ' '
+           << "rowN = " << rowN << '\n' ;
+
+      for ( alglin::integer i = 0 ; i < N+NB ; ++i ) x[i] = 1+(i%4) ;
       std::copy( x, x+N+NB, xref  ) ;
       std::copy( x, x+N+NB, xref1 ) ;
       LU.Mv( x, rhs ) ;
+
+      /*
+      check
+      
+      LU.setZeroRightBlocks() ;
+      for ( int i = 0 ; i < numBlock ; ++i )
+        LU.loadRightBlock( i, B+i*dim, N ) ;
+      LU.loadRightLastBlock( B+numBlock*dim, N ) ;
+
+      LU.setZeroBottomBlocks() ;
+      for ( int i = 0 ; i <= numBlock ; ++i )
+        LU.loadBottomBlock( i, C+i*dim*NB, NB ) ;
+      LU.loadBottomLastBlock( C+(numBlock+1)*dim*NB, NB ) ;
+
+      LU.loadRBblock( D, NB ) ;
+      */
 
       tm.tic() ;
       LU.factorize_bordered() ;

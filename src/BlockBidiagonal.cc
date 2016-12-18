@@ -478,6 +478,10 @@ namespace alglin {
             1.0, Cmat, nb,
             x, 1,
             1.0, res+neq, 1 ) ;
+      gemv( NO_TRANSPOSE, nb, nb,
+            1.0, Dmat, nb,
+            x+neq, 1,
+            1.0, res+neq, 1 ) ;
     }
   }
   

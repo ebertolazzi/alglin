@@ -266,11 +266,11 @@ namespace alglin {
 
     void
     loadRightBlock( integer nbl, valueConstPointer B, integer ldB )
-    { gecopy( n, nb, B, ldB, Bmat + nbl*n, n ) ; }
+    { gecopy( n, nb, B, ldB, Bmat + nbl*n, neq ) ; }
 
     void
     loadRightLastBlock( valueConstPointer B, integer ldB )
-    { gecopy( n+q, nb, B, ldB, Bmat + neq-n-q, n+q ) ; }
+    { gecopy( n+q, nb, B, ldB, Bmat + neq-n-q, neq ) ; }
 
     // Border RBblock
     void
