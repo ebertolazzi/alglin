@@ -554,8 +554,8 @@ namespace alglin {
             stream << ii+i << '\t' << ii+j << '\t' << AdAu[i+j*n] << '\n' ;
       }
     }
-    
-    ii = (n+1)*nblock+q ;
+
+    ii = n*(nblock+1)+q ;
     for ( integer i = 0 ; i < nb ; ++i )
       for ( integer j = 0 ; j < ii ; ++j )
         stream << ii+i << '\t' << j << '\t' << Cmat[i+j*nb] << '\n'
