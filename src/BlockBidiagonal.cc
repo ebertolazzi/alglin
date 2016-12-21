@@ -500,7 +500,8 @@ namespace alglin {
   BlockBidiagonal<t_Value>::dump_ccoord( std::ostream & stream ) const {
     integer nnz = nblock*nxnx2 + 2*(nblock+1)*n*nb + nb*nb ;
 
-    integer ii, jj ;
+    // BC
+    integer ii ;
     if ( numCyclicBC == 0 && numCyclicOMEGA == 0 ) {
 
       integer row0  = numInitialBC ;
@@ -511,24 +512,24 @@ namespace alglin {
       nnz += row0 * ( n + col00 ) + rowN * ( n + colNN ) ;
       stream << nnz << '\n' ;
 
-      for ( integer i = 0 ; i < row0 ; ++i )
-        for ( integer j = 0 ; j < n+col00 ; ++j )
-          stream << i << '\t' << j << '\t' << block0[i+j*row0] << '\n' ;
-
-      ii = nblock*n+row0 ;
-      jj = nblock*n+col00 ;
+      ii = nblock*n ;
       for ( integer i = 0 ; i < rowN ; ++i )
         for ( integer j = 0 ; j < n+colNN ; ++j )
-          stream << ii+i << '\t' << jj+j << '\t' << blockN[i+j*rowN] << '\n' ;
+          stream << ii+i << '\t'
+                 << ii+j << '\t'
+                 << blockN[i+j*rowN] << '\n' ;
 
-      for ( integer k = 0 ; k < nblock ; ++k ) {
-        ii = k*n+row0 ;
-        jj = k*n+col00 ;
-        valuePointer AdAu = AdAu_blk + k * nxnx2 ;
-        for ( integer i = 0 ; i < n ; ++i )
-          for ( integer j = 0 ; j < nx2 ; ++j )
-            stream << ii+i << '\t' << jj+j << '\t' << AdAu[i+j*n] << '\n' ;
-      }
+      for ( integer i = 0 ; i < row0 ; ++i )
+        for ( integer j = 0 ; j < n ; ++j )
+          stream << ii+rowN+i << '\t'
+                 << j         << '\t'
+                 << block0[i+(j+col00)*row0] << '\n' ;
+
+      for ( integer i = 0 ; i < row0 ; ++i )
+        for ( integer j = 0 ; j < col00 ; ++j )
+          stream << ii+rowN+i    << '\t'
+                 << ii+n+colNN+j << '\t'
+                 << block0[i+j*row0] << '\n' ;
 
     } else {
 
@@ -545,16 +546,18 @@ namespace alglin {
       for ( integer i = 0 ; i < n+q ; ++i )
         for ( integer j = 0 ; j < n+q ; ++j )
           stream << ii+i << '\t' << ii+j << '\t' << HNq[i+j*(n+q)] << '\n' ;
-
-      for ( integer k = 0 ; k < nblock ; ++k ) {
-        ii = k*n ;
-        valuePointer AdAu = AdAu_blk + k * nxnx2 ;
-        for ( integer i = 0 ; i < n ; ++i )
-          for ( integer j = 0 ; j < nx2 ; ++j )
-            stream << ii+i << '\t' << ii+j << '\t' << AdAu[i+j*n] << '\n' ;
-      }
+    }
+    
+    // bidiagonal
+    for ( integer k = 0 ; k < nblock ; ++k ) {
+      ii = k*n ;
+      valuePointer AdAu = AdAu_blk + k * nxnx2 ;
+      for ( integer i = 0 ; i < n ; ++i )
+        for ( integer j = 0 ; j < nx2 ; ++j )
+          stream << ii+i << '\t' << ii+j << '\t' << AdAu[i+j*n] << '\n' ;
     }
 
+    // border
     ii = n*(nblock+1)+q ;
     for ( integer i = 0 ; i < nb ; ++i )
       for ( integer j = 0 ; j < ii ; ++j )
