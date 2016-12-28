@@ -316,7 +316,6 @@ namespace alglin {
   
   private:
 
-    integer     Lwork, __padding ;
     valueType * Work ;
     integer   * Iwork ;
     integer   * i_pivot ;

@@ -223,7 +223,6 @@ namespace alglin {
   template <typename T>
   LU<T>::LU()
   : Factorization<T>()
-  , Lwork(0)
   , allocReals("allocReals")
   , allocIntegers("allocIntegers")
   {}
