@@ -27,18 +27,6 @@
 #endif
 
 namespace alglin {
-/*
-  string
-  LastBlock_to_string( LASTBLOCK_Choice c ) {
-    switch ( c ) {
-      case LASTBLOCK_LU:  return "last block LU"  ;
-      case LASTBLOCK_QR:  return "last block QR"  ;
-      case LASTBLOCK_QRP: return "last block QRP" ;
-      case LASTBLOCK_SVD: return "last block SVD" ;
-    }
-    return "last block not selected" ;
-  }
-*/
 
   template <typename t_Value>
   void
@@ -83,7 +71,7 @@ namespace alglin {
     Ttau  = baseValue(size_t(nblock*n)) ;
     Hmat  = baseValue(size_t(N*N)) ;
     Htau  = baseValue(size_t(N)) ;
-    H0Npq = baseValue(size_t((n+q)*(nx2+nb+q))) ;
+    H0Nqp = baseValue(size_t((n+q)*N)) ;
 
     Work  = baseValue(size_t(Lwork)) ;
 
@@ -106,14 +94,15 @@ namespace alglin {
   BorderedCR<t_Value>::loadBottom(
     valueConstPointer H0, integer ld0,
     valueConstPointer HN, integer ldN,
-    valueConstPointer Hp, integer ldP,
-    valueConstPointer Hq, integer ldQ
+    valueConstPointer Hq, integer ldQ,
+    valueConstPointer Hp, integer ldP
   ) {
     integer m = n + q ;
-    gecopy( m, n,  H0, ld0, H0Npq,            m ) ;
-    gecopy( m, n,  HN, ldN, H0Npq+m*n,        m ) ;
-    gecopy( m, nb, Hp, ldP, H0Npq+m*nx2,      m ) ;
-    gecopy( m, q,  Hq, ldQ, H0Npq+m*(nx2+nb), m ) ;
+    valuePointer H = H0Nqp ;
+    gecopy( m, n,  H0, ld0, H, m ) ; H += m * n ;
+    gecopy( m, n,  HN, ldN, H, m ) ; H += m * n ;
+    gecopy( m, q,  Hq, ldQ, H, m ) ; H += m * q ;
+    gecopy( m, nb, Hp, ldP, H, m ) ;
   }
 
   /*\
@@ -133,17 +122,28 @@ namespace alglin {
     t_Value const * E  = Emat ;
     t_Value const * B  = Bmat ;
     t_Value const * xx = x ;
-    t_Value const * xe = x+(nblock+1)*n;
+    t_Value const * xe = x  + nblock*n ;
+    t_Value const * xq = xe + n ;
+    t_Value const * xb = xq + q ;
     t_Value *       yy = res ;
     for ( integer i = 0 ; i < nblock ; ++i ) {
       gemv( NO_TRANSPOSE, n, n,  1.0, D, n, xx, 1, 0.0, yy, 1 ) ;
       xx += n ;
       gemv( NO_TRANSPOSE, n, n,  1.0, E, n, xx, 1, 1.0, yy, 1 ) ;
-      if ( nb > 0 ) gemv( NO_TRANSPOSE, n, nb, 1.0, B, n, xe, 1, 1.0, yy, 1 ) ;
+      if ( nb > 0 ) gemv( NO_TRANSPOSE, n, nb, 1.0, B, n, xb, 1, 1.0, yy, 1 ) ;
       yy += n ; D += nxn ; E += nxn ; B += nxnb ;
     }
+
+    integer      m = n+q ;
+    valuePointer H = H0Nqp ;
+    gemv( NO_TRANSPOSE, m, n,  1.0, H, m, x,  1, 0.0, yy, 1 ) ; H += m * n ;
+    gemv( NO_TRANSPOSE, m, n,  1.0, H, m, xe, 1, 1.0, yy, 1 ) ; H += m * n ;
+    gemv( NO_TRANSPOSE, m, q,  1.0, H, m, xq, 1, 1.0, yy, 1 ) ; H += m * q ;
+    gemv( NO_TRANSPOSE, m, nb, 1.0, H, m, xb, 1, 1.0, yy, 1 ) ;
+
     if ( nb > 0 ) {
-      gemv( NO_TRANSPOSE, nb, nb, 1.0, Fmat, nb, xe, 1, 0.0, yy, 1 ) ;
+      yy += m ;
+      gemv( NO_TRANSPOSE, nb, nb, 1.0, Fmat, nb, xb, 1, 0.0, yy, 1 ) ;
       t_Value const * C = Cmat ;
       xx = x ;
       for ( integer i = 0 ; i <= nblock ; ++i ) {
@@ -151,13 +151,6 @@ namespace alglin {
         xx += n ; C += nxnb ;
       }
     }
-    yy += nb ;
-
-    integer m = n+q ;
-    gemv( NO_TRANSPOSE, m, n,  1.0, H0Npq,            m, x,     1, 0.0, yy, 1 ) ;
-    gemv( NO_TRANSPOSE, m, n,  1.0, H0Npq+m*n,        m, xe-n,  1, 1.0, yy, 1 ) ;
-    gemv( NO_TRANSPOSE, m, nb, 1.0, H0Npq+m*nx2,      m, xe,    1, 1.0, yy, 1 ) ;
-    gemv( NO_TRANSPOSE, m, q,  1.0, H0Npq+m*(nx2+nb), m, xe+nb, 1, 1.0, yy, 1 ) ;
   }
   
   /*\
@@ -174,11 +167,13 @@ namespace alglin {
   void
   BorderedCR<t_Value>::dump_ccoord( std::ostream & stream ) const {
     integer ii ;
-    integer nnz = 2*nblock*(nxn+nxnb) + nxnb + nb*nb + (n+q)*(2*n+nb+q) ;
+    integer nnz = 2*nblock*(nxn+nxnb) + nxnb + nb*nb + (n+q)*N ;
     stream << nnz << '\n' ;
 
     // bidiagonal
-    integer je = (nblock+1)*n ;
+    integer je = nblock*n ;
+    integer jq = je+n ;
+    integer jb = jq+q ;
     for ( integer k = 0 ; k < nblock ; ++k ) {
       ii = k*n ;
       valuePointer D = Dmat + k * nxn ;
@@ -192,9 +187,20 @@ namespace alglin {
       for ( integer i = 0 ; i < n ; ++i )
         for ( integer j = 0 ; j < nb ; ++j )
           stream
-            << ii+i << '\t' << je+j << '\t' << B[i+j*n] << '\n' ;
+            << ii+i << '\t' << jb+j << '\t' << B[i+j*n] << '\n' ;
     }
     integer ie = nblock*n ;
+    valuePointer H = H0Nqp ;
+    for ( integer i = 0 ; i < n+q ; ++i )
+      for ( integer j = 0 ; j < n ; ++j )
+        stream << ie+i << '\t' << j << '\t' << H[i+j*(n+q)] << '\n' ;
+
+    H += n*(n+q) ;
+    for ( integer i = 0 ; i < n+q ; ++i )
+      for ( integer j = 0 ; j < n+q+nb ; ++j )
+        stream << ie+i << '\t' << je+j << '\t' << H[i+j*(n+q)] << '\n' ;
+
+    ie += n+q ;
     for ( integer k = 0 ; k <= nblock ; ++k ) {
       ii = k*n ;
       valuePointer C = Cmat + k * nxnb ;
@@ -206,19 +212,7 @@ namespace alglin {
     for ( integer i = 0 ; i < nb ; ++i )
       for ( integer j = 0 ; j < nb ; ++j )
         stream
-          << ie+i << '\t' << je+j << '\t' << Fmat[i+j*nb] << '\n' ;
-
-    ie += nb ;
-    je -= n ;
-    valuePointer H0 = H0Npq ;
-    for ( integer i = 0 ; i < n+q ; ++i )
-      for ( integer j = 0 ; j < n ; ++j )
-        stream << ie+i << '\t' << j << '\t' << H0[i+j*(n+q)] << '\n' ;
-
-    valuePointer HNpq = H0Npq+n*(n+q) ;
-    for ( integer i = 0 ; i < n+q ; ++i )
-      for ( integer j = 0 ; j < n+q+nb ; ++j )
-        stream << ie+i << '\t' << je+j << '\t' << HNpq[i+j*(n+q)] << '\n' ;
+          << ie+i << '\t' << jb+j << '\t' << Fmat[i+j*nb] << '\n' ;
 
   }
   
@@ -371,32 +365,37 @@ namespace alglin {
   void
   BorderedCR<t_Value>::load_last_block() {
     /*
-    //  +-----+-----+---+--+
-    //  |  D  |  E  | B |  | n
-    //  +-----+-----+---+--+
-    //  |  C  |  C  | F |  | nb
-    //  +=====+=====+===+==+
-    //  |     |     |   |  |
-    //  |  H0 | HN  |Hp |Hq| n+q
-    //  |     |     |   |  |
-    //  +-----+-----+---+--+
+    //    n   n   q  nb
+    //  +---+---+---+---+
+    //  | D | E | 0 | B | n
+    //  +===+===+===+===+
+    //  |   |   |   |   |
+    //  |H0 |HN |Hq |Hp | n+q
+    //  |   |   |   |   |
+    //  +---+---+---+---+
+    //  | C | C | 0 | F | nb
+    //  +---+---+---+---+
     */
     valuePointer Cnb = Cmat + nblock*nxnb ;
     valuePointer W0 = Hmat ;
-    valuePointer W1 = W0+n*N ;
-    valuePointer W2 = W1+n*N ;
-
-    gezero( n+nb, q, W2+nb*N, N ) ;
+    valuePointer WN = W0+n*N ;
+    valuePointer Wq = WN+n*N ;
+    valuePointer Wp = Wq+q*N ;
 
     gecopy( n,  n,  Dmat, n, W0, N ) ;
-    gecopy( n,  n,  Emat, n, W1, N ) ;
-    gecopy( n,  nb, Bmat, n, W2, N ) ;
+    gecopy( n,  n,  Emat, n, WN, N ) ;
+    gezero( n,  q,           Wq, N ) ;
+    gecopy( n,  nb, Bmat, n, Wp, N ) ;
 
-    gecopy( nb, n,  Cmat, nb, W0+n, N ) ;
-    gecopy( nb, n,  Cnb,  nb, W1+n, N ) ;
-    gecopy( nb, nb, Fmat, nb, W2+n, N ) ;
+    gecopy( n+q, N, H0Nqp, n+q, Hmat+n, N ) ;
 
-    gecopy( n+q, N, H0Npq, n+q, W0+n+nb, N ) ;
+    W0 += nx2+q ; WN += nx2+q ; Wq += nx2+q ; Wp += nx2+q ;
+
+    gecopy( nb, n,  Cmat, nb, W0, N ) ;
+    gecopy( nb, n,  Cnb,  nb, WN, N ) ;
+    gezero( nb, q,            Wq, N ) ;
+    gecopy( nb, nb, Fmat, nb, Wp, N ) ;
+
   }
 
   template <typename t_Value>
@@ -537,7 +536,7 @@ namespace alglin {
   template <typename t_Value>
   void
   BorderedCR<t_Value>::solve_LU( valuePointer x ) const {
-    valuePointer xn = x + nblock*n ;
+    valuePointer xn = x + (nblock+1)*n + q ;
     integer k = 1 ;
     while ( k < nblock ) {
       for ( integer j1 = k ; j1 < nblock ; j1 += 2*k ) {
@@ -561,7 +560,6 @@ namespace alglin {
       case BORDERED_LAST_QRP: solve_last_QRP( x ) ; break ;
     }
 
-    xn += n ;
     while ( (k/=2) > 0 ) {
       for ( integer j1 = k ; j1 < nblock ; j1 += 2*k ) {
         integer j  = j1-k ;
@@ -587,7 +585,7 @@ namespace alglin {
   BorderedCR<t_Value>::solve_LU( integer      nrhs,
                                  valuePointer x,
                                  integer      ldX ) const {
-    valuePointer xn = x + nblock*n ;
+    valuePointer xn = x + nblock*n + q ;
     integer k = 1 ;
     while ( k < nblock ) {
       for ( integer j1 = k ; j1 < nblock ; j1 += 2*k ) {
@@ -615,7 +613,6 @@ namespace alglin {
       case BORDERED_LAST_QRP: solve_last_QRP( nrhs, x, ldX ) ; break ;
     }
 
-    xn += n ;
     while ( (k/=2) > 0 ) {
       for ( integer j1 = k ; j1 < nblock ; j1 += 2*k ) {
         integer j  = j1-k ;

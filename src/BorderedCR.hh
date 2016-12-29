@@ -163,37 +163,36 @@ namespace alglin {
     //
     //  Matrix structure
     //
-    //                n * (nblock+1)
+    //                 n * (nblock+1)
     //    ___________________^____________________
     //   /                                        \
-    //     n     n     n                        n    nb  q
-    //  +-----+-----+-----+----.........-----+-----+---+--+   -+
-    //  |  D  |  E  |     |                  |     | B |  | n  |
-    //  +-----+-----+-----+             -----+-----+---+--+    |
-    //  |     |  D  |  E  |                  |     | B |  | n  |
-    //  +-----+-----+-----+-----+       -----+-----+---+--+    |
-    //  |     |     |  D  |  E  |            |     | B |  | n  |
-    //  +-----+-----+-----+-----+       -----+-----+---+--+    |
-    //  :                                                 :    |
-    //  :                                                 :    |
-    //  :                                                 :     > n * nblock
-    //  :                                                 :    |
-    //  :                                                 :    |
-    //  :                        +-----+-----+-----+---+--+    |
-    //  :                        |  D  |  E  |     | B |  | n  |
-    //  :                        +-----+-----+-----+---+--+    |
-    //  :                              |  D  |  E  | B |  | n  |
-    //  +-----+-----+---......---+-----+-----+-----+---+--+   -+
-    //  |  C  |  C  |            |  C  |  C  |  C  | F |  |    | nb
-    //  +=====+=====+===......===+=====+=====+=====+===+==+   -+
-    //  |     |                              |     |   |  |    |
-    //  |  H0 |                              |  HN |Hp |Hq|    | n+q
-    //  |     |                              |     |   |  |    |
-    //  +-----+-----+---......---+-----+-----+-----+---+--+   -+
-    //                                                   q
+    //    n   n   n                              n   q  nb
+    //  +---+---+---+----.................-----+---+---+---+   -+
+    //  | D | E |   |                          |   |   | B | n  |
+    //  +---+---+---+                     -----+---+---+---+    |
+    //  |   | D | E |                          |   |   | B | n  |
+    //  +---+---+---+---+                 -----+---+---+---+    |
+    //  |   |   | D | E |                      |   |   | B | n  |
+    //  +---+---+---+---+                 -----+---+---+---+    |
+    //  :                                                  :    |
+    //  :                                                  :    |
+    //  :                                                  :     > n * nblock
+    //  :                                                  :    |
+    //  :                                                  :    |
+    //  :                              +---+---+---+---+---+    |
+    //  :                              | D | E |   |   | B | n  |
+    //  :                              +---+---+---+---+---+    |
+    //  :                                  | D | E |   | B | n  |
+    //  +---+---+---................---+---+---+---+---+---+   -+
+    //  |   |   |                          |   |   |   |   |    |
+    //  |H0 | 0 |                          | 0 |HN | Hq| Hp|    | n+q
+    //  |   |   |                          |   |   |   |   |    |
+    //  +---+---+---................---+---+---+---+---+---+   -+
+    //  | C | C |                      | C | C | C | 0 | F |    | nb
+    //  +---+---+---................---+---+---+---+---+---+   -+
     */
 
-    valuePointer H0Npq ;
+    valuePointer H0Nqp ;
     valuePointer Bmat, Cmat, Dmat, Emat, Fmat ;
     
     // working block
@@ -219,7 +218,7 @@ namespace alglin {
     , nxnb(0)
     , N(0)
     , last_selected(BORDERED_LAST_QRP)
-    , H0Npq(nullptr)
+    , H0Nqp(nullptr)
     , Bmat(nullptr)
     , Cmat(nullptr)
     , Dmat(nullptr)
@@ -319,14 +318,20 @@ namespace alglin {
     void
     loadBottom( valueConstPointer H0, integer ld0,
                 valueConstPointer HN, integer ldN,
-                valueConstPointer Hp, integer ldP,
-                valueConstPointer Hq, integer ldQ ) ;
+                valueConstPointer Hq, integer ldQ,
+                valueConstPointer Hp, integer ldP ) ;
+
+    void
+    loadBottom( valueConstPointer _H0Nqp, integer ldH ) {
+      integer nq = n+q ;
+      gecopy( nq, N, _H0Nqp, ldH, H0Nqp, nq ) ;
+    }
 
     t_Value & H( integer i, integer j )
-    { return H0Npq[ i + j*(2*n+q)] ; }
+    { return H0Nqp[ i + j*(n+q)] ; }
 
     t_Value const & H( integer i, integer j ) const
-    { return H0Npq[ i + j*(2*n+q)] ; }
+    { return H0Nqp[ i + j*(n+q)] ; }
 
     void
     factorize() {

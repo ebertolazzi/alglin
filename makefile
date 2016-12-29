@@ -42,6 +42,7 @@ src/BABD_QR.cc \
 src/BABD_QR_N.cc \
 src/BABD_SuperLU.cc \
 src/BlockBidiagonal.cc \
+src/BorderedCR.cc \
 src/CyclicReduction.cc \
 src/CyclicReductionN.cc \
 src/CyclicReductionQR.cc \
@@ -67,6 +68,7 @@ src/BABD_QR.hh \
 src/BABD_QR_N.hh \
 src/BABD_SuperLU.hh \
 src/BlockBidiagonal.hh \
+src/BorderedCR.hh \
 src/CyclicReduction.hh \
 src/CyclicReductionQR.hh \
 src/KKT_like.hh \
@@ -83,19 +85,20 @@ all: lib
 	mkdir -p bin
 	$(CXX) $(INC) $(CXXFLAGS) -o bin/AmodioN_test           src_tests/AmodioN_test.cc $(LIBS)
 	$(CXX) $(INC) $(CXXFLAGS) -o bin/Amodio_test            src_tests/Amodio_test.cc $(LIBS)
-	$(CXX) $(INC) $(CXXFLAGS) -o bin/Block_test             src_tests/Block_test.cc $(LIBS)
-	$(CXX) $(INC) $(CXXFLAGS) -o bin/Diaz_test              src_tests/Diaz_test.cc $(LIBS)
-	$(CXX) $(INC) $(CXXFLAGS) -o bin/QR_N_test              src_tests/QR_N_test.cc $(LIBS)
-	$(CXX) $(INC) $(CXXFLAGS) -o bin/Timing                 src_tests/Timing.cc $(LIBS)
-	$(CXX) $(INC) $(CXXFLAGS) -o bin/CyclicReductionQR_test src_tests/CyclicReductionQR_test.cc $(LIBS)
-	$(CXX) $(INC) $(CXXFLAGS) -o bin/CyclicReduction_test   src_tests/CyclicReduction_test.cc $(LIBS)
-	$(CXX) $(INC) $(CXXFLAGS) -o bin/QR_test                src_tests/QR_test.cc $(LIBS)
-	$(CXX) $(INC) $(CXXFLAGS) -o bin/TestFD                 src_tests/TestFD.cc $(LIBS)
-	$(CXX) $(INC) $(CXXFLAGS) -o bin/KKT-test               src_tests/KKT-test.cc $(LIBS)
-	$(CXX) $(INC) $(CXXFLAGS) -o bin/SMALL-test             src_tests/SMALL-test.cc $(LIBS)
-	$(CXX) $(INC) $(CXXFLAGS) -o bin/KKT-test               src_tests/KKT-test.cc $(LIBS)
 	$(CXX) $(INC) $(CXXFLAGS) -o bin/BABD_test              src_tests/BABD_test.cc $(LIBS)
 	$(CXX) $(INC) $(CXXFLAGS) -o bin/BABD_test2             src_tests/BABD_test2.cc $(LIBS)
+	$(CXX) $(INC) $(CXXFLAGS) -o bin/Block_test             src_tests/Block_test.cc $(LIBS)
+	$(CXX) $(INC) $(CXXFLAGS) -o bin/BorderedCR_test        src_tests/BorderedCR_test.cc $(LIBS)
+	$(CXX) $(INC) $(CXXFLAGS) -o bin/CyclicReductionQR_test src_tests/CyclicReductionQR_test.cc $(LIBS)
+	$(CXX) $(INC) $(CXXFLAGS) -o bin/CyclicReduction_test   src_tests/CyclicReduction_test.cc $(LIBS)
+	$(CXX) $(INC) $(CXXFLAGS) -o bin/Diaz_test              src_tests/Diaz_test.cc $(LIBS)
+	$(CXX) $(INC) $(CXXFLAGS) -o bin/KKT-test               src_tests/KKT-test.cc $(LIBS)
+	$(CXX) $(INC) $(CXXFLAGS) -o bin/QR_N_test              src_tests/QR_N_test.cc $(LIBS)
+	$(CXX) $(INC) $(CXXFLAGS) -o bin/QR_test                src_tests/QR_test.cc $(LIBS)
+	$(CXX) $(INC) $(CXXFLAGS) -o bin/SMALL-test             src_tests/SMALL-test.cc $(LIBS)
+	$(CXX) $(INC) $(CXXFLAGS) -o bin/TestFD                 src_tests/TestFD.cc $(LIBS)
+	$(CXX) $(INC) $(CXXFLAGS) -o bin/Timing                 src_tests/Timing.cc $(LIBS)
+	$(CXX) $(INC) $(CXXFLAGS) -o bin/test1_Diaz             src_tests/test1_Diaz.cc $(LIBS)
 
 lib: lib/$(LIB_ALGLIN)
 

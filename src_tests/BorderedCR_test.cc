@@ -45,8 +45,8 @@ main() {
 
   alglin::BorderedCR<double> BCR ;
 
-  //#define NSIZE 10
-  #define NSIZE 5
+  #define NSIZE 10
+  //#define NSIZE 5
 
   alglin::integer n      = NSIZE ;
   alglin::integer nblock = 200000 ;
@@ -74,17 +74,16 @@ main() {
     for ( int j = 0 ; j < (nq+n+nb) ; ++j ) {
       BCR.H(i,j) = rand(-1,0) ;
     }
-    BCR.H(i,i+n+nb) += diag ;
+    BCR.H(i,i+n) += diag ; // force diagonal dominance
   }
 
-  // forzo diagonale dominanza
   for ( int k = 0 ; k < nblock ; ++k ) {
     for ( int i = 0 ; i < n ; ++i ) {
       for ( int j = 0 ; j < n ; ++j ) {
         BCR.D(k,i,j) = rand(-1,0) ;
         BCR.E(k,i,j) = rand(-1,0) ;
       }
-      BCR.D(k,i,i) += diag ;
+      BCR.D(k,i,i) += diag ; // force diagonal dominance
     }
     for ( int i = 0 ; i < n ; ++i ) {
       for ( int j = 0 ; j < nb ; ++j ) {
@@ -97,7 +96,7 @@ main() {
     for ( int j = 0 ; j < nb ; ++j ) {
       BCR.F(i,j) = rand(-0.1,0.1) ;
     }
-    BCR.F(i,i) += diag ;
+    BCR.F(i,i) += diag ; // force diagonal dominance
   }
   for ( int i = 0 ; i < n ; ++i ) {
     for ( int j = 0 ; j < nb ; ++j ) {
@@ -113,8 +112,8 @@ main() {
 
   cout << "nblock = " << nblock << "\n"
        << "n      = " << n      << "\n"
-       << "nb     = " << nb     << "\n"
-       << "q      = " << q      << "\n" ;
+       << "q      = " << q      << "\n"
+       << "nb     = " << nb     << "\n" ;
   /*
   ofstream file("mat.txt") ;
   file.precision(15) ;
