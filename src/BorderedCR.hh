@@ -32,6 +32,13 @@
 
 namespace alglin {
 
+  //! available LU factorization code
+  typedef enum {
+    BORDERED_LAST_LU  = 0,
+    BORDERED_LAST_QR  = 1,
+    BORDERED_LAST_QRP = 2
+  } BORDERED_LAST_Choice;
+
   /*\
    |   ___             _                _    ___ ___
    |  | _ ) ___ _ _ __| |___ _ _ ___ __| |  / __| _ \
@@ -80,6 +87,9 @@ namespace alglin {
     integer nx2 ;
     integer nxn ;
     integer nxnb ;
+    integer N ;
+    
+    BORDERED_LAST_Choice last_selected ;
 
     void
     buildT( valueConstPointer TOP,
@@ -91,7 +101,9 @@ namespace alglin {
     applyT( valueConstPointer T,
             integer const *   iperm,
             valuePointer      TOP,
+            integer           ldTOP,
             valuePointer      BOTTOM,
+            integer           ldBOTTOM,
             integer           ncol ) const ;
 
     void
@@ -99,9 +111,53 @@ namespace alglin {
             integer const *   iperm,
             valuePointer      TOP,
             valuePointer      BOTTOM ) const ;
+    
+    void
+    load_last_block() ;
 
-    Factorization<t_Value> * la_factorization ;
-    Factorization<t_Value> * bb_factorization ;
+    void
+    factorize_LU() ;
+
+    void
+    factorize_last_LU() ;
+
+    void
+    factorize_last_QR() ;
+
+    void
+    factorize_last_QRP() ;
+
+    void
+    solve_LU( valuePointer ) const ;
+
+    void
+    solve_LU( integer      /* nrhs  */,
+              valuePointer /* rhs   */,
+              integer      /* ldRhs */ ) const ;
+
+    void
+    solve_last_LU( valuePointer ) const ;
+
+    void
+    solve_last_QR( valuePointer ) const ;
+
+    void
+    solve_last_QRP( valuePointer ) const ;
+
+    void
+    solve_last_LU( integer      /* nrhs  */,
+                   valuePointer /* rhs   */,
+                   integer      /* ldRhs */ ) const ;
+
+    void
+    solve_last_QR( integer      /* nrhs  */,
+                   valuePointer /* rhs   */,
+                   integer      /* ldRhs */ ) const ;
+
+    void
+    solve_last_QRP( integer      /* nrhs  */,
+                    valuePointer /* rhs   */,
+                    integer      /* ldRhs */ ) const ;
 
     /*
     //
@@ -137,16 +193,16 @@ namespace alglin {
     //                                                   q
     */
 
-    valuePointer H0Npq  ;
-    valuePointer Bmat, Cmat, Dmat, Emat, Fmat, Tmat, Hmat, Work ;
-    integer      *Tperm, *Hperm ;
+    valuePointer H0Npq ;
+    valuePointer Bmat, Cmat, Dmat, Emat, Fmat ;
+    
+    // working block
+    valuePointer Tmat, Ttau, Work ;
+    integer      *Rperm, *Cperm, Lwork ;
 
-  private:
-
-    LU<t_Value>  la_lu,  bb_lu  ;
-    QR<t_Value>  la_qr,  bb_qr  ;
-    QRP<t_Value> la_qrp, bb_qrp ;
-    SVD<t_Value> la_svd, bb_svd ;
+    // last block
+    valuePointer Hmat, Htau ;
+    integer      *Hperm, *Hswaps ;
 
   public:
 
@@ -161,8 +217,8 @@ namespace alglin {
     , nx2(0)
     , nxn(0)
     , nxnb(0)
-    , la_factorization(&la_lu)
-    , bb_factorization(&bb_lu)
+    , N(0)
+    , last_selected(BORDERED_LAST_QRP)
     , H0Npq(nullptr)
     , Bmat(nullptr)
     , Cmat(nullptr)
@@ -170,6 +226,14 @@ namespace alglin {
     , Emat(nullptr)
     , Fmat(nullptr)
     , Tmat(nullptr)
+    , Ttau(nullptr)
+    , Work(nullptr)
+    , Rperm(nullptr)
+    , Cperm(nullptr)
+    , Lwork(0)
+    , Hmat(nullptr)
+    , Htau(nullptr)
+    , Hperm(nullptr)
     {}
 
     virtual ~BorderedCR()
@@ -180,36 +244,11 @@ namespace alglin {
     allocate( integer _nblock,
               integer _n,
               integer _q,
-              integer _nb ) {
+              integer _nb ) ;
 
-      nblock = _nblock ;
-      n      = _n ;
-      q      = _q ;
-      nb     = _nb ;
-      nx2    = n*2 ;
-      nxn    = n*n ;
-      nxnb   = n*nb ;
-
-      integer N    = nx2+nb+q ;
-      integer wnnz = max(N,2*n*max(n,nb)) ;
-      integer nnz  = wnnz+N*N+nb*nb+nxnb+nblock*(2*nxnb+4*nxn)+(n+q)*(nx2+nb+q) ;
-      baseValue.allocate(size_t(nnz)) ;
-      baseInteger.allocate(size_t(nblock*n+N)) ;
-
-      Bmat  = baseValue(size_t(nblock*nxnb)) ;
-      Cmat  = baseValue(size_t((nblock+1)*nxnb)) ;
-      Dmat  = baseValue(size_t(nblock*nxn)) ;
-      Emat  = baseValue(size_t(nblock*nxn)) ;
-      Fmat  = baseValue(size_t(nb*nb)) ;
-      Tmat  = baseValue(size_t(2*nblock*nxn)) ;
-      Hmat  = baseValue(size_t(N*N)) ;
-      H0Npq = baseValue(size_t((n+q)*(nx2+nb+q))) ;
-
-      Work  = baseValue(size_t(wnnz)) ;
-
-      Tperm = baseInteger(size_t(nblock*n)) ;
-      Hperm = baseInteger(size_t(N)) ;
-    }
+    void select_last_LU()  { last_selected = BORDERED_LAST_LU ; }
+    void select_last_QR()  { last_selected = BORDERED_LAST_QR ; }
+    void select_last_QRP() { last_selected = BORDERED_LAST_QRP ; }
 
     // filling bidiagonal part of the matrix
     void
@@ -290,15 +329,25 @@ namespace alglin {
     { return H0Npq[ i + j*(2*n+q)] ; }
 
     void
-    factorize() ;
+    factorize() {
+      factorize_LU() ;
+      load_last_block() ;
+      switch ( last_selected ) {
+        case BORDERED_LAST_LU:  factorize_last_LU()  ; break ;
+        case BORDERED_LAST_QR:  factorize_last_QR()  ; break ;
+        case BORDERED_LAST_QRP: factorize_last_QRP() ; break ;
+      }
+    }
 
     void
-    solve( valuePointer ) const ;
+    solve( valuePointer x ) const
+    { solve_LU( x ) ; }
 
     void
-    solve( integer      /* nrhs  */,
-           valuePointer /* rhs   */,
-           integer      /* ldRhs */ ) const ;
+    solve( integer      nrhs,
+           valuePointer rhs,
+           integer      ldRhs ) const
+    { solve_LU( nrhs, rhs, ldRhs ) ; }
 
     // aux function
     void

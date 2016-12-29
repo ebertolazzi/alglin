@@ -8265,9 +8265,9 @@ namespace alglin {
          integer               M,
          integer               N,
          integer               K,
-         real                  A[],
+         real const            A[],
          integer               LDA,
-         real                  TAU[],
+         real const            TAU[],
          real                  C[],
          integer               LDC,
          real                  WORK[],
@@ -8276,15 +8276,18 @@ namespace alglin {
     #if defined(ALGLIN_USE_OPENBLAS)
     LAPACK_NAME(sormqr)( const_cast<character*>(side_blas[SIDE]),
                          const_cast<character*>(trans_blas[TRANS]),
-                         &M, &N, &K, A, &LDA, TAU, C, &LDC, WORK, &LWORK, &info);
+                         &M, &N, &K, const_cast<real*>(A), &LDA,
+                         const_cast<real*>(TAU), C, &LDC, WORK, &LWORK, &info);
     #elif defined(ALGLIN_USE_ACCELERATE)
     CLAPACKNAME(sormqr)( const_cast<character*>(side_blas[SIDE]),
                          const_cast<character*>(trans_blas[TRANS]),
-                         &M, &N, &K, A, &LDA, TAU, C, &LDC, WORK, &LWORK, &info ) ;
+                         &M, &N, &K, const_cast<real*>(A), &LDA,
+                         const_cast<real*>(TAU), C, &LDC, WORK, &LWORK, &info ) ;
     #else
     LAPACKNAME(sormqr)( const_cast<character*>(side_blas[SIDE]),
                         const_cast<character*>(trans_blas[TRANS]),
-                        &M, &N, &K, A, &LDA, TAU, C, &LDC, WORK, &LWORK, &info ) ;
+                        &M, &N, &K, const_cast<real*>(A), &LDA,
+                        const_cast<real*>(TAU), C, &LDC, WORK, &LWORK, &info ) ;
     #endif
     return info ;
   }
@@ -8296,9 +8299,9 @@ namespace alglin {
          integer               M,
          integer               N,
          integer               K,
-         doublereal            A[],
+         doublereal const      A[],
          integer               LDA,
-         doublereal            TAU[],
+         doublereal const      TAU[],
          doublereal            C[],
          integer               LDC,
          doublereal            WORK[],
@@ -8307,15 +8310,21 @@ namespace alglin {
     #if defined(ALGLIN_USE_OPENBLAS)
     LAPACK_NAME(dormqr)( const_cast<character*>(side_cblas[SIDE]),
                          const_cast<character*>(trans_cblas[TRANS]),
-                         &M, &N, &K, A, &LDA, TAU, C, &LDC, WORK, &LWORK, &info);
+                         &M, &N, &K, const_cast<doublereal*>(A), &LDA,
+                         const_cast<doublereal*>(TAU), C, &LDC,
+                         WORK, &LWORK, &info);
     #elif defined(ALGLIN_USE_ACCELERATE)
     CLAPACKNAME(dormqr)( const_cast<character*>(side_blas[SIDE]),
                          const_cast<character*>(trans_blas[TRANS]),
-                         &M, &N, &K, A, &LDA, TAU, C, &LDC, WORK, &LWORK, &info ) ;
+                         &M, &N, &K, const_cast<doublereal*>(A), &LDA,
+                         const_cast<doublereal*>(TAU), C, &LDC,
+                         WORK, &LWORK, &info ) ;
     #else
     LAPACKNAME(dormqr)( const_cast<character*>(side_blas[SIDE]),
                         const_cast<character*>(trans_blas[TRANS]),
-                        &M, &N, &K, A, &LDA, TAU, C, &LDC, WORK, &LWORK, &info ) ;
+                        &M, &N, &K, const_cast<doublereal*>(A), &LDA,
+                        const_cast<doublereal*>(TAU), C, &LDC,
+                        WORK, &LWORK, &info ) ;
     #endif
     return info ;
   }

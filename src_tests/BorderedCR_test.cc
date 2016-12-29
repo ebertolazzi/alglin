@@ -49,9 +49,9 @@ main() {
   #define NSIZE 5
 
   alglin::integer n      = NSIZE ;
-  alglin::integer nblock = 100000 ;
+  alglin::integer nblock = 200000 ;
   alglin::integer q      = 4 ;
-  alglin::integer nb     = 0 ;
+  alglin::integer nb     = 2 ;
   alglin::integer nq     = n+q ;
   alglin::integer N      = (nblock+1)*n+nb+q ;
  
@@ -60,11 +60,11 @@ main() {
   alglin::Malloc<valueType>       baseValue("real") ;
   alglin::Malloc<alglin::integer> baseIndex("integer") ;
   
-  baseValue.allocate( size_t(5*N) ) ;
+  baseValue.allocate( size_t(6*N) ) ;
   
-  valueType diag = 2*n ;
+  valueType diag = 1.01*n ;
 
-  valueType * x     = baseValue(size_t(N)) ; // extra space per multiple rhs
+  valueType * x     = baseValue(size_t(2*N)) ; // extra space per multiple rhs
   valueType * xref  = baseValue(size_t(N)) ;
   valueType * xref1 = baseValue(size_t(N)) ;
   valueType * rhs   = baseValue(size_t(N)) ;
@@ -107,7 +107,7 @@ main() {
 
   cout << "N = " << N << '\n' ;
 
-  for ( alglin::integer i = 0 ; i < N ; ++i ) x[i] = i ;
+  for ( alglin::integer i = 0 ; i < N ; ++i ) x[i] = i % 100 ;
   std::copy( x, x+N, xref ) ;
   BCR.Mv( x, rhs ) ;
 
@@ -135,7 +135,9 @@ main() {
   cout << "\nReduction = " << tm.elapsedMilliseconds() << " [ms]\n\n" ;
 
   std::copy( rhs, rhs+N, x ) ;
+  std::copy( rhs, rhs+N, x+N ) ;
   tm.tic() ;
+  //BCR.solve( 2, x, N ) ;
   BCR.solve( x ) ;
   tm.toc() ;
   cout << "\nSolve = " << tm.elapsedMilliseconds() << " [ms]\n\n" ;
@@ -147,6 +149,8 @@ main() {
     file << x[i] << '\n' ;
   file.close() ;
   */
+  //for ( int i = 0 ; i < N ; ++i )
+  //  cout << i << " " << x[i] << '\n' ;
 
   alglin::copy( N, xref, 1, xref1, 1 ) ;
   alglin::axpy( N, -1.0, x, 1, xref1, 1 ) ;
