@@ -188,12 +188,12 @@ namespace alglin {
     //  |H0 | 0 |                          | 0 |HN | Hq| Hp|    | n+q
     //  |   |   |                          |   |   |   |   |    |
     //  +---+---+---................---+---+---+---+---+---+   -+
-    //  | C | C |                      | C | C | C | 0 | F |    | nb
+    //  | C | C |                      | C | C | C | Cq| F |    | nb
     //  +---+---+---................---+---+---+---+---+---+   -+
     */
 
     valuePointer H0Nqp ;
-    valuePointer Bmat, Cmat, Dmat, Emat, Fmat ;
+    valuePointer Bmat, Cmat, Cqmat, Dmat, Emat, Fmat ;
     
     // working block
     valuePointer Tmat, Ttau, Work ;
@@ -221,6 +221,7 @@ namespace alglin {
     , H0Nqp(nullptr)
     , Bmat(nullptr)
     , Cmat(nullptr)
+    , Cqmat(nullptr)
     , Dmat(nullptr)
     , Emat(nullptr)
     , Fmat(nullptr)
@@ -250,19 +251,11 @@ namespace alglin {
     void select_last_QRP() { last_selected = BORDERED_LAST_QRP ; }
 
     // filling bidiagonal part of the matrix
+    // -------------------------------------------------------------------------
+
     void
     loadD( integer nbl, valueConstPointer D, integer ldD )
     { gecopy( n, n, D, ldD, Dmat + nbl*nxn, n ) ; }
-
-    void
-    loadE( integer nbl, valueConstPointer E, integer ldE )
-    { gecopy( n, n, E, ldE, Emat + nbl*nxn, n ) ; }
-
-    void
-    loadDE( integer nbl, valueConstPointer DE, integer ldDE ) {
-      gecopy( n, n, DE,        ldDE, Dmat + nbl*nxn, n ) ;
-      gecopy( n, n, DE+n*ldDE, ldDE, Emat + nbl*nxn, n ) ;
-    }
 
     t_Value & D( integer nbl, integer i, integer j )
     { return Dmat[ nbl*nxn + i + j*n] ; }
@@ -270,12 +263,23 @@ namespace alglin {
     t_Value const & D( integer nbl, integer i, integer j ) const
     { return Dmat[ nbl*nxn + i + j*n] ; }
 
+    void
+    loadE( integer nbl, valueConstPointer E, integer ldE )
+    { gecopy( n, n, E, ldE, Emat + nbl*nxn, n ) ; }
+
     t_Value & E( integer nbl, integer i, integer j )
     { return Emat[ nbl*nxn + i + j*n] ; }
 
     t_Value const & E( integer nbl, integer i, integer j ) const
     { return Emat[ nbl*nxn + i + j*n] ; }
 
+    void
+    loadDE( integer nbl, valueConstPointer DE, integer ldDE ) {
+      gecopy( n, n, DE, ldDE, Dmat + nbl*nxn, n ) ; DE += n*ldDE ;
+      gecopy( n, n, DE, ldDE, Emat + nbl*nxn, n ) ;
+    }
+
+    // -------------------------------------------------------------------------
     // Border Bottom blocks
     void
     setZeroC()
@@ -291,6 +295,7 @@ namespace alglin {
     t_Value const & C( integer nbl, integer i, integer j ) const
     { return Cmat[ nbl*nxnb + i + j*nb] ; }
 
+    // -------------------------------------------------------------------------
     // Border Right blocks
     void
     setZeroB()
@@ -306,7 +311,15 @@ namespace alglin {
     t_Value const & B( integer nbl, integer i, integer j ) const
     { return Bmat[ nbl*nxnb + i + j*n] ; }
 
-    // Border RBblock
+    void
+    loadDEB( integer nbl, valueConstPointer DEB, integer ldDEB ) {
+      gecopy( n, n,  DEB, ldDEB, Dmat + nbl*nxn,  n  ) ; DEB += n*ldDEB ;
+      gecopy( n, n,  DEB, ldDEB, Emat + nbl*nxn,  n  ) ; DEB += n*ldDEB ;
+      gecopy( n, nb, DEB, ldDEB, Bmat + nbl*nxnb, nb ) ;
+    }
+
+    // -------------------------------------------------------------------------
+
     void
     setZeroF()
     { zero( nb*nb, Fmat, 1 ) ; }
@@ -320,6 +333,30 @@ namespace alglin {
 
     t_Value const & F( integer i, integer j ) const
     { return Fmat[ i + j*nb] ; }
+
+    // -------------------------------------------------------------------------
+
+    void
+    setZeroCq()
+    { zero( nb*q, Cqmat, 1 ) ; }
+
+    void
+    loadCq( valueConstPointer Cq, integer ldC )
+    { gecopy( nb, q, Cq, ldC, Cqmat, nb ) ; }
+
+    t_Value & Cq( integer i, integer j )
+    { return Cqmat[ i + j*nb] ; }
+
+    t_Value const & Cq( integer i, integer j ) const
+    { return Cqmat[ i + j*nb] ; }
+
+    void
+    loadCqF( valueConstPointer CqF, integer ldCF ) {
+      gecopy( nb, q,  CqF, ldCF, Cqmat, nb ) ; CqF += q*ldCF ;
+      gecopy( nb, nb, CqF, ldCF, Fmat,  nb ) ;
+    }
+
+    // -------------------------------------------------------------------------
 
     void
     loadBottom( valueConstPointer H0, integer ld0,

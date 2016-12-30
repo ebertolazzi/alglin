@@ -96,6 +96,9 @@ main() {
     for ( int j = 0 ; j < nb ; ++j ) {
       BCR.F(i,j) = rand(-0.1,0.1) ;
     }
+    for ( int j = 0 ; j < q ; ++j ) {
+      BCR.Cq(i,j) = rand(-0.1,0.1) ;
+    }
     BCR.F(i,i) += diag ; // force diagonal dominance
   }
   for ( int i = 0 ; i < n ; ++i ) {

@@ -57,12 +57,13 @@ namespace alglin {
     ALGLIN_ASSERT( info == 0, "BorderedCR::allocate call alglin::geqrf return info = " << info ) ;
     if ( Lwork < integer(tmp) ) Lwork = integer(tmp) ;
 
-    integer nnz = Lwork+N*(N+1)+nb*nb+nxnb+nblock*(2*nxnb+4*nxn+n)+(n+q)*(nx2+nb+q) ;
+    integer nnz = Lwork+N*(N+1)+nb*(nb+q)+nxnb+nblock*(2*nxnb+4*nxn+n)+(n+q)*(nx2+nb+q) ;
     baseValue.allocate(size_t(nnz)) ;
     baseInteger.allocate(size_t(2*(nblock*n+N))) ;
 
     Bmat  = baseValue(size_t(nblock*nxnb)) ;
     Cmat  = baseValue(size_t((nblock+1)*nxnb)) ;
+    Cqmat = baseValue(size_t(nb*q)) ;
     Dmat  = baseValue(size_t(nblock*nxn)) ;
     Emat  = baseValue(size_t(nblock*nxn)) ;
     Fmat  = baseValue(size_t(nb*nb)) ;
@@ -150,6 +151,7 @@ namespace alglin {
         gemv( NO_TRANSPOSE, nb, n, 1.0, C, nb, xx, 1, 1.0, yy, 1 ) ;
         xx += n ; C += nxnb ;
       }
+      gemv( NO_TRANSPOSE, nb, q, 1.0, Cqmat, nb, xx, 1, 1.0, yy, 1 ) ;
     }
   }
   
@@ -213,7 +215,11 @@ namespace alglin {
       for ( integer j = 0 ; j < nb ; ++j )
         stream
           << ie+i << '\t' << jb+j << '\t' << Fmat[i+j*nb] << '\n' ;
-
+    jb -= q ;
+    for ( integer i = 0 ; i < nb ; ++i )
+      for ( integer j = 0 ; j < q ; ++j )
+        stream
+          << ie+i << '\t' << jb+j << '\t' << Cqmat[i+j*nb] << '\n' ;
   }
   
   /*\
@@ -373,7 +379,7 @@ namespace alglin {
     //  |H0 |HN |Hq |Hp | n+q
     //  |   |   |   |   |
     //  +---+---+---+---+
-    //  | C | C | 0 | F | nb
+    //  | C | C |Cq | F | nb
     //  +---+---+---+---+
     */
     valuePointer Cnb = Cmat + nblock*nxnb ;
@@ -391,10 +397,10 @@ namespace alglin {
 
     W0 += nx2+q ; WN += nx2+q ; Wq += nx2+q ; Wp += nx2+q ;
 
-    gecopy( nb, n,  Cmat, nb, W0, N ) ;
-    gecopy( nb, n,  Cnb,  nb, WN, N ) ;
-    gezero( nb, q,            Wq, N ) ;
-    gecopy( nb, nb, Fmat, nb, Wp, N ) ;
+    gecopy( nb, n,  Cmat,  nb, W0, N ) ;
+    gecopy( nb, n,  Cnb,   nb, WN, N ) ;
+    gecopy( nb, q,  Cqmat, nb, Wq, N ) ;
+    gecopy( nb, nb, Fmat,  nb, Wp, N ) ;
 
   }
 
