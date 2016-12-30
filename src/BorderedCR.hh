@@ -258,6 +258,12 @@ namespace alglin {
     loadE( integer nbl, valueConstPointer E, integer ldE )
     { gecopy( n, n, E, ldE, Emat + nbl*nxn, n ) ; }
 
+    void
+    loadDE( integer nbl, valueConstPointer DE, integer ldDE ) {
+      gecopy( n, n, DE,     ldDE, Dmat + nbl*nxn, n ) ;
+      gecopy( n, n, DE+nxn, ldDE, Emat + nbl*nxn, n ) ;
+    }
+
     t_Value & D( integer nbl, integer i, integer j )
     { return Dmat[ nbl*nxn + i + j*n] ; }
 
