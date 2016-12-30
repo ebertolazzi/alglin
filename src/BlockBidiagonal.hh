@@ -252,6 +252,19 @@ namespace alglin {
     { gecopy( nb, n, C, ldC, Cmat + nbl*nxnb, nb ) ; }
 
     void
+    addtoBottomBlock( integer nbl, valueConstPointer C, integer ldC ) {
+      valuePointer CC = Cmat + nbl*nxnb ;
+      geadd( nb, n, 1.0, C, ldC, 1.0, CC, nb, CC, nb ) ;
+    }
+
+    // add to bottom block nbl and nbl+1
+    void
+    addtoBottomBlock2( integer nbl, valueConstPointer C, integer ldC ) {
+      valuePointer CC = Cmat + nbl*nxnb ;
+      geadd( nb, nx2, 1.0, C, ldC, 1.0, CC, nb, CC, nb ) ;
+    }
+
+    void
     loadBottomLastBlock( valueConstPointer C, integer ldC )
     { gecopy( nb, q, C, ldC, Cmat + (nblock+1)*nxnb, nb ) ; }
 

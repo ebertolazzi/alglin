@@ -39,6 +39,8 @@ SET( CMAKE_C_FLAGS         ${CMAKE_CXX_FLAGS} )
 SET( CMAKE_C_FLAGS_RELEASE ${CMAKE_CXX_FLAGS_RELEASE} )
 SET( CMAKE_C_FLAGS_DEBUG   ${CMAKE_CXX_FLAGS_DEBUG} )
 
+ADD_DEFINITIONS( -DUSE_MECHATRONIX_SUPERLU -DUSE_MECHATRONIX_EIGEN )
+
 SET( SOURCES )
 FILE( GLOB S ./src/*.cc )
 FOREACH (F ${S})
@@ -52,48 +54,8 @@ FOREACH (F ${S})
   LIST( APPEND HEADERS ${RF} )
 ENDFOREACH (F ${S})
 
-INCLUDE_DIRECTORIES( src /usr/local/include/eigen3 )
+INCLUDE_DIRECTORIES( src /usr/local/include/eigen3 ../../os_win/include )
 add_library( ${TARGET} STATIC ${SOURCES} ${HEADERS} )
-
-ADD_EXECUTABLE( Amodio_test src_tests/Amodio_test.cc )
-TARGET_LINK_LIBRARIES( Amodio_test ${TARGET} )
-
-ADD_EXECUTABLE( AmodioN_test src_tests/AmodioN_test.cc )
-TARGET_LINK_LIBRARIES( AmodioN_test ${TARGET} )
-
-ADD_EXECUTABLE( Colrow_test src_tests/Colrow_test.cc )
-TARGET_LINK_LIBRARIES( Colrow_test ${TARGET} )
-
-ADD_EXECUTABLE( Block_test src_tests/Block_test.cc )
-TARGET_LINK_LIBRARIES( Block_test ${TARGET} )
-
-ADD_EXECUTABLE( QR_test src_tests/QR_test.cc )
-TARGET_LINK_LIBRARIES( QR_test ${TARGET} )
-
-ADD_EXECUTABLE( QR_N_test src_tests/QR_N_test.cc )
-TARGET_LINK_LIBRARIES( QR_N_test ${TARGET} )
-
-IF( ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU") OR ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang") )
-  IF ( APPLE )
-    SET_TARGET_PROPERTIES( Amodio_test  PROPERTIES LINK_FLAGS "-framework Accelerate" )
-    SET_TARGET_PROPERTIES( AmodioN_test PROPERTIES LINK_FLAGS "-framework Accelerate" )
-    SET_TARGET_PROPERTIES( Colrow_test  PROPERTIES LINK_FLAGS "-framework Accelerate" )
-    SET_TARGET_PROPERTIES( Block_test   PROPERTIES LINK_FLAGS "-framework Accelerate" )
-    SET_TARGET_PROPERTIES( QR_test      PROPERTIES LINK_FLAGS "-framework Accelerate" )
-    SET_TARGET_PROPERTIES( QR_N_test    PROPERTIES LINK_FLAGS "-framework Accelerate" )
-  ELSE()
-    SET_TARGET_PROPERTIES( Amodio_test  PROPERTIES LINK_FLAGS "-llapack -lblas" )
-    SET_TARGET_PROPERTIES( AmodioN_test PROPERTIES LINK_FLAGS "-llapack -lblas" )
-    SET_TARGET_PROPERTIES( Colrow_test  PROPERTIES LINK_FLAGS "-llapack -lblas" )
-    SET_TARGET_PROPERTIES( Block_test   PROPERTIES LINK_FLAGS "-llapack -lblas" )
-    SET_TARGET_PROPERTIES( QR_test      PROPERTIES LINK_FLAGS "-llapack -lblas" )
-    SET_TARGET_PROPERTIES( QR_N_test    PROPERTIES LINK_FLAGS "-llapack -lblas" )
-  ENDIF()
-ELSEIF( MSVC )
-  FIND_LIBRARY(BLAS blas)
-  FIND_LIBRARY(LAPACK lapack)
-  SET( EXTRA_LIBS ${LAPACK} ${BLAS})
-ENDIF()
 
 MESSAGE( STATUS "Using ${SSE_FLAGS} extensions")
 MESSAGE( STATUS "C compiler                  = ${CMAKE_C_COMPILER_ID} ${CMAKE_C_COMPILER}" )

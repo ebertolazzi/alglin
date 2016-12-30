@@ -49,7 +49,7 @@ main() {
   //#define NSIZE 5
 
   alglin::integer n      = NSIZE ;
-  alglin::integer nblock = 200000 ;
+  alglin::integer nblock = 100 ;//200000 ;
   alglin::integer q      = 4 ;
   alglin::integer nb     = 2 ;
   alglin::integer nq     = n+q ;
@@ -157,6 +157,7 @@ main() {
   alglin::copy( N, xref, 1, xref1, 1 ) ;
   alglin::axpy( N, -1.0, x, 1, xref1, 1 ) ;
   cout << "Check |err|_inf = " << alglin::absmax( N, xref1, 1 ) << '\n' ;
+  cout << "Check |err|_1 = " << alglin::asum( N, xref1, 1 )/N << '\n' ;
 
   cout << "All done!\n" ;
 

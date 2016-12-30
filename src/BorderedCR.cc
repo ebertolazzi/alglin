@@ -47,7 +47,7 @@ namespace alglin {
     N      = nx2+nb+q ;
 
     Lwork = max(N,2*n*max(n,nb)) ;
-    
+
     valueType tmp ; // get optimal allocation
     integer info = geqrf( N, N, nullptr, N, nullptr, &tmp, -1 ) ;
     ALGLIN_ASSERT( info == 0, "BorderedCR::allocate call alglin::geqrf return info = " << info ) ;
@@ -80,6 +80,19 @@ namespace alglin {
     Hswaps = baseInteger(size_t(N)) ;
     Rperm  = baseInteger(size_t(nblock*n)) ;
     Cperm  = baseInteger(size_t(nblock*n)) ;
+  }
+
+  template <typename t_Value>
+  void
+  BorderedCR<t_Value>::fillZero() {
+    zero( nblock*nxnb, Bmat, 1 ) ;
+    zero( (nblock+1)*nxnb, Cmat, 1 ) ;
+    zero( nb*q, Cqmat, 1 ) ;
+    zero( nblock*nxn, Dmat, 1 ) ;
+    zero( nblock*nxn, Emat, 1 ) ;
+    zero( nb*nb, Fmat, 1 ) ;
+    zero( N*N, Hmat, 1 ) ;
+    zero( (n+q)*N, H0Nqp, 1 ) ;
   }
 
   /*\
@@ -281,9 +294,9 @@ namespace alglin {
     gecopy( n, ncol, W+n, nx2, TOP, ldTOP ) ;
     gemm( NO_TRANSPOSE, NO_TRANSPOSE,
           n, ncol, n,
-          -1.0, T+n,  nx2,
-                W, nx2,
-           1.0, TOP,  ldTOP ) ;
+          -1.0, T+n, nx2,      // M
+                W,   nx2,      // L^(-1) TOP
+           1.0, TOP, ldTOP ) ; // TOP = BOTTOM - M L^(-1) TOP
     trsm( LEFT, UPPER, NO_TRANSPOSE, NON_UNIT, n, ncol, 1.0, T, nx2, W, nx2 ) ;
     gecopy( n, ncol, W, nx2, BOTTOM, ldBOTTOM ) ;
   }
@@ -304,11 +317,11 @@ namespace alglin {
     copy( n, W+n, 1, TOP, 1 ) ;
     gemv( NO_TRANSPOSE,
           n, n,
-          -1.0, T+n,  nx2,
-                W, 1,
-           1.0, TOP,  1 ) ;
+          -1.0, T+n, nx2,
+                W,   1,
+           1.0, TOP, 1 ) ;
+    trsv( UPPER, NO_TRANSPOSE, NON_UNIT, n, T, nx2, W, 1 ) ;
     copy( n, W, 1, BOTTOM, 1 ) ;
-    trsv( UPPER, NO_TRANSPOSE, NON_UNIT, n, T, nx2, BOTTOM, 1 ) ;
   }
 
   template <typename t_Value>

@@ -252,6 +252,7 @@ namespace alglin {
 
     // filling bidiagonal part of the matrix
     // -------------------------------------------------------------------------
+    void fillZero() ;
 
     void
     loadD( integer nbl, valueConstPointer D, integer ldD )
@@ -289,11 +290,24 @@ namespace alglin {
     loadC( integer nbl, valueConstPointer C, integer ldC )
     { gecopy( nb, n, C, ldC, Cmat + nbl*nxnb, nb ) ; }
 
+    void
+    addtoC( integer nbl, valueConstPointer C, integer ldC ) {
+      valuePointer CC = Cmat + nbl*nxnb ;
+      geadd( nb, n, 1.0, C, ldC, 1.0, CC, nb, CC, nb ) ;
+    }
+
+    // add to block nbl and nbl+1
+    void
+    addtoC2( integer nbl, valueConstPointer C, integer ldC ) {
+      valuePointer CC = Cmat + nbl*nxnb ;
+      geadd( nb, nx2, 1.0, C, ldC, 1.0, CC, nb, CC, nb ) ;
+    }
+
     t_Value & C( integer nbl, integer i, integer j )
-    { return Cmat[ nbl*nxnb + i + j*nb] ; }
+    { return Cmat[ nbl*nxnb + i + j*nb ] ; }
 
     t_Value const & C( integer nbl, integer i, integer j ) const
-    { return Cmat[ nbl*nxnb + i + j*nb] ; }
+    { return Cmat[ nbl*nxnb + i + j*nb ] ; }
 
     // -------------------------------------------------------------------------
     // Border Right blocks
@@ -305,11 +319,17 @@ namespace alglin {
     loadB( integer nbl, valueConstPointer B, integer ldB )
     { gecopy( n, nb, B, ldB, Bmat + nbl*nxnb, n ) ; }
 
+    void
+    addtoB( integer nbl, valueConstPointer B, integer ldB ) {
+      valuePointer BB = Bmat + nbl*nxnb ;
+      geadd( n, nb, 1.0, B, ldB, 1.0, BB, n, BB, n ) ;
+    }
+
     t_Value & B( integer nbl, integer i, integer j )
-    { return Bmat[ nbl*nxnb + i + j*n] ; }
+    { return Bmat[ nbl*nxnb + i + j*n ] ; }
 
     t_Value const & B( integer nbl, integer i, integer j ) const
-    { return Bmat[ nbl*nxnb + i + j*n] ; }
+    { return Bmat[ nbl*nxnb + i + j*n ] ; }
 
     void
     loadDEB( integer nbl, valueConstPointer DEB, integer ldDEB ) {
@@ -329,10 +349,10 @@ namespace alglin {
     { gecopy( nb, nb, F, ldF, Fmat, nb ) ; }
 
     t_Value & F( integer i, integer j )
-    { return Fmat[ i + j*nb] ; }
+    { return Fmat[ i + j*nb ] ; }
 
     t_Value const & F( integer i, integer j ) const
-    { return Fmat[ i + j*nb] ; }
+    { return Fmat[ i + j*nb ] ; }
 
     // -------------------------------------------------------------------------
 
@@ -345,10 +365,10 @@ namespace alglin {
     { gecopy( nb, q, Cq, ldC, Cqmat, nb ) ; }
 
     t_Value & Cq( integer i, integer j )
-    { return Cqmat[ i + j*nb] ; }
+    { return Cqmat[ i + j*nb ] ; }
 
     t_Value const & Cq( integer i, integer j ) const
-    { return Cqmat[ i + j*nb] ; }
+    { return Cqmat[ i + j*nb ] ; }
 
     void
     loadCqF( valueConstPointer CqF, integer ldCF ) {
@@ -371,10 +391,10 @@ namespace alglin {
     }
 
     t_Value & H( integer i, integer j )
-    { return H0Nqp[ i + j*(n+q)] ; }
+    { return H0Nqp[ i + j*(n+q) ] ; }
 
     t_Value const & H( integer i, integer j ) const
-    { return H0Nqp[ i + j*(n+q)] ; }
+    { return H0Nqp[ i + j*(n+q) ] ; }
 
     void
     factorize() {
