@@ -49,7 +49,7 @@ main() {
   //#define NSIZE 5
 
   alglin::integer n      = NSIZE ;
-  alglin::integer nblock = 100 ;//200000 ;
+  alglin::integer nblock = 200000 ;
   alglin::integer q      = 4 ;
   alglin::integer nb     = 2 ;
   alglin::integer nq     = n+q ;
@@ -139,8 +139,8 @@ main() {
   std::copy( rhs, rhs+N, x ) ;
   std::copy( rhs, rhs+N, x+N ) ;
   tm.tic() ;
-  //BCR.solve( 2, x, N ) ;
-  BCR.solve( x ) ;
+  BCR.solve( 2, x, N ) ;
+  //BCR.solve( x ) ;
   tm.toc() ;
   cout << "\nSolve = " << tm.elapsedMilliseconds() << " [ms]\n\n" ;
 

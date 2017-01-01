@@ -116,6 +116,14 @@ namespace alglin {
     { babd_solver->loadBottomBlock( nbl, C, ldC ) ; }
 
     void
+    addtoBottomBlock( integer nbl, valueConstPointer C, integer ldC )
+    { babd_solver->addtoBottomBlock( nbl, C, ldC ) ; }
+
+    void
+    addtoBottomBlock2( integer nbl, valueConstPointer C, integer ldC )
+    { babd_solver->addtoBottomBlock2( nbl, C, ldC ) ; }
+
+    void
     loadBottomLastBlock( valueConstPointer C, integer ldC )
     { babd_solver->loadBottomLastBlock( C, ldC ) ; }
 

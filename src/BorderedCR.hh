@@ -39,6 +39,12 @@ namespace alglin {
     BORDERED_LAST_QRP = 2
   } BORDERED_LAST_Choice;
 
+  typedef enum {
+    BORDERED_LU  = 0,
+    BORDERED_QR  = 1,
+    BORDERED_QRP = 2
+  } BORDERED_Choice;
+
   /*\
    |   ___             _                _    ___ ___
    |  | _ ) ___ _ _ __| |___ _ _ ___ __| |  / __| _ \
@@ -88,8 +94,10 @@ namespace alglin {
     integer nxn ;
     integer nxnb ;
     integer N ;
+    integer Tsize ;
     
     BORDERED_LAST_Choice last_selected ;
+    BORDERED_Choice      selected ;
 
     void
     buildT( valueConstPointer TOP,
@@ -111,21 +119,9 @@ namespace alglin {
             integer const *   iperm,
             valuePointer      TOP,
             valuePointer      BOTTOM ) const ;
-    
-    void
-    load_last_block() ;
 
     void
     factorize_LU() ;
-
-    void
-    factorize_last_LU() ;
-
-    void
-    factorize_last_QR() ;
-
-    void
-    factorize_last_QRP() ;
 
     void
     solve_LU( valuePointer ) const ;
@@ -134,30 +130,20 @@ namespace alglin {
     solve_LU( integer      /* nrhs  */,
               valuePointer /* rhs   */,
               integer      /* ldRhs */ ) const ;
+    
+    void
+    load_last_block() ;
 
     void
-    solve_last_LU( valuePointer ) const ;
+    factorize_last() ;
 
     void
-    solve_last_QR( valuePointer ) const ;
+    solve_last( valuePointer ) const ;
 
     void
-    solve_last_QRP( valuePointer ) const ;
-
-    void
-    solve_last_LU( integer      /* nrhs  */,
-                   valuePointer /* rhs   */,
-                   integer      /* ldRhs */ ) const ;
-
-    void
-    solve_last_QR( integer      /* nrhs  */,
-                   valuePointer /* rhs   */,
-                   integer      /* ldRhs */ ) const ;
-
-    void
-    solve_last_QRP( integer      /* nrhs  */,
-                    valuePointer /* rhs   */,
-                    integer      /* ldRhs */ ) const ;
+    solve_last( integer      /* nrhs  */,
+                valuePointer /* rhs   */,
+                integer      /* ldRhs */ ) const ;
 
     /*
     //
@@ -217,7 +203,8 @@ namespace alglin {
     , nxn(0)
     , nxnb(0)
     , N(0)
-    , last_selected(BORDERED_LAST_QRP)
+    , last_selected(BORDERED_LAST_LU)
+    , selected(BORDERED_LU)
     , H0Nqp(nullptr)
     , Bmat(nullptr)
     , Cmat(nullptr)
@@ -245,6 +232,10 @@ namespace alglin {
               integer _n,
               integer _q,
               integer _nb ) ;
+
+    void select_LU()  { selected = BORDERED_LU ; }
+    void select_QR()  { selected = BORDERED_QR ; }
+    void select_QRP() { selected = BORDERED_QRP ; }
 
     void select_last_LU()  { last_selected = BORDERED_LAST_LU ; }
     void select_last_QR()  { last_selected = BORDERED_LAST_QR ; }
@@ -400,11 +391,7 @@ namespace alglin {
     factorize() {
       factorize_LU() ;
       load_last_block() ;
-      switch ( last_selected ) {
-        case BORDERED_LAST_LU:  factorize_last_LU()  ; break ;
-        case BORDERED_LAST_QR:  factorize_last_QR()  ; break ;
-        case BORDERED_LAST_QRP: factorize_last_QRP() ; break ;
-      }
+      factorize_last() ;
     }
 
     void

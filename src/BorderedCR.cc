@@ -45,8 +45,9 @@ namespace alglin {
     nxn    = n*n ;
     nxnb   = n*nb ;
     N      = nx2+nb+q ;
+    Tsize  = 2*nxn+n ;
 
-    Lwork = max(N,2*n*max(n,nb)) ;
+    Lwork = max(N,2*max(nxn,nxnb)) ;
 
     valueType tmp ; // get optimal allocation
     integer info = geqrf( N, N, nullptr, N, nullptr, &tmp, -1 ) ;
@@ -57,7 +58,7 @@ namespace alglin {
     ALGLIN_ASSERT( info == 0, "BorderedCR::allocate call alglin::geqrf return info = " << info ) ;
     if ( Lwork < integer(tmp) ) Lwork = integer(tmp) ;
 
-    integer nnz = Lwork+N*(N+1)+nb*(nb+q)+nxnb+nblock*(2*nxnb+4*nxn+n)+(n+q)*(nx2+nb+q) ;
+    integer nnz = Lwork+N*(N+1)+nb*(nb+q)+nxnb+nblock*(2*nxnb+2*nxn+Tsize+n)+(n+q)*(nx2+nb+q) ;
     baseValue.allocate(size_t(nnz)) ;
     baseInteger.allocate(size_t(2*(nblock*n+N))) ;
 
@@ -68,7 +69,7 @@ namespace alglin {
     Emat  = baseValue(size_t(nblock*nxn)) ;
     Fmat  = baseValue(size_t(nb*nb)) ;
     
-    Tmat  = baseValue(size_t(2*nblock*nxn)) ;
+    Tmat  = baseValue(size_t(nblock*Tsize)) ;
     Ttau  = baseValue(size_t(nblock*n)) ;
     Hmat  = baseValue(size_t(N*N)) ;
     Htau  = baseValue(size_t(N)) ;
@@ -254,26 +255,45 @@ namespace alglin {
                                integer *         iperm ) const {
     gecopy( n, n, TOP,    n, T,   nx2 ) ;
     gecopy( n, n, BOTTOM, n, T+n, nx2 ) ;
-    integer info = getrf( nx2, n, T, nx2, iperm ) ;
-    ALGLIN_ASSERT( info == 0, "BorderedCR::factorize getrf INFO = " << info ) ;
+    integer info = 0 ;
+    switch ( selected ) {
+    case BORDERED_LU:
+      info = getrf( nx2, n, T, nx2, iperm ) ;
+      break ;
+    case BORDERED_QR:
+      info = geqrf( nx2, n, T, nx2, T+2*nxn, Work, Lwork ) ;
+      break ;
+    case BORDERED_LAST_QRP:
+      info = geqp3( nx2, n, T, nx2, Hperm, T+2*nxn, Work, Lwork ) ;
+      // convert permutation to exchanges
+      if ( info == 0 )
+        for ( integer i = 0 ; i < n ; ++i ) {
+          integer j = i ;
+          while ( j < n ) { if ( Hperm[j] == i+1 ) break ; ++j ; }
+          std::swap( Hperm[j], Hperm[i] ) ;
+          iperm[i] = j ;
+        }
+      break ;
+    }
+    ALGLIN_ASSERT( info == 0, "BorderedCR::factorize INFO = " << info ) ;
   }
 
   /*\
    APPLY
-      / I         \ / -M  I \ / L^(-1)   \ / TOP    \
-      \    U^(-1) / \  I  0 / \        I / \ BOTTOM /
-      = / I         \ / -M  I \ / L^(-1) TOP \
-        \    U^(-1) / \  I  0 / \  BOTTOM    /
+      / -M  I \ / L^(-1)   \ / TOP    \
+      \  I  0 / \        I / \ BOTTOM /
+      = / -M  I \ / L^(-1) TOP \
+        \  I  0 / \  BOTTOM    /
       = / BOTTOM - M L^(-1) TOP \
-        \ U^(-1) L^(-1) TOP /
+        \ L^(-1) TOP            /
 
    ON
-      / I         \ / -M  I \ / L^(-1)   \ / L \ (U)
-      \    U^(-1) / \  I  0 / \        I / \ M /
-        = / I         \ / -M  I \ / I \ (U)
-          \    U^(-1) / \  I  0 / \ M /
-        = / I         \ / 0 \ (U)   / 0 \
-          \    U^(-1) / \ I /     = \ I /
+      / -M  I \ / L^(-1)   \ / L \ (U)
+      \  I  0 / \        I / \ M /
+        = / -M  I \ / I \ (U)
+          \  I  0 / \ M /
+        = / 0 \ (U)   / 0 \
+          \ I /     = \ U /
   \*/
   template <typename t_Value>
   void
@@ -288,17 +308,31 @@ namespace alglin {
     gecopy( n, ncol, TOP,    ldTOP,    W,   nx2 ) ;
     gecopy( n, ncol, BOTTOM, ldBOTTOM, W+n, nx2 ) ;
     // Apply row interchanges to the right hand sides.
-    integer info = swaps( ncol, W, nx2, 0, n-1, iperm, 1 ) ;
-    ALGLIN_ASSERT( info == 0, "BorderedCR::factorize swaps INFO = " << info ) ;
-    trsm( LEFT, LOWER, NO_TRANSPOSE, UNIT, n, ncol, 1.0, T, nx2, W, nx2 ) ;
-    gecopy( n, ncol, W+n, nx2, TOP, ldTOP ) ;
-    gemm( NO_TRANSPOSE, NO_TRANSPOSE,
-          n, ncol, n,
-          -1.0, T+n, nx2,      // M
-                W,   nx2,      // L^(-1) TOP
-           1.0, TOP, ldTOP ) ; // TOP = BOTTOM - M L^(-1) TOP
-    trsm( LEFT, UPPER, NO_TRANSPOSE, NON_UNIT, n, ncol, 1.0, T, nx2, W, nx2 ) ;
-    gecopy( n, ncol, W, nx2, BOTTOM, ldBOTTOM ) ;
+    integer info = 0 ;
+    switch ( selected ) {
+    case BORDERED_LU:
+      info = swaps( ncol, W, nx2, 0, n-1, iperm, 1 ) ;
+      ALGLIN_ASSERT( info == 0, "BorderedCR::applyT INFO = " << info ) ;
+      trsm( LEFT, LOWER, NO_TRANSPOSE, UNIT, n, ncol, 1.0, T, nx2, W, nx2 ) ;
+      gemm( NO_TRANSPOSE, NO_TRANSPOSE,
+            n, ncol, n,
+            -1.0, T+n, nx2,      // M
+                  W,   nx2,      // L^(-1) TOP
+             1.0, W+n, nx2 ) ; // TOP = BOTTOM - M L^(-1) TOP
+      break ;
+    case BORDERED_QR:
+    case BORDERED_LAST_QRP:
+      info = ormqr( LEFT, TRANSPOSE,
+                    nx2, ncol, // righe x colonne
+                    n,         // numero riflettori usati nel prodotto Q
+                    T, nx2,
+                    T+2*nxn,
+                    W, nx2,
+                    Work, Lwork ) ;
+      break ;
+    }
+    gecopy( n, ncol, W+n, nx2, TOP,    ldTOP ) ;
+    gecopy( n, ncol, W,   nx2, BOTTOM, ldBOTTOM ) ;
   }
 
   template <typename t_Value>
@@ -310,69 +344,97 @@ namespace alglin {
     valuePointer W = Tmat ;
     copy( n, TOP,    1, W,   1 ) ;
     copy( n, BOTTOM, 1, W+n, 1 ) ;
-    // Apply row interchanges to the right hand sides.
-    integer info = swaps( 1, W, nx2, 0, n-1, iperm, 1 ) ;
-    ALGLIN_ASSERT( info == 0, "BorderedCR::factorize swaps INFO = " << info ) ;
-    trsv( LOWER, NO_TRANSPOSE, UNIT, n, T, nx2, W, 1 ) ;
+    integer info = 0 ;
+    switch ( selected ) {
+    case BORDERED_LU:
+      // Apply row interchanges to the right hand sides.
+      info = swaps( 1, W, nx2, 0, n-1, iperm, 1 ) ;
+      if ( info == 0 ) {
+        trsv( LOWER, NO_TRANSPOSE, UNIT, n, T, nx2, W, 1 ) ;
+        gemv( NO_TRANSPOSE,
+              n, n,
+              -1.0, T+n, nx2,
+                    W,   1,
+               1.0, W+n, 1 ) ;
+      }
+      break ;
+    case BORDERED_QR:
+    case BORDERED_LAST_QRP:
+      info = ormqr( LEFT, TRANSPOSE,
+                    nx2, 1, // righe x colonne
+                    n,      // numero riflettori usati nel prodotto Q
+                    T, nx2,
+                    T+2*nxn,
+                    W, nx2,
+                    Work, Lwork ) ;
+      break ;
+    }
+    ALGLIN_ASSERT( info == 0, "BorderedCR::applyT INFO = " << info ) ;
     copy( n, W+n, 1, TOP, 1 ) ;
-    gemv( NO_TRANSPOSE,
-          n, n,
-          -1.0, T+n, nx2,
-                W,   1,
-           1.0, TOP, 1 ) ;
-    trsv( UPPER, NO_TRANSPOSE, NON_UNIT, n, T, nx2, W, 1 ) ;
-    copy( n, W, 1, BOTTOM, 1 ) ;
+    copy( n, W,   1, BOTTOM, 1 ) ;
   }
 
   template <typename t_Value>
   void
   BorderedCR<t_Value>::factorize_LU() {
     for ( integer k = 1 ; k < nblock ; k = 2*k ) {
-      for ( integer j1 = k ; j1 < nblock ; j1 += 2*k ) {
-        integer j = j1-k ;
-        valuePointer T   = Tmat  + j1*2*nxn ;
-        integer *    P   = Rperm + j1*n ;
+      for ( integer j = k ; j < nblock ; j += 2*k ) {
+        integer jp = j-k ;
+        valuePointer T   = Tmat  + j*Tsize ;
+        integer *    P   = Rperm + j*n ;
+        valuePointer Djp = Dmat  + jp*nxn ;
         valuePointer Dj  = Dmat  + j*nxn ;
-        valuePointer Dj1 = Dmat  + j1*nxn ;
+        valuePointer Ejp = Emat  + jp*nxn ;
         valuePointer Ej  = Emat  + j*nxn ;
-        valuePointer Ej1 = Emat  + j1*nxn ;
 
-        buildT( Ej, Dj1, T, P ) ;
+        buildT( Ejp, Dj, T, P ) ;
 
-        zero( nxn, Dj1, 1 ) ;
-        applyT( T, P, Dj, n, Dj1, n, n ) ;
+        zero( nxn, Dj, 1 ) ;
+        applyT( T, P, Djp, n, Dj, n, n ) ;
 
-        zero( nxn, Ej, 1 ) ;
-        applyT( T, P, Ej, n, Ej1, n, n ) ;
+        zero( nxn, Ejp, 1 ) ;
+        applyT( T, P, Ejp, n, Ej, n, n ) ;
 
         if ( nb > 0 ) {
-          integer j2 = j1+k ;
-          if ( j2 >= nblock ) j2 = nblock ;
+          integer jpp = j+k ;
+          if ( jpp >= nblock ) jpp = nblock ;
 
           valuePointer Bj  = Bmat + j*nxnb ;
-          valuePointer Bj1 = Bmat + j1*nxnb ;
+          valuePointer Bjp = Bmat + jp*nxnb ;
           valuePointer Cj  = Cmat + j*nxnb ;
-          valuePointer Cj1 = Cmat + j1*nxnb ;
-          valuePointer Cj2 = Cmat + j2*nxnb ;
+          valuePointer Cjp = Cmat + jp*nxnb ;
+          valuePointer Cpp = Cmat + jpp*nxnb ;
 
-          applyT( T, P, Bj, n, Bj1, n, nb ) ;
+          applyT( T, P, Bjp, n, Bj, n, nb ) ;
+          
+          // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+          if ( selected == BORDERED_QRP ) {
+            integer i = n ;
+            do {
+              --i ;
+              if ( P[i] > i )
+                swap( nb, Cj+i*nb, 1, Cj+P[i]*nb, 1 ) ;
+            } while ( i > 0 ) ;
+          }
+          trsm( RIGHT, UPPER, NO_TRANSPOSE, NON_UNIT,
+                nb, n, 1.0, T, nx2, Cj, nb ) ;
 
           gemm( NO_TRANSPOSE, NO_TRANSPOSE,
                 nb, n, n,
-                -1.0, Cj1, nb,
-                      Dj1, n,
-                 1.0, Cj,  nb ) ;
+                -1.0, Cj,  nb,
+                      Dj,  n,
+                 1.0, Cjp, nb ) ;
 
           gemm( NO_TRANSPOSE, NO_TRANSPOSE,
                 nb, n, n,
-                -1.0, Cj1, nb,
-                      Ej1, n,
-                 1.0, Cj2, nb ) ;
+                -1.0, Cj,  nb,
+                      Ej,  n,
+                 1.0, Cpp, nb ) ;
 
           gemm( NO_TRANSPOSE, NO_TRANSPOSE,
                 nb, nb, n,
-                -1.0, Cj1, nb,
-                      Bj1, n,
+                -1.0, Cj,   nb,
+                      Bj,   n,
                  1.0, Fmat, nb ) ;
         }
       }
@@ -419,136 +481,91 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::factorize_last_LU() {
-    integer info = getrf( N, N, Hmat, N, Hperm ) ;
+  BorderedCR<t_Value>::factorize_last() {
+    integer info = 0 ;
+    switch ( last_selected ) {
+    case BORDERED_LAST_LU:
+      info = getrf( N, N, Hmat, N, Hperm ) ;
+      break ;
+    case BORDERED_LAST_QR:
+      info = geqrf( N, N, Hmat, N, Htau, Work, Lwork ) ;
+      break ;
+    case BORDERED_LAST_QRP:
+      info = geqp3( N, N, Hmat, N, Hperm, Htau, Work, Lwork ) ;
+      // convert permutation to exchanges
+      if ( info == 0 )
+        for ( integer i = 0 ; i < N ; ++i ) {
+          integer j = i ;
+          while ( j < N ) { if ( Hperm[j] == i+1 ) break ; ++j ; }
+          std::swap( Hperm[j], Hperm[i] ) ;
+          Hswaps[i] = j ;
+        }
+      break ;
+    }
     ALGLIN_ASSERT( info == 0,
-                   "BorderedCR::factorize getrf INFO = " << info <<
-                   " N = " << N ) ;
+                   "BorderedCR::factorize_last INFO = " << info << " N = " << N ) ;
   }
 
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::solve_last_LU( valuePointer x ) const {
+  BorderedCR<t_Value>::solve_last( valuePointer x ) const {
     valuePointer X = x + (nblock-1)*n ;
     swap( n, X, 1, x, 1 ) ; // uso x stesso come temporaneo
-    integer info = getrs( NO_TRANSPOSE, N, 1, Hmat, N, Hperm, X, N ) ;
-    ALGLIN_ASSERT( info == 0, "BorderedCR::solve_last_LU getrs INFO = " << info ) ;
+    integer info = 0 ;
+    switch ( last_selected ) {
+    case BORDERED_LAST_LU:
+      info = getrs( NO_TRANSPOSE, N, 1, Hmat, N, Hperm, X, N ) ;
+      break ;
+    case BORDERED_LAST_QR:
+    case BORDERED_LAST_QRP:
+      info = ormqr( LEFT, TRANSPOSE,
+                    N, 1, // righe x colonne
+                    N-1,  // numero riflettori usati nel prodotto Q
+                    Hmat, N /*ldA*/,
+                    Htau,
+                    X, N,
+                    Work, Lwork ) ;
+      if ( info == 0 ) trsv( UPPER, NO_TRANSPOSE, NON_UNIT, N, Hmat, N, X, 1 ) ;
+      break ;
+    }
+    ALGLIN_ASSERT( info == 0, "BorderedCR::solve_last INFO = " << info ) ;
+    if ( last_selected == BORDERED_LAST_QRP )
+      for ( integer i = 0 ; i < N ; ++i )
+        if ( Hswaps[i] > i ) std::swap( X[i], X[Hswaps[i]] ) ;
     swap( n, X, 1, x, 1 ) ;
   }
 
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::solve_last_LU( integer      nrhs,
-                                      valuePointer x,
-                                      integer      ldX ) const {
+  BorderedCR<t_Value>::solve_last( integer      nrhs,
+                                   valuePointer x,
+                                   integer      ldX ) const {
     valuePointer X = x + (nblock-1)*n ;
     for ( integer i = 0 ; i < nrhs ; ++i ) swap( n, X+i*ldX, 1, x+i*ldX, 1 ) ;
-    integer info = getrs( NO_TRANSPOSE, N, nrhs, Hmat, N, Hperm, X, ldX ) ;
-    ALGLIN_ASSERT( info == 0, "BorderedCR::solve_last_LU getrs INFO = " << info ) ;
-    for ( integer i = 0 ; i < nrhs ; ++i ) swap( n, X+i*ldX, 1, x+i*ldX, 1 ) ;
-  }
-
-  template <typename t_Value>
-  void
-  BorderedCR<t_Value>::factorize_last_QR() {
-    integer info = geqrf( N, N, Hmat, N, Htau, Work, Lwork ) ;
-    ALGLIN_ASSERT( info == 0,
-                   "BorderedCR::factorize geqrf INFO = " << info <<
-                   " N = " << N ) ;
-  }
-
-  template <typename t_Value>
-  void
-  BorderedCR<t_Value>::solve_last_QR( valuePointer x ) const {
-    valuePointer X = x + (nblock-1)*n ;
-    swap( n, X, 1, x, 1 ) ; // uso x stesso come temporaneo
-    integer info = ormqr( LEFT, TRANSPOSE,
-                          N, 1, // righe x colonne
-                          N-1,  // numero riflettori usati nel prodotto Q
-                          Hmat, N /*ldA*/,
-                          Htau,
-                          X, N,
-                          Work, Lwork ) ;
-    ALGLIN_ASSERT( info == 0, "BorderedCR::solve_last_QR ormqr INFO = " << info ) ;
-    trsv( UPPER, NO_TRANSPOSE, NON_UNIT, N, Hmat, N, X, 1 ) ;
-    swap( n, X, 1, x, 1 ) ;
-  }
-
-  template <typename t_Value>
-  void
-  BorderedCR<t_Value>::solve_last_QR( integer      nrhs,
-                                      valuePointer x,
-                                      integer      ldX ) const {
-    valuePointer X = x + (nblock-1)*n ;
-    for ( integer i = 0 ; i < nrhs ; ++i ) swap( n, X+i*ldX, 1, x+i*ldX, 1 ) ;
-    integer info = ormqr( LEFT, TRANSPOSE,
-                          N, nrhs, // righe x colonne
-                          N-1,  // numero riflettori usati nel prodotto Q
-                          Hmat, N /*ldA*/,
-                          Htau,
-                          X, ldX,
-                          Work, Lwork ) ;
-    ALGLIN_ASSERT( info == 0, "BorderedCR::solve_last_QR ormqr INFO = " << info ) ;
-    trsm( LEFT, UPPER, NO_TRANSPOSE, NON_UNIT, N, nrhs, 1.0, Hmat, N, X, ldX ) ;
-    for ( integer i = 0 ; i < nrhs ; ++i ) swap( n, X+i*ldX, 1, x+i*ldX, 1 ) ;
-  }
-
-  template <typename t_Value>
-  void
-  BorderedCR<t_Value>::factorize_last_QRP() {
-    integer info = geqp3( N, N, Hmat, N, Hperm, Htau, Work, Lwork ) ;
-    ALGLIN_ASSERT( info == 0,
-                   "BorderedCR::factorize geqrf INFO = " << info <<
-                   " N = " << N ) ;
-    // convert permutation to exchanges
-    for ( integer i = 0 ; i < N ; ++i ) {
-      integer j = i ;
-      while ( j < N ) { if ( Hperm[j] == i+1 ) break ; ++j ; }
-      std::swap( Hperm[j], Hperm[i] ) ;
-      Hswaps[i] = j ;
+    integer info = 0 ;
+    switch ( last_selected ) {
+    case BORDERED_LAST_LU:
+      info = getrs( NO_TRANSPOSE, N, nrhs, Hmat, N, Hperm, X, ldX ) ;
+      break ;
+    case BORDERED_LAST_QR:
+    case BORDERED_LAST_QRP:
+      info = ormqr( LEFT, TRANSPOSE,
+                    N, nrhs, // righe x colonne
+                    N-1,  // numero riflettori usati nel prodotto Q
+                    Hmat, N /*ldA*/,
+                    Htau,
+                    X, ldX,
+                    Work, Lwork ) ;
+      if ( info == 0 )
+        trsm( LEFT, UPPER, NO_TRANSPOSE, NON_UNIT,
+              N, nrhs, 1.0, Hmat, N, X, ldX ) ;
+      break ;
     }
-  }
-
-  template <typename t_Value>
-  void
-  BorderedCR<t_Value>::solve_last_QRP( valuePointer x ) const {
-    valuePointer X = x + (nblock-1)*n ;
-    swap( n, X, 1, x, 1 ) ; // uso x stesso come temporaneo
-    integer info = ormqr( LEFT, TRANSPOSE,
-                          N, 1, // righe x colonne
-                          N-1,  // numero riflettori usati nel prodotto Q
-                          Hmat, N /*ldA*/,
-                          Htau,
-                          X, N,
-                          Work, Lwork ) ;
-    ALGLIN_ASSERT( info == 0, "BorderedCR::solve_last_QR ormqr INFO = " << info ) ;
-    trsv( UPPER, NO_TRANSPOSE, NON_UNIT, N, Hmat, N, X, 1 ) ;
-    for ( integer i = 0 ; i < N ; ++i ) {
-      if ( Hswaps[i] > i ) std::swap( X[i], X[Hswaps[i]] ) ;
-    }
-    swap( n, X, 1, x, 1 ) ;
-  }
-
-  template <typename t_Value>
-  void
-  BorderedCR<t_Value>::solve_last_QRP( integer      nrhs,
-                                       valuePointer x,
-                                       integer      ldX ) const {
-    valuePointer X = x + (nblock-1)*n ;
-    for ( integer i = 0 ; i < nrhs ; ++i ) swap( n, X+i*ldX, 1, x+i*ldX, 1 ) ;
-    integer info = ormqr( LEFT, TRANSPOSE,
-                          N, nrhs, // righe x colonne
-                          N-1,  // numero riflettori usati nel prodotto Q
-                          Hmat, N /*ldA*/,
-                          Htau,
-                          X, ldX,
-                          Work, Lwork ) ;
-    ALGLIN_ASSERT( info == 0, "BorderedCR::solve_last_QR ormqr INFO = " << info ) ;
-    trsm( LEFT, UPPER, NO_TRANSPOSE, NON_UNIT, N, nrhs, 1.0, Hmat, N, X, ldX ) ;
-    for ( integer i = 0 ; i < N ; ++i ) {
-      if ( Hswaps[i] > i )
-        swap( nrhs, X+i, ldX, X+Hswaps[i], ldX ) ;
-    }
+    ALGLIN_ASSERT( info == 0, "BorderedCR::solve_last INFO = " << info ) ;
+    if ( last_selected == BORDERED_LAST_QRP )
+      for ( integer i = 0 ; i < N ; ++i )
+        if ( Hswaps[i] > i )
+          swap( nrhs, X+i, ldX, X+Hswaps[i], ldX ) ;
     for ( integer i = 0 ; i < nrhs ; ++i ) swap( n, X+i*ldX, 1, x+i*ldX, 1 ) ;
   }
 
@@ -558,42 +575,48 @@ namespace alglin {
     valuePointer xn = x + (nblock+1)*n + q ;
     integer k = 1 ;
     while ( k < nblock ) {
-      for ( integer j1 = k ; j1 < nblock ; j1 += 2*k ) {
-        integer j = j1-k ;
-        valuePointer const T = Tmat + j1*2*nxn ;
-        integer *    const P = Rperm + j1*n ;
+      for ( integer j = k ; j < nblock ; j += 2*k ) {
+        integer jp = j-k ;
+        valuePointer const T = Tmat  + j*Tsize ;
+        integer *    const P = Rperm + j*n ;
         valuePointer xj  = x + j*n ;
-        valuePointer xj1 = x + j1*n ;
-        applyT( T, P, xj, xj1 ) ;
+        valuePointer xjp = x + jp*n ;
+        applyT( T, P, xjp, xj ) ;
         if ( nb > 0 ) {
-          valuePointer Cj1 = Cmat + j1*nxnb ;
-          gemv( NO_TRANSPOSE, nb, n, -1.0, Cj1, nb, xj1, 1, 1.0, xn, 1 ) ;
+          valuePointer Cj = Cmat + j*nxnb ;
+          gemv( NO_TRANSPOSE, nb, n, -1.0, Cj, nb, xj, 1, 1.0, xn, 1 ) ;
         }
       }
       k *= 2 ;
     }
 
-    switch ( last_selected ) {
-      case BORDERED_LAST_LU:  solve_last_LU( x )  ; break ;
-      case BORDERED_LAST_QR:  solve_last_QR( x )  ; break ;
-      case BORDERED_LAST_QRP: solve_last_QRP( x ) ; break ;
-    }
+    solve_last( x ) ;
 
     while ( (k/=2) > 0 ) {
-      for ( integer j1 = k ; j1 < nblock ; j1 += 2*k ) {
-        integer j  = j1-k ;
-        integer j2 = j1+k ;
-        if ( j2 >= nblock ) j2 = nblock ;
-        valuePointer Dj1 = Dmat + j1*nxn ;
-        valuePointer Ej1 = Emat + j1*nxn ;
+      for ( integer j = k ; j < nblock ; j += 2*k ) {
+        integer jp  = j-k ;
+        integer jpp = j+k ;
+        if ( jpp >= nblock ) jpp = nblock ;
+        valuePointer Dj  = Dmat + j*nxn ;
+        valuePointer Ej  = Emat + j*nxn ;
         valuePointer xj  = x + j*n ;
-        valuePointer xj1 = x + j1*n ;
-        valuePointer xj2 = x + j2*n ;
-        gemv( NO_TRANSPOSE, n, n, -1.0, Dj1, n, xj,  1, 1.0, xj1, 1 ) ;
-        gemv( NO_TRANSPOSE, n, n, -1.0, Ej1, n, xj2, 1, 1.0, xj1, 1 ) ;
+        valuePointer xp  = x + jp*n ;
+        valuePointer xpp = x + jpp*n ;
+        gemv( NO_TRANSPOSE, n, n, -1.0, Dj, n, xp,  1, 1.0, xj, 1 ) ;
+        gemv( NO_TRANSPOSE, n, n, -1.0, Ej, n, xpp, 1, 1.0, xj, 1 ) ;
         if ( nb > 0 ) {
-          valuePointer Bj1 = Bmat + j1*nxnb ;
-          gemv( NO_TRANSPOSE, n, nb, -1.0, Bj1, n, xn, 1, 1.0, xj1, 1 ) ;
+          valuePointer Bj = Bmat + j*nxnb ;
+          gemv( NO_TRANSPOSE, n, nb, -1.0, Bj, n, xn, 1, 1.0, xj, 1 ) ;
+        }
+
+        // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+        valuePointer const T = Tmat + j*Tsize ;
+        trsv( UPPER, NO_TRANSPOSE, NON_UNIT, n, T, nx2, xj, 1 ) ;
+        if ( selected == BORDERED_QRP ) {
+          integer * const P = Rperm + j*n ;
+          for ( integer i = 0 ; i < n ; ++i )
+            if ( P[i] > i )
+              std::swap( xj[i], xj[P[i]] ) ;
         }
       }
     }
@@ -604,61 +627,68 @@ namespace alglin {
   BorderedCR<t_Value>::solve_LU( integer      nrhs,
                                  valuePointer x,
                                  integer      ldX ) const {
-    valuePointer xn = x + nblock*n + q ;
+    valuePointer xn = x + (nblock+1)*n + q ;
     integer k = 1 ;
     while ( k < nblock ) {
-      for ( integer j1 = k ; j1 < nblock ; j1 += 2*k ) {
-        integer j = j1-k ;
-        valuePointer const T = Tmat + j1*2*nxn ;
-        integer *    const P = Rperm + j1*n ;
+      for ( integer j = k ; j < nblock ; j += 2*k ) {
+        integer jp = j-k ;
+        valuePointer const T = Tmat  + j*Tsize ;
+        integer *    const P = Rperm + j*n ;
         valuePointer xj  = x + j*n ;
-        valuePointer xj1 = x + j1*n ;
-        applyT( T, P, xj, ldX, xj1, ldX, nrhs ) ;
+        valuePointer xjp = x + jp*n ;
+        applyT( T, P, xjp, ldX, xj, ldX, nrhs ) ;
         if ( nb > 0 ) {
-          valuePointer Cj1 = Cmat + j1*nxnb ;
+          valuePointer Cj = Cmat + j*nxnb ;
           gemm( NO_TRANSPOSE, NO_TRANSPOSE,
-                nb, nrhs, n, 
-                -1.0, Cj1, nb,
-                      xj1, ldX,
-                 1.0, xn,  ldX ) ;
+                nb, nrhs, n,
+                -1.0, Cj, nb,
+                      xj, ldX,
+                 1.0, xn, ldX ) ;
         }
       }
       k *= 2 ;
     }
 
-    switch ( last_selected ) {
-      case BORDERED_LAST_LU:  solve_last_LU ( nrhs, x, ldX ) ; break ;
-      case BORDERED_LAST_QR:  solve_last_QR ( nrhs, x, ldX ) ; break ;
-      case BORDERED_LAST_QRP: solve_last_QRP( nrhs, x, ldX ) ; break ;
-    }
+    solve_last( nrhs, x, ldX ) ;
 
     while ( (k/=2) > 0 ) {
-      for ( integer j1 = k ; j1 < nblock ; j1 += 2*k ) {
-        integer j  = j1-k ;
-        integer j2 = j1+k ;
-        if ( j2 >= nblock ) j2 = nblock ;
-        valuePointer Dj1 = Dmat + j1*nxn ;
-        valuePointer Ej1 = Emat + j1*nxn ;
+      for ( integer j = k ; j < nblock ; j += 2*k ) {
+        integer jp  = j-k ;
+        integer jpp = j+k ;
+        if ( jpp >= nblock ) jpp = nblock ;
+        valuePointer Dj  = Dmat + j*nxn ;
+        valuePointer Ej  = Emat + j*nxn ;
         valuePointer xj  = x + j*n ;
-        valuePointer xj1 = x + j1*n ;
-        valuePointer xj2 = x + j2*n ;
+        valuePointer xjp = x + jp*n ;
+        valuePointer xpp = x + jpp*n ;
         gemm( NO_TRANSPOSE, NO_TRANSPOSE,
               n, nrhs, n,
-              -1.0, Dj1, n,
-                    xj,  ldX,
-               1.0, xj1, ldX ) ;
+              -1.0, Dj,  n,
+                    xjp, ldX,
+               1.0, xj,  ldX ) ;
         gemm( NO_TRANSPOSE, NO_TRANSPOSE,
               n, nrhs, n,
-              -1.0, Ej1, n,
-                    xj2, ldX,
-               1.0, xj1, ldX ) ;
+              -1.0, Ej,  n,
+                    xpp, ldX,
+               1.0, xj,  ldX ) ;
         if ( nb > 0 ) {
-          valuePointer Bj1 = Bmat + j1*nxnb ;
+          valuePointer Bj = Bmat + j*nxnb ;
           gemm( NO_TRANSPOSE, NO_TRANSPOSE,
                 n, nrhs, nb,
-                -1.0, Bj1, n,
-                      xn,  ldX,
-                 1.0, xj1, ldX ) ;
+                -1.0, Bj, n,
+                      xn, ldX,
+                 1.0, xj, ldX ) ;
+        }
+
+        // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+        valuePointer const T = Tmat + j*Tsize ;
+        trsm( LEFT, UPPER, NO_TRANSPOSE, NON_UNIT,
+              n, nrhs, 1.0, T, nx2, xj, ldX ) ;
+        if ( selected == BORDERED_QRP ) {
+          integer * const P = Rperm + j*n ;
+          for ( integer i = 0 ; i < n ; ++i )
+            if ( P[i] > i )
+              swap( nrhs, xj+i, ldX, xj+P[i], ldX ) ;
         }
       }
     }
