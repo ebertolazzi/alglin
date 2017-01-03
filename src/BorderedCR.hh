@@ -131,23 +131,76 @@ namespace alglin {
             valuePointer      TOP,
             valuePointer      BOTTOM ) const ;
 
-    void
-    factorize_mt( integer nth ) ;
+    /*
+    //    __         _           _
+    //   / _|__ _ __| |_ ___ _ _(_)______
+    //  |  _/ _` / _|  _/ _ \ '_| |_ / -_)
+    //  |_| \__,_\__|\__\___/_| |_/__\___|
+    */
 
     void
-    solve_mt( integer nth, valuePointer ) const ;
+    factorize_block( integer nth ) ;
 
     void
-    solve_n_mt( integer      nth,
+    factorize_reduced() ;
+    
+    /*
+    //    __                            _
+    //   / _|___ _ ___ __ ____ _ _ _ __| |
+    //  |  _/ _ \ '_\ V  V / _` | '_/ _` |
+    //  |_| \___/_|  \_/\_/\__,_|_| \__,_|
+    */
+
+    void
+    forward( integer nth, valuePointer x ) const ;
+
+    void
+    forward_n( integer      nth,
+               integer      nrhs,
+               valuePointer rhs,
+               integer      ldRhs ) const ;
+
+    void
+    forward_reduced( valuePointer x ) const ;
+
+    void
+    forward_n_reduced( integer      nrhs,
+                       valuePointer rhs,
+                       integer      ldRhs ) const ;
+
+    /*
+    //   _             _                       _
+    //  | |__  __ _ __| |____ __ ____ _ _ _ __| |
+    //  | '_ \/ _` / _| / /\ V  V / _` | '_/ _` |
+    //  |_.__/\__,_\__|_\_\ \_/\_/\__,_|_| \__,_|
+    */
+
+    void
+    backward( integer nth, valuePointer x ) const ;
+
+    void
+    backward_reduced( valuePointer x ) const ;
+
+    void
+    backward_n( integer      nth,
                 integer      nrhs,
                 valuePointer rhs,
                 integer      ldRhs ) const ;
-    
-    void
-    load_last_block() ;
 
     void
-    factorize_last() ;
+    backward_n_reduced( integer      nrhs,
+                        valuePointer rhs,
+                        integer      ldRhs ) const ;
+
+    void
+    load_and_factorize_last() ;
+
+    /*
+    //   _         _
+    //  | |__ _ __| |_
+    //  | / _` (_-<  _|
+    //  |_\__,_/__/\__|
+    */
 
     void
     solve_last( valuePointer ) const ;
@@ -201,13 +254,15 @@ namespace alglin {
     valuePointer Hmat, Htau ;
     integer      *Hperm, *Hswaps, *Tperm ;
 
-    integer numThread ;
+    integer      *iBlock, *kBlock ;
+
+    integer maxThread, usedThread ;
     #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
     mutable std::thread threads[BORDERED_CYCLIC_REDUCTION_MAX_THREAD] ;
-    mutable SpinLock         spin, spin1 ;
+    mutable SpinLock spin ;
+    //mutable std::mutex m_mutex ;
+    //mutable Barrier barrier ;
     //mutable SpinLock_barrier barrier ;
-    mutable Barrier barrier ;
-    mutable integer * task_done ;
     #endif
 
   public:
@@ -230,7 +285,7 @@ namespace alglin {
     , nxnb(0)
     , N(0)
     , last_selected(BORDERED_LAST_LU)
-    , selected(BORDERED_QRP)
+    , selected(BORDERED_LU)
     , H0Nqp(nullptr)
     , Bmat(nullptr)
     , Cmat(nullptr)
@@ -252,9 +307,9 @@ namespace alglin {
       ALGLIN_ASSERT( nth > 0 && nth <= BORDERED_CYCLIC_REDUCTION_MAX_THREAD,
                      "Bad number of thread specification [" << nth << "]\n"
                      "must be a number > 0 and <= " << BORDERED_CYCLIC_REDUCTION_MAX_THREAD ) ;
-      numThread = nth ;
+      maxThread = nth ;
       #else
-      numThread = 1 ;
+      maxThread = 1 ;
       #endif
     }
 
@@ -429,9 +484,7 @@ namespace alglin {
     solve( valuePointer x ) const ;
 
     void
-    solve( integer      nrhs,
-           valuePointer rhs,
-           integer      ldRhs ) const ;
+    solve( integer nrhs, valuePointer rhs, integer ldRhs ) const ;
 
     // aux function
     void

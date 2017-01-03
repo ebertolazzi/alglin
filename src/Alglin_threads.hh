@@ -67,6 +67,23 @@ namespace alglin {
     }
 
     void
+    count_down() {
+      unsigned gen = m_generation.load();
+      if ( --m_count == 0 ) {
+        if ( m_generation.compare_exchange_weak(gen, gen + 1) )
+          m_count = m_count_reset_value;
+        return;
+      }
+    }
+
+    void
+    wait() {
+      unsigned gen = m_generation.load();
+      while ((gen == m_generation) && (m_count != 0))
+        std::this_thread::yield();
+    }
+
+    void
     count_down_and_wait() {
       unsigned gen = m_generation.load();
       if ( --m_count == 0 ) {
@@ -89,6 +106,18 @@ namespace alglin {
     void
     setup( int nthreads )
     { usedThread = to_be_done = nthreads ; }
+
+    void
+    count_down() {
+      std::unique_lock<std::mutex> lck(mtx);
+      if ( --to_be_done <= 0 ) cond.notify_all() ; // wake up all tread
+    }
+
+    void
+    wait() {
+      std::unique_lock<std::mutex> lck(mtx);
+      cond.wait(lck);
+    }
 
     void
     count_down_and_wait() {

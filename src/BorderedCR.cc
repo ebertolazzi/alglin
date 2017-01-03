@@ -75,9 +75,9 @@ namespace alglin {
     ALGLIN_ASSERT( info == 0, "BorderedCR::allocate call alglin::geqrf return info = " << info ) ;
     if ( LworkQR < integer(tmp) ) LworkQR = integer(tmp) ;
 
-    integer nnz = Lwork+(LworkT+LworkQR)*numThread+N*(N+1)+nb*(nb+q)+nxnb+nblock*(2*nxnb+2*nxn+Tsize+n)+(n+q)*(nx2+nb+q) ;
+    integer nnz = Lwork+(LworkT+LworkQR)*maxThread+N*(N+1)+nb*(nb+q)+nxnb+nblock*(2*nxnb+2*nxn+Tsize+n)+(n+q)*(nx2+nb+q) ;
     baseValue.allocate(size_t(nnz)) ;
-    baseInteger.allocate(size_t(2*N+nblock*(3*n+1))) ;
+    baseInteger.allocate(size_t(2*N+nblock*(3*n)+3*maxThread)) ;
 
     Bmat  = baseValue(size_t(nblock*nxnb)) ;
     Cmat  = baseValue(size_t((nblock+1)*nxnb)) ;
@@ -93,16 +93,17 @@ namespace alglin {
     H0Nqp = baseValue(size_t((n+q)*N)) ;
 
     Work   = baseValue(size_t(Lwork)) ;
-    WorkT  = baseValue(size_t(LworkT*numThread)) ;
-    WorkQR = baseValue(size_t(LworkQR*numThread)) ;
+    WorkT  = baseValue(size_t(LworkT*maxThread)) ;
+    WorkQR = baseValue(size_t(LworkQR*maxThread)) ;
 
     Hperm  = baseInteger(size_t(N)) ;
     Hswaps = baseInteger(size_t(N)) ;
     Rperm  = baseInteger(size_t(nblock*n)) ;
     Cperm  = baseInteger(size_t(nblock*n)) ;
     
-    task_done = baseInteger(size_t(nblock)) ;
-    Tperm     = baseInteger(size_t(nblock*n)) ;
+    Tperm  = baseInteger(size_t(nblock*n)) ;
+    iBlock = baseInteger(size_t(2*maxThread)) ;
+    kBlock = baseInteger(size_t(maxThread)) ;
   }
 
   template <typename t_Value>
@@ -269,17 +270,29 @@ namespace alglin {
   void
   BorderedCR<t_Value>::factorize() {
     #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
-    std::fill( task_done, task_done + nblock, 0 ) ;
-    barrier.setup(numThread) ;
-    for ( integer nt = 0 ; nt < numThread ; ++nt )
-      threads[nt] = std::thread( &BorderedCR<t_Value>::factorize_mt, this, nt ) ;
-    for ( integer nt = 0 ; nt < numThread ; ++nt )
-      threads[nt].join() ;
+    usedThread = nblock >= 4*maxThread ? maxThread : nblock>>4 ;
+    if ( usedThread > 1 ) {
+      iBlock[0] = 0 ;
+      iBlock[1] = static_cast<integer>(nblock/usedThread) ;
+      for ( integer nt = 1 ; nt < usedThread ; ++nt ) {
+        iBlock[2*nt+0] = iBlock[2*nt-1]+1 ;
+        iBlock[2*nt+1] = static_cast<integer>(((nt+1)*nblock)/usedThread) ;
+        threads[nt]    = std::thread( &BorderedCR<t_Value>::factorize_block, this, nt ) ;
+      }
+      factorize_block(0) ;
+      for ( integer nt = 1 ; nt < usedThread ; ++nt ) threads[nt].join() ;
+      factorize_reduced() ;
+    } else {
+      iBlock[0] = 0 ;
+      iBlock[1] = nblock ;
+      factorize_block(0) ;
+    }
     #else
-    factorize_mt(0) ;
+    iBlock[0] = 0 ;
+    iBlock[1] = nblock ;
+    factorize_block(0) ;
     #endif
-    load_last_block() ;
-    factorize_last() ;
+    load_and_factorize_last() ;
   }
 
   /*\
@@ -421,33 +434,24 @@ namespace alglin {
   }
   
   /*\
-   |    __            _             _                       _
-   |   / _| __ _  ___| |_ ___  _ __(_)_______     _ __ ___ | |_
-   |  | |_ / _` |/ __| __/ _ \| '__| |_  / _ \   | '_ ` _ \| __|
-   |  |  _| (_| | (__| || (_) | |  | |/ /  __/   | | | | | | |_
-   |  |_|  \__,_|\___|\__\___/|_|  |_/___\___|___|_| |_| |_|\__|
+   |    __            _             _             _     _            _
+   |   / _| __ _  ___| |_ ___  _ __(_)_______    | |__ | | ___   ___| | __
+   |  | |_ / _` |/ __| __/ _ \| '__| |_  / _ \   | '_ \| |/ _ \ / __| |/ /
+   |  |  _| (_| | (__| || (_) | |  | |/ /  __/   | |_) | | (_) | (__|   <
+   |  |_|  \__,_|\___|\__\___/|_|  |_/___\___|___|_.__/|_|\___/ \___|_|\_\
    |                                        |_____|
   \*/
-  
-  #define CHECK_TASK_DONE(FLG)       \
-  bool skip = false ;                \
-  spin.lock() ;                      \
-  skip = (task_done[j]&FLG) == FLG ; \
-  if ( !skip ) task_done[j] |= FLG ; \
-  spin.unlock() ;                    \
-  if ( skip ) continue
 
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::factorize_mt( integer nth ) {
-    for ( integer k = 1 ; k < nblock ; k = 2*k ) {
+  BorderedCR<t_Value>::factorize_block( integer nth ) {
+    integer iblock = iBlock[2*nth+0] ;
+    integer eblock = iBlock[2*nth+1] ;
+    integer nblk   = eblock - iblock ;
+    integer k = 1 ;
+    while ( k < nblk ) {
       // -----------------------------------------------------------------------
-      for ( integer j = k ; j < nblock ; j += 2*k ) {
-
-        #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
-        CHECK_TASK_DONE(0x01);
-        #endif
-
+      for ( integer j = iblock+k ; j < eblock ; j += 2*k ) {
         integer jp = j-k ;
         valuePointer T   = Tmat  + j*Tsize ;
         integer *    P   = Rperm + j*n ;
@@ -478,12 +482,23 @@ namespace alglin {
             integer i = n ;
             do {
               --i ;
-              if ( P[i] > i )
-                swap( nb, Cj+i*nb, 1, Cj+P[i]*nb, 1 ) ;
+              if ( P[i] > i ) swap( nb, Cj+i*nb, 1, Cj+P[i]*nb, 1 ) ;
             } while ( i > 0 ) ;
           }
           trsm( RIGHT, UPPER, NO_TRANSPOSE, NON_UNIT,
                 nb, n, 1.0, T, nx2, Cj, nb ) ;
+
+          #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
+          spin.lock() ;
+          #endif
+          gemm( NO_TRANSPOSE, NO_TRANSPOSE,
+                nb, nb, n,
+                -1.0, Cj,   nb,
+                      Bj,   n,
+                 1.0, Fmat, nb ) ;
+          #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
+          spin.unlock() ;
+          #endif
 
           gemm( NO_TRANSPOSE, NO_TRANSPOSE,
                 nb, n, n,
@@ -491,61 +506,110 @@ namespace alglin {
                       Dj,  n,
                  1.0, Cjp, nb ) ;
 
-          spin1.lock() ;
-          gemm( NO_TRANSPOSE, NO_TRANSPOSE,
-                nb, nb, n,
-                -1.0, Cj,   nb,
-                      Bj,   n,
-                 1.0, Fmat, nb ) ;
-          spin1.unlock() ;
-
-        }
-      }
-
-      #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
-      barrier.count_down_and_wait() ;
-      #endif
-
-      // -----------------------------------------------------------------------
-      if ( nb > 0 ) {
-        for ( integer j = k ; j < nblock ; j += 2*k ) {
-
-          #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
-          CHECK_TASK_DONE(0x02);
-          #endif
-
-          integer jpp = std::min(j+k,nblock) ;
-
-          valueConstPointer Ej  = Emat + j*nxn ;
-          valueConstPointer Cj  = Cmat + j*nxnb ;
-          valuePointer      Cpp = Cmat + jpp*nxnb ;
+          integer      jpp = std::min(j+k,eblock) ;
+          valuePointer Cpp = Cmat + jpp*nxnb ;
 
           gemm( NO_TRANSPOSE, NO_TRANSPOSE,
                 nb, n, n,
                 -1.0, Cj,  nb,
                       Ej,  n,
                  1.0, Cpp, nb ) ;
-        }
 
-        #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
-        barrier.count_down_and_wait() ;
-        #endif
+        }
       }
+      k *= 2 ;
+    }
+    kBlock[nth] = k ;
+  }
+
+  template <typename t_Value>
+  void
+  BorderedCR<t_Value>::factorize_reduced() {
+    integer nblk = 2*usedThread-1 ;
+    integer k = 1 ;
+    while ( k < nblk ) {
+      // -----------------------------------------------------------------------
+      for ( integer jj = k ; jj < nblk ; jj += 2*k ) {
+        integer j  = iBlock[jj] ;
+        integer jp = iBlock[jj-k] ;
+        valuePointer T   = Tmat  + j*Tsize ;
+        integer *    P   = Rperm + j*n ;
+        valuePointer Djp = Dmat  + jp*nxn ;
+        valuePointer Dj  = Dmat  + j*nxn ;
+        valuePointer Ejp = Emat  + jp*nxn ;
+        valuePointer Ej  = Emat  + j*nxn ;
+
+        buildT( 0, Ejp, Dj, T, P ) ;
+
+        zero( nxn, Dj, 1 ) ;
+        applyT( 0, T, P, Djp, n, Dj, n, n ) ;
+
+        zero( nxn, Ejp, 1 ) ;
+        applyT( 0, T, P, Ejp, n, Ej, n, n ) ;
+
+        if ( nb > 0 ) {
+
+          valuePointer Bj  = Bmat + j*nxnb ;
+          valuePointer Bjp = Bmat + jp*nxnb ;
+          valuePointer Cj  = Cmat + j*nxnb ;
+          valuePointer Cjp = Cmat + jp*nxnb ;
+
+          applyT( 0, T, P, Bjp, n, Bj, n, nb ) ;
+          
+          // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+          if ( selected == BORDERED_QRP ) {
+            integer i = n ;
+            do {
+              --i ;
+              if ( P[i] > i ) swap( nb, Cj+i*nb, 1, Cj+P[i]*nb, 1 ) ;
+            } while ( i > 0 ) ;
+          }
+          trsm( RIGHT, UPPER, NO_TRANSPOSE, NON_UNIT,
+                nb, n, 1.0, T, nx2, Cj, nb ) ;
+
+          gemm( NO_TRANSPOSE, NO_TRANSPOSE,
+                nb, nb, n,
+                -1.0, Cj,   nb,
+                      Bj,   n,
+                 1.0, Fmat, nb ) ;
+
+          gemm( NO_TRANSPOSE, NO_TRANSPOSE,
+                nb, n, n,
+                -1.0, Cj,  nb,
+                      Dj,  n,
+                 1.0, Cjp, nb ) ;
+
+          integer      jpp = iBlock[std::min(jj+k,nblk)] ;
+          valuePointer Cpp = Cmat + jpp*nxnb ;
+
+          gemm( NO_TRANSPOSE, NO_TRANSPOSE,
+                nb, n, n,
+                -1.0, Cj,  nb,
+                      Ej,  n,
+                 1.0, Cpp, nb ) ;
+
+        }
+      }
+      k *= 2 ;
     }
   }
-  
+
   /*\
-   |   _                 _     _           _       _     _            _
-   |  | | ___   __ _  __| |   | | __ _ ___| |_    | |__ | | ___   ___| | __
-   |  | |/ _ \ / _` |/ _` |   | |/ _` / __| __|   | '_ \| |/ _ \ / __| |/ /
-   |  | | (_) | (_| | (_| |   | | (_| \__ \ |_    | |_) | | (_) | (__|   <
-   |  |_|\___/ \__,_|\__,_|___|_|\__,_|___/\__|___|_.__/|_|\___/ \___|_|\_\
-   |                     |_____|             |_____|
+   |   _                 _                   _
+   |  | | ___   __ _  __| |   __ _ _ __   __| |
+   |  | |/ _ \ / _` |/ _` |  / _` | '_ \ / _` |
+   |  | | (_) | (_| | (_| | | (_| | | | | (_| |
+   |  |_|\___/ \__,_|\__,_|  \__,_|_| |_|\__,_|
+   |    __            _             _           _           _
+   |   / _| __ _  ___| |_ ___  _ __(_)_______  | | __ _ ___| |_
+   |  | |_ / _` |/ __| __/ _ \| '__| |_  / _ \ | |/ _` / __| __|
+   |  |  _| (_| | (__| || (_) | |  | |/ /  __/ | | (_| \__ \ |_
+   |  |_|  \__,_|\___|\__\___/|_|  |_/___\___| |_|\__,_|___/\__|
   \*/
 
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::load_last_block() {
+  BorderedCR<t_Value>::load_and_factorize_last() {
     /*
     //    n   n   q  nb
     //  +---+---+---+---+
@@ -578,20 +642,6 @@ namespace alglin {
     gecopy( nb, q,  Cqmat, nb, Wq, N ) ;
     gecopy( nb, nb, Fmat,  nb, Wp, N ) ;
 
-  }
-
-  /*\
-   |    __            _             _             _           _
-   |   / _| __ _  ___| |_ ___  _ __(_)_______    | | __ _ ___| |_
-   |  | |_ / _` |/ __| __/ _ \| '__| |_  / _ \   | |/ _` / __| __|
-   |  |  _| (_| | (__| || (_) | |  | |/ /  __/   | | (_| \__ \ |_
-   |  |_|  \__,_|\___|\__\___/|_|  |_/___\___|___|_|\__,_|___/\__|
-   |                                        |_____|
-  \*/
-
-  template <typename t_Value>
-  void
-  BorderedCR<t_Value>::factorize_last() {
     integer info = 0 ;
     switch ( last_selected ) {
     case BORDERED_LAST_LU:
@@ -653,6 +703,8 @@ namespace alglin {
         if ( Hswaps[i] > i ) std::swap( X[i], X[Hswaps[i]] ) ;
     swap( n, X, 1, x, 1 ) ;
   }
+  
+  // ---------------------------------------------------------------------------
 
   template <typename t_Value>
   void
@@ -670,8 +722,8 @@ namespace alglin {
     case BORDERED_LAST_QRP:
       info = ormqr( LEFT, TRANSPOSE,
                     N, nrhs, // righe x colonne
-                    N-1,  // numero riflettori usati nel prodotto Q
-                    Hmat, N /*ldA*/,
+                    N-1,     // numero riflettori usati nel prodotto Q
+                    Hmat, N,
                     Htau,
                     X, ldX,
                     Work, Lwork ) ;
@@ -695,18 +747,34 @@ namespace alglin {
    |  \__ \ (_) | |\ V /  __/
    |  |___/\___/|_| \_/ \___|
   \*/
+
   template <typename t_Value>
   void
   BorderedCR<t_Value>::solve( valuePointer x ) const {
     #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
-    std::fill( task_done, task_done + nblock, 0 ) ;
-    barrier.setup(numThread) ;
-    for ( integer nt = 0 ; nt < numThread ; ++nt )
-      threads[nt] = std::thread( &BorderedCR<t_Value>::solve_mt, this, nt, x ) ;
-    for ( integer nt = 0 ; nt < numThread ; ++nt )
-      threads[nt].join() ;
+    if ( usedThread > 1 ) {
+      for ( integer nt = 1 ; nt < usedThread ; ++nt )
+        threads[nt] = std::thread( &BorderedCR<t_Value>::forward, this, nt, x ) ;
+      forward(0,x) ;
+      for ( integer nt = 1 ; nt < usedThread ; ++nt ) threads[nt].join() ;
+      forward_reduced(x) ;
+    } else {
+      forward(0,x) ;
+    }
+    solve_last( x ) ;
+    if ( usedThread > 1 ) {
+      backward_reduced(x) ;
+      for ( integer nt = 1 ; nt < usedThread ; ++nt )
+        threads[nt] = std::thread( &BorderedCR<t_Value>::backward, this, nt, x ) ;
+      backward(0,x) ;
+      for ( integer nt = 1 ; nt < usedThread ; ++nt ) threads[nt].join() ;
+    } else {
+      backward(0,x) ;
+    }
     #else
-    solve_mt( 0, x ) ;
+    forward( 0, x );
+    solve_last( x ) ;
+    backward( 0, x );
     #endif
   }
 
@@ -715,30 +783,54 @@ namespace alglin {
   BorderedCR<t_Value>::solve( integer      nrhs,
                               valuePointer rhs,
                               integer      ldRhs ) const {
+
     #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
-    std::fill( task_done, task_done + nblock, 0 ) ;
-    barrier.setup(numThread) ;
-    for ( integer nt = 0 ; nt < numThread ; ++nt )
-      threads[nt] = std::thread( &BorderedCR<t_Value>::solve_n_mt, this, nt, nrhs, rhs, ldRhs ) ;
-    for ( integer nt = 0 ; nt < numThread ; ++nt )
-      threads[nt].join() ;
+    if ( usedThread > 1 ) {
+      for ( integer nt = 1 ; nt < usedThread ; ++nt )
+        threads[nt] = std::thread( &BorderedCR<t_Value>::forward_n, this,
+                                   nt, nrhs, rhs, ldRhs ) ;
+      forward_n( 0, nrhs, rhs, ldRhs ) ;
+      for ( integer nt = 1 ; nt < usedThread ; ++nt ) threads[nt].join() ;
+      forward_n_reduced( nrhs, rhs, ldRhs ) ;
+    } else {
+      forward_n( 0, nrhs, rhs, ldRhs ) ;
+    }
+    solve_last( nrhs, rhs, ldRhs ) ;
+    if ( usedThread > 1 ) {
+      backward_n_reduced( nrhs, rhs, ldRhs ) ;
+      for ( integer nt = 1 ; nt < usedThread ; ++nt )
+        threads[nt] = std::thread( &BorderedCR<t_Value>::backward_n, this,
+                                   nt, nrhs, rhs, ldRhs ) ;
+      backward_n( 0, nrhs, rhs, ldRhs ) ;
+      for ( integer nt = 1 ; nt < usedThread ; ++nt ) threads[nt].join() ;
+    } else {
+      backward_n( 0, nrhs, rhs, ldRhs ) ;
+    }
     #else
-    solve_mt( 0, x ) ;
+    forward_n( 0, nrhs, rhs, ldRhs );
+    solve_last( nrhs, rhs, ldRhs ) ;
+    backward_n( 0, nrhs, rhs, ldRhs );
     #endif
   }
 
+  /*\
+   |    __                                  _
+   |   / _| ___  _ ____      ____ _ _ __ __| |
+   |  | |_ / _ \| '__\ \ /\ / / _` | '__/ _` |
+   |  |  _| (_) | |   \ V  V / (_| | | | (_| |
+   |  |_|  \___/|_|    \_/\_/ \__,_|_|  \__,_|
+  \*/
+
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::solve_mt( integer nth, valuePointer x ) const {
+  BorderedCR<t_Value>::forward( integer nth, valuePointer x ) const {
     valuePointer xn = x + (nblock+1)*n + q ;
+    integer iblock = iBlock[2*nth+0] ;
+    integer eblock = iBlock[2*nth+1] ;
+    integer nblk   = eblock - iblock ;
     integer k = 1 ;
-    while ( k < nblock ) {
-      for ( integer j = k ; j < nblock ; j += 2*k ) {
-
-        #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
-        CHECK_TASK_DONE(0x01);
-        #endif
-
+    while ( k < nblk ) {
+      for ( integer j = iblock+k ; j < eblock ; j += 2*k ) {
         integer jp = j-k ;
         valuePointer const T = Tmat  + j*Tsize ;
         integer *    const P = Rperm + j*n ;
@@ -747,34 +839,136 @@ namespace alglin {
         applyT( nth, T, P, xjp, xj ) ;
         if ( nb > 0 ) {
           valuePointer Cj = Cmat + j*nxnb ;
-          spin1.lock() ;
+          #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
+          spin.lock() ;
+          #endif
           gemv( NO_TRANSPOSE, nb, n, -1.0, Cj, nb, xj, 1, 1.0, xn, 1 ) ;
-          spin1.unlock() ;
+          #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
+          spin.unlock() ;
+          #endif
         }
       }
-
       k *= 2 ;
-
-      #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
-      barrier.count_down_and_wait() ;
-      #endif
     }
+  }
 
-    if ( nth == 0 ) solve_last( x ) ;
+  template <typename t_Value>
+  void
+  BorderedCR<t_Value>::forward_n( integer      nth,
+                                  integer      nrhs,
+                                  valuePointer x,
+                                  integer      ldX ) const {
+    valuePointer xn = x + (nblock+1)*n + q ;
+    integer iblock = iBlock[2*nth+0] ;
+    integer eblock = iBlock[2*nth+1] ;
+    integer nblk   = eblock - iblock ;
+    integer k = 1 ;
+    while ( k < nblk ) {
+      for ( integer j = iblock+k ; j < eblock ; j += 2*k ) {
+        integer jp = j-k ;
+        valuePointer const T = Tmat  + j*Tsize ;
+        integer *    const P = Rperm + j*n ;
+        valuePointer xj  = x + j*n ;
+        valuePointer xjp = x + jp*n ;
+        applyT( nth, T, P, xjp, ldX, xj, ldX, nrhs ) ;
+        if ( nb > 0 ) {
+          valuePointer Cj = Cmat + j*nxnb ;
+          #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
+          spin.lock() ;
+          #endif
+          gemm( NO_TRANSPOSE, NO_TRANSPOSE,
+                nb, nrhs, n,
+                -1.0, Cj, nb,
+                      xj, ldX,
+                 1.0, xn, ldX ) ;
+          #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
+          spin.unlock() ;
+          #endif
+        }
+      }
+      k *= 2 ;
+    }
+  }
 
-    #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
-    barrier.count_down_and_wait() ;
-    #endif
+  template <typename t_Value>
+  void
+  BorderedCR<t_Value>::forward_reduced( valuePointer x ) const {
+    valuePointer xn = x + (nblock+1)*n + q ;
+    integer nblk = 2*usedThread-1 ;
+    integer k = 1 ;
+    while ( k < nblk ) {
+      for ( integer jj = k ; jj < nblk ; jj += 2*k ) {
+        integer j  = iBlock[jj] ;
+        integer jp = iBlock[jj-k] ;
+        valuePointer const T = Tmat  + j*Tsize ;
+        integer *    const P = Rperm + j*n ;
+        valuePointer xj  = x + j*n ;
+        valuePointer xjp = x + jp*n ;
+        applyT( 0, T, P, xjp, xj ) ;
+        if ( nb > 0 ) {
+          valuePointer Cj = Cmat + j*nxnb ;
+          gemv( NO_TRANSPOSE, nb, n, -1.0, Cj, nb, xj, 1, 1.0, xn, 1 ) ;
+        }
+      }
+      k *= 2 ;
+    }
+  }
 
+  template <typename t_Value>
+  void
+  BorderedCR<t_Value>::forward_n_reduced( integer      nrhs,
+                                          valuePointer x,
+                                          integer      ldX ) const {
+    valuePointer xn = x + (nblock+1)*n + q ;
+    integer nblk = 2*usedThread-1 ;
+    integer k = 1 ;
+    while ( k < nblk ) {
+      for ( integer jj = k ; jj < nblk ; jj += 2*k ) {
+        integer j  = iBlock[jj] ;
+        integer jp = iBlock[jj-k] ;
+        valuePointer const T = Tmat  + j*Tsize ;
+        integer *    const P = Rperm + j*n ;
+        valuePointer xj  = x + j*n ;
+        valuePointer xjp = x + jp*n ;
+        applyT( 0, T, P, xjp, ldX, xj, ldX, nrhs ) ;
+        if ( nb > 0 ) {
+          valuePointer Cj = Cmat + j*nxnb ;
+          #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
+          spin.lock() ;
+          #endif
+          gemm( NO_TRANSPOSE, NO_TRANSPOSE,
+                nb, nrhs, n,
+                -1.0, Cj, nb,
+                      xj, ldX,
+                 1.0, xn, ldX ) ;
+          #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
+          spin.unlock() ;
+          #endif
+        }
+      }
+      k *= 2 ;
+    }
+  }
+
+  /*\
+   |   _                _                           _
+   |  | |__   __ _  ___| | ____      ____ _ _ __ __| |
+   |  | '_ \ / _` |/ __| |/ /\ \ /\ / / _` | '__/ _` |
+   |  | |_) | (_| | (__|   <  \ V  V / (_| | | | (_| |
+   |  |_.__/ \__,_|\___|_|\_\  \_/\_/ \__,_|_|  \__,_|
+  \*/
+
+  template <typename t_Value>
+  void
+  BorderedCR<t_Value>::backward( integer nth, valuePointer x ) const {
+    valuePointer xn = x + (nblock+1)*n + q ;
+    integer iblock = iBlock[2*nth+0] ;
+    integer eblock = iBlock[2*nth+1] ;
+    integer k      = kBlock[nth] ;
     while ( (k/=2) > 0 ) {
-      for ( integer j = k ; j < nblock ; j += 2*k ) {
-
-        #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
-        CHECK_TASK_DONE(0x02);
-        #endif
-
+      for ( integer j = iblock+k ; j < eblock ; j += 2*k ) {
         integer      jp  = j-k ;
-        integer      jpp = std::min(j+k,nblock) ;
+        integer      jpp = std::min(j+k,eblock) ;
         valuePointer Dj  = Dmat + j*nxn ;
         valuePointer Ej  = Emat + j*nxn ;
         valuePointer xj  = x + j*n ;
@@ -786,8 +980,6 @@ namespace alglin {
           valuePointer Bj = Bmat + j*nxnb ;
           gemv( NO_TRANSPOSE, n, nb, -1.0, Bj, n, xn, 1, 1.0, xj, 1 ) ;
         }
-
-        // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
         valuePointer const T = Tmat + j*Tsize ;
         trsv( UPPER, NO_TRANSPOSE, NON_UNIT, n, T, nx2, xj, 1 ) ;
         if ( selected == BORDERED_QRP ) {
@@ -797,68 +989,23 @@ namespace alglin {
               std::swap( xj[i], xj[P[i]] ) ;
         }
       }
-
-      #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
-      barrier.count_down_and_wait() ;
-      #endif
     }
   }
 
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::solve_n_mt( integer      nth,
+  BorderedCR<t_Value>::backward_n( integer      nth,
                                    integer      nrhs,
                                    valuePointer x,
                                    integer      ldX ) const {
     valuePointer xn = x + (nblock+1)*n + q ;
-    integer k = 1 ;
-    while ( k < nblock ) {
-      for ( integer j = k ; j < nblock ; j += 2*k ) {
-
-        #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
-        CHECK_TASK_DONE(0x01);
-        #endif
-
-        integer jp = j-k ;
-        valuePointer const T = Tmat  + j*Tsize ;
-        integer *    const P = Rperm + j*n ;
-        valuePointer xj  = x + j*n ;
-        valuePointer xjp = x + jp*n ;
-        applyT( nth, T, P, xjp, ldX, xj, ldX, nrhs ) ;
-        if ( nb > 0 ) {
-          valuePointer Cj = Cmat + j*nxnb ;
-          spin1.lock() ;
-          gemm( NO_TRANSPOSE, NO_TRANSPOSE,
-                nb, nrhs, n,
-                -1.0, Cj, nb,
-                      xj, ldX,
-                 1.0, xn, ldX ) ;
-          spin1.unlock() ;
-        }
-      }
-
-      k *= 2 ;
-
-      #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
-      barrier.count_down_and_wait() ;
-      #endif
-    }
-
-    if ( nth == 0 ) solve_last( nrhs, x, ldX ) ;
-
-    #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
-    barrier.count_down_and_wait() ;
-    #endif
-
+    integer iblock = iBlock[2*nth+0] ;
+    integer eblock = iBlock[2*nth+1] ;
+    integer k      = kBlock[nth] ;
     while ( (k/=2) > 0 ) {
-      for ( integer j = k ; j < nblock ; j += 2*k ) {
-
-        #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
-        CHECK_TASK_DONE(0x02);
-        #endif
-
+      for ( integer j = iblock+k ; j < eblock ; j += 2*k ) {
         integer      jp  = j-k ;
-        integer      jpp = std::min(j+k,nblock) ;
+        integer      jpp = std::min(j+k,eblock) ;
         valuePointer Dj  = Dmat + j*nxn ;
         valuePointer Ej  = Emat + j*nxn ;
         valuePointer xj  = x + j*n ;
@@ -894,10 +1041,93 @@ namespace alglin {
               swap( nrhs, xj+i, ldX, xj+P[i], ldX ) ;
         }
       }
+    }
+  }
 
-      #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
-      barrier.count_down_and_wait() ;
-      #endif
+  template <typename t_Value>
+  void
+  BorderedCR<t_Value>::backward_reduced( valuePointer x ) const {
+    valuePointer xn = x + (nblock+1)*n + q ;
+    integer nblk = 2*usedThread-1 ;
+    integer k = 1 ;
+    while ( k < nblk ) k *= 2 ;
+    while ( (k/=2) > 0 ) {
+      for ( integer jj = k ; jj < nblk ; jj += 2*k ) {
+        integer      j   = iBlock[jj] ;
+        integer      jp  = iBlock[jj-k] ;
+        integer      jpp = iBlock[std::min(jj+k,nblk)] ;
+        valuePointer Dj  = Dmat + j*nxn ;
+        valuePointer Ej  = Emat + j*nxn ;
+        valuePointer xj  = x + j*n ;
+        valuePointer xp  = x + jp*n ;
+        valuePointer xpp = x + jpp*n ;
+        gemv( NO_TRANSPOSE, n, n, -1.0, Dj, n, xp,  1, 1.0, xj, 1 ) ;
+        gemv( NO_TRANSPOSE, n, n, -1.0, Ej, n, xpp, 1, 1.0, xj, 1 ) ;
+        if ( nb > 0 ) {
+          valuePointer Bj = Bmat + j*nxnb ;
+          gemv( NO_TRANSPOSE, n, nb, -1.0, Bj, n, xn, 1, 1.0, xj, 1 ) ;
+        }
+        valuePointer const T = Tmat + j*Tsize ;
+        trsv( UPPER, NO_TRANSPOSE, NON_UNIT, n, T, nx2, xj, 1 ) ;
+        if ( selected == BORDERED_QRP ) {
+          integer * const P = Rperm + j*n ;
+          for ( integer i = 0 ; i < n ; ++i )
+            if ( P[i] > i )
+              std::swap( xj[i], xj[P[i]] ) ;
+        }
+      }
+    }
+  }
+
+  template <typename t_Value>
+  void
+  BorderedCR<t_Value>::backward_n_reduced( integer      nrhs,
+                                           valuePointer x,
+                                           integer      ldX ) const {
+    valuePointer xn = x + (nblock+1)*n + q ;
+    integer nblk = 2*usedThread-1 ;
+    integer k = 1 ;
+    while ( k < nblk ) k *= 2 ;
+    while ( (k/=2) > 0 ) {
+      for ( integer jj = k ; jj < nblk ; jj += 2*k ) {
+        integer      j   = iBlock[jj] ;
+        integer      jp  = iBlock[jj-k] ;
+        integer      jpp = iBlock[std::min(jj+k,nblk)] ;
+        valuePointer Dj  = Dmat + j*nxn ;
+        valuePointer Ej  = Emat + j*nxn ;
+        valuePointer xj  = x + j*n ;
+        valuePointer xjp = x + jp*n ;
+        valuePointer xpp = x + jpp*n ;
+        gemm( NO_TRANSPOSE, NO_TRANSPOSE,
+              n, nrhs, n,
+              -1.0, Dj,  n,
+                    xjp, ldX,
+               1.0, xj,  ldX ) ;
+        gemm( NO_TRANSPOSE, NO_TRANSPOSE,
+              n, nrhs, n,
+              -1.0, Ej,  n,
+                    xpp, ldX,
+               1.0, xj,  ldX ) ;
+        if ( nb > 0 ) {
+          valuePointer Bj = Bmat + j*nxnb ;
+          gemm( NO_TRANSPOSE, NO_TRANSPOSE,
+                n, nrhs, nb,
+                -1.0, Bj, n,
+                      xn, ldX,
+                 1.0, xj, ldX ) ;
+        }
+
+        // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+        valuePointer const T = Tmat + j*Tsize ;
+        trsm( LEFT, UPPER, NO_TRANSPOSE, NON_UNIT,
+              n, nrhs, 1.0, T, nx2, xj, ldX ) ;
+        if ( selected == BORDERED_QRP ) {
+          integer * const P = Rperm + j*n ;
+          for ( integer i = 0 ; i < n ; ++i )
+            if ( P[i] > i )
+              swap( nrhs, xj+i, ldX, xj+P[i], ldX ) ;
+        }
+      }
     }
   }
 
