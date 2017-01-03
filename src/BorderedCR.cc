@@ -101,8 +101,11 @@ namespace alglin {
     Rperm  = baseInteger(size_t(nblock*n)) ;
     Cperm  = baseInteger(size_t(nblock*n)) ;
     
+    Tperm  = baseInteger(size_t(nblock*n)) ;
+
+    #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
     task_done = baseInteger(size_t(nblock)) ;
-    Tperm     = baseInteger(size_t(nblock*n)) ;
+    #endif
   }
 
   template <typename t_Value>
@@ -491,14 +494,17 @@ namespace alglin {
                       Dj,  n,
                  1.0, Cjp, nb ) ;
 
+          #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
           spin1.lock() ;
+          #endif
           gemm( NO_TRANSPOSE, NO_TRANSPOSE,
                 nb, nb, n,
                 -1.0, Cj,   nb,
                       Bj,   n,
                  1.0, Fmat, nb ) ;
+          #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
           spin1.unlock() ;
-
+          #endif
         }
       }
 
@@ -723,7 +729,7 @@ namespace alglin {
     for ( integer nt = 0 ; nt < numThread ; ++nt )
       threads[nt].join() ;
     #else
-    solve_mt( 0, x ) ;
+    solve_n_mt( 0, nrhs, rhs, ldRhs ) ;
     #endif
   }
 
@@ -747,9 +753,13 @@ namespace alglin {
         applyT( nth, T, P, xjp, xj ) ;
         if ( nb > 0 ) {
           valuePointer Cj = Cmat + j*nxnb ;
+          #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
           spin1.lock() ;
+          #endif
           gemv( NO_TRANSPOSE, nb, n, -1.0, Cj, nb, xj, 1, 1.0, xn, 1 ) ;
+          #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
           spin1.unlock() ;
+          #endif
         }
       }
 
@@ -827,13 +837,17 @@ namespace alglin {
         applyT( nth, T, P, xjp, ldX, xj, ldX, nrhs ) ;
         if ( nb > 0 ) {
           valuePointer Cj = Cmat + j*nxnb ;
+          #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
           spin1.lock() ;
+          #endif
           gemm( NO_TRANSPOSE, NO_TRANSPOSE,
                 nb, nrhs, n,
                 -1.0, Cj, nb,
                       xj, ldX,
                  1.0, xn, ldX ) ;
+          #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
           spin1.unlock() ;
+          #endif
         }
       }
 

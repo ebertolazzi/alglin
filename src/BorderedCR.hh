@@ -204,9 +204,9 @@ namespace alglin {
     integer numThread ;
     #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
     mutable std::thread threads[BORDERED_CYCLIC_REDUCTION_MAX_THREAD] ;
-    mutable SpinLock         spin, spin1 ;
+    mutable SpinLock spin, spin1 ;
+    mutable Barrier  barrier ;
     //mutable SpinLock_barrier barrier ;
-    mutable Barrier barrier ;
     mutable integer * task_done ;
     #endif
 
@@ -230,7 +230,7 @@ namespace alglin {
     , nxnb(0)
     , N(0)
     , last_selected(BORDERED_LAST_LU)
-    , selected(BORDERED_QRP)
+    , selected(BORDERED_LU)
     , H0Nqp(nullptr)
     , Bmat(nullptr)
     , Cmat(nullptr)
