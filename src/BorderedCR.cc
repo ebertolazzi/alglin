@@ -28,6 +28,14 @@
 
 namespace alglin {
 
+  /*\
+   |         _ _                 _
+   |    __ _| | | ___   ___ __ _| |_ ___
+   |   / _` | | |/ _ \ / __/ _` | __/ _ \
+   |  | (_| | | | (_) | (_| (_| | ||  __/
+   |   \__,_|_|_|\___/ \___\__,_|\__\___|
+  \*/
+
   template <typename t_Value>
   void
   BorderedCR<t_Value>::allocate( integer _nblock,
@@ -58,9 +66,18 @@ namespace alglin {
     ALGLIN_ASSERT( info == 0, "BorderedCR::allocate call alglin::geqrf return info = " << info ) ;
     if ( Lwork < integer(tmp) ) Lwork = integer(tmp) ;
 
-    integer nnz = Lwork+N*(N+1)+nb*(nb+q)+nxnb+nblock*(2*nxnb+2*nxn+Tsize+n)+(n+q)*(nx2+nb+q) ;
+    LworkT = 2*nxn ;
+    info = geqrf( nx2, n, nullptr, nx2, nullptr, &tmp, -1 ) ;
+    ALGLIN_ASSERT( info == 0, "BorderedCR::allocate call alglin::geqrf return info = " << info ) ;
+    LworkQR = integer(tmp) ;
+
+    info = geqp3( nx2, n, nullptr, nx2, nullptr, nullptr, &tmp, -1 ) ;
+    ALGLIN_ASSERT( info == 0, "BorderedCR::allocate call alglin::geqrf return info = " << info ) ;
+    if ( LworkQR < integer(tmp) ) LworkQR = integer(tmp) ;
+
+    integer nnz = Lwork+(LworkT+LworkQR)*numThread+N*(N+1)+nb*(nb+q)+nxnb+nblock*(2*nxnb+2*nxn+Tsize+n)+(n+q)*(nx2+nb+q) ;
     baseValue.allocate(size_t(nnz)) ;
-    baseInteger.allocate(size_t(2*(nblock*n+N))) ;
+    baseInteger.allocate(size_t(2*N+nblock*(3*n+1))) ;
 
     Bmat  = baseValue(size_t(nblock*nxnb)) ;
     Cmat  = baseValue(size_t((nblock+1)*nxnb)) ;
@@ -75,12 +92,17 @@ namespace alglin {
     Htau  = baseValue(size_t(N)) ;
     H0Nqp = baseValue(size_t((n+q)*N)) ;
 
-    Work  = baseValue(size_t(Lwork)) ;
+    Work   = baseValue(size_t(Lwork)) ;
+    WorkT  = baseValue(size_t(LworkT*numThread)) ;
+    WorkQR = baseValue(size_t(LworkQR*numThread)) ;
 
     Hperm  = baseInteger(size_t(N)) ;
     Hswaps = baseInteger(size_t(N)) ;
     Rperm  = baseInteger(size_t(nblock*n)) ;
     Cperm  = baseInteger(size_t(nblock*n)) ;
+    
+    task_done = baseInteger(size_t(nblock)) ;
+    Tperm     = baseInteger(size_t(nblock*n)) ;
   }
 
   template <typename t_Value>
@@ -170,7 +192,6 @@ namespace alglin {
   }
   
   /*\
-   |
    |       _
    |    __| |_   _ _ __ ___  _ __     ___ ___ ___   ___  _ __
    |   / _` | | | | '_ ` _ \| '_ \   / __/ __/ _ \ / _ \| '__|
@@ -243,13 +264,32 @@ namespace alglin {
    |  |  _| (_| | (__| || (_) | |  | |/ /  __/
    |  |_|  \__,_|\___|\__\___/|_|  |_/___\___|
   \*/
+
+  template <typename t_Value>
+  void
+  BorderedCR<t_Value>::factorize() {
+    #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
+    std::fill( task_done, task_done + nblock, 0 ) ;
+    barrier.setup(numThread) ;
+    for ( integer nt = 0 ; nt < numThread ; ++nt )
+      threads[nt] = std::thread( &BorderedCR<t_Value>::factorize_mt, this, nt ) ;
+    for ( integer nt = 0 ; nt < numThread ; ++nt )
+      threads[nt].join() ;
+    #else
+    factorize_mt(0) ;
+    #endif
+    load_last_block() ;
+    factorize_last() ;
+  }
+
   /*\
     Compute   / L \ (U) = / LU \ = / TOP    \
               \ M /       \ MU /   \ BOTTOM /
   \*/
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::buildT( valueConstPointer TOP,
+  BorderedCR<t_Value>::buildT( integer           nth,
+                               valueConstPointer TOP,
                                valueConstPointer BOTTOM,
                                valuePointer      T,
                                integer *         iperm ) const {
@@ -261,17 +301,19 @@ namespace alglin {
       info = getrf( nx2, n, T, nx2, iperm ) ;
       break ;
     case BORDERED_QR:
-      info = geqrf( nx2, n, T, nx2, T+2*nxn, Work, Lwork ) ;
+      info = geqrf( nx2, n, T, nx2, T+2*nxn, WorkQR+nth*LworkQR, LworkQR ) ;
       break ;
     case BORDERED_LAST_QRP:
-      info = geqp3( nx2, n, T, nx2, Hperm, T+2*nxn, Work, Lwork ) ;
-      // convert permutation to exchanges
-      if ( info == 0 )
-        for ( integer i = 0 ; i < n ; ++i ) {
-          integer j = i ;
-          while ( j < n ) { if ( Hperm[j] == i+1 ) break ; ++j ; }
-          std::swap( Hperm[j], Hperm[i] ) ;
-          iperm[i] = j ;
+      { integer * P = Tperm+nth*n ;
+        info = geqp3( nx2, n, T, nx2, P, T+2*nxn, WorkQR+nth*LworkQR, LworkQR ) ;
+        // convert permutation to exchanges
+        if ( info == 0 )
+          for ( integer i = 0 ; i < n ; ++i ) {
+            integer j = i ;
+            while ( j < n ) { if ( P[j] == i+1 ) break ; ++j ; }
+            std::swap( P[j], P[i] ) ;
+            iperm[i] = j ;
+          }
         }
       break ;
     }
@@ -297,14 +339,15 @@ namespace alglin {
   \*/
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::applyT( valueConstPointer T,
+  BorderedCR<t_Value>::applyT( integer           nth,
+                               valueConstPointer T,
                                integer const *   iperm,
                                valuePointer      TOP,
                                integer           ldTOP,
                                valuePointer      BOTTOM,
                                integer           ldBOTTOM,
                                integer           ncol ) const {
-    valuePointer W = Tmat ;
+    valuePointer W = WorkT + LworkT*nth ;
     gecopy( n, ncol, TOP,    ldTOP,    W,   nx2 ) ;
     gecopy( n, ncol, BOTTOM, ldBOTTOM, W+n, nx2 ) ;
     // Apply row interchanges to the right hand sides.
@@ -316,8 +359,8 @@ namespace alglin {
       trsm( LEFT, LOWER, NO_TRANSPOSE, UNIT, n, ncol, 1.0, T, nx2, W, nx2 ) ;
       gemm( NO_TRANSPOSE, NO_TRANSPOSE,
             n, ncol, n,
-            -1.0, T+n, nx2,      // M
-                  W,   nx2,      // L^(-1) TOP
+            -1.0, T+n, nx2,    // M
+                  W,   nx2,    // L^(-1) TOP
              1.0, W+n, nx2 ) ; // TOP = BOTTOM - M L^(-1) TOP
       break ;
     case BORDERED_QR:
@@ -328,20 +371,23 @@ namespace alglin {
                     T, nx2,
                     T+2*nxn,
                     W, nx2,
-                    Work, Lwork ) ;
+                    WorkQR+nth*LworkQR, LworkQR ) ;
       break ;
     }
     gecopy( n, ncol, W+n, nx2, TOP,    ldTOP ) ;
     gecopy( n, ncol, W,   nx2, BOTTOM, ldBOTTOM ) ;
   }
 
+  // ---------------------------------------------------------------------------
+
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::applyT( valueConstPointer T,
+  BorderedCR<t_Value>::applyT( integer           nth,
+                               valueConstPointer T,
                                integer const *   iperm,
                                valuePointer      TOP,
                                valuePointer      BOTTOM ) const {
-    valuePointer W = Tmat ;
+    valuePointer W = WorkT + LworkT*nth ;
     copy( n, TOP,    1, W,   1 ) ;
     copy( n, BOTTOM, 1, W+n, 1 ) ;
     integer info = 0 ;
@@ -366,19 +412,42 @@ namespace alglin {
                     T, nx2,
                     T+2*nxn,
                     W, nx2,
-                    Work, Lwork ) ;
+                    WorkQR+nth*LworkQR, LworkQR ) ;
       break ;
     }
     ALGLIN_ASSERT( info == 0, "BorderedCR::applyT INFO = " << info ) ;
-    copy( n, W+n, 1, TOP, 1 ) ;
+    copy( n, W+n, 1, TOP,    1 ) ;
     copy( n, W,   1, BOTTOM, 1 ) ;
   }
+  
+  /*\
+   |    __            _             _                       _
+   |   / _| __ _  ___| |_ ___  _ __(_)_______     _ __ ___ | |_
+   |  | |_ / _` |/ __| __/ _ \| '__| |_  / _ \   | '_ ` _ \| __|
+   |  |  _| (_| | (__| || (_) | |  | |/ /  __/   | | | | | | |_
+   |  |_|  \__,_|\___|\__\___/|_|  |_/___\___|___|_| |_| |_|\__|
+   |                                        |_____|
+  \*/
+  
+  #define CHECK_TASK_DONE(FLG)       \
+  bool skip = false ;                \
+  spin.lock() ;                      \
+  skip = (task_done[j]&FLG) == FLG ; \
+  if ( !skip ) task_done[j] |= FLG ; \
+  spin.unlock() ;                    \
+  if ( skip ) continue
 
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::factorize_LU() {
+  BorderedCR<t_Value>::factorize_mt( integer nth ) {
     for ( integer k = 1 ; k < nblock ; k = 2*k ) {
+      // -----------------------------------------------------------------------
       for ( integer j = k ; j < nblock ; j += 2*k ) {
+
+        #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
+        CHECK_TASK_DONE(0x01);
+        #endif
+
         integer jp = j-k ;
         valuePointer T   = Tmat  + j*Tsize ;
         integer *    P   = Rperm + j*n ;
@@ -387,25 +456,22 @@ namespace alglin {
         valuePointer Ejp = Emat  + jp*nxn ;
         valuePointer Ej  = Emat  + j*nxn ;
 
-        buildT( Ejp, Dj, T, P ) ;
+        buildT( nth, Ejp, Dj, T, P ) ;
 
         zero( nxn, Dj, 1 ) ;
-        applyT( T, P, Djp, n, Dj, n, n ) ;
+        applyT( nth, T, P, Djp, n, Dj, n, n ) ;
 
         zero( nxn, Ejp, 1 ) ;
-        applyT( T, P, Ejp, n, Ej, n, n ) ;
+        applyT( nth, T, P, Ejp, n, Ej, n, n ) ;
 
         if ( nb > 0 ) {
-          integer jpp = j+k ;
-          if ( jpp >= nblock ) jpp = nblock ;
 
           valuePointer Bj  = Bmat + j*nxnb ;
           valuePointer Bjp = Bmat + jp*nxnb ;
           valuePointer Cj  = Cmat + j*nxnb ;
           valuePointer Cjp = Cmat + jp*nxnb ;
-          valuePointer Cpp = Cmat + jpp*nxnb ;
 
-          applyT( T, P, Bjp, n, Bj, n, nb ) ;
+          applyT( nth, T, P, Bjp, n, Bj, n, nb ) ;
           
           // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
           if ( selected == BORDERED_QRP ) {
@@ -425,22 +491,57 @@ namespace alglin {
                       Dj,  n,
                  1.0, Cjp, nb ) ;
 
-          gemm( NO_TRANSPOSE, NO_TRANSPOSE,
-                nb, n, n,
-                -1.0, Cj,  nb,
-                      Ej,  n,
-                 1.0, Cpp, nb ) ;
-
+          spin1.lock() ;
           gemm( NO_TRANSPOSE, NO_TRANSPOSE,
                 nb, nb, n,
                 -1.0, Cj,   nb,
                       Bj,   n,
                  1.0, Fmat, nb ) ;
+          spin1.unlock() ;
+
         }
+      }
+
+      #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
+      barrier.count_down_and_wait() ;
+      #endif
+
+      // -----------------------------------------------------------------------
+      if ( nb > 0 ) {
+        for ( integer j = k ; j < nblock ; j += 2*k ) {
+
+          #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
+          CHECK_TASK_DONE(0x02);
+          #endif
+
+          integer jpp = std::min(j+k,nblock) ;
+
+          valueConstPointer Ej  = Emat + j*nxn ;
+          valueConstPointer Cj  = Cmat + j*nxnb ;
+          valuePointer      Cpp = Cmat + jpp*nxnb ;
+
+          gemm( NO_TRANSPOSE, NO_TRANSPOSE,
+                nb, n, n,
+                -1.0, Cj,  nb,
+                      Ej,  n,
+                 1.0, Cpp, nb ) ;
+        }
+
+        #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
+        barrier.count_down_and_wait() ;
+        #endif
       }
     }
   }
-
+  
+  /*\
+   |   _                 _     _           _       _     _            _
+   |  | | ___   __ _  __| |   | | __ _ ___| |_    | |__ | | ___   ___| | __
+   |  | |/ _ \ / _` |/ _` |   | |/ _` / __| __|   | '_ \| |/ _ \ / __| |/ /
+   |  | | (_) | (_| | (_| |   | | (_| \__ \ |_    | |_) | | (_) | (__|   <
+   |  |_|\___/ \__,_|\__,_|___|_|\__,_|___/\__|___|_.__/|_|\___/ \___|_|\_\
+   |                     |_____|             |_____|
+  \*/
 
   template <typename t_Value>
   void
@@ -479,6 +580,15 @@ namespace alglin {
 
   }
 
+  /*\
+   |    __            _             _             _           _
+   |   / _| __ _  ___| |_ ___  _ __(_)_______    | | __ _ ___| |_
+   |  | |_ / _` |/ __| __/ _ \| '__| |_  / _ \   | |/ _` / __| __|
+   |  |  _| (_| | (__| || (_) | |  | |/ /  __/   | | (_| \__ \ |_
+   |  |_|  \__,_|\___|\__\___/|_|  |_/___\___|___|_|\__,_|___/\__|
+   |                                        |_____|
+  \*/
+
   template <typename t_Value>
   void
   BorderedCR<t_Value>::factorize_last() {
@@ -505,6 +615,15 @@ namespace alglin {
     ALGLIN_ASSERT( info == 0,
                    "BorderedCR::factorize_last INFO = " << info << " N = " << N ) ;
   }
+  
+  /*\
+   |             _               _           _
+   |   ___  ___ | |_   _____    | | __ _ ___| |_
+   |  / __|/ _ \| \ \ / / _ \   | |/ _` / __| __|
+   |  \__ \ (_) | |\ V /  __/   | | (_| \__ \ |_
+   |  |___/\___/|_| \_/ \___|___|_|\__,_|___/\__|
+   |                       |_____|
+  \*/
 
   template <typename t_Value>
   void
@@ -569,34 +688,93 @@ namespace alglin {
     for ( integer i = 0 ; i < nrhs ; ++i ) swap( n, X+i*ldX, 1, x+i*ldX, 1 ) ;
   }
 
+  /*\
+   |             _
+   |   ___  ___ | |_   _____
+   |  / __|/ _ \| \ \ / / _ \
+   |  \__ \ (_) | |\ V /  __/
+   |  |___/\___/|_| \_/ \___|
+  \*/
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::solve_LU( valuePointer x ) const {
+  BorderedCR<t_Value>::solve( valuePointer x ) const {
+    #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
+    std::fill( task_done, task_done + nblock, 0 ) ;
+    barrier.setup(numThread) ;
+    for ( integer nt = 0 ; nt < numThread ; ++nt )
+      threads[nt] = std::thread( &BorderedCR<t_Value>::solve_mt, this, nt, x ) ;
+    for ( integer nt = 0 ; nt < numThread ; ++nt )
+      threads[nt].join() ;
+    #else
+    solve_mt( 0, x ) ;
+    #endif
+  }
+
+  template <typename t_Value>
+  void
+  BorderedCR<t_Value>::solve( integer      nrhs,
+                              valuePointer rhs,
+                              integer      ldRhs ) const {
+    #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
+    std::fill( task_done, task_done + nblock, 0 ) ;
+    barrier.setup(numThread) ;
+    for ( integer nt = 0 ; nt < numThread ; ++nt )
+      threads[nt] = std::thread( &BorderedCR<t_Value>::solve_n_mt, this, nt, nrhs, rhs, ldRhs ) ;
+    for ( integer nt = 0 ; nt < numThread ; ++nt )
+      threads[nt].join() ;
+    #else
+    solve_mt( 0, x ) ;
+    #endif
+  }
+
+  template <typename t_Value>
+  void
+  BorderedCR<t_Value>::solve_mt( integer nth, valuePointer x ) const {
     valuePointer xn = x + (nblock+1)*n + q ;
     integer k = 1 ;
     while ( k < nblock ) {
       for ( integer j = k ; j < nblock ; j += 2*k ) {
+
+        #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
+        CHECK_TASK_DONE(0x01);
+        #endif
+
         integer jp = j-k ;
         valuePointer const T = Tmat  + j*Tsize ;
         integer *    const P = Rperm + j*n ;
         valuePointer xj  = x + j*n ;
         valuePointer xjp = x + jp*n ;
-        applyT( T, P, xjp, xj ) ;
+        applyT( nth, T, P, xjp, xj ) ;
         if ( nb > 0 ) {
           valuePointer Cj = Cmat + j*nxnb ;
+          spin1.lock() ;
           gemv( NO_TRANSPOSE, nb, n, -1.0, Cj, nb, xj, 1, 1.0, xn, 1 ) ;
+          spin1.unlock() ;
         }
       }
+
       k *= 2 ;
+
+      #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
+      barrier.count_down_and_wait() ;
+      #endif
     }
 
-    solve_last( x ) ;
+    if ( nth == 0 ) solve_last( x ) ;
+
+    #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
+    barrier.count_down_and_wait() ;
+    #endif
 
     while ( (k/=2) > 0 ) {
       for ( integer j = k ; j < nblock ; j += 2*k ) {
-        integer jp  = j-k ;
-        integer jpp = j+k ;
-        if ( jpp >= nblock ) jpp = nblock ;
+
+        #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
+        CHECK_TASK_DONE(0x02);
+        #endif
+
+        integer      jp  = j-k ;
+        integer      jpp = std::min(j+k,nblock) ;
         valuePointer Dj  = Dmat + j*nxn ;
         valuePointer Ej  = Emat + j*nxn ;
         valuePointer xj  = x + j*n ;
@@ -619,43 +797,68 @@ namespace alglin {
               std::swap( xj[i], xj[P[i]] ) ;
         }
       }
+
+      #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
+      barrier.count_down_and_wait() ;
+      #endif
     }
   }
 
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::solve_LU( integer      nrhs,
-                                 valuePointer x,
-                                 integer      ldX ) const {
+  BorderedCR<t_Value>::solve_n_mt( integer      nth,
+                                   integer      nrhs,
+                                   valuePointer x,
+                                   integer      ldX ) const {
     valuePointer xn = x + (nblock+1)*n + q ;
     integer k = 1 ;
     while ( k < nblock ) {
       for ( integer j = k ; j < nblock ; j += 2*k ) {
+
+        #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
+        CHECK_TASK_DONE(0x01);
+        #endif
+
         integer jp = j-k ;
         valuePointer const T = Tmat  + j*Tsize ;
         integer *    const P = Rperm + j*n ;
         valuePointer xj  = x + j*n ;
         valuePointer xjp = x + jp*n ;
-        applyT( T, P, xjp, ldX, xj, ldX, nrhs ) ;
+        applyT( nth, T, P, xjp, ldX, xj, ldX, nrhs ) ;
         if ( nb > 0 ) {
           valuePointer Cj = Cmat + j*nxnb ;
+          spin1.lock() ;
           gemm( NO_TRANSPOSE, NO_TRANSPOSE,
                 nb, nrhs, n,
                 -1.0, Cj, nb,
                       xj, ldX,
                  1.0, xn, ldX ) ;
+          spin1.unlock() ;
         }
       }
+
       k *= 2 ;
+
+      #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
+      barrier.count_down_and_wait() ;
+      #endif
     }
 
-    solve_last( nrhs, x, ldX ) ;
+    if ( nth == 0 ) solve_last( nrhs, x, ldX ) ;
+
+    #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
+    barrier.count_down_and_wait() ;
+    #endif
 
     while ( (k/=2) > 0 ) {
       for ( integer j = k ; j < nblock ; j += 2*k ) {
-        integer jp  = j-k ;
-        integer jpp = j+k ;
-        if ( jpp >= nblock ) jpp = nblock ;
+
+        #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
+        CHECK_TASK_DONE(0x02);
+        #endif
+
+        integer      jp  = j-k ;
+        integer      jpp = std::min(j+k,nblock) ;
         valuePointer Dj  = Dmat + j*nxn ;
         valuePointer Ej  = Emat + j*nxn ;
         valuePointer xj  = x + j*n ;
@@ -691,6 +894,10 @@ namespace alglin {
               swap( nrhs, xj+i, ldX, xj+P[i], ldX ) ;
         }
       }
+
+      #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
+      barrier.count_down_and_wait() ;
+      #endif
     }
   }
 

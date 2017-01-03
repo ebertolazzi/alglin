@@ -70,6 +70,15 @@ main() {
   valueType * rhs   = baseValue(size_t(N)) ;
   valueType * resid = baseValue(size_t(N)) ;
   
+  
+  //BCR.select_LU();
+  BCR.select_QR();
+  //BCR.select_QRP();
+
+  //BCR.select_last_LU();
+  //BCR.select_last_QR();
+  BCR.select_last_QRP();
+  
   for ( int i = 0 ; i < nq ; ++i ) {
     for ( int j = 0 ; j < (nq+n+nb) ; ++j ) {
       BCR.H(i,j) = rand(-1,0) ;
@@ -134,7 +143,7 @@ main() {
   tm.tic() ;
   BCR.factorize() ;
   tm.toc() ;
-  cout << "\nReduction = " << tm.elapsedMilliseconds() << " [ms]\n\n" ;
+  cout << "\nFactorize = " << tm.elapsedMilliseconds() << " [ms]\n\n" ;
 
   std::copy( rhs, rhs+N, x ) ;
   std::copy( rhs, rhs+N, x+N ) ;

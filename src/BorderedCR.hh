@@ -30,6 +30,14 @@
 #pragma clang diagnostic ignored "-Wpadded"
 #endif
 
+
+#ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
+  #include "Alglin_threads.hh"
+  #ifndef BORDERED_CYCLIC_REDUCTION_MAX_THREAD
+    #define BORDERED_CYCLIC_REDUCTION_MAX_THREAD 256
+  #endif
+#endif
+
 namespace alglin {
 
   //! available LU factorization code
@@ -100,13 +108,15 @@ namespace alglin {
     BORDERED_Choice      selected ;
 
     void
-    buildT( valueConstPointer TOP,
+    buildT( integer           nth,
+            valueConstPointer TOP,
             valueConstPointer BOTTOM,
             valuePointer      T,
             integer *         iperm ) const ;
 
     void
-    applyT( valueConstPointer T,
+    applyT( integer           nth,
+            valueConstPointer T,
             integer const *   iperm,
             valuePointer      TOP,
             integer           ldTOP,
@@ -115,21 +125,23 @@ namespace alglin {
             integer           ncol ) const ;
 
     void
-    applyT( valueConstPointer T,
+    applyT( integer           nth,
+            valueConstPointer T,
             integer const *   iperm,
             valuePointer      TOP,
             valuePointer      BOTTOM ) const ;
 
     void
-    factorize_LU() ;
+    factorize_mt( integer nth ) ;
 
     void
-    solve_LU( valuePointer ) const ;
+    solve_mt( integer nth, valuePointer ) const ;
 
     void
-    solve_LU( integer      /* nrhs  */,
-              valuePointer /* rhs   */,
-              integer      /* ldRhs */ ) const ;
+    solve_n_mt( integer      nth,
+                integer      nrhs,
+                valuePointer rhs,
+                integer      ldRhs ) const ;
     
     void
     load_last_block() ;
@@ -141,9 +153,9 @@ namespace alglin {
     solve_last( valuePointer ) const ;
 
     void
-    solve_last( integer      /* nrhs  */,
-                valuePointer /* rhs   */,
-                integer      /* ldRhs */ ) const ;
+    solve_last( integer      nrhs,
+                valuePointer rhs,
+                integer      ldRhs ) const ;
 
     /*
     //
@@ -179,20 +191,34 @@ namespace alglin {
     */
 
     valuePointer H0Nqp ;
-    valuePointer Bmat, Cmat, Cqmat, Dmat, Emat, Fmat ;
+    valuePointer Bmat, Cmat, Cqmat, Dmat, Emat, Fmat, WorkT, WorkQR ;
     
     // working block
     valuePointer Tmat, Ttau, Work ;
-    integer      *Rperm, *Cperm, Lwork ;
+    integer      *Rperm, *Cperm, Lwork, LworkT, LworkQR ;
 
     // last block
     valuePointer Hmat, Htau ;
-    integer      *Hperm, *Hswaps ;
+    integer      *Hperm, *Hswaps, *Tperm ;
+
+    integer numThread ;
+    #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
+    mutable std::thread threads[BORDERED_CYCLIC_REDUCTION_MAX_THREAD] ;
+    mutable SpinLock         spin, spin1 ;
+    //mutable SpinLock_barrier barrier ;
+    mutable Barrier barrier ;
+    mutable integer * task_done ;
+    #endif
 
   public:
 
+    #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
+    explicit
+    BorderedCR( integer nth = integer(std::thread::hardware_concurrency()) )
+    #else
     explicit
     BorderedCR()
+    #endif
     : baseValue("BorderedCR_values")
     , baseInteger("BorderedCR_integers")
     , nblock(0)
@@ -204,7 +230,7 @@ namespace alglin {
     , nxnb(0)
     , N(0)
     , last_selected(BORDERED_LAST_LU)
-    , selected(BORDERED_LU)
+    , selected(BORDERED_QRP)
     , H0Nqp(nullptr)
     , Bmat(nullptr)
     , Cmat(nullptr)
@@ -221,7 +247,16 @@ namespace alglin {
     , Hmat(nullptr)
     , Htau(nullptr)
     , Hperm(nullptr)
-    {}
+    {
+      #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
+      ALGLIN_ASSERT( nth > 0 && nth <= BORDERED_CYCLIC_REDUCTION_MAX_THREAD,
+                     "Bad number of thread specification [" << nth << "]\n"
+                     "must be a number > 0 and <= " << BORDERED_CYCLIC_REDUCTION_MAX_THREAD ) ;
+      numThread = nth ;
+      #else
+      numThread = 1 ;
+      #endif
+    }
 
     virtual ~BorderedCR()
     {}
@@ -388,21 +423,15 @@ namespace alglin {
     { return H0Nqp[ i + j*(n+q) ] ; }
 
     void
-    factorize() {
-      factorize_LU() ;
-      load_last_block() ;
-      factorize_last() ;
-    }
+    factorize() ;
 
     void
-    solve( valuePointer x ) const
-    { solve_LU( x ) ; }
+    solve( valuePointer x ) const ;
 
     void
     solve( integer      nrhs,
            valuePointer rhs,
-           integer      ldRhs ) const
-    { solve_LU( nrhs, rhs, ldRhs ) ; }
+           integer      ldRhs ) const ;
 
     // aux function
     void
