@@ -46,10 +46,10 @@ main() {
   alglin::BorderedCR<double> BCR ;
 
   #define NSIZE 10
-  //#define NSIZE 5
+  //#define NSIZE 6
 
   alglin::integer n      = NSIZE ;
-  alglin::integer nblock = 200000 ;
+  alglin::integer nblock = 500 ; // 200000 ;
   alglin::integer q      = 4 ;
   alglin::integer nb     = 2 ;
   alglin::integer nq     = n+q ;
@@ -71,13 +71,13 @@ main() {
   valueType * resid = baseValue(size_t(N)) ;
   
   
-  //BCR.select_LU();
-  BCR.select_QR();
+  BCR.select_LU();
+  //BCR.select_QR();
   //BCR.select_QRP();
 
-  //BCR.select_last_LU();
+  BCR.select_last_LU();
   //BCR.select_last_QR();
-  BCR.select_last_QRP();
+  //BCR.select_last_QRP();
   
   for ( int i = 0 ; i < nq ; ++i ) {
     for ( int j = 0 ; j < (nq+n+nb) ; ++j ) {
@@ -148,8 +148,27 @@ main() {
   std::copy( rhs, rhs+N, x ) ;
   std::copy( rhs, rhs+N, x+N ) ;
   tm.tic() ;
-  BCR.solve( 2, x, N ) ;
-  //BCR.solve( x ) ;
+  //BCR.solve( 2, x, N ) ;
+  std::copy( rhs, rhs+N, x ) ;
+  BCR.solve( x ) ;
+  std::copy( rhs, rhs+N, x ) ;
+  BCR.solve( x ) ;
+  std::copy( rhs, rhs+N, x ) ;
+  BCR.solve( x ) ;
+  std::copy( rhs, rhs+N, x ) ;
+  BCR.solve( x ) ;
+  std::copy( rhs, rhs+N, x ) ;
+  BCR.solve( x ) ;
+  std::copy( rhs, rhs+N, x ) ;
+  BCR.solve( x ) ;
+  std::copy( rhs, rhs+N, x ) ;
+  BCR.solve( x ) ;
+  std::copy( rhs, rhs+N, x ) ;
+  BCR.solve( x ) ;
+  std::copy( rhs, rhs+N, x ) ;
+  BCR.solve( x ) ;
+  std::copy( rhs, rhs+N, x ) ;
+  BCR.solve( x ) ;
   tm.toc() ;
   cout << "\nSolve = " << tm.elapsedMilliseconds() << " [ms]\n\n" ;
 
