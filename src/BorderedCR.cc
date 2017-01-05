@@ -273,7 +273,7 @@ namespace alglin {
   void
   BorderedCR<t_Value>::factorize() {
     #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
-    usedThread = nblock >= 16*maxThread ? maxThread : nblock/16 ;
+    usedThread = nblock >= 128*maxThread ? maxThread : nblock/128 ;
     if ( usedThread > 1 ) {
       iBlock[0] = 0 ;
       iBlock[1] = static_cast<integer>(nblock/usedThread) ;
@@ -757,10 +757,9 @@ namespace alglin {
     #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
     if ( usedThread > 1 ) {
       for ( integer nt = 1 ; nt < usedThread ; ++nt )
-        //threads[nt] = std::thread( &BorderedCR<t_Value>::forward, this, nt, x ) ;
-        forward(nt,x) ;
+        threads[nt] = std::thread( &BorderedCR<t_Value>::forward, this, nt, x ) ;
       forward(0,x) ;
-      //for ( integer nt = 1 ; nt < usedThread ; ++nt ) threads[nt].join() ;
+      for ( integer nt = 1 ; nt < usedThread ; ++nt ) threads[nt].join() ;
       forward_reduced(x) ;
     } else {
       forward(0,x) ;
@@ -769,10 +768,9 @@ namespace alglin {
     if ( usedThread > 1 ) {
       backward_reduced(x) ;
       for ( integer nt = 1 ; nt < usedThread ; ++nt )
-        //threads[nt] = std::thread( &BorderedCR<t_Value>::backward, this, nt, x ) ;
-        backward(nt,x) ;
+        threads[nt] = std::thread( &BorderedCR<t_Value>::backward, this, nt, x ) ;
       backward(0,x) ;
-      //for ( integer nt = 1 ; nt < usedThread ; ++nt ) threads[nt].join() ;
+      for ( integer nt = 1 ; nt < usedThread ; ++nt ) threads[nt].join() ;
     } else {
       backward(0,x) ;
     }
