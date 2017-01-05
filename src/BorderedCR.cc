@@ -75,9 +75,11 @@ namespace alglin {
     ALGLIN_ASSERT( info == 0, "BorderedCR::allocate call alglin::geqrf return info = " << info ) ;
     if ( LworkQR < integer(tmp) ) LworkQR = integer(tmp) ;
 
-    integer nnz = Lwork+(LworkT+LworkQR+n)*maxThread+N*(N+1)+nb*(nb+q)+nxnb+nblock*(2*nxnb+2*nxn+Tsize+n)+(n+q)*(nx2+nb+q) ;
+    usedThread = nblock >= 128*max_Thread ? max_Thread : nblock/128 ;
+
+    integer nnz = Lwork+(LworkT+LworkQR+n)*usedThread+N*(N+1)+nb*(nb+q)+nxnb+nblock*(2*nxnb+2*nxn+Tsize+n)+(n+q)*(nx2+nb+q) ;
     baseValue.allocate(size_t(nnz)) ;
-    baseInteger.allocate(size_t(2*N+nblock*(3*n)+3*maxThread)) ;
+    baseInteger.allocate(size_t(2*N+nblock*(3*n)+3*usedThread)) ;
 
     Bmat  = baseValue(size_t(nblock*nxnb)) ;
     Cmat  = baseValue(size_t((nblock+1)*nxnb)) ;
@@ -93,10 +95,10 @@ namespace alglin {
     H0Nqp = baseValue(size_t((n+q)*N)) ;
 
     Work   = baseValue(size_t(Lwork)) ;
-    WorkT  = baseValue(size_t(LworkT*maxThread)) ;
-    WorkQR = baseValue(size_t(LworkQR*maxThread)) ;
+    WorkT  = baseValue(size_t(LworkT*usedThread)) ;
+    WorkQR = baseValue(size_t(LworkQR*usedThread)) ;
 
-    xn_thread = baseValue(size_t(n*maxThread)) ;
+    xn_thread = baseValue(size_t(n*usedThread)) ;
 
     Hperm  = baseInteger(size_t(N)) ;
     Hswaps = baseInteger(size_t(N)) ;
@@ -104,9 +106,21 @@ namespace alglin {
     Cperm  = baseInteger(size_t(nblock*n)) ;
     
     Tperm  = baseInteger(size_t(nblock*n)) ;
-    iBlock = baseInteger(size_t(2*maxThread)) ;
-    kBlock = baseInteger(size_t(maxThread)) ;
-    
+    iBlock = baseInteger(size_t(2*usedThread)) ;
+    kBlock = baseInteger(size_t(usedThread)) ;
+
+    if ( usedThread > 1 ) {
+      iBlock[0] = 0 ;
+      iBlock[1] = static_cast<integer>(nblock/usedThread) ;
+      for ( integer nt = 1 ; nt < usedThread ; ++nt ) {
+        iBlock[2*nt+0] = iBlock[2*nt-1]+1 ;
+        iBlock[2*nt+1] = static_cast<integer>(((nt+1)*nblock)/usedThread) ;
+      }
+    } else {
+      iBlock[0] = 0 ;
+      iBlock[1] = nblock ;
+    }
+
   }
 
   template <typename t_Value>
@@ -272,29 +286,15 @@ namespace alglin {
   template <typename t_Value>
   void
   BorderedCR<t_Value>::factorize() {
-    #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
-    usedThread = nblock >= 128*maxThread ? maxThread : nblock/128 ;
     if ( usedThread > 1 ) {
-      iBlock[0] = 0 ;
-      iBlock[1] = static_cast<integer>(nblock/usedThread) ;
-      for ( integer nt = 1 ; nt < usedThread ; ++nt ) {
-        iBlock[2*nt+0] = iBlock[2*nt-1]+1 ;
-        iBlock[2*nt+1] = static_cast<integer>(((nt+1)*nblock)/usedThread) ;
-        threads[nt]    = std::thread( &BorderedCR<t_Value>::factorize_block, this, nt ) ;
-      }
+      for ( integer nt = 1 ; nt < usedThread ; ++nt )
+        threads[nt] = std::thread( &BorderedCR<t_Value>::factorize_block, this, nt ) ;
       factorize_block(0) ;
       for ( integer nt = 1 ; nt < usedThread ; ++nt ) threads[nt].join() ;
       factorize_reduced() ;
     } else {
-      iBlock[0] = 0 ;
-      iBlock[1] = nblock ;
       factorize_block(0) ;
     }
-    #else
-    iBlock[0] = 0 ;
-    iBlock[1] = nblock ;
-    factorize_block(0) ;
-    #endif
     load_and_factorize_last() ;
   }
 
@@ -754,7 +754,6 @@ namespace alglin {
   template <typename t_Value>
   void
   BorderedCR<t_Value>::solve( valuePointer x ) const {
-    #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
     if ( usedThread > 1 ) {
       for ( integer nt = 1 ; nt < usedThread ; ++nt )
         threads[nt] = std::thread( &BorderedCR<t_Value>::forward, this, nt, x ) ;
@@ -774,11 +773,6 @@ namespace alglin {
     } else {
       backward(0,x) ;
     }
-    #else
-    forward( 0, x );
-    solve_last( x ) ;
-    backward( 0, x );
-    #endif
   }
 
   template <typename t_Value>

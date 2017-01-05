@@ -256,7 +256,7 @@ namespace alglin {
 
     integer      *iBlock, *kBlock ;
 
-    integer maxThread, usedThread ;
+    integer max_Thread, usedThread ;
     mutable valuePointer xn_thread ;
     #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
     mutable std::thread threads[BORDERED_CYCLIC_REDUCTION_MAX_THREAD] ;
@@ -307,7 +307,7 @@ namespace alglin {
       ALGLIN_ASSERT( nth > 0 && nth <= BORDERED_CYCLIC_REDUCTION_MAX_THREAD,
                      "Bad number of thread specification [" << nth << "]\n"
                      "must be a number > 0 and <= " << BORDERED_CYCLIC_REDUCTION_MAX_THREAD ) ;
-      maxThread = nth ;
+      max_Thread = nth ;
       #else
       maxThread = 1 ;
       #endif

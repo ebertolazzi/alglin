@@ -51,7 +51,7 @@ main() {
   alglin::integer n      = NSIZE ;
   alglin::integer nblock = 500 ; // 200000 ;
   alglin::integer q      = 4 ;
-  alglin::integer nb     = 2 ;
+  alglin::integer nb     = 1 ;
   alglin::integer nq     = n+q ;
   alglin::integer N      = (nblock+1)*n+nb+q ;
  
