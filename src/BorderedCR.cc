@@ -40,75 +40,92 @@ namespace alglin {
   void
   BorderedCR<t_Value>::allocate( integer _nblock,
                                  integer _n,
-                                 integer _q,
-                                 integer _nb ) {
+                                 integer _qr,
+                                 integer _qx,
+                                 integer _nr,
+                                 integer _nx ) {
 
-    if ( nblock == _nblock && n == _n && q == _q && nb == _nb ) return ;
+    if ( nblock == _nblock && n  == _n  &&
+         qr     == _qr     && qx == _qx &&
+         nr     == _nr     && nx == _nx ) return ;
 
-    nblock = _nblock ;
-    n      = _n ;
-    q      = _q ;
-    nb     = _nb ;
-    nx2    = n*2 ;
-    nxn    = n*n ;
-    nxnb   = n*nb ;
-    N      = nx2+nb+q ;
-    Tsize  = 2*nxn+n ;
+    nblock  = _nblock ;
+    n       = _n ;
+    qr      = _qr ;
+    qx      = _qx ;
+    nr      = _nr ;
+    nx      = _nx ;
+    n_x_2   = n*2 ;
+    n_x_n   = n*n ;
+    nr_x_n  = n*nr ;
+    n_x_nx  = n*nx ;
+    nr_x_nx = nr*nx ;
+    Nr      = n_x_2+nr+qr ;
+    Nc      = n_x_2+nx+qx ;
+    Tsize   = 2*n_x_n+n ;
 
-    Lwork = max(N,2*max(nxn,nxnb)) ;
+    integer N = max(Nr,Nc) ;
+    Lwork = max(N,2*max(n_x_n,max(nr_x_n,n_x_nx))) ;
 
     valueType tmp ; // get optimal allocation
-    integer info = geqrf( N, N, nullptr, N, nullptr, &tmp, -1 ) ;
+    integer info = geqrf( Nr, Nc, nullptr, Nr, nullptr, &tmp, -1 ) ;
     ALGLIN_ASSERT( info == 0, "BorderedCR::allocate call alglin::geqrf return info = " << info ) ;
     if ( Lwork < integer(tmp) ) Lwork = integer(tmp) ;
 
-    info = geqp3( N, N, nullptr, N, nullptr, nullptr, &tmp, -1 ) ;
+    info = geqp3( Nr, Nc, nullptr, Nr, nullptr, nullptr, &tmp, -1 ) ;
     ALGLIN_ASSERT( info == 0, "BorderedCR::allocate call alglin::geqrf return info = " << info ) ;
     if ( Lwork < integer(tmp) ) Lwork = integer(tmp) ;
 
-    LworkT = 2*nxn ;
-    info = geqrf( nx2, n, nullptr, nx2, nullptr, &tmp, -1 ) ;
+    LworkT = 2*n_x_n ;
+    info = geqrf( n_x_2, n, nullptr, n_x_2, nullptr, &tmp, -1 ) ;
     ALGLIN_ASSERT( info == 0, "BorderedCR::allocate call alglin::geqrf return info = " << info ) ;
     LworkQR = integer(tmp) ;
 
-    info = geqp3( nx2, n, nullptr, nx2, nullptr, nullptr, &tmp, -1 ) ;
+    info = geqp3( n_x_2, n, nullptr, n_x_2, nullptr, nullptr, &tmp, -1 ) ;
     ALGLIN_ASSERT( info == 0, "BorderedCR::allocate call alglin::geqrf return info = " << info ) ;
     if ( LworkQR < integer(tmp) ) LworkQR = integer(tmp) ;
 
-    usedThread = nblock >= 128*max_Thread ? max_Thread : nblock/128 ;
+    usedThread = nblock >= 128*maxThread ? maxThread : nblock/128 ;
 
-    integer nnz = Lwork+(LworkT+LworkQR+n)*usedThread+N*(N+1)+nb*(nb+q)+nxnb+nblock*(2*nxnb+2*nxn+Tsize+n)+(n+q)*(nx2+nb+q) ;
+    integer nnz = nblock*(n_x_nx+2*n_x_n+Tsize+n) +
+                  (nblock+1)*nr_x_n +
+                  nr*qx +
+                  Nr*Nc + N + (n+qr)*Nc +
+                  Lwork + (LworkT+LworkQR+nr_x_nx+n)*usedThread ;
+    integer innz = 2*N + nblock*(3*n) + 3*usedThread ;
+
     baseValue.allocate(size_t(nnz)) ;
-    baseInteger.allocate(size_t(2*N+nblock*(3*n)+3*usedThread)) ;
+    baseInteger.allocate(size_t(innz)) ;
 
-    Bmat  = baseValue(size_t(nblock*nxnb)) ;
-    Cmat  = baseValue(size_t((nblock+1)*nxnb)) ;
-    Cqmat = baseValue(size_t(nb*q)) ;
-    Dmat  = baseValue(size_t(nblock*nxn)) ;
-    Emat  = baseValue(size_t(nblock*nxn)) ;
-    Fmat  = baseValue(size_t(nb*nb)) ;
-    
+    Bmat  = baseValue(size_t(nblock*n_x_nx)) ;
+    Cmat  = baseValue(size_t((nblock+1)*nr_x_n)) ;
+    Cqmat = baseValue(size_t(nr*qx)) ;
+    Dmat  = baseValue(size_t(nblock*n_x_n)) ;
+    Emat  = baseValue(size_t(nblock*n_x_n)) ;
+    Fmat  = baseValue(size_t(nr_x_nx*usedThread)) ;
+
     Tmat  = baseValue(size_t(nblock*Tsize)) ;
     Ttau  = baseValue(size_t(nblock*n)) ;
-    Hmat  = baseValue(size_t(N*N)) ;
+    Hmat  = baseValue(size_t(Nr*Nc)) ;
     Htau  = baseValue(size_t(N)) ;
-    H0Nqp = baseValue(size_t((n+q)*N)) ;
+    H0Nqp = baseValue(size_t((n+qr)*Nc)) ;
 
     Work   = baseValue(size_t(Lwork)) ;
     WorkT  = baseValue(size_t(LworkT*usedThread)) ;
     WorkQR = baseValue(size_t(LworkQR*usedThread)) ;
 
-    xn_thread = baseValue(size_t(n*usedThread)) ;
+    xb_thread = baseValue(size_t(n*usedThread)) ;
 
     Hperm  = baseInteger(size_t(N)) ;
     Hswaps = baseInteger(size_t(N)) ;
     Rperm  = baseInteger(size_t(nblock*n)) ;
     Cperm  = baseInteger(size_t(nblock*n)) ;
-    
+
     Tperm  = baseInteger(size_t(nblock*n)) ;
     iBlock = baseInteger(size_t(2*usedThread)) ;
     kBlock = baseInteger(size_t(usedThread)) ;
 
+    // precompute partition for parallel computation
     if ( usedThread > 1 ) {
       iBlock[0] = 0 ;
       iBlock[1] = static_cast<integer>(nblock/usedThread) ;
@@ -126,14 +143,14 @@ namespace alglin {
   template <typename t_Value>
   void
   BorderedCR<t_Value>::fillZero() {
-    zero( nblock*nxnb, Bmat, 1 ) ;
-    zero( (nblock+1)*nxnb, Cmat, 1 ) ;
-    zero( nb*q, Cqmat, 1 ) ;
-    zero( nblock*nxn, Dmat, 1 ) ;
-    zero( nblock*nxn, Emat, 1 ) ;
-    zero( nb*nb, Fmat, 1 ) ;
-    zero( N*N, Hmat, 1 ) ;
-    zero( (n+q)*N, H0Nqp, 1 ) ;
+    zero( nblock*n_x_nx, Bmat, 1 ) ;
+    zero( (nblock+1)*nr_x_n, Cmat, 1 ) ;
+    zero( nr*qx, Cqmat, 1 ) ;
+    zero( nblock*n_x_n, Dmat, 1 ) ;
+    zero( nblock*n_x_n, Emat, 1 ) ;
+    zero( nr_x_nx, Fmat, 1 ) ;
+    zero( Nr*Nc, Hmat, 1 ) ;
+    zero( (n+qr)*Nc, H0Nqp, 1 ) ;
   }
 
   /*\
@@ -152,12 +169,12 @@ namespace alglin {
     valueConstPointer Hq, integer ldQ,
     valueConstPointer Hp, integer ldP
   ) {
-    integer m = n + q ;
+    integer      m = n + qr ;
     valuePointer H = H0Nqp ;
     gecopy( m, n,  H0, ld0, H, m ) ; H += m * n ;
     gecopy( m, n,  HN, ldN, H, m ) ; H += m * n ;
-    gecopy( m, q,  Hq, ldQ, H, m ) ; H += m * q ;
-    gecopy( m, nb, Hp, ldP, H, m ) ;
+    gecopy( m, qx, Hq, ldQ, H, m ) ; H += m * qx ;
+    gecopy( m, nx, Hp, ldP, H, m ) ;
   }
 
   /*\
@@ -171,7 +188,7 @@ namespace alglin {
   template <typename t_Value>
   void
   BorderedCR<t_Value>::Mv( valueConstPointer x, valuePointer res ) const {
-    zero( n*(nblock+1)+nb+q, res, 1 ) ;
+    zero( n*(nblock+1)+nr+qr, res, 1 ) ;
     // internal blocks block
     t_Value const * D  = Dmat ;
     t_Value const * E  = Emat ;
@@ -179,33 +196,33 @@ namespace alglin {
     t_Value const * xx = x ;
     t_Value const * xe = x  + nblock*n ;
     t_Value const * xq = xe + n ;
-    t_Value const * xb = xq + q ;
+    t_Value const * xb = xq + qx ;
     t_Value *       yy = res ;
     for ( integer i = 0 ; i < nblock ; ++i ) {
       gemv( NO_TRANSPOSE, n, n,  1.0, D, n, xx, 1, 0.0, yy, 1 ) ;
       xx += n ;
       gemv( NO_TRANSPOSE, n, n,  1.0, E, n, xx, 1, 1.0, yy, 1 ) ;
-      if ( nb > 0 ) gemv( NO_TRANSPOSE, n, nb, 1.0, B, n, xb, 1, 1.0, yy, 1 ) ;
-      yy += n ; D += nxn ; E += nxn ; B += nxnb ;
+      if ( nx > 0 ) gemv( NO_TRANSPOSE, n, nx, 1.0, B, n, xb, 1, 1.0, yy, 1 ) ;
+      yy += n ; D += n_x_n ; E += n_x_n ; B += n_x_nx ;
     }
 
-    integer      m = n+q ;
+    integer      m = n+qr ;
     valuePointer H = H0Nqp ;
     gemv( NO_TRANSPOSE, m, n,  1.0, H, m, x,  1, 0.0, yy, 1 ) ; H += m * n ;
     gemv( NO_TRANSPOSE, m, n,  1.0, H, m, xe, 1, 1.0, yy, 1 ) ; H += m * n ;
-    gemv( NO_TRANSPOSE, m, q,  1.0, H, m, xq, 1, 1.0, yy, 1 ) ; H += m * q ;
-    gemv( NO_TRANSPOSE, m, nb, 1.0, H, m, xb, 1, 1.0, yy, 1 ) ;
+    gemv( NO_TRANSPOSE, m, qx, 1.0, H, m, xq, 1, 1.0, yy, 1 ) ; H += m * qx ;
+    gemv( NO_TRANSPOSE, m, nx, 1.0, H, m, xb, 1, 1.0, yy, 1 ) ;
 
-    if ( nb > 0 ) {
+    if ( nr > 0 ) {
       yy += m ;
-      gemv( NO_TRANSPOSE, nb, nb, 1.0, Fmat, nb, xb, 1, 0.0, yy, 1 ) ;
+      gemv( NO_TRANSPOSE, nr, nx, 1.0, Fmat, nr, xb, 1, 0.0, yy, 1 ) ;
       t_Value const * C = Cmat ;
       xx = x ;
       for ( integer i = 0 ; i <= nblock ; ++i ) {
-        gemv( NO_TRANSPOSE, nb, n, 1.0, C, nb, xx, 1, 1.0, yy, 1 ) ;
-        xx += n ; C += nxnb ;
+        gemv( NO_TRANSPOSE, nr, n, 1.0, C, nr, xx, 1, 1.0, yy, 1 ) ;
+        xx += n ; C += nr_x_n ;
       }
-      gemv( NO_TRANSPOSE, nb, q, 1.0, Cqmat, nb, xx, 1, 1.0, yy, 1 ) ;
+      gemv( NO_TRANSPOSE, nr, qx, 1.0, Cqmat, nr, xx, 1, 1.0, yy, 1 ) ;
     }
   }
   
@@ -222,57 +239,57 @@ namespace alglin {
   void
   BorderedCR<t_Value>::dump_ccoord( std::ostream & stream ) const {
     integer ii ;
-    integer nnz = 2*nblock*(nxn+nxnb) + nxnb + nb*nb + (n+q)*N ;
+    integer nnz = nblock*(2*n_x_n+n_x_nx+nr_x_n) + nr_x_n + nr*(qx+nx) + (n+qr)*(2*n+qx+nx) ;
     stream << nnz << '\n' ;
 
     // bidiagonal
     integer je = nblock*n ;
     integer jq = je+n ;
-    integer jb = jq+q ;
+    integer jb = jq+qx ;
     for ( integer k = 0 ; k < nblock ; ++k ) {
       ii = k*n ;
-      valuePointer D = Dmat + k * nxn ;
-      valuePointer E = Emat + k * nxn ;
-      valuePointer B = Bmat + k * nxnb ;
+      valuePointer D = Dmat + k * n_x_n ;
+      valuePointer E = Emat + k * n_x_n ;
+      valuePointer B = Bmat + k * n_x_nx ;
       for ( integer i = 0 ; i < n ; ++i )
         for ( integer j = 0 ; j < n ; ++j )
           stream
             << ii+i << '\t' << ii+j   << '\t' << D[i+j*n] << '\n'
             << ii+i << '\t' << ii+n+j << '\t' << E[i+j*n] << '\n' ;
       for ( integer i = 0 ; i < n ; ++i )
-        for ( integer j = 0 ; j < nb ; ++j )
+        for ( integer j = 0 ; j < nx ; ++j )
           stream
             << ii+i << '\t' << jb+j << '\t' << B[i+j*n] << '\n' ;
     }
     integer ie = nblock*n ;
     valuePointer H = H0Nqp ;
-    for ( integer i = 0 ; i < n+q ; ++i )
+    for ( integer i = 0 ; i < n+qr ; ++i )
       for ( integer j = 0 ; j < n ; ++j )
-        stream << ie+i << '\t' << j << '\t' << H[i+j*(n+q)] << '\n' ;
+        stream << ie+i << '\t' << j << '\t' << H[i+j*(n+qr)] << '\n' ;
 
-    H += n*(n+q) ;
-    for ( integer i = 0 ; i < n+q ; ++i )
-      for ( integer j = 0 ; j < n+q+nb ; ++j )
-        stream << ie+i << '\t' << je+j << '\t' << H[i+j*(n+q)] << '\n' ;
+    H += n*(n+qr) ;
+    for ( integer i = 0 ; i < n+qr ; ++i )
+      for ( integer j = 0 ; j < n+qx+nx ; ++j )
+        stream << ie+i << '\t' << je+j << '\t' << H[i+j*(n+qr)] << '\n' ;
 
-    ie += n+q ;
+    ie += n+qr ;
     for ( integer k = 0 ; k <= nblock ; ++k ) {
       ii = k*n ;
-      valuePointer C = Cmat + k * nxnb ;
-      for ( integer i = 0 ; i < nb ; ++i )
+      valuePointer C = Cmat + k * nr_x_n ;
+      for ( integer i = 0 ; i < nr ; ++i )
         for ( integer j = 0 ; j < n ; ++j )
           stream
-            << ie+i << '\t' << ii+j << '\t' << C[i+j*nb] << '\n' ;
+            << ie+i << '\t' << ii+j << '\t' << C[i+j*nr] << '\n' ;
     }
-    for ( integer i = 0 ; i < nb ; ++i )
-      for ( integer j = 0 ; j < nb ; ++j )
+    for ( integer i = 0 ; i < nr ; ++i )
+      for ( integer j = 0 ; j < nx ; ++j )
         stream
-          << ie+i << '\t' << jb+j << '\t' << Fmat[i+j*nb] << '\n' ;
-    jb -= q ;
-    for ( integer i = 0 ; i < nb ; ++i )
-      for ( integer j = 0 ; j < q ; ++j )
+          << ie+i << '\t' << jb+j << '\t' << Fmat[i+j*nr] << '\n' ;
+    jb -= qx ;
+    for ( integer i = 0 ; i < nr ; ++i )
+      for ( integer j = 0 ; j < qx ; ++j )
         stream
-          << ie+i << '\t' << jb+j << '\t' << Cqmat[i+j*nb] << '\n' ;
+          << ie+i << '\t' << jb+j << '\t' << Cqmat[i+j*nr] << '\n' ;
   }
   
   /*\
@@ -287,10 +304,12 @@ namespace alglin {
   void
   BorderedCR<t_Value>::factorize() {
     if ( usedThread > 1 ) {
+      zero( nr_x_nx*(usedThread-1), Fmat + nr_x_nx, 1 ) ;
       for ( integer nt = 1 ; nt < usedThread ; ++nt )
         threads[nt] = std::thread( &BorderedCR<t_Value>::factorize_block, this, nt ) ;
       factorize_block(0) ;
       for ( integer nt = 1 ; nt < usedThread ; ++nt ) threads[nt].join() ;
+      for ( integer nt = 1 ; nt < usedThread ; ++nt ) axpy( nr_x_nx, 1.0, Fmat + nt*nr_x_nx, 1, Fmat, 1 ) ;
       factorize_reduced() ;
     } else {
       factorize_block(0) ;
@@ -309,21 +328,21 @@ namespace alglin {
                                valueConstPointer BOTTOM,
                                valuePointer      T,
                                integer *         iperm ) const {
-    gecopy( n, n, TOP,    n, T,   nx2 ) ;
-    gecopy( n, n, BOTTOM, n, T+n, nx2 ) ;
+    gecopy( n, n, TOP,    n, T,   n_x_2 ) ;
+    gecopy( n, n, BOTTOM, n, T+n, n_x_2 ) ;
     integer info = 0 ;
     switch ( selected ) {
     case BORDERED_LU:
-      info = getrf( nx2, n, T, nx2, iperm ) ;
+      info = getrf( n_x_2, n, T, n_x_2, iperm ) ;
       break ;
     case BORDERED_QR:
-      info = geqrf( nx2, n, T, nx2, T+2*nxn, WorkQR+nth*LworkQR, LworkQR ) ;
+      info = geqrf( n_x_2, n, T, n_x_2, T+2*n_x_n, WorkQR+nth*LworkQR, LworkQR ) ;
       break ;
     case BORDERED_LAST_QRP:
       { integer * P = Tperm+nth*n ;
-        info = geqp3( nx2, n, T, nx2, P, T+2*nxn, WorkQR+nth*LworkQR, LworkQR ) ;
+        info = geqp3( n_x_2, n, T, n_x_2, P, T+2*n_x_n, WorkQR+nth*LworkQR, LworkQR ) ;
         // convert permutation to exchanges
-        if ( info == 0 )
+        if ( info == 0 ) {
           for ( integer i = 0 ; i < n ; ++i ) {
             integer j = i ;
             while ( j < n ) { if ( P[j] == i+1 ) break ; ++j ; }
@@ -331,6 +350,7 @@ namespace alglin {
             iperm[i] = j ;
           }
         }
+      }
       break ;
     }
     ALGLIN_ASSERT( info == 0, "BorderedCR::factorize INFO = " << info ) ;
@@ -364,34 +384,34 @@ namespace alglin {
                                integer           ldBOTTOM,
                                integer           ncol ) const {
     valuePointer W = WorkT + LworkT*nth ;
-    gecopy( n, ncol, TOP,    ldTOP,    W,   nx2 ) ;
-    gecopy( n, ncol, BOTTOM, ldBOTTOM, W+n, nx2 ) ;
+    gecopy( n, ncol, TOP,    ldTOP,    W,   n_x_2 ) ;
+    gecopy( n, ncol, BOTTOM, ldBOTTOM, W+n, n_x_2 ) ;
     // Apply row interchanges to the right hand sides.
     integer info = 0 ;
     switch ( selected ) {
     case BORDERED_LU:
-      info = swaps( ncol, W, nx2, 0, n-1, iperm, 1 ) ;
+      info = swaps( ncol, W, n_x_2, 0, n-1, iperm, 1 ) ;
       ALGLIN_ASSERT( info == 0, "BorderedCR::applyT INFO = " << info ) ;
-      trsm( LEFT, LOWER, NO_TRANSPOSE, UNIT, n, ncol, 1.0, T, nx2, W, nx2 ) ;
+      trsm( LEFT, LOWER, NO_TRANSPOSE, UNIT, n, ncol, 1.0, T, n_x_2, W, n_x_2 ) ;
       gemm( NO_TRANSPOSE, NO_TRANSPOSE,
             n, ncol, n,
-            -1.0, T+n, nx2,    // M
-                  W,   nx2,    // L^(-1) TOP
-             1.0, W+n, nx2 ) ; // TOP = BOTTOM - M L^(-1) TOP
+            -1.0, T+n, n_x_2,    // M
+                  W,   n_x_2,    // L^(-1) TOP
+             1.0, W+n, n_x_2 ) ; // TOP = BOTTOM - M L^(-1) TOP
       break ;
     case BORDERED_QR:
     case BORDERED_LAST_QRP:
       info = ormqr( LEFT, TRANSPOSE,
-                    nx2, ncol, // righe x colonne
+                    n_x_2, ncol, // righe x colonne
                     n,         // numero riflettori usati nel prodotto Q
-                    T, nx2,
-                    T+2*nxn,
-                    W, nx2,
+                    T, n_x_2,
+                    T+2*n_x_n,
+                    W, n_x_2,
                     WorkQR+nth*LworkQR, LworkQR ) ;
       break ;
     }
-    gecopy( n, ncol, W+n, nx2, TOP,    ldTOP ) ;
-    gecopy( n, ncol, W,   nx2, BOTTOM, ldBOTTOM ) ;
+    gecopy( n, ncol, W+n, n_x_2, TOP,    ldTOP ) ;
+    gecopy( n, ncol, W,   n_x_2, BOTTOM, ldBOTTOM ) ;
   }
 
   // ---------------------------------------------------------------------------
@@ -410,24 +430,24 @@ namespace alglin {
     switch ( selected ) {
     case BORDERED_LU:
       // Apply row interchanges to the right hand sides.
-      info = swaps( 1, W, nx2, 0, n-1, iperm, 1 ) ;
+      info = swaps( 1, W, n_x_2, 0, n-1, iperm, 1 ) ;
       if ( info == 0 ) {
-        trsv( LOWER, NO_TRANSPOSE, UNIT, n, T, nx2, W, 1 ) ;
+        trsv( LOWER, NO_TRANSPOSE, UNIT, n, T, n_x_2, W, 1 ) ;
         gemv( NO_TRANSPOSE,
               n, n,
-              -1.0, T+n, nx2,
+              -1.0, T+n, n_x_2,
                     W,   1,
                1.0, W+n, 1 ) ;
       }
       break ;
     case BORDERED_QR:
-    case BORDERED_LAST_QRP:
+    case BORDERED_QRP:
       info = ormqr( LEFT, TRANSPOSE,
-                    nx2, 1, // righe x colonne
+                    n_x_2, 1, // righe x colonne
                     n,      // numero riflettori usati nel prodotto Q
-                    T, nx2,
-                    T+2*nxn,
-                    W, nx2,
+                    T, n_x_2,
+                    T+2*n_x_n,
+                    W, n_x_2,
                     WorkQR+nth*LworkQR, LworkQR ) ;
       break ;
     }
@@ -452,73 +472,89 @@ namespace alglin {
     integer eblock = iBlock[2*nth+1] ;
     integer nblk   = eblock - iblock ;
     integer k = 1 ;
+
+    valuePointer Bmat0 = Bmat  + iblock*n_x_nx ;
+    valuePointer Cmat0 = Cmat  + iblock*nr_x_n ;
+    valuePointer Dmat0 = Dmat  + iblock*n_x_n ;
+    valuePointer Emat0 = Emat  + iblock*n_x_n ;
+    valuePointer T0    = Tmat  + iblock*Tsize ;
+    integer *    P0    = Rperm + iblock*n ;
+    
+    valuePointer Fmat_th = Fmat + nth * nr_x_nx ;
+
     while ( k < nblk ) {
+
+      valuePointer Bjp = Bmat0 ;
+      valuePointer Bj  = Bmat0 + k*n_x_nx ;
+      valuePointer Cjp = Cmat0 ;
+      valuePointer Cj  = Cmat0 + k*nr_x_n ;
+      valuePointer Djp = Dmat0 ;
+      valuePointer Dj  = Dmat0 + k*n_x_n ;
+      valuePointer Ejp = Emat0 ;
+      valuePointer Ej  = Emat0 + k*n_x_n ;
+      valuePointer T   = T0    + k*Tsize ;
+      integer *    P   = P0    + k*n ;
+
       // -----------------------------------------------------------------------
-      for ( integer j = iblock+k ; j < eblock ; j += 2*k ) {
-        integer jp = j-k ;
-        valuePointer T   = Tmat  + j*Tsize ;
-        integer *    P   = Rperm + j*n ;
-        valuePointer Djp = Dmat  + jp*nxn ;
-        valuePointer Dj  = Dmat  + j*nxn ;
-        valuePointer Ejp = Emat  + jp*nxn ;
-        valuePointer Ej  = Emat  + j*nxn ;
+      integer k_x_2 = 2*k ;
+      for ( integer j = iblock+k ; j < eblock ; j += k_x_2 ) {
 
         buildT( nth, Ejp, Dj, T, P ) ;
 
-        zero( nxn, Dj, 1 ) ;
+        zero( n_x_n, Dj, 1 ) ;
         applyT( nth, T, P, Djp, n, Dj, n, n ) ;
 
-        zero( nxn, Ejp, 1 ) ;
+        zero( n_x_n, Ejp, 1 ) ;
         applyT( nth, T, P, Ejp, n, Ej, n, n ) ;
 
-        if ( nb > 0 ) {
+        if ( nx > 0 ) applyT( nth, T, P, Bjp, n, Bj, n, nx ) ;
+        
+        if ( nr > 0 ) {
 
-          valuePointer Bj  = Bmat + j*nxnb ;
-          valuePointer Bjp = Bmat + jp*nxnb ;
-          valuePointer Cj  = Cmat + j*nxnb ;
-          valuePointer Cjp = Cmat + jp*nxnb ;
-
-          applyT( nth, T, P, Bjp, n, Bj, n, nb ) ;
-          
-          // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
           if ( selected == BORDERED_QRP ) {
             integer i = n ;
             do {
               --i ;
-              if ( P[i] > i ) swap( nb, Cj+i*nb, 1, Cj+P[i]*nb, 1 ) ;
+              if ( P[i] > i ) swap( nr, Cj+i*nr, 1, Cj+P[i]*nr, 1 ) ;
             } while ( i > 0 ) ;
           }
           trsm( RIGHT, UPPER, NO_TRANSPOSE, NON_UNIT,
-                nb, n, 1.0, T, nx2, Cj, nb ) ;
-
-          #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
-          spin.lock() ;
-          #endif
-          gemm( NO_TRANSPOSE, NO_TRANSPOSE,
-                nb, nb, n,
-                -1.0, Cj,   nb,
-                      Bj,   n,
-                 1.0, Fmat, nb ) ;
-          #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
-          spin.unlock() ;
-          #endif
+                nr, n, 1.0, T, n_x_2, Cj, nr ) ;
 
           gemm( NO_TRANSPOSE, NO_TRANSPOSE,
-                nb, n, n,
-                -1.0, Cj,  nb,
+                nr, n, n,
+                -1.0, Cj,  nr,
                       Dj,  n,
-                 1.0, Cjp, nb ) ;
+                 1.0, Cjp, nr ) ;
 
           integer      jpp = std::min(j+k,eblock) ;
-          valuePointer Cpp = Cmat + jpp*nxnb ;
+          valuePointer Cpp = Cmat + jpp*nr_x_n ;
 
           gemm( NO_TRANSPOSE, NO_TRANSPOSE,
-                nb, n, n,
-                -1.0, Cj,  nb,
+                nr, n, n,
+                -1.0, Cj,  nr,
                       Ej,  n,
-                 1.0, Cpp, nb ) ;
-
+                 1.0, Cpp, nr ) ;
         }
+
+        if ( nr_x_nx > 0 )
+          gemm( NO_TRANSPOSE, NO_TRANSPOSE,
+                nr, nx, n,
+                -1.0, Cj,      nr,
+                      Bj,      n,
+                 1.0, Fmat_th, nr ) ; // solo accumulo!
+
+        // NEXT STEP
+        T   += k_x_2*Tsize ;
+        P   += k_x_2*n ;
+        Djp += k_x_2*n_x_n ;
+        Dj  += k_x_2*n_x_n ;
+        Ejp += k_x_2*n_x_n ;
+        Ej  += k_x_2*n_x_n ;
+        Bj  += k_x_2*n_x_nx ;
+        Bjp += k_x_2*n_x_nx ;
+        Cj  += k_x_2*nr_x_n ;
+        Cjp += k_x_2*nr_x_n ;
       }
       k *= 2 ;
     }
@@ -537,60 +573,63 @@ namespace alglin {
         integer jp = iBlock[jj-k] ;
         valuePointer T   = Tmat  + j*Tsize ;
         integer *    P   = Rperm + j*n ;
-        valuePointer Djp = Dmat  + jp*nxn ;
-        valuePointer Dj  = Dmat  + j*nxn ;
-        valuePointer Ejp = Emat  + jp*nxn ;
-        valuePointer Ej  = Emat  + j*nxn ;
+        valuePointer Djp = Dmat  + jp*n_x_n ;
+        valuePointer Dj  = Dmat  + j*n_x_n ;
+        valuePointer Ejp = Emat  + jp*n_x_n ;
+        valuePointer Ej  = Emat  + j*n_x_n ;
 
         buildT( 0, Ejp, Dj, T, P ) ;
 
-        zero( nxn, Dj, 1 ) ;
+        zero( n_x_n, Dj, 1 ) ;
         applyT( 0, T, P, Djp, n, Dj, n, n ) ;
 
-        zero( nxn, Ejp, 1 ) ;
+        zero( n_x_n, Ejp, 1 ) ;
         applyT( 0, T, P, Ejp, n, Ej, n, n ) ;
 
-        if ( nb > 0 ) {
-
-          valuePointer Bj  = Bmat + j*nxnb ;
-          valuePointer Bjp = Bmat + jp*nxnb ;
-          valuePointer Cj  = Cmat + j*nxnb ;
-          valuePointer Cjp = Cmat + jp*nxnb ;
-
-          applyT( 0, T, P, Bjp, n, Bj, n, nb ) ;
-          
-          // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+        if ( nx > 0 ) {
+          valuePointer Bj  = Bmat + j*n_x_nx ;
+          valuePointer Bjp = Bmat + jp*n_x_nx ;
+          applyT( 0, T, P, Bjp, n, Bj, n, nx ) ;
+        }
+        
+        if ( nr > 0 ) {
+          valuePointer Cj  = Cmat + j*nr_x_n ;
+          valuePointer Cjp = Cmat + jp*nr_x_n ;
           if ( selected == BORDERED_QRP ) {
             integer i = n ;
             do {
               --i ;
-              if ( P[i] > i ) swap( nb, Cj+i*nb, 1, Cj+P[i]*nb, 1 ) ;
+              if ( P[i] > i ) swap( nr, Cj+i*nr, 1, Cj+P[i]*nr, 1 ) ;
             } while ( i > 0 ) ;
           }
           trsm( RIGHT, UPPER, NO_TRANSPOSE, NON_UNIT,
-                nb, n, 1.0, T, nx2, Cj, nb ) ;
+                nr, n, 1.0, T, n_x_2, Cj, nr ) ;
 
           gemm( NO_TRANSPOSE, NO_TRANSPOSE,
-                nb, nb, n,
-                -1.0, Cj,   nb,
-                      Bj,   n,
-                 1.0, Fmat, nb ) ;
-
-          gemm( NO_TRANSPOSE, NO_TRANSPOSE,
-                nb, n, n,
-                -1.0, Cj,  nb,
+                nr, n, n,
+                -1.0, Cj,  nr,
                       Dj,  n,
-                 1.0, Cjp, nb ) ;
+                 1.0, Cjp, nr ) ;
 
           integer      jpp = iBlock[std::min(jj+k,nblk)] ;
-          valuePointer Cpp = Cmat + jpp*nxnb ;
+          valuePointer Cpp = Cmat + jpp*nr_x_n ;
 
           gemm( NO_TRANSPOSE, NO_TRANSPOSE,
-                nb, n, n,
-                -1.0, Cj,  nb,
+                nr, n, n,
+                -1.0, Cj,  nr,
                       Ej,  n,
-                 1.0, Cpp, nb ) ;
+                 1.0, Cpp, nr ) ;
 
+        }
+
+        if ( nr_x_nx > 0 ) {
+          valuePointer Cj = Cmat + j*nr_x_n ;
+          valuePointer Bj = Bmat + j*n_x_nx ;
+          gemm( NO_TRANSPOSE, NO_TRANSPOSE,
+                nr, nx, n,
+                -1.0, Cj,   nr,
+                      Bj,   n,
+                 1.0, Fmat, nr ) ;
         }
       }
       k *= 2 ;
@@ -614,61 +653,62 @@ namespace alglin {
   void
   BorderedCR<t_Value>::load_and_factorize_last() {
     /*
-    //    n   n   q  nb
+    //    n   n  qx  nx
     //  +---+---+---+---+
     //  | D | E | 0 | B | n
     //  +===+===+===+===+
     //  |   |   |   |   |
-    //  |H0 |HN |Hq |Hp | n+q
+    //  |H0 |HN |Hq |Hp | n+qr
     //  |   |   |   |   |
     //  +---+---+---+---+
-    //  | C | C |Cq | F | nb
+    //  | C | C |Cq | F | nr
     //  +---+---+---+---+
     */
-    valuePointer Cnb = Cmat + nblock*nxnb ;
-    valuePointer W0 = Hmat ;
-    valuePointer WN = W0+n*N ;
-    valuePointer Wq = WN+n*N ;
-    valuePointer Wp = Wq+q*N ;
+    valuePointer Cnb = Cmat + nblock*nr_x_n ;
+    valuePointer W0  = Hmat ;
+    valuePointer WN  = W0+n*Nr ;
+    valuePointer Wq  = WN+n*Nr ;
+    valuePointer Wp  = Wq+qx*Nr ;
 
-    gecopy( n,  n,  Dmat, n, W0, N ) ;
-    gecopy( n,  n,  Emat, n, WN, N ) ;
-    gezero( n,  q,           Wq, N ) ;
-    gecopy( n,  nb, Bmat, n, Wp, N ) ;
+    gecopy( n,  n,  Dmat, n, W0, Nr ) ;
+    gecopy( n,  n,  Emat, n, WN, Nr ) ;
+    gezero( n,  qx,          Wq, Nr ) ;
+    gecopy( n,  nx, Bmat, n, Wp, Nr ) ;
 
-    gecopy( n+q, N, H0Nqp, n+q, Hmat+n, N ) ;
+    gecopy( n+qr, Nc, H0Nqp, n+qr, Hmat+n, Nr ) ;
 
-    W0 += nx2+q ; WN += nx2+q ; Wq += nx2+q ; Wp += nx2+q ;
+    W0 += n_x_2+qr ; WN += n_x_2+qr ; Wq += n_x_2+qr ; Wp += n_x_2+qr ;
 
-    gecopy( nb, n,  Cmat,  nb, W0, N ) ;
-    gecopy( nb, n,  Cnb,   nb, WN, N ) ;
-    gecopy( nb, q,  Cqmat, nb, Wq, N ) ;
-    gecopy( nb, nb, Fmat,  nb, Wp, N ) ;
+    gecopy( nr, n,  Cmat,  nr, W0, Nr ) ;
+    gecopy( nr, n,  Cnb,   nr, WN, Nr ) ;
+    gecopy( nr, qx, Cqmat, nr, Wq, Nr ) ;
+    gecopy( nr, nx, Fmat,  nr, Wp, Nr ) ;
 
     integer info = 0 ;
     switch ( last_selected ) {
     case BORDERED_LAST_LU:
-      info = getrf( N, N, Hmat, N, Hperm ) ;
+      info = getrf( Nr, Nc, Hmat, Nr, Hperm ) ;
       break ;
     case BORDERED_LAST_QR:
-      info = geqrf( N, N, Hmat, N, Htau, Work, Lwork ) ;
+      info = geqrf( Nr, Nc, Hmat, Nr, Htau, Work, Lwork ) ;
       break ;
     case BORDERED_LAST_QRP:
-      info = geqp3( N, N, Hmat, N, Hperm, Htau, Work, Lwork ) ;
+      info = geqp3( Nr, Nc, Hmat, Nr, Hperm, Htau, Work, Lwork ) ;
       // convert permutation to exchanges
       if ( info == 0 )
-        for ( integer i = 0 ; i < N ; ++i ) {
+        for ( integer i = 0 ; i < Nr ; ++i ) {
           integer j = i ;
-          while ( j < N ) { if ( Hperm[j] == i+1 ) break ; ++j ; }
+          while ( j < Nr ) { if ( Hperm[j] == i+1 ) break ; ++j ; }
           std::swap( Hperm[j], Hperm[i] ) ;
           Hswaps[i] = j ;
         }
       break ;
     }
     ALGLIN_ASSERT( info == 0,
-                   "BorderedCR::factorize_last INFO = " << info << " N = " << N ) ;
+                   "BorderedCR::factorize_last INFO = " << info <<
+                   " Nr = " << Nr << " Nc = " << Nc ) ;
   }
-  
+
   /*\
    |             _               _           _
    |   ___  ___ | |_   _____    | | __ _ ___| |_
@@ -686,23 +726,23 @@ namespace alglin {
     integer info = 0 ;
     switch ( last_selected ) {
     case BORDERED_LAST_LU:
-      info = getrs( NO_TRANSPOSE, N, 1, Hmat, N, Hperm, X, N ) ;
+      info = getrs( NO_TRANSPOSE, Nr, 1, Hmat, Nr, Hperm, X, Nr ) ;
       break ;
     case BORDERED_LAST_QR:
     case BORDERED_LAST_QRP:
       info = ormqr( LEFT, TRANSPOSE,
-                    N, 1, // righe x colonne
-                    N-1,  // numero riflettori usati nel prodotto Q
-                    Hmat, N /*ldA*/,
+                    Nr, 1, // righe x colonne
+                    Nr-1,  // numero riflettori usati nel prodotto Q
+                    Hmat, Nr /*ldA*/,
                     Htau,
-                    X, N,
+                    X, Nr,
                     Work, Lwork ) ;
-      if ( info == 0 ) trsv( UPPER, NO_TRANSPOSE, NON_UNIT, N, Hmat, N, X, 1 ) ;
+      if ( info == 0 ) trsv( UPPER, NO_TRANSPOSE, NON_UNIT, Nc, Hmat, Nr, X, 1 ) ;
       break ;
     }
     ALGLIN_ASSERT( info == 0, "BorderedCR::solve_last INFO = " << info ) ;
     if ( last_selected == BORDERED_LAST_QRP )
-      for ( integer i = 0 ; i < N ; ++i )
+      for ( integer i = 0 ; i < Nr ; ++i )
         if ( Hswaps[i] > i ) std::swap( X[i], X[Hswaps[i]] ) ;
     swap( n, X, 1, x, 1 ) ;
   }
@@ -719,25 +759,25 @@ namespace alglin {
     integer info = 0 ;
     switch ( last_selected ) {
     case BORDERED_LAST_LU:
-      info = getrs( NO_TRANSPOSE, N, nrhs, Hmat, N, Hperm, X, ldX ) ;
+      info = getrs( NO_TRANSPOSE, Nr, nrhs, Hmat, Nr, Hperm, X, ldX ) ;
       break ;
     case BORDERED_LAST_QR:
     case BORDERED_LAST_QRP:
       info = ormqr( LEFT, TRANSPOSE,
-                    N, nrhs, // righe x colonne
-                    N-1,     // numero riflettori usati nel prodotto Q
-                    Hmat, N,
+                    Nr, nrhs, // righe x colonne
+                    Nr-1,     // numero riflettori usati nel prodotto Q
+                    Hmat, Nr,
                     Htau,
                     X, ldX,
                     Work, Lwork ) ;
       if ( info == 0 )
         trsm( LEFT, UPPER, NO_TRANSPOSE, NON_UNIT,
-              N, nrhs, 1.0, Hmat, N, X, ldX ) ;
+              Nr, nrhs, 1.0, Hmat, Nr, X, ldX ) ;
       break ;
     }
     ALGLIN_ASSERT( info == 0, "BorderedCR::solve_last INFO = " << info ) ;
     if ( last_selected == BORDERED_LAST_QRP )
-      for ( integer i = 0 ; i < N ; ++i )
+      for ( integer i = 0 ; i < Nr ; ++i )
         if ( Hswaps[i] > i )
           swap( nrhs, X+i, ldX, X+Hswaps[i], ldX ) ;
     for ( integer i = 0 ; i < nrhs ; ++i ) swap( n, X+i*ldX, 1, x+i*ldX, 1 ) ;
@@ -754,14 +794,18 @@ namespace alglin {
   template <typename t_Value>
   void
   BorderedCR<t_Value>::solve( valuePointer x ) const {
+    valuePointer xb = x + (nblock+1)*n + qr ; // deve essere b!
+    zero( n*usedThread, xb_thread, 1 ) ;
     if ( usedThread > 1 ) {
       for ( integer nt = 1 ; nt < usedThread ; ++nt )
         threads[nt] = std::thread( &BorderedCR<t_Value>::forward, this, nt, x ) ;
       forward(0,x) ;
       for ( integer nt = 1 ; nt < usedThread ; ++nt ) threads[nt].join() ;
+      for ( integer nt = 0 ; nt < usedThread ; ++nt ) axpy( n, 1.0, xb_thread+n*nt, 1, xb, 1 ) ;
       forward_reduced(x) ;
     } else {
       forward(0,x) ;
+      axpy( n, 1.0, xb_thread, 1, xb, 1 ) ;
     }
     solve_last( x ) ;
     if ( usedThread > 1 ) {
@@ -780,8 +824,6 @@ namespace alglin {
   BorderedCR<t_Value>::solve( integer      nrhs,
                               valuePointer rhs,
                               integer      ldRhs ) const {
-
-    #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
     if ( usedThread > 1 ) {
       for ( integer nt = 1 ; nt < usedThread ; ++nt )
         threads[nt] = std::thread( &BorderedCR<t_Value>::forward_n, this,
@@ -803,11 +845,6 @@ namespace alglin {
     } else {
       backward_n( 0, nrhs, rhs, ldRhs ) ;
     }
-    #else
-    forward_n( 0, nrhs, rhs, ldRhs );
-    solve_last( nrhs, rhs, ldRhs ) ;
-    backward_n( 0, nrhs, rhs, ldRhs );
-    #endif
   }
 
   /*\
@@ -821,36 +858,34 @@ namespace alglin {
   template <typename t_Value>
   void
   BorderedCR<t_Value>::forward( integer nth, valuePointer x ) const {
-    valuePointer xn_t = xn_thread + n*nth ;
-    zero( n, xn_t, 1 ) ;
-
+    valuePointer xb_t = xb_thread + n*nth ;
     integer iblock = iBlock[2*nth+0] ;
     integer eblock = iBlock[2*nth+1] ;
     integer nblk   = eblock - iblock ;
+    valuePointer x0 = x     + iblock*n ;
+    valuePointer T0 = Tmat  + iblock*Tsize ;
+    integer *    P0 = Rperm + iblock*n ;
+    valuePointer C0 = Cmat  + iblock*nr_x_n ;
+
     integer k = 1 ;
     while ( k < nblk ) {
-      for ( integer j = iblock+k ; j < eblock ; j += 2*k ) {
-        integer jp = j-k ;
-        valuePointer const T = Tmat  + j*Tsize ;
-        integer *    const P = Rperm + j*n ;
-        valuePointer xj  = x + j*n ;
-        valuePointer xjp = x + jp*n ;
+      valuePointer xj  = x0 + k*n ;
+      valuePointer xjp = x0 ;
+      valuePointer T   = T0 + k*Tsize ;
+      integer *    P   = P0 + k*n ;
+      valuePointer Cj  = C0 + k*nr_x_n ;
+      integer    k_x_2 = 2*k ;
+      for ( integer jj = k ; jj < nblk ; jj += k_x_2 ) {
         applyT( nth, T, P, xjp, xj ) ;
-        if ( nb > 0 ) {
-          valuePointer Cj = Cmat + j*nxnb ;
-          gemv( NO_TRANSPOSE, nb, n, -1.0, Cj, nb, xj, 1, 1.0, xn_t, 1 ) ; // solo accumulato
-        }
+        if ( nr > 0 ) gemv( NO_TRANSPOSE, nr, n, -1.0, Cj, nr, xj, 1, 1.0, xb_t, 1 ) ; // solo accumulato
+        xj  += k_x_2*n ;
+        xjp += k_x_2*n ;
+        T   += k_x_2*Tsize ;
+        P   += k_x_2*n ;
+        Cj  += k_x_2*nr_x_n ;
       }
       k *= 2 ;
     }
-    valuePointer xn = x + (nblock+1)*n + q ;
-    #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
-    spin.lock() ;
-    #endif
-    axpy( n, 1.0, xn_t, 1, xn, 1 ) ;
-    #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
-    spin.unlock() ;
-    #endif
   }
 
   template <typename t_Value>
@@ -859,33 +894,44 @@ namespace alglin {
                                   integer      nrhs,
                                   valuePointer x,
                                   integer      ldX ) const {
-    valuePointer xn = x + (nblock+1)*n + q ;
+    valuePointer xb = x + (nblock+1)*n + qr ;
     integer iblock = iBlock[2*nth+0] ;
     integer eblock = iBlock[2*nth+1] ;
     integer nblk   = eblock - iblock ;
+    valuePointer x0 = x     + iblock*n ;
+    valuePointer T0 = Tmat  + iblock*Tsize ;
+    integer *    P0 = Rperm + iblock*n ;
+    valuePointer C0 = Cmat  + iblock*nr_x_n ;
+
     integer k = 1 ;
     while ( k < nblk ) {
-      for ( integer j = iblock+k ; j < eblock ; j += 2*k ) {
-        integer jp = j-k ;
-        valuePointer const T = Tmat  + j*Tsize ;
-        integer *    const P = Rperm + j*n ;
-        valuePointer xj  = x + j*n ;
-        valuePointer xjp = x + jp*n ;
+      valuePointer xj  = x0 + k*n ;
+      valuePointer xjp = x0 ;
+      valuePointer T   = T0 + k*Tsize ;
+      integer *    P   = P0 + k*n ;
+      valuePointer Cj  = C0 + k*nr_x_n ;
+      integer    k_x_2 = 2*k ;
+
+      for ( integer jj = k ; jj < nblk ; jj += k_x_2 ) {
         applyT( nth, T, P, xjp, ldX, xj, ldX, nrhs ) ;
-        if ( nb > 0 ) {
-          valuePointer Cj = Cmat + j*nxnb ;
+        if ( nr > 0 ) {
           #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
           spin.lock() ;
           #endif
           gemm( NO_TRANSPOSE, NO_TRANSPOSE,
-                nb, nrhs, n,
-                -1.0, Cj, nb,
+                nr, nrhs, n,
+                -1.0, Cj, nr,
                       xj, ldX,
-                 1.0, xn, ldX ) ;
+                 1.0, xb, ldX ) ;
           #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
           spin.unlock() ;
           #endif
         }
+        xj  += k_x_2*n ;
+        xjp += k_x_2*n ;
+        T   += k_x_2*Tsize ;
+        P   += k_x_2*n ;
+        Cj  += k_x_2*nr_x_n ;
       }
       k *= 2 ;
     }
@@ -894,7 +940,7 @@ namespace alglin {
   template <typename t_Value>
   void
   BorderedCR<t_Value>::forward_reduced( valuePointer x ) const {
-    valuePointer xn = x + (nblock+1)*n + q ;
+    valuePointer xb = x + (nblock+1)*n + qr ;
     integer nblk = 2*usedThread-1 ;
     integer k = 1 ;
     while ( k < nblk ) {
@@ -906,9 +952,9 @@ namespace alglin {
         valuePointer xj  = x + j*n ;
         valuePointer xjp = x + jp*n ;
         applyT( 0, T, P, xjp, xj ) ;
-        if ( nb > 0 ) {
-          valuePointer Cj = Cmat + j*nxnb ;
-          gemv( NO_TRANSPOSE, nb, n, -1.0, Cj, nb, xj, 1, 1.0, xn, 1 ) ;
+        if ( nr > 0 ) {
+          valuePointer Cj = Cmat + j*nr_x_n ;
+          gemv( NO_TRANSPOSE, nr, n, -1.0, Cj, nr, xj, 1, 1.0, xb, 1 ) ;
         }
       }
       k *= 2 ;
@@ -920,7 +966,7 @@ namespace alglin {
   BorderedCR<t_Value>::forward_n_reduced( integer      nrhs,
                                           valuePointer x,
                                           integer      ldX ) const {
-    valuePointer xn = x + (nblock+1)*n + q ;
+    valuePointer xb = x + (nblock+1)*n + qr ;
     integer nblk = 2*usedThread-1 ;
     integer k = 1 ;
     while ( k < nblk ) {
@@ -932,16 +978,16 @@ namespace alglin {
         valuePointer xj  = x + j*n ;
         valuePointer xjp = x + jp*n ;
         applyT( 0, T, P, xjp, ldX, xj, ldX, nrhs ) ;
-        if ( nb > 0 ) {
-          valuePointer Cj = Cmat + j*nxnb ;
+        if ( nr > 0 ) {
+          valuePointer Cj = Cmat + j*nr_x_n ;
           #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
           spin.lock() ;
           #endif
           gemm( NO_TRANSPOSE, NO_TRANSPOSE,
-                nb, nrhs, n,
-                -1.0, Cj, nb,
+                nr, nrhs, n,
+                -1.0, Cj, nr,
                       xj, ldX,
-                 1.0, xn, ldX ) ;
+                 1.0, xb, ldX ) ;
           #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
           spin.unlock() ;
           #endif
@@ -962,33 +1008,43 @@ namespace alglin {
   template <typename t_Value>
   void
   BorderedCR<t_Value>::backward( integer nth, valuePointer x ) const {
-    valuePointer xn = x + (nblock+1)*n + q ;
+    valuePointer xn = x + (nblock+1)*n + qx ;
     integer iblock = iBlock[2*nth+0] ;
     integer eblock = iBlock[2*nth+1] ;
-    integer k      = kBlock[nth] ;
+    valuePointer x0 = x    + iblock*n ;
+    valuePointer B0 = Bmat + iblock*n_x_nx ;
+    valuePointer D0 = Dmat + iblock*n_x_n ;
+    valuePointer E0 = Emat + iblock*n_x_n ;
+    valuePointer T0 = Tmat + iblock*Tsize ;
+    integer k = kBlock[nth] ;
     while ( (k/=2) > 0 ) {
-      for ( integer j = iblock+k ; j < eblock ; j += 2*k ) {
-        integer      jp  = j-k ;
+      valuePointer xj = x0 + k*n ;
+      valuePointer xp = x0 ;
+      valuePointer Bj = B0 + k*n_x_nx ;
+      valuePointer Dj = D0 + k*n_x_n ;
+      valuePointer Ej = E0 + k*n_x_n ;
+      valuePointer T  = T0 + k*Tsize ;
+      integer   k_x_2 = 2*k ;
+      for ( integer j = iblock+k ; j < eblock ; j += k_x_2 ) {
         integer      jpp = std::min(j+k,eblock) ;
-        valuePointer Dj  = Dmat + j*nxn ;
-        valuePointer Ej  = Emat + j*nxn ;
-        valuePointer xj  = x + j*n ;
-        valuePointer xp  = x + jp*n ;
         valuePointer xpp = x + jpp*n ;
         gemv( NO_TRANSPOSE, n, n, -1.0, Dj, n, xp,  1, 1.0, xj, 1 ) ;
         gemv( NO_TRANSPOSE, n, n, -1.0, Ej, n, xpp, 1, 1.0, xj, 1 ) ;
-        if ( nb > 0 ) {
-          valuePointer Bj = Bmat + j*nxnb ;
-          gemv( NO_TRANSPOSE, n, nb, -1.0, Bj, n, xn, 1, 1.0, xj, 1 ) ;
-        }
-        valuePointer const T = Tmat + j*Tsize ;
-        trsv( UPPER, NO_TRANSPOSE, NON_UNIT, n, T, nx2, xj, 1 ) ;
+        if ( nx > 0 ) gemv( NO_TRANSPOSE, n, nx, -1.0, Bj, n, xn, 1, 1.0, xj, 1 ) ;
+        trsv( UPPER, NO_TRANSPOSE, NON_UNIT, n, T, n_x_2, xj, 1 ) ;
         if ( selected == BORDERED_QRP ) {
           integer * const P = Rperm + j*n ;
           for ( integer i = 0 ; i < n ; ++i )
             if ( P[i] > i )
               std::swap( xj[i], xj[P[i]] ) ;
         }
+        // NEXT STEP
+        Bj += k_x_2*n_x_nx ;
+        Dj += k_x_2*n_x_n ;
+        Ej += k_x_2*n_x_n ;
+        xj += k_x_2*n ;
+        xp += k_x_2*n ;
+        T  += k_x_2*Tsize ;
       }
     }
   }
@@ -999,48 +1055,57 @@ namespace alglin {
                                    integer      nrhs,
                                    valuePointer x,
                                    integer      ldX ) const {
-    valuePointer xn = x + (nblock+1)*n + q ;
+    valuePointer xn = x + (nblock+1)*n + qx ;
     integer iblock = iBlock[2*nth+0] ;
     integer eblock = iBlock[2*nth+1] ;
-    integer k      = kBlock[nth] ;
+    valuePointer x0 = x    + iblock*n ;
+    valuePointer B0 = Bmat + iblock*n_x_nx ;
+    valuePointer D0 = Dmat + iblock*n_x_n ;
+    valuePointer E0 = Emat + iblock*n_x_n ;
+    valuePointer T0 = Tmat + iblock*Tsize ;
+    integer k = kBlock[nth] ;
     while ( (k/=2) > 0 ) {
-      for ( integer j = iblock+k ; j < eblock ; j += 2*k ) {
-        integer      jp  = j-k ;
+      valuePointer xj = x0 + k*n ;
+      valuePointer xp = x0 ;
+      valuePointer Bj = B0 + k*n_x_nx ;
+      valuePointer Dj = D0 + k*n_x_n ;
+      valuePointer Ej = E0 + k*n_x_n ;
+      valuePointer T  = T0 + k*Tsize ;
+      integer   k_x_2 = 2*k ;
+      for ( integer j = iblock+k ; j < eblock ; j += k_x_2 ) {
         integer      jpp = std::min(j+k,eblock) ;
-        valuePointer Dj  = Dmat + j*nxn ;
-        valuePointer Ej  = Emat + j*nxn ;
-        valuePointer xj  = x + j*n ;
-        valuePointer xjp = x + jp*n ;
         valuePointer xpp = x + jpp*n ;
         gemm( NO_TRANSPOSE, NO_TRANSPOSE,
               n, nrhs, n,
               -1.0, Dj,  n,
-                    xjp, ldX,
+                    xp,  ldX,
                1.0, xj,  ldX ) ;
         gemm( NO_TRANSPOSE, NO_TRANSPOSE,
               n, nrhs, n,
               -1.0, Ej,  n,
                     xpp, ldX,
                1.0, xj,  ldX ) ;
-        if ( nb > 0 ) {
-          valuePointer Bj = Bmat + j*nxnb ;
+        if ( nx > 0 )
           gemm( NO_TRANSPOSE, NO_TRANSPOSE,
-                n, nrhs, nb,
+                n, nrhs, nx,
                 -1.0, Bj, n,
                       xn, ldX,
                  1.0, xj, ldX ) ;
-        }
-
-        // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-        valuePointer const T = Tmat + j*Tsize ;
         trsm( LEFT, UPPER, NO_TRANSPOSE, NON_UNIT,
-              n, nrhs, 1.0, T, nx2, xj, ldX ) ;
+              n, nrhs, 1.0, T, n_x_2, xj, ldX ) ;
         if ( selected == BORDERED_QRP ) {
           integer * const P = Rperm + j*n ;
           for ( integer i = 0 ; i < n ; ++i )
             if ( P[i] > i )
               swap( nrhs, xj+i, ldX, xj+P[i], ldX ) ;
         }
+        // NEXT STEP
+        Bj += k_x_2*n_x_nx ;
+        Dj += k_x_2*n_x_n ;
+        Ej += k_x_2*n_x_n ;
+        xj += k_x_2*n ;
+        xp += k_x_2*n ;
+        T  += k_x_2*Tsize ;
       }
     }
   }
@@ -1048,7 +1113,7 @@ namespace alglin {
   template <typename t_Value>
   void
   BorderedCR<t_Value>::backward_reduced( valuePointer x ) const {
-    valuePointer xn = x + (nblock+1)*n + q ;
+    valuePointer xn = x + (nblock+1)*n + qx ;
     integer nblk = 2*usedThread-1 ;
     integer k = 1 ;
     while ( k < nblk ) k *= 2 ;
@@ -1057,19 +1122,19 @@ namespace alglin {
         integer      j   = iBlock[jj] ;
         integer      jp  = iBlock[jj-k] ;
         integer      jpp = iBlock[std::min(jj+k,nblk)] ;
-        valuePointer Dj  = Dmat + j*nxn ;
-        valuePointer Ej  = Emat + j*nxn ;
+        valuePointer Dj  = Dmat + j*n_x_n ;
+        valuePointer Ej  = Emat + j*n_x_n ;
         valuePointer xj  = x + j*n ;
         valuePointer xp  = x + jp*n ;
         valuePointer xpp = x + jpp*n ;
         gemv( NO_TRANSPOSE, n, n, -1.0, Dj, n, xp,  1, 1.0, xj, 1 ) ;
         gemv( NO_TRANSPOSE, n, n, -1.0, Ej, n, xpp, 1, 1.0, xj, 1 ) ;
-        if ( nb > 0 ) {
-          valuePointer Bj = Bmat + j*nxnb ;
-          gemv( NO_TRANSPOSE, n, nb, -1.0, Bj, n, xn, 1, 1.0, xj, 1 ) ;
+        if ( nx > 0 ) {
+          valuePointer Bj = Bmat + j*n_x_nx ;
+          gemv( NO_TRANSPOSE, n, nx, -1.0, Bj, n, xn, 1, 1.0, xj, 1 ) ;
         }
         valuePointer const T = Tmat + j*Tsize ;
-        trsv( UPPER, NO_TRANSPOSE, NON_UNIT, n, T, nx2, xj, 1 ) ;
+        trsv( UPPER, NO_TRANSPOSE, NON_UNIT, n, T, n_x_2, xj, 1 ) ;
         if ( selected == BORDERED_QRP ) {
           integer * const P = Rperm + j*n ;
           for ( integer i = 0 ; i < n ; ++i )
@@ -1085,7 +1150,7 @@ namespace alglin {
   BorderedCR<t_Value>::backward_n_reduced( integer      nrhs,
                                            valuePointer x,
                                            integer      ldX ) const {
-    valuePointer xn = x + (nblock+1)*n + q ;
+    valuePointer xn = x + (nblock+1)*n + qx ;
     integer nblk = 2*usedThread-1 ;
     integer k = 1 ;
     while ( k < nblk ) k *= 2 ;
@@ -1094,8 +1159,8 @@ namespace alglin {
         integer      j   = iBlock[jj] ;
         integer      jp  = iBlock[jj-k] ;
         integer      jpp = iBlock[std::min(jj+k,nblk)] ;
-        valuePointer Dj  = Dmat + j*nxn ;
-        valuePointer Ej  = Emat + j*nxn ;
+        valuePointer Dj  = Dmat + j*n_x_n ;
+        valuePointer Ej  = Emat + j*n_x_n ;
         valuePointer xj  = x + j*n ;
         valuePointer xjp = x + jp*n ;
         valuePointer xpp = x + jpp*n ;
@@ -1109,10 +1174,10 @@ namespace alglin {
               -1.0, Ej,  n,
                     xpp, ldX,
                1.0, xj,  ldX ) ;
-        if ( nb > 0 ) {
-          valuePointer Bj = Bmat + j*nxnb ;
+        if ( nx > 0 ) {
+          valuePointer Bj = Bmat + j*n_x_nx ;
           gemm( NO_TRANSPOSE, NO_TRANSPOSE,
-                n, nrhs, nb,
+                n, nrhs, nx,
                 -1.0, Bj, n,
                       xn, ldX,
                  1.0, xj, ldX ) ;
@@ -1121,7 +1186,7 @@ namespace alglin {
         // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
         valuePointer const T = Tmat + j*Tsize ;
         trsm( LEFT, UPPER, NO_TRANSPOSE, NON_UNIT,
-              n, nrhs, 1.0, T, nx2, xj, ldX ) ;
+              n, nrhs, 1.0, T, n_x_2, xj, ldX ) ;
         if ( selected == BORDERED_QRP ) {
           integer * const P = Rperm + j*n ;
           for ( integer i = 0 ; i < n ; ++i )

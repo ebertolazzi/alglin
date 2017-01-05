@@ -49,13 +49,14 @@ main() {
   //#define NSIZE 6
 
   alglin::integer n      = NSIZE ;
-  alglin::integer nblock = 500 ; // 200000 ;
-  alglin::integer q      = 4 ;
-  alglin::integer nb     = 1 ;
-  alglin::integer nq     = n+q ;
-  alglin::integer N      = (nblock+1)*n+nb+q ;
+  alglin::integer nblock = 5000 ; // 200000 ;
+  alglin::integer qx     = 4+1 ;
+  alglin::integer qr     = 4 ;
+  alglin::integer nx     = 2-1 ;
+  alglin::integer nr     = 2 ;
+  alglin::integer N      = (nblock+1)*n+nx+qx ;
  
-  BCR.allocate( nblock, n, q, nb ) ;
+  BCR.allocate( nblock, n, qr, qx, nr, nx ) ;
 
   alglin::Malloc<valueType>       baseValue("real") ;
   alglin::Malloc<alglin::integer> baseIndex("integer") ;
@@ -79,8 +80,8 @@ main() {
   //BCR.select_last_QR();
   //BCR.select_last_QRP();
   
-  for ( int i = 0 ; i < nq ; ++i ) {
-    for ( int j = 0 ; j < (nq+n+nb) ; ++j ) {
+  for ( int i = 0 ; i < (n+qr) ; ++i ) {
+    for ( int j = 0 ; j < (2*n+qx+nx) ; ++j ) {
       BCR.H(i,j) = rand(-1,0) ;
     }
     BCR.H(i,i+n) += diag ; // force diagonal dominance
@@ -95,23 +96,21 @@ main() {
       BCR.D(k,i,i) += diag ; // force diagonal dominance
     }
     for ( int i = 0 ; i < n ; ++i ) {
-      for ( int j = 0 ; j < nb ; ++j ) {
-        BCR.B(k,i,j) = rand(-0.1,0.1) ;
-        BCR.C(k,j,i) = rand(-0.1,0.1) ;
-      }
+      for ( int j = 0 ; j < nx ; ++j ) BCR.B(k,i,j) = rand(-0.1,0.1) ;
+      for ( int j = 0 ; j < nr ; ++j ) BCR.C(k,j,i) = rand(-0.1,0.1) ;
     }
   }
-  for ( int i = 0 ; i < nb ; ++i ) {
-    for ( int j = 0 ; j < nb ; ++j ) {
+  for ( int i = 0 ; i < nr ; ++i ) {
+    for ( int j = 0 ; j < nx ; ++j ) {
       BCR.F(i,j) = rand(-0.1,0.1) ;
     }
-    for ( int j = 0 ; j < q ; ++j ) {
+    for ( int j = 0 ; j < qx ; ++j ) {
       BCR.Cq(i,j) = rand(-0.1,0.1) ;
     }
     BCR.F(i,i) += diag ; // force diagonal dominance
   }
   for ( int i = 0 ; i < n ; ++i ) {
-    for ( int j = 0 ; j < nb ; ++j ) {
+    for ( int j = 0 ; j < nr ; ++j ) {
       BCR.C(nblock,j,i) = 1 ;
     }
   }
@@ -124,8 +123,10 @@ main() {
 
   cout << "nblock = " << nblock << "\n"
        << "n      = " << n      << "\n"
-       << "q      = " << q      << "\n"
-       << "nb     = " << nb     << "\n" ;
+       << "nr     = " << nr     << "\n"
+       << "nx     = " << nx     << "\n"
+       << "qr     = " << qr     << "\n"
+       << "qx     = " << qx     << "\n" ;
   /*
   ofstream file("mat.txt") ;
   file.precision(15) ;
@@ -171,6 +172,36 @@ main() {
   BCR.solve( x ) ;
   tm.toc() ;
   cout << "\nSolve = " << tm.elapsedMilliseconds() << " [ms]\n\n" ;
+
+  alglin::copy( N, xref, 1, xref1, 1 ) ;
+  alglin::axpy( N, -1.0, x, 1, xref1, 1 ) ;
+  cout << "Check |err|_inf = " << alglin::absmax( N, xref1, 1 ) << '\n' ;
+  cout << "Check |err|_1 = " << alglin::asum( N, xref1, 1 )/N << '\n' ;
+
+  tm.tic() ;
+  BCR.solve( 2, x, N ) ;
+  std::copy( rhs, rhs+2*N, x ) ;
+  BCR.solve( 2, x, N ) ;
+  std::copy( rhs, rhs+2*N, x ) ;
+  BCR.solve( 2, x, N ) ;
+  std::copy( rhs, rhs+2*N, x ) ;
+  BCR.solve( 2, x, N ) ;
+  std::copy( rhs, rhs+2*N, x ) ;
+  BCR.solve( 2, x, N ) ;
+  std::copy( rhs, rhs+2*N, x ) ;
+  BCR.solve( 2, x, N ) ;
+  std::copy( rhs, rhs+2*N, x ) ;
+  BCR.solve( 2, x, N ) ;
+  std::copy( rhs, rhs+2*N, x ) ;
+  BCR.solve( 2, x, N ) ;
+  std::copy( rhs, rhs+2*N, x ) ;
+  BCR.solve( 2, x, N ) ;
+  std::copy( rhs, rhs+2*N, x ) ;
+  BCR.solve( 2, x, N ) ;
+  std::copy( rhs, rhs+2*N, x ) ;
+  BCR.solve( 2, x, N ) ;
+  tm.toc() ;
+  cout << "\nSolve2 = " << tm.elapsedMilliseconds() << " [ms]\n\n" ;
 
   /*
   file.open("sol.txt") ;

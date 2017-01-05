@@ -30,12 +30,9 @@
 #pragma clang diagnostic ignored "-Wpadded"
 #endif
 
-
-#ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
-  #include "Alglin_threads.hh"
-  #ifndef BORDERED_CYCLIC_REDUCTION_MAX_THREAD
-    #define BORDERED_CYCLIC_REDUCTION_MAX_THREAD 256
-  #endif
+#include "Alglin_threads.hh"
+#ifndef BORDERED_CYCLIC_REDUCTION_MAX_THREAD
+  #define BORDERED_CYCLIC_REDUCTION_MAX_THREAD 256
 #endif
 
 namespace alglin {
@@ -75,7 +72,42 @@ namespace alglin {
    *           Via Sommarive 9, I-38123 Povo, Trento, Italy<br>
    *           enrico.bertolazzi\@unitn.it
    *
-   */
+  \*/
+
+  /*\
+   |
+   |  Matrix structure
+   |
+   |                 n * (nblock+1)
+   |    ___________________^____________________
+   |   /                                        \
+   |    n   n   n                              n  qx  nx
+   |  +---+---+---+----.................-----+---+---+---+   -+
+   |  | D | E |   |                          |   |   | B | n  |
+   |  +---+---+---+                     -----+---+---+---+    |
+   |  |   | D | E |                          |   |   | B | n  |
+   |  +---+---+---+---+                 -----+---+---+---+    |
+   |  |   |   | D | E |                      |   |   | B | n  |
+   |  +---+---+---+---+                 -----+---+---+---+    |
+   |  :                                                  :    |
+   |  :                                                  :    |
+   |  :                                                  :     > n * nblock
+   |  :                                                  :    |
+   |  :                                                  :    |
+   |  :                              +---+---+---+---+---+    |
+   |  :                              | D | E |   |   | B | n  |
+   |  :                              +---+---+---+---+---+    |
+   |  :                                  | D | E |   | B | n  |
+   |  +---+---+---................---+---+---+---+---+---+   -+
+   |  |   |   |                          |   |   |   |   |    |
+   |  |H0 | 0 |                          | 0 |HN | Hq| Hp|    | n+qr
+   |  |   |   |                          |   |   |   |   |    |
+   |  +---+---+---................---+---+---+---+---+---+   -+
+   |  | C | C |                      | C | C | C | Cq| F |    | nr
+   |  +---+---+---................---+---+---+---+---+---+   -+
+   |                                             nr*qx
+  \*/
+
   template <typename t_Value>
   class BorderedCR {
   private:
@@ -94,14 +126,16 @@ namespace alglin {
 
     integer nblock ; //!< total number of blocks
     integer n      ; //!< size of square blocks
-    integer q      ; //!< extra BC
-    integer nb     ; //!< border size
+    integer qr, qx ; //!< extra BC
+    integer nr, nx ; //!< border size
 
     // some derived constants
-    integer nx2 ;
-    integer nxn ;
-    integer nxnb ;
-    integer N ;
+    integer n_x_2 ;
+    integer n_x_n ;
+    integer n_x_nx ;
+    integer nr_x_n ;
+    integer nr_x_nx ;
+    integer Nr, Nc ;
     integer Tsize ;
     
     BORDERED_LAST_Choice last_selected ;
@@ -210,39 +244,6 @@ namespace alglin {
                 valuePointer rhs,
                 integer      ldRhs ) const ;
 
-    /*
-    //
-    //  Matrix structure
-    //
-    //                 n * (nblock+1)
-    //    ___________________^____________________
-    //   /                                        \
-    //    n   n   n                              n   q  nb
-    //  +---+---+---+----.................-----+---+---+---+   -+
-    //  | D | E |   |                          |   |   | B | n  |
-    //  +---+---+---+                     -----+---+---+---+    |
-    //  |   | D | E |                          |   |   | B | n  |
-    //  +---+---+---+---+                 -----+---+---+---+    |
-    //  |   |   | D | E |                      |   |   | B | n  |
-    //  +---+---+---+---+                 -----+---+---+---+    |
-    //  :                                                  :    |
-    //  :                                                  :    |
-    //  :                                                  :     > n * nblock
-    //  :                                                  :    |
-    //  :                                                  :    |
-    //  :                              +---+---+---+---+---+    |
-    //  :                              | D | E |   |   | B | n  |
-    //  :                              +---+---+---+---+---+    |
-    //  :                                  | D | E |   | B | n  |
-    //  +---+---+---................---+---+---+---+---+---+   -+
-    //  |   |   |                          |   |   |   |   |    |
-    //  |H0 | 0 |                          | 0 |HN | Hq| Hp|    | n+q
-    //  |   |   |                          |   |   |   |   |    |
-    //  +---+---+---................---+---+---+---+---+---+   -+
-    //  | C | C |                      | C | C | C | Cq| F |    | nb
-    //  +---+---+---................---+---+---+---+---+---+   -+
-    */
-
     valuePointer H0Nqp ;
     valuePointer Bmat, Cmat, Cqmat, Dmat, Emat, Fmat, WorkT, WorkQR ;
     
@@ -256,14 +257,10 @@ namespace alglin {
 
     integer      *iBlock, *kBlock ;
 
-    integer max_Thread, usedThread ;
-    mutable valuePointer xn_thread ;
-    #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
+    integer maxThread, usedThread ;
+    mutable valuePointer xb_thread ;
     mutable std::thread threads[BORDERED_CYCLIC_REDUCTION_MAX_THREAD] ;
     mutable SpinLock spin ;
-    //mutable Barrier barrier ;
-    //mutable SpinLock_barrier barrier ;
-    #endif
 
   public:
 
@@ -278,12 +275,17 @@ namespace alglin {
     , baseInteger("BorderedCR_integers")
     , nblock(0)
     , n(0)
-    , q(0)
-    , nb(0)
-    , nx2(0)
-    , nxn(0)
-    , nxnb(0)
-    , N(0)
+    , qr(0)
+    , qx(0)
+    , nr(0)
+    , nx(0)
+    , n_x_2(0)
+    , n_x_n(0)
+    , n_x_nx(0)
+    , nr_x_n(0)
+    , nr_x_nx(0)
+    , Nr(0)
+    , Nc(0)
     , last_selected(BORDERED_LAST_LU)
     , selected(BORDERED_LU)
     , H0Nqp(nullptr)
@@ -307,7 +309,7 @@ namespace alglin {
       ALGLIN_ASSERT( nth > 0 && nth <= BORDERED_CYCLIC_REDUCTION_MAX_THREAD,
                      "Bad number of thread specification [" << nth << "]\n"
                      "must be a number > 0 and <= " << BORDERED_CYCLIC_REDUCTION_MAX_THREAD ) ;
-      max_Thread = nth ;
+      maxThread = nth ;
       #else
       maxThread = 1 ;
       #endif
@@ -320,8 +322,10 @@ namespace alglin {
     void
     allocate( integer _nblock,
               integer _n,
-              integer _q,
-              integer _nb ) ;
+              integer _qr,
+              integer _qx,
+              integer _nr,
+              integer _nx ) ;
 
     void select_LU()  { selected = BORDERED_LU ; }
     void select_QR()  { selected = BORDERED_QR ; }
@@ -337,124 +341,124 @@ namespace alglin {
 
     void
     loadD( integer nbl, valueConstPointer D, integer ldD )
-    { gecopy( n, n, D, ldD, Dmat + nbl*nxn, n ) ; }
+    { gecopy( n, n, D, ldD, Dmat + nbl*n_x_n, n ) ; }
 
     t_Value & D( integer nbl, integer i, integer j )
-    { return Dmat[ nbl*nxn + i + j*n] ; }
+    { return Dmat[ nbl*n_x_n + i + j*n] ; }
 
     t_Value const & D( integer nbl, integer i, integer j ) const
-    { return Dmat[ nbl*nxn + i + j*n] ; }
+    { return Dmat[ nbl*n_x_n + i + j*n] ; }
 
     void
     loadE( integer nbl, valueConstPointer E, integer ldE )
-    { gecopy( n, n, E, ldE, Emat + nbl*nxn, n ) ; }
+    { gecopy( n, n, E, ldE, Emat + nbl*n_x_n, n ) ; }
 
     t_Value & E( integer nbl, integer i, integer j )
-    { return Emat[ nbl*nxn + i + j*n] ; }
+    { return Emat[ nbl*n_x_n + i + j*n] ; }
 
     t_Value const & E( integer nbl, integer i, integer j ) const
-    { return Emat[ nbl*nxn + i + j*n] ; }
+    { return Emat[ nbl*n_x_n + i + j*n] ; }
 
     void
     loadDE( integer nbl, valueConstPointer DE, integer ldDE ) {
-      gecopy( n, n, DE, ldDE, Dmat + nbl*nxn, n ) ; DE += n*ldDE ;
-      gecopy( n, n, DE, ldDE, Emat + nbl*nxn, n ) ;
+      gecopy( n, n, DE, ldDE, Dmat + nbl*n_x_n, n ) ; DE += n*ldDE ;
+      gecopy( n, n, DE, ldDE, Emat + nbl*n_x_n, n ) ;
     }
 
     // -------------------------------------------------------------------------
     // Border Bottom blocks
     void
     setZeroC()
-    { zero( (nblock+1)*nxnb, Cmat, 1 ) ; }
+    { zero( (nblock+1)*nr_x_n, Cmat, 1 ) ; }
 
     void
     loadC( integer nbl, valueConstPointer C, integer ldC )
-    { gecopy( nb, n, C, ldC, Cmat + nbl*nxnb, nb ) ; }
+    { gecopy( nr, n, C, ldC, Cmat + nbl*nr_x_n, nr ) ; }
 
     void
     addtoC( integer nbl, valueConstPointer C, integer ldC ) {
-      valuePointer CC = Cmat + nbl*nxnb ;
-      geadd( nb, n, 1.0, C, ldC, 1.0, CC, nb, CC, nb ) ;
+      valuePointer CC = Cmat + nbl*nr_x_n ;
+      geadd( nr, n, 1.0, C, ldC, 1.0, CC, nr, CC, nr ) ;
     }
 
     // add to block nbl and nbl+1
     void
     addtoC2( integer nbl, valueConstPointer C, integer ldC ) {
-      valuePointer CC = Cmat + nbl*nxnb ;
-      geadd( nb, nx2, 1.0, C, ldC, 1.0, CC, nb, CC, nb ) ;
+      valuePointer CC = Cmat + nbl*nr_x_n ;
+      geadd( nr, n_x_2, 1.0, C, ldC, 1.0, CC, nr, CC, nr ) ;
     }
 
     t_Value & C( integer nbl, integer i, integer j )
-    { return Cmat[ nbl*nxnb + i + j*nb ] ; }
+    { return Cmat[ nbl*nr_x_n + i + j*nr ] ; }
 
     t_Value const & C( integer nbl, integer i, integer j ) const
-    { return Cmat[ nbl*nxnb + i + j*nb ] ; }
+    { return Cmat[ nbl*nr_x_n + i + j*nr ] ; }
 
     // -------------------------------------------------------------------------
     // Border Right blocks
     void
     setZeroB()
-    { zero( nblock*nxnb, Bmat, 1 ) ; }
+    { zero( nblock*n_x_nx, Bmat, 1 ) ; }
 
     void
     loadB( integer nbl, valueConstPointer B, integer ldB )
-    { gecopy( n, nb, B, ldB, Bmat + nbl*nxnb, n ) ; }
+    { gecopy( n, nx, B, ldB, Bmat + nbl*n_x_nx, n ) ; }
 
     void
     addtoB( integer nbl, valueConstPointer B, integer ldB ) {
-      valuePointer BB = Bmat + nbl*nxnb ;
-      geadd( n, nb, 1.0, B, ldB, 1.0, BB, n, BB, n ) ;
+      valuePointer BB = Bmat + nbl*n_x_nx ;
+      geadd( n, nx, 1.0, B, ldB, 1.0, BB, n, BB, n ) ;
     }
 
     t_Value & B( integer nbl, integer i, integer j )
-    { return Bmat[ nbl*nxnb + i + j*n ] ; }
+    { return Bmat[ nbl*n_x_nx + i + j*n ] ; }
 
     t_Value const & B( integer nbl, integer i, integer j ) const
-    { return Bmat[ nbl*nxnb + i + j*n ] ; }
+    { return Bmat[ nbl*n_x_nx + i + j*n ] ; }
 
     void
     loadDEB( integer nbl, valueConstPointer DEB, integer ldDEB ) {
-      gecopy( n, n,  DEB, ldDEB, Dmat + nbl*nxn,  n  ) ; DEB += n*ldDEB ;
-      gecopy( n, n,  DEB, ldDEB, Emat + nbl*nxn,  n  ) ; DEB += n*ldDEB ;
-      gecopy( n, nb, DEB, ldDEB, Bmat + nbl*nxnb, nb ) ;
+      gecopy( n, n,  DEB, ldDEB, Dmat + nbl*n_x_n,  n  ) ; DEB += n*ldDEB ;
+      gecopy( n, n,  DEB, ldDEB, Emat + nbl*n_x_n,  n  ) ; DEB += n*ldDEB ;
+      gecopy( n, nx, DEB, ldDEB, Bmat + nbl*n_x_nx, nx ) ;
     }
 
     // -------------------------------------------------------------------------
 
     void
     setZeroF()
-    { zero( nb*nb, Fmat, 1 ) ; }
+    { zero( nr*nx, Fmat, 1 ) ; }
 
     void
     loadF( valueConstPointer F, integer ldF )
-    { gecopy( nb, nb, F, ldF, Fmat, nb ) ; }
+    { gecopy( nr, nx, F, ldF, Fmat, nx ) ; }
 
     t_Value & F( integer i, integer j )
-    { return Fmat[ i + j*nb ] ; }
+    { return Fmat[ i + j*nr ] ; }
 
     t_Value const & F( integer i, integer j ) const
-    { return Fmat[ i + j*nb ] ; }
+    { return Fmat[ i + j*nr ] ; }
 
     // -------------------------------------------------------------------------
 
     void
     setZeroCq()
-    { zero( nb*q, Cqmat, 1 ) ; }
+    { zero( nr*qx, Cqmat, 1 ) ; }
 
     void
     loadCq( valueConstPointer Cq, integer ldC )
-    { gecopy( nb, q, Cq, ldC, Cqmat, nb ) ; }
+    { gecopy( nr, qx, Cq, ldC, Cqmat, nr ) ; }
 
     t_Value & Cq( integer i, integer j )
-    { return Cqmat[ i + j*nb ] ; }
+    { return Cqmat[ i + j*nr ] ; }
 
     t_Value const & Cq( integer i, integer j ) const
-    { return Cqmat[ i + j*nb ] ; }
+    { return Cqmat[ i + j*nr ] ; }
 
     void
     loadCqF( valueConstPointer CqF, integer ldCF ) {
-      gecopy( nb, q,  CqF, ldCF, Cqmat, nb ) ; CqF += q*ldCF ;
-      gecopy( nb, nb, CqF, ldCF, Fmat,  nb ) ;
+      gecopy( nr, qx, CqF, ldCF, Cqmat, nr ) ; CqF += qx*ldCF ;
+      gecopy( nr, nx, CqF, ldCF, Fmat,  nr ) ;
     }
 
     // -------------------------------------------------------------------------
@@ -467,15 +471,15 @@ namespace alglin {
 
     void
     loadBottom( valueConstPointer _H0Nqp, integer ldH ) {
-      integer nq = n+q ;
-      gecopy( nq, N, _H0Nqp, ldH, H0Nqp, nq ) ;
+      integer nq = n+qr ;
+      gecopy( nq, Nc, _H0Nqp, ldH, H0Nqp, nq ) ;
     }
 
     t_Value & H( integer i, integer j )
-    { return H0Nqp[ i + j*(n+q) ] ; }
+    { return H0Nqp[ i + j*(n+qr) ] ; }
 
     t_Value const & H( integer i, integer j ) const
-    { return H0Nqp[ i + j*(n+q) ] ; }
+    { return H0Nqp[ i + j*(n+qr) ] ; }
 
     void
     factorize() ;
