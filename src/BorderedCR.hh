@@ -374,6 +374,13 @@ namespace alglin {
       return res ;
     }
 
+    string
+    info_algo() const {
+      string a = choice_to_string(selected);
+      string b = choice_to_string(last_selected);
+      return a+" and "+b ;
+    }
+
     integer numRows() const { return n * (nblock+1) + qx + nx ; }
     integer numCols() const { return n * (nblock+1) + qr + nr ; }
 
