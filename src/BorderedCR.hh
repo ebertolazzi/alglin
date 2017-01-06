@@ -39,18 +39,17 @@
 
 namespace alglin {
 
-  //! available LU factorization code
-  typedef enum {
-    BORDERED_LAST_LU  = 0,
-    BORDERED_LAST_QR  = 1,
-    BORDERED_LAST_QRP = 2
-  } BORDERED_LAST_Choice;
-
   typedef enum {
     BORDERED_LU  = 0,
     BORDERED_QR  = 1,
     BORDERED_QRP = 2
   } BORDERED_Choice;
+
+  typedef enum {
+    BORDERED_LAST_LU  = 0,
+    BORDERED_LAST_QR  = 1,
+    BORDERED_LAST_QRP = 2
+  } BORDERED_LAST_Choice;
 
   /*\
    |   ___             _                _    ___ ___
@@ -350,6 +349,30 @@ namespace alglin {
     void select_last_LU()  { last_selected = BORDERED_LAST_LU ; }
     void select_last_QR()  { last_selected = BORDERED_LAST_QR ; }
     void select_last_QRP() { last_selected = BORDERED_LAST_QRP ; }
+
+    static
+    string
+    choice_to_string( BORDERED_Choice c ) {
+      string res = "none" ;
+      switch ( c ) {
+      case BORDERED_LU:   res = "CyclicReduction+LU"  ; break ;
+      case BORDERED_QR:   res = "CyclicReduction+QR"  ; break ;
+      case BORDERED_QRP:  res = "CyclicReduction+QRP" ; break ;
+      }
+      return res ;
+    }
+
+    static
+    string
+    choice_to_string( BORDERED_LAST_Choice c ) {
+      string res = "LastBlock not selected" ;
+      switch ( c ) {
+      case BORDERED_LAST_LU:  res = "LastBlock LU"  ; break ;
+      case BORDERED_LAST_QR:  res = "LastBlock QR"  ; break ;
+      case BORDERED_LAST_QRP: res = "LastBlock QRP" ; break ;
+      }
+      return res ;
+    }
 
     integer numRows() const { return n * (nblock+1) + qx + nx ; }
     integer numCols() const { return n * (nblock+1) + qr + nr ; }
