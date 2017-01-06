@@ -23,6 +23,8 @@
 #include "Alglin.hh"
 #include "Alglin++.hh"
 
+#include <iostream>
+
 #ifdef __GCC__
 #pragma GCC diagnostic ignored "-Wpadded"
 #endif
@@ -165,6 +167,17 @@ namespace alglin {
             valuePointer      TOP,
             valuePointer      BOTTOM ) const ;
 
+    // convert permutation to exchanges
+    void
+    permutation_to_exchange( integer nn, integer P[], integer S[] ) const {
+      for ( integer i = 0 ; i < nn ; ++i ) {
+        integer j = i ;
+        while ( j < n ) { if ( P[j] == i+1 ) break ; ++j ; }
+        std::swap( P[j], P[i] ) ;
+        S[i] = j ;
+      }
+    }
+
     /*
     //    __         _           _
     //   / _|__ _ __| |_ ___ _ _(_)______
@@ -186,7 +199,7 @@ namespace alglin {
     */
 
     void
-    forward( integer nth, valuePointer x ) const ;
+    forward( integer nth, valuePointer x, valuePointer xb ) const ;
 
     void
     forward_n( integer      nth,
@@ -195,7 +208,7 @@ namespace alglin {
                integer      ldRhs ) const ;
 
     void
-    forward_reduced( valuePointer x ) const ;
+    forward_reduced( valuePointer x, valuePointer xb ) const ;
 
     void
     forward_n_reduced( integer      nrhs,
@@ -249,15 +262,16 @@ namespace alglin {
     
     // working block
     valuePointer Tmat, Ttau, Work ;
-    integer      *Rperm, *Cperm, Lwork, LworkT, LworkQR ;
+    integer      *Perm, Lwork, LworkT, LworkQR ;
 
     // last block
     valuePointer Hmat, Htau ;
-    integer      *Hperm, *Hswaps, *Tperm ;
+    integer      *Hperm, *Hswaps ;
 
     integer      *iBlock, *kBlock ;
 
     integer maxThread, usedThread ;
+    mutable integer      *perm_thread ;
     mutable valuePointer xb_thread ;
     mutable std::thread threads[BORDERED_CYCLIC_REDUCTION_MAX_THREAD] ;
     mutable SpinLock spin ;
@@ -298,8 +312,7 @@ namespace alglin {
     , Tmat(nullptr)
     , Ttau(nullptr)
     , Work(nullptr)
-    , Rperm(nullptr)
-    , Cperm(nullptr)
+    , Perm(nullptr)
     , Lwork(0)
     , Hmat(nullptr)
     , Htau(nullptr)
@@ -327,6 +340,9 @@ namespace alglin {
               integer _nr,
               integer _nx ) ;
 
+    void
+    dup( BorderedCR const & ) ;
+
     void select_LU()  { selected = BORDERED_LU ; }
     void select_QR()  { selected = BORDERED_QR ; }
     void select_QRP() { selected = BORDERED_QRP ; }
@@ -335,9 +351,24 @@ namespace alglin {
     void select_last_QR()  { last_selected = BORDERED_LAST_QR ; }
     void select_last_QRP() { last_selected = BORDERED_LAST_QRP ; }
 
+    integer numRows() const { return n * (nblock+1) + qx + nx ; }
+    integer numCols() const { return n * (nblock+1) + qr + nr ; }
+
+    void info( std::ostream & stream ) const ;
+
     // filling bidiagonal part of the matrix
     // -------------------------------------------------------------------------
-    void fillZero() ;
+    void zeroB()  { zero( nblock*n_x_nx, Cmat, 1 ) ; }
+    void zeroD()  { zero( nblock*n_x_n,  Dmat, 1 ) ; }
+    void zeroE()  { zero( nblock*n_x_n,  Emat, 1 ) ; }
+    void zeroF()  { zero( nr_x_nx, Fmat, 1 ) ; }
+    void zeroH()  { zero( (n+qr)*Nc, H0Nqp, 1 ) ; }
+    void zeroC()  { zero( (nblock+1)*nr_x_n, Cmat, 1 ) ; }
+    void zeroCq() { zero( nr*qx, Cqmat, 1 ) ; }
+
+    void
+    fillZero()
+    { zeroB(); zeroC(); zeroCq(); zeroD(); zeroE(); zeroF(); zeroH(); }
 
     void
     loadD( integer nbl, valueConstPointer D, integer ldD )
@@ -368,10 +399,6 @@ namespace alglin {
     // -------------------------------------------------------------------------
     // Border Bottom blocks
     void
-    setZeroC()
-    { zero( (nblock+1)*nr_x_n, Cmat, 1 ) ; }
-
-    void
     loadC( integer nbl, valueConstPointer C, integer ldC )
     { gecopy( nr, n, C, ldC, Cmat + nbl*nr_x_n, nr ) ; }
 
@@ -397,10 +424,6 @@ namespace alglin {
     // -------------------------------------------------------------------------
     // Border Right blocks
     void
-    setZeroB()
-    { zero( nblock*n_x_nx, Bmat, 1 ) ; }
-
-    void
     loadB( integer nbl, valueConstPointer B, integer ldB )
     { gecopy( n, nx, B, ldB, Bmat + nbl*n_x_nx, n ) ; }
 
@@ -424,14 +447,9 @@ namespace alglin {
     }
 
     // -------------------------------------------------------------------------
-
-    void
-    setZeroF()
-    { zero( nr*nx, Fmat, 1 ) ; }
-
     void
     loadF( valueConstPointer F, integer ldF )
-    { gecopy( nr, nx, F, ldF, Fmat, nx ) ; }
+    { gecopy( nr, nx, F, ldF, Fmat, nr ) ; }
 
     t_Value & F( integer i, integer j )
     { return Fmat[ i + j*nr ] ; }
@@ -440,11 +458,6 @@ namespace alglin {
     { return Fmat[ i + j*nr ] ; }
 
     // -------------------------------------------------------------------------
-
-    void
-    setZeroCq()
-    { zero( nr*qx, Cqmat, 1 ) ; }
-
     void
     loadCq( valueConstPointer Cq, integer ldC )
     { gecopy( nr, qx, Cq, ldC, Cqmat, nr ) ; }
@@ -492,7 +505,17 @@ namespace alglin {
 
     // aux function
     void
-    Mv( valueConstPointer x, valuePointer res ) const ;
+    Mv( valueConstPointer x, valuePointer res ) const {
+      zero( numRows(), res, 1 ) ;
+      addMv( x, res ) ;
+    }
+
+    void
+    addMv( valueConstPointer x, valuePointer res ) const ;
+
+    // b -> b - M*x
+    void
+    residual( valueConstPointer x, valuePointer b ) const ;
 
     void
     dump_ccoord( ostream & stream ) const ;

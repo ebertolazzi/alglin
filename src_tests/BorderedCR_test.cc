@@ -43,17 +43,17 @@ rand( valueType xmin, valueType xmax ) {
 int
 main() {
 
-  alglin::BorderedCR<double> BCR ;
+  alglin::BorderedCR<double> BCR, BCR_SAVED ;
 
   #define NSIZE 10
   //#define NSIZE 6
 
   alglin::integer n      = NSIZE ;
-  alglin::integer nblock = 5000 ; // 200000 ;
-  alglin::integer qx     = 4+1 ;
-  alglin::integer qr     = 4 ;
-  alglin::integer nx     = 2-1 ;
-  alglin::integer nr     = 2 ;
+  alglin::integer nblock = 500 ; // 200000 ;
+  alglin::integer qx     = 4 ;// 4+1 ;
+  alglin::integer qr     = 4 ;// 4 ;
+  alglin::integer nx     = 1 ;// 2-1 ;
+  alglin::integer nr     = 1 ;//2 ;
   alglin::integer N      = (nblock+1)*n+nx+qx ;
  
   BCR.allocate( nblock, n, qr, qx, nr, nx ) ;
@@ -61,14 +61,14 @@ main() {
   alglin::Malloc<valueType>       baseValue("real") ;
   alglin::Malloc<alglin::integer> baseIndex("integer") ;
   
-  baseValue.allocate( size_t(6*N) ) ;
+  baseValue.allocate( size_t(7*N) ) ;
   
   valueType diag = 1.01*n ;
 
   valueType * x     = baseValue(size_t(2*N)) ; // extra space per multiple rhs
   valueType * xref  = baseValue(size_t(N)) ;
   valueType * xref1 = baseValue(size_t(N)) ;
-  valueType * rhs   = baseValue(size_t(N)) ;
+  valueType * rhs   = baseValue(size_t(2*N)) ;
   valueType * resid = baseValue(size_t(N)) ;
   
   
@@ -115,18 +115,18 @@ main() {
     }
   }
 
-  cout << "N = " << N << '\n' ;
-
-  for ( alglin::integer i = 0 ; i < N ; ++i ) x[i] = i % 100 ;
+  for ( alglin::integer i = 0 ; i < N ; ++i ) x[i] = 1+ (i % 100) ;
   std::copy( x, x+N, xref ) ;
   BCR.Mv( x, rhs ) ;
+  BCR_SAVED.dup( BCR ) ;
 
-  cout << "nblock = " << nblock << "\n"
-       << "n      = " << n      << "\n"
-       << "nr     = " << nr     << "\n"
-       << "nx     = " << nx     << "\n"
-       << "qr     = " << qr     << "\n"
-       << "qx     = " << qx     << "\n" ;
+  cout << "N      = " << N      << '\n'
+       << "nblock = " << nblock << '\n'
+       << "n      = " << n      << '\n'
+       << "nr     = " << nr     << '\n'
+       << "nx     = " << nx     << '\n'
+       << "qr     = " << qr     << '\n'
+       << "qx     = " << qx     << '\n' ;
   /*
   ofstream file("mat.txt") ;
   file.precision(15) ;
@@ -149,7 +149,8 @@ main() {
   std::copy( rhs, rhs+N, x ) ;
   std::copy( rhs, rhs+N, x+N ) ;
   tm.tic() ;
-  //BCR.solve( 2, x, N ) ;
+  BCR.solve( x ) ;
+  #if 1
   std::copy( rhs, rhs+N, x ) ;
   BCR.solve( x ) ;
   std::copy( rhs, rhs+N, x ) ;
@@ -168,18 +169,19 @@ main() {
   BCR.solve( x ) ;
   std::copy( rhs, rhs+N, x ) ;
   BCR.solve( x ) ;
-  std::copy( rhs, rhs+N, x ) ;
-  BCR.solve( x ) ;
+  #endif
   tm.toc() ;
   cout << "\nSolve = " << tm.elapsedMilliseconds() << " [ms]\n\n" ;
 
   alglin::copy( N, xref, 1, xref1, 1 ) ;
   alglin::axpy( N, -1.0, x, 1, xref1, 1 ) ;
   cout << "Check |err|_inf = " << alglin::absmax( N, xref1, 1 ) << '\n' ;
-  cout << "Check |err|_1 = " << alglin::asum( N, xref1, 1 )/N << '\n' ;
+  cout << "Check |err|_1/N = " << alglin::asum( N, xref1, 1 )/N << '\n' ;
 
+  std::copy( rhs, rhs+2*N, x ) ;
   tm.tic() ;
   BCR.solve( 2, x, N ) ;
+  #if 1
   std::copy( rhs, rhs+2*N, x ) ;
   BCR.solve( 2, x, N ) ;
   std::copy( rhs, rhs+2*N, x ) ;
@@ -200,6 +202,7 @@ main() {
   BCR.solve( 2, x, N ) ;
   std::copy( rhs, rhs+2*N, x ) ;
   BCR.solve( 2, x, N ) ;
+  #endif
   tm.toc() ;
   cout << "\nSolve2 = " << tm.elapsedMilliseconds() << " [ms]\n\n" ;
 
@@ -216,7 +219,19 @@ main() {
   alglin::copy( N, xref, 1, xref1, 1 ) ;
   alglin::axpy( N, -1.0, x, 1, xref1, 1 ) ;
   cout << "Check |err|_inf = " << alglin::absmax( N, xref1, 1 ) << '\n' ;
-  cout << "Check |err|_1 = " << alglin::asum( N, xref1, 1 )/N << '\n' ;
+  cout << "Check |err|_1/N = " << alglin::asum( N, xref1, 1 )/N << '\n' ;
+
+  cout << "\n\ncheck residual\n\n" ;
+
+  std::copy( rhs, rhs+N, resid ) ;
+  alglin::scal( N, -1.0, resid, 1 ) ;
+  std::copy( rhs, rhs+N, x ) ;
+  BCR.solve( x ) ;
+  BCR_SAVED.addMv( x, resid ) ;
+
+  cout << "||res||_2   = " << alglin::nrm2( BCR_SAVED.numRows(), resid, 1 ) << '\n' ;
+  cout << "||res||_1   = " << alglin::asum( BCR_SAVED.numRows(), resid, 1 )<< '\n' ;
+  cout << "||res||_inf = " << alglin::absmax( BCR_SAVED.numRows(), resid, 1 ) << '\n' ;
 
   cout << "All done!\n" ;
 
