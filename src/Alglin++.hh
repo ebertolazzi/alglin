@@ -626,6 +626,7 @@ namespace alglin {
     virtual
     void
     factorize() {
+      std::fill( JPVT, JPVT + this->nCol, 0 ) ;
       integer info = geqp3( this->nRow, this->nCol,
                             this->Amat, this->nRow,
                             JPVT,

@@ -171,7 +171,8 @@ namespace alglin {
     permutation_to_exchange( integer nn, integer P[], integer S[] ) const {
       for ( integer i = 0 ; i < nn ; ++i ) {
         integer j = i ;
-        while ( j < n ) { if ( P[j] == i+1 ) break ; ++j ; }
+        while ( j < nn ) { if ( P[j] == i+1 ) break ; ++j ; }
+        //ALGLIN_ASSERT( j < nn, "permutation_to_exchange error!" ) ;
         std::swap( P[j], P[i] ) ;
         S[i] = j ;
       }
@@ -355,9 +356,9 @@ namespace alglin {
     choice_to_string( BORDERED_Choice c ) {
       string res = "none" ;
       switch ( c ) {
-      case BORDERED_LU:   res = "CyclicReduction+LU"  ; break ;
-      case BORDERED_QR:   res = "CyclicReduction+QR"  ; break ;
-      case BORDERED_QRP:  res = "CyclicReduction+QRP" ; break ;
+      case BORDERED_LU:  res = "CyclicReduction+LU"  ; break ;
+      case BORDERED_QR:  res = "CyclicReduction+QR"  ; break ;
+      case BORDERED_QRP: res = "CyclicReduction+QRP" ; break ;
       }
       return res ;
     }

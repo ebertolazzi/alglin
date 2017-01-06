@@ -372,6 +372,7 @@ namespace alglin {
       break ;
     case BORDERED_LAST_QRP:
       { integer * P = perm_thread+nth*n ;
+        std::fill( P, P+n, 0 ) ;
         info = geqp3( n_x_2, n, T, n_x_2, P, T+2*n_x_n, WorkQR+nth*LworkQR, LworkQR ) ;
         if ( info == 0 ) permutation_to_exchange( n, P, iperm ) ;
       }
@@ -717,6 +718,7 @@ namespace alglin {
       info = geqrf( Nr, Nc, Hmat, Nr, Htau, Work, Lwork ) ;
       break ;
     case BORDERED_LAST_QRP:
+      std::fill( Hperm, Hperm+Nc, 0 ) ;
       info = geqp3( Nr, Nc, Hmat, Nr, Hperm, Htau, Work, Lwork ) ;
       // convert permutation to exchanges
       if ( info == 0 ) permutation_to_exchange( Nr, Hperm, Hswaps ) ;
@@ -757,10 +759,16 @@ namespace alglin {
                     Work, Lwork ) ;
       if ( info == 0 ) {
         trsv( UPPER, NO_TRANSPOSE, NON_UNIT, Nc, Hmat, Nr, X, 1 ) ;
-        if ( last_selected == BORDERED_LAST_QRP )
+        if ( last_selected == BORDERED_LAST_QRP ) {
           for ( integer i = 0 ; i < Nr ; ++i )
             if ( Hswaps[i] > i )
               std::swap( X[i], X[Hswaps[i]] ) ;
+          //integer i = n ;
+          //do {
+          //  --i ;
+          //  if ( Hswaps[i] > i ) std::swap( X[i], X[Hswaps[i]] ) ;
+          //} while ( i > 0 ) ;
+        }
       }
       break ;
     }
@@ -791,13 +799,19 @@ namespace alglin {
                     Htau,
                     X, ldX,
                     Work, Lwork ) ;
-      if ( info == 0 ) {
+      if ( info == 0 ) { // A P P^T x = b --> Q R P^T x = b --> x = P R^(-1) Q^T b
         trsm( LEFT, UPPER, NO_TRANSPOSE, NON_UNIT,
               Nr, nrhs, 1.0, Hmat, Nr, X, ldX ) ;
-        if ( last_selected == BORDERED_LAST_QRP )
+        if ( last_selected == BORDERED_LAST_QRP ) {
           for ( integer i = 0 ; i < Nr ; ++i )
             if ( Hswaps[i] > i )
               swap( nrhs, X+i, ldX, X+Hswaps[i], ldX ) ;
+          //integer i = n ;
+          //do {
+          //  --i ;
+          //  if ( Hswaps[i] > i ) swap( nrhs, X+i, ldX, X+Hswaps[i], ldX ) ;
+          //} while ( i > 0 ) ;
+        }
       }
       break ;
     }

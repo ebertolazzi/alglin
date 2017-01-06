@@ -960,6 +960,7 @@ namespace alglin {
     integer info = gecopy( NR, NC, A, LDA, this->Amat, this->nRow ) ;
     if ( info == 0 ) {
       geid( NC, NC, this->Amat + NR, this->nRow, lambda ) ;
+      std::fill( JPVT, JPVT + this->nCol, 0 ) ;
       info = geqp3( this->nRow, this->nCol, this->Amat, this->nRow, JPVT, Tau, Work, Lwork ) ;
     }
     return info ;
