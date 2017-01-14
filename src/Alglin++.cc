@@ -919,6 +919,106 @@ namespace alglin {
   }
 
   /*\
+   |   ____                  _          _ __  __       _        _
+   |  | __ )  __ _ _ __   __| | ___  __| |  \/  | __ _| |_ _ __(_)_  __
+   |  |  _ \ / _` | '_ \ / _` |/ _ \/ _` | |\/| |/ _` | __| '__| \ \/ /
+   |  | |_) | (_| | | | | (_| |  __/ (_| | |  | | (_| | |_| |  | |>  <
+   |  |____/ \__,_|_| |_|\__,_|\___|\__,_|_|  |_|\__,_|\__|_|  |_/_/\_\
+  \*/
+  //! base class for linear system solver
+  template <typename T>
+  void
+  BandedLU<T>::setup( integer _m,
+                      integer _n,
+                      integer _nL,
+                      integer _nU ) {
+    m    = _m ;
+    n    = _n ;
+    nL   = _nL ;
+    nU   = _nU ;
+    ldAB = 2*nL+nU+1 ;
+    integer nnz = m*ldAB ;
+    allocReals.allocate( nnz ) ;
+    allocIntegers.allocate(m) ;
+    AB   = allocReals( nnz ) ;
+    ipiv = allocIntegers( m ) ;
+    is_factorized = false ;
+  }
+
+  template <typename T>
+  void
+  BandedLU<T>::solve( valueType xb[] ) const {
+    ALGLIN_ASSERT( is_factorized, "BandedLU::solve, matrix not yet factorized" ) ;
+    ALGLIN_ASSERT( m == n, "BandedLU::solve, matrix must be square" ) ;
+    integer info = gbtrs( NO_TRANSPOSE, m, nL, nU, 1, AB, m, ipiv, xb, m );
+    ALGLIN_ASSERT( info == 0, "BandedLU::solve, info = " << info ) ;
+  }
+
+  template <typename T>
+  void
+  BandedLU<T>::t_solve( valueType xb[] ) const {
+    ALGLIN_ASSERT( is_factorized, "BandedLU::solve, matrix not yet factorized" ) ;
+    ALGLIN_ASSERT( m == n, "BandedLU::solve, matrix must be square" ) ;
+    integer info = gbtrs( TRANSPOSE, m, nL, nU, 1, AB, m, ipiv, xb, m );
+    ALGLIN_ASSERT( info == 0, "BandedLU::t_solve, info = " << info ) ;
+  }
+
+  template <typename T>
+  void
+  BandedLU<T>::solve( integer nrhs, valueType B[], integer ldB ) const {
+    ALGLIN_ASSERT( is_factorized, "BandedLU::solve, matrix not yet factorized" ) ;
+    ALGLIN_ASSERT( m == n, "BandedLU::solve, matrix must be square" ) ;
+    integer info = gbtrs( NO_TRANSPOSE, m, nL, nU, nrhs, AB, m, ipiv, B, ldB );
+    ALGLIN_ASSERT( info == 0, "BandedLU::solve, info = " << info ) ;
+  }
+
+  template <typename T>
+  void
+  BandedLU<T>::t_solve( integer nrhs, valueType B[], integer ldB ) const {
+    ALGLIN_ASSERT( is_factorized, "BandedLU::solve, matrix not yet factorized" ) ;
+    ALGLIN_ASSERT( m == n, "BandedLU::solve, matrix must be square" ) ;
+    integer info = gbtrs( TRANSPOSE, m, nL, nU, nrhs, AB, m, ipiv, B, ldB );
+    ALGLIN_ASSERT( info == 0, "BandedLU::t_solve, info = " << info ) ;
+  }
+
+  template <typename T>
+  void
+  BandedLU<T>::factorize() {
+    ALGLIN_ASSERT( is_factorized, "BandedLU::solve, matrix not yet factorized" ) ;
+    ALGLIN_ASSERT( m == n, "BandedLU::solve, matrix must be square" ) ;
+    integer info = gbtrf( m, n, nL, nU, AB, m, ipiv );
+    ALGLIN_ASSERT( info == 0, "BandedLU::factorize, info = " << info ) ;
+  }
+
+  template <typename T>
+  void
+  BandedLU<T>::zero() {
+    integer nnz = m*(2*nL+nU+1) ;
+    alglin::zero( nnz, AB, 1 ) ;
+    is_factorized = false ;
+  }
+
+  template <typename T>
+  void
+  BandedLU<T>::load_block( integer         nr,
+                           integer         nc,
+                           valueType const B[],
+                           integer         ldB,
+                           integer         irow,
+                           integer         icol ) {
+    ALGLIN_ASSERT( !is_factorized, "BandedLU::load_block, matrix is factorized" ) ;
+    // copy by diagonal
+    for ( integer r = 0 ; r < nr ; ++r ) {
+      integer ia = iaddr( irow+r, icol ) ;
+      copy( std::min(nr-1,nc), B+r, ldB+1, AB+ia, ldAB ) ;
+    }
+    for ( integer c = 1 ; c < nc ; ++c ) {
+      integer ia = iaddr( irow, icol+c ) ;
+      copy( std::min(nc-1,nr), B+c*ldB, ldB+1, AB+ia, ldAB ) ;
+    }
+  }
+
+  /*\
    |   _                   _   ____
    |  | |    ___  __ _ ___| |_/ ___|  __ _ _   _  __ _ _ __ ___  ___
    |  | |   / _ \/ _` / __| __\___ \ / _` | | | |/ _` | '__/ _ \/ __|
@@ -1042,6 +1142,9 @@ namespace alglin {
 
   template class TridiagonalQR<real> ;
   template class TridiagonalQR<doublereal> ;
+
+  template class BandedLU<real> ;
+  template class BandedLU<doublereal> ;
 
   template class LeastSquares<real> ;
   template class LeastSquares<doublereal> ;

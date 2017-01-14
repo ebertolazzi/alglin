@@ -176,6 +176,14 @@ namespace alglin {
     }
 
   } ;
+  
+  /*\
+   |   _____          _             _          _   _
+   |  |  ___|_ _  ___| |_ ___  _ __(_)______ _| |_(_) ___  _ __
+   |  | |_ / _` |/ __| __/ _ \| '__| |_  / _` | __| |/ _ \| '_ \
+   |  |  _| (_| | (__| || (_) | |  | |/ / (_| | |_| | (_) | | | |
+   |  |_|  \__,_|\___|\__\___/|_|  |_/___\__,_|\__|_|\___/|_| |_|
+  \*/
 
   template <typename T>
   class Factorization : public LinearSystemSolver<T> {
@@ -448,7 +456,8 @@ namespace alglin {
     void
     t_factorize( integer NR, integer NC, valueType const A[], integer LDA ) {
       allocate( NC, NR ) ;
-      for ( integer i = 0 ; i < NR ; ++i ) copy( NC, A+i, LDA, this->Amat + i*this->nRow, 1 ) ;
+      for ( integer i = 0 ; i < NR ; ++i )
+        copy( NC, A+i, LDA, this->Amat + i*this->nRow, 1 ) ;
       factorize() ;
     }
 
@@ -584,6 +593,7 @@ namespace alglin {
     void inv_permute_rows( integer, integer, valueType [], integer ) const { }
   } ;
 
+  //============================================================================
   /*\
    |    ___  ____  ____
    |   / _ \|  _ \|  _ \
@@ -995,6 +1005,91 @@ namespace alglin {
   } ;
 
   //============================================================================
+  /*\
+   |   ____                  _          _ _    _   _
+   |  | __ )  __ _ _ __   __| | ___  __| | |  | | | |
+   |  |  _ \ / _` | '_ \ / _` |/ _ \/ _` | |  | | | |
+   |  | |_) | (_| | | | | (_| |  __/ (_| | |__| |_| |
+   |  |____/ \__,_|_| |_|\__,_|\___|\__,_|_____\___/
+  \*/
+  //! base class for linear systema solver
+  template <typename T>
+  class BandedLU : public LinearSystemSolver<T> {
+  public:
+    typedef T valueType ;
+
+    Malloc<valueType> allocReals ;
+    Malloc<integer>   allocIntegers ;
+    
+    integer     m, n, nL, nU, ldAB ;
+    integer   * ipiv ;
+    valueType * AB ;
+
+    bool is_factorized ;
+
+  public:
+
+    BandedLU()
+    : allocReals("_BandedLU_reals")
+    , allocIntegers("_BandedLU_integers")
+    , m(0)
+    , n(0)
+    , nL(0)
+    , nU(0)
+    , ldAB(0)
+    , is_factorized(false)
+    {}
+
+    virtual ~BandedLU()
+    {}
+    
+    void
+    setup( integer M,    // number of rows
+           integer N,    // numbe of columns
+           integer nL,   // number of lower diagonal
+           integer nU ); // number of upper diagonal
+
+    virtual void solve( valueType xb[] ) const ;
+    virtual void t_solve( valueType xb[] ) const ;
+    virtual void solve( integer nrhs, valueType B[], integer ldB ) const ;
+    virtual void t_solve( integer nrhs, valueType B[], integer ldB ) const ;
+
+    integer
+    iaddr( integer i, integer j ) const {
+      integer d = (i-j+2*nL) ;
+      return d+j*m ;
+    }
+
+    valueType const &
+    operator () ( integer i, integer j ) const { return AB[iaddr(i,j)] ; }
+
+    valueType &
+    operator () ( integer i, integer j ) { return AB[iaddr(i,j)] ; }
+
+    void zero() ;
+
+    void
+    load_block( integer         nr,
+                integer         nc,
+                valueType const B[],
+                integer         ldB,
+                integer         irow,
+                integer         icol ) ;
+
+    // do internal facorization, to be executed (only once) before to call solve or t_solve
+    void factorize() ;
+
+  } ;
+
+  //============================================================================
+  /*\
+   |   _                   _   ____
+   |  | |    ___  __ _ ___| |_/ ___|  __ _ _   _  __ _ _ __ ___  ___
+   |  | |   / _ \/ _` / __| __\___ \ / _` | | | |/ _` | '__/ _ \/ __|
+   |  | |__|  __/ (_| \__ \ |_ ___) | (_| | |_| | (_| | | |  __/\__ \
+   |  |_____\___|\__,_|___/\__|____/ \__, |\__,_|\__,_|_|  \___||___/
+   |                                    |_|
+  \*/
 
   template <typename T>
   class LeastSquares : public Factorization<T> {

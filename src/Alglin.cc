@@ -89,30 +89,7 @@ namespace alglin {
 
   character const *equilibrate_blas[4]  = { "N", "R", "C", "B" } ;
 
-  /*
-  //    ____                _              _       
-  //   / ___|___  _ __  ___| |_ __ _ _ __ | |_ ___ 
-  //  | |   / _ \| '_ \/ __| __/ _` | '_ \| __/ __|
-  //  | |__| (_) | | | \__ \ || (_| | | | | |_\__ \
-  //   \____\___/|_| |_|___/\__\__,_|_| |_|\__|___/
-  */
-
-  //! \cond NODOC
-  #ifdef ALGLIN_OS_WINDOWS
-    unsigned _int64 lNaN = ((unsigned _int64) 1 << 63) - 1;
-    doublereal const NaN = (*(doublereal*)&lNaN) ;
-  #else
-    doublereal const NaN = __builtin_nan("") ;
-  #endif
-  //! \endcond
-
-  doublereal const machineEps     = std::numeric_limits<doublereal>::epsilon() ;
-  doublereal const sqrtMachineEps = sqrt(std::numeric_limits<doublereal>::epsilon()) ;
-  doublereal const maximumValue   = std::numeric_limits<doublereal>::max() ;
-  doublereal const minimumValue   = std::numeric_limits<doublereal>::min() ;
-
   //============================================================================
-
   /*    __                       _ _   _       _   _ 
   //   / _| ___  _   _ _ __   __| | \ | | __ _| \ | |
   //  | |_ / _ \| | | | '_ \ / _` |  \| |/ _` |  \| |
@@ -360,94 +337,6 @@ namespace alglin {
   template integer getry( integer M, integer N, float A[],  integer LDA, integer IPIV[], integer MB  ) ;
   template integer getry( integer M, integer N, double A[], integer LDA, integer IPIV[], integer MB  ) ;
 
-  // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-
-  template <typename T>
-  integer
-  equilibrate( integer M,
-               integer N,
-               T const A[],
-               integer LDA,
-               T       R[],
-               T       C[],
-               integer maxIter,
-               T       epsi ) {
-    #if 0
-    alglin::fill( M, R, 1, 1 ) ;
-    for ( integer k = 0 ; k < maxIter ; ++k ) {
-      for ( integer j = 0 ; j < N ; ++j ) {
-        T bf(0) ;
-        for ( integer i = 0 ; i < M ; ++i )
-          bf += R[i]*std::abs(A[i+j*LDA]) ;
-        if ( bf < M*machineEps ) bf = M*machineEps ;
-        C[j] = sqrt(M/bf) ;
-      }
-      for ( integer i = 0 ; i < M ; ++i ) {
-        T bf(0) ;
-        for ( integer j = 0 ; j < N ; ++j ) {
-          T tmp = std::abs(A[i+j*LDA]*C[j]) ;
-          if ( bf < tmp ) bf = tmp ;
-        }
-        if ( bf < machineEps ) bf = machineEps ;
-        R[i] = 1/bf ;
-      }
-    }
-    T r = sqrt(alglin::absmax(M,R,1)/alglin::absmax(N,C,1)) ;
-    alglin::scal(  M, r, C, 1 ) ;
-    alglin::rscal( N, r, R, 1 ) ;
-
-    return 0 ;
-    #else
-
-    for ( integer j = 0 ; j < M ; ++j ) {
-      T bf(0) ;
-      for ( integer i = 0 ; i < N ; ++i )
-        bf = std::max( bf, std::abs(A[i+j*LDA]) ) ;
-      C[j] = 1/bf ;
-    }
-    for ( integer i = 0 ; i < N ; ++i ) {
-      T bf(0) ;
-      for ( integer j = 0 ; j < M ; ++j )
-        bf = std::max( bf, C[j]*std::abs(A[i+j*LDA]) ) ;
-      R[i] = 1/bf ;
-    }
-    for ( integer k = 0 ; k < maxIter ; ++k ) {
-      for ( integer j = 0 ; j < M ; ++j ) {
-        T bf(0) ;
-        for ( integer i = 0 ; i < N ; ++i )
-          bf += R[i]*std::abs(A[i+j*LDA]) ;
-        C[j] = 1/bf ;
-      }
-      for ( integer i = 0 ; i < N ; ++i ) {
-        T bf(0) ;
-        for ( integer j = 0 ; j < M ; ++j )
-          bf += C[j]*std::abs(A[i+j*LDA]) ;
-        R[i] = 1/bf ;
-      }
-    }
-    T normCinf(0) ;
-    for ( integer j = 0 ; j < M ; ++j ) {
-      T bf(0) ;
-      for ( integer i = 0 ; i < N ; ++i )
-        bf = std::max( bf, R[i]*std::abs(A[i+j*LDA]) ) ;
-      C[j] = 1/bf ;
-      normCinf = std::max( normCinf, std::abs(C[j]) ) ;
-    }
-    T normRinf(0) ;
-    for ( integer i = 0 ; i < N ; ++i ) {
-      T bf(0) ;
-      for ( integer j = 0 ; j < M ; ++j )
-        bf = std::max( bf, C[j]*std::abs(A[i+j*LDA]) ) ;
-      R[i] = 1/bf ;
-      normRinf = std::max( normRinf, std::abs(R[i]) ) ;
-    }
-    T alpha = sqrt(normRinf/normCinf) ;
-    alglin::scal(  M, alpha, C, 1 ) ;
-    alglin::rscal( N, alpha, R, 1 ) ;
-    return 0 ;
-    #endif
-  }
-
   /*\
    *
    *  Solve
@@ -503,9 +392,8 @@ namespace alglin {
           NON_UNIT,
           N, nrhs, 1.0, &Tmat.front(), N, RHS, ldRHS ) ;
   }
-  
-  #ifdef ALGLIN_USE_OPENBLAS
 
+  #ifdef ALGLIN_USE_OPENBLAS
   template <typename T>
   integer
   getc2_tmpl( integer N,
@@ -513,7 +401,36 @@ namespace alglin {
               integer LDA,
               integer IPIV[],
               integer JPIV[] ) {
-    ALGLIN_ERROR("NOT YET IMPLEMENTED" ) ;
+    // Set constants to control overflow
+    integer INFO = 0 ;
+    T       EPS    = lamch<T>("P") ;
+    T       SMLNUM = lamch<T>("S") / EPS ;
+    T       SMIN   = 0 ;
+    // Factorize A using complete pivoting.
+    // Set pivots less than SMIN to SMIN.
+    T * Aii = A ;
+    for ( int I = 0 ; I < N-1 ; ++I, Aii += LDA+1 ) {
+      // Find max element in matrix A
+      T XMAX = 0 ;
+      integer IPV=I, JPV=I ;
+      for ( int IP = I ; IP < N ; ++IP ) {
+        for ( int JP = I ; JP < N ; ++JP ) {
+          T absA = std::abs( A[IP+JP*LDA] ) ;
+          if ( absA > XMAX ) { XMAX = absA ; IPV = IP ; JPV = JP ; }
+        }
+      }
+      if ( I == 0 ) SMIN = std::max( EPS*XMAX, SMLNUM ) ;
+      // Swap rows
+      IPIV[I] = IPV+1 ; if ( IPV != I ) swap( N, A+IPV, LDA, A+I, LDA ) ;
+      // Swap columns
+      JPIV[I] = JPV+1 ; if ( JPV != I ) swap( N, A+JPV*LDA, 1, A+I*LDA, 1 ) ;
+      // Check for singularity
+      if ( std::abs(*Aii) < SMIN ) { INFO = I+1 ; *Aii = SMIN ; }
+      for ( integer J = I+1 ; J < N ; ++J ) A[J+I*LDA] /= *Aii ;
+      ger( N-I-1, N-I-1, -1, Aii+1, 1, Aii+LDA, LDA, Aii+LDA+1, LDA ) ;
+    }
+    if ( std::abs(*Aii) < SMIN ) { INFO = N ; *Aii = SMIN ; }
+    return INFO ;
   }
 
   template <typename T>
@@ -524,7 +441,40 @@ namespace alglin {
               T             RHS[],
               integer const IPIV[],
               integer const JPIV[] ) {
-    ALGLIN_ERROR("NOT YET IMPLEMENTED" ) ;
+    // Set constants to control overflow
+    T EPS    = lamch<T>("P") ;
+    T SMLNUM = lamch<T>("S") / EPS ;
+    // Apply permutations IPIV to RHS
+    for ( integer i = 0 ; i < N-1 ; ++i )
+      if ( IPIV[i] > i+1 )
+        std::swap( RHS[i], RHS[IPIV[i]-1] ) ;
+    // Solve for L part
+    for ( integer i=0 ; i < N-1 ; ++i )
+      for ( integer j=i+1 ; j < N ; ++j )
+        RHS[j] -= A[j+i*LDA]*RHS[i] ;
+    // Solve for U part
+    T SCALE = 1 ;
+    // Check for scaling
+    T Rmax = absmax( N, RHS, 1 ) ;
+    if ( 2*SMLNUM*Rmax > std::abs(A[(N-1)*(LDA+1)]) ) {
+      T TEMP = T(0.5)/Rmax ;
+      scal( N, TEMP, RHS, 1 ) ;
+      SCALE *= TEMP ;
+    }
+    integer i = N ;
+    while ( i-- > 0 ) {
+      T TEMP = 1/A[i*(LDA+1)] ;
+      RHS[i] *= TEMP ;
+      for ( integer j=i+1 ; j < N ; ++j )
+        RHS[i] -= RHS[j]*(A[i+j*LDA]*TEMP) ;
+    }
+    // Apply permutations JPIV to the solution (RHS)
+    i = N-1 ;
+    while ( i-- > 0 )
+    //for ( integer i = 0 ; i < N-1 ; ++i )
+      if ( JPIV[i] > i+1 )
+        std::swap( RHS[i], RHS[JPIV[i]-1] ) ;
+    return SCALE ;
   }
 
   template <typename T>
@@ -541,26 +491,7 @@ namespace alglin {
               EquilibrationType & equ ) {
     ALGLIN_ERROR("NOT YET IMPLEMENTED" ) ;
   }
-
   #endif
-
-  template integer equilibrate( integer    M,
-                                integer    N,
-                                real const A[],
-                                integer    LDA,
-                                real       R[],
-                                real       C[],
-                                integer    maxIter,
-                                real       epsi ) ;
-
-  template integer equilibrate( integer          M,
-                                integer          N,
-                                doublereal const A[],
-                                integer          LDA,
-                                doublereal       R[],
-                                doublereal       C[],
-                                integer          maxIter,
-                                doublereal       epsi ) ;
 
   template void triTikhonov( integer    N,
                              real const Tmat[],
@@ -577,8 +508,8 @@ namespace alglin {
                              doublereal       RHS[],
                              integer          ldRHS,
                              doublereal       lambda ) ;
+
   #ifdef ALGLIN_USE_OPENBLAS
-  
   template integer getc2_tmpl( integer N,
                                real    A[],
                                integer LDA,

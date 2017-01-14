@@ -49,7 +49,7 @@ main() {
   //#define NSIZE 6
 
   alglin::integer n      = NSIZE ;
-  alglin::integer nblock = 500 ; // 200000 ;
+  alglin::integer nblock = 200000 ;
   alglin::integer qx     = 4 ;// 4+1 ;
   alglin::integer qr     = 4 ;// 4 ;
   alglin::integer nx     = 1 ;// 2-1 ;
@@ -63,7 +63,7 @@ main() {
   
   baseValue.allocate( size_t(7*N) ) ;
   
-  valueType diag = 1.01*n ;
+  valueType diag = 1.001*n ;
 
   valueType * x     = baseValue(size_t(2*N)) ; // extra space per multiple rhs
   valueType * xref  = baseValue(size_t(N)) ;
@@ -72,11 +72,12 @@ main() {
   valueType * resid = baseValue(size_t(N)) ;
   
   
-  BCR.select_LU();
-  //BCR.select_QR();
+  //BCR.select_LU();
+  BCR.select_QR();
   //BCR.select_QRP();
 
   BCR.select_last_LU();
+  //BCR.select_last_LUP();
   //BCR.select_last_QR();
   //BCR.select_last_QRP();
   

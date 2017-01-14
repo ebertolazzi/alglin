@@ -47,8 +47,9 @@ namespace alglin {
 
   typedef enum {
     BORDERED_LAST_LU  = 0,
-    BORDERED_LAST_QR  = 1,
-    BORDERED_LAST_QRP = 2
+    BORDERED_LAST_LUP = 1,
+    BORDERED_LAST_QR  = 2,
+    BORDERED_LAST_QRP = 3
   } BORDERED_LAST_Choice;
 
   /*\
@@ -347,8 +348,9 @@ namespace alglin {
     void select_QR()  { selected = BORDERED_QR ; }
     void select_QRP() { selected = BORDERED_QRP ; }
 
-    void select_last_LU()  { last_selected = BORDERED_LAST_LU ; }
-    void select_last_QR()  { last_selected = BORDERED_LAST_QR ; }
+    void select_last_LU()  { last_selected = BORDERED_LAST_LU  ; }
+    void select_last_LUP() { last_selected = BORDERED_LAST_LUP ; }
+    void select_last_QR()  { last_selected = BORDERED_LAST_QR  ; }
     void select_last_QRP() { last_selected = BORDERED_LAST_QRP ; }
 
     static
@@ -369,6 +371,7 @@ namespace alglin {
       string res = "LastBlock not selected" ;
       switch ( c ) {
       case BORDERED_LAST_LU:  res = "LastBlock LU"  ; break ;
+      case BORDERED_LAST_LUP: res = "LastBlock LUP" ; break ;
       case BORDERED_LAST_QR:  res = "LastBlock QR"  ; break ;
       case BORDERED_LAST_QRP: res = "LastBlock QRP" ; break ;
       }

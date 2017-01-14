@@ -54,6 +54,7 @@
 // [sd]gev, [sd]ggev, [sd]ggevx (autovalori)
 // [sd]gesvd, [sd]gesdd
 // [sd]gelsd, [sd]gelss, [sd]gelsy
+// [sd]gbtrf, [sd]gbtrs
 // [sd]ormqr, [sd]orm2r
 // [sd]larft, [sd]larfg, [sd]larfb
 // [sd]geqrf, [sd]geqr2, [sd]geqp3
@@ -319,11 +320,38 @@ namespace alglin {
   //   \____\___/|_| |_|___/\__\__,_|_| |_|\__|___/
   */
 
-  extern doublereal const NaN            ; //!< Not a number constant
-  extern doublereal const machineEps     ; //!< machine espilon
-  extern doublereal const sqrtMachineEps ; //!< square root of machine espilon
-  extern doublereal const maximumValue   ; //!< maximum floating point value
-  extern doublereal const minimumValue   ; //!< minimum floating point value
+  /// Not a number constant
+  template <typename T> T NaN() ;
+  template <> inline float NaN() { return nanf(nullptr) ; }
+  template <> inline double NaN() { return nan(nullptr) ; }
+
+  /// machine epsilon
+  template <typename T> T machineEps() ;
+  template <> inline float machineEps()
+  { return std::numeric_limits<float>::epsilon() ; }
+  template <> inline double machineEps()
+  { return std::numeric_limits<doublereal>::epsilon() ; }
+
+  /// square root of machine epsilon
+  template <typename T> T sqrtMachineEps() ;
+  template <> inline float sqrtMachineEps()
+  { return sqrt(std::numeric_limits<float>::epsilon()) ; }
+  template <> inline double sqrtMachineEps()
+  { return sqrt(std::numeric_limits<doublereal>::epsilon()) ; }
+
+  /// maximum representable value
+  template <typename T> T maximumValue() ;
+  template <> inline float maximumValue()
+  { return sqrt(std::numeric_limits<float>::max()) ; }
+  template <> inline double maximumValue()
+  { return sqrt(std::numeric_limits<doublereal>::max()) ; }
+
+  /// minimum representable value
+  template <typename T> T minimumValue() ;
+  template <> inline float minimumValue()
+  { return sqrt(std::numeric_limits<float>::min()) ; }
+  template <> inline double minimumValue()
+  { return sqrt(std::numeric_limits<doublereal>::min()) ; }
 
   static
   inline
@@ -1357,7 +1385,6 @@ namespace alglin {
   }
   #endif
 
-
   inline
   real
   lapy( real x, real y )
@@ -1370,6 +1397,28 @@ namespace alglin {
   #endif
 
   inline
+  real
+  lapy( real x, real y, real z )
+  #if defined(ALGLIN_USE_OPENBLAS)
+  { return LAPACK_NAME(slapy3)( &x, &y, &z ) ; }
+  #elif defined(ALGLIN_USE_ACCELERATE)
+  { return real(CLAPACKNAME(slapy3)( &x, &y, &z )) ; }
+  #else
+  { return LAPACKNAME(slapy3)( &x, &y, &z ) ; }
+  #endif
+
+  inline
+  doublereal
+  lapy( doublereal x, doublereal y )
+  #if defined(ALGLIN_USE_OPENBLAS)
+  { return LAPACK_NAME(dlapy2)( &x, &y ) ; }
+  #elif defined(ALGLIN_USE_ACCELERATE)
+  { return CLAPACKNAME(dlapy2)( &x, &y ) ; }
+  #else
+  { return LAPACKNAME(dlapy2)( &x, &y ) ; }
+  #endif
+
+  inline
   doublereal
   lapy( doublereal x, doublereal y, doublereal z )
   #if defined(ALGLIN_USE_OPENBLAS)
@@ -1378,520 +1427,6 @@ namespace alglin {
   { return CLAPACKNAME(dlapy3)( &x, &y, &z ) ; }
   #else
   { return LAPACKNAME(dlapy3)( &x, &y, &z ) ; }
-  #endif
-
-  /*
-  //    __ _  ___ _ __
-  //   / _` |/ _ \ '__|
-  //  | (_| |  __/ |
-  //   \__, |\___|_|
-  //   |___/
-  */
-  /*\
-   *  Purpose
-   *  =======
-   *
-   *  DGER   performs the rank 1 operation
-   *
-   *     A := alpha*x*y' + A,
-   *
-   *  where alpha is a scalar, x is an m element vector, y is an n element
-   *  vector and A is an m by n matrix.
-   *
-   *  Parameters
-   *  ==========
-   *
-   *  M      - INTEGER.
-   *           On entry, M specifies the number of rows of the matrix A.
-   *           M must be at least zero.
-   *           Unchanged on exit.
-   *
-   *  N      - INTEGER.
-   *           On entry, N specifies the number of columns of the matrix A.
-   *           N must be at least zero.
-   *           Unchanged on exit.
-   *
-   *  ALPHA  - DOUBLE PRECISION.
-   *           On entry, ALPHA specifies the scalar alpha.
-   *           Unchanged on exit.
-   *
-   *  X      - DOUBLE PRECISION array of dimension at least
-   *           ( 1 + ( m - 1 )*abs( INCX ) ).
-   *           Before entry, the incremented array X must contain the m
-   *           element vector x.
-   *           Unchanged on exit.
-   *
-   *  INCX   - INTEGER.
-   *           On entry, INCX specifies the increment for the elements of
-   *           X. INCX must not be zero.
-   *           Unchanged on exit.
-   *
-   *  Y      - DOUBLE PRECISION array of dimension at least
-   *           ( 1 + ( n - 1 )*abs( INCY ) ).
-   *           Before entry, the incremented array Y must contain the n
-   *           element vector y.
-   *           Unchanged on exit.
-   *
-   *  INCY   - INTEGER.
-   *           On entry, INCY specifies the increment for the elements of
-   *           Y. INCY must not be zero.
-   *           Unchanged on exit.
-   *
-   *  A      - DOUBLE PRECISION array of DIMENSION ( LDA, n ).
-   *           Before entry, the leading m by n part of the array A must
-   *           contain the matrix of coefficients. On exit, A is
-   *           overwritten by the updated matrix.
-   *
-   *  LDA    - INTEGER.
-   *           On entry, LDA specifies the first dimension of A as declared
-   *           in the calling (sub) program. LDA must be at least
-   *           max( 1, m ).
-   *           Unchanged on exit.
-   *
-   *
-   *  Level 2 Blas routine.
-  \*/
-  #ifdef ALGLIN_USE_LAPACK
-  extern "C" {
-  using namespace blas_type ;
-  void
-  BLASNAME(sger)( integer          const * M, 
-                  integer          const * N, 
-                  single_precision const * ALPHA, 
-                  single_precision const   X[], 
-                  integer          const * INCX, 
-                  single_precision const   Y[], 
-                  integer          const * INCY, 
-                  single_precision         A[], 
-                  integer          const * LDA ) ;
-  void
-  BLASNAME(dger)( integer          const * M, 
-                  integer          const * N, 
-                  double_precision const * ALPHA, 
-                  double_precision const   X[], 
-                  integer          const * INCX, 
-                  double_precision const   Y[], 
-                  integer          const * INCY, 
-                  double_precision         A[], 
-                  integer          const * LDA ) ;
-  }
-  #endif
-
-  inline
-  void
-  ger( integer    M,
-       integer    N,
-       real       ALPHA,
-       real const X[],
-       integer    INCX,
-       real const Y[],
-       integer    INCY,
-       real       A[],
-       integer    LDA )
-  #ifdef ALGLIN_USE_CBLAS
-  { CBLASNAME(sger)( CblasColMajor, M, N, ALPHA, X, INCX, Y, INCY, A, LDA ) ; }
-  #else
-  { BLASNAME(sger)( &M, &N, &ALPHA, X, &INCX, Y, &INCY, A, &LDA ) ; }
-  #endif
-
-  inline
-  void
-  ger( integer          M,
-       integer          N,
-       doublereal       ALPHA,
-       doublereal const X[],
-       integer          INCX,
-       doublereal const Y[],
-       integer          INCY,
-       doublereal       A[],
-       integer          LDA )
-  #ifdef ALGLIN_USE_CBLAS
-  { CBLASNAME(dger)( CblasColMajor, M, N, ALPHA, X, INCX, Y, INCY, A, LDA ) ; }
-  #else
-  { BLASNAME(dger)( &M, &N, &ALPHA, X, &INCX, Y, &INCY, A, &LDA ) ; }
-  #endif
-
-  /*
-  //    __ _  ___ _ __ _____   __
-  //   / _` |/ _ \ '_ ` _ \ \ / /
-  //  | (_| |  __/ | | | | \ V /
-  //   \__, |\___|_| |_| |_|\_/
-  //   |___/
-  */
-  /*\
-   *  Purpose
-   *  =======
-   *
-   *  DGEMV  performs one of the matrix-vector operations
-   *
-   *     y := alpha*A*x + beta*y,   or   y := alpha*A'*x + beta*y,
-   *
-   *  where alpha and beta are scalars, x and y are vectors and A is an
-   *  m by n matrix.
-   *
-   *  Parameters
-   *  ==========
-   *
-   *  TRANS  - CHARACTER*1.
-   *           On entry, TRANS specifies the operation to be performed as
-   *           follows:
-   *
-   *              TRANS = 'N' or 'n'   y := alpha*A*x + beta*y.
-   *
-   *              TRANS = 'T' or 't'   y := alpha*A'*x + beta*y.
-   *
-   *              TRANS = 'C' or 'c'   y := alpha*A'*x + beta*y.
-   *
-   *           Unchanged on exit.
-   *
-   *  M      - INTEGER.
-   *           On entry, M specifies the number of rows of the matrix A.
-   *           M must be at least zero.
-   *           Unchanged on exit.
-   *
-   *  N      - INTEGER.
-   *           On entry, N specifies the number of columns of the matrix A.
-   *           N must be at least zero.
-   *           Unchanged on exit.
-   *
-   *  ALPHA  - DOUBLE PRECISION.
-   *           On entry, ALPHA specifies the scalar alpha.
-   *           Unchanged on exit.
-   *
-   *  A      - DOUBLE PRECISION array of DIMENSION ( LDA, n ).
-   *           Before entry, the leading m by n part of the array A must
-   *           contain the matrix of coefficients.
-   *           Unchanged on exit.
-   *
-   *  LDA    - INTEGER.
-   *           On entry, LDA specifies the first dimension of A as declared
-   *           in the calling (sub) program. LDA must be at least
-   *           max( 1, m ).
-   *           Unchanged on exit.
-   *
-   *  X      - DOUBLE PRECISION array of DIMENSION at least
-   *           ( 1 + ( n - 1 )*abs( INCX ) ) when TRANS = 'N' or 'n'
-   *           and at least
-   *           ( 1 + ( m - 1 )*abs( INCX ) ) otherwise.
-   *           Before entry, the incremented array X must contain the
-   *           vector x.
-   *           Unchanged on exit.
-   *
-   *  INCX   - INTEGER.
-   *           On entry, INCX specifies the increment for the elements of
-   *           X. INCX must not be zero.
-   *           Unchanged on exit.
-   *
-   *  BETA   - DOUBLE PRECISION.
-   *           On entry, BETA specifies the scalar beta. When BETA is
-   *           supplied as zero then Y need not be set on input.
-   *           Unchanged on exit.
-   *
-   *  Y      - DOUBLE PRECISION array of DIMENSION at least
-   *           ( 1 + ( m - 1 )*abs( INCY ) ) when TRANS = 'N' or 'n'
-   *           and at least
-   *           ( 1 + ( n - 1 )*abs( INCY ) ) otherwise.
-   *           Before entry with BETA non-zero, the incremented array Y
-   *           must contain the vector y. On exit, Y is overwritten by the
-   *           updated vector y.
-   *
-   *  INCY   - INTEGER.
-   *           On entry, INCY specifies the increment for the elements of
-   *           Y. INCY must not be zero.
-   *           Unchanged on exit.
-   *
-   *
-   *  Level 2 Blas routine.
-  \*/
-  #ifdef ALGLIN_USE_LAPACK
-  extern "C" {
-  using namespace blas_type ;
-  void
-  BLASNAME(sgemv)( character        const   TRANS[], 
-                   integer          const * M, 
-                   integer          const * N, 
-                   single_precision const * ALPHA, 
-                   single_precision const   A[], 
-                   integer          const * LDA,
-                   single_precision const   X[], 
-                   integer          const * INCX, 
-                   single_precision const * BETA, 
-                   single_precision         Y[], 
-                   integer          const * INCY ) ;
-  void
-  BLASNAME(dgemv)( character        const   TRANS[], 
-                   integer          const * M, 
-                   integer          const * N, 
-                   double_precision const * ALPHA, 
-                   double_precision const   A[], 
-                   integer          const * LDA,
-                   double_precision const   X[], 
-                   integer          const * INCX, 
-                   double_precision const * BETA, 
-                   double_precision         Y[], 
-                   integer          const * INCY ) ;
-  }
-  #endif
-
-  inline
-  void
-  gemv( Transposition const & TRANS,
-        integer               M,
-        integer               N,
-        real                  ALPHA,
-        real const            A[],
-        integer               LDA,
-        real const            X[],
-        integer               INCX,
-        real                  BETA,
-        real                  Y[],
-        integer               INCY )
-  #ifdef ALGLIN_USE_CBLAS
-  { CBLASNAME(sgemv)( CblasColMajor, trans_cblas[TRANS],
-                      M, N, ALPHA, A, LDA, X, INCX, BETA, Y, INCY ) ; }
-  #else
-  { BLASNAME(sgemv)( trans_blas[TRANS],
-                     &M, &N, &ALPHA, A, &LDA, X, &INCX, &BETA, Y, &INCY ) ; }
-  #endif
-
-  inline
-  void
-  gemv( Transposition const & TRANS,
-        integer               M,
-        integer               N,
-        doublereal            ALPHA,
-        doublereal const      A[],
-        integer               LDA,
-        doublereal const      X[],
-        integer               INCX,
-        doublereal            BETA,
-        doublereal            Y[],
-        integer               INCY )
-  #ifdef ALGLIN_USE_CBLAS
-  { CBLASNAME(dgemv)( CblasColMajor, trans_cblas[TRANS],
-                      M, N, ALPHA, A, LDA, X, INCX, BETA, Y, INCY ) ; }
-  #else
-  { BLASNAME(dgemv)( trans_blas[TRANS],
-                     &M, &N, &ALPHA, A, &LDA, X, &INCX, &BETA, Y, &INCY ) ; }
-  #endif
-
-  /*
-  //    __ _  ___ _ __ ___  _ __ ___
-  //   / _` |/ _ \ '_ ` _ \| '_ ` _ \
-  //  | (_| |  __/ | | | | | | | | | |
-  //   \__, |\___|_| |_| |_|_| |_| |_|
-  //   |___/
-  */
-  /*\
-   *  Purpose
-   *  =======
-   *
-   *  DGEMM  performs one of the matrix-matrix operations
-   *
-   *     C := alpha*op( A )*op( B ) + beta*C,
-   *
-   *  where  op( X ) is one of
-   *
-   *     op( X ) = X   or   op( X ) = X',
-   *
-   *  alpha and beta are scalars, and A, B and C are matrices, with op( A )
-   *  an m by k matrix,  op( B )  a  k by n matrix and  C an m by n matrix.
-   *
-   *  Parameters
-   *  ==========
-   *
-   *  TRANSA - CHARACTER*1.
-   *           On entry, TRANSA specifies the form of op( A ) to be used in
-   *           the matrix multiplication as follows:
-   *
-   *              TRANSA = 'N' or 'n',  op( A ) = A.
-   *
-   *              TRANSA = 'T' or 't',  op( A ) = A'.
-   *
-   *              TRANSA = 'C' or 'c',  op( A ) = A'.
-   *
-   *           Unchanged on exit.
-   *
-   *  TRANSB - CHARACTER*1.
-   *           On entry, TRANSB specifies the form of op( B ) to be used in
-   *           the matrix multiplication as follows:
-   *
-   *              TRANSB = 'N' or 'n',  op( B ) = B.
-   *
-   *              TRANSB = 'T' or 't',  op( B ) = B'.
-   *
-   *              TRANSB = 'C' or 'c',  op( B ) = B'.
-   *
-   *           Unchanged on exit.
-   *
-   *  M      - INTEGER.
-   *           On entry,  M  specifies  the number  of rows  of the  matrix
-   *           op( A )  and of the  matrix  C.  M  must  be at least  zero.
-   *           Unchanged on exit.
-   *
-   *  N      - INTEGER.
-   *           On entry,  N  specifies the number  of columns of the matrix
-   *           op( B ) and the number of columns of the matrix C. N must be
-   *           at least zero.
-   *           Unchanged on exit.
-   *
-   *  K      - INTEGER.
-   *           On entry,  K  specifies  the number of columns of the matrix
-   *           op( A ) and the number of rows of the matrix op( B ). K must
-   *           be at least  zero.
-   *           Unchanged on exit.
-   *
-   *  ALPHA  - DOUBLE PRECISION.
-   *           On entry, ALPHA specifies the scalar alpha.
-   *           Unchanged on exit.
-   *
-   *  A      - DOUBLE PRECISION array of DIMENSION ( LDA, ka ), where ka is
-   *           k  when  TRANSA = 'N' or 'n',  and is  m  otherwise.
-   *           Before entry with  TRANSA = 'N' or 'n',  the leading  m by k
-   *           part of the array  A  must contain the matrix  A,  otherwise
-   *           the leading  k by m  part of the array  A  must contain  the
-   *           matrix A.
-   *           Unchanged on exit.
-   *
-   *  LDA    - INTEGER.
-   *           On entry, LDA specifies the first dimension of A as declared
-   *           in the calling (sub) program. When  TRANSA = 'N' or 'n' then
-   *           LDA must be at least  max( 1, m ), otherwise  LDA must be at
-   *           least  max( 1, k ).
-   *           Unchanged on exit.
-   *
-   *  B      - DOUBLE PRECISION array of DIMENSION ( LDB, kb ), where kb is
-   *           n  when  TRANSB = 'N' or 'n',  and is  k  otherwise.
-   *           Before entry with  TRANSB = 'N' or 'n',  the leading  k by n
-   *           part of the array  B  must contain the matrix  B,  otherwise
-   *           the leading  n by k  part of the array  B  must contain  the
-   *           matrix B.
-   *           Unchanged on exit.
-   *
-   *  LDB    - INTEGER.
-   *           On entry, LDB specifies the first dimension of B as declared
-   *           in the calling (sub) program. When  TRANSB = 'N' or 'n' then
-   *           LDB must be at least  max( 1, k ), otherwise  LDB must be at
-   *           least  max( 1, n ).
-   *           Unchanged on exit.
-   *
-   *  BETA   - DOUBLE PRECISION.
-   *           On entry,  BETA  specifies the scalar  beta.  When  BETA  is
-   *           supplied as zero then C need not be set on input.
-   *           Unchanged on exit.
-   *
-   *  C      - DOUBLE PRECISION array of DIMENSION ( LDC, n ).
-   *           Before entry, the leading  m by n  part of the array  C must
-   *           contain the matrix  C,  except when  beta  is zero, in which
-   *           case C need not be set on entry.
-   *           On exit, the array  C  is overwritten by the  m by n  matrix
-   *           ( alpha*op( A )*op( B ) + beta*C ).
-   *
-   *  LDC    - INTEGER.
-   *           On entry, LDC specifies the first dimension of C as declared
-   *           in  the  calling  (sub)  program.   LDC  must  be  at  least
-   *           max( 1, m ).
-   *           Unchanged on exit.
-   *
-   *
-   *  Level 3 Blas routine.
-  \*/
-  #ifdef ALGLIN_USE_LAPACK
-  extern "C" {
-  using namespace blas_type ;
-  void
-  BLASNAME(sgemm)( character        const   TRANSA[], 
-                   character        const   TRANSB[], 
-                   integer          const * M, 
-                   integer          const * N, 
-                   integer          const * K, 
-                   single_precision const * ALPHA, 
-                   single_precision const   A[], 
-                   integer          const * LDA,
-                   single_precision const   B[], 
-                   integer          const * LDB,
-                   single_precision const * BETA, 
-                   single_precision         C[], 
-                   integer          const * LDC ) ;
-  void
-  BLASNAME(dgemm)( character        const   TRANSA[], 
-                   character        const   TRANSB[], 
-                   integer          const * M, 
-                   integer          const * N, 
-                   integer          const * K, 
-                   double_precision const * ALPHA, 
-                   double_precision const   A[], 
-                   integer          const * LDA,
-                   double_precision const   B[], 
-                   integer          const * LDB,
-                   double_precision const * BETA, 
-                   double_precision         C[], 
-                   integer          const * LDC ) ;
-  }
-  #endif
-
-  inline
-  void
-  gemm( Transposition const & TRANSA,
-        Transposition const & TRANSB,
-        integer               M,
-        integer               N,
-        integer               K,
-        real                  ALPHA,
-        real            const A[],
-        integer               LDA,
-        real            const B[],
-        integer               LDB,
-        real                  BETA,
-        real                  C[],
-        integer               LDC )
-  #ifdef ALGLIN_USE_CBLAS
-  { CBLASNAME(sgemm)( CblasColMajor,
-                      trans_cblas[TRANSA],
-                      trans_cblas[TRANSB],
-                      M, N, K,
-                      ALPHA, A, LDA,
-                      B, LDB,
-                      BETA, C, LDC ) ; }
-  #else
-  { BLASNAME(sgemm)( trans_blas[TRANSA],
-                     trans_blas[TRANSB],
-                     &M, &N, &K,
-                     &ALPHA, A, &LDA,
-                     B, &LDB,
-                     &BETA, C, &LDC ) ; }
-  #endif
-
-  inline
-  void
-  gemm( Transposition const & TRANSA,
-        Transposition const & TRANSB,
-        integer               M,
-        integer               N,
-        integer               K,
-        doublereal            ALPHA,
-        doublereal const      A[],
-        integer               LDA,
-        doublereal const      B[],
-        integer               LDB,
-        doublereal            BETA,
-        doublereal            C[],
-        integer               LDC )
-  #ifdef ALGLIN_USE_CBLAS
-  { CBLASNAME(dgemm)( CblasColMajor,
-                      trans_cblas[TRANSA],
-                      trans_cblas[TRANSB],
-                      M, N, K,
-                      ALPHA, A, LDA,
-                      B, LDB,
-                      BETA, C, LDC ) ; }
-  #else
-  { BLASNAME(dgemm)( const_cast<character*>(trans_blas[TRANSA]),
-                     const_cast<character*>(trans_blas[TRANSB]),
-                     &M, &N, &K,
-                     &ALPHA, A, &LDA,
-                     B, &LDB,
-                     &BETA, C, &LDC ) ; }
   #endif
 
   /*
@@ -2105,6 +1640,513 @@ namespace alglin {
   #endif
 
   /*
+  //    __ _  ___ _ __
+  //   / _` |/ _ \ '__|
+  //  | (_| |  __/ |
+  //   \__, |\___|_|
+  //   |___/
+  */
+  /*\
+   *  Purpose
+   *  =======
+   *
+   *  DGER   performs the rank 1 operation
+   *
+   *     A := alpha*x*y' + A,
+   *
+   *  where alpha is a scalar, x is an m element vector, y is an n element
+   *  vector and A is an m by n matrix.
+   *
+   *  Parameters
+   *  ==========
+   *
+   *  M      - INTEGER.
+   *           On entry, M specifies the number of rows of the matrix A.
+   *           M must be at least zero.
+   *           Unchanged on exit.
+   *
+   *  N      - INTEGER.
+   *           On entry, N specifies the number of columns of the matrix A.
+   *           N must be at least zero.
+   *           Unchanged on exit.
+   *
+   *  ALPHA  - DOUBLE PRECISION.
+   *           On entry, ALPHA specifies the scalar alpha.
+   *           Unchanged on exit.
+   *
+   *  X      - DOUBLE PRECISION array of dimension at least
+   *           ( 1 + ( m - 1 )*abs( INCX ) ).
+   *           Before entry, the incremented array X must contain the m
+   *           element vector x.
+   *           Unchanged on exit.
+   *
+   *  INCX   - INTEGER.
+   *           On entry, INCX specifies the increment for the elements of
+   *           X. INCX must not be zero.
+   *           Unchanged on exit.
+   *
+   *  Y      - DOUBLE PRECISION array of dimension at least
+   *           ( 1 + ( n - 1 )*abs( INCY ) ).
+   *           Before entry, the incremented array Y must contain the n
+   *           element vector y.
+   *           Unchanged on exit.
+   *
+   *  INCY   - INTEGER.
+   *           On entry, INCY specifies the increment for the elements of
+   *           Y. INCY must not be zero.
+   *           Unchanged on exit.
+   *
+   *  A      - DOUBLE PRECISION array of DIMENSION ( LDA, n ).
+   *           Before entry, the leading m by n part of the array A must
+   *           contain the matrix of coefficients. On exit, A is
+   *           overwritten by the updated matrix.
+   *
+   *  LDA    - INTEGER.
+   *           On entry, LDA specifies the first dimension of A as declared
+   *           in the calling (sub) program. LDA must be at least
+   *           max( 1, m ).
+   *           Unchanged on exit.
+   *
+   *  Level 2 Blas routine.
+  \*/
+  #ifdef ALGLIN_USE_LAPACK
+  extern "C" {
+  using namespace blas_type ;
+  void
+  BLASNAME(sger)( integer          const * M, 
+                  integer          const * N, 
+                  single_precision const * ALPHA, 
+                  single_precision const   X[], 
+                  integer          const * INCX, 
+                  single_precision const   Y[], 
+                  integer          const * INCY, 
+                  single_precision         A[], 
+                  integer          const * LDA ) ;
+  void
+  BLASNAME(dger)( integer          const * M, 
+                  integer          const * N, 
+                  double_precision const * ALPHA, 
+                  double_precision const   X[], 
+                  integer          const * INCX, 
+                  double_precision const   Y[], 
+                  integer          const * INCY, 
+                  double_precision         A[], 
+                  integer          const * LDA ) ;
+  }
+  #endif
+
+  inline
+  void
+  ger( integer    M,
+       integer    N,
+       real       ALPHA,
+       real const X[],
+       integer    INCX,
+       real const Y[],
+       integer    INCY,
+       real       A[],
+       integer    LDA )
+  #ifdef ALGLIN_USE_CBLAS
+  { CBLASNAME(sger)( CblasColMajor, M, N, ALPHA, X, INCX, Y, INCY, A, LDA ) ; }
+  #else
+  { BLASNAME(sger)( &M, &N, &ALPHA, X, &INCX, Y, &INCY, A, &LDA ) ; }
+  #endif
+
+  inline
+  void
+  ger( integer          M,
+       integer          N,
+       doublereal       ALPHA,
+       doublereal const X[],
+       integer          INCX,
+       doublereal const Y[],
+       integer          INCY,
+       doublereal       A[],
+       integer          LDA )
+  #ifdef ALGLIN_USE_CBLAS
+  { CBLASNAME(dger)( CblasColMajor, M, N, ALPHA, X, INCX, Y, INCY, A, LDA ) ; }
+  #else
+  { BLASNAME(dger)( &M, &N, &ALPHA, X, &INCX, Y, &INCY, A, &LDA ) ; }
+  #endif
+
+  /*
+  //    __ _  ___ _ __ _____   __
+  //   / _` |/ _ \ '_ ` _ \ \ / /
+  //  | (_| |  __/ | | | | \ V /
+  //   \__, |\___|_| |_| |_|\_/
+  //   |___/
+  */
+  /*\
+   *  Purpose
+   *  =======
+   *
+   *  DGEMV  performs one of the matrix-vector operations
+   *
+   *     y := alpha*A*x + beta*y,   or   y := alpha*A'*x + beta*y,
+   *
+   *  where alpha and beta are scalars, x and y are vectors and A is an
+   *  m by n matrix.
+   *
+   *  Parameters
+   *  ==========
+   *
+   *  TRANS  - CHARACTER*1.
+   *           On entry, TRANS specifies the operation to be performed as
+   *           follows:
+   *
+   *              TRANS = 'N' or 'n'   y := alpha*A*x + beta*y.
+   *              TRANS = 'T' or 't'   y := alpha*A'*x + beta*y.
+   *              TRANS = 'C' or 'c'   y := alpha*A'*x + beta*y.
+   *
+   *           Unchanged on exit.
+   *
+   *  M      - INTEGER.
+   *           On entry, M specifies the number of rows of the matrix A.
+   *           M must be at least zero.
+   *           Unchanged on exit.
+   *
+   *  N      - INTEGER.
+   *           On entry, N specifies the number of columns of the matrix A.
+   *           N must be at least zero.
+   *           Unchanged on exit.
+   *
+   *  ALPHA  - DOUBLE PRECISION.
+   *           On entry, ALPHA specifies the scalar alpha.
+   *           Unchanged on exit.
+   *
+   *  A      - DOUBLE PRECISION array of DIMENSION ( LDA, n ).
+   *           Before entry, the leading m by n part of the array A must
+   *           contain the matrix of coefficients.
+   *           Unchanged on exit.
+   *
+   *  LDA    - INTEGER.
+   *           On entry, LDA specifies the first dimension of A as declared
+   *           in the calling (sub) program. LDA must be at least
+   *           max( 1, m ).
+   *           Unchanged on exit.
+   *
+   *  X      - DOUBLE PRECISION array of DIMENSION at least
+   *           ( 1 + ( n - 1 )*abs( INCX ) ) when TRANS = 'N' or 'n'
+   *           and at least
+   *           ( 1 + ( m - 1 )*abs( INCX ) ) otherwise.
+   *           Before entry, the incremented array X must contain the
+   *           vector x.
+   *           Unchanged on exit.
+   *
+   *  INCX   - INTEGER.
+   *           On entry, INCX specifies the increment for the elements of
+   *           X. INCX must not be zero.
+   *           Unchanged on exit.
+   *
+   *  BETA   - DOUBLE PRECISION.
+   *           On entry, BETA specifies the scalar beta. When BETA is
+   *           supplied as zero then Y need not be set on input.
+   *           Unchanged on exit.
+   *
+   *  Y      - DOUBLE PRECISION array of DIMENSION at least
+   *           ( 1 + ( m - 1 )*abs( INCY ) ) when TRANS = 'N' or 'n'
+   *           and at least
+   *           ( 1 + ( n - 1 )*abs( INCY ) ) otherwise.
+   *           Before entry with BETA non-zero, the incremented array Y
+   *           must contain the vector y. On exit, Y is overwritten by the
+   *           updated vector y.
+   *
+   *  INCY   - INTEGER.
+   *           On entry, INCY specifies the increment for the elements of
+   *           Y. INCY must not be zero.
+   *           Unchanged on exit.
+   *
+   *
+   *  Level 2 Blas routine.
+  \*/
+  #ifdef ALGLIN_USE_LAPACK
+  extern "C" {
+  using namespace blas_type ;
+  void
+  BLASNAME(sgemv)( character        const   TRANS[], 
+                   integer          const * M, 
+                   integer          const * N, 
+                   single_precision const * ALPHA, 
+                   single_precision const   A[], 
+                   integer          const * LDA,
+                   single_precision const   X[], 
+                   integer          const * INCX, 
+                   single_precision const * BETA, 
+                   single_precision         Y[], 
+                   integer          const * INCY ) ;
+  void
+  BLASNAME(dgemv)( character        const   TRANS[], 
+                   integer          const * M, 
+                   integer          const * N, 
+                   double_precision const * ALPHA, 
+                   double_precision const   A[], 
+                   integer          const * LDA,
+                   double_precision const   X[], 
+                   integer          const * INCX, 
+                   double_precision const * BETA, 
+                   double_precision         Y[], 
+                   integer          const * INCY ) ;
+  }
+  #endif
+
+  inline
+  void
+  gemv( Transposition const & TRANS,
+        integer               M,
+        integer               N,
+        real                  ALPHA,
+        real const            A[],
+        integer               LDA,
+        real const            X[],
+        integer               INCX,
+        real                  BETA,
+        real                  Y[],
+        integer               INCY )
+  #ifdef ALGLIN_USE_CBLAS
+  { CBLASNAME(sgemv)( CblasColMajor, trans_cblas[TRANS],
+                      M, N, ALPHA, A, LDA, X, INCX, BETA, Y, INCY ) ; }
+  #else
+  { BLASNAME(sgemv)( trans_blas[TRANS],
+                     &M, &N, &ALPHA, A, &LDA, X, &INCX, &BETA, Y, &INCY ) ; }
+  #endif
+
+  inline
+  void
+  gemv( Transposition const & TRANS,
+        integer               M,
+        integer               N,
+        doublereal            ALPHA,
+        doublereal const      A[],
+        integer               LDA,
+        doublereal const      X[],
+        integer               INCX,
+        doublereal            BETA,
+        doublereal            Y[],
+        integer               INCY )
+  #ifdef ALGLIN_USE_CBLAS
+  { CBLASNAME(dgemv)( CblasColMajor, trans_cblas[TRANS],
+                      M, N, ALPHA, A, LDA, X, INCX, BETA, Y, INCY ) ; }
+  #else
+  { BLASNAME(dgemv)( trans_blas[TRANS],
+                     &M, &N, &ALPHA, A, &LDA, X, &INCX, &BETA, Y, &INCY ) ; }
+  #endif
+
+  /*
+  //    __ _  ___ _ __ ___  _ __ ___
+  //   / _` |/ _ \ '_ ` _ \| '_ ` _ \
+  //  | (_| |  __/ | | | | | | | | | |
+  //   \__, |\___|_| |_| |_|_| |_| |_|
+  //   |___/
+  */
+  /*\
+   *  Purpose
+   *  =======
+   *
+   *  DGEMM  performs one of the matrix-matrix operations
+   *
+   *     C := alpha*op( A )*op( B ) + beta*C,
+   *
+   *  where  op( X ) is one of
+   *
+   *     op( X ) = X   or   op( X ) = X',
+   *
+   *  alpha and beta are scalars, and A, B and C are matrices, with op( A )
+   *  an m by k matrix,  op( B )  a  k by n matrix and  C an m by n matrix.
+   *
+   *  Parameters
+   *  ==========
+   *
+   *  TRANSA - CHARACTER*1.
+   *           On entry, TRANSA specifies the form of op( A ) to be used in
+   *           the matrix multiplication as follows:
+   *
+   *              TRANSA = 'N' or 'n',  op( A ) = A.
+   *              TRANSA = 'T' or 't',  op( A ) = A'.
+   *              TRANSA = 'C' or 'c',  op( A ) = A'.
+   *
+   *           Unchanged on exit.
+   *
+   *  TRANSB - CHARACTER*1.
+   *           On entry, TRANSB specifies the form of op( B ) to be used in
+   *           the matrix multiplication as follows:
+   *
+   *              TRANSB = 'N' or 'n',  op( B ) = B.
+   *              TRANSB = 'T' or 't',  op( B ) = B'.
+   *              TRANSB = 'C' or 'c',  op( B ) = B'.
+   *
+   *           Unchanged on exit.
+   *
+   *  M      - INTEGER.
+   *           On entry,  M  specifies  the number  of rows  of the  matrix
+   *           op( A )  and of the  matrix  C.  M  must  be at least  zero.
+   *           Unchanged on exit.
+   *
+   *  N      - INTEGER.
+   *           On entry,  N  specifies the number  of columns of the matrix
+   *           op( B ) and the number of columns of the matrix C. N must be
+   *           at least zero.
+   *           Unchanged on exit.
+   *
+   *  K      - INTEGER.
+   *           On entry,  K  specifies  the number of columns of the matrix
+   *           op( A ) and the number of rows of the matrix op( B ). K must
+   *           be at least  zero.
+   *           Unchanged on exit.
+   *
+   *  ALPHA  - DOUBLE PRECISION.
+   *           On entry, ALPHA specifies the scalar alpha.
+   *           Unchanged on exit.
+   *
+   *  A      - DOUBLE PRECISION array of DIMENSION ( LDA, ka ), where ka is
+   *           k  when  TRANSA = 'N' or 'n',  and is  m  otherwise.
+   *           Before entry with  TRANSA = 'N' or 'n',  the leading  m by k
+   *           part of the array  A  must contain the matrix  A,  otherwise
+   *           the leading  k by m  part of the array  A  must contain  the
+   *           matrix A.
+   *           Unchanged on exit.
+   *
+   *  LDA    - INTEGER.
+   *           On entry, LDA specifies the first dimension of A as declared
+   *           in the calling (sub) program. When  TRANSA = 'N' or 'n' then
+   *           LDA must be at least  max( 1, m ), otherwise  LDA must be at
+   *           least  max( 1, k ).
+   *           Unchanged on exit.
+   *
+   *  B      - DOUBLE PRECISION array of DIMENSION ( LDB, kb ), where kb is
+   *           n  when  TRANSB = 'N' or 'n',  and is  k  otherwise.
+   *           Before entry with  TRANSB = 'N' or 'n',  the leading  k by n
+   *           part of the array  B  must contain the matrix  B,  otherwise
+   *           the leading  n by k  part of the array  B  must contain  the
+   *           matrix B.
+   *           Unchanged on exit.
+   *
+   *  LDB    - INTEGER.
+   *           On entry, LDB specifies the first dimension of B as declared
+   *           in the calling (sub) program. When  TRANSB = 'N' or 'n' then
+   *           LDB must be at least  max( 1, k ), otherwise  LDB must be at
+   *           least  max( 1, n ).
+   *           Unchanged on exit.
+   *
+   *  BETA   - DOUBLE PRECISION.
+   *           On entry,  BETA  specifies the scalar  beta.  When  BETA  is
+   *           supplied as zero then C need not be set on input.
+   *           Unchanged on exit.
+   *
+   *  C      - DOUBLE PRECISION array of DIMENSION ( LDC, n ).
+   *           Before entry, the leading  m by n  part of the array  C must
+   *           contain the matrix  C,  except when  beta  is zero, in which
+   *           case C need not be set on entry.
+   *           On exit, the array  C  is overwritten by the  m by n  matrix
+   *           ( alpha*op( A )*op( B ) + beta*C ).
+   *
+   *  LDC    - INTEGER.
+   *           On entry, LDC specifies the first dimension of C as declared
+   *           in  the  calling  (sub)  program.   LDC  must  be  at  least
+   *           max( 1, m ).
+   *           Unchanged on exit.
+   *
+   *
+   *  Level 3 Blas routine.
+  \*/
+  #ifdef ALGLIN_USE_LAPACK
+  extern "C" {
+  using namespace blas_type ;
+  void
+  BLASNAME(sgemm)( character        const   TRANSA[], 
+                   character        const   TRANSB[], 
+                   integer          const * M, 
+                   integer          const * N, 
+                   integer          const * K, 
+                   single_precision const * ALPHA, 
+                   single_precision const   A[], 
+                   integer          const * LDA,
+                   single_precision const   B[], 
+                   integer          const * LDB,
+                   single_precision const * BETA, 
+                   single_precision         C[], 
+                   integer          const * LDC ) ;
+  void
+  BLASNAME(dgemm)( character        const   TRANSA[], 
+                   character        const   TRANSB[], 
+                   integer          const * M, 
+                   integer          const * N, 
+                   integer          const * K, 
+                   double_precision const * ALPHA, 
+                   double_precision const   A[], 
+                   integer          const * LDA,
+                   double_precision const   B[], 
+                   integer          const * LDB,
+                   double_precision const * BETA, 
+                   double_precision         C[], 
+                   integer          const * LDC ) ;
+  }
+  #endif
+
+  inline
+  void
+  gemm( Transposition const & TRANSA,
+        Transposition const & TRANSB,
+        integer               M,
+        integer               N,
+        integer               K,
+        real                  ALPHA,
+        real            const A[],
+        integer               LDA,
+        real            const B[],
+        integer               LDB,
+        real                  BETA,
+        real                  C[],
+        integer               LDC )
+  #ifdef ALGLIN_USE_CBLAS
+  { CBLASNAME(sgemm)( CblasColMajor,
+                      trans_cblas[TRANSA],
+                      trans_cblas[TRANSB],
+                      M, N, K,
+                      ALPHA, A, LDA,
+                      B, LDB,
+                      BETA, C, LDC ) ; }
+  #else
+  { BLASNAME(sgemm)( trans_blas[TRANSA],
+                     trans_blas[TRANSB],
+                     &M, &N, &K,
+                     &ALPHA, A, &LDA,
+                     B, &LDB,
+                     &BETA, C, &LDC ) ; }
+  #endif
+
+  inline
+  void
+  gemm( Transposition const & TRANSA,
+        Transposition const & TRANSB,
+        integer               M,
+        integer               N,
+        integer               K,
+        doublereal            ALPHA,
+        doublereal const      A[],
+        integer               LDA,
+        doublereal const      B[],
+        integer               LDB,
+        doublereal            BETA,
+        doublereal            C[],
+        integer               LDC )
+  #ifdef ALGLIN_USE_CBLAS
+  { CBLASNAME(dgemm)( CblasColMajor,
+                      trans_cblas[TRANSA],
+                      trans_cblas[TRANSB],
+                      M, N, K,
+                      ALPHA, A, LDA,
+                      B, LDB,
+                      BETA, C, LDC ) ; }
+  #else
+  { BLASNAME(dgemm)( const_cast<character*>(trans_blas[TRANSA]),
+                     const_cast<character*>(trans_blas[TRANSB]),
+                     &M, &N, &K,
+                     &ALPHA, A, &LDA,
+                     B, &LDB,
+                     &BETA, C, &LDC ) ; }
+  #endif
+
+  /*
   //   _
   //  | |_ _ __ _ __ _____   __
   //  | __| '__| '_ ` _ \ \ / /
@@ -2130,7 +2172,6 @@ namespace alglin {
    *           lower triangular matrix as follows:
    *
    *              UPLO = 'U' or 'u'   A is an upper triangular matrix.
-   *
    *              UPLO = 'L' or 'l'   A is a lower triangular matrix.
    *
    *           Unchanged on exit.
@@ -2140,9 +2181,7 @@ namespace alglin {
    *           follows:
    *
    *              TRANS = 'N' or 'n'   x := A*x.
-   *
    *              TRANS = 'T' or 't'   x := A**T*x.
-   *
    *              TRANS = 'C' or 'c'   x := A**T*x.
    *
    *           Unchanged on exit.
@@ -2152,9 +2191,7 @@ namespace alglin {
    *           triangular as follows:
    *
    *              DIAG = 'U' or 'u'   A is assumed to be unit triangular.
-   *
-   *              DIAG = 'N' or 'n'   A is not assumed to be unit
-   *                                  triangular.
+   *              DIAG = 'N' or 'n'   A is not assumed to be unit triangular.
    *
    *           Unchanged on exit.
    *
@@ -2298,7 +2335,6 @@ namespace alglin {
    *           lower triangular matrix as follows:
    *
    *              UPLO = 'U' or 'u'   A is an upper triangular matrix.
-   *
    *              UPLO = 'L' or 'l'   A is a lower triangular matrix.
    *
    *           Unchanged on exit.
@@ -2308,9 +2344,7 @@ namespace alglin {
    *           follows:
    *
    *              TRANS = 'N' or 'n'   A*x = b.
-   *
    *              TRANS = 'T' or 't'   A**T*x = b.
-   *
    *              TRANS = 'C' or 'c'   A**T*x = b.
    *
    *           Unchanged on exit.
@@ -2320,9 +2354,7 @@ namespace alglin {
    *           triangular as follows:
    *
    *              DIAG = 'U' or 'u'   A is assumed to be unit triangular.
-   *
-   *              DIAG = 'N' or 'n'   A is not assumed to be unit
-   *                                  triangular.
+   *              DIAG = 'N' or 'n'   A is not assumed to be unit triangular.
    *
    *           Unchanged on exit.
    *
@@ -2462,7 +2494,6 @@ namespace alglin {
    *           the left or right as follows:
    *
    *              SIDE = 'L' or 'l'   B := alpha*op( A )*B.
-   *
    *              SIDE = 'R' or 'r'   B := alpha*B*op( A ).
    *
    *           Unchanged on exit.
@@ -2472,7 +2503,6 @@ namespace alglin {
    *           lower triangular matrix as follows:
    *
    *              UPLO = 'U' or 'u'   A is an upper triangular matrix.
-   *
    *              UPLO = 'L' or 'l'   A is a lower triangular matrix.
    *
    *           Unchanged on exit.
@@ -2482,9 +2512,7 @@ namespace alglin {
    *           the matrix multiplication as follows:
    *
    *              TRANSA = 'N' or 'n'   op( A ) = A.
-   *
    *              TRANSA = 'T' or 't'   op( A ) = A**T.
-   *
    *              TRANSA = 'C' or 'c'   op( A ) = A**T.
    *
    *           Unchanged on exit.
@@ -2494,9 +2522,7 @@ namespace alglin {
    *           as follows:
    *
    *              DIAG = 'U' or 'u'   A is assumed to be unit triangular.
-   *
-   *              DIAG = 'N' or 'n'   A is not assumed to be unit
-   *                                  triangular.
+   *              DIAG = 'N' or 'n'   A is not assumed to be unit triangular.
    *
    *           Unchanged on exit.
    *
@@ -2669,7 +2695,6 @@ namespace alglin {
    *           or right of X as follows:
    *
    *              SIDE = 'L' or 'l'   op( A )*X = alpha*B.
-   *
    *              SIDE = 'R' or 'r'   X*op( A ) = alpha*B.
    *
    *           Unchanged on exit.
@@ -2679,7 +2704,6 @@ namespace alglin {
    *           lower triangular matrix as follows:
    *
    *              UPLO = 'U' or 'u'   A is an upper triangular matrix.
-   *
    *              UPLO = 'L' or 'l'   A is a lower triangular matrix.
    *
    *           Unchanged on exit.
@@ -2689,9 +2713,7 @@ namespace alglin {
    *           the matrix multiplication as follows:
    *
    *              TRANSA = 'N' or 'n'   op( A ) = A.
-   *
    *              TRANSA = 'T' or 't'   op( A ) = A**T.
-   *
    *              TRANSA = 'C' or 'c'   op( A ) = A**T.
    *
    *           Unchanged on exit.
@@ -2701,9 +2723,7 @@ namespace alglin {
    *           as follows:
    *
    *              DIAG = 'U' or 'u'   A is assumed to be unit triangular.
-   *
-   *              DIAG = 'N' or 'n'   A is not assumed to be unit
-   *                                  triangular.
+   *              DIAG = 'N' or 'n'   A is not assumed to be unit triangular.
    *
    *           Unchanged on exit.
    *
@@ -2847,430 +2867,6 @@ namespace alglin {
   #endif
 
   /*
-  //   _____     _ ____                  _          _
-  //  |_   _| __(_) __ )  __ _ _ __   __| | ___  __| |
-  //    | || '__| |  _ \ / _` | '_ \ / _` |/ _ \/ _` |
-  //    | || |  | | |_) | (_| | | | | (_| |  __/ (_| |
-  //    |_||_|  |_|____/ \__,_|_| |_|\__,_|\___|\__,_|
-  */
-
-  /*\
-   *  Purpose
-   *  =======
-   *
-   *  DTBMV  performs one of the matrix-vector operations
-   *
-   *     x := A*x,   or   x := A'*x,
-   *
-   *  where x is an n element vector and  A is an n by n unit, or non-unit,
-   *  upper or lower triangular band matrix, with ( k + 1 ) diagonals.
-   *
-   *  Parameters
-   *  ==========
-   *
-   *  UPLO   - CHARACTER*1.
-   *           On entry, UPLO specifies whether the matrix is an upper or
-   *           lower triangular matrix as follows:
-   *
-   *              UPLO = 'U' or 'u'   A is an upper triangular matrix.
-   *
-   *              UPLO = 'L' or 'l'   A is a lower triangular matrix.
-   *
-   *           Unchanged on exit.
-   *
-   *  TRANS  - CHARACTER*1.
-   *           On entry, TRANS specifies the operation to be performed as
-   *           follows:
-   *
-   *              TRANS = 'N' or 'n'   x := A*x.
-   *
-   *              TRANS = 'T' or 't'   x := A'*x.
-   *
-   *              TRANS = 'C' or 'c'   x := A'*x.
-   *
-   *           Unchanged on exit.
-   *
-   *  DIAG   - CHARACTER*1.
-   *           On entry, DIAG specifies whether or not A is unit
-   *           triangular as follows:
-   *
-   *              DIAG = 'U' or 'u'   A is assumed to be unit triangular.
-   *
-   *              DIAG = 'N' or 'n'   A is not assumed to be unit
-   *                                  triangular.
-   *
-   *           Unchanged on exit.
-   *
-   *  N      - INTEGER.
-   *           On entry, N specifies the order of the matrix A.
-   *           N must be at least zero.
-   *           Unchanged on exit.
-   *
-   *  K      - INTEGER.
-   *           On entry with UPLO = 'U' or 'u', K specifies the number of
-   *           super-diagonals of the matrix A.
-   *           On entry with UPLO = 'L' or 'l', K specifies the number of
-   *           sub-diagonals of the matrix A.
-   *           K must satisfy  0 .le. K.
-   *           Unchanged on exit.
-   *
-   *  A      - DOUBLE PRECISION array of DIMENSION ( LDA, n ).
-   *           Before entry with UPLO = 'U' or 'u', the leading ( k + 1 )
-   *           by n part of the array A must contain the upper triangular
-   *           band part of the matrix of coefficients, supplied column by
-   *           column, with the leading diagonal of the matrix in row
-   *           ( k + 1 ) of the array, the first super-diagonal starting at
-   *           position 2 in row k, and so on. The top left k by k triangle
-   *           of the array A is not referenced.
-   *           The following program segment will transfer an upper
-   *           triangular band matrix from conventional full matrix storage
-   *           to band storage:
-   *
-   *                 DO 20, J = 1, N
-   *                    M = K + 1 - J
-   *                    DO 10, I = MAX( 1, J - K ), J
-   *                       A( M + I, J ) = matrix( I, J )
-   *              10    CONTINUE
-   *              20 CONTINUE
-   *
-   *           Before entry with UPLO = 'L' or 'l', the leading ( k + 1 )
-   *           by n part of the array A must contain the lower triangular
-   *           band part of the matrix of coefficients, supplied column by
-   *           column, with the leading diagonal of the matrix in row 1 of
-   *           the array, the first sub-diagonal starting at position 1 in
-   *           row 2, and so on. The bottom right k by k triangle of the
-   *           array A is not referenced.
-   *           The following program segment will transfer a lower
-   *           triangular band matrix from conventional full matrix storage
-   *           to band storage:
-   *
-   *                 DO 20, J = 1, N
-   *                    M = 1 - J
-   *                    DO 10, I = J, MIN( N, J + K )
-   *                       A( M + I, J ) = matrix( I, J )
-   *              10    CONTINUE
-   *              20 CONTINUE
-   *
-   *           Note that when DIAG = 'U' or 'u' the elements of the array A
-   *           corresponding to the diagonal elements of the matrix are not
-   *           referenced, but are assumed to be unity.
-   *           Unchanged on exit.
-   *
-   *  LDA    - INTEGER.
-   *           On entry, LDA specifies the first dimension of A as declared
-   *           in the calling (sub) program. LDA must be at least
-   *           ( k + 1 ).
-   *           Unchanged on exit.
-   *
-   *  X      - DOUBLE PRECISION array of dimension at least
-   *           ( 1 + ( n - 1 )*abs( INCX ) ).
-   *           Before entry, the incremented array X must contain the n
-   *           element vector x. On exit, X is overwritten with the
-   *           tranformed vector x.
-   *
-   *  INCX   - INTEGER.
-   *           On entry, INCX specifies the increment for the elements of
-   *           X. INCX must not be zero.
-   *           Unchanged on exit.
-   *
-   *
-   *  Level 2 Blas routine.
-   *
-   *  -- Written on 22-October-1986.
-   *     Jack Dongarra, Argonne National Lab.
-   *     Jeremy Du Croz, Nag Central Office.
-   *     Sven Hammarling, Nag Central Office.
-   *     Richard Hanson, Sandia National Labs.
-  \*/
-
-  #ifdef ALGLIN_USE_LAPACK
-  extern "C" {
-    void
-    BLASNAME(stbmv)( char const * UPLO,
-                     char const * TRANS,
-                     char const * DIAG,
-                     integer    * N,
-                     integer    * K,
-                     real         A[],
-                     integer    * LDA,
-                     real         X[],
-                     integer    * INCXU );
-    void
-    BLASNAME(dtbmv)( char const * UPLO,
-                     char const * TRANS,
-                     char const * DIAG,
-                     integer    * N,
-                     integer    * K,
-                     doublereal   A[],
-                     integer    * LDA,
-                     doublereal   X[],
-                     integer    * INCXU );
-  }
-  #endif
-
-  inline
-  void
-  tbmv( ULselect      const & UPLO,
-        Transposition const & TRANS,
-        DiagonalType  const & DIAG,
-        integer             N,
-        integer             K,
-        real          const A[],
-        integer             ldA,
-        real                xb[],
-        integer             incx ) {
-    #ifdef ALGLIN_USE_CBLAS
-    CBLASNAME(stbmv)( CblasColMajor,
-                      uplo_cblas[UPLO],
-                      trans_cblas[TRANS],
-                      diag_cblas[DIAG],
-                      N, K, A, ldA, xb, incx ) ;
-    #else
-    BLASNAME(stbmv)( uplo_blas[UPLO],
-                     trans_blas[TRANS],
-                     diag_blas[DIAG],
-                     &N, &K,
-                     const_cast<real*>(A), &ldA, xb, &incx ) ;
-    #endif
-  }
-
-  inline
-  void
-  tbmv( ULselect      const & UPLO,
-        Transposition const & TRANS,
-        DiagonalType  const & DIAG,
-        integer             N,
-        integer             K,
-        doublereal    const A[],
-        integer             ldA,
-        doublereal          xb[],
-        integer             incx ) {
-    #ifdef ALGLIN_USE_CBLAS
-    CBLASNAME(dtbmv)( CblasColMajor,
-                      uplo_cblas[UPLO],
-                      trans_cblas[TRANS],
-                      diag_cblas[DIAG],
-                      N, K, A, ldA, xb, incx ) ;
-    #else
-    BLASNAME(dtbmv)( uplo_blas[UPLO],
-                     trans_blas[TRANS],
-                     diag_blas[DIAG],
-                     &N, &K,
-                     const_cast<doublereal*>(A), &ldA, xb, &incx ) ;
-    #endif
-  }
-
-  /*\
-   *  Purpose
-   *  =======
-   *
-   *  DTBSV  solves one of the systems of equations
-   *
-   *     A*x = b,   or   A'*x = b,
-   *
-   *  where b and x are n element vectors and A is an n by n unit, or
-   *  non-unit, upper or lower triangular band matrix, with ( k + 1 )
-   *  diagonals.
-   *
-   *  No test for singularity or near-singularity is included in this
-   *  routine. Such tests must be performed before calling this routine.
-   *
-   *  Parameters
-   *  ==========
-   *
-   *  UPLO   - CHARACTER*1.
-   *           On entry, UPLO specifies whether the matrix is an upper or
-   *           lower triangular matrix as follows:
-   *
-   *              UPLO = 'U' or 'u'   A is an upper triangular matrix.
-   *
-   *              UPLO = 'L' or 'l'   A is a lower triangular matrix.
-   *
-   *           Unchanged on exit.
-   *
-   *  TRANS  - CHARACTER*1.
-   *           On entry, TRANS specifies the equations to be solved as
-   *           follows:
-   *
-   *              TRANS = 'N' or 'n'   A*x = b.
-   *
-   *              TRANS = 'T' or 't'   A'*x = b.
-   *
-   *              TRANS = 'C' or 'c'   A'*x = b.
-   *
-   *           Unchanged on exit.
-   *
-   *  DIAG   - CHARACTER*1.
-   *           On entry, DIAG specifies whether or not A is unit
-   *           triangular as follows:
-   *
-   *              DIAG = 'U' or 'u'   A is assumed to be unit triangular.
-   *
-   *              DIAG = 'N' or 'n'   A is not assumed to be unit
-   *                                  triangular.
-   *
-   *           Unchanged on exit.
-   *
-   *  N      - INTEGER.
-   *           On entry, N specifies the order of the matrix A.
-   *           N must be at least zero.
-   *           Unchanged on exit.
-   *
-   *  K      - INTEGER.
-   *           On entry with UPLO = 'U' or 'u', K specifies the number of
-   *           super-diagonals of the matrix A.
-   *           On entry with UPLO = 'L' or 'l', K specifies the number of
-   *           sub-diagonals of the matrix A.
-   *           K must satisfy  0 .le. K.
-   *           Unchanged on exit.
-   *
-   *  A      - DOUBLE PRECISION array of DIMENSION ( LDA, n ).
-   *           Before entry with UPLO = 'U' or 'u', the leading ( k + 1 )
-   *           by n part of the array A must contain the upper triangular
-   *           band part of the matrix of coefficients, supplied column by
-   *           column, with the leading diagonal of the matrix in row
-   *           ( k + 1 ) of the array, the first super-diagonal starting at
-   *           position 2 in row k, and so on. The top left k by k triangle
-   *           of the array A is not referenced.
-   *           The following program segment will transfer an upper
-   *           triangular band matrix from conventional full matrix storage
-   *           to band storage:
-   *
-   *                 DO 20, J = 1, N
-   *                    M = K + 1 - J
-   *                    DO 10, I = MAX( 1, J - K ), J
-   *                       A( M + I, J ) = matrix( I, J )
-   *              10    CONTINUE
-   *              20 CONTINUE
-   *
-   *           Before entry with UPLO = 'L' or 'l', the leading ( k + 1 )
-   *           by n part of the array A must contain the lower triangular
-   *           band part of the matrix of coefficients, supplied column by
-   *           column, with the leading diagonal of the matrix in row 1 of
-   *           the array, the first sub-diagonal starting at position 1 in
-   *           row 2, and so on. The bottom right k by k triangle of the
-   *           array A is not referenced.
-   *           The following program segment will transfer a lower
-   *           triangular band matrix from conventional full matrix storage
-   *           to band storage:
-   *
-   *                 DO 20, J = 1, N
-   *                    M = 1 - J
-   *                    DO 10, I = J, MIN( N, J + K )
-   *                       A( M + I, J ) = matrix( I, J )
-   *              10    CONTINUE
-   *              20 CONTINUE
-   *
-   *           Note that when DIAG = 'U' or 'u' the elements of the array A
-   *           corresponding to the diagonal elements of the matrix are not
-   *           referenced, but are assumed to be unity.
-   *           Unchanged on exit.
-   *
-   *  LDA    - INTEGER.
-   *           On entry, LDA specifies the first dimension of A as declared
-   *           in the calling (sub) program. LDA must be at least
-   *           ( k + 1 ).
-   *           Unchanged on exit.
-   *
-   *  X      - DOUBLE PRECISION array of dimension at least
-   *           ( 1 + ( n - 1 )*abs( INCX ) ).
-   *           Before entry, the incremented array X must contain the n
-   *           element right-hand side vector b. On exit, X is overwritten
-   *           with the solution vector x.
-   *
-   *  INCX   - INTEGER.
-   *           On entry, INCX specifies the increment for the elements of
-   *           X. INCX must not be zero.
-   *           Unchanged on exit.
-   *
-   *
-   *  Level 2 Blas routine.
-   *
-   *  -- Written on 22-October-1986.
-   *     Jack Dongarra, Argonne National Lab.
-   *     Jeremy Du Croz, Nag Central Office.
-   *     Sven Hammarling, Nag Central Office.
-   *     Richard Hanson, Sandia National Labs.
-   *
-  \*/
-  #ifdef ALGLIN_USE_LAPACK
-  extern "C" {
-    void
-    BLASNAME(stbsv)( char const * UPLO,
-                     char const * TRANS,
-                     char const * DIAG,
-                     integer    * N,
-                     integer    * K,
-                     real         A[],
-                     integer    * LDA,
-                     real         X[],
-                     integer    * INCXU );
-    void
-    BLASNAME(dtbsv)( char const * UPLO,
-                     char const * TRANS,
-                     char const * DIAG,
-                     integer    * N,
-                     integer    * K,
-                     doublereal   A[],
-                     integer    * LDA,
-                     doublereal   X[],
-                     integer    * INCXU );
-  }
-  #endif
-
-  inline
-  void
-  tbsv( ULselect      const & UPLO,
-        Transposition const & TRANS,
-        DiagonalType  const & DIAG,
-        integer             N,
-        integer             K,
-        real          const A[],
-        integer             ldA,
-        real                xb[],
-        integer             incx ) {
-    #ifdef ALGLIN_USE_CBLAS
-    CBLASNAME(stbsv)( CblasColMajor,
-                      uplo_cblas[UPLO],
-                      trans_cblas[TRANS],
-                      diag_cblas[DIAG],
-                      N, K, A, ldA, xb, incx ) ;
-    #else
-    BLASNAME(stbsv)( uplo_blas[UPLO],
-                     trans_blas[TRANS],
-                     diag_blas[DIAG],
-                     &N, &K,
-                     const_cast<real*>(A), &ldA, xb, &incx ) ;
-    #endif
-  }
-
-  inline
-  void
-  tbsv( ULselect      const & UPLO,
-        Transposition const & TRANS,
-        DiagonalType  const & DIAG,
-        integer             N,
-        integer             K,
-        doublereal    const A[],
-        integer             ldA,
-        doublereal          xb[],
-        integer             incx ) {
-    #ifdef ALGLIN_USE_CBLAS
-    CBLASNAME(dtbsv)( CblasColMajor,
-                      uplo_cblas[UPLO],
-                      trans_cblas[TRANS],
-                      diag_cblas[DIAG],
-                      N, K, A, ldA, xb, incx ) ;
-    #else
-    BLASNAME(dtbsv)( uplo_blas[UPLO],
-                     trans_blas[TRANS],
-                     diag_blas[DIAG],
-                     &N, &K,
-                     const_cast<doublereal*>(A), &ldA, xb, &incx ) ;
-    #endif
-  }
-
-  /*
   //   _____     _     _ _                               _
   //  |_   _| __(_) __| (_) __ _  __ _  ___  _ __   __ _| |
   //    | || '__| |/ _` | |/ _` |/ _` |/ _ \| '_ \ / _` | |
@@ -3299,8 +2895,7 @@ namespace alglin {
    *          The order of the matrix A.
    *
    *  DL      (input/output) DOUBLE PRECISION array, dimension (N-1)
-   *          On entry, DL must contain the (n-1) sub-diagonal elements of
-   *          A.
+   *          On entry, DL must contain the (n-1) sub-diagonal elements of A.
    *
    *          On exit, DL is overwritten by the (n-1) multipliers that
    *          define the matrix L from the LU factorization of A.
@@ -3584,8 +3179,7 @@ namespace alglin {
    *          of the matrix B.  NRHS >= 0.
    *
    *  DL      (input/output) DOUBLE PRECISION array, dimension (N-1)
-   *          On entry, DL must contain the (n-1) sub-diagonal elements of
-   *          A.
+   *          On entry, DL must contain the (n-1) sub-diagonal elements of A.
    *
    *          On exit, DL is overwritten by the (n-2) elements of the
    *          second super-diagonal of the upper triangular matrix U from
@@ -3597,8 +3191,7 @@ namespace alglin {
    *          On exit, D is overwritten by the n diagonal elements of U.
    *
    *  DU      (input/output) DOUBLE PRECISION array, dimension (N-1)
-   *          On entry, DU must contain the (n-1) super-diagonal elements
-   *          of A.
+   *          On entry, DU must contain the (n-1) super-diagonal elements of A.
    *
    *          On exit, DU is overwritten by the (n-1) elements of the first
    *          super-diagonal of U.
@@ -3942,6 +3535,740 @@ namespace alglin {
     #endif
     return INFO ;
   }
+
+  /*
+  //   ____                  _   __  __       _        _
+  //  | __ )  __ _ _ __   __| | |  \/  | __ _| |_ _ __(_)_  __
+  //  |  _ \ / _` | '_ \ / _` | | |\/| |/ _` | __| '__| \ \/ /
+  //  | |_) | (_| | | | | (_| | | |  | | (_| | |_| |  | |>  <
+  //  |____/ \__,_|_| |_|\__,_| |_|  |_|\__,_|\__|_|  |_/_/\_\
+  */
+
+  /*\
+   *  Purpose
+   *  =======
+   *
+   *  DTBMV  performs one of the matrix-vector operations
+   *
+   *     x := A*x,   or   x := A'*x,
+   *
+   *  where x is an n element vector and  A is an n by n unit, or non-unit,
+   *  upper or lower triangular band matrix, with ( k + 1 ) diagonals.
+   *
+   *  Parameters
+   *  ==========
+   *
+   *  UPLO   - CHARACTER*1.
+   *           On entry, UPLO specifies whether the matrix is an upper or
+   *           lower triangular matrix as follows:
+   *
+   *              UPLO = 'U' or 'u'   A is an upper triangular matrix.
+   *              UPLO = 'L' or 'l'   A is a lower triangular matrix.
+   *
+   *           Unchanged on exit.
+   *
+   *  TRANS  - CHARACTER*1.
+   *           On entry, TRANS specifies the operation to be performed as
+   *           follows:
+   *
+   *              TRANS = 'N' or 'n'   x := A*x.
+   *              TRANS = 'T' or 't'   x := A'*x.
+   *              TRANS = 'C' or 'c'   x := A'*x.
+   *
+   *           Unchanged on exit.
+   *
+   *  DIAG   - CHARACTER*1.
+   *           On entry, DIAG specifies whether or not A is unit
+   *           triangular as follows:
+   *
+   *              DIAG = 'U' or 'u'   A is assumed to be unit triangular.
+   *              DIAG = 'N' or 'n'   A is not assumed to be unit triangular.
+   *
+   *           Unchanged on exit.
+   *
+   *  N      - INTEGER.
+   *           On entry, N specifies the order of the matrix A.
+   *           N must be at least zero.
+   *           Unchanged on exit.
+   *
+   *  K      - INTEGER.
+   *           On entry with UPLO = 'U' or 'u', K specifies the number of
+   *           super-diagonals of the matrix A.
+   *           On entry with UPLO = 'L' or 'l', K specifies the number of
+   *           sub-diagonals of the matrix A.
+   *           K must satisfy  0 .le. K.
+   *           Unchanged on exit.
+   *
+   *  A      - DOUBLE PRECISION array of DIMENSION ( LDA, n ).
+   *           Before entry with UPLO = 'U' or 'u', the leading ( k + 1 )
+   *           by n part of the array A must contain the upper triangular
+   *           band part of the matrix of coefficients, supplied column by
+   *           column, with the leading diagonal of the matrix in row
+   *           ( k + 1 ) of the array, the first super-diagonal starting at
+   *           position 2 in row k, and so on. The top left k by k triangle
+   *           of the array A is not referenced.
+   *           The following program segment will transfer an upper
+   *           triangular band matrix from conventional full matrix storage
+   *           to band storage:
+   *
+   *                 DO 20, J = 1, N
+   *                    M = K + 1 - J
+   *                    DO 10, I = MAX( 1, J - K ), J
+   *                       A( M + I, J ) = matrix( I, J )
+   *              10    CONTINUE
+   *              20 CONTINUE
+   *
+   *           Before entry with UPLO = 'L' or 'l', the leading ( k + 1 )
+   *           by n part of the array A must contain the lower triangular
+   *           band part of the matrix of coefficients, supplied column by
+   *           column, with the leading diagonal of the matrix in row 1 of
+   *           the array, the first sub-diagonal starting at position 1 in
+   *           row 2, and so on. The bottom right k by k triangle of the
+   *           array A is not referenced.
+   *           The following program segment will transfer a lower
+   *           triangular band matrix from conventional full matrix storage
+   *           to band storage:
+   *
+   *                 DO 20, J = 1, N
+   *                    M = 1 - J
+   *                    DO 10, I = J, MIN( N, J + K )
+   *                       A( M + I, J ) = matrix( I, J )
+   *              10    CONTINUE
+   *              20 CONTINUE
+   *
+   *           Note that when DIAG = 'U' or 'u' the elements of the array A
+   *           corresponding to the diagonal elements of the matrix are not
+   *           referenced, but are assumed to be unity.
+   *           Unchanged on exit.
+   *
+   *  LDA    - INTEGER.
+   *           On entry, LDA specifies the first dimension of A as declared
+   *           in the calling (sub) program. LDA must be at least
+   *           ( k + 1 ).
+   *           Unchanged on exit.
+   *
+   *  X      - DOUBLE PRECISION array of dimension at least
+   *           ( 1 + ( n - 1 )*abs( INCX ) ).
+   *           Before entry, the incremented array X must contain the n
+   *           element vector x. On exit, X is overwritten with the
+   *           tranformed vector x.
+   *
+   *  INCX   - INTEGER.
+   *           On entry, INCX specifies the increment for the elements of
+   *           X. INCX must not be zero.
+   *           Unchanged on exit.
+   *
+   *  Level 2 Blas routine.
+   *
+   *  -- Written on 22-October-1986.
+   *     Jack Dongarra, Argonne National Lab.
+   *     Jeremy Du Croz, Nag Central Office.
+   *     Sven Hammarling, Nag Central Office.
+   *     Richard Hanson, Sandia National Labs.
+  \*/
+
+  #ifdef ALGLIN_USE_LAPACK
+  extern "C" {
+    void
+    BLASNAME(stbmv)( char const * UPLO,
+                     char const * TRANS,
+                     char const * DIAG,
+                     integer    * N,
+                     integer    * K,
+                     real         A[],
+                     integer    * LDA,
+                     real         X[],
+                     integer    * INCXU );
+    void
+    BLASNAME(dtbmv)( char const * UPLO,
+                     char const * TRANS,
+                     char const * DIAG,
+                     integer    * N,
+                     integer    * K,
+                     doublereal   A[],
+                     integer    * LDA,
+                     doublereal   X[],
+                     integer    * INCXU );
+  }
+  #endif
+
+  inline
+  void
+  tbmv( ULselect      const & UPLO,
+        Transposition const & TRANS,
+        DiagonalType  const & DIAG,
+        integer             N,
+        integer             K,
+        real          const A[],
+        integer             ldA,
+        real                xb[],
+        integer             incx ) {
+    #ifdef ALGLIN_USE_CBLAS
+    CBLASNAME(stbmv)( CblasColMajor,
+                      uplo_cblas[UPLO],
+                      trans_cblas[TRANS],
+                      diag_cblas[DIAG],
+                      N, K, A, ldA, xb, incx ) ;
+    #else
+    BLASNAME(stbmv)( uplo_blas[UPLO],
+                     trans_blas[TRANS],
+                     diag_blas[DIAG],
+                     &N, &K,
+                     const_cast<real*>(A), &ldA, xb, &incx ) ;
+    #endif
+  }
+
+  inline
+  void
+  tbmv( ULselect      const & UPLO,
+        Transposition const & TRANS,
+        DiagonalType  const & DIAG,
+        integer             N,
+        integer             K,
+        doublereal    const A[],
+        integer             ldA,
+        doublereal          xb[],
+        integer             incx ) {
+    #ifdef ALGLIN_USE_CBLAS
+    CBLASNAME(dtbmv)( CblasColMajor,
+                      uplo_cblas[UPLO],
+                      trans_cblas[TRANS],
+                      diag_cblas[DIAG],
+                      N, K, A, ldA, xb, incx ) ;
+    #else
+    BLASNAME(dtbmv)( uplo_blas[UPLO],
+                     trans_blas[TRANS],
+                     diag_blas[DIAG],
+                     &N, &K,
+                     const_cast<doublereal*>(A), &ldA, xb, &incx ) ;
+    #endif
+  }
+
+  /*\
+   *  Purpose
+   *  =======
+   *
+   *  DTBSV  solves one of the systems of equations
+   *
+   *     A*x = b,   or   A'*x = b,
+   *
+   *  where b and x are n element vectors and A is an n by n unit, or
+   *  non-unit, upper or lower triangular band matrix, with ( k + 1 )
+   *  diagonals.
+   *
+   *  No test for singularity or near-singularity is included in this
+   *  routine. Such tests must be performed before calling this routine.
+   *
+   *  Parameters
+   *  ==========
+   *
+   *  UPLO   - CHARACTER*1.
+   *           On entry, UPLO specifies whether the matrix is an upper or
+   *           lower triangular matrix as follows:
+   *
+   *              UPLO = 'U' or 'u'   A is an upper triangular matrix.
+   *              UPLO = 'L' or 'l'   A is a lower triangular matrix.
+   *
+   *           Unchanged on exit.
+   *
+   *  TRANS  - CHARACTER*1.
+   *           On entry, TRANS specifies the equations to be solved as
+   *           follows:
+   *
+   *              TRANS = 'N' or 'n'   A*x = b.
+   *              TRANS = 'T' or 't'   A'*x = b.
+   *              TRANS = 'C' or 'c'   A'*x = b.
+   *
+   *           Unchanged on exit.
+   *
+   *  DIAG   - CHARACTER*1.
+   *           On entry, DIAG specifies whether or not A is unit
+   *           triangular as follows:
+   *
+   *              DIAG = 'U' or 'u'   A is assumed to be unit triangular.
+   *              DIAG = 'N' or 'n'   A is not assumed to be unit triangular.
+   *
+   *           Unchanged on exit.
+   *
+   *  N      - INTEGER.
+   *           On entry, N specifies the order of the matrix A.
+   *           N must be at least zero.
+   *           Unchanged on exit.
+   *
+   *  K      - INTEGER.
+   *           On entry with UPLO = 'U' or 'u', K specifies the number of
+   *           super-diagonals of the matrix A.
+   *           On entry with UPLO = 'L' or 'l', K specifies the number of
+   *           sub-diagonals of the matrix A.
+   *           K must satisfy  0 .le. K.
+   *           Unchanged on exit.
+   *
+   *  A      - DOUBLE PRECISION array of DIMENSION ( LDA, n ).
+   *           Before entry with UPLO = 'U' or 'u', the leading ( k + 1 )
+   *           by n part of the array A must contain the upper triangular
+   *           band part of the matrix of coefficients, supplied column by
+   *           column, with the leading diagonal of the matrix in row
+   *           ( k + 1 ) of the array, the first super-diagonal starting at
+   *           position 2 in row k, and so on. The top left k by k triangle
+   *           of the array A is not referenced.
+   *           The following program segment will transfer an upper
+   *           triangular band matrix from conventional full matrix storage
+   *           to band storage:
+   *
+   *                 DO 20, J = 1, N
+   *                    M = K + 1 - J
+   *                    DO 10, I = MAX( 1, J - K ), J
+   *                       A( M + I, J ) = matrix( I, J )
+   *              10    CONTINUE
+   *              20 CONTINUE
+   *
+   *           Before entry with UPLO = 'L' or 'l', the leading ( k + 1 )
+   *           by n part of the array A must contain the lower triangular
+   *           band part of the matrix of coefficients, supplied column by
+   *           column, with the leading diagonal of the matrix in row 1 of
+   *           the array, the first sub-diagonal starting at position 1 in
+   *           row 2, and so on. The bottom right k by k triangle of the
+   *           array A is not referenced.
+   *           The following program segment will transfer a lower
+   *           triangular band matrix from conventional full matrix storage
+   *           to band storage:
+   *
+   *                 DO 20, J = 1, N
+   *                    M = 1 - J
+   *                    DO 10, I = J, MIN( N, J + K )
+   *                       A( M + I, J ) = matrix( I, J )
+   *              10    CONTINUE
+   *              20 CONTINUE
+   *
+   *           Note that when DIAG = 'U' or 'u' the elements of the array A
+   *           corresponding to the diagonal elements of the matrix are not
+   *           referenced, but are assumed to be unity.
+   *           Unchanged on exit.
+   *
+   *  LDA    - INTEGER.
+   *           On entry, LDA specifies the first dimension of A as declared
+   *           in the calling (sub) program. LDA must be at least
+   *           ( k + 1 ).
+   *           Unchanged on exit.
+   *
+   *  X      - DOUBLE PRECISION array of dimension at least
+   *           ( 1 + ( n - 1 )*abs( INCX ) ).
+   *           Before entry, the incremented array X must contain the n
+   *           element right-hand side vector b. On exit, X is overwritten
+   *           with the solution vector x.
+   *
+   *  INCX   - INTEGER.
+   *           On entry, INCX specifies the increment for the elements of
+   *           X. INCX must not be zero.
+   *           Unchanged on exit.
+   *
+   *
+   *  Level 2 Blas routine.
+   *
+   *  -- Written on 22-October-1986.
+   *     Jack Dongarra, Argonne National Lab.
+   *     Jeremy Du Croz, Nag Central Office.
+   *     Sven Hammarling, Nag Central Office.
+   *     Richard Hanson, Sandia National Labs.
+   *
+  \*/
+  #ifdef ALGLIN_USE_LAPACK
+  extern "C" {
+    void
+    BLASNAME(stbsv)( char const * UPLO,
+                     char const * TRANS,
+                     char const * DIAG,
+                     integer    * N,
+                     integer    * K,
+                     real         A[],
+                     integer    * LDA,
+                     real         X[],
+                     integer    * INCXU );
+    void
+    BLASNAME(dtbsv)( char const * UPLO,
+                     char const * TRANS,
+                     char const * DIAG,
+                     integer    * N,
+                     integer    * K,
+                     doublereal   A[],
+                     integer    * LDA,
+                     doublereal   X[],
+                     integer    * INCXU );
+  }
+  #endif
+
+  inline
+  void
+  tbsv( ULselect      const & UPLO,
+        Transposition const & TRANS,
+        DiagonalType  const & DIAG,
+        integer             N,
+        integer             K,
+        real          const A[],
+        integer             ldA,
+        real                xb[],
+        integer             incx ) {
+    #ifdef ALGLIN_USE_CBLAS
+    CBLASNAME(stbsv)( CblasColMajor,
+                      uplo_cblas[UPLO],
+                      trans_cblas[TRANS],
+                      diag_cblas[DIAG],
+                      N, K, A, ldA, xb, incx ) ;
+    #else
+    BLASNAME(stbsv)( uplo_blas[UPLO],
+                     trans_blas[TRANS],
+                     diag_blas[DIAG],
+                     &N, &K,
+                     const_cast<real*>(A), &ldA, xb, &incx ) ;
+    #endif
+  }
+
+  inline
+  void
+  tbsv( ULselect      const & UPLO,
+        Transposition const & TRANS,
+        DiagonalType  const & DIAG,
+        integer             N,
+        integer             K,
+        doublereal    const A[],
+        integer             ldA,
+        doublereal          xb[],
+        integer             incx ) {
+    #ifdef ALGLIN_USE_CBLAS
+    CBLASNAME(dtbsv)( CblasColMajor,
+                      uplo_cblas[UPLO],
+                      trans_cblas[TRANS],
+                      diag_cblas[DIAG],
+                      N, K, A, ldA, xb, incx ) ;
+    #else
+    BLASNAME(dtbsv)( uplo_blas[UPLO],
+                     trans_blas[TRANS],
+                     diag_blas[DIAG],
+                     &N, &K,
+                     const_cast<doublereal*>(A), &ldA, xb, &incx ) ;
+    #endif
+  }
+  
+  /*\
+   *  Purpose
+   *  =======
+   *
+   *  DGBTRF computes an LU factorization of a real m-by-n band matrix A
+   *  using partial pivoting with row interchanges.
+   *
+   *  This is the blocked version of the algorithm, calling Level 3 BLAS.
+   *
+   *  Arguments
+   *  =========
+   *
+   *  M       (input) INTEGER
+   *          The number of rows of the matrix A.  M >= 0.
+   *
+   *  N       (input) INTEGER
+   *          The number of columns of the matrix A.  N >= 0.
+   *
+   *  KL      (input) INTEGER
+   *          The number of subdiagonals within the band of A.  KL >= 0.
+   *
+   *  KU      (input) INTEGER
+   *          The number of superdiagonals within the band of A.  KU >= 0.
+   *
+   *  AB      (input/output) DOUBLE PRECISION array, dimension (LDAB,N)
+   *          On entry, the matrix A in band storage, in rows KL+1 to
+   *          2*KL+KU+1; rows 1 to KL of the array need not be set.
+   *          The j-th column of A is stored in the j-th column of the
+   *          array AB as follows:
+   *          AB(kl+ku+1+i-j,j) = A(i,j) for max(1,j-ku)<=i<=min(m,j+kl)
+   *
+   *          On exit, details of the factorization: U is stored as an
+   *          upper triangular band matrix with KL+KU superdiagonals in
+   *          rows 1 to KL+KU+1, and the multipliers used during the
+   *          factorization are stored in rows KL+KU+2 to 2*KL+KU+1.
+   *          See below for further details.
+   *
+   *  LDAB    (input) INTEGER
+   *          The leading dimension of the array AB.  LDAB >= 2*KL+KU+1.
+   *
+   *  IPIV    (output) INTEGER array, dimension (min(M,N))
+   *          The pivot indices; for 1 <= i <= min(M,N), row i of the
+   *          matrix was interchanged with row IPIV(i).
+   *
+   *  INFO    (output) INTEGER
+   *          = 0: successful exit
+   *          < 0: if INFO = -i, the i-th argument had an illegal value
+   *          > 0: if INFO = +i, U(i,i) is exactly zero. The factorization
+   *               has been completed, but the factor U is exactly
+   *               singular, and division by zero will occur if it is used
+   *               to solve a system of equations.
+   *
+   *  Further Details
+   *  ===============
+   *
+   *  The band storage scheme is illustrated by the following example, when
+   *  M = N = 6, KL = 2, KU = 1:
+   *
+   *  On entry:                       On exit:
+   *
+   *      *    *    *    +    +    +       *    *    *   u14  u25  u36
+   *      *    *    +    +    +    +       *    *   u13  u24  u35  u46
+   *      *   a12  a23  a34  a45  a56      *   u12  u23  u34  u45  u56
+   *     a11  a22  a33  a44  a55  a66     u11  u22  u33  u44  u55  u66
+   *     a21  a32  a43  a54  a65   *      m21  m32  m43  m54  m65   *
+   *     a31  a42  a53  a64   *    *      m31  m42  m53  m64   *    *
+   *
+   *  Array elements marked * are not used by the routine; elements marked
+   *  + need not be set on entry, but are required by the routine to store
+   *  elements of U because of fill-in resulting from the row interchanges.
+   *
+   *  =====================================================================
+   *
+  \*/
+
+  #ifdef ALGLIN_USE_LAPACK
+  extern "C" {
+    void
+    BLASNAME(sgbtrf)( integer    * M,
+                      integer    * N,
+                      integer    * KL,
+                      integer    * KU,
+                      real         AB[],
+                      integer    * ldAB,
+                      integer      ipiv[],
+                      integer    * info );
+    void
+    BLASNAME(dgbtrf)( integer    * M,
+                      integer    * N,
+                      integer    * KL,
+                      integer    * KU,
+                      doublereal   AB[],
+                      integer    * ldAB,
+                      integer      ipiv[],
+                      integer    * info );
+  }
+  #endif
+
+  inline
+  integer
+  gbtrf( integer M,
+         integer N,
+         integer KL,
+         integer KU,
+         real    AB[],
+         integer ldAB,
+         integer ipiv[]) {
+    integer info = 0 ;
+  #if defined(ALGLIN_USE_ATLAS)
+    CLAPACKNAME(sgbtrf)( M, N, KL, KU, AB, ldAB, ipiv, info ) ;
+  #elif defined(ALGLIN_USE_OPENBLAS)
+    LAPACK_NAME(sgbtrf)( &M, &N, &KL, &KU, AB, &ldAB, ipiv, &info ) ;
+  #elif defined(ALGLIN_USE_ACCELERATE)
+    CLAPACKNAME(sgbtrf)( &M, &N, &KL, &KU, AB, &ldAB, ipiv, &info ) ;
+  #else
+    LAPACKNAME(sgbtrf)( &M, &N, &KL, &KU, AB, &ldAB, ipiv, &info ) ;
+  #endif
+    return info ;
+  }
+
+  inline
+  integer
+  gbtrf( integer    M,
+         integer    N,
+         integer    KL,
+         integer    KU,
+         doublereal AB[],
+         integer    ldAB,
+         integer    ipiv[]) {
+    integer info = 0 ;
+  #if defined(ALGLIN_USE_ATLAS)
+    CLAPACKNAME(dgbtrf)( M, N, KL, KU, AB, ldAB, ipiv, info ) ;
+  #elif defined(ALGLIN_USE_OPENBLAS)
+    LAPACK_NAME(dgbtrf)( &M, &N, &KL, &KU, AB, &ldAB, ipiv, &info ) ;
+  #elif defined(ALGLIN_USE_ACCELERATE)
+    CLAPACKNAME(dgbtrf)( &M, &N, &KL, &KU, AB, &ldAB, ipiv, &info ) ;
+  #else
+    LAPACKNAME(dgbtrf)( &M, &N, &KL, &KU, AB, &ldAB, ipiv, &info ) ;
+  #endif
+    return info ;
+  }
+
+  /*\
+   *
+   *  Purpose
+   *  =======
+   *
+   *  DGBTRS solves a system of linear equations
+   *     A * X = B  or  A**T * X = B
+   *  with a general band matrix A using the LU factorization computed
+   *  by DGBTRF.
+   *
+   *  Arguments
+   *  =========
+   *
+   *  TRANS   (input) CHARACTER*1
+   *          Specifies the form of the system of equations.
+   *          = 'N':  A * X = B  (No transpose)
+   *          = 'T':  A**T* X = B  (Transpose)
+   *          = 'C':  A**T* X = B  (Conjugate transpose = Transpose)
+   *
+   *  N       (input) INTEGER
+   *          The order of the matrix A.  N >= 0.
+   *
+   *  KL      (input) INTEGER
+   *          The number of subdiagonals within the band of A.  KL >= 0.
+   *
+   *  KU      (input) INTEGER
+   *          The number of superdiagonals within the band of A.  KU >= 0.
+   *
+   *  NRHS    (input) INTEGER
+   *          The number of right hand sides, i.e., the number of columns
+   *          of the matrix B.  NRHS >= 0.
+   *
+   *  AB      (input) DOUBLE PRECISION array, dimension (LDAB,N)
+   *          Details of the LU factorization of the band matrix A, as
+   *          computed by DGBTRF.  U is stored as an upper triangular band
+   *          matrix with KL+KU superdiagonals in rows 1 to KL+KU+1, and
+   *          the multipliers used during the factorization are stored in
+   *          rows KL+KU+2 to 2*KL+KU+1.
+   *
+   *  LDAB    (input) INTEGER
+   *          The leading dimension of the array AB.  LDAB >= 2*KL+KU+1.
+   *
+   *  IPIV    (input) INTEGER array, dimension (N)
+   *          The pivot indices; for 1 <= i <= N, row i of the matrix was
+   *          interchanged with row IPIV(i).
+   *
+   *  B       (input/output) DOUBLE PRECISION array, dimension (LDB,NRHS)
+   *          On entry, the right hand side matrix B.
+   *          On exit, the solution matrix X.
+   *
+   *  LDB     (input) INTEGER
+   *          The leading dimension of the array B.  LDB >= max(1,N).
+   *
+   *  INFO    (output) INTEGER
+   *          = 0:  successful exit
+   *          < 0: if INFO = -i, the i-th argument had an illegal value
+   *
+   *  =====================================================================
+  \*/
+
+  #ifdef ALGLIN_USE_LAPACK
+  extern "C" {
+    void
+    BLASNAME(sgbtrs)( character  * TRANS,
+                      integer    * N,
+                      integer    * KL,
+                      integer    * KU,
+                      integer    * nrhs,
+                      real         AB[],
+                      integer    * ldAB,
+                      integer      ipiv[],
+                      real         B[],
+                      integer    * ldB,
+                      integer    * info );
+    void
+    BLASNAME(dgbtrs)( character  * TRANS,
+                      integer    * N,
+                      integer    * KL,
+                      integer    * KU,
+                      integer    * nrhs,
+                      doublereal   AB[],
+                      integer    * ldAB,
+                      integer      ipiv[],
+                      doublereal   B[],
+                      integer    * ldB,
+                      integer    * info );
+  }
+  #endif
+
+  inline
+  integer
+  gbtrs( Transposition const & TRANS,
+         integer       N,
+         integer       KL,
+         integer       KU,
+         integer       nrhs,
+         real    const AB[],
+         integer       ldAB,
+         integer const ipiv[],
+         real          B[],
+         integer       ldB ) {
+    integer info = 0 ;
+  #if defined(ALGLIN_USE_ATLAS)
+    CLAPACKNAME(sgbtrs)( const_cast<char*>(trans_cblas[TRANS]),
+                         &N, &KL, &KU, &nrhs,
+                         const_cast<real*>(AB), &ldAB,
+                         const_cast<integer*>(ipiv),
+                         const_cast<real*>(B), &ldB, &info ) ;
+  #elif defined(ALGLIN_USE_OPENBLAS)
+    LAPACK_NAME(sgbtrs)( const_cast<char*>(trans_blas[TRANS]),
+                         &N, &KL, &KU, &nrhs,
+                         const_cast<real*>(AB), &ldAB,
+                         const_cast<integer*>(ipiv),
+                         const_cast<real*>(B), &ldB, &info ) ;
+  #elif defined(ALGLIN_USE_ACCELERATE)
+    CLAPACKNAME(sgbtrs)( const_cast<char*>(trans_blas[TRANS]),
+                         &N, &KL, &KU, &nrhs,
+                         const_cast<real*>(AB), &ldAB,
+                         const_cast<integer*>(ipiv),
+                         const_cast<real*>(B), &ldB, &info ) ;
+  #else
+    LAPACKNAME(sgbtrs)( const_cast<char*>(trans_blas[TRANS]),
+                        &N, &KL, &KU, &nrhs,
+                        const_cast<real*>(AB), &ldAB,
+                        const_cast<integer*>(ipiv),
+                        const_cast<real*>(B), &ldB, &info ) ;
+  #endif
+    return info ;
+  }
+
+  inline
+  integer
+  gbtrs( Transposition const & TRANS,
+         integer          N,
+         integer          KL,
+         integer          KU,
+         integer          nrhs,
+         doublereal const AB[],
+         integer          ldAB,
+         integer    const ipiv[],
+         doublereal       B[],
+         integer          ldB ) {
+    integer info = 0 ;
+  #if defined(ALGLIN_USE_ATLAS)
+    CLAPACKNAME(dgbtrs)( const_cast<char*>(trans_cblas[TRANS]),
+                         &N, &KL, &KU, &nrhs,
+                         const_cast<doublereal*>(AB), &ldAB,
+                         const_cast<integer*>(ipiv),
+                         const_cast<doublereal*>(B), &ldB, &info ) ;
+  #elif defined(ALGLIN_USE_OPENBLAS)
+    LAPACK_NAME(dgbtrs)( const_cast<char*>(trans_blas[TRANS]),
+                         &N, &KL, &KU, &nrhs,
+                         const_cast<doublereal*>(AB), &ldAB,
+                         const_cast<integer*>(ipiv),
+                         const_cast<doublereal*>(B), &ldB, &info ) ;
+  #elif defined(ALGLIN_USE_ACCELERATE)
+    CLAPACKNAME(dgbtrs)( const_cast<char*>(trans_blas[TRANS]),
+                         &N, &KL, &KU, &nrhs,
+                         const_cast<doublereal*>(AB), &ldAB,
+                         const_cast<integer*>(ipiv),
+                         const_cast<doublereal*>(B), &ldB, &info ) ;
+  #else
+    LAPACKNAME(dgbtrs)( const_cast<char*>(trans_blas[TRANS]),
+                        &N, &KL, &KU, &nrhs,
+                        const_cast<doublereal*>(AB), &ldAB,
+                        const_cast<integer*>(ipiv),
+                        const_cast<doublereal*>(B), &ldB, &info ) ;
+  #endif
+    return info ;
+  }
+
+  /*
+  //    ____                           _   __  __       _        _
+  //   / ___| ___ _ __   ___ _ __ __ _| | |  \/  | __ _| |_ _ __(_)_  __
+  //  | |  _ / _ \ '_ \ / _ \ '__/ _` | | | |\/| |/ _` | __| '__| \ \/ /
+  //  | |_| |  __/ | | |  __/ | | (_| | | | |  | | (_| | |_| |  | |>  <
+  //   \____|\___|_| |_|\___|_|  \__,_|_| |_|  |_|\__,_|\__|_|  |_/_/\_\
+  */
 
   /*
   //              _         __
@@ -4812,8 +5139,7 @@ namespace alglin {
    *          The leading dimension of the array A.  LDA >= max(1,M).
    *
    *  R       (output) DOUBLE PRECISION array, dimension (M)
-   *          If INFO = 0 or INFO > M, R contains the row scale factors
-   *          for A.
+   *          If INFO = 0 or INFO > M, R contains the row scale factors for A.
    *
    *  C       (output) DOUBLE PRECISION array, dimension (N)
    *          If INFO = 0,  C contains the column scale factors for A.
@@ -6302,7 +6628,6 @@ namespace alglin {
     return INFO ;
   }
   #endif
-
 
   inline
   integer

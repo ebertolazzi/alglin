@@ -370,7 +370,7 @@ namespace alglin {
     case BORDERED_QR:
       info = geqrf( n_x_2, n, T, n_x_2, T+2*n_x_n, WorkQR+nth*LworkQR, LworkQR ) ;
       break ;
-    case BORDERED_LAST_QRP:
+    case BORDERED_QRP:
       { integer * P = perm_thread+nth*n ;
         std::fill( P, P+n, 0 ) ;
         info = geqp3( n_x_2, n, T, n_x_2, P, T+2*n_x_n, WorkQR+nth*LworkQR, LworkQR ) ;
@@ -425,7 +425,7 @@ namespace alglin {
              1.0, W+n, n_x_2 ) ; // TOP = BOTTOM - M L^(-1) TOP
       break ;
     case BORDERED_QR:
-    case BORDERED_LAST_QRP:
+    case BORDERED_QRP:
       info = ormqr( LEFT, TRANSPOSE,
                     n_x_2, ncol, // righe x colonne
                     n,         // numero riflettori usati nel prodotto Q
@@ -714,6 +714,9 @@ namespace alglin {
     case BORDERED_LAST_LU:
       info = getrf( Nr, Nc, Hmat, Nr, Hperm ) ;
       break ;
+    case BORDERED_LAST_LUP:
+      info = getc2( Nr, Hmat, Nr, Hperm, Hswaps ) ;
+      break ;
     case BORDERED_LAST_QR:
       info = geqrf( Nr, Nc, Hmat, Nr, Htau, Work, Lwork ) ;
       break ;
@@ -747,6 +750,12 @@ namespace alglin {
     switch ( last_selected ) {
     case BORDERED_LAST_LU:
       info = getrs( NO_TRANSPOSE, Nr, 1, Hmat, Nr, Hperm, X, Nr ) ;
+      break ;
+    case BORDERED_LAST_LUP:
+      {
+        valueType scale = gesc2( Nr, Hmat, Nr, X, Hperm, Hswaps ) ;
+        ALGLIN_ASSERT( scale == 1, "BorderedCR::solve_last scale = " << scale ) ;
+      }
       break ;
     case BORDERED_LAST_QR:
     case BORDERED_LAST_QRP:
@@ -789,6 +798,12 @@ namespace alglin {
     switch ( last_selected ) {
     case BORDERED_LAST_LU:
       info = getrs( NO_TRANSPOSE, Nr, nrhs, Hmat, Nr, Hperm, X, ldX ) ;
+      break ;
+    case BORDERED_LAST_LUP:
+      for ( integer i = 0 ; i < nrhs && info == 0 ; ++i ) {
+        valueType scale = gesc2( Nr, Hmat, Nr, X+i*ldX, Hperm, Hswaps ) ;
+        ALGLIN_ASSERT( scale == 1, "BorderedCR::solve_last scale = " << scale ) ;
+      }
       break ;
     case BORDERED_LAST_QR:
     case BORDERED_LAST_QRP:
