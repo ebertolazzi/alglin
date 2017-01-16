@@ -937,7 +937,7 @@ namespace alglin {
     nL   = _nL ;
     nU   = _nU ;
     ldAB = 2*nL+nU+1 ;
-    integer nnz = m*ldAB ;
+    integer nnz = n*ldAB ;
     allocReals.allocate( nnz ) ;
     allocIntegers.allocate(m) ;
     AB   = allocReals( nnz ) ;
@@ -959,7 +959,7 @@ namespace alglin {
   BandedLU<T>::t_solve( valueType xb[] ) const {
     ALGLIN_ASSERT( is_factorized, "BandedLU::solve, matrix not yet factorized" ) ;
     ALGLIN_ASSERT( m == n, "BandedLU::solve, matrix must be square" ) ;
-    integer info = gbtrs( TRANSPOSE, m, nL, nU, 1, AB, m, ipiv, xb, m );
+    integer info = gbtrs( TRANSPOSE, m, nL, nU, 1, AB, ldAB, ipiv, xb, m );
     ALGLIN_ASSERT( info == 0, "BandedLU::t_solve, info = " << info ) ;
   }
 
@@ -968,7 +968,7 @@ namespace alglin {
   BandedLU<T>::solve( integer nrhs, valueType B[], integer ldB ) const {
     ALGLIN_ASSERT( is_factorized, "BandedLU::solve, matrix not yet factorized" ) ;
     ALGLIN_ASSERT( m == n, "BandedLU::solve, matrix must be square" ) ;
-    integer info = gbtrs( NO_TRANSPOSE, m, nL, nU, nrhs, AB, m, ipiv, B, ldB );
+    integer info = gbtrs( NO_TRANSPOSE, m, nL, nU, nrhs, AB, ldAB, ipiv, B, ldB );
     ALGLIN_ASSERT( info == 0, "BandedLU::solve, info = " << info ) ;
   }
 
@@ -977,17 +977,18 @@ namespace alglin {
   BandedLU<T>::t_solve( integer nrhs, valueType B[], integer ldB ) const {
     ALGLIN_ASSERT( is_factorized, "BandedLU::solve, matrix not yet factorized" ) ;
     ALGLIN_ASSERT( m == n, "BandedLU::solve, matrix must be square" ) ;
-    integer info = gbtrs( TRANSPOSE, m, nL, nU, nrhs, AB, m, ipiv, B, ldB );
+    integer info = gbtrs( TRANSPOSE, m, nL, nU, nrhs, AB, ldAB, ipiv, B, ldB );
     ALGLIN_ASSERT( info == 0, "BandedLU::t_solve, info = " << info ) ;
   }
 
   template <typename T>
   void
   BandedLU<T>::factorize() {
-    ALGLIN_ASSERT( is_factorized, "BandedLU::solve, matrix not yet factorized" ) ;
+    ALGLIN_ASSERT( !is_factorized, "BandedLU::solve, matrix yet factorized" ) ;
     ALGLIN_ASSERT( m == n, "BandedLU::solve, matrix must be square" ) ;
-    integer info = gbtrf( m, n, nL, nU, AB, m, ipiv );
+    integer info = gbtrf( m, n, nL, nU, AB, ldAB, ipiv );
     ALGLIN_ASSERT( info == 0, "BandedLU::factorize, info = " << info ) ;
+    is_factorized = true ;
   }
 
   template <typename T>
@@ -1000,21 +1001,80 @@ namespace alglin {
 
   template <typename T>
   void
+  BandedLU<T>::iaddr_check( integer i, integer j ) const {
+    ALGLIN_ASSERT( i >= 0 && i < m && j >= 0 && j < n,
+                   "BandedLU:iaddr_check( " << i << " , " << j << " ) out of range" ) ;
+    ALGLIN_ASSERT( j >= i-nL && j <= i+nU,
+                   "BandedLU:iaddr_check( " << i << " , " << j << " ) out of band" ) ;
+  }
+
+  template <typename T>
+  void
   BandedLU<T>::load_block( integer         nr,
                            integer         nc,
                            valueType const B[],
                            integer         ldB,
                            integer         irow,
                            integer         icol ) {
+
     ALGLIN_ASSERT( !is_factorized, "BandedLU::load_block, matrix is factorized" ) ;
+
+    #if 1
+    for ( integer r = 0 ; r < nr ; ++r )
+      for ( integer c = 0 ; c < nc ; ++c )
+        AB[iaddr( irow+r, icol+c )] = B[ r + c * ldB ] ;
+    #else
+    // must be checked
+    iaddr_check( irow,      icol      ) ;
+    iaddr_check( irow+nr-1, icol+nc-1 ) ;
+    iaddr_check( irow,      icol+nc-1 ) ;
+    iaddr_check( irow+nr-1, icol      ) ;
+
     // copy by diagonal
     for ( integer r = 0 ; r < nr ; ++r ) {
       integer ia = iaddr( irow+r, icol ) ;
-      copy( std::min(nr-1,nc), B+r, ldB+1, AB+ia, ldAB ) ;
+      copy( std::min(nr-r,nc), B+r, ldB+1, AB+ia, ldAB ) ;
     }
     for ( integer c = 1 ; c < nc ; ++c ) {
       integer ia = iaddr( irow, icol+c ) ;
-      copy( std::min(nc-1,nr), B+c*ldB, ldB+1, AB+ia, ldAB ) ;
+      copy( std::min(nc-c,nr), B+c*ldB, ldB+1, AB+ia, ldAB ) ;
+    }
+    #endif
+  }
+
+  // y <- beta*y + alpha*A*x
+  /*
+    +---------+
+    | \       |
+    |  \      |
+    +---+-----+
+  */
+  template <typename T>
+  void
+  BandedLU<T>::aAxpy( valueType       alpha,
+                      valueType const x[],
+                      valueType       y[] ) const {
+
+    valueType const * col = AB + nL ;
+    for ( integer j = 0 ; j < n ; ++j, col += ldAB ) {
+      integer imin  = j-nU ;
+      integer imax  = min(j+nL,m-1) ;
+      integer imin0 = max(imin,0) ;
+      alglin::axpy( imax-imin0+1,
+                    alpha*x[j],
+                    col+imin0-imin, 1,
+                    y+imin0,        1 ) ;
+    }
+  }
+
+  template <typename T>
+  void
+  BandedLU<T>::dump( ostream & stream ) const {
+    for ( integer i = 0 ; i <= nL+nU ; ++i ) {
+      valueType const * col = AB + nL + i ;
+      for ( integer j = 0 ; j < n ; ++j, col += ldAB )
+        stream << setw(10) << col[0] << ' ' ;
+      stream << '\n' ;
     }
   }
 

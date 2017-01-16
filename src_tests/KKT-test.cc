@@ -283,15 +283,118 @@ test3() {
     cout << "x[" << i << "] = " << rhs[i] << '\n' ;
 }
 
+static
+void
+test4() {
+
+  alglin::KKT<valueType> kkt ;
+  integer const N = 10 ;
+  integer const M = 2  ;
+  alglin::BandedLU<valueType> bLU ;
+
+  bLU.setup( N, N, 3, 2 ); // number of upper diagonal
+  bLU.zero();
+
+  integer ldAA = 2 ;
+  valueType AA[] = {
+    3, 1,
+    1, 3,
+  } ;
+  for ( integer i = 0 ; i < N ; ++i ) bLU(i,i) = i+1 ;
+  bLU.load_block( 2, 2, AA, ldAA, 0, 0 ) ;
+  bLU.load_block( 2, 2, AA, ldAA, 3, 3 ) ;
+  bLU.load_block( 2, 2, AA, ldAA, 6, 6 ) ;
+  bLU.load_block( 1, 1, AA, ldAA, 9, 9 ) ;
+
+  //bLU.dump( cout ) ;
+
+  valueType B[] = {
+    0.001,      3,
+    0.001,     -0.001,
+    1,          2,
+    1,          2,
+    1,          2,
+    0.001,      3,
+    0.001,     -0.001,
+    2,          3,
+    0.001,      3,
+    0.001,     -0.001,
+  } ;
+
+  valueType C[] = {
+    1,          2,
+    1,          2,
+    0.001,      3,
+    2,          3,
+    -0.001,  -0.001,
+    1,          2,
+    1,          2,
+    0.001,      3,
+    1,          2,
+    0.001,      3,
+  } ;
+
+  valueType D[] = {
+    1,      4,
+    -1,      1
+  } ;
+
+  valueType x[] = { 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2 } ;
+  valueType rhs[2*(N+M)] ;
+
+  for ( integer i = 0 ; i < N+M ; ++i ) rhs[i] = 0 ;
+  bLU.aAxpy( 1.0, x, rhs ) ;
+
+  alglin::gemv(alglin::TRANSPOSE,
+               M, N, 1.0, C, M,
+               x+N, 1,
+               1,
+               rhs, 1 ) ;
+
+  alglin::gemv(alglin::TRANSPOSE,
+               M, M, 1.0, D, M,
+               x+N, 1,
+               0,
+               rhs+N, 1 ) ;
+
+  alglin::gemv(alglin::TRANSPOSE,
+               N, M, 1.0, B, N,
+               x, 1,
+               1,
+               rhs+N, 1 ) ;
+
+  std::copy( rhs, rhs+N+M, rhs+N+M ) ;
+
+  for ( integer i = 0 ; i < N+M ; ++i )
+    cout << "rhs[" << i << "] = " << rhs[i] << '\n' ;
+
+  // must be factorized before to call kkt.factorize
+  bLU.factorize();
+  kkt.factorize( N, M,
+                 &bLU,
+                 B, N, false,
+                 C, M, false,
+                 D, M, false ) ;
+  kkt.t_solve( 2, rhs, N+M ) ;
+  for ( integer i = 0 ; i < N+M ; ++i )
+    cout << "x[" << i << "] = " << rhs[i] << '\n' ;
+}
+
 
 int
 main() {
 
   try {
+    cout << "\n\n\ntest0\n" ;
     test0() ;
+    cout << "\n\n\ntest1\n" ;
     test1() ;
+    cout << "\n\n\ntest2\n" ;
     test2() ;
+    cout << "\n\n\ntest3\n" ;
     test3() ;
+    cout << "\n\n\ntest4\n" ;
+    test4() ;
   } catch ( exception const & exc ) {
     cerr << exc.what() << '\n' ;
   } catch ( ... ) {

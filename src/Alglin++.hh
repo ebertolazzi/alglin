@@ -1056,9 +1056,12 @@ namespace alglin {
 
     integer
     iaddr( integer i, integer j ) const {
-      integer d = (i-j+2*nL) ;
-      return d+j*m ;
+      integer d = (i-j+nL+nU) ;
+      return d+j*ldAB ;
     }
+
+    void
+    iaddr_check( integer i, integer j ) const ;
 
     valueType const &
     operator () ( integer i, integer j ) const { return AB[iaddr(i,j)] ; }
@@ -1078,6 +1081,15 @@ namespace alglin {
 
     // do internal facorization, to be executed (only once) before to call solve or t_solve
     void factorize() ;
+
+    // y <- beta*y + alpha*A*x
+    void
+    aAxpy( valueType       alpha,
+           valueType const x[],
+           valueType       y[] ) const ;
+
+    void
+    dump( ostream & stream ) const ;
 
   } ;
 
