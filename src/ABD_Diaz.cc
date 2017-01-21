@@ -25,6 +25,7 @@
 #include <iomanip>
 #include <vector>
 #include <limits>
+#include <algorithm>
 #include <cmath>
 
 #ifdef __GCC__

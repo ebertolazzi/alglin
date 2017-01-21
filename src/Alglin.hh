@@ -66,6 +66,7 @@
 #include <cmath>
 #include <ctgmath>
 #include <cstring>
+#include <limits>
 
 #if defined(__APPLE__) && defined(__MACH__)
   // osx architecture
@@ -107,7 +108,8 @@
   #if defined(ALGLIN_OS_OSX)
     #define ALGLIN_USE_ACCELERATE 1
   #elif defined(ALGLIN_OS_LINUX)
-    #define ALGLIN_USE_ATLAS 1
+    //#define ALGLIN_USE_ATLAS 1
+    #define ALGLIN_USE_LAPACK 1
   #elif defined(ALGLIN_OS_WINDOWS)
     #define ALGLIN_USE_LAPACK 1
   #endif
@@ -322,8 +324,10 @@ namespace alglin {
 
   /// Not a number constant
   template <typename T> T NaN() ;
-  template <> inline float NaN() { return nanf(nullptr) ; }
-  template <> inline double NaN() { return nan(nullptr) ; }
+  template <> inline float NaN()
+  { return std::numeric_limits<float>::quiet_NaN() ; }
+  template <> inline double NaN()
+  { return std::numeric_limits<double>::quiet_NaN() ; }
 
   /// machine epsilon
   template <typename T> T machineEps() ;

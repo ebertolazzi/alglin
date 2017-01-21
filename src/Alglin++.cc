@@ -1059,7 +1059,7 @@ namespace alglin {
     for ( integer j = 0 ; j < n ; ++j, col += ldAB ) {
       integer imin  = j-nU ;
       integer imax  = min(j+nL,m-1) ;
-      integer imin0 = max(imin,0) ;
+      integer imin0 = imin > 0 ? imin : 0 ;
       alglin::axpy( imax-imin0+1,
                     alpha*x[j],
                     col+imin0-imin, 1,
