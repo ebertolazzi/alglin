@@ -120,11 +120,11 @@ lib/libAlglin.so: $(OBJS)
 	$(MKDIR) lib
 	$(CXX) -shared -o lib/libAlglin.so $(OBJS) 
 
-install: lib
+install: lib/$(LIB_ALGLIN)
 	cp src/*.hh          $(PREFIX)/include
 	cp lib/$(LIB_ALGLIN) $(PREFIX)/lib
 
-install_as_framework: lib
+install_as_framework: lib/$(LIB_ALGLIN)
 	$(MKDIR) $(PREFIX)/include/$(FRAMEWORK)
 	cp src/*.hh          $(PREFIX)/include/$(FRAMEWORK)
 	cp lib/$(LIB_ALGLIN) $(PREFIX)/lib
