@@ -22,6 +22,7 @@
 #include <random>
 #include "Alglin.hh"
 #include "Alglin++.hh"
+#include "Alglin_tmpl.hh"
 #include "TicToc.hh"
 
 #ifdef USE_MECHATRONIX_EIGEN
@@ -44,12 +45,17 @@ rand( valueType xmin, valueType xmax ) {
 }
 
 using namespace alglin ;
+typedef Eigen::Matrix<valueType,Eigen::Dynamic,Eigen::Dynamic> dmat_t ;
 
-int
-main() {
+#define N_TIMES 1000000
 
-  #define N 2
-  #define N_TIMES 100000
+template <int N>
+void
+testN() {
+
+  typedef Eigen::Matrix<valueType,N,N> matN_t ;
+
+  cout << "\nSize N = " << N << "\n" ;
 
   Malloc<valueType>       baseValue("real") ;
   Malloc<alglin::integer> baseIndex("integer") ;
@@ -61,12 +67,7 @@ main() {
   valueType * M2 = baseValue(N*N) ;
   valueType * M3 = baseValue(N*N) ;
   
-  //typedef Eigen::Matrix<valueType,N,1> vec_t ;
-  typedef Eigen::Matrix<valueType,N,N> mat_t ;
-  //typedef Eigen::Matrix<valueType,Eigen::Dynamic,1>              dvec_t ;
-  typedef Eigen::Matrix<valueType,Eigen::Dynamic,Eigen::Dynamic> dmat_t ;
-  
-  mat_t m1, m2, m3 ;
+  matN_t m1, m2, m3 ;
   dmat_t dm1, dm2, dm3 ;
   
   dm1.resize(N,N) ;
@@ -75,14 +76,16 @@ main() {
   
   for ( int i = 0 ; i < N ; ++i ) {
     for ( int j = 0 ; j < N ; ++j ) {
-      dm1(i,j) = m1(i,j) = M1[i+j*N] = rand(-1,1) ;
-      dm2(i,j) = m2(i,j) = M2[i+j*N] = rand(-1,1) ;
-      dm3(i,j) = m3(i,j) = M3[i+j*N] = rand(-1,1) ;
+      m1(i,j) = dm1(i,j) = M1[i+j*N] = rand(-1,1) ;
+      m2(i,j) = dm2(i,j) = M2[i+j*N] = rand(-1,1) ;
+      m3(i,j) = dm3(i,j) = M3[i+j*N] = rand(-1,1) ;
     }
   }
 
   TicToc tm ;
   tm.reset() ;
+
+  // ===========================================================================
 
   tm.tic() ;
   for ( int i = 0 ; i < N_TIMES ; ++i ) {
@@ -94,15 +97,9 @@ main() {
     copy( N*N, M3, 1, M2, 1) ;
   }
   tm.toc() ;
-  cout << "MULT (lapack) = " << tm.elapsedMilliseconds() << " [ms]\n" ;
+  cout << "MULT = " << tm.elapsedMilliseconds() << " [ms] (lapack)\n" ;
 
-  tm.tic() ;
-  for ( int i = 0 ; i < N_TIMES ; ++i ) {
-    m3.noalias() -= m1*m2 ;
-    m2 = m3 ;
-  }
-  tm.toc() ;
-  cout << "MULT (eigen) = " << tm.elapsedMilliseconds() << " [ms]\n" ;
+  // ===========================================================================
 
   tm.tic() ;
   for ( int i = 0 ; i < N_TIMES ; ++i ) {
@@ -110,18 +107,9 @@ main() {
     dm2 = dm3 ;
   }
   tm.toc() ;
-  cout << "MULT (deigen) = " << tm.elapsedMilliseconds() << " [ms]\n" ;
+  cout << "MULT = " << tm.elapsedMilliseconds() << " [ms] (eigen dynamic)\n" ;
 
-  tm.tic() ;
-  for ( int i = 0 ; i < N_TIMES ; ++i ) {
-    Eigen::Map<mat_t> mm1(M1) ;
-    Eigen::Map<mat_t> mm2(M2) ;
-    Eigen::Map<mat_t> mm3(M3) ;
-    mm3.noalias() -= mm1*mm2 ;
-    mm2 = mm3 ;
-  }
-  tm.toc() ;
-  cout << "MULT (eigen map) = " << tm.elapsedMilliseconds() << " [ms]\n" ;
+  // ===========================================================================
 
   tm.tic() ;
   for ( int i = 0 ; i < N_TIMES ; ++i ) {
@@ -132,24 +120,61 @@ main() {
     mm2 = mm3 ;
   }
   tm.toc() ;
-  cout << "MULT (deigen map) = " << tm.elapsedMilliseconds() << " [ms]\n" ;
+  cout << "MULT = " << tm.elapsedMilliseconds() << " [ms] (eigen map dynamic)\n" ;
 
+  // ===========================================================================
 
   tm.tic() ;
   for ( int i = 0 ; i < N_TIMES ; ++i ) {
-    M3[0+0*N] -= M1[0+0*N]*M2[0+0*N]+M1[0+1*N]*M2[1+0*N] ;
-    M3[0+1*N] -= M1[0+0*N]*M2[0+1*N]+M1[0+1*N]*M2[1+1*N] ;
-    M3[1+0*N] -= M1[1+0*N]*M2[0+0*N]+M1[1+1*N]*M2[1+0*N] ;
-    M3[1+1*N] -= M1[1+0*N]*M2[0+1*N]+M1[1+1*N]*M2[1+1*N] ;
-    M2[0+0*N] = M2[0+0*N];
-    M2[0+1*N] = M2[0+1*N];
-    M2[1+0*N] = M2[1+0*N];
-    M2[1+1*N] = M2[1+1*N];
+    m3.noalias() -= m1*m2 ;
+    m2 = m3 ;
   }
   tm.toc() ;
-  cout << "MULT (hand) = " << tm.elapsedMilliseconds() << " [ms]\n" ;
+  cout << "MULT = " << tm.elapsedMilliseconds() << " [ms] (eigen fixed)\n" ;
+
+  // ===========================================================================
+
+  tm.tic() ;
+  for ( int i = 0 ; i < N_TIMES ; ++i ) {
+    Eigen::Map<matN_t> mm1(M1) ;
+    Eigen::Map<matN_t> mm2(M2) ;
+    Eigen::Map<matN_t> mm3(M3) ;
+    mm3.noalias() -= mm1*mm2 ;
+    mm2 = mm3 ;
+  }
+  tm.toc() ;
+  cout << "MULT = " << tm.elapsedMilliseconds() << " [ms] (eigen fixed map)\n" ;
+
+  // ===========================================================================
+
+  tm.tic() ;
+  for ( int i = 0 ; i < N_TIMES ; ++i ) {
+    MM<valueType,N,N,N,N,N,N>::subTo(M1,M2,M3) ;
+    memcpy( M2, M3, N*N*sizeof(valueType) ) ;
+    //Vec2<valueType,N*N,1,1>::copy(M3,M2);
+  }
+  tm.toc() ;
+  cout << "MULT = " << tm.elapsedMilliseconds() << " [ms] (hand unrolled)\n" ;
+
+  // ===========================================================================
 
   cout << "All done!\n" ;
+}
+
+
+
+int
+main() {
+
+  testN<2>() ;
+  testN<3>() ;
+  testN<4>() ;
+  testN<5>() ;
+  testN<6>() ;
+  testN<7>() ;
+  testN<8>() ;
+
+  cout << "\n\nAll done!\n" ;
 
   return 0 ;
 }

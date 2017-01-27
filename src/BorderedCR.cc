@@ -754,7 +754,7 @@ namespace alglin {
     case BORDERED_LAST_LUP:
       {
         valueType scale = gesc2( Nr, Hmat, Nr, X, Hperm, Hswaps ) ;
-        ALGLIN_ASSERT( scale == 1, "BorderedCR::solve_last scale = " << scale ) ;
+        ALGLIN_ASSERT( isZero(scale-1), "BorderedCR::solve_last scale = " << scale ) ;
       }
       break ;
     case BORDERED_LAST_QR:
@@ -802,7 +802,7 @@ namespace alglin {
     case BORDERED_LAST_LUP:
       for ( integer i = 0 ; i < nrhs && info == 0 ; ++i ) {
         valueType scale = gesc2( Nr, Hmat, Nr, X+i*ldX, Hperm, Hswaps ) ;
-        ALGLIN_ASSERT( scale == 1, "BorderedCR::solve_last scale = " << scale ) ;
+        ALGLIN_ASSERT( isZero(scale-1), "BorderedCR::solve_last scale = " << scale ) ;
       }
       break ;
     case BORDERED_LAST_QR:

@@ -72,7 +72,6 @@ namespace alglin {
     valuePointer array           ; //!< the matrix data
 
     integer      numberOfBlocks  ; //!< total number of blocks of the matrix A
-    integer      __padding ;
 
     /*!
      *  RowElimination performs numRowsPivot row elimination on the matrix block.

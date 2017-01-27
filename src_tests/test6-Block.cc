@@ -24,7 +24,8 @@
 #include "Alglin.hh"
 #include "Alglin_aux.hh"
 #include "TicToc.hh"
-#include "ABD_Diaz.hh"
+#include "BABD_Block.hh"
+//#include "ABD_Diaz.hh"
 
 using namespace std ;
 typedef double valueType ;
@@ -83,7 +84,9 @@ main() {
                                        alglin::LASTBLOCK_SVD } ;
     char const * kind[] = { "LU", "QR", "QRP", "SVD" } ;
 
-    alglin::DiazLU<valueType> LU ;
+    alglin::BlockLU<valueType> LU ;
+    //alglin::DiazLU<valueType> LU ;
+
     LU.allocate( numBlock, dim, row0+rowN-dim, NB );
 
     // carico matrice
@@ -132,10 +135,6 @@ main() {
       LU.loadTopBottom( row0, dim+col00, block0, row0,
                         rowN, dim+colNN, blockN, rowN ) ;
       LU.selectLastBlockSolver( ch[test] ) ;
-      
-      ofstream file("dump_mat.txt");
-      LU.dump_ccoord( file ) ;
-      file.close() ;
 
       cout << "N = " << N << ' '
            << "n = " << dim << ' '
@@ -149,32 +148,16 @@ main() {
       std::copy( x, x+N+NB, xref1 ) ;
       LU.Mv( x, rhs ) ;
 
-      /*
-      check
-      
-      LU.setZeroRightBlocks() ;
-      for ( int i = 0 ; i < numBlock ; ++i )
-        LU.loadRightBlock( i, B+i*dim, N ) ;
-      LU.loadRightLastBlock( B+numBlock*dim, N ) ;
-
-      LU.setZeroBottomBlocks() ;
-      for ( int i = 0 ; i <= numBlock ; ++i )
-        LU.loadBottomBlock( i, C+i*dim*NB, NB ) ;
-      LU.loadBottomLastBlock( C+(numBlock+1)*dim*NB, NB ) ;
-
-      LU.loadRBblock( D, NB ) ;
-      */
-
       tm.tic() ;
       LU.factorize_bordered() ;
       tm.toc() ;
-      cout << "(Diaz " << kind[test] << ") Factorize = " << tm.elapsedMilliseconds() << " [ms]\n" ;
+      cout << "(Block " << kind[test] << ") Factorize = " << tm.elapsedMilliseconds() << " [ms]\n" ;
 
       std::copy( rhs, rhs+N+NB, x ) ;
       tm.tic() ;
       LU.solve_bordered( x ) ;
       tm.toc() ;
-      cout << "(Diaz " << kind[test] << ") Solve = " << tm.elapsedMilliseconds() << " [ms]\n" ;
+      cout << "(Block " << kind[test] << ") Solve = " << tm.elapsedMilliseconds() << " [ms]\n" ;
 
       alglin::axpy( N+NB, -1.0, x, 1, xref, 1 ) ;
       cout << "Check |err|_inf = " << alglin::absmax( N+NB, xref, 1 ) << '\n' ;
@@ -183,14 +166,14 @@ main() {
       tm.tic() ;
       LU.solve_bordered( 1, x, N+NB ) ;
       tm.toc() ;
-      cout << "(Diaz " << kind[test] << ") Solve = " << tm.elapsedMilliseconds() << " [ms]\n" ;
+      cout << "(Block " << kind[test] << ") Solve = " << tm.elapsedMilliseconds() << " [ms]\n" ;
 
       alglin::axpy( N+NB, -1.0, x, 1, xref1, 1 ) ;
       cout << "Check |err|_inf = " << alglin::absmax( N+NB, xref1, 1 ) << '\n' ;
     }
   }
 
-  cout << "\n\nAll done!\n" ;
+  cout << "\nAll done!\n" ;
 
   return 0 ;
 }

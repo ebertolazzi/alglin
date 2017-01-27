@@ -62,7 +62,6 @@ namespace alglin {
     integer m   ; //!< number final rows (m>=n)
     integer N   ; //!< n * (nblock+1) + q
     integer nnz ; //!< total number of non zeros
-    integer __padding ;
 
     /*!
     //

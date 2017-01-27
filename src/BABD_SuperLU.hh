@@ -24,6 +24,15 @@
 #include "Alglin++.hh"
 #include "AlglinSuperLU.hh"
 
+#ifdef __GCC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpadded"
+#endif
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wpadded"
+#endif
+
 namespace alglin {
 
   /*
@@ -63,8 +72,6 @@ namespace alglin {
     integer m      ; //!< number final rows (m>=n)
     integer nnz    ; //!< total number of non zeros
     integer neq    ;
-
-    integer __padding ; // quite warning
 
     //int               info ;
     //mem_usage_t       mem_usage;
@@ -141,5 +148,12 @@ namespace alglin {
     void cond( valueType & rcond_1, valueType & rcond_inf ) const ;
   } ;
 }
+
+#ifdef __GCC__
+#pragma GCC diagnostic pop
+#endif
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
 
 #endif

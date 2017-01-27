@@ -5867,6 +5867,15 @@ namespace alglin {
    *          referenced.
   \*/
 
+  #ifdef __GCC__
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Wc++98-compat"
+  #endif
+  #ifdef __clang__
+  #pragma clang diagnostic push
+  #pragma clang diagnostic ignored "-Wc++98-compat"
+  #endif
+
   inline
   real
   normInf( integer    N,
@@ -6005,6 +6014,13 @@ namespace alglin {
   { return LAPACK_NAME(dlange)( const_cast<character*>("M"), &N, &M, A, &LDA, nullptr ) ; }
   #else
   { return LAPACKNAME(dlange)( const_cast<character*>("M"), &N, &M, A, &LDA, nullptr ) ; }
+  #endif
+
+  #ifdef __GCC__
+  #pragma GCC diagnostic pop
+  #endif
+  #ifdef __clang__
+  #pragma clang diagnostic pop
   #endif
 
   /*
@@ -10332,6 +10348,15 @@ namespace alglin {
     return ok ;
   }
 
+  #ifdef __GCC__
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Wc++98-compat"
+  #endif
+  #ifdef __clang__
+  #pragma clang diagnostic push
+  #pragma clang diagnostic ignored "-Wc++98-compat"
+  #endif
+
   template <typename T>
   inline
   void
@@ -10379,6 +10404,13 @@ namespace alglin {
       else            s << ">>;\n" ;
     }
   }
+
+  #ifdef __GCC__
+  #pragma GCC diagnostic pop
+  #endif
+  #ifdef __clang__
+  #pragma clang diagnostic pop
+  #endif
 
 } // end namespace alglin
 

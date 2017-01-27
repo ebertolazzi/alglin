@@ -24,10 +24,14 @@
 #include "Alglin++.hh"
 
 #ifdef __GCC__
+#pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpadded"
+#pragma GCC diagnostic ignored "-Wc++98-compat"
 #endif
 #ifdef __clang__
+#pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wpadded"
+#pragma clang diagnostic ignored "-Wc++98-compat"
 #endif
 
 namespace alglin {

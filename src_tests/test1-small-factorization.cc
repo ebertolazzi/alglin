@@ -504,5 +504,8 @@ main() {
   } catch ( ... ) {
     cerr << "Errore Sconosciuto!\n" ;
   }
+
+  cout << "\n\nAll done!\n" ;
+
   return 0 ;
 }

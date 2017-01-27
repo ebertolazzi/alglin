@@ -400,5 +400,8 @@ main() {
   } catch ( ... ) {
     cerr << "Errore Sconosciuto!\n" ;
   }
+
+  cout << "\nAll done!\n" ;
+
   return 0 ;
 }

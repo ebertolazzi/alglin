@@ -58,7 +58,7 @@ test( int nth ) {
   cout << "Thread N." << nth << " done_and_wait\n" ;
   mtx.unlock() ;
 
-  bar.done_and_wait() ;
+  bar.count_down_and_wait() ;
   
   ms = generator() % 2000 ;
 
@@ -71,7 +71,7 @@ test( int nth ) {
   mtx.lock() ;
   cout << "Thread N." << nth << " done second part\n" ;
   mtx.unlock() ;
-  bar.done_and_wait() ;
+  bar.count_down_and_wait() ;
 }
 
 int
