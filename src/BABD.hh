@@ -25,9 +25,8 @@
 
 #include "ABD_Diaz.hh"
 #include "ABD_Arceco.hh"
-#include "BABD_Amodio.hh"
+#include "BorderedCR.hh"
 #include "BABD_Block.hh"
-#include "BABD_QR.hh"
 
 namespace alglin {
 
@@ -36,7 +35,7 @@ namespace alglin {
   //! available LU factorization code
   typedef enum {
     BABD_DIAZ                 = 1, // no CR
-    BABD_AMODIO               = 2, // CR_LU
+    BABD_CYCLIC_REDUCTION_LU  = 2, // LU+QR
     BABD_CYCLIC_REDUCTION_QR  = 3, // CR+QR
     BABD_CYCLIC_REDUCTION_QRP = 4  // CR+QR
   } BABD_Choice;
@@ -71,16 +70,14 @@ namespace alglin {
     BABD<t_Value> const & operator = ( BABD<t_Value> const & ) ;
 
     DiazLU<t_Value>       diaz_LU ;
-    AmodioLU<t_Value>     amodio_LU ;
-    BabdQR<QR<t_Value> >  babd_QR ;
-    BabdQR<QRP<t_Value> > babd_QRP ;
-    
+    BorderedCR<t_Value>   bordered ;
+
     BlockBidiagonal<t_Value> * babd_solver ;
 
   public:
 
     explicit BABD()
-    : babd_solver(&amodio_LU)
+    : babd_solver(&bordered)
     {}
 
     ~BABD() {}
@@ -184,10 +181,14 @@ namespace alglin {
     void
     selectSolver( BABD_Choice choice ) {
       switch ( choice ) {
-        case BABD_DIAZ:                 babd_solver = &diaz_LU   ; break ;
-        case BABD_AMODIO:               babd_solver = &amodio_LU ; break ;
-        case BABD_CYCLIC_REDUCTION_QR:  babd_solver = &babd_QR   ; break ;
-        case BABD_CYCLIC_REDUCTION_QRP: babd_solver = &babd_QRP  ; break ;
+        case BABD_DIAZ:
+          babd_solver = &diaz_LU ;
+          break ;
+        case BABD_CYCLIC_REDUCTION_LU:
+        case BABD_CYCLIC_REDUCTION_QR:
+        case BABD_CYCLIC_REDUCTION_QRP:
+          babd_solver = &bordered ;
+          break ;
       } ;
     }
 

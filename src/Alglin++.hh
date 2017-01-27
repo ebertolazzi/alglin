@@ -26,6 +26,17 @@
 
 #include "Alglin.hh"
 
+#ifdef __GCC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpadded"
+#pragma GCC diagnostic ignored "-Wc++98-compat"
+#endif
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wpadded"
+#pragma clang diagnostic ignored "-Wc++98-compat"
+#endif
+
 /*\
  |    ____            _       _             __
  |   / ___| _     _  (_)_ __ | |_ ___ _ __ / _| __ _  ___ ___
@@ -764,7 +775,7 @@ namespace alglin {
     integer     minRC, Lwork ;
     
     typedef enum { USE_GESVD = 0, USE_GESDD = 1 } SVD_USED ;
-    SVD_USED    svd_used, __padding ;
+    SVD_USED    svd_used ;
 
   public:
   
@@ -892,7 +903,7 @@ namespace alglin {
     integer   * IPIV ;
     integer   * IWORK ;
 
-    integer     nRC, __padding ;
+    integer     nRC ;
 
   public:
 
@@ -958,7 +969,7 @@ namespace alglin {
     valueType * BU2 ; // band triangular matrix
 
     valueType   normInfA ;
-    integer     nRC, __padding ;
+    integer     nRC ;
 
     void Rsolve( valueType xb[] ) const ;
     void RsolveTransposed( valueType xb[] ) const ;
@@ -1149,6 +1160,13 @@ namespace alglin {
   } ;
 
 } // end namespace alglin
+
+#ifdef __GCC__
+#pragma GCC diagnostic pop
+#endif
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
 
 #endif
 

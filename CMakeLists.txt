@@ -20,11 +20,13 @@ SET( CMAKE_VERBOSE_MAKEFILE            TRUE )
 SET( CMAKE_BUILD_TYPE                  Release )
 
 # "${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC"
-IF( ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU") OR ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang") )
+IF( ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU") OR
+   ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang") OR
+   ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang") )
   SET( CMAKE_CXX_FLAGS "-Weverything -Wcast-align -Wno-padded -Wno-documentation-unknown-command -Wno-global-constructors -isystem /usr/local/include/eigen3" )
   IF ( APPLE )
-    SET( CMAKE_CXX_FLAGS_RELEASE  "-O3 -g0 -funroll-loops " )
-    SET( CMAKE_CXX_FLAGS_DEBUG    "-O0 -g -DDEBUG " )
+    SET( CMAKE_CXX_FLAGS_RELEASE  "-std=c++11 -O3 -g0 -funroll-loops " )
+    SET( CMAKE_CXX_FLAGS_DEBUG    "-std=c++11 -O0 -g -DDEBUG " )
   ELSE()
     SET( CMAKE_CXX_FLAGS_RELEASE "-fPIC -fno-common -O3 -g0 -funroll-loops " )
     SET( CMAKE_CXX_FLAGS_DEBUG   "-fPIC -fno-common -O0 -g -DDEBUG " )
@@ -33,6 +35,8 @@ ELSEIF( MSVC )
   SET( VSFLAGS_COMMON "/nologo /GS /W3 /WX- /Gm- /Gd /fp:precise /EHsc /FS /D_CRT_SECURE_NO_DEPRECATE /D_CRT_SECURE_NO_WARNINGS /DHAVE_STRING_H /DNO_GETTIMEOFDAY" )
   SET( CMAKE_CXX_FLAGS_RELEASE "/O2 /MD ${VSFLAGS_COMMON}" )
   SET( CMAKE_CXX_FLAGS_DEBUG   "/Od /Ob0 /MDd /Zi /RTC1 /DDEBUG ${VSFLAGS_COMMON}" )
+ELSE()
+  MESSAGE( STATUS "Unsupported compiler: ${CMAKE_CXX_COMPILER_ID}")
 ENDIF()
 
 SET( CMAKE_C_FLAGS         ${CMAKE_CXX_FLAGS} )

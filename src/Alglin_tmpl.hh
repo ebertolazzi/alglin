@@ -31,193 +31,133 @@
 
 namespace alglin {
 
-  /*
-  //   _____
-  //  |__  /___ _ __ ___
-  //    / // _ \ '__/ _ \
-  //   / /|  __/ | | (_) |
-  //  /____\___|_|  \___/
-  */
+  /*\
+   |  __     __        _
+   |  \ \   / /__  ___/ |
+   |   \ \ / / _ \/ __| |
+   |    \ V /  __/ (__| |
+   |     \_/ \___|\___|_|
+  \*/
   template <typename t_Value, int N, int STEP>
-  class Zero {
+  class Vec1 {
   public:
-    static inline void eval( t_Value * A ) {
-      A[0] = 0 ; Zero<t_Value,N-1,STEP>::eval( A+STEP ) ;
+    static inline void zero( t_Value * A ) {
+      A[0] = 0 ;
+      Vec1<t_Value,N-1,STEP>::zero( A+STEP ) ;
     }
-  } ;
-
-  template <typename t_Value, int STEP>
-  class Zero<t_Value,0,STEP> {
-  public:
-    static inline void eval( t_Value * ) {}
-  } ;
-  
-  /*
-  //    ____
-  //   / ___|___  _ __  _   _
-  //  | |   / _ \| '_ \| | | |
-  //  | |__| (_) | |_) | |_| |
-  //   \____\___/| .__/ \__, |
-  //             |_|    |___/
-  */
-  template <typename t_Value, int N, int STEPA, int STEPB>
-  class Copy {
-  public:
-    static inline void eval( t_Value const * A, t_Value * B ) {
-      B[0] = A[0] ;
-      Copy<t_Value,N-1,STEPA,STEPB>::eval( A+STEPA, B+STEPB ) ;
-    }
-  } ;
-
-  template <typename t_Value, int STEPA, int STEPB>
-  class Copy<t_Value,0,STEPA,STEPB> {
-  public:
-    static inline void eval( t_Value const *, t_Value * ) {}
-  } ;
-  
-  /*
-  //   ____
-  //  / ___|_      ____ _ _ __
-  //  \___ \ \ /\ / / _` | '_ \
-  //   ___) \ V  V / (_| | |_) |
-  //  |____/ \_/\_/ \__,_| .__/
-  //                     |_|
-  */
-  template <typename t_Value, int N, int STEPA, int STEPB>
-  class Swap {
-  public:
-    static inline void eval( t_Value * A, t_Value * B ) {
-      std::swap(B[0],A[0]) ; Swap<t_Value,N-1,STEPA,STEPB>::eval( A+STEPA, B+STEPB ) ;
-    }
-  } ;
-
-  template <typename t_Value, int STEPA, int STEPB>
-  class Swap<t_Value,0,STEPA,STEPB> {
-  public:
-    static inline void eval( t_Value *, t_Value * ) {}
-  } ;
-  
-  /*
-  //   ____        _
-  //  |  _ \  ___ | |_
-  //  | | | |/ _ \| __|
-  //  | |_| | (_) | |_
-  //  |____/ \___/ \__|
-  */
-  template <typename t_Value, int N, int STEPA, int STEPB>
-  class Dot {
-  public:
-    static inline t_Value eval( t_Value const * A, t_Value const * B ) {
-      return B[0]*A[0]+Dot<t_Value,N-1,STEPA,STEPB>::eval( A+STEPA, B+STEPB ) ;
-    }
-  } ;
-
-  template <typename t_Value, int STEPA, int STEPB>
-  class Dot<t_Value,0,STEPA,STEPB> {
-  public:
-    static inline t_Value eval( t_Value const *, t_Value const * )
-    { return t_Value(0) ; }
-  } ;
-  
-  /*
-  //   ____            _
-  //  / ___|  ___ __ _| |
-  //  \___ \ / __/ _` | |
-  //   ___) | (_| (_| | |
-  //  |____/ \___\__,_|_|
-  */
-  template <typename t_Value, int N, int STEP>
-  class Scal {
-  public:
-    static inline void eval( t_Value s, t_Value * x ) {
+    static inline void scal( t_Value s, t_Value * x ) {
       x[0] *= s ;
-      Scal<t_Value,N-1,STEP>::eval(s,x+STEP) ;
+      Vec1<t_Value,N-1,STEP>::scal(s,x+STEP) ;
     }
-  } ;
-
-  template <typename t_Value, int STEP>
-  class Scal<t_Value,0,STEP> {
-  public:
-    static inline void eval( t_Value, t_Value * ) {}
-  } ;
-  
-  /*
-  //      _
-  //     / \   _ __ ___   __ ___  __
-  //    / _ \ | '_ ` _ \ / _` \ \/ /
-  //   / ___ \| | | | | | (_| |>  <
-  //  /_/   \_\_| |_| |_|\__,_/_/\_\
-  */
-  template <typename t_Value, int N, int STEP>
-  class Amax {
-  public:
-    static inline void eval( t_Value const * x, t_Value & am, integer & ipos ) {
+    static inline t_Value sum( t_Value const * x ) {
+      return x[0] + Vec1<t_Value,N-1,STEP>::sum(x+STEP) ;
+    }
+    static inline t_Value asum( t_Value const * x ) {
+      return std::abs(x[0]) + Vec1<t_Value,N-1,STEP>::asum(x+STEP) ;
+    }
+    static inline t_Value max( t_Value const * x ) {
+      return std::max( x[0], Vec1<t_Value,N-1,STEP>::max(x+STEP) ) ;
+    }
+    static inline t_Value mina( t_Value const * x ) {
+      return std::min( x[0], Vec1<t_Value,N-1,STEP>::min(x+STEP) ) ;
+    }
+    static inline t_Value amax( t_Value const * x ) {
+      return std::max( std::abs(x[0]), Vec1<t_Value,N-1,STEP>::amax(x+STEP) ) ;
+    }
+    static inline void amax( t_Value const * x, t_Value & am, integer & ipos ) {
       integer ipos1 ;
       t_Value am1 ;
       am = std::abs(x[0]) ;
-      Amax<t_Value,N-1,STEP>::eval(x+STEP,am1,ipos1) ;
+      Vec1<t_Value,N-1,STEP>::amax(x+STEP,am1,ipos1) ;
       if ( am < am1 ) { am = am1 ; ipos = ipos1+1 ; }
       else ipos = 0 ;
     }
   } ;
 
   template <typename t_Value, int STEP>
-  class Amax<t_Value,1,STEP> {
+  class Vec1<t_Value,1,STEP> {
   public:
-    static inline void eval( t_Value const * x, t_Value & am, integer & ipos )
+    static inline void zero( t_Value * A ) { A[0] = 0 ; }
+    static inline void scal( t_Value s, t_Value * A ) { A[0] *= s ; }
+    static inline t_Value sum( t_Value const * x ) { return x[0] ; }
+    static inline t_Value asum( t_Value const * x ) { return std::abs(x[0]) ; }
+    static inline t_Value max( t_Value const * x ) { return x[0] ; }
+    static inline t_Value min( t_Value const * x ) { return x[0] ; }
+    static inline t_Value amax( t_Value const * x ) { return std::abs(x[0]) ; }
+    static inline void amax( t_Value const * x, t_Value & am, integer & ipos )
     { am = std::abs(x[0]) ; ipos = 0 ; }
   } ;
 
-  /*
-  //  __  __        __   __
-  //  \ \/ /___  _ _\ \ / /
-  //   \  // _ \| '_ \ V /
-  //   /  \ (_) | |_) | |
-  //  /_/\_\___/| .__/|_|
-  //            |_|
-  //
-  //  y  = a*x ;
-  //  y += a*x ;
-  //  y  = b*y+a*x ;
-  //  y -= x ;
-  //  y += x ;
-  //
-  */
-  template <typename t_Value, int N, int STEPX, int STEPY>
-  class XopY {
+  template <typename t_Value, int STEP>
+  class Vec1<t_Value,0,STEP> {
   public:
-    static inline void xpy( t_Value const * x, t_Value * y ) {
+    static inline void zero( t_Value * ) {}
+    static inline void scal( t_Value, t_Value * ) {}
+    static inline t_Value sum( t_Value const * ) { return 0 ; }
+    static inline t_Value asum( t_Value const * ) { return 0 ; }
+    static inline t_Value max( t_Value const * ) { return 0 ; }
+    static inline t_Value min( t_Value const * ) { return 0 ; }
+    static inline t_Value amax( t_Value const * ) { return 0 ; }
+    static inline void amax( t_Value const *, t_Value & am, integer & ipos )
+    { am = 0 ; ipos = -1 ; }
+  } ;
+
+  /*\
+   |  __     __        ____
+   |  \ \   / /__  ___|___ \
+   |   \ \ / / _ \/ __| __) |
+   |    \ V /  __/ (__ / __/
+   |     \_/ \___|\___|_____|
+  \*/
+  template <typename t_Value, int N, int STEPA = 1, int STEPB = 1>
+  class Vec2 {
+  public:
+    static inline void copy( t_Value const * A, t_Value * B ) {
+      B[0] = A[0] ;
+      Vec2<t_Value,N-1,STEPA,STEPB>::copy( A+STEPA, B+STEPB ) ;
+    }
+    static inline void swap( t_Value * A, t_Value * B ) {
+      std::swap(B[0],A[0]) ;
+      Vec2<t_Value,N-1,STEPA,STEPB>::swap( A+STEPA, B+STEPB ) ;
+    }
+    static inline t_Value dot( t_Value const * A, t_Value const * B ) {
+      return B[0]*A[0]+Vec2<t_Value,N-1,STEPA,STEPB>::dot( A+STEPA, B+STEPB ) ;
+    }
+    static inline void addto( t_Value const * x, t_Value * y ) {
       y[0] += x[0] ;
-      XopY<t_Value,N-1,STEPX,STEPY>::xpy(x+STEPX,y+STEPY) ;
+      Vec2<t_Value,N-1,STEPA,STEPB>::addto(x+STEPA,y+STEPB) ;
     }
-    static inline void xmy( t_Value const * x, t_Value * y ) {
+    static inline void subto( t_Value const * x, t_Value * y ) {
       y[0] -= x[0] ;
-      XopY<t_Value,N-1,STEPX,STEPY>::xmy(x+STEPX,y+STEPY) ;
+      Vec2<t_Value,N-1,STEPA,STEPB>::subto(x+STEPA,y+STEPB) ;
     }
-    static inline void axy( t_Value a, t_Value const * x, t_Value * y ) {
+    static inline void assax( t_Value a, t_Value const * x, t_Value * y ) {
       y[0] = a*x[0] ;
-      XopY<t_Value,N-1,STEPX,STEPY>::axy(a,x+STEPX,y+STEPY) ;
+      Vec2<t_Value,N-1,STEPA,STEPB>::axy(a,x+STEPA,y+STEPB) ;
     }
     static inline void axpy( t_Value a, t_Value const * x, t_Value * y ) {
       y[0] += a*x[0] ;
-      XopY<t_Value,N-1,STEPX,STEPY>::axpy(a,x+STEPX,y+STEPY) ;
+      Vec2<t_Value,N-1,STEPA,STEPB>::axpy(a,x+STEPA,y+STEPB) ;
     }
     static inline void axpby( t_Value a, t_Value const * x, t_Value b, t_Value * y ) {
       y[0] = b*y[0] + a*x[0] ;
-      XopY<t_Value,N-1,STEPX,STEPY>::axpby(a,x+STEPX,b,y+STEPY) ;
+      Vec2<t_Value,N-1,STEPA,STEPB>::axpby(a,x+STEPA,b,y+STEPB) ;
     }
   } ;
 
-  template <typename t_Value, int STEPX, int STEPY>
-  class XopY<t_Value,0,STEPX,STEPY> {
+  template <typename t_Value, int STEPA, int STEPB>
+  class Vec2<t_Value,0,STEPA,STEPB> {
   public:
-    static inline void xpy( t_Value const *, t_Value * ) {}
-    static inline void xmy( t_Value const *, t_Value * ) {}
-    static inline void axy( t_Value, t_Value const *, t_Value * ) {}
+    static inline void copy( t_Value const *, t_Value * ) {}
+    static inline void swap( t_Value *, t_Value * ) {}
+    static inline t_Value dot( t_Value const *, t_Value const * ) { return 0 ; }
+    static inline void addto( t_Value const *, t_Value * ) {}
+    static inline void subto( t_Value const *, t_Value * ) {}
+    static inline void assax( t_Value, t_Value const *, t_Value * ) {}
     static inline void axpy( t_Value, t_Value const *, t_Value * ) {}
     static inline void axpby( t_Value, t_Value const *, t_Value, t_Value *) {}
   } ;
-  
+
   /*
   //   _               _
   //  | |    ___  ___ | |_   _____
@@ -229,7 +169,7 @@ namespace alglin {
   class LsolveUnit {
   public:
     static inline void eval( t_Value const * L, t_Value * x ) {
-      XopY<t_Value,N-1,1,1>::axpy(-x[0],L+1,x+1) ;
+      Vec2<t_Value,N-1,1,1>::axpy(-x[0],L+1,x+1) ;
       LsolveUnit<t_Value,N-1,LDL>::eval(L+LDL+1,x+1) ;
     }
   } ;
@@ -245,7 +185,7 @@ namespace alglin {
   public:
     static inline void eval( t_Value const * L, t_Value * x ) {
       x[0] /= L[0] ;
-      XopY<t_Value,N-1,1,1>::axpy(-x[0],L+1,x+1) ;
+      Vec2<t_Value,N-1,1,1>::axpy(-x[0],L+1,x+1) ;
       Lsolve<t_Value,N-1,LDL>::eval(L+LDL+1,x+1) ;
     }
   } ;
@@ -267,7 +207,7 @@ namespace alglin {
   class UsolveUnit {
   public:
     static inline void eval( t_Value const * U, t_Value * x ) {
-      XopY<t_Value,N-1,1,1>::axpy(-x[N-1],U+(N-1)*LDU,x) ;
+      Vec2<t_Value,N-1,1,1>::axpy(-x[N-1],U+(N-1)*LDU,x) ;
       UsolveUnit<t_Value,N-1,LDU>::eval(U,x) ;
     }
   } ;
@@ -283,7 +223,7 @@ namespace alglin {
   public:
     static inline void eval( t_Value const * U, t_Value * x ) {
       x[N-1] /= U[(N-1)*(LDU+1)] ;
-      XopY<t_Value,N-1,1,1>::axpy(-x[N-1],U+(N-1)*LDU,x) ;
+      Vec2<t_Value,N-1,1,1>::axpy(-x[N-1],U+(N-1)*LDU,x) ;
       Usolve<t_Value,N-1,LDU>::eval(U,x) ;
     }
   } ;
@@ -307,26 +247,36 @@ namespace alglin {
   class Mv {
   public:
     static inline void ass( t_Value const * Mat, t_Value const * x, t_Value * res ) {
-      res[0] = Dot<t_Value,N,LDM,INCX>::eval( Mat, x ) ;
-      Mv<t_Value,M-1,N,LDM,INCX,INCR>::ass( Mat+1, x, res+INCR ) ;
+      Vec2<t_Value,M,1,INCR>::assax( x[0], Mat, res ) ;
+      Mv<t_Value,M,N-1,LDM,INCX,INCR>::addTo( Mat+LDM, x+INCX, res ) ;
     }
     static inline void addTo( t_Value const * Mat, t_Value const * x, t_Value * res ) {
-      res[0] += Dot<t_Value,N,LDM,INCX>::eval( Mat, x ) ;
-      Mv<t_Value,M-1,N,LDM,INCX,INCR>::addTo( Mat+1, x, res+INCR ) ;
+      Vec2<t_Value,M,1,INCR>::axpy( x[0], Mat, res ) ;
+      Mv<t_Value,M,N-1,LDM,INCX,INCR>::addTo( Mat+LDM, x+INCX, res ) ;
     }
     static inline void subTo( t_Value const * Mat, t_Value const * x, t_Value * res ) {
-      res[0] -= Dot<t_Value,N,LDM,INCX>::eval( Mat, x ) ;
-      Mv<t_Value,M-1,N,LDM,INCX,INCR>::subTo( Mat+1, x, res+INCR ) ;
+      Vec2<t_Value,M,1,INCR>::axpy( -x[0], Mat, res ) ;
+      Mv<t_Value,M,N-1,LDM,INCX,INCR>::subTo( Mat+LDM, x+INCX, res ) ;
     }
     static inline void aMxpby( t_Value a, t_Value const * Mat, t_Value const * x,
                                t_Value b, t_Value * res ) {
-      res[0] = b*res[0] + a*Dot<t_Value,N,LDM,INCX>::eval( Mat, x ) ;
-      Mv<t_Value,M-1,N,LDM,INCX,INCR>::subTo( Mat+1, x, res+INCR ) ;
+      Vec2<t_Value,M,1,INCR>::axby( a*x[0], Mat, b, res ) ;
+      Mv<t_Value,M,N-1,LDM,INCX,INCR>::aMxpby( a, Mat+LDM, x+INCX, b, res ) ;
     }
   } ;
 
   template <typename t_Value, int N, int LDM, int INCX, int INCR>
   class Mv<t_Value,0,N,LDM,INCX,INCR> {
+  public:
+    static inline void ass( t_Value const *, t_Value const *, t_Value * ) { }
+    static inline void addTo( t_Value const *, t_Value const *, t_Value * ) { }
+    static inline void subTo( t_Value const *, t_Value const *, t_Value * ) { }
+    static inline void aMxpby( t_Value, t_Value const *, t_Value const *,
+                               t_Value, t_Value * ) { }
+  } ;
+
+  template <typename t_Value, int M, int LDM, int INCX, int INCR>
+  class Mv<t_Value,M,0,LDM,INCX,INCR> {
   public:
     static inline void ass( t_Value const *, t_Value const *, t_Value * ) { }
     static inline void addTo( t_Value const *, t_Value const *, t_Value * ) { }
@@ -369,6 +319,15 @@ namespace alglin {
     }
   } ;
 
+  template <typename t_Value, int M, int K, int LDA, int LDB, int LDC>
+  class MM<t_Value,M,0,K,LDA,LDB,LDC> {
+  public:
+    static inline void ass( t_Value const *, t_Value const *, t_Value * ) {}
+    static inline void addTo( t_Value const *, t_Value const *, t_Value * ) {}
+    static inline void subTo( t_Value const *, t_Value const *, t_Value * ) {}
+    static inline void aMxpby( t_Value, t_Value const *, t_Value const *, t_Value, t_Value *) {}
+  } ;
+
   /*
   //   ____             _    _
   //  |  _ \ __ _ _ __ | | _/ |
@@ -386,20 +345,20 @@ namespace alglin {
   class Rank1 {
   public:
     static inline void ass( t_Value const * x, t_Value const * y, t_Value * Mat ) {
-      XopY<t_Value,M,INCX,1>::axy( y[0], x, Mat ) ;
+      Vec2<t_Value,M,INCX,1>::assax( y[0], x, Mat ) ;
       Rank1<t_Value,M,N-1,LDM,INCX,INCY>::ass(x,y+INCY,Mat+LDM) ;
     }
     static inline void addTo( t_Value const * x, t_Value const * y, t_Value * Mat ) {
-      XopY<t_Value,M,INCX,1>::axpy( y[0], x, Mat ) ;
+      Vec2<t_Value,M,INCX,1>::axpy( y[0], x, Mat ) ;
       Rank1<t_Value,M,N-1,LDM,INCX,INCY>::addTo(x,y+INCY,Mat+LDM) ;
     }
     static inline void subTo( t_Value const * x, t_Value const * y, t_Value * Mat ) {
-      XopY<t_Value,M,INCX,1>::axpy( -y[0], x, Mat ) ;
+      Vec2<t_Value,M,INCX,1>::axpy( -y[0], x, Mat ) ;
       Rank1<t_Value,M,N-1,LDM,INCX,INCY>::subTo(x,y+INCY,Mat+LDM) ;
     }
     static inline void auvpbM( t_Value a, t_Value const * x, t_Value const * y,
                                t_Value b, t_Value * Mat ) {
-      XopY<t_Value,M,INCX,1>::axpby( a*y[0], x, b, Mat ) ;
+      Vec2<t_Value,M,INCX,1>::axpby( a*y[0], x, b, Mat ) ;
       Rank1<t_Value,M,N-1,LDM,INCX,INCY>::auvpbM(x,y+INCY,Mat+LDM) ;
     }
   } ;

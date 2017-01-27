@@ -18,11 +18,11 @@
 \*--------------------------------------------------------------------------*/
 
 ///
-/// file: ABD_Diaz.hh
+/// file: ABD_Block.hh
 ///
 
-#ifndef ABD_DIAZ_HH
-#define ABD_DIAZ_HH
+#ifndef ABD_BLOCK_HH
+#define ABD_BLOCK_HH
 
 #include "BlockBidiagonal.hh"
 #include <iostream>
@@ -64,19 +64,18 @@ namespace alglin {
      |    +----+                       +--+  |
                                 colN  col00
 
-      Matrix NNZ internal structure
           col0
        |       |
-     / +-------+                         \
-     | |  TOP  |                         | <-- row0
-     | +--+----+----+                    |
-     |    |    |    |                    | <- sizeBlock
-     |    +----+----+----+               |
-     |         |    |    |               |
-     |         +----+----+----+          |
-     |              |    |    |          |
-     |              +----+----+----+     |
-     |                   |    |    |     |
+     / +-------+....+                    \
+     | |  TOP  |  F :                    | <-- row0
+     | +--+----+----+....+               |
+     |    |    |    |  F :               | <- sizeBlock
+     |    +----+----+----+....+          |
+     |         |    |    |  F :          |
+     |         +----+----+----+....+     |
+     |              |    |    |  F :     |
+     |              +----+----+----+...+ |
+     |                   |    |    | E | |
      |                   +----+----+---+ |
      |                        |        | | <-- rowN
      |                        | BOTTOM | |
@@ -85,7 +84,7 @@ namespace alglin {
                                  colN
   */
   template <typename t_Value>
-  class DiazLU : public BlockBidiagonal<t_Value> {
+  class BlockLU : public BlockBidiagonal<t_Value> {
   public:
 
     typedef t_Value         valueType ;
@@ -94,55 +93,42 @@ namespace alglin {
 
   private:
 
-    DiazLU( DiazLU const & ) ;
-    DiazLU const & operator = ( DiazLU const & ) ;
-
-    integer NB ;
+    BlockLU( BlockLU const & ) ;
+    BlockLU const & operator = ( BlockLU const & ) ;
 
     mutable integer nblk ;
 
-    integer * swapRC_blks ;
-
-    void
-    LU_left_right( integer nrA,
-                   integer ncA,
-                   integer ncL,
-                   integer ncR,
-                   t_Value * A, integer ldA,
-                   integer swapR[] ) ;
-
-    void
-    LU_top_bottom( integer nrT,
-                   integer nrA,
-                   integer ncA,
-                   t_Value * A, integer ldA,
-                   integer nrB,
-                   t_Value * B, integer ldB,
-                   integer swapC[] ) ;
+    integer * swapR_blks ;
+    t_Value * F_mat ;
 
   public:
 
     using BlockBidiagonal<valueType>::factorize ;
     using BlockBidiagonal<valueType>::dump_ccoord ;
 
-    explicit DiazLU() : NB(25) {}
-    ~DiazLU() {}
+    explicit BlockLU() {}
+    ~BlockLU() {}
 
     virtual
     void
-    allocateTopBottom( integer _nblock,
-                       integer _n,
-                       integer _row0,
-                       integer _col0,
-                       integer _rowN,
-                       integer _colN,
-                       integer _nb ) {
-      integer inv = _nblock*_n+(_col0+_colN-2*_n) ;
-      BlockBidiagonal<t_Value>::allocateTopBottom( _nblock, _n,
-                                                   _row0, _col0,
-                                                   _rowN, _colN,
-                                                   _nb, 0, inv) ;
-      swapRC_blks = this->baseInteger(size_t(inv)) ;
+    allocate( integer /* nblock */,
+              integer /* n */,
+              integer /* nb */,
+              // ----------------------
+              integer /* numInitialBC */,
+              integer /* numFinalBC */,
+              integer /* numCyclicBC */,
+              // ----------------------
+              integer /* numInitialOMEGA */,
+              integer /* numFinalOMEGA */,
+              integer /* numCyclicOMEGA */ ) {
+    /*
+      integer Fnnz = (_nblock-1)*_n*_n ;
+      integer innz = _nblock*_n ;
+      BlockBidiagonal<t_Value>::allocate(_nblock, _n, _q, _nb, Fnnz, innz ) ;
+      swapR_blks = this->baseInteger(size_t(innz)) ;
+      F_mat      = this->baseReal(size_t(Fnnz)) ;
+    */
     }
 
     virtual
@@ -165,6 +151,6 @@ namespace alglin {
 #endif
 
 ///
-/// eof: ABD_Diaz.hh
+/// eof: ABD_Block.hh
 ///
 

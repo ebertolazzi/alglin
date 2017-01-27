@@ -40,6 +40,80 @@ namespace alglin {
   }
   
   /*\
+   |         _ _                 _
+   |    __ _| | | ___   ___ __ _| |_ ___
+   |   / _` | | |/ _ \ / __/ _` | __/ _ \
+   |  | (_| | | | (_) | (_| (_| | ||  __/
+   |   \__,_|_|_|\___/ \___\__,_|\__\___|
+  \*/
+  
+  template <typename t_Value>
+  void
+  BlockBidiagonal<t_Value>::allocate( integer _nblock,
+                                      integer _n,
+                                      integer _nb,
+                                      // ----------------------
+                                      integer _numInitialBC,
+                                      integer _numFinalBC,
+                                      integer _numCyclicBC,
+                                      // ----------------------
+                                      integer _numInitialOMEGA,
+                                      integer _numFinalOMEGA,
+                                      integer _numCyclicOMEGA,
+                                      // ----------------------
+                                      integer num_extra_r,
+                                      integer num_extra_i ) {
+
+    ALGLIN_ASSERT( _numInitialBC  >= 0 && _numFinalBC      >= 0 &&
+                   _numCyclicBC   >= 0 && _numInitialOMEGA >= 0 &&
+                   _numFinalOMEGA >= 0 && _numCyclicOMEGA  >= 0,
+                   "Bad BC specification:" <<
+                   "\nnumInitialBC    = " << _numInitialBC <<
+                   "\nnumFinalBC      = " << _numFinalBC <<
+                   "\nnumCyclicBC     = " << _numCyclicBC <<
+                   "\nnumInitialOMEGA = " << _numInitialOMEGA <<
+                   "\nnumFinalOMEGA   = " << _numFinalOMEGA <<
+                   "\nnumCyclicOMEGA  = " << _numCyclicOMEGA ) ;
+
+    q = _numInitialOMEGA + _numFinalOMEGA + _numCyclicOMEGA ;
+
+    ALGLIN_ASSERT( _numInitialBC + _numFinalBC + _numCyclicBC == _n+q,
+                   "Bad BC specification:" <<
+                   "\nnumInitialBC    = " << _numInitialBC <<
+                   "\nnumFinalBC      = " << _numFinalBC   <<
+                   "\nnumCyclicBC     = " << _numCyclicBC  <<
+                   "\nnumInitialOMEGA + numFinalOMEGA + numCyclicOMEGA must be = " << _n+q ) ;
+
+    numInitialBC    = _numInitialBC ;
+    numFinalBC      = _numFinalBC ;
+    numCyclicBC     = _numCyclicBC ;
+    numInitialOMEGA = _numInitialOMEGA ;
+    numFinalOMEGA   = _numFinalOMEGA ;
+    numCyclicOMEGA  = _numCyclicOMEGA ;
+
+    nblock = _nblock ;
+    n      = _n ;
+    nb     = _nb ;
+    neq    = (nblock+1)*n+q ;
+    nx2    = n*2 ;
+    nxn    = n*n ;
+    nxnx2  = nxn*2 ;
+    nxnb   = n*nb ;
+    integer AdAu_size = nblock*nxnx2;
+    integer H0Nq_size = (n+q)*(nx2+q);
+    integer BC_size   = nb*neq ;
+    baseValue.allocate(size_t(AdAu_size+H0Nq_size+2*BC_size+nb*nb+num_extra_r)) ;
+    baseInteger.allocate(size_t(num_extra_i)) ;
+    AdAu_blk = baseValue(size_t(AdAu_size)) ;
+    H0Nq     = baseValue(size_t(H0Nq_size)) ;
+    Bmat     = baseValue(size_t(BC_size)) ;
+    Cmat     = baseValue(size_t(BC_size)) ;
+    Dmat     = baseValue(size_t(nb*nb)) ;
+    block0   = nullptr ;
+    blockN   = nullptr ;
+  }
+
+  /*\
    |   _                 _ ____        _   _
    |  | | ___   __ _  __| | __ )  ___ | |_| |_ ___  _ __ ___
    |  | |/ _ \ / _` |/ _` |  _ \ / _ \| __| __/ _ \| '_ ` _ \
@@ -55,17 +129,37 @@ namespace alglin {
     valueConstPointer Hq, integer ldQ
   ) {
 
-    numInitialBC    = 0 ;
-    numFinalBC      = 0 ;
-    numCyclicBC     = n+q ;
-    numInitialOMEGA = 0 ;
-    numFinalOMEGA   = 0 ;
-    numCyclicOMEGA  = q ;
+    if ( numCyclicBC == 0 && numCyclicOMEGA == 0 ) {
+      /*\
+       |  +----+-----+---+
+       |  | H0 | HN  |Hq |
+       |  |    |     |   |
+       |  +----+-----+---+
+       |  +----+------+---------+
+       |  | 0  | blkN |blkN: 0  |
+       |  |blk0|  0   |    :blk0|
+       |  +----+------+---------+
+      \*/
+      integer row0  = numInitialBC ;
+      integer rowN  = numFinalBC ;
+      integer col00 = numInitialOMEGA ;
+      integer colNN = numFinalOMEGA ;
 
-    integer m = n + q ;
-    gecopy( m, n, H0, ld0, H0Nq,       m ) ;
-    gecopy( m, n, HN, ldN, H0Nq+m*n,   m ) ;
-    gecopy( m, q, Hq, ldQ, H0Nq+2*m*n, m ) ;
+      block0 = H0Nq ;
+      blockN = H0Nq+row0*(n+col00) ;
+
+      gecopy( rowN, n,     HN, ldN, blockN,        rowN ) ;
+      gecopy( rowN, colNN, Hq, ldQ, blockN+n*rowN, rowN ) ;
+
+      gecopy( row0, col00, Hq+rowN+colNN*ldQ, ldQ, block0,            row0 ) ;
+      gecopy( row0, n,     H0+rowN,           ld0, block0+col00*row0, row0 ) ;
+
+    } else {
+      integer m = n + q ;
+      gecopy( m, n, H0, ld0, H0Nq,       m ) ;
+      gecopy( m, n, HN, ldN, H0Nq+m*n,   m ) ;
+      gecopy( m, q, Hq, ldQ, H0Nq+2*m*n, m ) ;
+    }
 
   }
 
@@ -108,23 +202,19 @@ namespace alglin {
   template <typename t_Value>
   void
   BlockBidiagonal<t_Value>::loadTopBottom(
-    integer           row0,
-    integer           col0,
-    valueConstPointer block0_in,
-    integer           ld0,
-    // ----------------------------
-    integer           rowN,
-    integer           colN,
-    valueConstPointer blockN_in,
-    integer           ldN
+    valueConstPointer block0_in, integer ld0,
+    valueConstPointer blockN_in, integer ldN
   ) {
+  
+    ALGLIN_ASSERT( numCyclicBC == 0 && numCyclicOMEGA == 0,
+                   "in loadTopBottom numCyclicBC = " << numCyclicBC <<
+                   " and numCyclicOMEGA = " << numCyclicOMEGA <<
+                   " must be both zero!" ) ;
 
-    numInitialBC    = row0 ;
-    numFinalBC      = rowN ;
-    numCyclicBC     = 0 ;
-    numInitialOMEGA = col0 - n ;
-    numFinalOMEGA   = colN - n ;
-    numCyclicOMEGA  = 0 ;
+    integer row0 = numInitialBC ;
+    integer rowN = numFinalBC ;
+    integer col0 = n + numInitialOMEGA ;
+    integer colN = n + numFinalOMEGA ;
 
     block0 = H0Nq ;
     blockN = H0Nq+row0*col0 ;
@@ -132,84 +222,6 @@ namespace alglin {
     gecopy( row0, col0, block0_in, ld0, block0, row0 ) ;
     gecopy( rowN, colN, blockN_in, ldN, blockN, rowN ) ;
 
-  }
-
-  /*\
-   |   _                 _ ____   ____
-   |  | | ___   __ _  __| | __ ) / ___|
-   |  | |/ _ \ / _` |/ _` |  _ \| |
-   |  | | (_) | (_| | (_| | |_) | |___
-   |  |_|\___/ \__,_|\__,_|____/ \____|
-  \*/
-
-  template <typename t_Value>
-  void
-  BlockBidiagonal<t_Value>::loadBC(
-    integer _numInitialBC,
-    integer _numFinalBC,
-    integer _numCyclicBC,
-    // ----------------------
-    integer _numInitialOMEGA,
-    integer _numFinalOMEGA,
-    integer _numCyclicOMEGA,
-    // ----------------------
-    valueConstPointer H0, integer ld0,
-    valueConstPointer HN, integer ldN,
-    valueConstPointer Hq, integer ldQ
-  ) {
-
-    integer nBC = _numInitialBC + _numFinalBC + _numCyclicBC ;
-    integer nOM = _numInitialOMEGA + _numFinalOMEGA + _numCyclicOMEGA ;
-
-    ALGLIN_ASSERT( n+q == nBC && nOM == q,
-                   "BlockBidiagonal::loadBC bad parameter(s):" <<
-                   "\nn               = " << n <<
-                   "\nq               = " << q <<
-                   "\nnumInitialBC    = " << _numInitialBC    <<
-                   "\nnumFinalBC      = " << _numFinalBC      <<
-                   "\nnumCyclicBC     = " << _numCyclicBC     <<
-                   "\nnumInitialOMEGA = " << _numInitialOMEGA <<
-                   "\nnumFinalOMEGA   = " << _numFinalOMEGA   <<
-                   "\nnumCyclicOMEGA  = " << _numCyclicOMEGA ) ;
-
-    numInitialBC    = _numInitialBC ;
-    numFinalBC      = _numFinalBC ;
-    numCyclicBC     = _numCyclicBC ;
-    numInitialOMEGA = _numInitialOMEGA ;
-    numFinalOMEGA   = _numFinalOMEGA ;
-    numCyclicOMEGA  = _numCyclicOMEGA ;
-
-    if ( numCyclicBC == 0 && numCyclicOMEGA == 0 ) {
-      /*\
-       |  +----+-----+---+
-       |  | H0 | HN  |Hq |
-       |  |    |     |   |
-       |  +----+-----+---+
-       |  +----+------+---------+
-       |  | 0  | blkN |blkN: 0  |
-       |  |blk0|  0   |    :blk0|
-       |  +----+------+---------+
-      \*/
-      integer row0  = numInitialBC ;
-      integer rowN  = numFinalBC ;
-      integer col00 = numInitialOMEGA ;
-      integer colNN = numFinalOMEGA ;
-
-      block0 = H0Nq ;
-      blockN = H0Nq+row0*(n+col00) ;
-
-      gecopy( rowN, n,     HN, ldN, blockN,        rowN ) ;
-      gecopy( rowN, colNN, Hq, ldQ, blockN+n*rowN, rowN ) ;
-
-      gecopy( row0, col00, Hq+rowN+colNN*ldQ, ldQ, block0,            row0 ) ;
-      gecopy( row0, n,     H0+rowN,           ld0, block0+col00*row0, row0 ) ;
-
-    } else {
-      integer m = n + q ;
-      gecopy( m, n, H0, ld0, H0Nq,       m ) ;
-      gecopy( m, n, HN, ldN, H0Nq+m*n,   m ) ;
-      gecopy( m, q, Hq, ldQ, H0Nq+2*m*n, m ) ;
-    }
   }
   
   /*\

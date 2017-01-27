@@ -24,10 +24,14 @@
 #include "Alglin++.hh"
 
 #ifdef __GCC__
+#pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpadded"
+#pragma GCC diagnostic ignored "-Wc++98-compat"
 #endif
 #ifdef __clang__
+#pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wpadded"
+#pragma clang diagnostic ignored "-Wc++98-compat"
 #endif
 
 namespace alglin {
@@ -114,11 +118,11 @@ namespace alglin {
     //   /                                        \
     //     n     n     n                        n   
     //  +-----+-----+-----+----.........-----+-----+    \
-    //  |  Ad | Au  |  0  |                  |  0  | n   |
+    //  |  D  |  E  |  0  |                  |  0  | n   |
     //  +-----+-----+-----+             -----+-----+     |
-    //  |  0  | Ad  | Au  |  0               |  0  | n   |
+    //  |  0  |  D  |  E  |  0               |  0  | n   |
     //  +-----+-----+-----+-----+       -----+-----+     |
-    //  |  0  |  0  | Ad  | Au  |            |  0  | n   |
+    //  |  0  |  0  |  D  |  E  |            |  0  | n   |
     //  +-----+-----+-----+-----+       -----+-----+     |
     //  |                                                |
     //  :                                                 > n * nblock
@@ -126,9 +130,9 @@ namespace alglin {
     //  :                                                |
     //  :                                                |
     //  :                              +-----+-----+     |
-    //  :                              | Au  |  0  |     |
+    //  :                              |  E  |  0  |     |
     //  :                        +-----+-----+-----+     |
-    //  :                        |  0  | Ad  | Au  | n   |
+    //  :                        |  0  |  D  |  E  | n   |
     //  +-----+-----+---......---+-----+-----+=====+--+  /
     //  |     |                              |     |  |  \
     //  | H0  |                              | HN  |Hq|  |
@@ -190,35 +194,50 @@ namespace alglin {
     virtual ~BlockBidiagonal()
     {}
 
-    //! load matrix in the class
+    //! allocatew and resize the problem
     void
     allocate( integer _nblock,
               integer _n,
-              integer _q,
               integer _nb,
+              // ----------------------
+              integer _numInitialBC,
+              integer _numFinalBC,
+              integer _numCyclicBC,
+              // ----------------------
+              integer _numInitialOMEGA,
+              integer _numFinalOMEGA,
+              integer _numCyclicOMEGA,
+              // ----------------------
               integer num_extra_r,
-              integer num_extra_i ) {
-      nblock = _nblock ;
-      n      = _n ;
-      q      = _q ;
-      nb     = _nb ;
-      neq    = (nblock+1)*n+q ;
-      nx2    = n*2 ;
-      nxn    = n*n ;
-      nxnx2  = nxn*2 ;
-      nxnb   = n*nb ;
-      integer AdAu_size = nblock*nxnx2;
-      integer H0Nq_size = (n+q)*(nx2+q);
-      integer BC_size   = nb*neq ;
-      baseValue.allocate(size_t(AdAu_size+H0Nq_size+2*BC_size+nb*nb+num_extra_r)) ;
-      baseInteger.allocate(size_t(num_extra_i)) ;
-      AdAu_blk = baseValue(size_t(AdAu_size)) ;
-      H0Nq     = baseValue(size_t(H0Nq_size)) ;
-      Bmat     = baseValue(size_t(BC_size)) ;
-      Cmat     = baseValue(size_t(BC_size)) ;
-      Dmat     = baseValue(size_t(nb*nb)) ;
-      block0   = nullptr ;
-      blockN   = nullptr ;
+              integer num_extra_i ) ;
+
+    void
+    allocateTopBottom( integer _nblock,
+                       integer _n,
+                       integer _row0,
+                       integer _col0,
+                       integer _rowN,
+                       integer _colN,
+                       integer _nb,
+                       integer num_extra_r,
+                       integer num_extra_i ) {
+      allocate( _nblock, _n, _nb,
+                _row0, _rowN, 0,
+                _col0-_n, _colN-_n, 0,
+                num_extra_r, num_extra_i ) ;
+    }
+
+    void
+    allocateBottom( integer _nblock,
+                    integer _n,
+                    integer _q,
+                    integer _nb,
+                    integer num_extra_r,
+                    integer num_extra_i ) {
+      allocate( _nblock, _n, _nb,
+                0, 0, _n+_q,
+                0, 0, _q,
+                num_extra_r, num_extra_i ) ;
     }
 
     // filling bidiagonal part of the matrix
@@ -328,9 +347,33 @@ namespace alglin {
     void
     allocate( integer /* nblock */,
               integer /* n      */,
-              integer /* q      */,
-              integer /* nb     */ )
+              integer /* nb     */,
+              // ----------------------
+              integer /* numInitialBC */,
+              integer /* numFinalBC   */,
+              integer /* numCyclicBC  */,
+              // ----------------------
+              integer /* numInitialOMEGA */,
+              integer /* numFinalOMEGA   */,
+              integer /* numCyclicOMEGA  */ )
     { ALGLIN_ERROR("BlockBidiagonal::allocate() not defined!") ; }
+
+    void
+    allocateTopBottom( integer /* nblock */,
+                       integer /* n      */,
+                       integer /* row0   */,
+                       integer /* col0   */,
+                       integer /* rowN   */,
+                       integer /* colN   */,
+                       integer /* nb     */ )
+    { ALGLIN_ERROR("BlockBidiagonal::allocateTopBottom() not defined!") ; }
+
+    void
+    allocateBottom( integer /* nblock */,
+                    integer /* n      */,
+                    integer /* q      */,
+                    integer /* nb     */ )
+    { ALGLIN_ERROR("BlockBidiagonal::allocateBottom() not defined!") ; }
 
     virtual
     void
@@ -354,30 +397,11 @@ namespace alglin {
                 valueConstPointer HN, integer ldN,
                 valueConstPointer Hq, integer ldQ ) ;
 
+    // block0 = row0 * col0
+    // blockN = rowN * colN
     void
-    loadTopBottom( // ----------------------------
-                   integer           row0,
-                   integer           col0,
-                   valueConstPointer block0,
-                   integer           ld0,
-                   // ----------------------------
-                   integer           rowN,
-                   integer           colN,
-                   valueConstPointer blockN,
-                   integer           ldN ) ;
-
-    void
-    loadBC( integer numInitialBC,
-            integer numFinalBC,
-            integer numCyclicBC,
-            // ----------------------
-            integer numInitialOMEGA,
-            integer numFinalOMEGA,
-            integer numCyclicOMEGA,
-            // ----------------------
-            valueConstPointer H0, integer ld0,
-            valueConstPointer HN, integer ldN,
-            valueConstPointer Hq, integer ldQ ) ;
+    loadTopBottom( valueConstPointer block0, integer ld0,
+                   valueConstPointer blockN, integer ldN ) ;
 
     void
     selectLastBlockSolver( LASTBLOCK_Choice choice ) {
@@ -415,18 +439,13 @@ namespace alglin {
 
     // All in one
     void
-    factorize( integer           nblk,
-               integer           _n,
-               integer           _q,
-               integer           _nb,
-               valueConstPointer AdAu,
+    factorize( valueConstPointer AdAu,
                valueConstPointer B,
                valueConstPointer C,
                valueConstPointer D,
                valueConstPointer H0,
                valueConstPointer HN,
                valueConstPointer Hq ) {
-      this->allocate( nblk, _n, _q, _nb ) ;
       this->loadBlocks( AdAu, n ) ;
       this->loadBottom( H0, n+q, HN, n+q, Hq, n+q ) ;
       if ( nb > 0 ) {
@@ -441,14 +460,11 @@ namespace alglin {
 
     // All in one
     void
-    factorize( integer           nblk,
-               integer           _n,
-               integer           _q,
-               valueConstPointer AdAu,
+    factorize( valueConstPointer AdAu,
                valueConstPointer H0,
                valueConstPointer HN,
                valueConstPointer Hq ) {
-      this->allocate( nblk, _n, _q, 0 ) ;
+      ALGLIN_ASSERT( nb == 0, "factorize nb > 0 and no border assigned" ) ;
       this->loadBlocks( AdAu, n ) ;
       this->loadBottom( H0, n+q, HN, n+q, Hq, n+q ) ;
       this->factorize() ;

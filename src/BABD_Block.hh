@@ -27,12 +27,11 @@
 namespace alglin {
 
   /*
-  //   ____  _            _    _    _   _ 
-  //  | __ )| | ___   ___| | _| |  | | | |
-  //  |  _ \| |/ _ \ / __| |/ / |  | | | |
-  //  | |_) | | (_) | (__|   <| |__| |_| |
-  //  |____/|_|\___/ \___|_|\_\_____\___/ 
-  //
+  //   ____  ____  _            _    _    _   _
+  //  | __ )| __ )| | ___   ___| | _| |  | | | |
+  //  |  _ \|  _ \| |/ _ \ / __| |/ / |  | | | |
+  //  | |_) | |_) | | (_) | (__|   <| |__| |_| |
+  //  |____/|____/|_|\___/ \___|_|\_\_____\___/
   */
   //! LU decomposition of a BABD matrix
   /*!
@@ -50,19 +49,18 @@ namespace alglin {
    *           enrico.bertolazzi\@unitn.it
    */
   template <typename t_Value>
-  class BlockLU : public BlockBidiagonal<t_Value> {
+  class BBlockLU : public BlockBidiagonal<t_Value> {
 
     typedef t_Value         valueType ;
     typedef t_Value*        valuePointer ;
     typedef t_Value const * valueConstPointer ;
 
-    BlockLU(BlockLU const &) ;
-    BlockLU const & operator = (BlockLU const &) ;
+    BBlockLU(BBlockLU const &) ;
+    BBlockLU const & operator = (BBlockLU const &) ;
 
     integer m   ; //!< number final rows (m>=n)
     integer N   ; //!< n * (nblock+1) + q
     integer nnz ; //!< total number of non zeros
-    integer __padding ;
 
     /*!
     //
@@ -176,9 +174,9 @@ namespace alglin {
     using BlockBidiagonal<t_Value>::factorize ;
     using BlockBidiagonal<t_Value>::dump_ccoord ;
 
-    explicit BlockLU() { }
+    explicit BBlockLU() { }
 
-    ~BlockLU() { }
+    ~BBlockLU() { }
 
     virtual
     void

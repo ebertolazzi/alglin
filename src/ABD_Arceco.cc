@@ -533,6 +533,13 @@ namespace alglin {
     }
   }
 
+  #ifdef __GCC__
+  #pragma GCC diagnostic ignored "-Wpadded"
+  #endif
+  #ifdef __clang__
+  #pragma clang diagnostic ignored "-Wpadded"
+  #endif
+
   template class ArcecoLU<float> ;
   template class ArcecoLU<double> ;
 

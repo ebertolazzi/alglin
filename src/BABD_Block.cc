@@ -43,10 +43,10 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BlockLU<t_Value>::allocate( integer _nblock,
-                              integer _n,
-                              integer _q,
-                              integer _nb ) {
+  BBlockLU<t_Value>::allocate( integer _nblock,
+                               integer _n,
+                               integer _q,
+                               integer _nb ) {
 
     m = _n+_q ;
     N = _nblock*_n+m ;
@@ -54,7 +54,7 @@ namespace alglin {
     integer nnzAdH = _nblock*(_n*(2*_n+_q)) ; // blocchi AdH
     integer nnzAu  = _nblock*(_n*_n)+_n*_q ; // blocchi Au
     integer nnzFF  = (_nblock-1)*(_n*(_n+_q)) ; // blocchi FF
-    integer nnzDD  = m*m ;            ; // blocco  DD
+    integer nnzDD  = m*m ; // blocco  DD
 
     nnz = nnzAdH + nnzAu + nnzFF + nnzDD ;
 
@@ -78,7 +78,7 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BlockLU<t_Value>::factorize() {
+  BBlockLU<t_Value>::factorize() {
 
     integer const & nblock = this->nblock ;
     integer const & n      = this->n ;
@@ -93,7 +93,7 @@ namespace alglin {
       valueConstPointer Ad = this->AdAu_blk + k*nxnx2 ;
       valueConstPointer Au = Ad + nxn ;
       gecopy( n, n, Ad, n, AdH_blk + k*nm*n, nm ) ;
-      gecopy( n, n, Au, n, Au_blk  + k*n*n,  n  ) ;
+      gecopy( n, n, Au, n, Au_blk  + k*nxn,  n  ) ;
     }
 
     gecopy( m, n, this->H0Nq,       m, AdH_blk + n,  nm ) ;
@@ -197,7 +197,7 @@ namespace alglin {
   \*/
   template <typename t_Value>
   void
-  BlockLU<t_Value>::solve( valuePointer y ) const {
+  BBlockLU<t_Value>::solve( valuePointer y ) const {
 
     integer const & n      = this->n ;
     integer const & nblock = this->nblock ;
@@ -245,7 +245,7 @@ namespace alglin {
     } while ( k > 0 ) ;
   }
 
-  template class BlockLU<double> ;
-  template class BlockLU<float> ;
+  template class BBlockLU<double> ;
+  template class BBlockLU<float> ;
 
 }

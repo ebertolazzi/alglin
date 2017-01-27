@@ -35,18 +35,12 @@ src/ABD_Diaz.cc \
 src/Alglin++.cc \
 src/Alglin.cc \
 src/BABD.cc \
-src/BABD_Amodio.cc \
-src/BABD_AmodioN.cc \
 src/BABD_Block.cc \
-src/BABD_QR.cc \
-src/BABD_QR_N.cc \
 src/BABD_SuperLU.cc \
 src/BlockBidiagonal.cc \
 src/BorderedCR.cc \
-src/CyclicReduction.cc \
-src/CyclicReductionN.cc \
-src/CyclicReductionQR.cc \
-src/KKT_like.cc
+src/KKT_like.cc \
+src/Simplex.cc
 
 OBJS  = $(SRCS:.cc=.o)
 DEPS  = \
@@ -59,19 +53,15 @@ src/AlglinEigen.hh \
 src/AlglinFD.hh \
 src/AlglinSuperLU.hh \
 src/Alglin_aux.hh \
+src/Alglin_threads.hh \
 src/Alglin_tmpl.hh \
 src/BABD.hh \
-src/BABD_Amodio.hh \
-src/BABD_AmodioN.hh \
 src/BABD_Block.hh \
-src/BABD_QR.hh \
-src/BABD_QR_N.hh \
 src/BABD_SuperLU.hh \
 src/BlockBidiagonal.hh \
 src/BorderedCR.hh \
-src/CyclicReduction.hh \
-src/CyclicReductionQR.hh \
 src/KKT_like.hh \
+src/Simplex.hh \
 src/TicToc.hh
 
 MKDIR = mkdir -p
@@ -83,22 +73,18 @@ FRAMEWORK = Alglin
 
 all: lib
 	mkdir -p bin
-	$(CXX) $(INC) $(CXXFLAGS) -o bin/AmodioN_test           src_tests/AmodioN_test.cc $(LIBS)
-	$(CXX) $(INC) $(CXXFLAGS) -o bin/Amodio_test            src_tests/Amodio_test.cc $(LIBS)
-	$(CXX) $(INC) $(CXXFLAGS) -o bin/BABD_test              src_tests/BABD_test.cc $(LIBS)
-	$(CXX) $(INC) $(CXXFLAGS) -o bin/BABD_test2             src_tests/BABD_test2.cc $(LIBS)
-	$(CXX) $(INC) $(CXXFLAGS) -o bin/Block_test             src_tests/Block_test.cc $(LIBS)
-	$(CXX) $(INC) $(CXXFLAGS) -o bin/BorderedCR_test        src_tests/BorderedCR_test.cc $(LIBS)
-	$(CXX) $(INC) $(CXXFLAGS) -o bin/CyclicReductionQR_test src_tests/CyclicReductionQR_test.cc $(LIBS)
-	$(CXX) $(INC) $(CXXFLAGS) -o bin/CyclicReduction_test   src_tests/CyclicReduction_test.cc $(LIBS)
-	$(CXX) $(INC) $(CXXFLAGS) -o bin/Diaz_test              src_tests/Diaz_test.cc $(LIBS)
-	$(CXX) $(INC) $(CXXFLAGS) -o bin/KKT-test               src_tests/KKT-test.cc $(LIBS)
-	$(CXX) $(INC) $(CXXFLAGS) -o bin/QR_N_test              src_tests/QR_N_test.cc $(LIBS)
-	$(CXX) $(INC) $(CXXFLAGS) -o bin/QR_test                src_tests/QR_test.cc $(LIBS)
-	$(CXX) $(INC) $(CXXFLAGS) -o bin/SMALL-test             src_tests/SMALL-test.cc $(LIBS)
-	$(CXX) $(INC) $(CXXFLAGS) -o bin/TestFD                 src_tests/TestFD.cc $(LIBS)
-	$(CXX) $(INC) $(CXXFLAGS) -o bin/Timing                 src_tests/Timing.cc $(LIBS)
-	$(CXX) $(INC) $(CXXFLAGS) -o bin/test1_Diaz             src_tests/test1_Diaz.cc $(LIBS)
+	$(CXX) $(INC) $(CXXFLAGS) -o bin/test0-FD                  src_tests/test0-FD.cc $(LIBS)
+	$(CXX) $(INC) $(CXXFLAGS) -o bin/test1-small-factorization src_tests/test1-small-factorization.cc $(LIBS)
+	$(CXX) $(INC) $(CXXFLAGS) -o bin/test2-Threads             src_tests/test2-Threads.cc $(LIBS)
+	$(CXX) $(INC) $(CXXFLAGS) -o bin/test3-Timing              src_tests/test3-Timing.cc $(LIBS)
+	$(CXX) $(INC) $(CXXFLAGS) -o bin/test4-KKT                 src_tests/test4-KKT.cc $(LIBS)
+	$(CXX) $(INC) $(CXXFLAGS) -o bin/test5-Diaz                src_tests/test5-Diaz.cc $(LIBS)
+	$(CXX) $(INC) $(CXXFLAGS) -o bin/test6-Block               src_tests/test6-Block.cc $(LIBS)
+	$(CXX) $(INC) $(CXXFLAGS) -o bin/test7-BorderedCR          src_tests/test7-BorderedCR.cc $(LIBS)
+	$(CXX) $(INC) $(CXXFLAGS) -o bin/SimplexTest1              src_tests/SimplexTest1.cc $(LIBS)
+	$(CXX) $(INC) $(CXXFLAGS) -o bin/SimplexTest2              src_tests/SimplexTest2.cc $(LIBS)
+	$(CXX) $(INC) $(CXXFLAGS) -o bin/SimplexTest3              src_tests/SimplexTest3.cc $(LIBS)
+	$(CXX) $(INC) $(CXXFLAGS) -o bin/SimplexTest4              src_tests/SimplexTest4.cc $(LIBS)
 
 lib: lib/$(LIB_ALGLIN)
 
@@ -130,21 +116,18 @@ install_as_framework: lib/$(LIB_ALGLIN)
 	cp lib/$(LIB_ALGLIN) $(PREFIX)/lib
 
 run:
-	./bin/AmodioN_test
-	./bin/Amodio_test
-	./bin/Block_test
-	./bin/Diaz_test
-	./bin/QR_N_test
-	./bin/Timing
-	./bin/CyclicReductionQR_test
-	./bin/CyclicReduction_test
-	./bin/QR_test
-	./bin/TestFD
-	./bin/KKT-test
-	./bin/SMALL-test
-	./bin/KKT-test
-	./bin/BABD_test
-	./bin/BABD_test2
+	./bin/test0-FD
+	./bin/test1-small-factorization
+	./bin/test2-Threads
+	./bin/test3-Timing
+	./bin/test4-KKT
+	./bin/test5-Diaz
+	./bin/test6-Block
+	./bin/test7-BorderedCR
+	./bin/SimplexTest1
+	./bin/SimplexTest2
+	./bin/SimplexTest3
+	./bin/SimplexTest4
 
 doc:
 	doxygen

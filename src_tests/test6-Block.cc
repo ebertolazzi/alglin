@@ -17,6 +17,46 @@
  |                                                                          |
 \*--------------------------------------------------------------------------*/
 
+#ifdef __GCC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wall"
+#pragma GCC diagnostic ignored "-Wold-style-cast"
+#pragma GCC diagnostic ignored "-Wdocumentation"
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wc99-extensions"
+#pragma GCC diagnostic ignored "-Wundef"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wunknown-pragmas"
+#pragma GCC diagnostic ignored "-Wconversion"
+#pragma GCC diagnostic ignored "-Wswitch-enum"
+#pragma GCC diagnostic ignored "-Wreserved-id-macro"
+#pragma GCC diagnostic ignored "-Wmissing-noreturn"
+#pragma GCC diagnostic ignored "-Wdeprecated"
+#pragma GCC diagnostic ignored "-Wused-but-marked-unused"
+#pragma GCC diagnostic ignored "-Wshadow"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#endif
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wall"
+#pragma clang diagnostic ignored "-Wold-style-cast"
+#pragma clang diagnostic ignored "-Wdocumentation"
+#pragma clang diagnostic ignored "-Wsign-conversion"
+#pragma clang diagnostic ignored "-Wc99-extensions"
+#pragma clang diagnostic ignored "-Wundef"
+#pragma clang diagnostic ignored "-Wunused-parameter"
+#pragma clang diagnostic ignored "-Wunknown-pragmas"
+#pragma clang diagnostic ignored "-Wconversion"
+#pragma clang diagnostic ignored "-Wswitch-enum"
+#pragma clang diagnostic ignored "-Wreserved-id-macro"
+#pragma clang diagnostic ignored "-Wmissing-noreturn"
+#pragma clang diagnostic ignored "-Wdeprecated"
+#pragma clang diagnostic ignored "-Wused-but-marked-unused"
+#pragma clang diagnostic ignored "-Wshadow"
+#pragma clang diagnostic ignored "-Wunused-parameter"
+#endif
+
+
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -24,7 +64,8 @@
 #include "Alglin.hh"
 #include "Alglin_aux.hh"
 #include "TicToc.hh"
-#include "ABD_Diaz.hh"
+#include "BABD_Block.hh"
+//#include "ABD_Diaz.hh"
 
 using namespace std ;
 typedef double valueType ;
@@ -83,7 +124,9 @@ main() {
                                        alglin::LASTBLOCK_SVD } ;
     char const * kind[] = { "LU", "QR", "QRP", "SVD" } ;
 
-    alglin::DiazLU<valueType> LU ;
+    alglin::BlockLU<valueType> LU ;
+    //alglin::DiazLU<valueType> LU ;
+
     LU.allocate( numBlock, dim, row0+rowN-dim, NB );
 
     // carico matrice
@@ -132,10 +175,6 @@ main() {
       LU.loadTopBottom( row0, dim+col00, block0, row0,
                         rowN, dim+colNN, blockN, rowN ) ;
       LU.selectLastBlockSolver( ch[test] ) ;
-      
-      ofstream file("dump_mat.txt");
-      LU.dump_ccoord( file ) ;
-      file.close() ;
 
       cout << "N = " << N << ' '
            << "n = " << dim << ' '
@@ -149,32 +188,16 @@ main() {
       std::copy( x, x+N+NB, xref1 ) ;
       LU.Mv( x, rhs ) ;
 
-      /*
-      check
-      
-      LU.setZeroRightBlocks() ;
-      for ( int i = 0 ; i < numBlock ; ++i )
-        LU.loadRightBlock( i, B+i*dim, N ) ;
-      LU.loadRightLastBlock( B+numBlock*dim, N ) ;
-
-      LU.setZeroBottomBlocks() ;
-      for ( int i = 0 ; i <= numBlock ; ++i )
-        LU.loadBottomBlock( i, C+i*dim*NB, NB ) ;
-      LU.loadBottomLastBlock( C+(numBlock+1)*dim*NB, NB ) ;
-
-      LU.loadRBblock( D, NB ) ;
-      */
-
       tm.tic() ;
       LU.factorize_bordered() ;
       tm.toc() ;
-      cout << "(Diaz " << kind[test] << ") Factorize = " << tm.elapsedMilliseconds() << " [ms]\n" ;
+      cout << "(Block " << kind[test] << ") Factorize = " << tm.elapsedMilliseconds() << " [ms]\n" ;
 
       std::copy( rhs, rhs+N+NB, x ) ;
       tm.tic() ;
       LU.solve_bordered( x ) ;
       tm.toc() ;
-      cout << "(Diaz " << kind[test] << ") Solve = " << tm.elapsedMilliseconds() << " [ms]\n" ;
+      cout << "(Block " << kind[test] << ") Solve = " << tm.elapsedMilliseconds() << " [ms]\n" ;
 
       alglin::axpy( N+NB, -1.0, x, 1, xref, 1 ) ;
       cout << "Check |err|_inf = " << alglin::absmax( N+NB, xref, 1 ) << '\n' ;
@@ -183,14 +206,14 @@ main() {
       tm.tic() ;
       LU.solve_bordered( 1, x, N+NB ) ;
       tm.toc() ;
-      cout << "(Diaz " << kind[test] << ") Solve = " << tm.elapsedMilliseconds() << " [ms]\n" ;
+      cout << "(Block " << kind[test] << ") Solve = " << tm.elapsedMilliseconds() << " [ms]\n" ;
 
       alglin::axpy( N+NB, -1.0, x, 1, xref1, 1 ) ;
       cout << "Check |err|_inf = " << alglin::absmax( N+NB, xref1, 1 ) << '\n' ;
     }
   }
 
-  cout << "\n\nAll done!\n" ;
+  cout << "\nAll done!\n" ;
 
   return 0 ;
 }

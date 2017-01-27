@@ -106,7 +106,7 @@ namespace alglin {
     Number * X = const_cast<Number*>(x) ;
 
     bool ok = true ;
-    Number value0, value1, gradi ;
+    Number value0, value1, gradi=0 ;
     for ( integer i = 0 ; i < dim_x && ok ; ++i ) {
       Number temp = x[i] ;
       Number h    = std::max( eps*std::abs(temp), eps ) ;

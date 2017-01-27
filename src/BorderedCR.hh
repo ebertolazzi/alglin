@@ -25,16 +25,20 @@
 
 #include <iostream>
 
-#ifdef __GCC__
-#pragma GCC diagnostic ignored "-Wpadded"
-#endif
-#ifdef __clang__
-#pragma clang diagnostic ignored "-Wpadded"
-#endif
-
 #include "Alglin_threads.hh"
 #ifndef BORDERED_CYCLIC_REDUCTION_MAX_THREAD
   #define BORDERED_CYCLIC_REDUCTION_MAX_THREAD 256
+#endif
+
+#ifdef __GCC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpadded"
+#pragma GCC diagnostic ignored "-Wc++98-compat"
+#endif
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wpadded"
+#pragma clang diagnostic ignored "-Wc++98-compat"
 #endif
 
 namespace alglin {
