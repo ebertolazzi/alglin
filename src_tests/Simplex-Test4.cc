@@ -34,6 +34,19 @@
 #include <vector>
 #include <iostream>
 
+#ifdef __GCC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wc99-extensions"
+#pragma GCC diagnostic ignored "-Wglobal-constructors"
+#endif
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wsign-conversion"
+#pragma clang diagnostic ignored "-Wc99-extensions"
+#pragma clang diagnostic ignored "-Wglobal-constructors"
+#endif
+
 using namespace std ;
 
 int

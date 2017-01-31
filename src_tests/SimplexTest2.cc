@@ -34,19 +34,6 @@
 #include <vector>
 #include <iostream>
 
-#ifdef __GCC__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wsign-conversion"
-#pragma GCC diagnostic ignored "-Wc99-extensions"
-#pragma GCC diagnostic ignored "-Wglobal-constructors"
-#endif
-#ifdef __clang__
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wsign-conversion"
-#pragma clang diagnostic ignored "-Wc99-extensions"
-#pragma clang diagnostic ignored "-Wglobal-constructors"
-#endif
-
 using namespace std ;
 
 int
@@ -56,36 +43,36 @@ main() {
 
   // Cycling pivot test
   Simplex::integer   m    = 3 ;
-  Simplex::integer   n    = 6 ;
-  Simplex::valueType A[]  = {  1,  2,  0,
-                               1,  1, -1,
-                               1, -1,  1,
-                               1,  0,  0,
-                               0, -1,  0,
-                               0,  0, -1} ;
-  Simplex::valueType b[]  = { 40, 10, 10 } ;
-  Simplex::valueType c[]  = { -2, -3, -1, 0, 0, 0 } ;
-  Simplex::valueType L[]  = { 0, 0, 0, 0, 0, 0 } ;
-  Simplex::valueType U[]  = { infinity, infinity, infinity, infinity, infinity, infinity } ;
-  Simplex::valueType x[]  = { 0, 0, 0, 0, 0, 1 } ;
-  Simplex::integer   IB[] = { 0, 1, 2 } ;
+  Simplex::integer   n    = 7 ;
+  Simplex::valueType A[]  = {  0.5,  0.5,  1,
+                              -5.5, -1.5,  0,
+                              -2.5, -0.5,  0,
+                                 9,    1,  0,
+                                 1,    0,  0,
+                                 0,    1,  0,
+                                 0,    0,  1} ;
+  Simplex::valueType b[]  = { 0, 0, 1 } ;
+  Simplex::valueType c[]  = { 10, 57, 9, 24, 0, 0, 0 } ;
+  Simplex::valueType L[]  = { 0, 0, 0, 0, 0, 0, 0 } ;
+  Simplex::valueType U[]  = { infinity, infinity, infinity, infinity, infinity, infinity, infinity } ;
+  Simplex::valueType x[]  = { 0, 0, 0, 0, 0, 0, 1 } ;
+  Simplex::integer   IB[] = { 4, 5, 6 } ;
   
   Simplex::StandardProblem simplex_problem ;
   Simplex::AuxProblem      simplex_problem_aux ;
   Simplex::StandardSolver  simplex("simplex") ;
-  
   try {
-    //simplex.solve( &simplex_problem, x, IB ) ;
+    simplex_problem.setup( m, n, A, m, b, c, L, U ) ;
+    simplex_problem_aux.setup( &simplex_problem ) ;
+    simplex.solve( &simplex_problem, x, IB ) ;
+
     Simplex::valueType xd[100], xdd[100] ;
     Simplex::integer   IBd[100] ;
     
-    simplex_problem.setup( m, n, A, m, b, c, L, U ) ;
-    simplex_problem_aux.setup( &simplex_problem ) ;
-    simplex_problem_aux.feasible_point( xd, IBd ) ;
-    simplex.solve( &simplex_problem_aux, xd, IBd ) ;
-
     std::cout << "\n\n\n\n\n\n\n\n\n\n" ;
     
+    simplex_problem_aux.feasible_point( xd, IBd ) ;
+    simplex.solve( &simplex_problem_aux, xd, IBd ) ;
     simplex_problem_aux.to_primal( xd, xdd, IBd ) ;
     simplex.solve( &simplex_problem, xdd, IBd ) ;
   }

@@ -180,7 +180,7 @@ namespace alglin {
 
     virtual
     void
-    allocate( integer nblock, integer n, integer q, integer nb ) ;
+    allocateBottom( integer nblock, integer n, integer q, integer nb ) ;
 
     virtual
     void

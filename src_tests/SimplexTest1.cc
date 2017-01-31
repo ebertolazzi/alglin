@@ -34,59 +34,53 @@
 #include <vector>
 #include <iostream>
 
-#ifdef __GCC__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wsign-conversion"
-#pragma GCC diagnostic ignored "-Wc99-extensions"
-#pragma GCC diagnostic ignored "-Wglobal-constructors"
-#endif
-#ifdef __clang__
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wsign-conversion"
-#pragma clang diagnostic ignored "-Wc99-extensions"
-#pragma clang diagnostic ignored "-Wglobal-constructors"
-#endif
-
 using namespace std ;
 
 int
 main() {
-
   using Simplex::infinity ;
-
-  // Cycling pivot test
-  Simplex::integer   m    = 3 ;
-  Simplex::integer   n    = 6 ;
-  Simplex::valueType A[]  = {  1,  2,  0,
-                               1,  1, -1,
-                               1, -1,  1,
-                               1,  0,  0,
-                               0, -1,  0,
-                               0,  0, -1} ;
-  Simplex::valueType b[]  = { 40, 10, 10 } ;
-  Simplex::valueType c[]  = { -2, -3, -1, 0, 0, 0 } ;
-  Simplex::valueType L[]  = { 0, 0, 0, 0, 0, 0 } ;
-  Simplex::valueType U[]  = { infinity, infinity, infinity, infinity, infinity, infinity } ;
-  Simplex::valueType x[]  = { 0, 0, 0, 0, 0, 1 } ;
-  Simplex::integer   IB[] = { 0, 1, 2 } ;
+  Simplex::integer m = 3 ;
+  Simplex::integer n = 5 ;
+  Simplex::valueType A[] = { 1, 40, 6,
+                             1, 120, 12,
+                             1, 0, 0,
+                             0, 1, 0,
+                             0, 0, 1 } ;
+  Simplex::valueType b[]  = { 40, 2400, 312 } ;
+  Simplex::valueType c[]  = { -100, -250, 0, 0, 0 } ;
+  Simplex::valueType L[]  = { 0, 0, 0, 0, 0 } ;
+  Simplex::valueType U[]  = { infinity, infinity, infinity, infinity, infinity } ;
+  Simplex::valueType x[]  = { 0, 0, 40, 2400, 312 } ;
+  Simplex::integer   IB[] = { 2, 3, 4 } ;
   
   Simplex::StandardProblem simplex_problem ;
   Simplex::AuxProblem      simplex_problem_aux ;
   Simplex::StandardSolver  simplex("simplex") ;
   
   try {
-    //simplex.solve( &simplex_problem, x, IB ) ;
+    simplex_problem.setup( m, n, A, m, b, c, L, U ) ;
+    simplex_problem_aux.setup( &simplex_problem ) ;
+    simplex.solve( &simplex_problem, x, IB ) ;
+
     Simplex::valueType xd[100], xdd[100] ;
     Simplex::integer   IBd[100] ;
     
-    simplex_problem.setup( m, n, A, m, b, c, L, U ) ;
-    simplex_problem_aux.setup( &simplex_problem ) ;
-    simplex_problem_aux.feasible_point( xd, IBd ) ;
-    simplex.solve( &simplex_problem_aux, xd, IBd ) ;
-
     std::cout << "\n\n\n\n\n\n\n\n\n\n" ;
     
+    simplex_problem_aux.feasible_point( xd, IBd ) ;
+    simplex.solve( &simplex_problem_aux, xd, IBd ) ;
     simplex_problem_aux.to_primal( xd, xdd, IBd ) ;
+    
+    cout << "xdd = "
+         << xdd[0] << " "
+         << xdd[1] << " "
+         << xdd[2] << " "
+         << xdd[3] << " "
+         << xdd[4] << "\n" ;
+    cout << "IBd = "
+         << IBd[0] << " "
+         << IBd[1] << " "
+         << IBd[2] << "\n" ;
     simplex.solve( &simplex_problem, xdd, IBd ) ;
   }
   catch (  exception const & err ) {

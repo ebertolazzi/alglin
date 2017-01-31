@@ -42,11 +42,13 @@
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wc++98-compat"
 #pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wglobal-constructors"
 #endif
 #ifdef __clang__
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wc++98-compat"
 #pragma clang diagnostic ignored "-Wsign-conversion"
+#pragma clang diagnostic ignored "-Wglobal-constructors"
 #endif
 
 //! namespace for nonlinear systems and nonlinearsolver

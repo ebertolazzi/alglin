@@ -43,10 +43,10 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BBlockLU<t_Value>::allocate( integer _nblock,
-                               integer _n,
-                               integer _q,
-                               integer _nb ) {
+  BBlockLU<t_Value>::allocateBottom( integer _nblock,
+                                     integer _n,
+                                     integer _q,
+                                     integer _nb ) {
 
     m = _n+_q ;
     N = _nblock*_n+m ;
@@ -58,7 +58,7 @@ namespace alglin {
 
     nnz = nnzAdH + nnzAu + nnzFF + nnzDD ;
 
-    BlockBidiagonal<t_Value>::allocate( _nblock, _n, _q, _nb, nnz, N ) ;
+    BlockBidiagonal<t_Value>::allocateBottom( _nblock, _n, _q, _nb, nnz, N ) ;
 
     AdH_blk  = this->baseValue(size_t( nnzAdH )) ;
     Au_blk   = this->baseValue(size_t( nnzAu  )) ;
