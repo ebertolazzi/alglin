@@ -32,9 +32,8 @@ namespace alglin {
   //! LU decomposition of a ABD matrix
   /*!
    * 
-   * \date     May, 2016
+   * \date     January, 2017
    * \version  1.0
-   * \note     first release May, 2016
    *
    * \author   Enrico Bertolazzi
    *
@@ -98,8 +97,10 @@ namespace alglin {
 
     mutable integer nblk ;
 
+    integer * swap0 ;
     integer * swapR_blks ;
-    t_Value * F_mat ;
+    integer   Work_lda, F_size, F_lda ;
+    t_Value * Work_mat, *Work_mat1, *F_mat ;
 
   public:
 
@@ -111,25 +112,13 @@ namespace alglin {
 
     virtual
     void
-    allocate( integer /* nblock */,
-              integer /* n */,
-              integer /* nb */,
-              // ----------------------
-              integer /* numInitialBC */,
-              integer /* numFinalBC */,
-              integer /* numCyclicBC */,
-              // ----------------------
-              integer /* numInitialOMEGA */,
-              integer /* numFinalOMEGA */,
-              integer /* numCyclicOMEGA */ ) {
-    /*
-      integer Fnnz = (_nblock-1)*_n*_n ;
-      integer innz = _nblock*_n ;
-      BlockBidiagonal<t_Value>::allocate(_nblock, _n, _q, _nb, Fnnz, innz ) ;
-      swapR_blks = this->baseInteger(size_t(innz)) ;
-      F_mat      = this->baseReal(size_t(Fnnz)) ;
-    */
-    }
+    allocateTopBottom( integer _nblock,
+                       integer _n,
+                       integer _row0,
+                       integer _col0,
+                       integer _rowN,
+                       integer _colN,
+                       integer _nb ) ;
 
     virtual
     void

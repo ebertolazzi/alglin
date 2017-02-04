@@ -34,7 +34,6 @@ namespace alglin {
    * 
    * \date     May, 2016
    * \version  1.0
-   * \note     first release May, 2016
    *
    * \author   Enrico Bertolazzi
    *

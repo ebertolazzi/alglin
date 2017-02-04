@@ -43,17 +43,10 @@ typedef double valueType ;
 static unsigned seed1 = 2 ;
 static std::mt19937 generator(seed1);
 
-TicToc tictoc ;
-std::mutex mtx ;
+static TicToc tictoc ;
+static std::mutex mtx ;
 
-static
-valueType
-rand( valueType xmin, valueType xmax ) {
-  valueType random = valueType(generator())/generator.max();
-  return xmin + (xmax-xmin)*random ;
-}
-
-alglin::Barrier bar ;
+static alglin::Barrier bar ;
 
 static
 void

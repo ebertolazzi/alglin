@@ -24,8 +24,7 @@
 #include "Alglin.hh"
 #include "Alglin_aux.hh"
 #include "TicToc.hh"
-#include "BABD_Block.hh"
-//#include "ABD_Diaz.hh"
+#include "ABD_Block.hh"
 
 #ifdef __GCC__
 #pragma GCC diagnostic push
@@ -61,7 +60,6 @@ main() {
 
   alglin::integer NB = 0 ;
   for ( ; NB < 100 ; NB = NB*2 + 1 ) {
-
     cout << "\n\n\nNB = " << NB << "\n\n\n\n" ;
 
     alglin::integer dim      = 100 ;
@@ -99,9 +97,7 @@ main() {
     char const * kind[] = { "LU", "QR", "QRP", "SVD" } ;
 
     alglin::BlockLU<valueType> LU ;
-    //alglin::DiazLU<valueType> LU ;
-
-    LU.allocate( numBlock, dim, row0+rowN-dim, NB );
+    LU.allocateTopBottom( numBlock, dim, row0, dim+col00, rowN, dim+colNN, NB );
 
     // carico matrice
     TicToc tm ;
@@ -143,12 +139,14 @@ main() {
           D[i+j*NB] = rand(-1,1)+(i==j?10:0) ;
 
       LU.loadRightBlocks( B, N ) ;
-      
       LU.loadBottomBlocks( C, NB ) ;
       LU.loadRBblock( D, NB ) ;
-      LU.loadTopBottom( row0, dim+col00, block0, row0,
-                        rowN, dim+colNN, blockN, rowN ) ;
+      LU.loadTopBottom( block0, row0, blockN, rowN ) ;
       LU.selectLastBlockSolver( ch[test] ) ;
+
+      //ofstream file("dump_mat.txt");
+      //LU.dump_ccoord( file ) ;
+      //file.close() ;
 
       cout << "N = " << N << ' '
            << "n = " << dim << ' '
@@ -184,10 +182,11 @@ main() {
 
       alglin::axpy( N+NB, -1.0, x, 1, xref1, 1 ) ;
       cout << "Check |err|_inf = " << alglin::absmax( N+NB, xref1, 1 ) << '\n' ;
+
     }
   }
 
-  cout << "\nAll done!\n" ;
+  cout << "\n\nAll done!\n" ;
 
   return 0 ;
 }

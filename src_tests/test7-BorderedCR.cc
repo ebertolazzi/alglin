@@ -59,8 +59,8 @@ main() {
 
   alglin::BorderedCR<double> BCR, BCR_SAVED ;
 
-  #define NSIZE 10
-  //#define NSIZE 6
+  //#define NSIZE 10
+  #define NSIZE 6
 
   alglin::integer n      = NSIZE ;
   alglin::integer nblock = 200000 ;
@@ -77,7 +77,7 @@ main() {
   
   baseValue.allocate( size_t(7*N) ) ;
   
-  valueType diag = 1.001*n ;
+  valueType diag = 1.01*n ;
 
   valueType * x     = baseValue(size_t(2*N)) ; // extra space per multiple rhs
   valueType * xref  = baseValue(size_t(N)) ;
@@ -164,29 +164,30 @@ main() {
   std::copy( rhs, rhs+N, x ) ;
   std::copy( rhs, rhs+N, x+N ) ;
   tm.tic() ;
+  int ns = 1 ;
   BCR.solve( x ) ;
   #if 1
   std::copy( rhs, rhs+N, x ) ;
-  BCR.solve( x ) ;
+  BCR.solve( x ) ; ++ns ;
   std::copy( rhs, rhs+N, x ) ;
-  BCR.solve( x ) ;
+  BCR.solve( x ) ; ++ns ;
   std::copy( rhs, rhs+N, x ) ;
-  BCR.solve( x ) ;
+  BCR.solve( x ) ; ++ns ;
   std::copy( rhs, rhs+N, x ) ;
-  BCR.solve( x ) ;
+  BCR.solve( x ) ; ++ns ;
   std::copy( rhs, rhs+N, x ) ;
-  BCR.solve( x ) ;
+  BCR.solve( x ) ; ++ns ;
   std::copy( rhs, rhs+N, x ) ;
-  BCR.solve( x ) ;
+  BCR.solve( x ) ; ++ns ;
   std::copy( rhs, rhs+N, x ) ;
-  BCR.solve( x ) ;
+  BCR.solve( x ) ; ++ns ;
   std::copy( rhs, rhs+N, x ) ;
-  BCR.solve( x ) ;
+  BCR.solve( x ) ; ++ns ;
   std::copy( rhs, rhs+N, x ) ;
-  BCR.solve( x ) ;
+  BCR.solve( x ) ; ++ns ;
   #endif
   tm.toc() ;
-  cout << "\nSolve = " << tm.elapsedMilliseconds() << " [ms]\n\n" ;
+  cout << "\nSolve = " << tm.elapsedMilliseconds()/ns << " [ms]\n\n" ;
 
   alglin::copy( N, xref, 1, xref1, 1 ) ;
   alglin::axpy( N, -1.0, x, 1, xref1, 1 ) ;
@@ -195,31 +196,32 @@ main() {
 
   std::copy( rhs, rhs+2*N, x ) ;
   tm.tic() ;
+  ns = 1 ;
   BCR.solve( 2, x, N ) ;
   #if 1
   std::copy( rhs, rhs+2*N, x ) ;
-  BCR.solve( 2, x, N ) ;
+  BCR.solve( 2, x, N ) ; ++ns ;
   std::copy( rhs, rhs+2*N, x ) ;
-  BCR.solve( 2, x, N ) ;
+  BCR.solve( 2, x, N ) ; ++ns ;
   std::copy( rhs, rhs+2*N, x ) ;
-  BCR.solve( 2, x, N ) ;
+  BCR.solve( 2, x, N ) ; ++ns ;
   std::copy( rhs, rhs+2*N, x ) ;
-  BCR.solve( 2, x, N ) ;
+  BCR.solve( 2, x, N ) ; ++ns ;
   std::copy( rhs, rhs+2*N, x ) ;
-  BCR.solve( 2, x, N ) ;
+  BCR.solve( 2, x, N ) ; ++ns ;
   std::copy( rhs, rhs+2*N, x ) ;
-  BCR.solve( 2, x, N ) ;
+  BCR.solve( 2, x, N ) ; ++ns ;
   std::copy( rhs, rhs+2*N, x ) ;
-  BCR.solve( 2, x, N ) ;
+  BCR.solve( 2, x, N ) ; ++ns ;
   std::copy( rhs, rhs+2*N, x ) ;
-  BCR.solve( 2, x, N ) ;
+  BCR.solve( 2, x, N ) ; ++ns ;
   std::copy( rhs, rhs+2*N, x ) ;
-  BCR.solve( 2, x, N ) ;
+  BCR.solve( 2, x, N ) ; ++ns ;
   std::copy( rhs, rhs+2*N, x ) ;
-  BCR.solve( 2, x, N ) ;
+  BCR.solve( 2, x, N ) ; ++ns ;
   #endif
   tm.toc() ;
-  cout << "\nSolve2 = " << tm.elapsedMilliseconds() << " [ms]\n\n" ;
+  cout << "\nSolve2 = " << tm.elapsedMilliseconds()/ns << " [ms]\n\n" ;
 
   /*
   file.open("sol.txt") ;
