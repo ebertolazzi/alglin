@@ -165,7 +165,7 @@
 #elif defined(ALGLIN_USE_LAPACK)
 
   #include <cstdint>
-  #include <lapacke.h>
+  #include <lapacke_config.h>
   namespace blas_type {
     typedef char       character ;
     typedef lapack_int integer ; // 32 bit integer lapack

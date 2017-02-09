@@ -13,7 +13,7 @@ DEFS =
 # check if the OS string contains 'Linux'
 ifneq (,$(findstring Linux, $(OS)))
   INC     += -I/usr/include/atlas -I/usr/include/eigen3
-  CXXFLAGS = -Wall -O0 -g -fPIC -Wno-sign-compare -std=c++11 -pthread
+  CXXFLAGS = -Wall -O3 -fPIC -Wno-sign-compare -std=c++11 -pthread
   AR       = ar rcs
   LIBS     = -L./lib -lAlglin -llapack -lblas
   DEFS     = -DSUPERLU_OLD
