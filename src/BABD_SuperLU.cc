@@ -153,7 +153,9 @@ namespace alglin {
   BABD_SuperLU::factorize() {
 
     SuperMatrix AC ;
+#ifndef SUPERLU_OLD
     GlobalLU_t  glu ;
+#endif
     /*
      * Get column permutation vector perm_c[], according to permc_spec:
      *   ColPerm = 0: natural ordering
@@ -172,7 +174,9 @@ namespace alglin {
     //cout << "dgstrf.\n" ;
     dgstrf(&slu_options, &AC, relax, panel_size,
            etree, NULL, 0, perm_c, perm_r, &L, &U,
+#ifndef SUPERLU_OLD
            &glu,
+#endif
            &slu_stats, &info);
 
     // Free un-wanted storage

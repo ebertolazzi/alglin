@@ -32,6 +32,7 @@
 
 #include "Simplex.hh"
 #include <vector>
+#include <algorithm>
 #include <cmath>
 #include <iostream>
 #include <iomanip>

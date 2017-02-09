@@ -13,9 +13,10 @@ DEFS =
 # check if the OS string contains 'Linux'
 ifneq (,$(findstring Linux, $(OS)))
   INC     += -I/usr/include/atlas -I/usr/include/eigen3
-  CXXFLAGS = -Wall -O3 -fPIC -Wno-sign-compare -std=c++11
+  CXXFLAGS = -Wall -O0 -g -fPIC -Wno-sign-compare -std=c++11 -pthread
   AR       = ar rcs
   LIBS     = -L./lib -lAlglin -llapack -lblas
+  DEFS     = -DSUPERLU_OLD
 endif
 
 # check if the OS string contains 'Darwin'
@@ -79,7 +80,7 @@ all: lib
 	$(CXX) $(INC) $(CXXFLAGS) -o bin/test3-Timing              src_tests/test3-Timing.cc $(LIBS)
 	$(CXX) $(INC) $(CXXFLAGS) -o bin/test4-KKT                 src_tests/test4-KKT.cc $(LIBS)
 	$(CXX) $(INC) $(CXXFLAGS) -o bin/test5-Diaz                src_tests/test5-Diaz.cc $(LIBS)
-	$(CXX) $(INC) $(CXXFLAGS) -o bin/test6-Block               src_tests/test6-Block.cc $(LIBS)
+	#$(CXX) $(INC) $(CXXFLAGS) -o bin/test6-Block               src_tests/test6-Block.cc $(LIBS)
 	$(CXX) $(INC) $(CXXFLAGS) -o bin/test7-BorderedCR          src_tests/test7-BorderedCR.cc $(LIBS)
 	$(CXX) $(INC) $(CXXFLAGS) -o bin/SimplexTest1              src_tests/SimplexTest1.cc $(LIBS)
 	$(CXX) $(INC) $(CXXFLAGS) -o bin/SimplexTest2              src_tests/SimplexTest2.cc $(LIBS)
@@ -122,7 +123,6 @@ run:
 	./bin/test3-Timing
 	./bin/test4-KKT
 	./bin/test5-Diaz
-	./bin/test6-Block
 	./bin/test7-BorderedCR
 	./bin/SimplexTest1
 	./bin/SimplexTest2
@@ -131,8 +131,7 @@ run:
 
 doc:
 	doxygen
-	
+
 clean:
 	rm -f lib/libAlglin.* src/*.o
 	rm -rf bin
-	

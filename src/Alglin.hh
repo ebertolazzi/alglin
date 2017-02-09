@@ -165,15 +165,12 @@
 #elif defined(ALGLIN_USE_LAPACK)
 
   #include <cstdint>
+  #include <lapacke.h>
   namespace blas_type {
-    typedef char     character ;
-    #ifdef LAPACK_32_BIT
-    typedef int32_t  integer ; // 32 bit integer lapack
-    #else
-    typedef int64_t  integer ; // 64 bit integer lapack (default)
-    #endif
-    typedef float    single_precision ;
-    typedef double   double_precision ;
+    typedef char       character ;
+    typedef lapack_int integer ; // 32 bit integer lapack
+    typedef float      single_precision ;
+    typedef double     double_precision ;
   }
 
 #else
