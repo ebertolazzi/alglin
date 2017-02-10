@@ -1106,61 +1106,6 @@ namespace alglin {
 
   } ;
 
-  //============================================================================
-  /*\
-   |   _                   _   ____
-   |  | |    ___  __ _ ___| |_/ ___|  __ _ _   _  __ _ _ __ ___  ___
-   |  | |   / _ \/ _` / __| __\___ \ / _` | | | |/ _` | '__/ _ \/ __|
-   |  | |__|  __/ (_| \__ \ |_ ___) | (_| | |_| | (_| | | |  __/\__ \
-   |  |_____\___|\__,_|___/\__|____/ \__, |\__,_|\__,_|_|  \___||___/
-   |                                    |_|
-  \*/
-
-  template <typename T>
-  class LeastSquares : public Factorization<T> {
-  public:
-    typedef typename Factorization<T>::valueType valueType ;
-
-  private:
-
-    Malloc<valueType> allocReals ;
-    Malloc<integer>   allocIntegers ;
-
-    valueType * Work ;
-    valueType * Tau ;
-    valueType * tmp ;
-    integer   * JPVT ;
-    valueType   mxabs ;
-
-    integer     Lwork ;
-
-  public:
-
-    LeastSquares()
-    : Factorization<T>()
-    , allocReals("allocReals")
-    , allocIntegers("allocIntegers")
-    , mxabs(0)
-    , Lwork(0)
-    {}
-
-    virtual
-    ~LeastSquares() {
-      allocReals.free() ;
-      allocIntegers.free() ;
-    }
-
-    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-    integer
-    factorize( integer NR, integer NC,
-               valueType const A[], integer LDA,
-               valueType lambda ) ;
-
-    void
-    solve( valueType const in[], valueType out[] ) const ;
-
-  } ;
-
 } // end namespace alglin
 
 #ifdef __GCC__

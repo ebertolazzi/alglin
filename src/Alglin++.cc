@@ -1080,99 +1080,6 @@ namespace alglin {
     }
   }
 
-  /*\
-   |   _                   _   ____
-   |  | |    ___  __ _ ___| |_/ ___|  __ _ _   _  __ _ _ __ ___  ___
-   |  | |   / _ \/ _` / __| __\___ \ / _` | | | |/ _` | '__/ _ \/ __|
-   |  | |__|  __/ (_| \__ \ |_ ___) | (_| | |_| | (_| | | |  __/\__ \
-   |  |_____\___|\__,_|___/\__|____/ \__, |\__,_|\__,_|_|  \___||___/
-   |                                    |_|
-  \*/
-  template <typename T>
-  integer
-  LeastSquares<T>::factorize( integer NR,
-                              integer NC,
-                              valueType const A[], integer LDA,
-                              valueType lambda ) {
-    /*
-    // calcolo fattorizzazione QR della matrice
-    //
-    //  / A        \ ( P )   / Q1 Q2 \ / R \
-    //  |          |       = |       | |   |
-    //  \ lambda I /         \ Q3 Q4 / \ 0 /
-    //
-    //  A = NR x NC
-    //  I = NC x NC
-    //  R = NC x NC
-    */
-    //ASSERT( lambda > 0, "LeastSquares::factorize( NR = " << NR <<
-    //                    ", NC = " << NC << ", A, LDA = " << LDA <<
-    //                    ", lambda = " << lambda << " ) lambda must be positive" ) ;
-    this->nRow = NR+NC ;
-    this->nCol = NC ;
-    integer N = max(this->nRow,this->nCol) ;
-    Lwork = 2*N+(N+1)*N ;
-    allocReals.allocate(size_t(this->nRow*this->nCol+Lwork+N+this->nRow)) ;
-    allocIntegers.allocate(size_t(N)) ;
-    this->Amat = allocReals(size_t(this->nRow*this->nCol)) ;
-    Work = allocReals(size_t(Lwork)) ;
-    Tau  = allocReals(size_t(N)) ;
-    tmp  = allocReals(size_t(this->nRow)) ;
-    JPVT = allocIntegers(size_t(N)) ;
-    integer info = gecopy( NR, NC, A, LDA, this->Amat, this->nRow ) ;
-    if ( info == 0 ) {
-      geid( NC, NC, this->Amat + NR, this->nRow, lambda ) ;
-      std::fill( JPVT, JPVT + this->nCol, 0 ) ;
-      info = geqp3( this->nRow, this->nCol, this->Amat, this->nRow, JPVT, Tau, Work, Lwork ) ;
-    }
-    return info ;
-  }
-
-  template <typename T>
-  void
-  LeastSquares<T>::solve( valueType const in[], valueType out[] ) const {
-    /*
-    // calcolo soluzione ai minimi quadrati di
-    //
-    //  || Ax - b ||^2 + lambda^2 ||x||^2
-    //
-    //  / A        \       / Q1 Q2 \ / R \ (P^T) ( x )     / b \
-    //  |          | (x) = |       | |   |              ~= |   |
-    //  \ lambda I /       \ Q3 Q4 / \ 0 /                 \ 0 /
-    //
-    //
-    //  ( x ) = ( P R^(-1) 0 ) / Q1 Q2 \^T  / b \
-    //                         |       |    |   |
-    //                         \ Q3 Q4 /    \ 0 /
-    //
-    */
-    // copio `in` in vettore temporaneo (b 0)
-    copy( this->nRow-this->nCol, in, 1, tmp, 1 ) ;
-    zero( this->nCol, tmp + this->nCol, 1 ) ;
-    // moltiplico per Q
-    integer info = ormqr( LEFT,
-                          TRANSPOSE,
-                          this->nRow, 1, // dimensione tmp
-                          this->nCol,  // numero riflettori Q
-                          this->Amat, this->nRow,
-                          Tau,
-                          tmp, this->nRow,
-                          Work, Lwork ) ;
-    ALGLIN_ASSERT( info == 0, "LeastSquares::solve, ormqr return info = " << info ) ;
-    // risolvo R
-    trsv( UPPER,
-          NO_TRANSPOSE,
-          NON_UNIT,
-          this->nCol,
-          this->Amat, this->nRow,
-          tmp, 1 ) ;
-    // applico permutazione
-    info = swaps( 1, tmp, this->nRow, 0, this->nRow-1, JPVT, 1 ) ;
-    ALGLIN_ASSERT( info == 0, "LeastSquares::solve, swaps return info = " << info ) ;
-    // copio soluzione
-    copy( this->nCol, tmp, 1, out, 1 ) ;
-  }
-
   template integer rankEstimate( integer   M,
                                  integer   N,
                                  real      A[],
@@ -1207,9 +1114,6 @@ namespace alglin {
 
   template class BandedLU<real> ;
   template class BandedLU<doublereal> ;
-
-  template class LeastSquares<real> ;
-  template class LeastSquares<doublereal> ;
 
 } // end namespace alglin
 

@@ -33,6 +33,7 @@ endif
 SRCS = \
 src/ABD_Arceco.cc \
 src/ABD_Diaz.cc \
+src/ABD_Block.cc \
 src/Alglin++.cc \
 src/Alglin.cc \
 src/BABD.cc \
@@ -47,6 +48,7 @@ OBJS  = $(SRCS:.cc=.o)
 DEPS  = \
 src/ABD_Arceco.hh \
 src/ABD_Diaz.hh \
+src/ABD_Block.hh \
 src/Alglin++.hh \
 src/Alglin.hh \
 src/AlglinConfig.hh \
@@ -80,7 +82,7 @@ all: lib
 	$(CXX) $(INC) $(CXXFLAGS) -o bin/test3-Timing              src_tests/test3-Timing.cc $(LIBS)
 	$(CXX) $(INC) $(CXXFLAGS) -o bin/test4-KKT                 src_tests/test4-KKT.cc $(LIBS)
 	$(CXX) $(INC) $(CXXFLAGS) -o bin/test5-Diaz                src_tests/test5-Diaz.cc $(LIBS)
-	#$(CXX) $(INC) $(CXXFLAGS) -o bin/test6-Block               src_tests/test6-Block.cc $(LIBS)
+	$(CXX) $(INC) $(CXXFLAGS) -o bin/test6-Block               src_tests/test6-Block.cc $(LIBS)
 	$(CXX) $(INC) $(CXXFLAGS) -o bin/test7-BorderedCR          src_tests/test7-BorderedCR.cc $(LIBS)
 	$(CXX) $(INC) $(CXXFLAGS) -o bin/SimplexTest1              src_tests/SimplexTest1.cc $(LIBS)
 	$(CXX) $(INC) $(CXXFLAGS) -o bin/SimplexTest2              src_tests/SimplexTest2.cc $(LIBS)
@@ -123,6 +125,7 @@ run:
 	./bin/test3-Timing
 	./bin/test4-KKT
 	./bin/test5-Diaz
+	./bin/test6-Block
 	./bin/test7-BorderedCR
 	./bin/SimplexTest1
 	./bin/SimplexTest2
