@@ -164,6 +164,7 @@
 
 #elif defined(ALGLIN_USE_LAPACK)
 
+  #define LAPACK_COMPLEX_CUSTOM
   #include <cstdint>
   #include <lapacke_config.h>
   namespace blas_type {
