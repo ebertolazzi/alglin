@@ -12,23 +12,50 @@ DEFS =
 
 # check if the OS string contains 'Linux'
 ifneq (,$(findstring Linux, $(OS)))
-  INC     += -I/usr/include/atlas -I/usr/include/eigen3
-  CXXFLAGS = -Wall -O3 -fPIC -Wno-sign-compare -std=c++11 -pthread
-  AR       = ar rcs
-  LIBS     = -L./lib -lAlglin -llapack -lblas
-  DEFS     = -DSUPERLU_OLD
+  WARN = -Wall
+  CC  = gcc
+  CXX = g++
+  # activate C++11 for g++ >= 4.9
+  VERSION  = $(shell $(CC) -dumpversion)
+ifneq (,$(findstring 4.9, $(VERSION)))
+  CXX += -std=c++11
+endif
+ifneq (,$(findstring 5., $(VERSION)))
+  CXX += -std=c++11
+endif
+ifneq (,$(findstring 6., $(VERSION)))
+  CXX += -std=c++11
+endif
+  CC  += $(WARN)
+  CXX += $(WARN)
+  AR  = ar rcs
+  LIBSGCC = -lstdc++ -lm
+  LIBS    = -L./lib -lAlglin -llapack -lblas
+  DEFS    = -DSUPERLU_OLD
 endif
 
 # check if the OS string contains 'Darwin'
 ifneq (,$(findstring Darwin, $(OS)))
-  WARN     = -Weverything -Wno-reserved-id-macro -Wno-padded -Wno-documentation-unknown-command -Wno-float-equal -Wimplicit-fallthrough
-  CC       = clang
-  CXX      = clang++ -std=c++11
-  INC     += -I/usr/local/include -I/usr/local/include/eigen3
-  CXXFLAGS = -Wall -O3 -fPIC -Wno-sign-compare
-  AR       = libtool -static -o
-  LIBS     = -L./lib -lAlglin -framework Accelerate
+  WARN    = -Weverything -Wno-reserved-id-macro -Wno-padded
+  CC      = clang
+  CXX     = clang++
+  VERSION = $(shell $(CC) --version 2>&1 | grep -o "Apple LLVM version [0-9]\.[0-9]\.[0-9]" | grep -o " [0-9]\.")
+ifneq (,$(findstring 8., $(VERSION)))
+  CXX += -std=c++11 -stdlib=libc++ 
 endif
+ifneq (,$(findstring 7., $(VERSION)))
+  CXX += -std=c++11 -stdlib=libc++ 
+endif
+  CC     += $(WARN)
+  CXX    += $(WARN)
+  AR      = libtool -static -o
+  LIBSGCC = -lstdc++ -lm
+  LIBS    = -L./lib -lAlglin -framework Accelerate
+  INC    += -I/usr/local/include/eigen3
+endif
+
+CC  += -O3 -g0
+CXX += -O3 -g0
 
 SRCS = \
 src/ABD_Arceco.cc \
