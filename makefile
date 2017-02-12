@@ -31,7 +31,7 @@ endif
   AR  = ar rcs
   LIBSGCC = -lstdc++ -lm
   LIBS    = -L./lib -lAlglin -llapack -lblas
-  DEFS    = -DSUPERLU_OLD
+  DEFS    = -DALGLIN_USE_SUPERLU4
   INC    += -I/usr/include/eigen3
 endif
 

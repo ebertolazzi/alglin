@@ -153,7 +153,7 @@ namespace alglin {
   BABD_SuperLU::factorize() {
 
     SuperMatrix AC ;
-#ifndef USE_SUPERLU4
+#ifndef ALGLIN_USE_SUPERLU4
     GlobalLU_t  glu ;
 #endif
     /*
@@ -174,7 +174,7 @@ namespace alglin {
     //cout << "dgstrf.\n" ;
     dgstrf(&slu_options, &AC, relax, panel_size,
            etree, NULL, 0, perm_c, perm_r, &L, &U,
-#ifndef USE_SUPERLU4
+#ifndef ALGLIN_USE_SUPERLU4
            &glu,
 #endif
            &slu_stats, &info);
