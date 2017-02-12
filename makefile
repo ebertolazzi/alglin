@@ -42,10 +42,10 @@ ifneq (,$(findstring Darwin, $(OS)))
   CXX     = clang++
   VERSION = $(shell $(CC) --version 2>&1 | grep -o "Apple LLVM version [0-9]\.[0-9]\.[0-9]" | grep -o " [0-9]\.")
 ifneq (,$(findstring 8., $(VERSION)))
-  #CXX += -std=c++11 -stdlib=libc++ 
+  CXX += -std=c++11 -stdlib=libc++ 
 endif
 ifneq (,$(findstring 7., $(VERSION)))
-  #CXX += -std=c++11 -stdlib=libc++ 
+  CXX += -std=c++11 -stdlib=libc++ 
 endif
   CC     += $(WARN)
   CXX    += $(WARN)

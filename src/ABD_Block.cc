@@ -603,7 +603,7 @@ namespace alglin {
       valueConstPointer block00 = block0 + col00*row0 ;
 
       // apply permutation
-      integer info = swaps( ldRhs, io, ldRhs, 0, n-1, swapR_blks, 1 ) ;
+      integer info = swaps( nrhs, io, ldRhs, 0, n-1, swapR_blks, 1 ) ;
       ALGLIN_ASSERT( info == 0, "BlockLU::solve, first block, swaps INFO = " << info ) ;
 
       // copy from
