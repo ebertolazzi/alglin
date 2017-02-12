@@ -21,6 +21,19 @@
 #include <vector>
 #include <random>
 #include <fstream>
+
+#ifndef ALGLIN_USE_CXX11
+
+using namespace std ;
+
+int
+main() {
+  cout << "To test thrtead you must compiple with a C++11 capable compiler\nAll done!\n" ;
+  return 0 ;
+}
+
+#else
+
 #include "Alglin_threads.hh"
 #include "TicToc.hh"
 
@@ -100,3 +113,6 @@ main() {
 
   return 0 ;
 }
+
+#endif
+

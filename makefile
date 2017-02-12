@@ -18,13 +18,13 @@ ifneq (,$(findstring Linux, $(OS)))
   # activate C++11 for g++ >= 4.9
   VERSION  = $(shell $(CC) -dumpversion)
 ifneq (,$(findstring 4.9, $(VERSION)))
-  CXX += -std=c++11
+  CXX += -std=c++11 -pthread
 endif
 ifneq (,$(findstring 5., $(VERSION)))
-  CXX += -std=c++11
+  CXX += -std=c++11 -pthread
 endif
 ifneq (,$(findstring 6., $(VERSION)))
-  CXX += -std=c++11
+  CXX += -std=c++11 -pthread
 endif
   CC  += $(WARN)
   CXX += $(WARN)
@@ -32,6 +32,7 @@ endif
   LIBSGCC = -lstdc++ -lm
   LIBS    = -L./lib -lAlglin -llapack -lblas
   DEFS    = -DSUPERLU_OLD
+  INC    += -I/usr/include/eigen3
 endif
 
 # check if the OS string contains 'Darwin'
@@ -41,10 +42,10 @@ ifneq (,$(findstring Darwin, $(OS)))
   CXX     = clang++
   VERSION = $(shell $(CC) --version 2>&1 | grep -o "Apple LLVM version [0-9]\.[0-9]\.[0-9]" | grep -o " [0-9]\.")
 ifneq (,$(findstring 8., $(VERSION)))
-  CXX += -std=c++11 -stdlib=libc++ 
+  #CXX += -std=c++11 -stdlib=libc++ 
 endif
 ifneq (,$(findstring 7., $(VERSION)))
-  CXX += -std=c++11 -stdlib=libc++ 
+  #CXX += -std=c++11 -stdlib=libc++ 
 endif
   CC     += $(WARN)
   CXX    += $(WARN)
@@ -56,6 +57,8 @@ endif
 
 CC  += -O3 -g0
 CXX += -O3 -g0
+#CC  += -O1 -g3
+#CXX += -O1 -g3
 
 SRCS = \
 src/ABD_Arceco.cc \

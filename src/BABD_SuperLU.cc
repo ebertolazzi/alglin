@@ -4,7 +4,7 @@
  |                                                                          |
  |         , __                 , __                                        |
  |        /|/  \               /|/  \                                       |
- |         | __/ _   ,_         | __/ _   ,_                                | 
+ |         | __/ _   ,_         | __/ _   ,_                                |
  |         |   \|/  /  |  |   | |   \|/  /  |  |   |                        |
  |         |(__/|__/   |_/ \_/|/|(__/|__/   |_/ \_/|/                       |
  |                           /|                   /|                        |
@@ -69,7 +69,7 @@ namespace alglin {
 
     baseInteger.allocate(size_t(2*nnz+4*neq+1)) ;
     baseValue.allocate(size_t(nnz+2*neq)) ;
-    
+
     set_default_options(&slu_options);
 
     // Initialize the statistics variables.
@@ -84,7 +84,7 @@ namespace alglin {
     double * sumC   = baseValue(size_t(neq)) ;
     int    * rowind = baseInteger(size_t(nnz)) ;
     int    * colptr = baseInteger(size_t(neq+1)) ;
-    
+
     integer kk = 0 ;
     integer jj = 0 ;
     integer ee = nblock*n ;
@@ -113,7 +113,7 @@ namespace alglin {
     dCreate_CompCol_Matrix( &A, neq, neq, nnz,
                             values, rowind, colptr,
                             SLU_NC, SLU_D, SLU_GE ) ;
-    
+
     std::fill( sumR, sumR+neq, 0 ) ;
     std::fill( sumC, sumC+neq, 0 ) ;
     for ( integer j = 0 ; j < neq ; ++j ) {
@@ -126,7 +126,7 @@ namespace alglin {
     }
     one_norm_A = *std::max_element( sumC, sumC+neq ) ;
     inf_norm_A = *std::max_element( sumR, sumR+neq ) ;
-    
+
     #if 0
     ofstream file("Jac.txt") ;
     file << "A := Matrix(" << neq << ", " << neq << ", fill = 0);\n" ;
@@ -153,7 +153,7 @@ namespace alglin {
   BABD_SuperLU::factorize() {
 
     SuperMatrix AC ;
-#ifndef SUPERLU_OLD
+#ifndef USE_SUPERLU4
     GlobalLU_t  glu ;
 #endif
     /*
@@ -174,7 +174,7 @@ namespace alglin {
     //cout << "dgstrf.\n" ;
     dgstrf(&slu_options, &AC, relax, panel_size,
            etree, NULL, 0, perm_c, perm_r, &L, &U,
-#ifndef SUPERLU_OLD
+#ifndef USE_SUPERLU4
            &glu,
 #endif
            &slu_stats, &info);
@@ -187,7 +187,7 @@ namespace alglin {
     ALGLIN_ASSERT( info == 0, "BABD_SuperLU::factorize -- dgstrf() error returns INFO= " << info ) ;
     //cout << "done\n" ;
   }
-  
+
   /*\
    |             _
    |   ___  ___ | |_   _____
@@ -219,7 +219,7 @@ namespace alglin {
 
     ALGLIN_ASSERT( info == 0, "BABD_SuperLU::solve -- dgstrs() error returns INFO= " << info ) ;
   }
-  
+
   /*\
    |                       _
    |    ___ ___  _ __   __| |

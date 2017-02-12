@@ -64,41 +64,9 @@
 */
 
 #include <cmath>
-#include <ctgmath>
+//#include <ctgmath>
 #include <cstring>
 #include <limits>
-
-#if defined(__APPLE__) && defined(__MACH__)
-  // osx architecture
-  #define ALGLIN_OS_OSX 1
-  #if defined(__i386__)
-    #define ALGLIN_ARCH32 1
-  #elif defined(__x86_64__)
-    #define ALGLIN_ARCH64 1
-  #endif
-#elif defined(__unix__)
-  // linux architecture
-  #define ALGLIN_OS_LINUX 1
-  #if defined(__i386__)
-    #define ALGLIN_ARCH32 1
-  #elif defined(__x86_64__)
-    #define ALGLIN_ARCH64 1
-  #endif
-#elif defined(_WIN32) || defined(WIN32) || defined(_WIN64) || defined(WIN64)
-  // windows architecture
-  #define ALGLIN_OS_WINDOWS 1
-  #if defined(_M_X64) || defined(_M_AMD64)
-    #define ALGLIN_ARCH64 1
-  #else
-    #define ALGLIN_ARCH32 1
-  #endif
-  #ifndef WIN32_LEAN_AND_MEAN
-    #define WIN32_LEAN_AND_MEAN
-  #endif
-  #include <windows.h>
-#else
-  #error "unsupported OS!"
-#endif
 
 // if not choosed the linear algebra package select a defaulf one
 #if !defined(ALGLIN_USE_ACCELERATE) && \
@@ -113,18 +81,6 @@
   #elif defined(ALGLIN_OS_WINDOWS)
     #define ALGLIN_USE_LAPACK 1
   #endif
-#endif
-
-// check if compiler is C++11
-#if (defined(_MSC_VER) &&  _MSC_VER >= 1800) || \
-    (defined(__cplusplus) && __cplusplus > 199711L)
-  #ifndef ALGLIN_DO_NOT_USE_CXX11
-    #define ALGLIN_USE_CXX11
-  #endif
-#endif
-
-#if defined(ALGLIN_USE_THREAD) && !defined(ALGLIN_USE_CXX11)
-  #error "Alglin libray compiled without c++11 support, cannot use thread"
 #endif
 
 // find Headers for Lapack/Blas
@@ -165,7 +121,6 @@
 #elif defined(ALGLIN_USE_LAPACK)
 
   #define LAPACK_COMPLEX_CUSTOM
-  #include <cstdint>
   #include <lapacke_config.h>
   namespace blas_type {
     typedef char       character ;
@@ -179,7 +134,11 @@
 #endif
 
 #ifndef ALGLIN_OS_WINDOWS
-  #include <cstdint>
+  #ifdef ALGLIN_USE_CXX11
+    #include <cstdint>
+  #else
+    #include <stdint.h>
+  #endif
 #endif
 
 #include <iostream>
@@ -313,8 +272,8 @@ namespace alglin {
   extern character const *equilibrate_blas[4] ;
 
   /*
-  //    ____                _              _       
-  //   / ___|___  _ __  ___| |_ __ _ _ __ | |_ ___ 
+  //    ____                _              _
+  //   / ___|___  _ __  ___| |_ __ _ _ __ | |_ ___
   //  | |   / _ \| '_ \/ __| __/ _` | '_ \| __/ __|
   //  | |__| (_) | | | \__ \ || (_| | | | | |_\__ \
   //   \____\___/|_| |_|___/\__\__,_|_| |_|\__|___/
@@ -459,7 +418,7 @@ namespace alglin {
 
   //! `m_2_pi` the value of \f$ 2/\pi \f$.
   static doublereal const m_2_pi = 0.6366197723675813430755350534900574481378 ;
-  
+
   //! `m_sqrtpi` the value of \f$ \sqrt{\pi} \f$.
   static doublereal const m_sqrtpi = 1.772453850905516027298167483341145182798 ;
 
@@ -475,13 +434,13 @@ namespace alglin {
   //============================================================================
 
   static
-  inline  
+  inline
   integer
   min_index( integer a, integer b)
   { return a < b ? a : b ; }
 
   static
-  inline  
+  inline
   integer
   max_index( integer a, integer b)
   { return a > b ? a : b ; }
@@ -792,30 +751,30 @@ namespace alglin {
   extern "C" {
   using namespace blas_type ;
   void
-  BLASNAME(sswap)( integer          const * N, 
-                   single_precision         X[], 
-                   integer          const * INCX, 
-                   single_precision         Y[], 
+  BLASNAME(sswap)( integer          const * N,
+                   single_precision         X[],
+                   integer          const * INCX,
+                   single_precision         Y[],
                    integer          const * INCY ) ;
   void
-  BLASNAME(dswap)( integer          const * N, 
-                   double_precision         X[], 
-                   integer          const * INCX, 
-                   double_precision         Y[], 
+  BLASNAME(dswap)( integer          const * N,
+                   double_precision         X[],
+                   integer          const * INCX,
+                   double_precision         Y[],
                    integer          const * INCY ) ;
   void
-  BLASNAME(slaswp)( integer          const * NCOL, 
-                    single_precision         A[], 
-                    integer          const * LDA, 
-                    integer          const * K1, 
+  BLASNAME(slaswp)( integer          const * NCOL,
+                    single_precision         A[],
+                    integer          const * LDA,
+                    integer          const * K1,
                     integer          const * K2,
                     integer          const   IPIV[],
                     integer          const * INC ) ;
   void
-  BLASNAME(dlaswp)( integer          const * NCOL, 
-                    double_precision         A[], 
-                    integer          const * LDA, 
-                    integer          const * K1, 
+  BLASNAME(dlaswp)( integer          const * NCOL,
+                    double_precision         A[],
+                    integer          const * LDA,
+                    integer          const * K1,
                     integer          const * K2,
                     integer          const   IPIV[],
                     integer          const * INC ) ;
@@ -1033,18 +992,18 @@ namespace alglin {
   extern "C" {
   using namespace blas_type ;
   void
-  BLASNAME(saxpy)( integer          const * N, 
-                   single_precision const * A, 
-                   single_precision const   X[], 
-                   integer          const * INCX, 
-                   single_precision         Y[], 
+  BLASNAME(saxpy)( integer          const * N,
+                   single_precision const * A,
+                   single_precision const   X[],
+                   integer          const * INCX,
+                   single_precision         Y[],
                    integer          const * INCY ) ;
   void
-  BLASNAME(daxpy)( integer          const * N, 
-                   double_precision const * A, 
-                   double_precision const   X[], 
-                   integer          const * INCX, 
-                   double_precision         Y[], 
+  BLASNAME(daxpy)( integer          const * N,
+                   double_precision const * A,
+                   double_precision const   X[],
+                   integer          const * INCX,
+                   double_precision         Y[],
                    integer          const * INCY ) ;
   }
   #endif
@@ -1545,7 +1504,7 @@ namespace alglin {
   BLASNAME(idamax)( integer const * N, double_precision const X[], integer const * INCX ) ;
   }
   #endif
-  
+
   inline
   integer
   iamax( integer    N,
@@ -1600,21 +1559,21 @@ namespace alglin {
   extern "C" {
   using namespace blas_type ;
   single_precision
-  BLASNAME(sdot)( integer          const * N, 
-                  single_precision const   SX[], 
-                  integer          const * INCX, 
-                  single_precision const   SY[], 
+  BLASNAME(sdot)( integer          const * N,
+                  single_precision const   SX[],
+                  integer          const * INCX,
+                  single_precision const   SY[],
                   integer          const * INCY ) ;
 
   double_precision
-  BLASNAME(ddot)( integer          const * N, 
-                  double_precision const   SX[], 
-                  integer          const * INCX, 
-                  double_precision const   SY[], 
+  BLASNAME(ddot)( integer          const * N,
+                  double_precision const   SX[],
+                  integer          const * INCX,
+                  double_precision const   SY[],
                   integer          const * INCY ) ;
   }
   #endif
-  
+
   inline
   real
   dot( integer    N,
@@ -1715,24 +1674,24 @@ namespace alglin {
   extern "C" {
   using namespace blas_type ;
   void
-  BLASNAME(sger)( integer          const * M, 
-                  integer          const * N, 
-                  single_precision const * ALPHA, 
-                  single_precision const   X[], 
-                  integer          const * INCX, 
-                  single_precision const   Y[], 
-                  integer          const * INCY, 
-                  single_precision         A[], 
+  BLASNAME(sger)( integer          const * M,
+                  integer          const * N,
+                  single_precision const * ALPHA,
+                  single_precision const   X[],
+                  integer          const * INCX,
+                  single_precision const   Y[],
+                  integer          const * INCY,
+                  single_precision         A[],
                   integer          const * LDA ) ;
   void
-  BLASNAME(dger)( integer          const * M, 
-                  integer          const * N, 
-                  double_precision const * ALPHA, 
-                  double_precision const   X[], 
-                  integer          const * INCX, 
-                  double_precision const   Y[], 
-                  integer          const * INCY, 
-                  double_precision         A[], 
+  BLASNAME(dger)( integer          const * M,
+                  integer          const * N,
+                  double_precision const * ALPHA,
+                  double_precision const   X[],
+                  integer          const * INCX,
+                  double_precision const   Y[],
+                  integer          const * INCY,
+                  double_precision         A[],
                   integer          const * LDA ) ;
   }
   #endif
@@ -1865,28 +1824,28 @@ namespace alglin {
   extern "C" {
   using namespace blas_type ;
   void
-  BLASNAME(sgemv)( character        const   TRANS[], 
-                   integer          const * M, 
-                   integer          const * N, 
-                   single_precision const * ALPHA, 
-                   single_precision const   A[], 
+  BLASNAME(sgemv)( character        const   TRANS[],
+                   integer          const * M,
+                   integer          const * N,
+                   single_precision const * ALPHA,
+                   single_precision const   A[],
                    integer          const * LDA,
-                   single_precision const   X[], 
-                   integer          const * INCX, 
-                   single_precision const * BETA, 
-                   single_precision         Y[], 
+                   single_precision const   X[],
+                   integer          const * INCX,
+                   single_precision const * BETA,
+                   single_precision         Y[],
                    integer          const * INCY ) ;
   void
-  BLASNAME(dgemv)( character        const   TRANS[], 
-                   integer          const * M, 
-                   integer          const * N, 
-                   double_precision const * ALPHA, 
-                   double_precision const   A[], 
+  BLASNAME(dgemv)( character        const   TRANS[],
+                   integer          const * M,
+                   integer          const * N,
+                   double_precision const * ALPHA,
+                   double_precision const   A[],
                    integer          const * LDA,
-                   double_precision const   X[], 
-                   integer          const * INCX, 
-                   double_precision const * BETA, 
-                   double_precision         Y[], 
+                   double_precision const   X[],
+                   integer          const * INCX,
+                   double_precision const * BETA,
+                   double_precision         Y[],
                    integer          const * INCY ) ;
   }
   #endif
@@ -2054,32 +2013,32 @@ namespace alglin {
   extern "C" {
   using namespace blas_type ;
   void
-  BLASNAME(sgemm)( character        const   TRANSA[], 
-                   character        const   TRANSB[], 
-                   integer          const * M, 
-                   integer          const * N, 
-                   integer          const * K, 
-                   single_precision const * ALPHA, 
-                   single_precision const   A[], 
+  BLASNAME(sgemm)( character        const   TRANSA[],
+                   character        const   TRANSB[],
+                   integer          const * M,
+                   integer          const * N,
+                   integer          const * K,
+                   single_precision const * ALPHA,
+                   single_precision const   A[],
                    integer          const * LDA,
-                   single_precision const   B[], 
+                   single_precision const   B[],
                    integer          const * LDB,
-                   single_precision const * BETA, 
-                   single_precision         C[], 
+                   single_precision const * BETA,
+                   single_precision         C[],
                    integer          const * LDC ) ;
   void
-  BLASNAME(dgemm)( character        const   TRANSA[], 
-                   character        const   TRANSB[], 
-                   integer          const * M, 
-                   integer          const * N, 
-                   integer          const * K, 
-                   double_precision const * ALPHA, 
-                   double_precision const   A[], 
+  BLASNAME(dgemm)( character        const   TRANSA[],
+                   character        const   TRANSB[],
+                   integer          const * M,
+                   integer          const * N,
+                   integer          const * K,
+                   double_precision const * ALPHA,
+                   double_precision const   A[],
                    integer          const * LDA,
-                   double_precision const   B[], 
+                   double_precision const   B[],
                    integer          const * LDB,
-                   double_precision const * BETA, 
-                   double_precision         C[], 
+                   double_precision const * BETA,
+                   double_precision         C[],
                    integer          const * LDC ) ;
   }
   #endif
@@ -2402,22 +2361,22 @@ namespace alglin {
   extern "C" {
   using namespace blas_type ;
   void
-  BLASNAME(strsv)( character        const   UPLO[], 
-                   character        const   TRANS[], 
-                   character        const   DIAG[], 
-                   integer          const * N, 
-                   single_precision const   A[], 
-                   integer          const * LDA, 
-                   single_precision         X[], 
+  BLASNAME(strsv)( character        const   UPLO[],
+                   character        const   TRANS[],
+                   character        const   DIAG[],
+                   integer          const * N,
+                   single_precision const   A[],
+                   integer          const * LDA,
+                   single_precision         X[],
                    integer          const * INCX ) ;
   void
-  BLASNAME(dtrsv)( character        const   UPLO[], 
-                   character        const   TRANS[], 
-                   character        const   DIAG[], 
-                   integer          const * N, 
-                   double_precision const   A[], 
-                   integer          const * LDA, 
-                   double_precision         X[], 
+  BLASNAME(dtrsv)( character        const   UPLO[],
+                   character        const   TRANS[],
+                   character        const   DIAG[],
+                   integer          const * N,
+                   double_precision const   A[],
+                   integer          const * LDA,
+                   double_precision         X[],
                    integer          const * INCX ) ;
   }
   #endif
@@ -2585,7 +2544,7 @@ namespace alglin {
   extern "C" {
   using namespace blas_type ;
   void
-  BLASNAME(strmm) ( character        const   SIDE[],     // "L" or "R" 
+  BLASNAME(strmm) ( character        const   SIDE[],     // "L" or "R"
                     character        const   UPLO[],     // "U" or "L"
                     character        const   TRANSA[],   // "N", "T", "C"
                     character        const   DIAG[],     // "N", "U"
@@ -2597,7 +2556,7 @@ namespace alglin {
                     single_precision         B[],
                     integer          const * LDB ) ;
   void
-  BLASNAME(dtrmm) ( character        const   SIDE[],     // "L" or "R" 
+  BLASNAME(dtrmm) ( character        const   SIDE[],     // "L" or "R"
                     character        const   UPLO[],     // "U" or "L"
                     character        const   TRANSA[],   // "N", "T", "C"
                     character        const   DIAG[],     // "N", "U"
@@ -2786,28 +2745,28 @@ namespace alglin {
   extern "C" {
   using namespace blas_type ;
   void
-  BLASNAME(strsm)( character        const   SIDE[], 
-                   character        const   UPLO[], 
-                   character        const   TRANSA[], 
-                   character        const   DIAG[], 
+  BLASNAME(strsm)( character        const   SIDE[],
+                   character        const   UPLO[],
+                   character        const   TRANSA[],
+                   character        const   DIAG[],
                    integer          const * M,
                    integer          const * N,
-                   single_precision const * alpha, 
-                   single_precision const   A[], 
-                   integer          const * LDA, 
-                   single_precision         B[], 
+                   single_precision const * alpha,
+                   single_precision const   A[],
+                   integer          const * LDA,
+                   single_precision         B[],
                    integer          const * LDB ) ;
   void
-  BLASNAME(dtrsm)( character        const   SIDE[], 
-                   character        const   UPLO[], 
-                   character        const   TRANSA[], 
-                   character        const   DIAG[], 
+  BLASNAME(dtrsm)( character        const   SIDE[],
+                   character        const   UPLO[],
+                   character        const   TRANSA[],
+                   character        const   DIAG[],
                    integer          const * M,
-                   integer          const * N, 
-                   double_precision const * alpha, 
-                   double_precision const   A[], 
-                   integer          const * LDA, 
-                   double_precision         B[], 
+                   integer          const * N,
+                   double_precision const * alpha,
+                   double_precision const   A[],
+                   integer          const * LDA,
+                   double_precision         B[],
                    integer          const * LDB ) ;
   }
   #endif
@@ -3950,7 +3909,7 @@ namespace alglin {
                      const_cast<doublereal*>(A), &ldA, xb, &incx ) ;
     #endif
   }
-  
+
   /*\
    *  Purpose
    *  =======
@@ -4325,21 +4284,21 @@ namespace alglin {
    *                to solve a system of equations.
   \*/
   #ifdef ALGLIN_USE_LAPACK
-  extern "C" {  
+  extern "C" {
   using namespace blas_type ;
   void
-  LAPACKNAME(sgetrf)( integer          const * N, 
-                      integer          const * M, 
-                      single_precision         A[], 
-                      integer          const * LDA, 
-                      integer                  IPIV[], 
+  LAPACKNAME(sgetrf)( integer          const * N,
+                      integer          const * M,
+                      single_precision         A[],
+                      integer          const * LDA,
+                      integer                  IPIV[],
                       integer                * INFO ) ;
   void
-  LAPACKNAME(dgetrf)( integer          const * N, 
-                      integer          const * M, 
-                      double_precision         A[], 
-                      integer          const * LDA, 
-                      integer                  IPIV[], 
+  LAPACKNAME(dgetrf)( integer          const * N,
+                      integer          const * M,
+                      double_precision         A[],
+                      integer          const * LDA,
+                      integer                  IPIV[],
                       integer                * INFO ) ;
   }
   #endif
@@ -4441,24 +4400,24 @@ namespace alglin {
   extern "C" {
   using namespace blas_type ;
   void
-  LAPACKNAME(sgetrs)( character        const   TRANS[], 
-                      integer          const * N, 
-                      integer          const * NRHS, 
-                      single_precision const   A[], 
-                      integer          const * LDA, 
-                      integer          const   IPIV[], 
-                      single_precision         B[], 
-                      integer          const * LDB, 
+  LAPACKNAME(sgetrs)( character        const   TRANS[],
+                      integer          const * N,
+                      integer          const * NRHS,
+                      single_precision const   A[],
+                      integer          const * LDA,
+                      integer          const   IPIV[],
+                      single_precision         B[],
+                      integer          const * LDB,
                       integer                * INFO ) ;
   void
   LAPACKNAME(dgetrs)( character        const   TRANS[],
-                      integer          const * N, 
-                      integer          const * NRHS, 
-                      double_precision const   A[], 
-                      integer          const * LDA, 
-                      integer          const   IPIV[], 
-                      double_precision         B[], 
-                      integer          const * LDB, 
+                      integer          const * N,
+                      integer          const * NRHS,
+                      double_precision const   A[],
+                      integer          const * LDA,
+                      integer          const   IPIV[],
+                      double_precision         B[],
+                      integer          const * LDB,
                       integer                * INFO ) ;
   }
   #endif
@@ -4588,23 +4547,23 @@ namespace alglin {
   #ifdef ALGLIN_USE_LAPACK
   extern "C" {
   using namespace blas_type ;
-  void 
-  LAPACKNAME(sgesv)( integer          const * N, 
-                     integer          const * NRHS, 
-                     single_precision         A[], 
-                     integer          const * LDA, 
-                     integer                  IPIV[], 
-                     single_precision         B[], 
-                     integer          const * LDB, 
+  void
+  LAPACKNAME(sgesv)( integer          const * N,
+                     integer          const * NRHS,
+                     single_precision         A[],
+                     integer          const * LDA,
+                     integer                  IPIV[],
+                     single_precision         B[],
+                     integer          const * LDB,
                      integer                * INFO ) ;
   void
-  LAPACKNAME(dgesv)( integer          const * N, 
-                     integer          const * NRHS, 
-                     double_precision         A[], 
-                     integer          const * LDA, 
-                     integer                  IPIV[], 
-                     double_precision         B[], 
-                     integer          const * LDB, 
+  LAPACKNAME(dgesv)( integer          const * N,
+                     integer          const * NRHS,
+                     double_precision         A[],
+                     integer          const * LDA,
+                     integer                  IPIV[],
+                     double_precision         B[],
+                     integer          const * LDB,
                      integer                * INFO ) ;
   }
   #endif
@@ -5494,20 +5453,20 @@ namespace alglin {
   extern "C" {
   using namespace blas_type ;
   void
-  LAPACKNAME(slacpy)( character        const   UPLO[], 
-                      integer          const * M, 
-                      integer          const * N, 
-                      single_precision const   A[], 
-                      integer          const * LDA, 
-                      single_precision         B[], 
+  LAPACKNAME(slacpy)( character        const   UPLO[],
+                      integer          const * M,
+                      integer          const * N,
+                      single_precision const   A[],
+                      integer          const * LDA,
+                      single_precision         B[],
                       integer          const * LDB ) ;
   void
-  LAPACKNAME(dlacpy)( character        const   UPLO[], 
-                      integer          const * M, 
-                      integer          const * N, 
-                      double_precision const   A[], 
-                      integer          const * LDA, 
-                      double_precision         B[], 
+  LAPACKNAME(dlacpy)( character        const   UPLO[],
+                      integer          const * M,
+                      integer          const * N,
+                      double_precision const   A[],
+                      integer          const * LDA,
+                      double_precision         B[],
                       integer          const * LDB ) ;
   }
   #endif
@@ -5604,20 +5563,20 @@ namespace alglin {
   extern "C" {
   using namespace blas_type ;
   void
-  LAPACKNAME(slaset)( character        const   UPLO[], 
-                      integer          const * M, 
-                      integer          const * N, 
-                      single_precision const * ALPHA, 
-                      single_precision const * BETA, 
-                      single_precision         A[], 
+  LAPACKNAME(slaset)( character        const   UPLO[],
+                      integer          const * M,
+                      integer          const * N,
+                      single_precision const * ALPHA,
+                      single_precision const * BETA,
+                      single_precision         A[],
                       integer          const * LDA ) ;
   void
-  LAPACKNAME(dlaset)( character        const   UPLO[], 
-                      integer          const * M, 
-                      integer          const * N, 
-                      double_precision const * ALPHA, 
-                      double_precision const * BETA, 
-                      double_precision         A[], 
+  LAPACKNAME(dlaset)( character        const   UPLO[],
+                      integer          const * M,
+                      integer          const * N,
+                      double_precision const * ALPHA,
+                      double_precision const * BETA,
+                      double_precision         A[],
                       integer          const * LDA ) ;
   }
   #endif

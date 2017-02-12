@@ -20,10 +20,8 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
-#include <random>
 #include "Alglin.hh"
 #include "Alglin_aux.hh"
-#include "TicToc.hh"
 #include "ABD_Block.hh"
 
 #ifdef __GCC__
@@ -39,21 +37,36 @@
 #pragma clang diagnostic ignored "-Wglobal-constructors"
 #endif
 
-
-using namespace std ;
 typedef double valueType ;
 
+#ifdef ALGLIN_USE_CXX11
+#include "TicToc.hh"
+#include <random>
 static unsigned seed1 = 2 ;
 // std::chrono::system_clock::now().time_since_epoch().count();
 
 static std::mt19937 generator(seed1);
-
 static
 valueType
 rand( valueType xmin, valueType xmax ) {
   valueType random = valueType(generator())/generator.max();
   return xmin + (xmax-xmin)*random ;
 }
+#define TIC tm.tic()
+#define TOC tm.toc()
+#else
+#include <cstdlib>
+static
+valueType
+rand( valueType xmin, valueType xmax ) {
+  valueType random = (rand() % 10000)/10000.0 ;
+  return xmin + (xmax-xmin)*random ;
+}
+#define TIC
+#define TOC
+#endif
+
+using namespace std ;
 
 int
 main() {
@@ -89,7 +102,7 @@ main() {
     valueType * xref   = baseValue(size_t(N+NB)) ;
     valueType * xref1  = baseValue(size_t(N+NB)) ;
     valueType * rhs    = baseValue(size_t(N+NB)) ;
-  
+
     alglin::LASTBLOCK_Choice ch[4] = { alglin::LASTBLOCK_LU,
                                        alglin::LASTBLOCK_QR,
                                        alglin::LASTBLOCK_QRP,
@@ -100,8 +113,10 @@ main() {
     LU.allocateTopBottom( numBlock, dim, row0, dim+col00, rowN, dim+colNN, NB );
 
     // carico matrice
+    #ifdef ALGLIN_USE_CXX11
     TicToc tm ;
     tm.reset() ;
+    #endif
 
     for ( int test = 0 ; test < 3 ; ++test ) {
       cout << "\n\n\ntest N." << test << " NB = " << NB << "\n" ;
@@ -160,25 +175,37 @@ main() {
       std::copy( x, x+N+NB, xref1 ) ;
       LU.Mv( x, rhs ) ;
 
-      tm.tic() ;
+      TIC;
       LU.factorize_bordered() ;
-      tm.toc() ;
+      TOC ;
+      #ifdef ALGLIN_USE_CXX11
       cout << "(Block " << kind[test] << ") Factorize = " << tm.elapsedMilliseconds() << " [ms]\n" ;
-
+      #else
+      cout << "(Block " << kind[test] << ") Factorize\n" ;
+      #endif
+      
       std::copy( rhs, rhs+N+NB, x ) ;
-      tm.tic() ;
+      TIC;
       LU.solve_bordered( x ) ;
-      tm.toc() ;
+      TOC;
+      #ifdef ALGLIN_USE_CXX11
       cout << "(Block " << kind[test] << ") Solve = " << tm.elapsedMilliseconds() << " [ms]\n" ;
+      #else
+      cout << "(Block " << kind[test] << ") Solve\n" ;
+      #endif
 
       alglin::axpy( N+NB, -1.0, x, 1, xref, 1 ) ;
       cout << "Check |err|_inf = " << alglin::absmax( N+NB, xref, 1 ) << '\n' ;
 
       for ( alglin::integer i = 0 ; i < 10 ; ++i ) std::copy( rhs, rhs+N+NB, x+i*(N+NB) ) ;
-      tm.tic() ;
+      TIC ;
       LU.solve_bordered( 1, x, N+NB ) ;
-      tm.toc() ;
+      TOC ;
+      #ifdef ALGLIN_USE_CXX11
       cout << "(Block " << kind[test] << ") Solve = " << tm.elapsedMilliseconds() << " [ms]\n" ;
+      #else
+      cout << "(Block " << kind[test] << ") Solve\n" ;
+      #endif
 
       alglin::axpy( N+NB, -1.0, x, 1, xref1, 1 ) ;
       cout << "Check |err|_inf = " << alglin::absmax( N+NB, xref1, 1 ) << '\n' ;

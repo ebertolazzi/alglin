@@ -17,12 +17,25 @@
  |                                                                          |
 \*--------------------------------------------------------------------------*/
 
+
 #include <iostream>
 #include <vector>
 #include <random>
 #include "Alglin.hh"
 #include "Alglin++.hh"
 #include "Alglin_tmpl.hh"
+
+#ifndef ALGLIN_USE_CXX11
+
+using namespace std ;
+
+int
+main() {
+  cout << "To test timing you must compiple with a C++11 capable compiler\nAll done!\n" ;
+  return 0 ;
+}
+
+#else
 #include "TicToc.hh"
 
 #ifdef __GCC__
@@ -191,3 +204,6 @@ main() {
 
   return 0 ;
 }
+
+#endif
+

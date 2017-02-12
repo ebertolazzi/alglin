@@ -4,7 +4,7 @@
  |                                                                          |
  |         , __                 , __                                        |
  |        /|/  \               /|/  \                                       |
- |         | __/ _   ,_         | __/ _   ,_                                | 
+ |         | __/ _   ,_         | __/ _   ,_                                |
  |         |   \|/  /  |  |   | |   \|/  /  |  |   |                        |
  |         |(__/|__/   |_/ \_/|/|(__/|__/   |_/ \_/|/                       |
  |                           /|                   /|                        |
@@ -321,7 +321,7 @@ namespace alglin {
         stream
           << ie+i << '\t' << jb+j << '\t' << Cqmat[i+j*nr] << '\n' ;
   }
-  
+
   /*\
    |   _____          _             _
    |  |  ___|_ _  ___| |_ ___  _ __(_)_______
@@ -333,6 +333,7 @@ namespace alglin {
   template <typename t_Value>
   void
   BorderedCR<t_Value>::factorize() {
+    #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
     if ( usedThread > 1 ) {
       if ( nr_x_nx > 0 ) zero( nr_x_nx*(usedThread-1), Fmat + nr_x_nx, 1 ) ;
       for ( integer nt = 1 ; nt < usedThread ; ++nt )
@@ -346,6 +347,9 @@ namespace alglin {
     } else {
       factorize_block(0) ;
     }
+    #else
+    factorize_block(0) ;
+    #endif
     load_and_factorize_last() ;
   }
 
@@ -480,7 +484,7 @@ namespace alglin {
     copy( n, W+n, 1, TOP,    1 ) ;
     copy( n, W,   1, BOTTOM, 1 ) ;
   }
-  
+
   /*\
    |    __            _             _             _     _            _
    |   / _| __ _  ___| |_ ___  _ __(_)_______    | |__ | | ___   ___| | __
@@ -503,7 +507,7 @@ namespace alglin {
     valuePointer Emat0 = Emat + iblock*n_x_n ;
     valuePointer T0    = Tmat + iblock*Tsize ;
     integer *    P0    = Perm + iblock*n ;
-    
+
     valuePointer Fmat_th = Fmat + nth * nr_x_nx ;
 
     integer k = 1 ;
@@ -533,7 +537,7 @@ namespace alglin {
         applyT( nth, T, P, Ejp, n, Ej, n, n ) ;
 
         if ( nx > 0 ) applyT( nth, T, P, Bjp, n, Bj, n, nx ) ;
-        
+
         if ( nr > 0 ) {
 
           if ( selected == BORDERED_QRP ) {
@@ -616,7 +620,7 @@ namespace alglin {
           valuePointer Bjp = Bmat + jp*n_x_nx ;
           applyT( 0, T, P, Bjp, n, Bj, n, nx ) ;
         }
-        
+
         if ( nr > 0 ) {
           valuePointer Cj  = Cmat + j*nr_x_n ;
           valuePointer Cjp = Cmat + jp*nr_x_n ;
@@ -701,7 +705,7 @@ namespace alglin {
     gecopy( n,  nx, Bmat, n, Wp, Nr ) ;
 
     gecopy( n+qr, Nc, H0Nqp, n+qr, Hmat+n, Nr ) ;
-    
+
     integer offs = n_x_2+qr ;
 
     gecopy( nr, n,  Cmat,  nr, W0+offs, Nr ) ;
@@ -846,6 +850,7 @@ namespace alglin {
   void
   BorderedCR<t_Value>::solve( valuePointer x ) const {
     valuePointer xb = x + (nblock+1)*n + qr ; // deve essere b!
+    #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
     if ( usedThread > 1 ) {
       if ( nr > 0 ) {
         zero( nr*usedThread, xb_thread, 1 ) ;
@@ -868,7 +873,13 @@ namespace alglin {
     } else {
       forward(0,x,xb) ;
     }
+    #else
+      forward(0,x,xb) ;
+    #endif
+
     solve_last( x ) ;
+
+    #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
     if ( usedThread > 1 ) {
       backward_reduced(x) ;
       for ( integer nt = 1 ; nt < usedThread ; ++nt )
@@ -878,6 +889,9 @@ namespace alglin {
     } else {
       backward(0,x) ;
     }
+    #else
+    backward(0,x) ;
+    #endif
   }
 
   template <typename t_Value>
@@ -885,6 +899,7 @@ namespace alglin {
   BorderedCR<t_Value>::solve( integer      nrhs,
                               valuePointer rhs,
                               integer      ldRhs ) const {
+    #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
     if ( usedThread > 1 ) {
       for ( integer nt = 1 ; nt < usedThread ; ++nt )
         threads[nt] = std::thread( &BorderedCR<t_Value>::forward_n, this,
@@ -895,7 +910,13 @@ namespace alglin {
     } else {
       forward_n( 0, nrhs, rhs, ldRhs ) ;
     }
+    #else
+      forward_n( 0, nrhs, rhs, ldRhs ) ;
+    #endif
+
     solve_last( nrhs, rhs, ldRhs ) ;
+
+    #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
     if ( usedThread > 1 ) {
       backward_n_reduced( nrhs, rhs, ldRhs ) ;
       for ( integer nt = 1 ; nt < usedThread ; ++nt )
@@ -906,6 +927,9 @@ namespace alglin {
     } else {
       backward_n( 0, nrhs, rhs, ldRhs ) ;
     }
+    #else
+      backward_n( 0, nrhs, rhs, ldRhs ) ;
+    #endif
   }
 
   /*\

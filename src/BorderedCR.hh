@@ -4,7 +4,7 @@
  |                                                                          |
  |         , __                 , __                                        |
  |        /|/  \               /|/  \                                       |
- |         | __/ _   ,_         | __/ _   ,_                                | 
+ |         | __/ _   ,_         | __/ _   ,_                                |
  |         |   \|/  /  |  |   | |   \|/  /  |  |   |                        |
  |         |(__/|__/   |_/ \_/|/|(__/|__/   |_/ \_/|/                       |
  |                           /|                   /|                        |
@@ -25,9 +25,12 @@
 
 #include <iostream>
 
-#include "Alglin_threads.hh"
 #ifndef BORDERED_CYCLIC_REDUCTION_MAX_THREAD
   #define BORDERED_CYCLIC_REDUCTION_MAX_THREAD 256
+#endif
+
+#ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
+  #include "Alglin_threads.hh"
 #endif
 
 #ifdef __GCC__
@@ -65,7 +68,7 @@ namespace alglin {
 
   //! Cyclic reduction of a block bidiagonal matrix
   /*!
-   * 
+   *
    * \date     October 25, 2016
    * \version  1.0
    * \note     October 25, 2016
@@ -143,7 +146,7 @@ namespace alglin {
     integer nr_x_nx ;
     integer Nr, Nc ;
     integer Tsize ;
-    
+
     BORDERED_LAST_Choice last_selected ;
     BORDERED_Choice      selected ;
 
@@ -195,7 +198,7 @@ namespace alglin {
 
     void
     factorize_reduced() ;
-    
+
     /*
     //    __                            _
     //   / _|___ _ ___ __ ____ _ _ _ __| |
@@ -264,7 +267,7 @@ namespace alglin {
 
     valuePointer H0Nqp ;
     valuePointer Bmat, Cmat, Cqmat, Dmat, Emat, Fmat, WorkT, WorkQR ;
-    
+
     // working block
     valuePointer Tmat, Ttau, Work ;
     integer      *Perm, Lwork, LworkT, LworkQR ;
@@ -275,11 +278,14 @@ namespace alglin {
 
     integer      *iBlock, *kBlock ;
 
+    // used also with a unique thread
     integer maxThread, usedThread ;
     mutable integer      *perm_thread ;
     mutable valuePointer xb_thread ;
+    #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
     mutable std::thread threads[BORDERED_CYCLIC_REDUCTION_MAX_THREAD] ;
     mutable SpinLock spin ;
+    #endif
 
   public:
 
