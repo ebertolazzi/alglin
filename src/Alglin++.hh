@@ -654,8 +654,6 @@ namespace alglin {
                             this->Tau,
                             this->Work, this->Lwork ) ;
       ALGLIN_ASSERT( info == 0, "QRP::factorize call alglin::geqrf return info = " << info ) ;
-      for ( integer i = 0 ; i < this->nRow ; ++i )
-        cout << "JPVT = " << JPVT[i] << "\n" ;
     }
 
     /*!
