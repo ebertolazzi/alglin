@@ -357,12 +357,12 @@ namespace alglin {
   static
   inline
   bool isInteger( doublereal x )
-  { return isZero(x-floor(x)) ; }
+  { return isZero( x-static_cast<long>(floor(x)) ) ; }
 
   static
   inline
   bool isInteger( real x )
-  { return isZero(x-floor(x)) ; }
+  { return isZero( x-static_cast<long>(floor(x)) ) ; }
 
   static
   inline
