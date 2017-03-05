@@ -139,7 +139,12 @@ lib/libAlglin.so: $(OBJS)
 	$(MKDIR) lib
 	$(CXX) -shared -o lib/libAlglin.so $(OBJS) 
 
+install_local: lib/$(LIB_ALGLIN)
+	$(MKDIR) ./lib/include
+	cp src/*.hh ./lib/include
+
 install: lib/$(LIB_ALGLIN)
+	$(MKDIR) $(PREFIX)/include
 	cp src/*.hh          $(PREFIX)/include
 	cp lib/$(LIB_ALGLIN) $(PREFIX)/lib
 
@@ -166,5 +171,5 @@ doc:
 	doxygen
 
 clean:
-	rm -f lib/libAlglin.* src/*.o
+	rm -rf lib/libAlglin.* lib/include src/*.o
 	rm -rf bin
