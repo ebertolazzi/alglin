@@ -30,7 +30,6 @@
 #pragma GCC diagnostic ignored "-Wc++98-compat-pedantic"
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 #pragma GCC diagnostic ignored "-Wglobal-constructors"
-#pragma GCC diagnostic ignored "-Wundefined-func-template"
 #pragma GCC diagnostic ignored "-Wdocumentation-unknown-command"
 #pragma GCC diagnostic ignored "-Wold-style-cast"
 #pragma GCC diagnostic ignored "-Wmissing-noreturn"

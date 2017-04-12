@@ -28,7 +28,6 @@
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpadded"
 #pragma GCC diagnostic ignored "-Wc++98-compat"
-#pragma GCC diagnostic ignored "-Wundefined-func-template"
 #endif
 #ifdef __clang__
 #pragma clang diagnostic push
