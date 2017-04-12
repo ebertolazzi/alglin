@@ -5126,7 +5126,7 @@ namespace alglin {
    *                >  M:  the (i-M)-th column of A is exactly zero
   \*/
 
-  #if defined(ALGLIN_USE_ATLAS) || defined(ALGLIN_USE_LAPACK)
+  #if defined(ALGLIN_USE_LAPACK)
   extern "C" {
 
     void
@@ -5277,7 +5277,7 @@ namespace alglin {
    *  =====================================================================
   \*/
 
-  #if defined(ALGLIN_USE_ATLAS) || defined(ALGLIN_USE_LAPACK)
+  #if defined(ALGLIN_USE_LAPACK)
   extern "C" {
 
     void
@@ -5307,7 +5307,7 @@ namespace alglin {
   #endif
 
 
-  #ifdef ALGLIN_USE_OPENBLAS
+  #if defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
   template <typename T>
   void
   laqge_tmpl( integer             M,
@@ -5336,12 +5336,6 @@ namespace alglin {
          EquilibrationType & equ ) {
     #if defined(ALGLIN_USE_OPENBLAS)
     laqge_tmpl<real>( M, N, A, LDA, R, C, ROWCND, COLCND, AMAX, equ ) ;
-    #elif defined(ALGLIN_USE_ATLAS)
-    LAPACKNAME(slaqge)( &M, &N, A, &LDA,
-                        const_cast<real*>(R),
-                        const_cast<real*>(C),
-                        &ROWCND, &COLCND, &AMAX,
-                        const_cast<character*>(equilibrate_blas[equ]) ) ;
     #elif defined(ALGLIN_USE_ACCELERATE)
     CLAPACKNAME(slaqge)( &M, &N, A, &LDA,
                          const_cast<real*>(R),
@@ -5371,12 +5365,6 @@ namespace alglin {
          EquilibrationType & equ ) {
     #if defined(ALGLIN_USE_OPENBLAS)
     laqge_tmpl<doublereal>( M, N, A, LDA, R, C, ROWCND, COLCND, AMAX, equ ) ;
-    #elif defined(ALGLIN_USE_ATLAS)
-    LAPACKNAME(dlaqge)( &M, &N, A, &LDA,
-                        const_cast<doublereal*>(R),
-                        const_cast<doublereal*>(C),
-                        &ROWCND, &COLCND, &AMAX,
-                        const_cast<character*>(equilibrate_blas[equ]) ) ;
     #elif defined(ALGLIN_USE_OPENBLAS)
     LAPACK_NAME(dlaqge)( &M, &N, A, &LDA,
                          const_cast<doublereal*>(R),
@@ -5741,7 +5729,7 @@ namespace alglin {
   //  | |  | | (_| | |_| |  | |>  <  | |\  | (_) | |  | | | | | |
   //  |_|  |_|\__,_|\__|_|  |_/_/\_\ |_| \_|\___/|_|  |_| |_| |_|
   */
-  #if defined(ALGLIN_USE_ATLAS) || defined(ALGLIN_USE_LAPACK)
+  #if defined(ALGLIN_USE_LAPACK)
   // use standard Lapack routine
   extern "C" {
 
@@ -6892,7 +6880,7 @@ namespace alglin {
    *
   \*/
 
-  #if defined(ALGLIN_USE_ATLAS) || defined(ALGLIN_USE_LAPACK)
+  #if defined(ALGLIN_USE_LAPACK)
   // use standard Lapack routine
   extern "C" {
 
@@ -7255,6 +7243,23 @@ namespace alglin {
                          work, &lwork, iwork, bwork, &info) ;
     return info ;
   }
+  #elif defined(ALGLIN_USE_ATLAS)
+  { return LAPACKE_NAME(sggevx_work)( LAPACK_COL_MAJOR,
+                                      balance_blas[balanc][0],
+                                      (jobvl?'V':'N'),
+                                      (jobvr?'V':'N'),
+                                      sense_blas[sense][0],
+                                      n,
+                                      A, lda,
+                                      B, ldb,
+                                      alphar, alphai, beta,
+                                      vl, ldvl, vr, ldvr,
+                                      &ilo, &ihi,
+                                      lscale, rscale,
+                                      &abnrm, &bbnrm,
+                                      rconde, rcondv,
+                                      work, lwork, iwork, bwork) ;
+  }
   #elif defined(ALGLIN_USE_ACCELERATE)
   { integer INFO = 0;
     CLAPACKNAME(sggevx)( const_cast<character*>(balance_blas[balanc]),
@@ -7337,6 +7342,23 @@ namespace alglin {
                          rconde, rcondv,
                          work, &lwork, iwork, bwork, &info ) ;
     return info ;
+  }
+  #elif defined(ALGLIN_USE_ATLAS)
+  { return LAPACKE_NAME(dggevx_work)( LAPACK_COL_MAJOR,
+                                      balance_blas[balanc][0],
+                                      (jobvl?'V':'N'),
+                                      (jobvr?'V':'N'),
+                                      sense_blas[sense][0],
+                                      n,
+                                      A, lda,
+                                      B, ldb,
+                                      alphar, alphai, beta,
+                                      vl, ldvl, vr, ldvr,
+                                      &ilo, &ihi,
+                                      lscale, rscale,
+                                      &abnrm, &bbnrm,
+                                      rconde, rcondv,
+                                      work, lwork, iwork, bwork) ;
   }
   #elif defined(ALGLIN_USE_ACCELERATE)
   { integer INFO = 0;
