@@ -9935,7 +9935,7 @@ namespace alglin {
   //   \___/|_|  |_| |_| |_|_|  /___|
   */
 
-  #if defined(ALGLIN_USE_ATLAS) || defined(ALGLIN_USE_LAPACK)
+  #if defined(ALGLIN_USE_LAPACK)
   // use standard Lapack routine
   extern "C" {
 
@@ -10094,6 +10094,14 @@ namespace alglin {
                          const_cast<real*>(A), &LDA,
                          const_cast<real*>(TAU),
                          C, &LDC, WORK, &LWORK, &info );
+    #elif defined(ALGLIN_USE_ATLAS)
+    info = LAPACKE_NAME(sormrz_work)( LAPACK_COL_MAJOR,
+                                      side_blas[SIDE][0],
+                                      trans_blas[TRANS][0],
+                                      M, N, K, L,
+                                      const_cast<real*>(A), LDA,
+                                      const_cast<real*>(TAU),
+                                      C, LDC, WORK, LWORK );
     #elif defined(ALGLIN_USE_ACCELERATE)
     CLAPACKNAME(sormrz)( const_cast<character*>(side_blas[SIDE]),
                          const_cast<character*>(trans_blas[TRANS]),
@@ -10135,6 +10143,14 @@ namespace alglin {
                          const_cast<doublereal*>(A), &LDA,
                          const_cast<doublereal*>(TAU),
                          C, &LDC, WORK, &LWORK, &info );
+    #elif defined(ALGLIN_USE_ATLAS)
+    info = LAPACKE_NAME(dormrz_work)( LAPACK_COL_MAJOR,
+                                      side_blas[SIDE][0],
+                                      trans_blas[TRANS][0],
+                                      M, N, K, L,
+                                      const_cast<doublereal*>(A), LDA,
+                                      const_cast<doublereal*>(TAU),
+                                      C, LDC, WORK, LWORK );
     #elif defined(ALGLIN_USE_ACCELERATE)
     CLAPACKNAME(dormrz)( const_cast<character*>(side_blas[SIDE]),
                          const_cast<character*>(trans_blas[TRANS]),
