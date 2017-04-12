@@ -30,9 +30,9 @@ endif
   CXX += $(WARN)
   AR  = ar rcs
   LIBSGCC = -lstdc++ -lm
-  LIBS    = -L./lib -lAlglin -llapack -lblas
+  LIBS    = -L./lib -lAlglin -llapacke -llapack_atlas -latlas -lopenblas
   DEFS    = -DALGLIN_USE_SUPERLU4
-  INC    += -I/usr/include/eigen3
+  INC    += -I/usr/include/eigen3 -I/usr/include/atlas/
 endif
 
 # check if the OS string contains 'Darwin'

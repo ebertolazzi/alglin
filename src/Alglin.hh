@@ -76,8 +76,8 @@
   #if defined(ALGLIN_OS_OSX)
     #define ALGLIN_USE_ACCELERATE 1
   #elif defined(ALGLIN_OS_LINUX)
-    //#define ALGLIN_USE_ATLAS 1
-    #define ALGLIN_USE_LAPACK 1
+    #define ALGLIN_USE_ATLAS 1
+    //#define ALGLIN_USE_LAPACK 1
   #elif defined(ALGLIN_OS_WINDOWS)
     #define ALGLIN_USE_LAPACK 1
   #endif
@@ -101,8 +101,11 @@
     #include <cblas.h>
     #include <clapack.h>
   }
-  #define CBLASNAME(A)   cblas_##A
-  #define CLAPACKNAME(A) clapack_##A
+  #include <lapacke.h>
+
+  #define CBLASNAME(A)    cblas_##A
+  #define CLAPACKNAME(A)  LAPACK_##A
+  #define LAPACKE_NAME(A) LAPACKE_##A
 
 #elif defined(ALGLIN_USE_OPENBLAS)
 
@@ -2895,7 +2898,7 @@ namespace alglin {
    *  =====================================================================
   \*/
 
-  #if defined(ALGLIN_USE_ATLAS) || defined(ALGLIN_USE_LAPACK)
+  #if defined(ALGLIN_USE_LAPACK)
   extern "C" {
 
     void
@@ -2928,6 +2931,8 @@ namespace alglin {
          integer IPIV[] )
   #if defined(ALGLIN_USE_OPENBLAS)
   { integer INFO ; LAPACK_NAME(sgttrf)( &N, DL, D, DU, DU2, IPIV, &INFO ) ; return INFO ; }
+  #elif defined(ALGLIN_USE_ATLAS)
+  { return LAPACKE_NAME(sgttrf)( N, DL, D, DU, DU2, IPIV); }
   #elif defined(ALGLIN_USE_ACCELERATE)
   { integer INFO ; CLAPACKNAME(sgttrf)( &N, DL, D, DU, DU2, IPIV, &INFO ) ; return INFO ; }
   #else
@@ -2944,6 +2949,8 @@ namespace alglin {
          integer    IPIV[] )
   #if defined(ALGLIN_USE_OPENBLAS)
   { integer INFO ; LAPACK_NAME(dgttrf)( &N, DL, D, DU, DU2, IPIV, &INFO ) ; return INFO ; }
+  #elif defined(ALGLIN_USE_ATLAS)
+  { return LAPACKE_NAME(dgttrf)( N, DL, D, DU, DU2, IPIV); }
   #elif defined(ALGLIN_USE_ACCELERATE)
   { integer INFO ; CLAPACKNAME(dgttrf)( &N, DL, D, DU, DU2, IPIV, &INFO ) ; return INFO ; }
   #else
@@ -3009,7 +3016,7 @@ namespace alglin {
    *  =====================================================================
   \*/
 
-  #if defined(ALGLIN_USE_ATLAS) || defined(ALGLIN_USE_LAPACK)
+  #if defined(ALGLIN_USE_LAPACK)
   extern "C" {
 
     void
@@ -3056,6 +3063,11 @@ namespace alglin {
     #if defined(ALGLIN_USE_OPENBLAS)
     LAPACK_NAME(sgttrs)( const_cast<character*>(trans_blas[TRANS]),
                          &N, &NRHS, DL, D, DU, DU2, IPIV, B, &LDB, &INFO ) ;
+    #elif defined(ALGLIN_USE_ATLAS)
+    INFO = LAPACKE_NAME(sgttrs)( LAPACK_COL_MAJOR,
+                                 trans_blas[TRANS][0],
+                                 N, NRHS, DL, D, DU, DU2, IPIV,
+                                 B, LDB ) ;
     #elif defined(ALGLIN_USE_ACCELERATE)
     CLAPACKNAME(sgttrs)( const_cast<character*>(trans_blas[TRANS]),
                          &N, &NRHS,
@@ -3093,6 +3105,11 @@ namespace alglin {
     #if defined(ALGLIN_USE_OPENBLAS)
     LAPACK_NAME(dgttrs)( const_cast<character*>(trans_blas[TRANS]),
                          &N, &NRHS, DL, D, DU, DU2, IPIV, B, &LDB, &INFO ) ;
+    #elif defined(ALGLIN_USE_ATLAS)
+    INFO = LAPACKE_NAME(dgttrs)( LAPACK_COL_MAJOR,
+                                 trans_blas[TRANS][0],
+                                 N, NRHS, DL, D, DU, DU2, IPIV,
+                                 B, LDB ) ;
     #elif defined(ALGLIN_USE_ACCELERATE)
     CLAPACKNAME(dgttrs)( const_cast<character*>(trans_blas[TRANS]),
                          &N, &NRHS,
@@ -3172,7 +3189,7 @@ namespace alglin {
    *               completed unless i = N.
   \*/
 
-  #if defined(ALGLIN_USE_ATLAS) || defined(ALGLIN_USE_LAPACK)
+  #if defined(ALGLIN_USE_LAPACK)
   extern "C" {
 
     void
@@ -3209,7 +3226,7 @@ namespace alglin {
   { integer INFO = 0;
     #if defined(ALGLIN_USE_OPENBLAS)
     LAPACK_NAME(sgtsv)( &N, &NRHS, DL, D, DU, B, &LDB, &INFO ) ;
-    #elif defined(ALGLIN_USE_ACCELERATE)
+    #elif defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
     CLAPACKNAME(sgtsv)( &N, &NRHS, DL, D, DU, B, &LDB, &INFO ) ;
     #else
     LAPACKNAME(sgtsv)( &N, &NRHS, DL, D, DU, B, &LDB, &INFO ) ;
@@ -3229,7 +3246,7 @@ namespace alglin {
   { integer INFO = 0;
     #if defined(ALGLIN_USE_OPENBLAS)
     LAPACK_NAME(dgtsv)( &N, &NRHS, DL, D, DU, B, &LDB, &INFO ) ;
-    #elif defined(ALGLIN_USE_ACCELERATE)
+    #elif defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
     CLAPACKNAME(dgtsv)( &N, &NRHS, DL, D, DU, B, &LDB, &INFO ) ;
     #else
     LAPACKNAME(dgtsv)( &N, &NRHS, DL, D, DU, B, &LDB, &INFO ) ;
@@ -3300,7 +3317,7 @@ namespace alglin {
    *  =====================================================================
   \*/
 
-  #if defined(ALGLIN_USE_ATLAS) || defined(ALGLIN_USE_LAPACK)
+  #if defined(ALGLIN_USE_LAPACK)
   extern "C" {
 
     void
@@ -3354,7 +3371,7 @@ namespace alglin {
                          const_cast<real*>(DU2),
                          const_cast<integer*>(IPIV),
                          &ANORM, &RCOND, WORK, IWORK, &INFO ) ;
-    #elif defined(ALGLIN_USE_ACCELERATE)
+    #elif defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
     CLAPACKNAME(sgtcon)( const_cast<character*>("1"), &N,
                          const_cast<real*>(DL),
                          const_cast<real*>(D),
@@ -3395,7 +3412,7 @@ namespace alglin {
                          const_cast<doublereal*>(DU2),
                          const_cast<integer*>(IPIV),
                          &ANORM, &RCOND, WORK, IWORK, &INFO ) ;
-    #elif defined(ALGLIN_USE_ACCELERATE)
+    #elif defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
     CLAPACKNAME(dgtcon)( const_cast<character*>("1"), &N,
                          const_cast<doublereal*>(DL),
                          const_cast<doublereal*>(D),
@@ -3436,7 +3453,7 @@ namespace alglin {
                          const_cast<real*>(DU2),
                          const_cast<integer*>(IPIV),
                          &ANORM, &RCOND, WORK, IWORK, &INFO ) ;
-    #elif defined(ALGLIN_USE_ACCELERATE)
+    #elif defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
     CLAPACKNAME(sgtcon)( const_cast<character*>("I"), &N,
                          const_cast<real*>(DL),
                          const_cast<real*>(D),
@@ -3477,7 +3494,7 @@ namespace alglin {
                          const_cast<doublereal*>(DU2),
                          const_cast<integer*>(IPIV),
                          &ANORM, &RCOND, WORK, IWORK, &INFO ) ;
-    #elif defined(ALGLIN_USE_ACCELERATE)
+    #elif defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
     CLAPACKNAME(dgtcon)( const_cast<character*>("I"), &N,
                          const_cast<doublereal*>(DL),
                          const_cast<doublereal*>(D),
@@ -4018,10 +4035,10 @@ namespace alglin {
          integer ldAB,
          integer ipiv[]) {
     integer info = 0 ;
-  #if defined(ALGLIN_USE_ATLAS)
-    CLAPACKNAME(sgbtrf)( M, N, KL, KU, AB, ldAB, ipiv, info ) ;
-  #elif defined(ALGLIN_USE_OPENBLAS)
+  #if defined(ALGLIN_USE_OPENBLAS)
     LAPACK_NAME(sgbtrf)( &M, &N, &KL, &KU, AB, &ldAB, ipiv, &info ) ;
+  #elif defined(ALGLIN_USE_ATLAS)
+    info = LAPACKE_NAME(sgbtrf_work)( LAPACK_COL_MAJOR, M, N, KL, KU, AB, ldAB, ipiv ) ;
   #elif defined(ALGLIN_USE_ACCELERATE)
     CLAPACKNAME(sgbtrf)( &M, &N, &KL, &KU, AB, &ldAB, ipiv, &info ) ;
   #else
@@ -4040,10 +4057,10 @@ namespace alglin {
          integer    ldAB,
          integer    ipiv[]) {
     integer info = 0 ;
-  #if defined(ALGLIN_USE_ATLAS)
-    CLAPACKNAME(dgbtrf)( M, N, KL, KU, AB, ldAB, ipiv, info ) ;
-  #elif defined(ALGLIN_USE_OPENBLAS)
+  #if defined(ALGLIN_USE_OPENBLAS)
     LAPACK_NAME(dgbtrf)( &M, &N, &KL, &KU, AB, &ldAB, ipiv, &info ) ;
+  #elif defined(ALGLIN_USE_ATLAS)
+    info = LAPACKE_NAME(dgbtrf_work)( LAPACK_COL_MAJOR, M, N, KL, KU, AB, ldAB, ipiv ) ;
   #elif defined(ALGLIN_USE_ACCELERATE)
     CLAPACKNAME(dgbtrf)( &M, &N, &KL, &KU, AB, &ldAB, ipiv, &info ) ;
   #else
@@ -4154,18 +4171,19 @@ namespace alglin {
          real          B[],
          integer       ldB ) {
     integer info = 0 ;
-  #if defined(ALGLIN_USE_ATLAS)
-    CLAPACKNAME(sgbtrs)( const_cast<char*>(trans_cblas[TRANS]),
-                         &N, &KL, &KU, &nrhs,
-                         const_cast<real*>(AB), &ldAB,
-                         const_cast<integer*>(ipiv),
-                         const_cast<real*>(B), &ldB, &info ) ;
-  #elif defined(ALGLIN_USE_OPENBLAS)
+  #if defined(ALGLIN_USE_OPENBLAS)
     LAPACK_NAME(sgbtrs)( const_cast<char*>(trans_blas[TRANS]),
                          &N, &KL, &KU, &nrhs,
                          const_cast<real*>(AB), &ldAB,
                          const_cast<integer*>(ipiv),
                          const_cast<real*>(B), &ldB, &info ) ;
+  #elif defined(ALGLIN_USE_ATLAS)
+    info = LAPACKE_NAME(sgbtrs_work)( LAPACK_COL_MAJOR,
+                                      trans_blas[TRANS][0],
+                                      N, KL, KU, nrhs,
+                                      const_cast<real*>(AB), ldAB,
+                                      const_cast<integer*>(ipiv),
+                                      const_cast<real*>(B), ldB ) ;
   #elif defined(ALGLIN_USE_ACCELERATE)
     CLAPACKNAME(sgbtrs)( const_cast<char*>(trans_blas[TRANS]),
                          &N, &KL, &KU, &nrhs,
@@ -4195,18 +4213,19 @@ namespace alglin {
          doublereal       B[],
          integer          ldB ) {
     integer info = 0 ;
-  #if defined(ALGLIN_USE_ATLAS)
-    CLAPACKNAME(dgbtrs)( const_cast<char*>(trans_cblas[TRANS]),
-                         &N, &KL, &KU, &nrhs,
-                         const_cast<doublereal*>(AB), &ldAB,
-                         const_cast<integer*>(ipiv),
-                         const_cast<doublereal*>(B), &ldB, &info ) ;
-  #elif defined(ALGLIN_USE_OPENBLAS)
+  #if defined(ALGLIN_USE_OPENBLAS)
     LAPACK_NAME(dgbtrs)( const_cast<char*>(trans_blas[TRANS]),
                          &N, &KL, &KU, &nrhs,
                          const_cast<doublereal*>(AB), &ldAB,
                          const_cast<integer*>(ipiv),
                          const_cast<doublereal*>(B), &ldB, &info ) ;
+  #elif defined(ALGLIN_USE_ATLAS)
+    info = LAPACKE_NAME(dgbtrs_work)( LAPACK_COL_MAJOR,
+                                      trans_blas[TRANS][0],
+                                      N, KL, KU, nrhs,
+                                      const_cast<doublereal*>(AB), ldAB,
+                                      const_cast<integer*>(ipiv),
+                                      const_cast<doublereal*>(B), ldB ) ;
   #elif defined(ALGLIN_USE_ACCELERATE)
     CLAPACKNAME(dgbtrs)( const_cast<char*>(trans_blas[TRANS]),
                          &N, &KL, &KU, &nrhs,
@@ -4310,13 +4329,11 @@ namespace alglin {
          real    A[],
          integer LDA,
          integer IPIV[] )
-  #if defined(ALGLIN_USE_ATLAS)
-  { return CLAPACKNAME(sgetrf)( CblasColMajor, N, M, A, LDA, IPIV ) ; }
-  #elif defined(ALGLIN_USE_OPENBLAS)
+  #if defined(ALGLIN_USE_OPENBLAS)
   { integer INFO = 0;
     LAPACK_NAME(sgetrf)( &N, &M, A, &LDA, IPIV, &INFO ) ;
     return INFO ; }
-  #elif defined(ALGLIN_USE_ACCELERATE)
+  #elif defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
   { integer INFO = 0; CLAPACKNAME(sgetrf)( &N, &M, A, &LDA, IPIV, &INFO ) ; return INFO ; }
   #else
   { integer INFO = 0; LAPACKNAME(sgetrf)( &N, &M, A, &LDA, IPIV, &INFO ) ; return INFO ; }
@@ -4329,13 +4346,11 @@ namespace alglin {
          doublereal A[],
          integer    LDA,
          integer    IPIV[] )
-  #if defined(ALGLIN_USE_ATLAS)
-  { return CLAPACKNAME(dgetrf)( CblasColMajor, N, M, A, LDA, IPIV ) ; }
-  #elif defined(ALGLIN_USE_OPENBLAS)
+  #if defined(ALGLIN_USE_OPENBLAS)
   { integer INFO = 0;
     LAPACK_NAME(dgetrf)( &N, &M, A, &LDA, IPIV, &INFO ) ;
     return INFO ; }
-  #elif defined(ALGLIN_USE_ACCELERATE)
+  #elif defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
   { integer INFO  = 0; CLAPACKNAME(dgetrf)( &N, &M, A, &LDA, IPIV, &INFO ) ; return INFO ; }
   #else
   { integer INFO = 0; LAPACKNAME(dgetrf)( &N, &M, A, &LDA, IPIV, &INFO ) ; return INFO ; }
@@ -4432,14 +4447,12 @@ namespace alglin {
          integer       const   IPIV[],
          real                  B[],
          integer               LDB )
-  #if defined(ALGLIN_USE_ATLAS)
-  { CLAPACKNAME(sgetrs)( CblasColMajor, trans_cblas[TRANS], N, NRHS, A, LDA, IPIV, B, LDB ) ; return 0 ; }
-  #elif defined(ALGLIN_USE_OPENBLAS)
+  #if defined(ALGLIN_USE_OPENBLAS)
   { integer INFO = 0;
     LAPACK_NAME(sgetrs)( const_cast<character*>(trans_blas[TRANS]),
                          &N, &NRHS, A, &LDA, IPIV, B, &LDB, &INFO ) ;
     return INFO ; }
-  #elif defined(ALGLIN_USE_ACCELERATE)
+  #elif defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
   { integer INFO = 0;
     CLAPACKNAME(sgetrs)( const_cast<character*>(trans_blas[TRANS]),
                          &N, &NRHS,
@@ -4463,14 +4476,12 @@ namespace alglin {
          integer       const   IPIV[],
          doublereal            B[],
          integer               LDB )
-  #if defined(ALGLIN_USE_ATLAS)
-  { CLAPACKNAME(dgetrs)( CblasColMajor, trans_cblas[TRANS], N, NRHS, A, LDA, IPIV, B, LDB ) ; return 0 ; }
-  #elif defined(ALGLIN_USE_OPENBLAS)
+  #if defined(ALGLIN_USE_OPENBLAS)
   { integer INFO = 0;
     LAPACK_NAME(dgetrs)( const_cast<character*>(trans_blas[TRANS]),
                          &N, &NRHS, A, &LDA, IPIV, B, &LDB, &INFO ) ;
     return INFO ; }
-  #elif defined(ALGLIN_USE_ACCELERATE)
+  #elif defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
   { integer INFO = 0;
     CLAPACKNAME(dgetrs)( const_cast<character*>(trans_blas[TRANS]),
                          &N, &NRHS,
@@ -4577,15 +4588,11 @@ namespace alglin {
         integer IPIV[],
         real    B[],
         integer LDB )
-  #if defined(ALGLIN_USE_ATLAS)
-  { integer INFO = CLAPACKNAME(sgetrf)( CblasColMajor, N, N, A, LDA, IPIV ) ;
-    if ( INFO == 0 ) CLAPACKNAME(sgetrs)( CblasColMajor, CblasNoTrans, N, NRHS, A, LDA, IPIV, B, LDB ) ;
-    return INFO ; }
-  #elif defined(ALGLIN_USE_OPENBLAS)
+  #if defined(ALGLIN_USE_OPENBLAS)
   { integer INFO = 0;
     LAPACK_NAME(sgesv)( &N, &NRHS, A, &LDA, IPIV, B, &LDB, &INFO ) ;
     return INFO ; }
-  #elif defined(ALGLIN_USE_ACCELERATE)
+  #elif defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
   { integer INFO = 0; CLAPACKNAME(sgesv)( &N, &NRHS, A, &LDA, IPIV, B, &LDB, &INFO ) ; return INFO ; }
   #else
   { integer INFO = 0; LAPACKNAME(sgesv)( &N, &NRHS, A, &LDA, IPIV, B, &LDB, &INFO ) ; return INFO ; }
@@ -4600,15 +4607,11 @@ namespace alglin {
         integer    IPIV[],
         doublereal B[],
         integer    LDB )
-  #if defined(ALGLIN_USE_ATLAS)
-  { integer INFO = CLAPACKNAME(dgetrf)( CblasColMajor, N, N, A, LDA, IPIV );
-    if ( INFO == 0 ) CLAPACKNAME(dgetrs)( CblasColMajor, CblasNoTrans, N, NRHS, A, LDA, IPIV, B, LDB ) ;
-    return INFO ; }
-  #elif defined(ALGLIN_USE_OPENBLAS)
+  #if defined(ALGLIN_USE_OPENBLAS)
   { integer INFO = 0;
     LAPACK_NAME(dgesv)( &N, &NRHS, A, &LDA, IPIV, B, &LDB, &INFO ) ;
     return INFO ; }
-  #elif defined(ALGLIN_USE_ACCELERATE)
+  #elif defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
   { integer INFO = 0; CLAPACKNAME(dgesv)( &N, &NRHS, A, &LDA, IPIV, B, &LDB, &INFO ) ; return INFO ; }
   #else
   { integer INFO = 0; LAPACKNAME(dgesv)( &N, &NRHS, A, &LDA, IPIV, B, &LDB, &INFO ) ; return INFO ; }
@@ -4672,7 +4675,7 @@ namespace alglin {
    *  =====================================================================
   \*/
 
-  #if defined(ALGLIN_USE_ATLAS) || defined(ALGLIN_USE_LAPACK)
+  #if defined(ALGLIN_USE_LAPACK)
   extern "C" {
 
     void
@@ -4693,7 +4696,7 @@ namespace alglin {
   }
   #endif
 
-  #ifdef ALGLIN_USE_OPENBLAS
+  #if defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
   template <typename T>
   integer
   getc2_tmpl( integer N,
@@ -4711,7 +4714,7 @@ namespace alglin {
          integer   IPIV[],
          integer   JPIV[] )
   { integer INFO = 0;
-    #if defined(ALGLIN_USE_OPENBLAS)
+    #if defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
     INFO = getc2_tmpl<real>(N,A,LDA,IPIV,JPIV) ;
     #elif defined(ALGLIN_USE_ACCELERATE)
     CLAPACKNAME(sgetc2)( &N, A, &LDA, IPIV, JPIV, &INFO ) ;
@@ -4729,7 +4732,7 @@ namespace alglin {
          integer    IPIV[],
          integer    JPIV[] )
   { integer INFO = 0;
-    #if defined(ALGLIN_USE_OPENBLAS)
+    #if defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
     INFO = getc2_tmpl<doublereal>(N,A,LDA,IPIV,JPIV) ;
     #elif defined(ALGLIN_USE_ACCELERATE)
     CLAPACKNAME(dgetc2)( &N, A, &LDA, IPIV, JPIV, &INFO ) ;
@@ -4796,7 +4799,7 @@ namespace alglin {
    *  =====================================================================
   \*/
 
-  #if defined(ALGLIN_USE_ATLAS) || defined(ALGLIN_USE_LAPACK)
+  #if defined(ALGLIN_USE_LAPACK)
   extern "C" {
 
     void
@@ -4819,7 +4822,7 @@ namespace alglin {
   }
   #endif
 
-  #ifdef ALGLIN_USE_OPENBLAS
+  #if defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
   template <typename T>
   T
   gesc2_tmpl( integer       N,
@@ -4839,7 +4842,7 @@ namespace alglin {
          integer const IPIV[],
          integer const JPIV[] )
   { real SCALE = 0;
-    #if defined(ALGLIN_USE_OPENBLAS)
+    #if defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
     SCALE = gesc2_tmpl<real>( N, A, LDA, RHS, IPIV, JPIV ) ;
     #elif defined(ALGLIN_USE_ACCELERATE)
     CLAPACKNAME(sgesc2)( &N,
@@ -4864,7 +4867,7 @@ namespace alglin {
          integer    const IPIV[],
          integer    const JPIV[] )
   { doublereal SCALE = 0;
-    #if defined(ALGLIN_USE_OPENBLAS)
+    #if defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
     SCALE = gesc2_tmpl<doublereal>( N, A, LDA, RHS, IPIV, JPIV ) ;
     #elif defined(ALGLIN_USE_ACCELERATE)
     CLAPACKNAME(dgesc2)( &N,
@@ -4937,7 +4940,7 @@ namespace alglin {
    *          < 0:  if INFO = -i, the i-th argument had an illegal value
   \*/
 
-  #if defined(ALGLIN_USE_ATLAS) || defined(ALGLIN_USE_LAPACK)
+  #if defined(ALGLIN_USE_LAPACK)
   extern "C" {
 
     void
@@ -4974,13 +4977,10 @@ namespace alglin {
           real       work[],
           integer    iwork[] ) {
     integer INFO = 0 ;
-    #if defined(ALGLIN_USE_ATLAS)
-    LAPACKNAME(sgecon)( const_cast<character*>("1"), &N,
-                        const_cast<real*>(A), &LDA, &anorm, &rcond, work, iwork, &INFO ) ;
-    #elif defined(ALGLIN_USE_OPENBLAS)
+    #if defined(ALGLIN_USE_OPENBLAS)
     LAPACK_NAME(sgecon)( const_cast<character*>("1"), &N,
                          const_cast<real*>(A), &LDA, &anorm, &rcond, work, iwork, &INFO ) ;
-    #elif defined(ALGLIN_USE_ACCELERATE)
+    #elif defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
     CLAPACKNAME(sgecon)( const_cast<character*>("1"), &N,
                          const_cast<real*>(A), &LDA, &anorm, &rcond, work, iwork, &INFO ) ;
     #else
@@ -5000,13 +5000,10 @@ namespace alglin {
           doublereal       work[],
           integer          iwork[] ) {
     integer INFO = 0 ;
-    #if defined(ALGLIN_USE_ATLAS)
-    LAPACKNAME(dgecon)( const_cast<character*>("1"), &N,
-                        const_cast<doublereal*>(A), &LDA, &anorm, &rcond, work, iwork, &INFO ) ;
-    #elif defined(ALGLIN_USE_OPENBLAS)
+    #if defined(ALGLIN_USE_OPENBLAS)
     LAPACK_NAME(dgecon)( const_cast<character*>("1"), &N,
                          const_cast<doublereal*>(A), &LDA, &anorm, &rcond, work, iwork, &INFO ) ;
-    #elif defined(ALGLIN_USE_ACCELERATE)
+    #elif defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
     CLAPACKNAME(dgecon)( const_cast<character*>("1"), &N,
                          const_cast<doublereal*>(A), &LDA, &anorm, &rcond, work, iwork, &INFO ) ;
     #else
@@ -7503,7 +7500,7 @@ namespace alglin {
    *  =====================================================================
   \*/
 
-  #if defined(ALGLIN_USE_ATLAS) || defined(ALGLIN_USE_LAPACK)
+  #if defined(ALGLIN_USE_LAPACK)
   // use standard Lapack routine
   extern "C" {
 
@@ -7561,6 +7558,13 @@ namespace alglin {
     LAPACK_NAME(sgesvd)( const_cast<character*>(job_blas[JOBU]),
                          const_cast<character*>(job_blas[JOBVT]),
                          &M, &N, A, &LDA, S, U, &LDU, VT, &LDVT, WORK, &LWORK, &info ) ;
+    #elif defined(ALGLIN_USE_ATLAS)
+    info = LAPACKE_NAME(sgesvd_work)(LAPACK_COL_MAJOR,
+                                     job_blas[JOBU][0],
+                                     job_blas[JOBVT][0],
+                                     M, N, A, LDA,
+                                     S, U, LDU, VT, LDVT,
+                                     WORK, LWORK ) ;
     #elif defined(ALGLIN_USE_ACCELERATE)
     CLAPACKNAME(sgesvd)( const_cast<character*>(job_blas[JOBU]),
                          const_cast<character*>(job_blas[JOBVT]),
@@ -7593,6 +7597,13 @@ namespace alglin {
     LAPACK_NAME(dgesvd)( const_cast<character*>(job_blas[JOBU]),
                          const_cast<character*>(job_blas[JOBVT]),
                          &M, &N, A, &LDA, S, U, &LDU, VT, &LDVT, WORK, &LWORK, &info ) ;
+    #elif defined(ALGLIN_USE_ATLAS)
+    info = LAPACKE_NAME(dgesvd_work)(LAPACK_COL_MAJOR,
+                                     job_blas[JOBU][0],
+                                     job_blas[JOBVT][0],
+                                     M, N, A, LDA,
+                                     S, U, LDU, VT, LDVT,
+                                     WORK, LWORK ) ;
     #elif defined(ALGLIN_USE_ACCELERATE)
     CLAPACKNAME(dgesvd)( const_cast<character*>(job_blas[JOBU]),
                          const_cast<character*>(job_blas[JOBVT]),
@@ -7742,7 +7753,7 @@ namespace alglin {
    *  =====================================================================
   \*/
 
-  #if defined(ALGLIN_USE_ATLAS) || defined(ALGLIN_USE_LAPACK)
+  #if defined(ALGLIN_USE_LAPACK)
   // use standard Lapack routine
   extern "C" {
 
@@ -7799,6 +7810,11 @@ namespace alglin {
     #if defined(ALGLIN_USE_OPENBLAS)
     LAPACK_NAME(sgesdd)( const_cast<character*>(job_blas[JOBZ]),
                          &M, &N, A, &LDA, S, U, &LDU, VT, &LDVT, WORK, &LWORK, IWORK, &info ) ;
+    #elif defined(ALGLIN_USE_ATLAS)
+    info = LAPACKE_NAME(sgesdd_work)( LAPACK_COL_MAJOR,
+                                      job_blas[JOBZ][0],
+                                      M, N, A, LDA, S, U, LDU, VT, LDVT,
+                                      WORK, LWORK, IWORK ) ;
     #elif defined(ALGLIN_USE_ACCELERATE)
     CLAPACKNAME(sgesdd)( const_cast<character*>(job_blas[JOBZ]),
                          &M, &N, A, &LDA, S, U, &LDU, VT, &LDVT, WORK, &LWORK, IWORK, &info ) ;
@@ -7828,6 +7844,11 @@ namespace alglin {
     #if defined(ALGLIN_USE_OPENBLAS)
     LAPACK_NAME(dgesdd)( const_cast<character*>(job_blas[JOBZ]),
                          &M, &N, A, &LDA, S, U, &LDU, VT, &LDVT, WORK, &LWORK, IWORK, &info ) ;
+    #elif defined(ALGLIN_USE_ATLAS)
+    info = LAPACKE_NAME(dgesdd_work)( LAPACK_COL_MAJOR,
+                                      job_blas[JOBZ][0],
+                                      M, N, A, LDA, S, U, LDU, VT, LDVT,
+                                      WORK, LWORK, IWORK ) ;
     #elif defined(ALGLIN_USE_ACCELERATE)
     CLAPACKNAME(dgesdd)( const_cast<character*>(job_blas[JOBZ]),
                          &M, &N, A, &LDA, S, U, &LDU, VT, &LDVT, WORK, &LWORK, IWORK, &info ) ;
@@ -7956,7 +7977,7 @@ namespace alglin {
    *  =====================================================================
   \*/
 
-  #if defined(ALGLIN_USE_ATLAS) || defined(ALGLIN_USE_LAPACK)
+  #if defined(ALGLIN_USE_LAPACK)
   // use standard Lapack routine
   extern "C" {
 
@@ -8012,7 +8033,7 @@ namespace alglin {
   { integer info = 0 ;
     #if defined(ALGLIN_USE_OPENBLAS)
     LAPACK_NAME(sgelsd)( &m, &n, &nrhs, a, &lda, b, &ldb, s, &rcond, &rank, work, &lwork, iwork, &info) ;
-    #elif defined(ALGLIN_USE_ACCELERATE)
+    #elif defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
     CLAPACKNAME(sgelsd)( &m, &n, &nrhs, a, &lda, b, &ldb, s, &rcond, &rank, work, &lwork, iwork, &info ) ;
     #else
     LAPACKNAME(sgelsd)( &m, &n, &nrhs, a, &lda, b, &ldb, s, &rcond, &rank, work, &lwork, iwork, &info) ;
@@ -8038,7 +8059,7 @@ namespace alglin {
   { integer info = 0 ;
     #if defined(ALGLIN_USE_OPENBLAS)
     LAPACK_NAME(dgelsd)( &m, &n, &nrhs, a, &lda, b, &ldb, s, &rcond, &rank, work, &lwork, iwork, &info) ;
-    #elif defined(ALGLIN_USE_ACCELERATE)
+    #elif defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
     CLAPACKNAME(dgelsd)( &m, &n, &nrhs, a, &lda, b, &ldb, s, &rcond, &rank, work, &lwork, iwork, &info ) ;
     #else
     LAPACKNAME(dgelsd)( &m, &n, &nrhs, a, &lda, b, &ldb, s, &rcond, &rank, work, &lwork, iwork, &info) ;
@@ -8141,7 +8162,7 @@ namespace alglin {
    *  =====================================================================
   \*/
 
-  #if defined(ALGLIN_USE_ATLAS) || defined(ALGLIN_USE_LAPACK)
+  #if defined(ALGLIN_USE_LAPACK)
   // use standard Lapack routine
   extern "C" {
 
@@ -8194,7 +8215,7 @@ namespace alglin {
   { integer info = 0 ;
     #if defined(ALGLIN_USE_OPENBLAS)
     LAPACK_NAME(sgelss)(&m, &n, &nrhs, a, &lda, b, &ldb, s, &rcond, &rank, work, &lwork, &info);
-    #elif defined(ALGLIN_USE_ACCELERATE)
+    #elif defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
     CLAPACKNAME(sgelss)( &m, &n, &nrhs, a, &lda, b, &ldb, s, &rcond, &rank, work, &lwork, &info ) ;
     #else
     LAPACKNAME(sgelss)( &m, &n, &nrhs, a, &lda, b, &ldb, s, &rcond, &rank, work, &lwork, &info) ;
@@ -8219,7 +8240,7 @@ namespace alglin {
   { integer info = 0 ;
     #if defined(ALGLIN_USE_OPENBLAS)
     LAPACK_NAME(dgelss)( &m, &n, &nrhs, a, &lda, b, &ldb, s, &rcond, &rank, work, &lwork, &info) ;
-    #elif defined(ALGLIN_USE_ACCELERATE)
+    #elif defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
     CLAPACKNAME(dgelss)( &m, &n, &nrhs, a, &lda, b, &ldb, s, &rcond, &rank, work, &lwork, &info ) ;
     #else
     LAPACKNAME(dgelss)( &m, &n, &nrhs, a, &lda, b, &ldb, s, &rcond, &rank, work, &lwork, &info) ;
@@ -8345,7 +8366,7 @@ namespace alglin {
    *          < 0: If INFO = -i, the i-th argument had an illegal value.
   \*/
 
-  #if defined(ALGLIN_USE_ATLAS) || defined(ALGLIN_USE_LAPACK)
+  #if defined(ALGLIN_USE_LAPACK)
   // use standard Lapack routine
   extern "C" {
 
@@ -8398,7 +8419,7 @@ namespace alglin {
   { integer info = 0 ;
     #if defined(ALGLIN_USE_OPENBLAS)
     LAPACK_NAME(sgelsy)(&m, &n, &nrhs, a, &lda, b, &ldb, jpvt, &rcond, &rank, work, &lwork, &info);
-    #elif defined(ALGLIN_USE_ACCELERATE)
+    #elif defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
     CLAPACKNAME(sgelsy)( &m, &n, &nrhs, a, &lda, b, &ldb, jpvt, &rcond, &rank, work, &lwork, &info ) ;
     #else
     LAPACKNAME(sgelsy)( &m, &n, &nrhs, a, &lda, b, &ldb, jpvt, &rcond, &rank, work, &lwork, &info) ;
@@ -8423,7 +8444,7 @@ namespace alglin {
   { integer info = 0 ;
     #if defined(ALGLIN_USE_OPENBLAS)
     LAPACK_NAME(dgelsy)( &m, &n, &nrhs, a, &lda, b, &ldb, jpvt, &rcond, &rank, work, &lwork, &info) ;
-    #elif defined(ALGLIN_USE_ACCELERATE)
+    #elif defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
     CLAPACKNAME(dgelsy)( &m, &n, &nrhs, a, &lda, b, &ldb, jpvt, &rcond, &rank, work, &lwork, &info ) ;
     #else
     LAPACKNAME(dgelsy)( &m, &n, &nrhs, a, &lda, b, &ldb, jpvt, &rcond, &rank, work, &lwork, &info) ;
@@ -8439,7 +8460,7 @@ namespace alglin {
   //   \__\_\_| \_\
   */
 
-  #if defined(ALGLIN_USE_ATLAS) || defined(ALGLIN_USE_LAPACK)
+  #if defined(ALGLIN_USE_LAPACK)
   // use standard Lapack routine
   extern "C" {
 
@@ -8580,6 +8601,14 @@ namespace alglin {
                          const_cast<character*>(trans_blas[TRANS]),
                          &M, &N, &K, const_cast<real*>(A), &LDA,
                          const_cast<real*>(TAU), C, &LDC, WORK, &LWORK, &info);
+    #elif defined(ALGLIN_USE_ATLAS)
+    info = LAPACKE_NAME(sormqr_work)( LAPACK_COL_MAJOR,
+                                      side_blas[SIDE][0],
+                                      trans_blas[TRANS][0],
+                                      M, N, K,
+                                      const_cast<real*>(A), LDA,
+                                      const_cast<real*>(TAU),
+                                      C, LDC, WORK, LWORK);
     #elif defined(ALGLIN_USE_ACCELERATE)
     CLAPACKNAME(sormqr)( const_cast<character*>(side_blas[SIDE]),
                          const_cast<character*>(trans_blas[TRANS]),
@@ -8615,6 +8644,14 @@ namespace alglin {
                          &M, &N, &K, const_cast<doublereal*>(A), &LDA,
                          const_cast<doublereal*>(TAU), C, &LDC,
                          WORK, &LWORK, &info);
+    #elif defined(ALGLIN_USE_ATLAS)
+    info = LAPACKE_NAME(dormqr_work)( LAPACK_COL_MAJOR,
+                                      side_blas[SIDE][0],
+                                      trans_blas[TRANS][0],
+                                      M, N, K,
+                                      const_cast<doublereal*>(A), LDA,
+                                      const_cast<doublereal*>(TAU),
+                                      C, LDC, WORK, LWORK);
     #elif defined(ALGLIN_USE_ACCELERATE)
     CLAPACKNAME(dormqr)( const_cast<character*>(side_blas[SIDE]),
                          const_cast<character*>(trans_blas[TRANS]),

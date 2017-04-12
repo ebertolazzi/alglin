@@ -393,7 +393,7 @@ namespace alglin {
           N, nrhs, 1.0, &Tmat.front(), N, RHS, ldRHS ) ;
   }
 
-  #ifdef ALGLIN_USE_OPENBLAS
+  #if defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
   template <typename T>
   integer
   getc2_tmpl( integer N,
@@ -409,30 +409,41 @@ namespace alglin {
     // Factorize A using complete pivoting.
     // Set pivots less than SMIN to SMIN.
     T * Aii = A ;
-    for ( int I = 0 ; I < N-1 ; ++I, Aii += LDA+1 ) {
+    for ( int II = 0 ; II < N-1 ; ++II, Aii += LDA+1 ) {
       // Find max element in matrix A
       T XMAX = 0 ;
-      integer IPV=I, JPV=I ;
-      for ( int IP = I ; IP < N ; ++IP ) {
-        for ( int JP = I ; JP < N ; ++JP ) {
+      integer IPV=II, JPV=II ;
+      for ( int IP = II ; IP < N ; ++IP ) {
+        for ( int JP = II ; JP < N ; ++JP ) {
           T absA = std::abs( A[IP+JP*LDA] ) ;
           if ( absA > XMAX ) { XMAX = absA ; IPV = IP ; JPV = JP ; }
         }
       }
-      if ( I == 0 ) SMIN = std::max( EPS*XMAX, SMLNUM ) ;
+      if ( II == 0 ) SMIN = std::max( EPS*XMAX, SMLNUM ) ;
       // Swap rows
-      IPIV[I] = IPV+1 ; if ( IPV != I ) swap( N, A+IPV, LDA, A+I, LDA ) ;
+      IPIV[II] = IPV+1 ; if ( IPV != II ) swap( N, A+IPV, LDA, A+II, LDA ) ;
       // Swap columns
-      JPIV[I] = JPV+1 ; if ( JPV != I ) swap( N, A+JPV*LDA, 1, A+I*LDA, 1 ) ;
+      JPIV[II] = JPV+1 ; if ( JPV != II ) swap( N, A+JPV*LDA, 1, A+II*LDA, 1 ) ;
       // Check for singularity
-      if ( std::abs(*Aii) < SMIN ) { INFO = I+1 ; *Aii = SMIN ; }
-      for ( integer J = I+1 ; J < N ; ++J ) A[J+I*LDA] /= *Aii ;
-      ger( N-I-1, N-I-1, -1, Aii+1, 1, Aii+LDA, LDA, Aii+LDA+1, LDA ) ;
+      if ( std::abs(*Aii) < SMIN ) { INFO = II+1 ; *Aii = SMIN ; }
+      for ( integer JJ = II+1 ; JJ < N ; ++JJ ) A[JJ+II*LDA] /= *Aii ;
+      ger( N-II-1, N-II-1, -1, Aii+1, 1, Aii+LDA, LDA, Aii+LDA+1, LDA ) ;
     }
     if ( std::abs(*Aii) < SMIN ) { INFO = N ; *Aii = SMIN ; }
     return INFO ;
   }
 
+  template integer getc2_tmpl( integer N,
+                               real    A[],
+                               integer LDA,
+                               integer IPIV[],
+                               integer JPIV[] ) ;
+
+  template integer getc2_tmpl( integer    N,
+                               doublereal A[],
+                               integer    LDA,
+                               integer    IPIV[],
+                               integer    JPIV[] ) ;
   template <typename T>
   T
   gesc2_tmpl( integer       N,
@@ -477,6 +488,20 @@ namespace alglin {
     return SCALE ;
   }
 
+  template real gesc2_tmpl( integer       N,
+                            real    const A[],
+                            integer       LDA,
+                            real          RHS[],
+                            integer const IPIV[],
+                            integer const JPIV[] ) ;
+
+  template doublereal gesc2_tmpl( integer          N,
+                                  doublereal const A[],
+                                  integer          LDA,
+                                  doublereal       RHS[],
+                                  integer    const IPIV[],
+                                  integer    const JPIV[] ) ;
+
   template <typename T>
   void
   laqge_tmpl( integer             M,
@@ -491,6 +516,29 @@ namespace alglin {
               EquilibrationType & equ ) {
     ALGLIN_ERROR("NOT YET IMPLEMENTED" ) ;
   }
+
+  template void laqge_tmpl( integer             M,
+                            integer             N,
+                            real                A[],
+                            integer             LDA,
+                            real const          R[],
+                            real const          C[],
+                            real                ROWCND,
+                            real                COLCND,
+                            real                AMAX,
+                            EquilibrationType & equ ) ;
+
+  template void laqge_tmpl( integer             M,
+                            integer             N,
+                            doublereal          A[],
+                            integer             LDA,
+                            doublereal const    R[],
+                            doublereal const    C[],
+                            doublereal          ROWCND,
+                            doublereal          COLCND,
+                            doublereal          AMAX,
+                            EquilibrationType & equ ) ;
+
   #endif
 
   template void triTikhonov( integer    N,
@@ -508,46 +556,6 @@ namespace alglin {
                              doublereal       RHS[],
                              integer          ldRHS,
                              doublereal       lambda ) ;
-
-  #ifdef ALGLIN_USE_OPENBLAS
-  template integer getc2_tmpl( integer N,
-                               real    A[],
-                               integer LDA,
-                               integer IPIV[],
-                               integer JPIV[] ) ;
-
-  template integer getc2_tmpl( integer    N,
-                               doublereal A[],
-                               integer    LDA,
-                               integer    IPIV[],
-                               integer    JPIV[] ) ;
-
-  template real gesc2_tmpl( integer       N,
-                            real    const A[],
-                            integer       LDA,
-                            real          RHS[],
-                            integer const IPIV[],
-                            integer const JPIV[] ) ;
-
-  template doublereal gesc2_tmpl( integer          N,
-                                  doublereal const A[],
-                                  integer          LDA,
-                                  doublereal       RHS[],
-                                  integer    const IPIV[],
-                                  integer    const JPIV[] ) ;
-
-  template void laqge_tmpl( integer             M,
-                            integer             N,
-                            real                A[],
-                            integer             LDA,
-                            real const          R[],
-                            real const          C[],
-                            real                ROWCND,
-                            real                COLCND,
-                            real                AMAX,
-                            EquilibrationType & equ ) ;
-
-  #endif
 } // end namespace alglin
 
 ///

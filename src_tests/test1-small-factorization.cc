@@ -88,6 +88,7 @@ test1() {
   alglin::gemv( alglin::NO_TRANSPOSE, M, N, -1, A, LDA, x, 1, 1, b, 1 ) ;
   cout << "residual=\n" ;
   alglin::print_matrix( cout, M, 1, b, M ) ;
+  cout << "done test1\n" ;
 }
 
 static
@@ -136,6 +137,7 @@ test2() {
   alglin::gemv( alglin::NO_TRANSPOSE, M, N, -1, A, LDA, x, 1, 1, b, 1 ) ;
   cout << "residual=\n" ;
   alglin::print_matrix( cout, M, 1, b, M ) ;
+  cout << "done test2\n" ;
 }
 
 static
@@ -184,6 +186,7 @@ test3() {
   alglin::gemv( alglin::NO_TRANSPOSE, M, N, -1, A, LDA, x, 1, 1, b, 1 ) ;
   cout << "residual=\n" ;
   alglin::print_matrix( cout, M, 1, b, M ) ;
+  cout << "done test3\n" ;
 }
 
 
@@ -213,9 +216,6 @@ test4() {
   cout << "\n\n\nTest4:\n\nInitial A\n" ;
   alglin::print_matrix( cout, M, M, A, M ) ;
 
-
-
-
   cout << "\n\nDo QR  factorization of A\n" ;
   qr.factorize( M, M, A, LDA ) ;
 
@@ -230,9 +230,6 @@ test4() {
   alglin::gemv( alglin::NO_TRANSPOSE, M, M, -1, A, LDA, x, 1, 1, b, 1 ) ;
   cout << "residual=\n" ;
   alglin::print_matrix( cout, M, 1, b, M ) ;
-
-
-
 
   cout << "\n\nDo QRP factorization of A\n" ;
   qrp.factorize( M, M, A, LDA ) ;
@@ -249,9 +246,6 @@ test4() {
   cout << "residual=\n" ;
   alglin::print_matrix( cout, M, 1, b, M ) ;
 
-
-
-
   cout << "\n\nDo LU factorization of A\n" ;
   lu.factorize( M, M, A, LDA ) ;
   
@@ -267,9 +261,6 @@ test4() {
   cout << "residual=\n" ;
   alglin::print_matrix( cout, M, 1, b, M ) ;
 
-
-
-
   cout << "\n\nDo SVD factorization of A\n" ;
   svd.factorize( M, M, A, LDA ) ;
   
@@ -284,7 +275,7 @@ test4() {
   alglin::gemv( alglin::NO_TRANSPOSE, M, M, -1, A, LDA, x, 1, 1, b, 1 ) ;
   cout << "residual=\n" ;
   alglin::print_matrix( cout, M, 1, b, M ) ;
-
+  cout << "done test4\n" ;
 }
 
 
@@ -385,6 +376,7 @@ test5() {
   alglin::gemv( alglin::TRANSPOSE, M, M, -1, A, LDA, x, 1, 1, b, 1 ) ;
   cout << "residual=\n" ;
   alglin::print_matrix( cout, M, 1, b, M ) ;
+  cout << "done test5\n" ;
 
 }
 
@@ -438,6 +430,7 @@ test6() {
   qr.axpy( N, -1.0, L, D, U, x, 1.0, b ) ;
   cout << "residual=\n" ;
   alglin::print_matrix( cout, N, 1, b, N ) ;
+  cout << "done test6\n" ;
 
 }
 
@@ -499,6 +492,7 @@ test7() {
   alglin::gemv( alglin::TRANSPOSE, M, M, -1, A, LDA, x, 1, 1, b, 1 ) ;
   cout << "residual=\n" ;
   alglin::print_matrix( cout, M, 1, b, M ) ;
+  cout << "done test7\n" ;
 
 }
 
