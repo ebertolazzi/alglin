@@ -8860,7 +8860,7 @@ namespace alglin {
   //  | | (_| | |  |  _| |_
   //  |_|\__,_|_|  |_|  \__|
   */
-  #if defined(ALGLIN_USE_ATLAS) || defined(ALGLIN_USE_LAPACK)
+  #if defined(ALGLIN_USE_LAPACK)
   // use standard Lapack routine
   extern "C" {
 
@@ -8981,6 +8981,11 @@ namespace alglin {
   { LAPACK_NAME(slarft)( const_cast<character*>(direct_blas[DIRECT]),
                          const_cast<character*>(store_blas[STOREV]),
                          &N, &K, V, &LDV, TAU, T, &LDT ) ; }
+  #elif defined(ALGLIN_USE_ATLAS)
+  { LAPACK_NAME(slarft_work)( LAPACK_COL_MAJOR,
+                              direct_blas[DIRECT][0],
+                              store_blas[STOREV][0],
+                              N, K, V, LDV, TAU, T, LDT ); }
   #elif defined(ALGLIN_USE_ACCELERATE)
   { CLAPACKNAME(slarft)( const_cast<character*>(direct_blas[DIRECT]),
                          const_cast<character*>(store_blas[STOREV]),
@@ -9006,6 +9011,11 @@ namespace alglin {
   { LAPACK_NAME(dlarft)( const_cast<character*>(direct_blas[DIRECT]),
                          const_cast<character*>(store_blas[STOREV]),
                          &N, &K, V, &LDV, TAU, T, &LDT ) ; }
+  #elif defined(ALGLIN_USE_ATLAS)
+  { LAPACK_NAME(dlarft_work)( LAPACK_COL_MAJOR,
+                              direct_blas[DIRECT][0],
+                              store_blas[STOREV][0],
+                              N, K, V, LDV, TAU, T, LDT ); }
   #elif defined(ALGLIN_USE_ACCELERATE)
   { CLAPACKNAME(dlarft)( const_cast<character*>(direct_blas[DIRECT]),
                          const_cast<character*>(store_blas[STOREV]),
