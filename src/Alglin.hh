@@ -5334,7 +5334,7 @@ namespace alglin {
          real                COLCND,
          real                AMAX,
          EquilibrationType & equ ) {
-    #if defined(ALGLIN_USE_OPENBLAS)
+    #if defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
     laqge_tmpl<real>( M, N, A, LDA, R, C, ROWCND, COLCND, AMAX, equ ) ;
     #elif defined(ALGLIN_USE_ACCELERATE)
     CLAPACKNAME(slaqge)( &M, &N, A, &LDA,
@@ -5363,7 +5363,7 @@ namespace alglin {
          doublereal          COLCND,
          doublereal          AMAX,
          EquilibrationType & equ ) {
-    #if defined(ALGLIN_USE_OPENBLAS)
+    #if defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
     laqge_tmpl<doublereal>( M, N, A, LDA, R, C, ROWCND, COLCND, AMAX, equ ) ;
     #elif defined(ALGLIN_USE_OPENBLAS)
     LAPACK_NAME(dlaqge)( &M, &N, A, &LDA,
