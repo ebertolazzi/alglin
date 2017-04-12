@@ -17,16 +17,18 @@
  |                                                                          |
 \*--------------------------------------------------------------------------*/
 
+#include "KKT_like.hh"
+
 #ifdef __GCC__
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 #pragma GCC diagnostic ignored "-Wweak-template-vtables"
+#pragma GCC diagnostic ignored "-Wundefined-func-template"
 #endif
 #ifdef __clang__
 #pragma clang diagnostic ignored "-Wsign-conversion"
 #pragma clang diagnostic ignored "-Wweak-template-vtables"
+#pragma clang diagnostic ignored "-Wundefined-func-template"
 #endif
-
-#include "KKT_like.hh"
 
 namespace alglin {
 

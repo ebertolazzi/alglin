@@ -24,18 +24,19 @@
 #include "Alglin_aux.hh"
 #include "TicToc.hh"
 
-
 #ifdef __GCC__
 #pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wc++98-compat"
 #pragma GCC diagnostic ignored "-Wsign-conversion"
-#pragma GCC diagnostic ignored "-Wc99-extensions"
 #pragma GCC diagnostic ignored "-Wglobal-constructors"
+#pragma GCC diagnostic ignored "-Wundefined-func-template"
 #endif
 #ifdef __clang__
 #pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wc++98-compat"
 #pragma clang diagnostic ignored "-Wsign-conversion"
-#pragma clang diagnostic ignored "-Wc99-extensions"
 #pragma clang diagnostic ignored "-Wglobal-constructors"
+#pragma clang diagnostic ignored "-Wundefined-func-template"
 #endif
 
 using namespace std ;

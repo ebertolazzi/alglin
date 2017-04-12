@@ -24,6 +24,19 @@
 #include "Alglin++.hh"
 #include <vector>
 
+#ifdef __GCC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpadded"
+#pragma GCC diagnostic ignored "-Wc++98-compat"
+#pragma GCC diagnostic ignored "-Wundefined-func-template"
+#endif
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wpadded"
+#pragma clang diagnostic ignored "-Wc++98-compat"
+#pragma clang diagnostic ignored "-Wundefined-func-template"
+#endif
+
 namespace alglin {
 
   using namespace std ;
@@ -424,5 +437,12 @@ namespace alglin {
   \*/
 
 }
+
+#ifdef __GCC__
+#pragma GCC diagnostic pop
+#endif
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
 
 #endif

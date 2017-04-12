@@ -13,8 +13,8 @@ DEFS =
 # check if the OS string contains 'Linux'
 ifneq (,$(findstring Linux, $(OS)))
   WARN = -Wall
-  CC  = gcc
-  CXX = g++
+  CC   = gcc
+  CXX  = g++
   # activate C++11 for g++ >= 4.9
   VERSION  = $(shell $(CC) -dumpversion)
 ifneq (,$(findstring 4.9, $(VERSION)))
@@ -60,7 +60,7 @@ CXX += -O3 -g0
 #CC  += -O1 -g3
 #CXX += -O1 -g3
 
-SRCS = \
+SRCS_ALGLIN = \
 src/ABD_Arceco.cc \
 src/ABD_Diaz.cc \
 src/ABD_Block.cc \
@@ -68,11 +68,16 @@ src/Alglin++.cc \
 src/Alglin.cc \
 src/BABD.cc \
 src/BABD_Block.cc \
-src/BABD_SuperLU.cc \
 src/BlockBidiagonal.cc \
 src/BorderedCR.cc \
-src/KKT_like.cc \
+src/KKT_like.cc
+
+SRCS_SUPERLU=\
+src/BABD_SuperLU.cc \
 src/Simplex.cc
+
+#SRCS = $(SRCS_ALGLIN) $(SRCS_SUPERLU)
+SRCS = $(SRCS_ALGLIN)
 
 OBJS  = $(SRCS:.cc=.o)
 DEPS  = \
@@ -114,6 +119,8 @@ all: lib
 	$(CXX) $(INC) $(CXXFLAGS) -o bin/test5-Diaz                src_tests/test5-Diaz.cc $(LIBS)
 	$(CXX) $(INC) $(CXXFLAGS) -o bin/test6-Block               src_tests/test6-Block.cc $(LIBS)
 	$(CXX) $(INC) $(CXXFLAGS) -o bin/test7-BorderedCR          src_tests/test7-BorderedCR.cc $(LIBS)
+
+all_simplex: libAlglin
 	$(CXX) $(INC) $(CXXFLAGS) -o bin/SimplexTest1              src_tests/SimplexTest1.cc $(LIBS)
 	$(CXX) $(INC) $(CXXFLAGS) -o bin/SimplexTest2              src_tests/SimplexTest2.cc $(LIBS)
 	$(CXX) $(INC) $(CXXFLAGS) -o bin/SimplexTest3              src_tests/SimplexTest3.cc $(LIBS)
@@ -162,6 +169,8 @@ run:
 	./bin/test5-Diaz
 	./bin/test6-Block
 	./bin/test7-BorderedCR
+
+run_simplex:
 	./bin/SimplexTest1
 	./bin/SimplexTest2
 	./bin/SimplexTest3
