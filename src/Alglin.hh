@@ -8982,10 +8982,10 @@ namespace alglin {
                          const_cast<character*>(store_blas[STOREV]),
                          &N, &K, V, &LDV, TAU, T, &LDT ) ; }
   #elif defined(ALGLIN_USE_ATLAS)
-  { LAPACK_NAME(slarft_work)( LAPACK_COL_MAJOR,
-                              direct_blas[DIRECT][0],
-                              store_blas[STOREV][0],
-                              N, K, V, LDV, TAU, T, LDT ); }
+  { LAPACKE_NAME(slarft_work)( LAPACK_COL_MAJOR,
+                               direct_blas[DIRECT][0],
+                               store_blas[STOREV][0],
+                               N, K, V, LDV, TAU, T, LDT ); }
   #elif defined(ALGLIN_USE_ACCELERATE)
   { CLAPACKNAME(slarft)( const_cast<character*>(direct_blas[DIRECT]),
                          const_cast<character*>(store_blas[STOREV]),
@@ -9012,10 +9012,10 @@ namespace alglin {
                          const_cast<character*>(store_blas[STOREV]),
                          &N, &K, V, &LDV, TAU, T, &LDT ) ; }
   #elif defined(ALGLIN_USE_ATLAS)
-  { LAPACK_NAME(dlarft_work)( LAPACK_COL_MAJOR,
-                              direct_blas[DIRECT][0],
-                              store_blas[STOREV][0],
-                              N, K, V, LDV, TAU, T, LDT ); }
+  { LAPACKE_NAME(dlarft_work)( LAPACK_COL_MAJOR,
+                               direct_blas[DIRECT][0],
+                               store_blas[STOREV][0],
+                               N, K, V, LDV, TAU, T, LDT ); }
   #elif defined(ALGLIN_USE_ACCELERATE)
   { CLAPACKNAME(dlarft)( const_cast<character*>(direct_blas[DIRECT]),
                          const_cast<character*>(store_blas[STOREV]),
