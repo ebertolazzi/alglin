@@ -10,6 +10,8 @@ INC  = -I./src -I./include
 LIBS = -L./lib -lAlglin
 DEFS =
 
+CXXFLAGS = -pthread -msse4.2 -msse4.1 -mssse3 -msse3 -msse2 -msse -mmmx -m64 -O3 -funroll-loops -fPIC -std=c++11
+
 # check if the OS string contains 'Linux'
 ifneq (,$(findstring Linux, $(OS)))
   WARN = -Wall
@@ -29,10 +31,11 @@ endif
   CC  += $(WARN)
   CXX += $(WARN)
   AR  = ar rcs
-  LIBSGCC = -lstdc++ -lm
-  LIBS    = -L./lib -lAlglin -llapacke -llapack_atlas -latlas -lopenblas
-  DEFS    = -DALGLIN_USE_SUPERLU4
-  INC    += -I/usr/include/eigen3 -I/usr/include/atlas/
+  CXXFLAGS = -pthread -msse4.2 -msse4.1 -mssse3 -msse3 -msse2 -msse -mmmx -m64 -O3 -funroll-loops -fPIC -std=c++11
+  LIBSGCC  = -lstdc++ -lm
+  LIBS     = -L./lib -lAlglin -llapacke -llapack_atlas -latlas -lopenblas
+  DEFS     = -DALGLIN_USE_SUPERLU4
+  INC     += -I/usr/include/eigen3 -I/usr/include/atlas/
 endif
 
 # check if the OS string contains 'Darwin'
@@ -47,12 +50,13 @@ endif
 ifneq (,$(findstring 7., $(VERSION)))
   CXX += -std=c++11 -stdlib=libc++ 
 endif
-  CC     += $(WARN)
-  CXX    += $(WARN)
-  AR      = libtool -static -o
-  LIBSGCC = -lstdc++ -lm
-  LIBS    = -L./lib -lAlglin -framework Accelerate
-  INC    += -I/usr/local/include/eigen3
+  CC      += $(WARN)
+  CXX     += $(WARN)
+  AR       = libtool -static -o
+  CXXFLAGS = -msse4.2 -msse4.1 -mssse3 -msse3 -msse2 -msse -mmmx -m64 -O3 -funroll-loops -fPIC -std=c++11
+  LIBSGCC  = -lstdc++ -lm
+  LIBS     = -L./lib -lAlglin -framework Accelerate
+  INC     += -I/usr/local/include/eigen3
 endif
 
 CC  += -O3 -g0
