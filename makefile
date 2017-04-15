@@ -31,7 +31,7 @@ endif
   CC  += $(WARN)
   CXX += $(WARN)
   AR  = ar rcs
-  CXXFLAGS = -pthread -msse4.2 -msse4.1 -mssse3 -msse3 -msse2 -msse -mmmx -m64 -O3 -funroll-loops -fPIC -std=c++11
+  CXXFLAGS = -pthread -msse4.2 -msse4.1 -mssse3 -msse3 -msse2 -msse -mmmx -m64 -O3 -g0 -funroll-loops -fPIC -std=c++11
   LIBSGCC  = -lstdc++ -lm
   LIBS     = -L./lib -lAlglin -llapacke -llapack_atlas -latlas -lopenblas
   DEFS     = -DALGLIN_USE_SUPERLU4
@@ -53,7 +53,7 @@ endif
   CC      += $(WARN)
   CXX     += $(WARN)
   AR       = libtool -static -o
-  CXXFLAGS = -msse4.2 -msse4.1 -mssse3 -msse3 -msse2 -msse -mmmx -m64 -O3 -funroll-loops -fPIC -std=c++11
+  CXXFLAGS = -msse4.2 -msse4.1 -mssse3 -msse3 -msse2 -msse -mmmx -m64 -O3 -g0 -funroll-loops -fPIC -std=c++11
   LIBSGCC  = -lstdc++ -lm
   LIBS     = -L./lib -lAlglin -framework Accelerate
   INC     += -I/usr/local/include/eigen3
