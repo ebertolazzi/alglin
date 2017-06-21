@@ -142,13 +142,8 @@ namespace alglin {
 
   public:
 
-    explicit
-    KKT()
-    : allocReals("KKT-reals")
-    , n(0)
-    , m(0)
-    {}
-    ~KKT() {}
+    explicit KKT() ;
+    ~KKT();
 
     void
     allocate( integer n, integer m ) ;
@@ -241,14 +236,7 @@ namespace alglin {
                valueConstPointer D_values,
                integer const *   D_row,
                integer const *   D_col,
-               integer           D_nnz ) {
-      allocate( _n, _m ) ;
-      load_A( A_values, A_row, A_col, A_nnz ) ;
-      load_B( B_values, B_row, B_col, B_nnz ) ;
-      load_C( C_values, C_row, C_col, C_nnz ) ;
-      load_D( D_values, D_row, D_col, D_nnz ) ;
-      factorize() ;
-    }
+               integer           D_nnz ) ;
 
     //! load matrix in the class
     /*!
@@ -289,14 +277,7 @@ namespace alglin {
                // -----------------------
                valueConstPointer D_values,
                integer           ldD,
-               bool              D_transposed ) {
-      allocate( _n, _m ) ;
-      load_A( A_values, ldA, A_transposed ) ;
-      load_B( B_values, ldB, B_transposed ) ;
-      load_C( C_values, ldC, C_transposed ) ;
-      load_D( D_values, ldD, D_transposed ) ;
-      factorize() ;
-    }
+               bool              D_transposed ) ;
 
     //! load matrix in the class
     /*!
@@ -339,14 +320,7 @@ namespace alglin {
                valueConstPointer D_values,
                integer const *   D_row,
                integer const *   D_col,
-               integer           D_nnz ) {
-      allocate( _n, _m ) ;
-      load_A( Asystem ) ;
-      load_B( B_values, B_row, B_col, B_nnz ) ;
-      load_C( C_values, C_row, C_col, C_nnz ) ;
-      load_D( D_values, D_row, D_col, D_nnz ) ;
-      factorize() ;
-    }
+               integer           D_nnz ) ;
 
     //! load matrix in the class
     /*!
@@ -383,14 +357,7 @@ namespace alglin {
                // -----------------------
                valueConstPointer D_values,
                integer           ldD,
-               bool              D_transposed ) {
-      allocate( _n, _m ) ;
-      load_A( Asystem ) ;
-      load_B( B_values, ldB, B_transposed ) ;
-      load_C( C_values, ldC, C_transposed ) ;
-      load_D( D_values, ldD, D_transposed ) ;
-      factorize() ;
-    }
+               bool              D_transposed ) ;
 
     // -------------------------------------------------------------------------
     // virtuals redefined

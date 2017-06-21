@@ -26,6 +26,8 @@
 
 #include "BABD_SuperLU.hh"
 
+#ifdef ALGLIN_SUPERLU_SUPPORT
+
 #include <iostream>
 #include <algorithm>
 
@@ -153,7 +155,8 @@ namespace alglin {
   BABD_SuperLU::factorize() {
 
     SuperMatrix AC ;
-#ifndef ALGLIN_USE_SUPERLU4
+
+#if defined(SUPERLU_MAJOR_VERSION) && SUPERLU_MAJOR_VERSION >= 5
     GlobalLU_t  glu ;
 #endif
     /*
@@ -174,7 +177,7 @@ namespace alglin {
     //cout << "dgstrf.\n" ;
     dgstrf(&slu_options, &AC, relax, panel_size,
            etree, NULL, 0, perm_c, perm_r, &L, &U,
-#ifndef ALGLIN_USE_SUPERLU4
+#if defined(SUPERLU_MAJOR_VERSION) && SUPERLU_MAJOR_VERSION >= 5
            &glu,
 #endif
            &slu_stats, &info);
@@ -239,3 +242,5 @@ namespace alglin {
   }
 
 }
+
+#endif

@@ -22,13 +22,15 @@
 #include <random>
 #include <fstream>
 
+#include "AlglinConfig.hh"
+
 #ifndef ALGLIN_USE_CXX11
 
 using namespace std ;
 
 int
 main() {
-  cout << "To test thrtead you must compiple with a C++11 capable compiler\nAll done!\n" ;
+  cout << "To test thread you must compile with a C++11 capable compiler\nAll done!\n" ;
   return 0 ;
 }
 

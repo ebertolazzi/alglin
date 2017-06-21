@@ -32,6 +32,10 @@
 //#define ALGLIN_USE_THREAD
 //#define ALGLIN_DO_NOT_USE_CXX11
 
+#ifdef USE_MECHATRONIX_SUPERLU
+  #define ALGLIN_SUPERLU_SUPPORT
+#endif
+
 // select computer architecture
 #if defined(__APPLE__) && defined(__MACH__)
   // osx architecture
@@ -72,6 +76,7 @@
     #define ALGLIN_USE_CXX11
   #endif
 #else
+  #error "Alglin libray compiled without c++11 support, cannot use thread"
   // not C++11 compiler
   #ifndef nullptr
     #define nullptr NULL

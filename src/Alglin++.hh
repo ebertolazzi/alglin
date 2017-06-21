@@ -80,7 +80,8 @@ namespace alglin {
   public:
 
     //! malloc object constructor
-    explicit Malloc( std::string const & __name )
+    explicit
+    Malloc( std::string const & __name )
     : _name(__name)
     , numTotValues(0)
     , numTotReserved(0)
@@ -236,28 +237,6 @@ namespace alglin {
     void
     factorize( integer NR, integer NC, valueType const A[], integer LDA ) = 0 ;
 
-    virtual
-    void
-    solve( valueType xb[] ) const = 0 ;
-
-    virtual
-    void
-    t_solve( valueType xb[] ) const = 0 ;
-
-    virtual
-    void
-    solve( integer nrhs, valueType B[], integer ldB ) const {
-      for ( integer k = 0 ; k < nrhs ; ++k )
-        solve( B + k * ldB ) ;
-    }
-
-    virtual
-    void
-    t_solve( integer nrhs, valueType B[], integer ldB ) const {
-      for ( integer k = 0 ; k < nrhs ; ++k )
-        t_solve( B + k * ldB ) ;
-    }
-
     void
     zero_block( integer nr,
                 integer nc,
@@ -348,9 +327,7 @@ namespace alglin {
   public:
 
     LU() ;
-    
-    virtual
-    ~LU() ;
+    virtual ~LU();
 
     virtual
     void
@@ -1041,20 +1018,9 @@ namespace alglin {
 
   public:
 
-    BandedLU()
-    : allocReals("_BandedLU_reals")
-    , allocIntegers("_BandedLU_integers")
-    , m(0)
-    , n(0)
-    , nL(0)
-    , nU(0)
-    , ldAB(0)
-    , is_factorized(false)
-    {}
+    BandedLU() ;
+    virtual ~BandedLU();
 
-    virtual ~BandedLU()
-    {}
-    
     void
     setup( integer M,    // number of rows
            integer N,    // numbe of columns

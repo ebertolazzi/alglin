@@ -222,6 +222,7 @@ namespace alglin {
    |  | |__| |_| |
    |  |_____\___/
   \*/
+  
   template <typename T>
   LU<T>::LU()
   : Factorization<T>()
@@ -927,6 +928,23 @@ namespace alglin {
    |  | |_) | (_| | | | | (_| |  __/ (_| | |  | | (_| | |_| |  | |>  <
    |  |____/ \__,_|_| |_|\__,_|\___|\__,_|_|  |_|\__,_|\__|_|  |_/_/\_\
   \*/
+
+  template <typename T>
+  BandedLU<T>::BandedLU()
+  : allocReals("_BandedLU_reals")
+  , allocIntegers("_BandedLU_integers")
+  , m(0)
+  , n(0)
+  , nL(0)
+  , nU(0)
+  , ldAB(0)
+  , is_factorized(false)
+  {}
+
+  template <typename T>
+  BandedLU<T>::~BandedLU()
+  {}
+
   //! base class for linear system solver
   template <typename T>
   void

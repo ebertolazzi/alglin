@@ -65,7 +65,7 @@ using namespace std ;
 
 int
 main() {
-  cout << "To test timing you must compiple with a C++11 capable compiler\nAll done!\n" ;
+  cout << "To test timing you must compile with a C++11 capable compiler\nAll done!\n" ;
   return 0 ;
 }
 

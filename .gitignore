@@ -5,3 +5,4 @@ src_no_git
 cmake
 DerivedData
 babd.xcodeproj
+bin

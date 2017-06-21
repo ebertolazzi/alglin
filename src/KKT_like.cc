@@ -34,6 +34,17 @@ namespace alglin {
   using namespace std ;
 
   template <typename t_Value>
+  KKT<t_Value>::KKT()
+  : allocReals("KKT-reals")
+  , n(0)
+  , m(0)
+  {}
+
+  template <typename t_Value>
+  KKT<t_Value>::~KKT()
+  {}
+
+  template <typename t_Value>
   void
   KKT<t_Value>::allocate( integer _n, integer _m ) {
     ALGLIN_ASSERT( _n > 0 && _m > 0,
@@ -215,7 +226,122 @@ namespace alglin {
           Wmat, m ) ;
     W_lu.factorize() ;
   }
-  
+
+  template <typename t_Value>
+  void
+  KKT<t_Value>::factorize( integer           _n,
+                           integer           _m,
+                           // -----------------------
+                           valueConstPointer A_values,
+                           integer const *   A_row,
+                           integer const *   A_col,
+                           integer           A_nnz,
+                           // -----------------------
+                           valueConstPointer B_values,
+                           integer const *   B_row,
+                           integer const *   B_col,
+                           integer           B_nnz,
+                           // -----------------------
+                           valueConstPointer C_values,
+                           integer const *   C_row,
+                           integer const *   C_col,
+                           integer           C_nnz,
+                           // -----------------------
+                           valueConstPointer D_values,
+                           integer const *   D_row,
+                           integer const *   D_col,
+                           integer           D_nnz ) {
+    allocate( _n, _m ) ;
+    load_A( A_values, A_row, A_col, A_nnz ) ;
+    load_B( B_values, B_row, B_col, B_nnz ) ;
+    load_C( C_values, C_row, C_col, C_nnz ) ;
+    load_D( D_values, D_row, D_col, D_nnz ) ;
+    factorize() ;
+  }
+
+  template <typename t_Value>
+  void
+  KKT<t_Value>::factorize( integer           _n,
+                           integer           _m,
+                           // -----------------------
+                           valueConstPointer A_values,
+                           integer           ldA,
+                           bool              A_transposed,
+                           // -----------------------
+                           valueConstPointer B_values,
+                           integer           ldB,
+                           bool              B_transposed,
+                           // -----------------------
+                           valueConstPointer C_values,
+                           integer           ldC,
+                           bool              C_transposed,
+                           // -----------------------
+                           valueConstPointer D_values,
+                           integer           ldD,
+                           bool              D_transposed ) {
+    allocate( _n, _m ) ;
+    load_A( A_values, ldA, A_transposed ) ;
+    load_B( B_values, ldB, B_transposed ) ;
+    load_C( C_values, ldC, C_transposed ) ;
+    load_D( D_values, ldD, D_transposed ) ;
+    factorize() ;
+  }
+
+  template <typename t_Value>
+  void
+  KKT<t_Value>::factorize( integer           _n,
+                           integer           _m,
+                           // -----------------------
+                           LSS     const *   Asystem,
+                           // -----------------------
+                           valueConstPointer B_values,
+                           integer const *   B_row,
+                           integer const *   B_col,
+                           integer           B_nnz,
+                           // -----------------------
+                           valueConstPointer C_values,
+                           integer const *   C_row,
+                           integer const *   C_col,
+                           integer           C_nnz,
+                           // -----------------------
+                           valueConstPointer D_values,
+                           integer const *   D_row,
+                           integer const *   D_col,
+                           integer           D_nnz ) {
+    allocate( _n, _m ) ;
+    load_A( Asystem ) ;
+    load_B( B_values, B_row, B_col, B_nnz ) ;
+    load_C( C_values, C_row, C_col, C_nnz ) ;
+    load_D( D_values, D_row, D_col, D_nnz ) ;
+    factorize() ;
+  }
+
+  template <typename t_Value>
+  void
+  KKT<t_Value>::factorize( integer           _n,
+                           integer           _m,
+                           // -----------------------
+                           LSS const *       Asystem,
+                           // -----------------------
+                           valueConstPointer B_values,
+                           integer           ldB,
+                           bool              B_transposed,
+                           // -----------------------
+                           valueConstPointer C_values,
+                           integer           ldC,
+                           bool              C_transposed,
+                           // -----------------------
+                           valueConstPointer D_values,
+                           integer           ldD,
+                           bool              D_transposed ) {
+    allocate( _n, _m ) ;
+    load_A( Asystem ) ;
+    load_B( B_values, ldB, B_transposed ) ;
+    load_C( C_values, ldC, C_transposed ) ;
+    load_D( D_values, ldD, D_transposed ) ;
+    factorize() ;
+  }
+
   template <typename t_Value>
   void
   KKT<t_Value>::solve( valueType xb[] ) const {

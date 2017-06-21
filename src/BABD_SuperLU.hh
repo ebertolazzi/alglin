@@ -22,6 +22,9 @@
 
 #include "Alglin.hh"
 #include "Alglin++.hh"
+
+#ifdef ALGLIN_SUPERLU_SUPPORT
+
 #include "AlglinSuperLU.hh"
 
 #ifdef __GCC__
@@ -154,6 +157,8 @@ namespace alglin {
 #endif
 #ifdef __clang__
 #pragma clang diagnostic pop
+#endif
+
 #endif
 
 #endif
