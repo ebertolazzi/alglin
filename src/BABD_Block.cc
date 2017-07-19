@@ -32,41 +32,6 @@
 namespace alglin {
 
   using namespace std ;
-  
-  /*\
-   |         _ _                 _
-   |    __ _| | | ___   ___ __ _| |_ ___
-   |   / _` | | |/ _ \ / __/ _` | __/ _ \
-   |  | (_| | | | (_) | (_| (_| | ||  __/
-   |   \__,_|_|_|\___/ \___\__,_|\__\___|
-  \*/
-
-  template <typename t_Value>
-  void
-  BBlockLU<t_Value>::allocateBottom( integer _nblock,
-                                     integer _n,
-                                     integer _q,
-                                     integer _nb ) {
-
-    m = _n+_q ;
-    N = _nblock*_n+m ;
-
-    integer nnzAdH = _nblock*(_n*(2*_n+_q)) ; // blocchi AdH
-    integer nnzAu  = _nblock*(_n*_n)+_n*_q ; // blocchi Au
-    integer nnzFF  = (_nblock-1)*(_n*(_n+_q)) ; // blocchi FF
-    integer nnzDD  = m*m ; // blocco  DD
-
-    nnz = nnzAdH + nnzAu + nnzFF + nnzDD ;
-
-    BlockBidiagonal<t_Value>::allocateBottom( _nblock, _n, _q, _nb, nnz, N ) ;
-
-    AdH_blk  = this->baseValue(size_t( nnzAdH )) ;
-    Au_blk   = this->baseValue(size_t( nnzAu  )) ;
-    FF_blk   = this->baseValue(size_t( nnzFF  )) ;
-    DD_blk   = this->baseValue(size_t( nnzDD  )) ;
-    ipiv_blk = this->baseInteger(size_t( N )) ;
-
-  }
 
   /*\
    |    __            _             _

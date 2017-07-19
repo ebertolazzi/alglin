@@ -228,19 +228,6 @@ namespace alglin {
                 num_extra_r, num_extra_i ) ;
     }
 
-    void
-    allocateBottom( integer _nblock,
-                    integer _n,
-                    integer _q,
-                    integer _nb,
-                    integer num_extra_r,
-                    integer num_extra_i ) {
-      allocate( _nblock, _n, _nb,
-                0, 0, _n+_q,
-                0, 0, _q,
-                num_extra_r, num_extra_i ) ;
-    }
-
     // filling bidiagonal part of the matrix
     void
     loadBlocks( valueConstPointer AdAu, integer ldA )
@@ -368,13 +355,6 @@ namespace alglin {
                        integer /* colN   */,
                        integer /* nb     */ )
     { ALGLIN_ERROR("BlockBidiagonal::allocateTopBottom() not defined!") ; }
-
-    void
-    allocateBottom( integer /* nblock */,
-                    integer /* n      */,
-                    integer /* q      */,
-                    integer /* nb     */ )
-    { ALGLIN_ERROR("BlockBidiagonal::allocateBottom() not defined!") ; }
 
     virtual
     void

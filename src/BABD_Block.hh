@@ -180,10 +180,6 @@ namespace alglin {
 
     virtual
     void
-    allocateBottom( integer nblock, integer n, integer q, integer nb ) ;
-
-    virtual
-    void
     factorize() ;
 
     //! solve linear system previously factorized

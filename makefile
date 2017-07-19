@@ -10,7 +10,7 @@ INC  = -I./src -I./include
 LIBS = -L./lib -lAlglin
 DEFS =
 
-CXXFLAGS = -pthread -msse4.2 -msse4.1 -mssse3 -msse3 -msse2 -msse -mmmx -m64 -O3 -funroll-loops -fPIC -std=c++11
+CXXFLAGS = -pthread -msse4.2 -msse4.1 -mssse3 -msse3 -msse2 -msse -mmmx -m64 -O3 -funroll-loops -fPIC
 
 # check if the OS string contains 'Linux'
 ifneq (,$(findstring Linux, $(OS)))
@@ -29,9 +29,9 @@ ifneq (,$(findstring 6., $(VERSION)))
   CXX += -std=c++11 -pthread
 endif
   CC  += $(WARN)
-  CXX += $(WARN)
+  CXX += $(WARN) -std=c++11
   AR  = ar rcs
-  CXXFLAGS = -pthread -msse4.2 -msse4.1 -mssse3 -msse3 -msse2 -msse -mmmx -m64 -O3 -g0 -funroll-loops -fPIC -std=c++11
+  CXXFLAGS = -pthread -msse4.2 -msse4.1 -mssse3 -msse3 -msse2 -msse -mmmx -m64 -O3 -g0 -funroll-loops -fPIC
   LIBSGCC  = -lstdc++ -lm
   LIBS     = -L./lib -lAlglin -llapacke -llapack_atlas -latlas -lopenblas
   DEFS     = -DALGLIN_USE_SUPERLU4
@@ -51,9 +51,9 @@ ifneq (,$(findstring 7., $(VERSION)))
   CXX += -std=c++11 -stdlib=libc++ 
 endif
   CC      += $(WARN)
-  CXX     += $(WARN)
+  CXX     += $(WARN) -std=c++11
   AR       = libtool -static -o
-  CXXFLAGS = -msse4.2 -msse4.1 -mssse3 -msse3 -msse2 -msse -mmmx -m64 -O3 -g0 -funroll-loops -fPIC -std=c++11
+  CXXFLAGS = -msse4.2 -msse4.1 -mssse3 -msse3 -msse2 -msse -mmmx -m64 -O3 -g0 -funroll-loops -fPIC
   LIBSGCC  = -lstdc++ -lm
   LIBS     = -L./lib -lAlglin -framework Accelerate
   INC     += -I/usr/local/include/eigen3
@@ -66,12 +66,14 @@ CXX += -O3 -g0
 
 SRCS_ALGLIN = \
 src/ABD_Arceco.cc \
-src/ABD_Diaz.cc \
 src/ABD_Block.cc \
+src/ABD_Diaz.cc \
 src/Alglin++.cc \
 src/Alglin.cc \
 src/BABD.cc \
 src/BABD_Block.cc \
+src/BABD_C_interface.cc \
+src/BABD_F77_interface.cc \
 src/BlockBidiagonal.cc \
 src/BorderedCR.cc \
 src/KKT_like.cc
@@ -123,6 +125,7 @@ all: lib
 	$(CXX) $(INC) $(CXXFLAGS) -o bin/test5-Diaz                src_tests/test5-Diaz.cc $(LIBS)
 	$(CXX) $(INC) $(CXXFLAGS) -o bin/test6-Block               src_tests/test6-Block.cc $(LIBS)
 	$(CXX) $(INC) $(CXXFLAGS) -o bin/test7-BorderedCR          src_tests/test7-BorderedCR.cc $(LIBS)
+	$(CC)  $(INC) $(CXXFLAGS) -o bin/test8-Cinterface          src_tests/test8-Cinterface.c $(LIBS) $(LIBSGCC)
 
 all_simplex: libAlglin
 	$(CXX) $(INC) $(CXXFLAGS) -o bin/SimplexTest1              src_tests/SimplexTest1.cc $(LIBS)
@@ -173,6 +176,7 @@ run:
 	./bin/test5-Diaz
 	./bin/test6-Block
 	./bin/test7-BorderedCR
+	./bin/test8-Cinterface
 
 run_simplex:
 	./bin/SimplexTest1
