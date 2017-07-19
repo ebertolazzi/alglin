@@ -119,6 +119,14 @@ namespace alglin {
                    t_Value * B, integer ldB,
                    integer swapC[] ) ;
 
+    //! solve linear sistem using internal factorized matrix
+    void
+    solve_internal( bool do_permute, valuePointer in_out ) const ;
+
+    //! solve linear sistem using internal factorized matrix
+    void
+    solve_internal( bool do_permute, integer nrhs, valuePointer in_out, integer ldRhs ) const ;
+
   public:
 
     using BlockBidiagonal<valueType>::factorize ;
@@ -151,12 +159,24 @@ namespace alglin {
     //! solve linear sistem using internal factorized matrix
     virtual
     void
-    solve( valuePointer in_out ) const ;
+    solve( valuePointer in_out ) const
+    { solve_internal( true, in_out ) ; }
 
     //! solve linear sistem using internal factorized matrix
     virtual
     void
-    solve( integer nrhs, valuePointer in_out, integer ldRhs ) const ;
+    solve( integer nrhs, valuePointer in_out, integer ldRhs ) const
+    { solve_internal( true, nrhs, in_out, ldRhs ) ; }
+
+    //! solve linear sistem using internal factorized matrix
+    void
+    solve_ABD( valuePointer in_out ) const
+    { solve_internal( false, in_out ) ; }
+
+    //! solve linear sistem using internal factorized matrix
+    void
+    solve_ABD( integer nrhs, valuePointer in_out, integer ldRhs ) const
+    { solve_internal( false, nrhs, in_out, ldRhs ) ; }
 
   } ;
 }

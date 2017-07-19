@@ -274,11 +274,18 @@ namespace alglin {
     this->la_factorization->factorize(rowN,rowN,D0,rowN) ;
   }
 
+  /*\
+   |             _               _       _                        _
+   |   ___  ___ | |_   _____    (_)_ __ | |_ ___ _ __ _ __   __ _| |
+   |  / __|/ _ \| \ \ / / _ \   | | '_ \| __/ _ \ '__| '_ \ / _` | |
+   |  \__ \ (_) | |\ V /  __/   | | | | | ||  __/ |  | | | | (_| | |
+   |  |___/\___/|_| \_/ \___|___|_|_| |_|\__\___|_|  |_| |_|\__,_|_|
+   |                       |_____|
+  \*/
   // ---------------------------------------------------------------------------
-
   template <typename t_Value>
   void
-  DiazLU<t_Value>::solve( valuePointer in_out ) const {
+  DiazLU<t_Value>::solve_internal( bool do_permute, valuePointer in_out ) const {
   
     integer const & n      = this->n ;
     integer const & nxnx2  = this->nxnx2 ;
@@ -298,7 +305,7 @@ namespace alglin {
     valueConstPointer const & blockN = this->blockN ;
 
     integer neq = nblock*n+row0+rowN ;
-    std::rotate( in_out, in_out + neq - row0, in_out + neq ) ;
+    if ( do_permute ) std::rotate( in_out, in_out + neq - row0, in_out + neq ) ;
 
     // applico permutazione alla RHS
     integer const * swapR = swapRC_blks ;
@@ -425,17 +432,15 @@ namespace alglin {
     }
 
     // permuto le x
-    std::rotate( in_out, in_out + col00, in_out + neq ) ;
+    if ( do_permute ) std::rotate( in_out, in_out + col00, in_out + neq ) ;
   }
  
- 
-  // ---------------------------------------------------------------------------
-
   template <typename t_Value>
   void
-  DiazLU<t_Value>::solve( integer      nrhs,
-                          valuePointer in_out,
-                          integer      ldRhs ) const {
+  DiazLU<t_Value>::solve_internal( bool         do_permute,
+                                   integer      nrhs,
+                                   valuePointer in_out,
+                                   integer      ldRhs ) const {
   
     integer const & n      = this->n ;
     integer const & nxnx2  = this->nxnx2 ;
@@ -458,14 +463,16 @@ namespace alglin {
 
     // permuto le x
     valuePointer io = in_out ;
-    for ( integer k = 0 ; k < nrhs ; ++k ) {
-      std::rotate( io, io + neq - row0, io + neq ) ;
-      io += ldRhs ;
+    if ( do_permute ) {
+      for ( integer k = 0 ; k < nrhs ; ++k ) {
+        std::rotate( io, io + neq - row0, io + neq ) ;
+        io += ldRhs ;
+      }
+      io = in_out ;
     }
 
     // applico permutazione alla RHS
     integer const * swapR = swapRC_blks ;
-    io = in_out ;
     for ( integer k = 0 ; k < col00 ; ++k ) {
       integer k1 = swapR[k] ; // 0 based
       if ( k1 > k )
@@ -602,10 +609,12 @@ namespace alglin {
     }
 
     // permuto le x
-    io = in_out ;
-    for ( k = 0 ; k < nrhs ; ++k ) {
-      std::rotate( io, io + col00, io + neq ) ;
-      io += ldRhs ;
+    if ( do_permute ) {
+      io = in_out ;
+      for ( k = 0 ; k < nrhs ; ++k ) {
+        std::rotate( io, io + col00, io + neq ) ;
+        io += ldRhs ;
+      }
     }
   }
 
