@@ -17,8 +17,8 @@
  |                                                                          |
 \*--------------------------------------------------------------------------*/
 
-#ifndef BORDERED_CR_HH
-#define BORDERED_CR_HH
+#ifndef BABD_BORDERED_CR_HH
+#define BABD_BORDERED_CR_HH
 
 #include "Alglin.hh"
 #include "Alglin++.hh"
@@ -290,10 +290,10 @@ namespace alglin {
   public:
 
     #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
-    explicit
+    explicit ALGLIN_CONSTEXPR
     BorderedCR( integer nth = integer(std::thread::hardware_concurrency()) )
     #else
-    explicit
+    explicit ALGLIN_CONSTEXPR
     BorderedCR()
     #endif
     : baseValue("BorderedCR_values")
@@ -328,14 +328,15 @@ namespace alglin {
     , Hmat(nullptr)
     , Htau(nullptr)
     , Hperm(nullptr)
+    #ifndef BORDERED_CYCLIC_REDUCTION_USE_THREAD
+    , maxThread(1)
+    #endif
     {
       #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
       ALGLIN_ASSERT( nth > 0 && nth <= BORDERED_CYCLIC_REDUCTION_MAX_THREAD,
                      "Bad number of thread specification [" << nth << "]\n"
                      "must be a number > 0 and <= " << BORDERED_CYCLIC_REDUCTION_MAX_THREAD ) ;
       maxThread = nth ;
-      #else
-      maxThread = 1 ;
       #endif
     }
 

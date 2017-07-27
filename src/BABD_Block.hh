@@ -180,12 +180,12 @@ namespace alglin {
 
     virtual
     void
-    factorize() ;
+    factorize() ALGLIN_OVERRIDE ;
 
     //! solve linear system previously factorized
     virtual
     void
-    solve( valuePointer in_out ) const ;
+    solve( valuePointer in_out ) const ALGLIN_OVERRIDE ;
 
   } ;
 

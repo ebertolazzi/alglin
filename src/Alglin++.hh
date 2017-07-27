@@ -170,11 +170,11 @@ namespace alglin {
 
     virtual
     void
-    solve( valueType xb[] ) const = 0 ;
+    solve( valueType xb[] ) const ALGLIN_PURE_VIRTUAL ;
 
     virtual
     void
-    t_solve( valueType xb[] ) const = 0 ;
+    t_solve( valueType xb[] ) const ALGLIN_PURE_VIRTUAL ;
 
     virtual
     void
@@ -227,15 +227,15 @@ namespace alglin {
 
     virtual
     void
-    allocate( integer NR, integer NC ) = 0 ;
+    allocate( integer NR, integer NC ) ALGLIN_PURE_VIRTUAL;
 
     virtual
     void
-    factorize() = 0 ;
+    factorize() ALGLIN_PURE_VIRTUAL;
 
     virtual
     void
-    factorize( integer NR, integer NC, valueType const A[], integer LDA ) = 0 ;
+    factorize( integer NR, integer NC, valueType const A[], integer LDA ) ALGLIN_PURE_VIRTUAL ;
 
     void
     zero_block( integer nr,

@@ -97,6 +97,21 @@
   #define BABD_QR_N_USE_PIVOTING
 #endif
 
+#define ALGLIN_PURE_VIRTUAL = 0
+#ifdef ALGLIN_USE_CXX11
+  #define ALGLIN_OVERRIDE  override
+  #define ALGLIN_CONSTEXPR constexpr
+  #ifdef __GCC__
+    #pragma GCC diagnostic ignored "-Wc++98-compat"
+  #endif
+  #ifdef __clang__
+    #pragma clang diagnostic ignored "-Wc++98-compat"
+  #endif
+#else
+  #define ALGLIN_OVERRIDE
+  #define ALGLIN_CONSTEXPR
+#endif
+
 #endif
 
 ///

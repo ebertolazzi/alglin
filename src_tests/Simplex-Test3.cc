@@ -67,8 +67,8 @@ main() {
   Simplex::valueType c[]  = { -2, -3, -1, 0, 0, 0 } ;
   Simplex::valueType L[]  = { 0, 0, 0, 0, 0, 0 } ;
   Simplex::valueType U[]  = { infinity, infinity, infinity, infinity, infinity, infinity } ;
-  Simplex::valueType x[]  = { 0, 0, 0, 0, 0, 1 } ;
-  Simplex::integer   IB[] = { 0, 1, 2 } ;
+  //Simplex::valueType x[]  = { 0, 0, 0, 0, 0, 1 } ;
+  //Simplex::integer   IB[] = { 0, 1, 2 } ;
   
   Simplex::StandardProblem simplex_problem ;
   Simplex::AuxProblem      simplex_problem_aux ;

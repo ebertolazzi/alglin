@@ -76,7 +76,7 @@ namespace alglin {
 
   public:
 
-    explicit BABD()
+    explicit ALGLIN_CONSTEXPR BABD()
     : babd_solver(&bordered)
     {}
 
@@ -173,6 +173,10 @@ namespace alglin {
     void
     selectLastBlockSolver( LASTBLOCK_Choice choice )
     { babd_solver->selectLastBlockSolver( choice ) ; }
+
+    void
+    selectLastBorderBlockSolver( LASTBLOCK_Choice choice )
+    { babd_solver->selectLastBorderBlockSolver( choice ) ; }
 
     void
     allocate( integer nblk, integer n, integer q, integer nb )

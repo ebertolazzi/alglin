@@ -77,7 +77,7 @@ namespace alglin {
   private:
 
     typedef t_Value         valueType ;
-    typedef t_Value*        valuePointer ;
+    typedef t_Value *       valuePointer ;
     typedef t_Value const * valueConstPointer ;
 
     BlockBidiagonal(BlockBidiagonal const &) ;
@@ -343,9 +343,9 @@ namespace alglin {
               // ----------------------
               integer /* numInitialOMEGA */,
               integer /* numFinalOMEGA   */,
-              integer /* numCyclicOMEGA  */ )
-    { ALGLIN_ERROR("BlockBidiagonal::allocate() not defined!") ; }
+              integer /* numCyclicOMEGA  */ ) ALGLIN_PURE_VIRTUAL ;
 
+    virtual
     void
     allocateTopBottom( integer /* nblock */,
                        integer /* n      */,
@@ -353,25 +353,21 @@ namespace alglin {
                        integer /* col0   */,
                        integer /* rowN   */,
                        integer /* colN   */,
-                       integer /* nb     */ )
-    { ALGLIN_ERROR("BlockBidiagonal::allocateTopBottom() not defined!") ; }
+                       integer /* nb     */ ) ALGLIN_PURE_VIRTUAL ;
 
     virtual
     void
-    factorize()
-    { ALGLIN_ERROR("BlockBidiagonal::factorize() not defined!") ; }
+    factorize() ALGLIN_PURE_VIRTUAL;
 
     virtual
     void
-    solve( valuePointer ) const
-    { ALGLIN_ERROR("BlockBidiagonal::solve() not defined!") ; }
+    solve( valuePointer ) const ALGLIN_PURE_VIRTUAL ;
 
     virtual
     void
     solve( integer      /* nrhs  */,
            valuePointer /* rhs   */,
-           integer      /* ldRhs */ ) const
-    { ALGLIN_ERROR("BlockBidiagonal::solve() not defined!") ; }
+           integer      /* ldRhs */ ) const ALGLIN_PURE_VIRTUAL ;
 
     void
     loadBottom( valueConstPointer H0, integer ld0,
@@ -394,6 +390,11 @@ namespace alglin {
       }
     }
 
+    void selectLastBlockSolver_LU()  { la_factorization = &la_lu  ; }
+    void selectLastBlockSolver_QR()  { la_factorization = &la_qr  ; }
+    void selectLastBlockSolver_QRP() { la_factorization = &la_qrp ; }
+    void selectLastBlockSolver_SVD() { la_factorization = &la_svd ; }
+
     void
     selectLastBorderBlockSolver( LASTBLOCK_Choice choice ) {
       switch ( choice ) {
@@ -403,6 +404,11 @@ namespace alglin {
         case LASTBLOCK_SVD: bb_factorization = &bb_svd ; break ;
       }
     }
+
+    void selectLastBorderBlockSolver_LU()  { la_factorization = &la_lu  ; }
+    void selectLastBorderBlockSolver_QR()  { la_factorization = &la_qr  ; }
+    void selectLastBorderBlockSolver_QRP() { la_factorization = &la_qrp ; }
+    void selectLastBorderBlockSolver_SVD() { la_factorization = &la_svd ; }
 
     void
     last_block_factorize() ;

@@ -280,7 +280,7 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BlockLU<t_Value>::solve( valuePointer in_out ) const {
+  BlockLU<t_Value>::solve_internal( bool do_permute, valuePointer in_out ) const {
 
     integer const & n      = this->n ;
     integer const & nxnx2  = this->nxnx2 ;
@@ -297,7 +297,7 @@ namespace alglin {
 
     // permuto le x
     integer neq = nblock*n+row0+rowN ;
-    std::rotate( in_out, in_out + neq - row0, in_out + neq ) ;
+    if ( do_permute ) std::rotate( in_out, in_out + neq - row0, in_out + neq ) ;
 
     if ( nblock > 0 ) {
 
@@ -516,7 +516,7 @@ namespace alglin {
     }
 
     // permuto le x
-    std::rotate( in_out, in_out + col00, in_out + neq ) ;
+    if ( do_permute ) std::rotate( in_out, in_out + col00, in_out + neq ) ;
   }
  
   /*\
@@ -529,9 +529,10 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BlockLU<t_Value>::solve( integer      nrhs,
-                           valuePointer in_out,
-                           integer      ldRhs ) const {
+  BlockLU<t_Value>::solve_internal( bool         do_permute,
+                                    integer      nrhs,
+                                    valuePointer in_out,
+                                    integer      ldRhs ) const {
 
     integer const & n      = this->n ;
     integer const & nxnx2  = this->nxnx2 ;
@@ -550,11 +551,13 @@ namespace alglin {
 
     // permuto le x
     valuePointer io = in_out ;
-    for ( integer k = 0 ; k < nrhs ; ++k ) {
-      std::rotate( io, io + neq - row0, io + neq ) ;
-      io += ldRhs ;
+    if ( do_permute ) {
+      for ( integer k = 0 ; k < nrhs ; ++k ) {
+        std::rotate( io, io + neq - row0, io + neq ) ;
+        io += ldRhs ;
+      }
+      io = in_out ;
     }
-
 
     if ( nblock > 0 ) {
 
@@ -773,10 +776,12 @@ namespace alglin {
     }
 
     // permuto le x
-    io = in_out ;
-    for ( integer k = 0 ; k < nrhs ; ++k ) {
-      std::rotate( io, io + col00, io + neq ) ;
-      io += ldRhs ;
+    if ( do_permute ) {
+      io = in_out ;
+      for ( integer k = 0 ; k < nrhs ; ++k ) {
+        std::rotate( io, io + col00, io + neq ) ;
+        io += ldRhs ;
+      }
     }
   }
 

@@ -161,7 +161,7 @@ namespace alglin {
 
   public:
   
-    explicit ArcecoLU()
+    explicit ALGLIN_CONSTEXPR ArcecoLU()
     : baseValue("ArcecoLU_values")
     , baseInteger("ArcecoLU_integers")
     {}

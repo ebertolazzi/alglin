@@ -132,8 +132,23 @@ namespace alglin {
     using BlockBidiagonal<valueType>::factorize ;
     using BlockBidiagonal<valueType>::dump_ccoord ;
 
-    explicit DiazLU() : NB(25) {}
+    explicit ALGLIN_CONSTEXPR DiazLU() : NB(25) {}
     ~DiazLU() {}
+
+    virtual
+    void
+    allocate( integer /* nblock */,
+              integer /* n      */,
+              integer /* nb     */,
+              // ----------------------
+              integer /* numInitialBC */,
+              integer /* numFinalBC   */,
+              integer /* numCyclicBC  */,
+              // ----------------------
+              integer /* numInitialOMEGA */,
+              integer /* numFinalOMEGA   */,
+              integer /* numCyclicOMEGA  */ ) ALGLIN_OVERRIDE
+    { ALGLIN_ERROR("DiazLU::allocate() not defined!") ; }
 
     virtual
     void
@@ -143,7 +158,7 @@ namespace alglin {
                        integer _col0,
                        integer _rowN,
                        integer _colN,
-                       integer _nb ) {
+                       integer _nb ) ALGLIN_OVERRIDE {
       integer inv = _nblock*_n+(_col0+_colN-2*_n) ;
       BlockBidiagonal<t_Value>::allocateTopBottom( _nblock, _n,
                                                    _row0, _col0,
@@ -154,18 +169,18 @@ namespace alglin {
 
     virtual
     void
-    factorize() ;
+    factorize() ALGLIN_OVERRIDE ;
 
     //! solve linear sistem using internal factorized matrix
     virtual
     void
-    solve( valuePointer in_out ) const
+    solve( valuePointer in_out ) const ALGLIN_OVERRIDE
     { solve_internal( true, in_out ) ; }
 
     //! solve linear sistem using internal factorized matrix
     virtual
     void
-    solve( integer nrhs, valuePointer in_out, integer ldRhs ) const
+    solve( integer nrhs, valuePointer in_out, integer ldRhs ) const ALGLIN_OVERRIDE
     { solve_internal( true, nrhs, in_out, ldRhs ) ; }
 
     //! solve linear sistem using internal factorized matrix

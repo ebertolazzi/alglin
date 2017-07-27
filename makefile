@@ -4,11 +4,13 @@ PWD=$(shell pwd)
 
 LIB_ALGLIN = libAlglin.a
 
-CC   = gcc
-CXX  = g++
-INC  = -I./src -I./include
-LIBS = -L./lib -lAlglin
-DEFS =
+CC    = gcc
+CXX   = g++
+F90   = gfortran
+INC   = -I./src
+LIBS  = -L./lib -lAlglin
+CLIBS = -lc++
+DEFS  =
 
 CXXFLAGS = -pthread -msse4.2 -msse4.1 -mssse3 -msse3 -msse2 -msse -mmmx -m64 -O3 -funroll-loops -fPIC
 
@@ -45,10 +47,10 @@ ifneq (,$(findstring Darwin, $(OS)))
   CXX     = clang++
   VERSION = $(shell $(CC) --version 2>&1 | grep -o "Apple LLVM version [0-9]\.[0-9]\.[0-9]" | grep -o " [0-9]\.")
 ifneq (,$(findstring 8., $(VERSION)))
-  CXX += -std=c++11 -stdlib=libc++ 
+  CXX += -std=c++11 -stdlib=libc++
 endif
 ifneq (,$(findstring 7., $(VERSION)))
-  CXX += -std=c++11 -stdlib=libc++ 
+  CXX += -std=c++11 -stdlib=libc++
 endif
   CC      += $(WARN)
   CXX     += $(WARN) -std=c++11
@@ -73,7 +75,6 @@ src/Alglin.cc \
 src/BABD.cc \
 src/BABD_Block.cc \
 src/BABD_C_interface.cc \
-src/BABD_F77_interface.cc \
 src/BlockBidiagonal.cc \
 src/BorderedCR.cc \
 src/KKT_like.cc
@@ -127,6 +128,10 @@ all: lib
 	$(CXX) $(INC) $(CXXFLAGS) -o bin/test7-BorderedCR          src_tests/test7-BorderedCR.cc $(LIBS)
 	$(CC)  $(INC) $(CXXFLAGS) -o bin/test8-Cinterface          src_tests/test8-Cinterface.c $(LIBS) $(LIBSGCC)
 
+all1: lib
+	mkdir -p bin
+	$(F90) $(INC) -o bin/test9-FORTRAN src_tests/test9-FORTRAN.f90 $(LIBS) $(LIBSGCC) $(CLIBS)
+
 all_simplex: libAlglin
 	$(CXX) $(INC) $(CXXFLAGS) -o bin/SimplexTest1              src_tests/SimplexTest1.cc $(LIBS)
 	$(CXX) $(INC) $(CXXFLAGS) -o bin/SimplexTest2              src_tests/SimplexTest2.cc $(LIBS)
@@ -136,30 +141,32 @@ all_simplex: libAlglin
 lib: lib/$(LIB_ALGLIN)
 
 src/%.o: src/%.cc $(DEPS)
-	$(CXX) $(INC) $(CXXFLAGS) $(DEFS) -c $< -o $@ 
+	$(CXX) $(INC) $(CXXFLAGS) $(DEFS) -c $< -o $@
 
 src/%.o: src/%.c $(DEPS)
 	$(CC) $(INC) $(CFLAGS) $(DEFS) -c -o $@ $<
 
 lib/libAlglin.a: $(OBJS)
 	$(MKDIR) lib
-	$(AR) lib/libAlglin.a $(OBJS) 
+	$(AR) lib/libAlglin.a $(OBJS)
 
 lib/libAlglin.dylib: $(OBJS)
 	$(MKDIR) lib
-	$(CXX) -shared -o lib/libAlglin.dylib $(OBJS) 
+	$(CXX) -shared -o lib/libAlglin.dylib $(OBJS)
 
 lib/libAlglin.so: $(OBJS)
 	$(MKDIR) lib
-	$(CXX) -shared -o lib/libAlglin.so $(OBJS) 
+	$(CXX) -shared -o lib/libAlglin.so $(OBJS)
 
 install_local: lib/$(LIB_ALGLIN)
 	$(MKDIR) ./lib/include
 	cp src/*.hh ./lib/include
+	cp src/*.h  ./lib/include
 
 install: lib/$(LIB_ALGLIN)
 	$(MKDIR) $(PREFIX)/include
 	cp src/*.hh          $(PREFIX)/include
+	cp src/*.h           $(PREFIX)/include
 	cp lib/$(LIB_ALGLIN) $(PREFIX)/lib
 
 install_as_framework: lib/$(LIB_ALGLIN)

@@ -28,12 +28,23 @@
 extern "C" {
 #endif
 
+/*\
+ |     _    ____  ____
+ |    / \  | __ )|  _ \
+ |   / _ \ |  _ \| | | |
+ |  / ___ \| |_) | |_| |
+ | /_/   \_\____/|____/
+ |
+\*/
+
 typedef int    ABD_intType ;
 typedef double ABD_realType ;
 
 /*!
  *  perform Diaz factorization of ABD matrix defined by blocks TOP, BOTTOM, D and E.
  *  Matrix structure is the following:
+ *
+ *  \verbatim
  *
  *           col0
  *        |       |
@@ -53,6 +64,8 @@ typedef double ABD_realType ;
  *      \                        +--------+ /
  *                               |        |
  *                                  colN
+ *
+ *  \endverbatim
  *
  *  \param mat_id   identifier for the factorization, used in the subsequent `ABD_solve`
  *  \param row0     number of rows of the `TOP` block
@@ -130,6 +143,223 @@ ABD_free( ABD_intType mat_id ) ;
 
 char const *
 ABD_get_last_error( ) ;
+
+void
+ABD_get_last_error_f90( char [], long len ) ;
+
+/*\
+ |  ____    _    ____  ____
+ | | __ )  / \  | __ )|  _ \
+ | |  _ \ / _ \ |  _ \| | | |
+ | | |_) / ___ \| |_) | |_| |
+ | |____/_/   \_\____/|____/
+ |
+\*/
+
+typedef int    BABD_intType ;
+typedef double BABD_realType ;
+
+/*!
+ *  Perform factorization of BABD matrix defined by blocks H, D and E.
+ *  Matrix can be bordered.
+ *
+ *  \verbatim
+ *  Matrix structure
+ *
+ *                     (n+1) * nblock
+ *        ___________________^____________________
+ *       /                                        \
+ *         n     n     n                        n
+ *      +-----+-----+-----+----.........-----+-----+    \
+ *      |  D  |  E  |  0  |                  |  0  | n   |
+ *      +-----+-----+-----+             -----+-----+     |
+ *      |  0  |  D  |  E  |  0               |  0  | n   |
+ *      +-----+-----+-----+-----+       -----+-----+     |
+ *      |  0  |  0  |  D  |  E  |            |  0  | n   |
+ *      +-----+-----+-----+-----+       -----+-----+     |
+ *      |                                                |
+ *  A = :                                                 > n * nblock
+ *      :                                                |
+ *      :                                                |
+ *      :                                                |
+ *      :                              +-----+-----+     |
+ *      :                              |  E  |  0  |     |
+ *      :                        +-----+-----+-----+     |
+ *      :                        |  0  |  D  |  E  | n   |
+ *      +-----+-----+---......---+-----+-----+=====+--+  /
+ *      |     |                              |     |  |  \
+ *      | H0  |                              | HN  |Hq|  |
+ *      |     |                              |     |  |  | n+q
+ *      +-----+-----+---......---+-----+-----+=====+--+  /
+ *                                                   q
+ *  \endverbatim
+ *
+ *  \param mat_id           identifier for the factorization, used in the subsequent `ABD_solve`
+ *  \param mat_fact         factorization type
+ *                          1 - DIAZ, 2 - LU, 3 - QR, 4 - QRP
+ *  \param last_block_fact  last block factorization type
+ *                          0 - LU, 1 - QR, 2 - QRP, 3 - SVD
+ *  \param nblock           number of blocks `D` and `E`
+ *  \param n                dimension of the blocks `D` and `E` (size `n` x `n`)
+ *  \param q                number of extra `bc`
+ *  \param DE               pointer to the blocks  `D` and `E` stored by column (FORTRAN STORAGE).
+ *                          The blocks are ordered as [D1,E1,D2,E2,...,DN,EN]
+ *  \param ldDE             leading dimension of matrices `D` and `E`
+ *  \param H0               pointer of the `H0` block stored by column (FORTRAN STORAGE)
+ *  \param ldH0             leading dimension of matrix `H0`
+ *  \param HN               pointer of the `HN` block stored by column (FORTRAN STORAGE)
+ *  \param ldHN             leading dimension of matrix `HN`
+ *  \param Hq               pointer of the `Hq` block stored by column (FORTRAN STORAGE)
+ *  \param ldHq             leading dimension of matrix `Hq`
+ *
+ *  \return  0 no error found
+ *
+\*/
+
+int
+BABD_factorize( BABD_intType        mat_id,
+                BABD_intType        mat_fact,
+                BABD_intType        last_block_fact,
+                BABD_intType        nblock,
+                BABD_intType        n,
+                BABD_intType        q,
+                BABD_realType const DE[], BABD_intType ldDE,
+                BABD_realType const H0[], BABD_intType ldH0,
+                BABD_realType const HN[], BABD_intType ldHN,
+                BABD_realType const Hq[], BABD_intType ldHq ) ;
+/*!
+ *  Perform factorization of BABD matrix defined by blocks H, D and E.
+ *  Matrix can be bordered.
+ *
+ *  \verbatim
+ *  Matrix structure
+ *
+ *                     (n+1) * nblock
+ *        ___________________^____________________
+ *       /                                        \
+ *         n     n     n                        n
+ *      +-----+-----+-----+----.........-----+-----+    \
+ *      |  D  |  E  |  0  |                  |  0  | n   |
+ *      +-----+-----+-----+             -----+-----+     |
+ *      |  0  |  D  |  E  |  0               |  0  | n   |
+ *      +-----+-----+-----+-----+       -----+-----+     |
+ *      |  0  |  0  |  D  |  E  |            |  0  | n   |
+ *      +-----+-----+-----+-----+       -----+-----+     |
+ *      |                                                |
+ *  A = :                                                 > n * nblock
+ *      :                                                |
+ *      :                                                |
+ *      :                                                |
+ *      :                              +-----+-----+     |
+ *      :                              |  E  |  0  |     |
+ *      :                        +-----+-----+-----+     |
+ *      :                        |  0  |  D  |  E  | n   |
+ *      +-----+-----+---......---+-----+-----+=====+--+  /
+ *      |     |                              |     |  |  \
+ *      | H0  |                              | HN  |Hq|  |
+ *      |     |                              |     |  |  | n+q
+ *      +-----+-----+---......---+-----+-----+=====+--+  /
+ *                                                   q
+ *
+ *
+ *  Bordered matrix
+ *  / A  B \
+ *  \ C  D /
+ *
+ *  \endverbatim
+ *
+ *  \param mat_id           identifier for the factorization, used in the subsequent `ABD_solve`
+ *  \param mat_fact         factorization type
+ *                          1 - DIAZ, 2 - LU, 3 - QR, 4 - QRP
+ *  \param last_block_fact  last block factorization type
+ *                          0 - LU, 1 - QR, 2 - QRP, 3 - SVD
+ *  \param nblock           number of blocks `D` and `E`
+ *  \param n                dimension of the blocks `D` and `E` (size `n` x `n`)
+ *  \param q                number of extra `bc`
+ *  \param DE               pointer to the blocks  `D` and `E` stored by column (FORTRAN STORAGE).
+ *                          The blocks are ordered as [D1,E1,D2,E2,...,DN,EN]
+ *  \param ldDE             leading dimension of matrices `D` and `E`
+ *  \param H0               pointer of the `H0` block stored by column (FORTRAN STORAGE)
+ *  \param ldH0             leading dimension of matrix `H0`
+ *  \param HN               pointer of the `HN` block stored by column (FORTRAN STORAGE)
+ *  \param ldHN             leading dimension of matrix `HN`
+ *  \param Hq               pointer of the `Hq` block stored by column (FORTRAN STORAGE)
+ *  \param ldHq             leading dimension of matrix `Hq`
+ *  \param B                pointer of the `B` block stored by column (FORTRAN STORAGE)
+ *  \param ldB              leading dimension of matrix `B`
+ *  \param C                pointer of the `C` block stored by column (FORTRAN STORAGE)
+ *  \param ldC              leading dimension of matrix `C`
+ *  \param D                pointer of the `D` block stored by column (FORTRAN STORAGE)
+ *  \param ldD              leading dimension of matrix `D`
+ *
+ *  \return 0 no error found
+ *
+\*/
+
+int
+BABD_factorize_bordered( BABD_intType        mat_id,
+                         BABD_intType        mat_fact,
+                         BABD_intType        last_block_fact,
+                         BABD_intType        nblock,
+                         BABD_intType        n,
+                         BABD_intType        q,
+                         BABD_intType        nb,
+                         BABD_realType const DE[], BABD_intType ldDE,  // n x (2*n*nblock)
+                         BABD_realType const H0[], BABD_intType ldH0,  // (n+q) x n
+                         BABD_realType const HN[], BABD_intType ldHN,  // (n+q) x n
+                         BABD_realType const Hq[], BABD_intType ldHq,  // (n+q) x q
+                         BABD_realType const B[],  BABD_intType ldB,   // n*(nblock+1) x nb
+                         BABD_realType const C[],  BABD_intType ldC,   // nb x n*(nblock+1)
+                         BABD_realType const D[],  BABD_intType ldD ); // nb x nb
+
+/*!
+ *  solve linear ABD system using factorization of `ABD_factorize` call
+ *
+ *  \param mat_id   identifier for the factorization
+ *  \param rhs_sol  rhs (INPUT) and solution (OUTOUT) of linear system
+ *
+ *  \return  0 no error found
+ */
+
+int
+BABD_solve( BABD_intType mat_id, BABD_realType rhs_sol[] ) ;
+
+/*!
+ *  solve linear ABD system using factorization of `ABD_factorize` call
+ *
+ *  \param mat_id   identifier for the factorization
+ *  \param nrhs     number of rhs
+ *  \param rhs_sol  rhs (INPUT) and solution (OUTOUT) of linear system
+ *  \param ldRhs    leadind dimension of `rhs_sol`
+ *
+ *  \return  0 no error found
+ */
+
+int
+BABD_solve_nrhs( BABD_intType  mat_id,
+                 BABD_intType  nrhs,
+                 BABD_realType rhs_sol[],
+                 BABD_intType  ldRhs ) ;
+
+/*!
+ *  destroy (and free mempry) of a factorization of ABD matrix.
+ *  \param mat_id identifier for the factorization
+ *
+ *  \return  0 no error found
+ */
+
+int
+BABD_free( BABD_intType mat_id ) ;
+
+/*!
+ *  \return pointer to a string with the last error found
+ */
+
+char const *
+BABD_get_last_error( ) ;
+
+void
+BABD_get_last_error_f90( char [], long len ) ;
 
 #ifdef __cplusplus
 }
