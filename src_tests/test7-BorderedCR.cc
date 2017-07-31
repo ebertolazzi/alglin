@@ -87,8 +87,8 @@ main() {
   valueType * resid = baseValue(size_t(N)) ;
   
   
-  //BCR.select_LU();
-  BCR.select_QR();
+  BCR.select_LU();
+  //BCR.select_QR();
   //BCR.select_QRP();
 
   BCR.select_last_LU();

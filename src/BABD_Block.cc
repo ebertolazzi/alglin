@@ -55,7 +55,7 @@ namespace alglin {
     // fill matrix
     integer nm = n+m ;
     for ( integer k = 0 ; k < nblock ; ++k ) {
-      valueConstPointer Ad = this->AdAu_blk + k*nxnx2 ;
+      valueConstPointer Ad = this->DE_blk + k*nxnx2 ;
       valueConstPointer Au = Ad + nxn ;
       gecopy( n, n, Ad, n, AdH_blk + k*nm*n, nm ) ;
       gecopy( n, n, Au, n, Au_blk  + k*nxn,  n  ) ;

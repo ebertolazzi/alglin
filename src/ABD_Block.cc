@@ -148,10 +148,10 @@ namespace alglin {
       ALGLIN_ASSERT( info == 0, "BlockLU::factorize, first block, gecopy INFO = " << info ) ;
       gezero( row00, n, Work_mat1, Work_lda ) ;
 
-      info = gecopy( n, n, this->AdAu_blk, n, Work_mat+row00, Work_lda ) ;
+      info = gecopy( n, n, this->DE_blk, n, Work_mat+row00, Work_lda ) ;
       ALGLIN_ASSERT( info == 0, "BlockLU::factorize, first block, gecopy INFO = " << info ) ;
 
-      info = gecopy( n, n, this->AdAu_blk + nxn, n, Work_mat1+row00, Work_lda ) ;
+      info = gecopy( n, n, this->DE_blk + nxn, n, Work_mat1+row00, Work_lda ) ;
       ALGLIN_ASSERT( info == 0, "BlockLU::factorize, first block, gecopy INFO = " << info ) ;
 
       // factorize
@@ -175,10 +175,10 @@ namespace alglin {
       info = gecopy( row00, n, Work_mat1, Work_lda, F_mat, F_lda ) ;
       ALGLIN_ASSERT( info == 0, "BlockLU::factorize, first block, gecopy INFO = " << info ) ;
 
-      info = gecopy( n, n, Work_mat+row00, Work_lda, this->AdAu_blk, n ) ;
+      info = gecopy( n, n, Work_mat+row00, Work_lda, this->DE_blk, n ) ;
       ALGLIN_ASSERT( info == 0, "BlockLU::factorize, first block, gecopy INFO = " << info ) ;
 
-      info = gecopy( n, n, Work_mat1+row00, Work_lda, this->AdAu_blk + nxn, n ) ;
+      info = gecopy( n, n, Work_mat1+row00, Work_lda, this->DE_blk + nxn, n ) ;
       ALGLIN_ASSERT( info == 0, "BlockLU::factorize, first block, gecopy INFO = " << info ) ;
 
       /*
@@ -197,7 +197,7 @@ namespace alglin {
 
       for ( integer k = 1 ; k < nblock ; ++k ) {
 
-        valuePointer B = this->AdAu_blk + nxnx2 * k ;
+        valuePointer B = this->DE_blk + nxnx2 * k ;
         valuePointer A = B - nxn ;
         valuePointer C = B + nxn ;
         valuePointer F = F_mat + k*F_size ;
@@ -253,7 +253,7 @@ namespace alglin {
       */
 
       // fattorizzazione ultimo blocco
-      valuePointer B = this->AdAu_blk + nxnx2 * nblock - nxn ;
+      valuePointer B = this->DE_blk + nxnx2 * nblock - nxn ;
       integer N = row00+rowN ;
       this->la_factorization->allocate(N,N) ;
       this->la_factorization->zero_block(row00,N-n,0,n) ;
@@ -353,7 +353,7 @@ namespace alglin {
       info = gecopy( row00, n, block00 + col00, row0, Work_mat, Work_lda ) ;
       ALGLIN_ASSERT( info == 0, "BlockLU::solve, first block, gecopy INFO = " << info ) ;
 
-      info = gecopy( n, n, this->AdAu_blk, n, Work_mat+row00, Work_lda ) ;
+      info = gecopy( n, n, this->DE_blk, n, Work_mat+row00, Work_lda ) ;
       ALGLIN_ASSERT( info == 0, "BlockLU::solve, first block, gecopy INFO = " << info ) ;
 
       trsv( LOWER, NO_TRANSPOSE, UNIT, n, Work_mat, Work_lda, io, 1 ) ;
@@ -380,7 +380,7 @@ namespace alglin {
       integer k = 0 ;
       while ( ++k < nblock ) {
 
-        valuePointer B = this->AdAu_blk + nxnx2 * k ;
+        valuePointer B = this->DE_blk + nxnx2 * k ;
         valuePointer A = B - nxn ;
         integer * swps = swapR_blks + k * n ;
 
@@ -440,7 +440,7 @@ namespace alglin {
       */
       while ( --k > 0 ) {
 
-        valuePointer B = this->AdAu_blk + nxnx2 * k ;
+        valuePointer B = this->DE_blk + nxnx2 * k ;
         valuePointer C = B + nxn ;
         valuePointer A = B - nxn ;
         valuePointer F = F_mat + k*F_size ;
@@ -469,7 +469,7 @@ namespace alglin {
 
       }
 
-      valuePointer B = this->AdAu_blk ;
+      valuePointer B = this->DE_blk ;
       valuePointer C = B + nxn ;
 
       // copy from
@@ -613,7 +613,7 @@ namespace alglin {
       info = gecopy( row00, n, block00 + col00, row0, Work_mat, Work_lda ) ;
       ALGLIN_ASSERT( info == 0, "BlockLU::solve, first block, gecopy INFO = " << info ) ;
 
-      info = gecopy( n, n, this->AdAu_blk, n, Work_mat+row00, Work_lda ) ;
+      info = gecopy( n, n, this->DE_blk, n, Work_mat+row00, Work_lda ) ;
       ALGLIN_ASSERT( info == 0, "BlockLU::solve, first block, gecopy INFO = " << info ) ;
 
       trsm( LEFT, LOWER, NO_TRANSPOSE, UNIT, n, nrhs, 1.0, Work_mat, Work_lda, io, ldRhs ) ;
@@ -640,7 +640,7 @@ namespace alglin {
       integer k = 0 ;
       while ( ++k < nblock ) {
 
-        valuePointer B = this->AdAu_blk + nxnx2 * k ;
+        valuePointer B = this->DE_blk + nxnx2 * k ;
         valuePointer A = B - nxn ;
         integer * swps = swapR_blks + k * n ;
 
@@ -700,7 +700,7 @@ namespace alglin {
       */
       while ( --k > 0 ) {
 
-        valuePointer B = this->AdAu_blk + nxnx2 * k ;
+        valuePointer B = this->DE_blk + nxnx2 * k ;
         valuePointer C = B + nxn ;
         valuePointer A = B - nxn ;
         valuePointer F = F_mat + k*F_size ;
@@ -729,7 +729,7 @@ namespace alglin {
 
       }
 
-      valuePointer B = this->AdAu_blk ;
+      valuePointer B = this->DE_blk ;
       valuePointer C = B + nxn ;
 
       // copy from

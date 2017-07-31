@@ -21,7 +21,7 @@
 #include "Alglin++.hh"
 
 #include "ABD_Diaz.hh"
-#include "BABD_CR.hh"
+#include "BABD_BorderedCR.hh"
 #include "BABD_C_interface.h"
 
 #include <map>
@@ -165,24 +165,37 @@ namespace alglin {
                   BABD_intType        last_block_fact,
                   BABD_intType        nblock,
                   BABD_intType        n,
-                  BABD_intType        q,
+                  BABD_intType        qr,
+                  BABD_intType        qx,
                   BABD_realType const DE[], BABD_intType ldDE,
                   BABD_realType const H0[], BABD_intType ldH0,
                   BABD_realType const HN[], BABD_intType ldHN,
                   BABD_realType const Hq[], BABD_intType ldHq ) {
     try {
       BorderedCR<BABD_realType> & lu = babd_database[mat_id] ; // find or create
-      //lu.allocateTopBottom( nblock, n, row0, col0, rowN, colN, 0 );
-      //lu.loadTopBottom( TOP, ldTOP, BOTTOM, ldBOTTOM ) ;
-      //lu.loadBlocks( DE, ldDE ) ;
-      //lu.factorize();
+      lu.allocate( nblock, n, qr, qx, 0, 0 );
+      switch ( mat_fact ) {
+        case 0: lu.select_LU();  break;
+        case 1: lu.select_QR();  break;
+        case 2: lu.select_QRP(); break;
+      }
+      switch ( last_block_fact ) {
+        case 0: lu.select_last_LU();  break;
+        case 1: lu.select_last_LUP(); break;
+        case 2: lu.select_last_QR();  break;
+        case 3: lu.select_last_QRP(); break;
+      }
+      lu.loadBottom( H0, ldH0, HN, ldHN, Hq, ldHq, nullptr, 0 ) ;
+      for ( BABD_intType nbl = 0 ; nbl < nblock ; ++nbl )
+        lu.loadDE( nbl, DE + 2*nbl*n*ldDE, ldDE ) ;
+      lu.factorize();
     }
     catch ( exception const & err ) {
-      abd_last_error = err.what() ;
+      babd_last_error = err.what() ;
       return -1;
     }
     catch ( ... ) {
-      abd_last_error = "ABD_factorize unknown error" ;
+      babd_last_error = "BABD_factorize unknown error" ;
       return -2;
     }
     return 0;
@@ -196,16 +209,52 @@ namespace alglin {
                            BABD_intType        last_block_fact,
                            BABD_intType        nblock,
                            BABD_intType        n,
-                           BABD_intType        q,
-                           BABD_intType        nb,
+                           BABD_intType        qr,
+                           BABD_intType        nr,
+                           BABD_intType        qx,
+                           BABD_intType        nx,
                            BABD_realType const DE[], BABD_intType ldDE,  // n x (2*n*nblock)
-                           BABD_realType const H0[], BABD_intType ldH0,  // (n+q) x n
-                           BABD_realType const HN[], BABD_intType ldHN,  // (n+q) x n
-                           BABD_realType const Hq[], BABD_intType ldHq,  // (n+q) x q
-                           BABD_realType const B[],  BABD_intType ldB,   // n*(nblock+1) x nb
-                           BABD_realType const C[],  BABD_intType ldC,   // nb x n*(nblock+1)
-                           BABD_realType const D[],  BABD_intType ldD ) { // nb x nb
-    return 0 ;
+                           BABD_realType const H0[], BABD_intType ldH0,  // (n+qr) x n
+                           BABD_realType const HN[], BABD_intType ldHN,  // (n+qr) x n
+                           BABD_realType const Hq[], BABD_intType ldHq,  // (n+qr) x qx
+                           BABD_realType const B[],  BABD_intType ldB,   // (n*(nblock+1)+qr) x nx
+                           BABD_realType const C[],  BABD_intType ldC,   // nr x (n*(nblock+1)+qx)
+                           BABD_realType const D[],  BABD_intType ldD ) { // nr x nx
+    try {
+      BorderedCR<BABD_realType> & lu = babd_database[mat_id] ; // find or create
+      lu.allocate( nblock, n, qr, qx, nr, nx );
+      lu.loadBottom( H0, ldH0, HN, ldHN, Hq, ldHq, B+(nblock*n), ldB ) ;
+      switch ( mat_fact ) {
+        case 0: lu.select_LU(); break;
+        case 1: lu.select_QR(); break;
+        case 2: lu.select_QRP(); break;
+      }
+      switch ( last_block_fact ) {
+        case 0: lu.select_last_LU();  break;
+        case 1: lu.select_last_LUP(); break;
+        case 2: lu.select_last_QR();  break;
+        case 3: lu.select_last_QRP(); break;
+      }
+      for ( BABD_intType nbl = 0 ; nbl < nblock ; ++nbl ) {
+        lu.loadB( nbl, B + nbl*n, ldB ) ;
+        lu.loadC( nbl, C + nbl*n*ldC, ldC ) ;
+        lu.loadDE( nbl, DE + 2*nbl*n*ldDE, ldDE ) ;
+      }
+      lu.loadC( nblock, C + nblock*n*ldC, ldC ) ;
+      lu.loadCq( C + (nblock+1)*n*ldC, ldC ) ;
+      lu.loadF( D, ldD );
+      lu.factorize();
+    }
+    catch ( exception const & err ) {
+      abd_last_error = err.what() ;
+      return -1;
+    }
+    catch ( ... ) {
+      abd_last_error = "BABD_factorize unknown error" ;
+      return -2;
+    }
+    return 0;
+
   }
 
   extern "C"
@@ -214,7 +263,7 @@ namespace alglin {
     try {
       std::map<BABD_intType,BorderedCR<BABD_realType> >::const_iterator it = babd_database.find(mat_id);
       if ( it == babd_database.end() ) {
-        abd_last_error = "ABD_solve mat_id do not correspond to any factorization" ;
+        babd_last_error = "BABD_solve mat_id do not correspond to any factorization" ;
         return -3;
       }
       it->second.solve( rhs_sol ) ;
