@@ -216,15 +216,15 @@ namespace alglin {
       valuePointer B1 = block0 + (row0+1)*col00 ;
       LU_top_bottom( col00, row00,
                      n, B1, row0,
-                     n, this->AdAu_blk, n, swapRC ) ;
+                     n, this->DE_blk, n, swapRC ) ;
       swapRC += row00 ;
-      valuePointer D = this->AdAu_blk + row00 * n ;
+      valuePointer D = this->DE_blk + row00 * n ;
       //                 NR          NC            L       R
       LU_left_right( n, n_m_row00, row00, n, D, n, swapRC ) ;
       swapRC += n_m_row00 ;
     }
     
-    valuePointer C = this->AdAu_blk ;
+    valuePointer C = this->DE_blk ;
     for ( nblk = 1 ; nblk < nblock ; ++nblk ) {
       C += nxnx2;
       valuePointer B1 = C - nxn + n_m_row00 ;
@@ -262,7 +262,7 @@ namespace alglin {
                      rowN, blockN, rowN,
                      swapRC ) ;
     } else {
-      valuePointer B1 = this->AdAu_blk + nblock * nxnx2 - nxn + n_m_row00 ;
+      valuePointer B1 = this->DE_blk + nblock * nxnx2 - nxn + n_m_row00 ;
       LU_top_bottom( n_m_row00, row00, n,
                      B1, n,
                      rowN, blockN, rowN,
@@ -346,7 +346,7 @@ namespace alglin {
       */
 
       valuePointer io1 = io - row00 ;
-      valuePointer M   = this->AdAu_blk + nblk * nxnx2 ;
+      valuePointer M   = this->DE_blk + nblk * nxnx2 ;
       valuePointer L   = M + row00 * n ;
 
       // io -= M*io1
@@ -386,7 +386,7 @@ namespace alglin {
       */
 
       valuePointer io1 = io + n ;
-      valuePointer U   = this->AdAu_blk + nblk * nxnx2 + row00 * n ;
+      valuePointer U   = this->DE_blk + nblk * nxnx2 + row00 * n ;
       valuePointer M   = U + nxn ;
 
       gemv( NO_TRANSPOSE,
@@ -512,7 +512,7 @@ namespace alglin {
       */
 
       valuePointer io1 = io - row00 ;
-      valuePointer M   = this->AdAu_blk + nblk * nxnx2 ;
+      valuePointer M   = this->DE_blk + nblk * nxnx2 ;
       valuePointer L   = M + row00 * n ;
 
       // io -= M*io1
@@ -556,7 +556,7 @@ namespace alglin {
       */
 
       valuePointer io1 = io + n ;
-      valuePointer U   = this->AdAu_blk + nblk * nxnx2 + row00 * n ;
+      valuePointer U   = this->DE_blk + nblk * nxnx2 + row00 * n ;
       valuePointer M   = U + nxn ;
 
       gemm( NO_TRANSPOSE,

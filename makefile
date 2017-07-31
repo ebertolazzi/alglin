@@ -123,14 +123,16 @@ all: lib
 	$(CXX) $(INC) $(CXXFLAGS) -o bin/test2-Threads             src_tests/test2-Threads.cc $(LIBS)
 	$(CXX) $(INC) $(CXXFLAGS) -o bin/test3-Timing              src_tests/test3-Timing.cc $(LIBS)
 	$(CXX) $(INC) $(CXXFLAGS) -o bin/test4-KKT                 src_tests/test4-KKT.cc $(LIBS)
-	$(CXX) $(INC) $(CXXFLAGS) -o bin/test5-Diaz                src_tests/test5-Diaz.cc $(LIBS)
-	$(CXX) $(INC) $(CXXFLAGS) -o bin/test6-Block               src_tests/test6-Block.cc $(LIBS)
+	$(CXX) $(INC) $(CXXFLAGS) -o bin/test5-ABD-Diaz            src_tests/test5-ABD-Diaz.cc $(LIBS)
+	$(CXX) $(INC) $(CXXFLAGS) -o bin/test6-ABD-Block           src_tests/test6-ABD-Block.cc $(LIBS)
 	$(CXX) $(INC) $(CXXFLAGS) -o bin/test7-BorderedCR          src_tests/test7-BorderedCR.cc $(LIBS)
 	$(CC)  $(INC) $(CXXFLAGS) -o bin/test8-Cinterface          src_tests/test8-Cinterface.c $(LIBS) $(LIBSGCC)
+	$(CC)  $(INC) $(CXXFLAGS) -o bin/test9-Cinterface          src_tests/test9-Cinterface.c $(LIBS) $(LIBSGCC)
 
 all1: lib
 	mkdir -p bin
-	$(F90) $(INC) -o bin/test9-FORTRAN src_tests/test9-FORTRAN.f90 $(LIBS) $(LIBSGCC) $(CLIBS)
+	$(F90) $(INC) -o bin/test10-FORTRAN src_tests/test10-FORTRAN.f90 $(LIBS) $(LIBSGCC) $(CLIBS)
+	$(F90) $(INC) -o bin/test11-FORTRAN src_tests/test11-FORTRAN.f90 $(LIBS) $(LIBSGCC) $(CLIBS)
 
 all_simplex: libAlglin
 	$(CXX) $(INC) $(CXXFLAGS) -o bin/SimplexTest1              src_tests/SimplexTest1.cc $(LIBS)
@@ -180,8 +182,8 @@ run:
 	./bin/test2-Threads
 	./bin/test3-Timing
 	./bin/test4-KKT
-	./bin/test5-Diaz
-	./bin/test6-Block
+	./bin/test5-ABD-Diaz
+	./bin/test6-ABD-Block
 	./bin/test7-BorderedCR
 	./bin/test8-Cinterface
 

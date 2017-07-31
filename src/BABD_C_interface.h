@@ -189,19 +189,18 @@ typedef double BABD_realType ;
  *      +-----+-----+---......---+-----+-----+=====+--+  /
  *      |     |                              |     |  |  \
  *      | H0  |                              | HN  |Hq|  |
- *      |     |                              |     |  |  | n+q
+ *      |     |                              |     |  |  | n+qr
  *      +-----+-----+---......---+-----+-----+=====+--+  /
- *                                                   q
+ *                                                  qx
  *  \endverbatim
  *
  *  \param mat_id           identifier for the factorization, used in the subsequent `ABD_solve`
- *  \param mat_fact         factorization type
- *                          1 - DIAZ, 2 - LU, 3 - QR, 4 - QRP
- *  \param last_block_fact  last block factorization type
- *                          0 - LU, 1 - QR, 2 - QRP, 3 - SVD
+ *  \param mat_fact         factorization of cyclic reduction intermediate blocks 0 - LU, 1 - QR, 2 - QRP
+ *  \param last_block_fact  last block factorization type 0 - LU, 1 - QR, 2 - QRP, 3 - SVD
  *  \param nblock           number of blocks `D` and `E`
  *  \param n                dimension of the blocks `D` and `E` (size `n` x `n`)
- *  \param q                number of extra `bc`
+ *  \param qr               number of extra equation
+ *  \param qx               number of extra unknown
  *  \param DE               pointer to the blocks  `D` and `E` stored by column (FORTRAN STORAGE).
  *                          The blocks are ordered as [D1,E1,D2,E2,...,DN,EN]
  *  \param ldDE             leading dimension of matrices `D` and `E`
@@ -222,7 +221,8 @@ BABD_factorize( BABD_intType        mat_id,
                 BABD_intType        last_block_fact,
                 BABD_intType        nblock,
                 BABD_intType        n,
-                BABD_intType        q,
+                BABD_intType        qr,
+                BABD_intType        qx,
                 BABD_realType const DE[], BABD_intType ldDE,
                 BABD_realType const H0[], BABD_intType ldH0,
                 BABD_realType const HN[], BABD_intType ldHN,
@@ -234,48 +234,46 @@ BABD_factorize( BABD_intType        mat_id,
  *  \verbatim
  *  Matrix structure
  *
- *                     (n+1) * nblock
- *        ___________________^____________________
- *       /                                        \
- *         n     n     n                        n
- *      +-----+-----+-----+----.........-----+-----+    \
- *      |  D  |  E  |  0  |                  |  0  | n   |
- *      +-----+-----+-----+             -----+-----+     |
- *      |  0  |  D  |  E  |  0               |  0  | n   |
- *      +-----+-----+-----+-----+       -----+-----+     |
- *      |  0  |  0  |  D  |  E  |            |  0  | n   |
- *      +-----+-----+-----+-----+       -----+-----+     |
- *      |                                                |
- *  A = :                                                 > n * nblock
- *      :                                                |
- *      :                                                |
- *      :                                                |
- *      :                              +-----+-----+     |
- *      :                              |  E  |  0  |     |
- *      :                        +-----+-----+-----+     |
- *      :                        |  0  |  D  |  E  | n   |
- *      +-----+-----+---......---+-----+-----+=====+--+  /
- *      |     |                              |     |  |  \
- *      | H0  |                              | HN  |Hq|  |
- *      |     |                              |     |  |  | n+q
- *      +-----+-----+---......---+-----+-----+=====+--+  /
- *                                                   q
- *
- *
- *  Bordered matrix
- *  / A  B \
- *  \ C  D /
+ *                 n * (nblock+1)
+ *    ___________________^____________________
+ *   /                                        \
+ *    n   n   n                              n  qx  nx
+ *  +---+---+---+----.................-----+---+---+---+   -+
+ *  | D | E |   |                          |   |   | B | n  |
+ *  +---+---+---+                     -----+---+---+---+    |
+ *  |   | D | E |                          |   |   | B | n  |
+ *  +---+---+---+---+                 -----+---+---+---+    |
+ *  |   |   | D | E |                      |   |   | B | n  |
+ *  +---+---+---+---+                 -----+---+---+---+    |
+ *  :                                                  :    |
+ *  :                                                  :    |
+ *  :                                                  :     > n * nblock
+ *  :                                                  :    |
+ *  :                                                  :    |
+ *  :                              +---+---+---+---+---+    |
+ *  :                              | D | E |   |   | B | n  |
+ *  :                              +---+---+---+---+---+    |
+ *  :                                  | D | E |   | B | n  |
+ *  +---+---+---................---+---+---+---+---+---+   -+
+ *  |   |   |                          |   |   |   |   |    |
+ *  |H0 | 0 |                          | 0 |HN | Hq| Bp|    | n+qr
+ *  |   |   |                          |   |   |   |   |    |
+ *  +---+---+---................---+---+---+---+---+---+   -+
+ *  | C | C |                      | C | C | C | Cq| F |    | nr
+ *  +---+---+---................---+---+---+---+---+---+   -+
+ *                                             nr*qx
  *
  *  \endverbatim
  *
  *  \param mat_id           identifier for the factorization, used in the subsequent `ABD_solve`
- *  \param mat_fact         factorization type
- *                          1 - DIAZ, 2 - LU, 3 - QR, 4 - QRP
- *  \param last_block_fact  last block factorization type
- *                          0 - LU, 1 - QR, 2 - QRP, 3 - SVD
+ *  \param mat_fact         factorization of cyclic reduction intermediate blocks 0 - LU, 1 - QR, 2 - QRP
+ *  \param last_block_fact  last block factorization type 0 - LU, 1 - QR, 2 - QRP, 3 - SVD
  *  \param nblock           number of blocks `D` and `E`
  *  \param n                dimension of the blocks `D` and `E` (size `n` x `n`)
- *  \param q                number of extra `bc`
+ *  \param qr               integer
+ *  \param nr               integer
+ *  \param qx               integer
+ *  \param nx               integer
  *  \param DE               pointer to the blocks  `D` and `E` stored by column (FORTRAN STORAGE).
  *                          The blocks are ordered as [D1,E1,D2,E2,...,DN,EN]
  *  \param ldDE             leading dimension of matrices `D` and `E`
@@ -302,15 +300,17 @@ BABD_factorize_bordered( BABD_intType        mat_id,
                          BABD_intType        last_block_fact,
                          BABD_intType        nblock,
                          BABD_intType        n,
-                         BABD_intType        q,
-                         BABD_intType        nb,
+                         BABD_intType        qr,
+                         BABD_intType        nr,
+                         BABD_intType        qx,
+                         BABD_intType        nx,
                          BABD_realType const DE[], BABD_intType ldDE,  // n x (2*n*nblock)
-                         BABD_realType const H0[], BABD_intType ldH0,  // (n+q) x n
-                         BABD_realType const HN[], BABD_intType ldHN,  // (n+q) x n
-                         BABD_realType const Hq[], BABD_intType ldHq,  // (n+q) x q
-                         BABD_realType const B[],  BABD_intType ldB,   // n*(nblock+1) x nb
-                         BABD_realType const C[],  BABD_intType ldC,   // nb x n*(nblock+1)
-                         BABD_realType const D[],  BABD_intType ldD ); // nb x nb
+                         BABD_realType const H0[], BABD_intType ldH0,  // (n+qr) x n
+                         BABD_realType const HN[], BABD_intType ldHN,  // (n+qr) x n
+                         BABD_realType const Hq[], BABD_intType ldHq,  // (n+qr) x qx
+                         BABD_realType const B[],  BABD_intType ldB,   // (n*(nblock+1)+qr) x nx
+                         BABD_realType const C[],  BABD_intType ldC,   // nr x (n*(nblock+1)+qx)
+                         BABD_realType const D[],  BABD_intType ldD ); // nr x nx
 
 /*!
  *  solve linear ABD system using factorization of `ABD_factorize` call

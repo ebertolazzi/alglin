@@ -50,10 +50,13 @@ namespace alglin {
    */
   template <typename t_Value>
   class BBlockLU : public BlockBidiagonal<t_Value> {
+  public:
 
     typedef t_Value         valueType ;
     typedef t_Value*        valuePointer ;
     typedef t_Value const * valueConstPointer ;
+
+  private:
 
     BBlockLU(BBlockLU const &) ;
     BBlockLU const & operator = (BBlockLU const &) ;

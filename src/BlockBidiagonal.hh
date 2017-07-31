@@ -74,11 +74,13 @@ namespace alglin {
    */
   template <typename t_Value>
   class BlockBidiagonal {
-  private:
+  public:
 
     typedef t_Value         valueType ;
     typedef t_Value *       valuePointer ;
     typedef t_Value const * valueConstPointer ;
+
+  private:
 
     BlockBidiagonal(BlockBidiagonal const &) ;
     BlockBidiagonal const & operator = (BlockBidiagonal const &) ;
@@ -147,7 +149,7 @@ namespace alglin {
     //
     */
 
-    valuePointer AdAu_blk ;
+    valuePointer DE_blk ;
     valuePointer H0Nq ;
     valuePointer block0 ;
     valuePointer blockN ;
@@ -183,7 +185,7 @@ namespace alglin {
     , numCyclicOMEGA(0)
     , la_factorization(&la_lu)
     , bb_factorization(&bb_lu)
-    , AdAu_blk(nullptr)
+    , DE_blk(nullptr)
     , H0Nq(nullptr)
     , block0(nullptr)
     , blockN(nullptr)
@@ -231,19 +233,19 @@ namespace alglin {
     // filling bidiagonal part of the matrix
     void
     loadBlocks( valueConstPointer AdAu, integer ldA )
-    { gecopy( n, nblock * nx2, AdAu, ldA, AdAu_blk, n ) ; }
+    { gecopy( n, nblock * nx2, AdAu, ldA, DE_blk, n ) ; }
 
     void
     loadBlock( integer nbl, valueConstPointer AdAu, integer ldA )
-    { gecopy( n, nx2, AdAu, ldA, AdAu_blk + nbl*nxnx2, n ) ; }
+    { gecopy( n, nx2, AdAu, ldA, DE_blk + nbl*nxnx2, n ) ; }
 
     void
     loadBlockLeft( integer nbl, valueConstPointer Ad, integer ldA )
-    { gecopy( n, n, Ad, ldA, AdAu_blk + nbl*nxnx2, n ) ; }
+    { gecopy( n, n, Ad, ldA, DE_blk + nbl*nxnx2, n ) ; }
 
     void
     loadBlockRight( integer nbl, valueConstPointer Au, integer ldA )
-    { gecopy( n, n, Au, ldA, AdAu_blk + nbl*nxnx2 + nxn, n ) ; }
+    { gecopy( n, n, Au, ldA, DE_blk + nbl*nxnx2 + nxn, n ) ; }
 
     // Border Bottom blocks
     void
@@ -304,19 +306,19 @@ namespace alglin {
     // final blocks after cyclic reduction
     valueConstPointer
     getPointer_LR() const
-    { return AdAu_blk ; }
+    { return DE_blk ; }
 
     void
     getBlock_LR( valuePointer LR, integer ldA ) const
-    { gecopy( n, nx2, AdAu_blk, n, LR, ldA ) ; }
+    { gecopy( n, nx2, DE_blk, n, LR, ldA ) ; }
 
     void
     getBlock_L( valuePointer L, integer ldA ) const
-    { gecopy( n, n, AdAu_blk, n, L, ldA ) ; }
+    { gecopy( n, n, DE_blk, n, L, ldA ) ; }
 
     void
     getBlock_R( valuePointer R, integer ldA ) const
-    { gecopy( n, n, AdAu_blk+nxn, n, R, ldA ) ; }
+    { gecopy( n, n, DE_blk+nxn, n, R, ldA ) ; }
 
     // BC blocks
     void

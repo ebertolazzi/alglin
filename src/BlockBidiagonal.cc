@@ -99,18 +99,18 @@ namespace alglin {
     nxn    = n*n ;
     nxnx2  = nxn*2 ;
     nxnb   = n*nb ;
-    integer AdAu_size = nblock*nxnx2;
+    integer DE_size   = nblock*nxnx2;
     integer H0Nq_size = (n+q)*(nx2+q);
     integer BC_size   = nb*neq ;
-    baseValue.allocate(size_t(AdAu_size+H0Nq_size+2*BC_size+nb*nb+num_extra_r)) ;
+    baseValue.allocate(size_t(DE_size+H0Nq_size+2*BC_size+nb*nb+num_extra_r)) ;
     baseInteger.allocate(size_t(num_extra_i)) ;
-    AdAu_blk = baseValue(size_t(AdAu_size)) ;
-    H0Nq     = baseValue(size_t(H0Nq_size)) ;
-    Bmat     = baseValue(size_t(BC_size)) ;
-    Cmat     = baseValue(size_t(BC_size)) ;
-    Dmat     = baseValue(size_t(nb*nb)) ;
-    block0   = nullptr ;
-    blockN   = nullptr ;
+    DE_blk = baseValue(size_t(DE_size)) ;
+    H0Nq   = baseValue(size_t(H0Nq_size)) ;
+    Bmat   = baseValue(size_t(BC_size)) ;
+    Cmat   = baseValue(size_t(BC_size)) ;
+    Dmat   = baseValue(size_t(nb*nb)) ;
+    block0 = nullptr ;
+    blockN = nullptr ;
   }
 
   /*\
@@ -268,13 +268,13 @@ namespace alglin {
       integer rowN  = numFinalBC ;
       integer col00 = numInitialOMEGA ;
       integer colNN = numFinalOMEGA ;
-      la_factorization->load_block( n, nx2, AdAu_blk, n ) ;
+      la_factorization->load_block( n, nx2, DE_blk, n ) ;
       la_factorization->zero_block( m, mn, n, 0 ) ;
       la_factorization->load_block( rowN, n+colNN, blockN, rowN, n, n ) ;
       la_factorization->load_block( row0, n,     block0+col00*row0, row0, n+rowN, 0 ) ;
       la_factorization->load_block( row0, col00, block0,            row0, n+rowN, nx2+colNN ) ;
     } else {
-      la_factorization->load_block( n, nx2, AdAu_blk, n ) ;
+      la_factorization->load_block( n, nx2, DE_blk, n ) ;
       la_factorization->load_block( m, mn, H0Nq, m, n, 0 ) ;
       if ( m > n ) la_factorization->zero_block( n, q, 0, nx2 ) ;
     }
@@ -403,7 +403,7 @@ namespace alglin {
 
     stream << "interface( rtablesize = 40 ) ;\n" ;
     for ( integer row = 0 ; row < nblock ; ++row ) {
-      valueConstPointer Ad = AdAu_blk + 2*row*n*n ;
+      valueConstPointer Ad = DE_blk + 2*row*n*n ;
       valueConstPointer Au = Ad + n*n ;
       dumpOneMatrix( stream, "Ad", Ad, n, n ) ;
       dumpOneMatrix( stream, "Au", Au, n, n ) ;
@@ -469,17 +469,17 @@ namespace alglin {
     }
 
     // internal blocks block
-    t_Value const * xx   = x ;
-    t_Value *       yy   = res ;
-    t_Value const * AdAu = AdAu_blk ;
+    t_Value const * xx = x ;
+    t_Value *       yy = res ;
+    t_Value const * DE = DE_blk ;
     for ( integer i = 0 ; i < nblock ; ++i ) {
       gemv( NO_TRANSPOSE, n, nx2,
-            1.0, AdAu, n,
+            1.0, DE, n,
             xx, 1,
             1.0, yy, 1 ) ;
-      xx   += n ;
-      yy   += n ;
-      AdAu += nxnx2 ;
+      xx += n ;
+      yy += n ;
+      DE += nxnx2 ;
     }
     if ( nb > 0 ) {
       gemv( NO_TRANSPOSE, neq, nb,
@@ -563,10 +563,10 @@ namespace alglin {
     // bidiagonal
     for ( integer k = 0 ; k < nblock ; ++k ) {
       ii = k*n ;
-      valuePointer AdAu = AdAu_blk + k * nxnx2 ;
+      valuePointer DE = DE_blk + k * nxnx2 ;
       for ( integer i = 0 ; i < n ; ++i )
         for ( integer j = 0 ; j < nx2 ; ++j )
-          stream << ii+i << '\t' << ii+j << '\t' << AdAu[i+j*n] << '\n' ;
+          stream << ii+i << '\t' << ii+j << '\t' << DE[i+j*n] << '\n' ;
     }
 
     // border
