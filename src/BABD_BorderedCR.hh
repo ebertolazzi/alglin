@@ -83,7 +83,7 @@ namespace alglin {
    *
   \*/
 
-  /*\
+  /*\0
    |
    |  Matrix structure
    |

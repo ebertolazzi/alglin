@@ -613,6 +613,82 @@ namespace alglin {
 
   //============================================================================
   /*\
+   |   _____     _     _ _                               _ ____  ____  ____
+   |  |_   _| __(_) __| (_) __ _  __ _  ___  _ __   __ _| / ___||  _ \|  _ \
+   |    | || '__| |/ _` | |/ _` |/ _` |/ _ \| '_ \ / _` | \___ \| |_) | | | |
+   |    | || |  | | (_| | | (_| | (_| | (_) | | | | (_| | |___) |  __/| |_| |
+   |    |_||_|  |_|\__,_|_|\__,_|\__, |\___/|_| |_|\__,_|_|____/|_|   |____/
+   |                             |___/
+  \*/
+  template <typename T>
+  void
+  TridiagonalSPD<T>::factorize( integer         N,
+                               valueType const _L[],
+                               valueType const _D[] ) {
+    if ( this -> nRC != N ) {
+      this -> nRC = N ;
+      allocReals.allocate(3*N) ;
+      L    = allocReals(N) ;
+      D    = allocReals(N) ;
+      WORK = allocReals(N) ;
+    }
+    copy( N, _L, 1, L, 1 ) ;
+    copy( N, _D, 1, D, 1 ) ;
+    integer info = pttrf( N, L, D ) ;
+    ALGLIN_ASSERT( info == 0, "TridiagonalSPD::factorize, return info = " << info ) ;
+  }
+  
+  template <typename T>
+  T
+  TridiagonalSPD<T>::cond1( valueType norm1 ) const {
+    valueType rcond ;
+    integer info = ptcon1( nRC, D, L, norm1, rcond, WORK ) ;
+    ALGLIN_ASSERT( info == 0, "TridiagonalSPD::cond1, return info = " << info ) ;
+    return rcond ;
+  }
+
+  template <typename T>
+  void
+  TridiagonalSPD<T>::solve( valueType xb[] ) const {
+    integer info = pttrs( nRC, 1, D, L, xb, nRC ) ;
+    ALGLIN_ASSERT( info == 0, "TridiagonalSPD::solve, return info = " << info ) ;
+  }
+
+  template <typename T>
+  void
+  TridiagonalSPD<T>::t_solve( valueType xb[] ) const {
+    integer info = pttrs( nRC, 1, D, L, xb, nRC ) ;
+    ALGLIN_ASSERT( info == 0, "TridiagonalSPD::solve, return info = " << info ) ;
+  }
+
+  template <typename T>
+  void
+  TridiagonalSPD<T>::solve( integer nrhs, valueType xb[], integer ldXB ) const {
+    integer info = pttrs( nRC, nrhs, D, L, xb, ldXB ) ;
+    ALGLIN_ASSERT( info == 0, "TridiagonalSPD::solve, return info = " << info ) ;
+  }
+
+  template <typename T>
+  void
+  TridiagonalSPD<T>::t_solve( integer nrhs, valueType xb[], integer ldXB ) const {
+    integer info = pttrs( nRC, nrhs, D, L, xb, ldXB ) ;
+    ALGLIN_ASSERT( info == 0, "TridiagonalSPD::solve, return info = " << info ) ;
+  }
+
+  template <typename T>
+  void
+  TridiagonalSPD<T>::axpy( integer         N,
+                           valueType       alpha,
+                           valueType const _L[],
+                           valueType const _D[],
+                           valueType const x[],
+                           valueType       beta,
+                           valueType       y[] ) const {
+    tridiag_axpy( N, alpha, _L, _D, _L, x, beta, y ) ;
+  }
+
+  //============================================================================
+  /*\
    |   _____     _     _ _                               _ _    _   _
    |  |_   _| __(_) __| (_) __ _  __ _  ___  _ __   __ _| | |  | | | |
    |    | || '__| |/ _` | |/ _` |/ _` |/ _ \| '_ \ / _` | | |  | | | |
@@ -642,7 +718,7 @@ namespace alglin {
     copy( N, _D, 1, D, 1 ) ;
     copy( N, _U, 1, U, 1 ) ;
     integer info = gttrf( N, L, D, U, U2, IPIV ) ;
-    ALGLIN_ASSERT( info == 0, "Tridiagonal::factorize, return info = " << info ) ;
+    ALGLIN_ASSERT( info == 0, "TridiagonalLU::factorize, return info = " << info ) ;
   }
   
   template <typename T>
@@ -650,7 +726,7 @@ namespace alglin {
   TridiagonalLU<T>::cond1( valueType norm1 ) const {
     valueType rcond ;
     integer info = gtcon1( nRC, L, D, U, U2, IPIV, norm1, rcond, WORK, IWORK ) ;
-    ALGLIN_ASSERT( info == 0, "Tridiagonal::cond1, return info = " << info ) ;
+    ALGLIN_ASSERT( info == 0, "TridiagonalLU::cond1, return info = " << info ) ;
     return rcond ;
   }
 
@@ -659,7 +735,7 @@ namespace alglin {
   TridiagonalLU<T>::condInf( valueType normInf ) const {
     valueType rcond ;
     integer info = gtconInf( nRC, L, D, U, U2, IPIV, normInf, rcond, WORK, IWORK ) ;
-    ALGLIN_ASSERT( info == 0, "Tridiagonal::cond1, return info = " << info ) ;
+    ALGLIN_ASSERT( info == 0, "TridiagonalLU::cond1, return info = " << info ) ;
     return rcond ;
   }
 
@@ -667,28 +743,28 @@ namespace alglin {
   void
   TridiagonalLU<T>::solve( valueType xb[] ) const {
     integer info = gttrs( NO_TRANSPOSE, nRC, 1, L, D, U, U2, IPIV, xb, nRC ) ;
-    ALGLIN_ASSERT( info == 0, "Tridiagonal::solve, return info = " << info ) ;
+    ALGLIN_ASSERT( info == 0, "TridiagonalLU::solve, return info = " << info ) ;
   }
 
   template <typename T>
   void
   TridiagonalLU<T>::t_solve( valueType xb[] ) const {
     integer info = gttrs( TRANSPOSE, nRC, 1, L, D, U, U2, IPIV, xb, nRC ) ;
-    ALGLIN_ASSERT( info == 0, "Tridiagonal::solve, return info = " << info ) ;
+    ALGLIN_ASSERT( info == 0, "TridiagonalLU::solve, return info = " << info ) ;
   }
 
   template <typename T>
   void
   TridiagonalLU<T>::solve( integer nrhs, valueType xb[], integer ldXB ) const {
     integer info = gttrs( NO_TRANSPOSE, nRC, nrhs, L, D, U, U2, IPIV, xb, ldXB ) ;
-    ALGLIN_ASSERT( info == 0, "Tridiagonal::solve, return info = " << info ) ;
+    ALGLIN_ASSERT( info == 0, "TridiagonalLU::solve, return info = " << info ) ;
   }
 
   template <typename T>
   void
   TridiagonalLU<T>::t_solve( integer nrhs, valueType xb[], integer ldXB ) const {
     integer info = gttrs( TRANSPOSE, nRC, nrhs, L, D, U, U2, IPIV, xb, ldXB ) ;
-    ALGLIN_ASSERT( info == 0, "Tridiagonal::solve, return info = " << info ) ;
+    ALGLIN_ASSERT( info == 0, "TridiagonalLU::solve, return info = " << info ) ;
   }
 
   template <typename T>
@@ -970,7 +1046,7 @@ namespace alglin {
   BandedLU<T>::solve( valueType xb[] ) const {
     ALGLIN_ASSERT( is_factorized, "BandedLU::solve, matrix not yet factorized" ) ;
     ALGLIN_ASSERT( m == n, "BandedLU::solve, matrix must be square" ) ;
-    integer info = gbtrs( NO_TRANSPOSE, m, nL, nU, 1, AB, m, ipiv, xb, m );
+    integer info = gbtrs( NO_TRANSPOSE, m, nL, nU, 1, AB, ldAB, ipiv, xb, m );
     ALGLIN_ASSERT( info == 0, "BandedLU::solve, info = " << info ) ;
   }
 
@@ -1098,6 +1174,85 @@ namespace alglin {
     }
   }
 
+  // --------------------------------------------------------------
+
+  template <typename T>
+  BandedSPD<T>::BandedSPD()
+  : allocReals("_BandedSPD_reals")
+  , n(0)
+  , nD(0)
+  , ldAB(0)
+  , is_factorized(false)
+  {}
+
+  template <typename T>
+  BandedSPD<T>::~BandedSPD()
+  {}
+
+  //! base class for linear system solver
+  template <typename T>
+  void
+  BandedSPD<T>::setup( ULselect _UPLO,
+                       integer  _N,
+                       integer  _nD ) {
+    UPLO = _UPLO ;
+    n    = _N ;
+    nD   = _nD ;
+    ldAB = nD+1 ;
+    integer nnz = n*ldAB ;
+    allocReals.allocate( nnz ) ;
+    AB   = allocReals( nnz ) ;
+    is_factorized = false ;
+  }
+
+  template <typename T>
+  void
+  BandedSPD<T>::solve( valueType xb[] ) const {
+    ALGLIN_ASSERT( is_factorized, "BandedSPD::solve, matrix not yet factorized" ) ;
+    integer info = pbtrs( UPLO, n, nD, 1, AB, ldAB, xb, n );
+    ALGLIN_ASSERT( info == 0, "BandedSPD::solve, info = " << info ) ;
+  }
+
+  template <typename T>
+  void
+  BandedSPD<T>::t_solve( valueType xb[] ) const {
+    ALGLIN_ASSERT( is_factorized, "BandedSPD::solve, matrix not yet factorized" ) ;
+    integer info = pbtrs( UPLO, n, nD, 1, AB, ldAB, xb, n );
+    ALGLIN_ASSERT( info == 0, "BandedSPD::t_solve, info = " << info ) ;
+  }
+
+  template <typename T>
+  void
+  BandedSPD<T>::solve( integer nrhs, valueType B[], integer ldB ) const {
+    ALGLIN_ASSERT( is_factorized, "BandedSPD::solve, matrix not yet factorized" ) ;
+    integer info = pbtrs( UPLO, n, nD, nrhs, AB, ldAB, B, ldB );
+    ALGLIN_ASSERT( info == 0, "BandedSPD::solve, info = " << info ) ;
+  }
+
+  template <typename T>
+  void
+  BandedSPD<T>::t_solve( integer nrhs, valueType B[], integer ldB ) const {
+    ALGLIN_ASSERT( is_factorized, "BandedSPD::solve, matrix not yet factorized" ) ;
+    integer info = pbtrs( UPLO, n, nD, nrhs, AB, ldAB, B, ldB );
+    ALGLIN_ASSERT( info == 0, "BandedSPD::t_solve, info = " << info ) ;
+  }
+
+  template <typename T>
+  void
+  BandedSPD<T>::factorize() {
+    ALGLIN_ASSERT( !is_factorized, "BandedSPD::solve, matrix yet factorized" ) ;
+    integer info = pbtrf( UPLO, n, nD, AB, ldAB );
+    ALGLIN_ASSERT( info == 0, "BandedSPD::factorize, info = " << info ) ;
+    is_factorized = true ;
+  }
+
+  template <typename T>
+  void
+  BandedSPD<T>::zero() {
+    alglin::zero( n*ldAB, AB, 1 ) ;
+    is_factorized = false ;
+  }
+
   template integer rankEstimate( integer   M,
                                  integer   N,
                                  real      A[],
@@ -1124,6 +1279,9 @@ namespace alglin {
   template class SVD<real> ;
   template class SVD<doublereal> ;
 
+  template class TridiagonalSPD<real> ;
+  template class TridiagonalSPD<doublereal> ;
+
   template class TridiagonalLU<real> ;
   template class TridiagonalLU<doublereal> ;
 
@@ -1132,6 +1290,9 @@ namespace alglin {
 
   template class BandedLU<real> ;
   template class BandedLU<doublereal> ;
+
+  template class BandedSPD<real> ;
+  template class BandedSPD<doublereal> ;
 
 } // end namespace alglin
 

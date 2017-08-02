@@ -504,16 +504,16 @@ namespace alglin {
 
   template <typename T>
   void
-  laqge_tmpl( integer             M,
-              integer             N,
-              T                   A[],
-              integer             LDA,
-              T const             R[],
-              T const             C[],
-              T                   ROWCND,
-              T                   COLCND,
-              T                   AMAX,
-              EquilibrationType & equ ) {
+  laqge_tmpl( integer             /* M      */,
+              integer             /* N      */,
+              T                   /* A      */[],
+              integer             /* LDA    */,
+              T const             /* R      */[],
+              T const             /* C      */[],
+              T                   /* ROWCND */,
+              T                   /* COLCND */,
+              T                   /* AMAX   */,
+              EquilibrationType & /* equ    */) {
     ALGLIN_ERROR("NOT YET IMPLEMENTED" ) ;
   }
 

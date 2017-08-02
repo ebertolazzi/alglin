@@ -769,16 +769,16 @@ namespace alglin {
     {}
 
     virtual
-    ~SVD()
+    ~SVD() ALGLIN_OVERRIDE
     { allocReals.free() ; }
 
     virtual
     void
-    allocate( integer NR, integer NC ) ;
+    allocate( integer NR, integer NC ) ALGLIN_OVERRIDE ;
 
     virtual
     void
-    factorize() ;
+    factorize() ALGLIN_OVERRIDE ;
 
     /*!
       Do SVD factorization of a rectangular matrix
@@ -789,7 +789,7 @@ namespace alglin {
     \*/
     virtual
     void
-    factorize( integer NR, integer NC, valueType const A[], integer LDA ) {
+    factorize( integer NR, integer NC, valueType const A[], integer LDA ) ALGLIN_OVERRIDE {
       allocate( NR, NC ) ;
       integer info = gecopy( this->nRow, this->nCol, A, LDA, this->Amat, this->nRow ) ;
       ALGLIN_ASSERT( info == 0, "SVD::factorize call alglin::gecopy return info = " << info ) ;
@@ -802,11 +802,11 @@ namespace alglin {
 
     virtual
     void
-    solve( valueType xb[] ) const ;
+    solve( valueType xb[] ) const ALGLIN_OVERRIDE ;
 
     virtual
     void
-    t_solve( valueType xb[] ) const ;
+    t_solve( valueType xb[] ) const ALGLIN_OVERRIDE ;
 
     //! y <- alpha * U * x + beta * y
     void
@@ -856,6 +856,64 @@ namespace alglin {
 
   //============================================================================
   /*\
+   |   _____     _     _ _                               _ ____  ____  ____
+   |  |_   _| __(_) __| (_) __ _  __ _  ___  _ __   __ _| / ___||  _ \|  _ \
+   |    | || '__| |/ _` | |/ _` |/ _` |/ _ \| '_ \ / _` | \___ \| |_) | | | |
+   |    | || |  | | (_| | | (_| | (_| | (_) | | | | (_| | |___) |  __/| |_| |
+   |    |_||_|  |_|\__,_|_|\__,_|\__, |\___/|_| |_|\__,_|_|____/|_|   |____/
+   |                             |___/
+  \*/
+
+  template <typename T>
+  class TridiagonalSPD : public LinearSystemSolver<T> {
+  public:
+    typedef T valueType ;
+  
+  private:
+  
+    Malloc<valueType> allocReals ;
+
+    valueType * L ;
+    valueType * D ;
+    valueType * WORK ;
+    integer     nRC ;
+
+  public:
+
+    TridiagonalSPD()
+    : allocReals("allocReals")
+    , nRC(0)
+    {}
+
+    virtual
+    ~TridiagonalSPD() {
+      allocReals.free() ;
+    }
+
+    void
+    factorize( integer         N,
+               valueType const _L[],
+               valueType const _D[] ) ;
+
+    valueType cond1( valueType norm1 ) const ;
+
+    virtual void solve( valueType xb[] ) const ALGLIN_OVERRIDE;
+    virtual void t_solve( valueType xb[] ) const ALGLIN_OVERRIDE;
+    virtual void solve( integer nrhs, valueType xb[], integer ldXB ) const ALGLIN_OVERRIDE;
+    virtual void t_solve( integer nrhs, valueType xb[], integer ldXB ) const ALGLIN_OVERRIDE;
+
+    void
+    axpy( integer         N,
+          valueType       alpha,
+          valueType const L[],
+          valueType const D[],
+          valueType const x[],
+          valueType       beta,
+          valueType       y[] ) const ;
+  } ;
+
+  //============================================================================
+  /*\
    |   _____     _     _ _                               _ _    _   _
    |  |_   _| __(_) __| (_) __ _  __ _  ___  _ __   __ _| | |  | | | |
    |    | || '__| |/ _` | |/ _` |/ _` |/ _ \| '_ \ / _` | | |  | | | |
@@ -863,13 +921,14 @@ namespace alglin {
    |    |_||_|  |_|\__,_|_|\__,_|\__, |\___/|_| |_|\__,_|_|_____\___/
    |                             |___/
   \*/
+
   template <typename T>
-  class TridiagonalLU {
+  class TridiagonalLU : public LinearSystemSolver<T> {
   public:
     typedef T valueType ;
   
   private:
-  
+
     Malloc<valueType> allocReals ;
     Malloc<integer>   allocIntegers ;
 
@@ -906,10 +965,10 @@ namespace alglin {
     valueType cond1( valueType norm1 ) const ;
     valueType condInf( valueType normInf ) const ;
 
-    void solve( valueType xb[] ) const ;
-    void t_solve( valueType xb[] ) const ;
-    void solve( integer nrhs, valueType xb[], integer ldXB ) const ;
-    void t_solve( integer nrhs, valueType xb[], integer ldXB ) const ;
+    virtual void solve( valueType xb[] ) const ALGLIN_OVERRIDE;
+    virtual void t_solve( valueType xb[] ) const ALGLIN_OVERRIDE;
+    virtual void solve( integer nrhs, valueType xb[], integer ldXB ) const ALGLIN_OVERRIDE;
+    virtual void t_solve( integer nrhs, valueType xb[], integer ldXB ) const ALGLIN_OVERRIDE;
 
     void
     axpy( integer         N,
@@ -932,7 +991,7 @@ namespace alglin {
    |                             |___/
   \*/
   template <typename T>
-  class TridiagonalQR {
+  class TridiagonalQR : public LinearSystemSolver<T> {
   public:
     typedef T valueType ;
   
@@ -970,10 +1029,10 @@ namespace alglin {
                valueType const D[],
                valueType const U[] ) ;
 
-    void solve( valueType xb[] ) const ;
-    void t_solve( valueType xb[] ) const ;
-    void solve( integer nrhs, valueType xb[], integer ldXB ) const ;
-    void t_solve( integer nrhs, valueType xb[], integer ldXB ) const ;
+    virtual void solve( valueType xb[] ) const ALGLIN_OVERRIDE;
+    virtual void t_solve( valueType xb[] ) const ALGLIN_OVERRIDE;
+    virtual void solve( integer nrhs, valueType xb[], integer ldXB ) const ALGLIN_OVERRIDE;
+    virtual void t_solve( integer nrhs, valueType xb[], integer ldXB ) const ALGLIN_OVERRIDE;
 
     void
     axpy( integer         N,
@@ -1027,10 +1086,10 @@ namespace alglin {
            integer nL,   // number of lower diagonal
            integer nU ); // number of upper diagonal
 
-    virtual void solve( valueType xb[] ) const ;
-    virtual void t_solve( valueType xb[] ) const ;
-    virtual void solve( integer nrhs, valueType B[], integer ldB ) const ;
-    virtual void t_solve( integer nrhs, valueType B[], integer ldB ) const ;
+    virtual void solve( valueType xb[] ) const ALGLIN_OVERRIDE;
+    virtual void t_solve( valueType xb[] ) const ALGLIN_OVERRIDE;
+    virtual void solve( integer nrhs, valueType B[], integer ldB ) const ALGLIN_OVERRIDE;
+    virtual void t_solve( integer nrhs, valueType B[], integer ldB ) const ALGLIN_OVERRIDE;
 
     integer
     iaddr( integer i, integer j ) const {
@@ -1057,7 +1116,65 @@ namespace alglin {
                 integer         irow,
                 integer         icol ) ;
 
-    // do internal facorization, to be executed (only once) before to call solve or t_solve
+    // do internal factorization, to be executed (only once) before to call solve or t_solve
+    void factorize() ;
+
+    // y <- beta*y + alpha*A*x
+    void
+    aAxpy( valueType       alpha,
+           valueType const x[],
+           valueType       y[] ) const ;
+
+    void
+    dump( ostream & stream ) const ;
+
+  } ;
+
+  //============================================================================
+  /*\
+   |   ____                  _          _ ____  ____  ____
+   |  | __ )  __ _ _ __   __| | ___  __| / ___||  _ \|  _ \
+   |  |  _ \ / _` | '_ \ / _` |/ _ \/ _` \___ \| |_) | | | |
+   |  | |_) | (_| | | | | (_| |  __/ (_| |___) |  __/| |_| |
+   |  |____/ \__,_|_| |_|\__,_|\___|\__,_|____/|_|   |____/
+  \*/
+  //! base class for linear systema solver
+  template <typename T>
+  class BandedSPD : public LinearSystemSolver<T> {
+  public:
+    typedef T valueType ;
+
+    Malloc<valueType> allocReals ;
+
+    integer     n, nD, ldAB ;
+    valueType * AB ;
+    ULselect    UPLO ;
+    bool is_factorized ;
+
+  public:
+
+    BandedSPD() ;
+    virtual ~BandedSPD();
+
+    void
+    setup( ULselect UPLO,
+           integer  N,    // numbe of rows and columns
+           integer  nD ); // number of upper diagonal
+
+    virtual void solve( valueType xb[] ) const ALGLIN_OVERRIDE;
+    virtual void t_solve( valueType xb[] ) const ALGLIN_OVERRIDE;
+    virtual void solve( integer nrhs, valueType B[], integer ldB ) const ALGLIN_OVERRIDE;
+    virtual void t_solve( integer nrhs, valueType B[], integer ldB ) const ALGLIN_OVERRIDE;
+
+    valueType const &
+    operator () ( integer i, integer j ) const { return AB[i+j*ldAB] ; }
+
+    valueType &
+    operator () ( integer i, integer j ) { return AB[i+j*ldAB] ; }
+
+    void zero() ;
+
+    // do internal fatcorization, to be executed (only once) before to call solve or t_solve
     void factorize() ;
 
     // y <- beta*y + alpha*A*x
@@ -1085,4 +1202,3 @@ namespace alglin {
 ///
 /// eof: Alglin++.hh
 ///
-

@@ -58,6 +58,9 @@ endif
   CXXFLAGS = -msse4.2 -msse4.1 -mssse3 -msse3 -msse2 -msse -mmmx -m64 -O3 -g0 -funroll-loops -fPIC
   LIBSGCC  = -lstdc++ -lm
   LIBS     = -L./lib -lAlglin -framework Accelerate
+  #LIBS      = -L./lib -lAlglin -L/usr/local/opt/openblas/lib -lopenblas
+  #INC      += -I/usr/local/opt/openblas/include
+  #DEFS     += -DALGLIN_USE_ATLAS -D__STDC_VERSION__=__STDC__
   INC     += -I/usr/local/include/eigen3
 endif
 
@@ -118,16 +121,16 @@ FRAMEWORK = Alglin
 
 all: lib
 	mkdir -p bin
-	$(CXX) $(INC) $(CXXFLAGS) -o bin/test0-FD                  src_tests/test0-FD.cc $(LIBS)
-	$(CXX) $(INC) $(CXXFLAGS) -o bin/test1-small-factorization src_tests/test1-small-factorization.cc $(LIBS)
-	$(CXX) $(INC) $(CXXFLAGS) -o bin/test2-Threads             src_tests/test2-Threads.cc $(LIBS)
-	$(CXX) $(INC) $(CXXFLAGS) -o bin/test3-Timing              src_tests/test3-Timing.cc $(LIBS)
-	$(CXX) $(INC) $(CXXFLAGS) -o bin/test4-KKT                 src_tests/test4-KKT.cc $(LIBS)
-	$(CXX) $(INC) $(CXXFLAGS) -o bin/test5-ABD-Diaz            src_tests/test5-ABD-Diaz.cc $(LIBS)
-	$(CXX) $(INC) $(CXXFLAGS) -o bin/test6-ABD-Block           src_tests/test6-ABD-Block.cc $(LIBS)
-	$(CXX) $(INC) $(CXXFLAGS) -o bin/test7-BorderedCR          src_tests/test7-BorderedCR.cc $(LIBS)
-	$(CC)  $(INC) $(CXXFLAGS) -o bin/test8-Cinterface          src_tests/test8-Cinterface.c $(LIBS) $(LIBSGCC)
-	$(CC)  $(INC) $(CXXFLAGS) -o bin/test9-Cinterface          src_tests/test9-Cinterface.c $(LIBS) $(LIBSGCC)
+	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test0-FD                  src_tests/test0-FD.cc $(LIBS)
+	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test1-small-factorization src_tests/test1-small-factorization.cc $(LIBS)
+	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test2-Threads             src_tests/test2-Threads.cc $(LIBS)
+	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test3-Timing              src_tests/test3-Timing.cc $(LIBS)
+	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test4-KKT                 src_tests/test4-KKT.cc $(LIBS)
+	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test5-ABD-Diaz            src_tests/test5-ABD-Diaz.cc $(LIBS)
+	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test6-ABD-Block           src_tests/test6-ABD-Block.cc $(LIBS)
+	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test7-BorderedCR          src_tests/test7-BorderedCR.cc $(LIBS)
+	$(CC)  $(INC) $(DEFS) $(CXXFLAGS) -o bin/test8-Cinterface          src_tests/test8-Cinterface.c $(LIBS) $(LIBSGCC)
+	$(CC)  $(INC) $(DEFS) $(CXXFLAGS) -o bin/test9-Cinterface          src_tests/test9-Cinterface.c $(LIBS) $(LIBSGCC)
 
 all1: lib
 	mkdir -p bin
@@ -135,10 +138,10 @@ all1: lib
 	$(F90) $(INC) -o bin/test11-FORTRAN src_tests/test11-FORTRAN.f90 $(LIBS) $(LIBSGCC) $(CLIBS)
 
 all_simplex: libAlglin
-	$(CXX) $(INC) $(CXXFLAGS) -o bin/SimplexTest1              src_tests/SimplexTest1.cc $(LIBS)
-	$(CXX) $(INC) $(CXXFLAGS) -o bin/SimplexTest2              src_tests/SimplexTest2.cc $(LIBS)
-	$(CXX) $(INC) $(CXXFLAGS) -o bin/SimplexTest3              src_tests/SimplexTest3.cc $(LIBS)
-	$(CXX) $(INC) $(CXXFLAGS) -o bin/SimplexTest4              src_tests/SimplexTest4.cc $(LIBS)
+	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/SimplexTest1              src_tests/SimplexTest1.cc $(LIBS)
+	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/SimplexTest2              src_tests/SimplexTest2.cc $(LIBS)
+	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/SimplexTest3              src_tests/SimplexTest3.cc $(LIBS)
+	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/SimplexTest4              src_tests/SimplexTest4.cc $(LIBS)
 
 lib: lib/$(LIB_ALGLIN)
 
