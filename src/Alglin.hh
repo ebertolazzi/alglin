@@ -76,8 +76,8 @@
   #if defined(ALGLIN_OS_OSX)
     #define ALGLIN_USE_ACCELERATE 1
   #elif defined(ALGLIN_OS_LINUX)
-    #define ALGLIN_USE_OPENBLAS 1
-    //#define ALGLIN_USE_ATLAS 1
+    //#define ALGLIN_USE_OPENBLAS 1
+    #define ALGLIN_USE_ATLAS 1
     //#define ALGLIN_USE_LAPACK 1
   #elif defined(ALGLIN_OS_WINDOWS)
     #define ALGLIN_USE_LAPACK 1
