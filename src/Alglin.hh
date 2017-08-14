@@ -95,7 +95,11 @@
 
   // atlas 3.6.0
   extern "C" {
+    #ifdef ALGLIN_OS_LINUX
+    #include <atlas/cblas.h>
+    #else
     #include <cblas.h>
+    #endif
     //#include <clapack.h>
   }
   #include <lapacke.h>
@@ -116,7 +120,11 @@
   #define lapack_complex_float  std::complex<float>
   #define lapack_complex_double std::complex<double>
 
+  #ifdef ALGLIN_OS_LINUX
+  #include <openblas/cblas.h>
+  #else
   #include <cblas.h>
+  #endif
   #include <lapacke.h>
 
   #define CBLASNAME(A)      cblas_##A
