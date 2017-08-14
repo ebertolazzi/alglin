@@ -35,7 +35,10 @@ endif
   AR  = ar rcs
   CXXFLAGS = -pthread -msse4.2 -msse4.1 -mssse3 -msse3 -msse2 -msse -mmmx -m64 -O3 -g0 -funroll-loops -fPIC
   LIBSGCC  = -lstdc++ -lm
-  LIBS     = -L./lib -lAlglin -llapacke -llapack_atlas -latlas -lopenblas
+	# for OPENBLAS
+  LIBS     = -L./lib -lAlglin -lopenblas
+	# for ATLAS
+  #LIBS     = -L./lib -lAlglin -llapack_atlas -llapack -lcblas -latlas
   DEFS     = -DALGLIN_USE_SUPERLU4
   INC     += -I/usr/include/eigen3 -I/usr/include/atlas/
 endif
@@ -58,8 +61,10 @@ endif
   CXXFLAGS = -msse4.2 -msse4.1 -mssse3 -msse3 -msse2 -msse -mmmx -m64 -O3 -g0 -funroll-loops -fPIC
   LIBSGCC  = -lstdc++ -lm
   LIBS     = -L./lib -lAlglin -framework Accelerate
+	# for OPENBLAS
   #LIBS      = -L./lib -lAlglin -L/usr/local/opt/openblas/lib -lopenblas
   #INC      += -I/usr/local/opt/openblas/include
+	# for ATLAS
   #DEFS     += -DALGLIN_USE_ATLAS -D__STDC_VERSION__=__STDC__
   INC     += -I/usr/local/include/eigen3
 endif
