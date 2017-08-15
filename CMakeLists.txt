@@ -58,7 +58,7 @@ FOREACH (F ${S})
   LIST( APPEND HEADERS ${RF} )
 ENDFOREACH (F ${S})
 
-INCLUDE_DIRECTORIES( src /usr/local/include/eigen3 ../../os_win/include )
+INCLUDE_DIRECTORIES( src ${LAPACK_BASE}/include )
 add_library( ${TARGET} STATIC ${SOURCES} ${HEADERS} )
 
 MESSAGE( STATUS "Using ${SSE_FLAGS} extensions")

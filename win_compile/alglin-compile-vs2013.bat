@@ -3,13 +3,13 @@
 @rmdir vs2013_32 /s /q
 @mkdir vs2013_32
 @pushd vs2013_32
-@cmake -G "Visual Studio 12 2013" ..\..
+@cmake -G "Visual Studio 12 2013" -DLAPACK_BASE="lib/win32" ..\..
 @popd
 
 @rmdir vs2013_64 /s /q
 @mkdir vs2013_64
 @pushd vs2013_64
-@cmake -G "Visual Studio 12 2013 Win64" ..\..
+@cmake -G "Visual Studio 12 2013 Win64" -DLAPACK_BASE="lib/win64" ..\..
 @popd
 
 @cmake --build vs2013_32 --config Release

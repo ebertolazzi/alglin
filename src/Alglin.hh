@@ -80,7 +80,7 @@
     #define ALGLIN_USE_ATLAS 1
     //#define ALGLIN_USE_LAPACK 1
   #elif defined(ALGLIN_OS_WINDOWS)
-    #define ALGLIN_USE_LAPACK 1
+    #define ALGLIN_USE_ATLAS 1
   #endif
 #endif
 
