@@ -6,3 +6,6 @@ cmake
 DerivedData
 babd.xcodeproj
 bin
+lib/win32
+lib/win32_int64
+lib/win64

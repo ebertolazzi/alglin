@@ -36,14 +36,14 @@ endif
   CXX    += $(WARN) -std=c++11
   AR      = ar rcs
   LIBSGCC = -lstdc++ -lm
-ifeq ($(OPENBLAS),1)
-  # for OPENBLAS
-   LIBS += -L/usr/lib/openblas-base -Wl,-rpath,/usr/lib/openblas-base -lopenblas
-  override DEFS += -DALGLIN_USE_OPENBLAS
-else
+ifeq ($(ATLAS),1)
   # for ATLAS (default)
   override LIBS += -L/usr/lib/atlas-base -Wl,-rpath,/usr/lib/atlas-base -llapack -lf77blas -lcblas -latlas
   override DEFS += -DALGLIN_USE_ATLAS
+else
+  # for OPENBLAS
+   LIBS += -L/usr/lib/openblas-base -Wl,-rpath,/usr/lib/openblas-base -lopenblas
+  override DEFS += -DALGLIN_USE_OPENBLAS
 endif
   override INC  += -I/usr/include/eigen3 -I/usr/include/atlas/
   override DEFS += -DALGLIN_USE_SUPERLU4

@@ -76,11 +76,13 @@
   #if defined(ALGLIN_OS_OSX)
     #define ALGLIN_USE_ACCELERATE 1
   #elif defined(ALGLIN_OS_LINUX)
-    //#define ALGLIN_USE_OPENBLAS 1
-    #define ALGLIN_USE_ATLAS 1
+    #define ALGLIN_USE_OPENBLAS 1
+    //#define ALGLIN_USE_ATLAS 1
     //#define ALGLIN_USE_LAPACK 1
   #elif defined(ALGLIN_OS_WINDOWS)
-    #define ALGLIN_USE_ATLAS 1
+    #define ALGLIN_USE_OPENBLAS 1
+    //#define ALGLIN_USE_ATLAS 1
+    //#define ALGLIN_USE_LAPACK 1
   #endif
 #endif
 
@@ -94,6 +96,13 @@
 
 #elif defined(ALGLIN_USE_ATLAS)
 
+  #define LAPACK_COMPLEX_CUSTOM
+  #include <complex>
+  #define lapack_complex_float  std::complex<float>
+  #define lapack_complex_double std::complex<double>
+
+  #include <lapacke.h>
+
   // atlas 3.6.0
   extern "C" {
     #ifdef ALGLIN_OS_LINUX
@@ -103,7 +112,6 @@
     #endif
     //#include <clapack.h>
   }
-  #include <lapacke.h>
 
   #define CBLASNAME(A)      cblas_##A
   #define LAPACK_NAME(A)    LAPACK_##A
@@ -121,12 +129,13 @@
   #define lapack_complex_float  std::complex<float>
   #define lapack_complex_double std::complex<double>
 
+  #include <lapacke.h>
+
   #ifdef ALGLIN_OS_LINUX
   #include <openblas/cblas.h>
   #else
   #include <cblas.h>
   #endif
-  #include <lapacke.h>
 
   #define CBLASNAME(A)      cblas_##A
   #define LAPACK_NAME(A)    LAPACK_##A
