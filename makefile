@@ -7,12 +7,14 @@ LIB_ALGLIN = libAlglin.a
 CC    = gcc
 CXX   = g++
 F90   = gfortran
-INC   = -I./src
-LIBS  = -L./lib -lAlglin
+INC   =
+LIBS  =
 CLIBS = -lc++
 DEFS  =
 
 CXXFLAGS = -pthread -msse4.2 -msse4.1 -mssse3 -msse3 -msse2 -msse -mmmx -m64 -O3 -funroll-loops -fPIC
+override LIBS += -L./lib -lAlglin
+override INC  += -I./src
 
 # check if the OS string contains 'Linux'
 ifneq (,$(findstring Linux, $(OS)))
@@ -30,22 +32,21 @@ endif
 ifneq (,$(findstring 6., $(VERSION)))
   CXX += -std=c++11 -pthread
 endif
-  CC  += $(WARN)
-  CXX += $(WARN) -std=c++11
-  AR  = ar rcs
-  CXXFLAGS = -pthread -msse4.2 -msse4.1 -mssse3 -msse3 -msse2 -msse -mmmx -m64 -O3 -g0 -funroll-loops -fPIC
-  LIBSGCC  = -lstdc++ -lm
+  CC     += $(WARN)
+  CXX    += $(WARN) -std=c++11
+  AR      = ar rcs
+  LIBSGCC = -lstdc++ -lm
 ifeq ($(OPENBLAS),1)
   # for OPENBLAS
-  LIBS = -L./lib -lAlglin -L/usr/lib/openblas-base -Wl,-rpath,/usr/lib/openblas-base -lopenblas
-  DEFS += -DALGLIN_USE_OPENBLAS
+   LIBS += -L/usr/lib/openblas-base -Wl,-rpath,/usr/lib/openblas-base -lopenblas
+  override DEFS += -DALGLIN_USE_OPENBLAS
 else
   # for ATLAS (default)
-  LIBS = -L./lib -L/usr/lib/atlas-base -lAlglin -Wl,-rpath,/usr/lib/atlas-base -llapack -lf77blas -lcblas -latlas
-  DEFS += -DALGLIN_USE_ATLAS
+  override LIBS += -L/usr/lib/atlas-base -Wl,-rpath,/usr/lib/atlas-base -llapack -lf77blas -lcblas -latlas
+  override DEFS += -DALGLIN_USE_ATLAS
 endif
-  DEFS += -DALGLIN_USE_SUPERLU4
-  INC  += -I/usr/include/eigen3 -I/usr/include/atlas/
+  override INC  += -I/usr/include/eigen3 -I/usr/include/atlas/
+  override DEFS += -DALGLIN_USE_SUPERLU4
 endif
 
 # check if the OS string contains 'Darwin'
@@ -60,21 +61,20 @@ endif
 ifneq (,$(findstring 7., $(VERSION)))
   CXX += -std=c++11 -stdlib=libc++
 endif
-  CC      += $(WARN)
-  CXX     += $(WARN) -std=c++11
-  AR       = libtool -static -o
-  CXXFLAGS = -msse4.2 -msse4.1 -mssse3 -msse3 -msse2 -msse -mmmx -m64 -O3 -g0 -funroll-loops -fPIC
-  LIBSGCC  = -lstdc++ -lm
+  CC     += $(WARN)
+  CXX    += $(WARN) -std=c++11
+  AR      = libtool -static -o
+  LIBSGCC = -lstdc++ -lm
 ifeq ($(OPENBLAS),1)
   # for OPENBLAS
-  LIBS = -L./lib -lAlglin -L/usr/local/opt/openblas/lib -lopenblas
-  DEFS += -DALGLIN_USE_OPENBLAS
-  INC  += -I/usr/local/opt/openblas/include
+  override LIBS += -L/usr/local/opt/openblas/lib -lopenblas
+  override DEFS += -DALGLIN_USE_OPENBLAS
+  override INC  += -I/usr/local/opt/openblas/include
 else
-  LIBS += -L./lib -lAlglin -framework Accelerate
-  DEFS += -DALGLIN_USE_ACCELERATE
+  override LIBS += -L./lib -lAlglin -framework Accelerate
+  override DEFS += -DALGLIN_USE_ACCELERATE
 endif
-  INC += -I/usr/local/include/eigen3
+  override INC += -I/usr/local/include/eigen3
 endif
 
 CC  += -O3 -g0
