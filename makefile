@@ -35,12 +35,17 @@ endif
   AR  = ar rcs
   CXXFLAGS = -pthread -msse4.2 -msse4.1 -mssse3 -msse3 -msse2 -msse -mmmx -m64 -O3 -g0 -funroll-loops -fPIC
   LIBSGCC  = -lstdc++ -lm
+ifeq ($(OPENBLAS),1)
   # for OPENBLAS
-  #LIBS     = -L./lib -lAlglin -lopenblas
+  LIBS = -L./lib -lAlglin -L/usr/lib/openblas-base -Wl,-rpath,/usr/lib/openblas-base -lopenblas
+  DEFS += -DALGLIN_USE_OPENBLAS
+else
   # for ATLAS (default)
-  LIBS     = -L./lib -L/usr/lib/atlas-base -lAlglin -llapack -lf77blas -lcblas -latlas
-  DEFS     = -DALGLIN_USE_SUPERLU4
-  INC     += -I/usr/include/eigen3 -I/usr/include/atlas/
+  LIBS = -L./lib -L/usr/lib/atlas-base -lAlglin -Wl,-rpath,/usr/lib/atlas-base -llapack -lf77blas -lcblas -latlas
+  DEFS += -DALGLIN_USE_ATLAS
+endif
+  DEFS += -DALGLIN_USE_SUPERLU4
+  INC  += -I/usr/include/eigen3 -I/usr/include/atlas/
 endif
 
 # check if the OS string contains 'Darwin'
@@ -60,13 +65,16 @@ endif
   AR       = libtool -static -o
   CXXFLAGS = -msse4.2 -msse4.1 -mssse3 -msse3 -msse2 -msse -mmmx -m64 -O3 -g0 -funroll-loops -fPIC
   LIBSGCC  = -lstdc++ -lm
-  LIBS     = -L./lib -lAlglin -framework Accelerate
+ifeq ($(OPENBLAS),1)
   # for OPENBLAS
-  #LIBS      = -L./lib -lAlglin -L/usr/local/opt/openblas/lib -lopenblas
-  #INC      += -I/usr/local/opt/openblas/include
-  # for ATLAS
-  #DEFS     += -DALGLIN_USE_ATLAS -D__STDC_VERSION__=__STDC__
-  INC     += -I/usr/local/include/eigen3
+  LIBS = -L./lib -lAlglin -L/usr/local/opt/openblas/lib -lopenblas
+  DEFS += -DALGLIN_USE_OPENBLAS
+  INC  += -I/usr/local/opt/openblas/include
+else
+  LIBS += -L./lib -lAlglin -framework Accelerate
+  DEFS += -DALGLIN_USE_ACCELERATE
+endif
+  INC += -I/usr/local/include/eigen3
 endif
 
 CC  += -O3 -g0
