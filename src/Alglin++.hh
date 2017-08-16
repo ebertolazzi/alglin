@@ -359,7 +359,7 @@ namespace alglin {
 
     valueType cond1( valueType norm1 ) const ;
     valueType condInf( valueType normInf ) const ;
-    void print( basic_ostream<char> & stream, integer prec = 4 ) const ;
+
   } ;
 
   //============================================================================
@@ -1177,6 +1177,7 @@ namespace alglin {
     // do internal fatcorization, to be executed (only once) before to call solve or t_solve
     void factorize() ;
 
+    /* not yet available
     // y <- beta*y + alpha*A*x
     void
     aAxpy( valueType       alpha,
@@ -1185,6 +1186,7 @@ namespace alglin {
 
     void
     dump( ostream & stream ) const ;
+    */
 
   } ;
 

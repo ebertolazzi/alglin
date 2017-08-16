@@ -558,10 +558,6 @@ namespace alglin {
     void
     addMv( valueConstPointer x, valuePointer res ) const ;
 
-    // b -> b - M*x
-    void
-    residual( valueConstPointer x, valuePointer b ) const ;
-
     void
     dump_ccoord( ostream & stream ) const ;
 
