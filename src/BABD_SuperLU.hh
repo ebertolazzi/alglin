@@ -20,11 +20,11 @@
 #ifndef BABD_SUPERLU_HH
 #define BABD_SUPERLU_HH
 
+#include "AlglinConfig.hh"
+#ifndef ALGLIN_SUPERLU_SUPPORT
+
 #include "Alglin.hh"
 #include "Alglin++.hh"
-
-#ifdef ALGLIN_SUPERLU_SUPPORT
-
 #include "AlglinSuperLU.hh"
 
 #ifdef __GCC__

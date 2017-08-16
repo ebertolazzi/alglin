@@ -98,7 +98,7 @@
 #endif
 
 #define ALGLIN_PURE_VIRTUAL = 0
-#ifdef ALGLIN_USE_CXX11
+#if defined(ALGLIN_USE_CXX11) && !defined(ALGLIN_OS_WINDOWS)
   #define ALGLIN_OVERRIDE  override
   #define ALGLIN_CONSTEXPR constexpr
   #ifdef __GCC__

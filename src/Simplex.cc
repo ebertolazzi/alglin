@@ -1,6 +1,6 @@
 /*--------------------------------------------------------------------------*\
  |                                                                          |
- |  Copyright 2016                                                          |                                                                          |
+ |  Copyright 2016                                                          |
  |                                                                          |
  |  Enrico Bertolazzi^(*)  and  Matthias Gerdts^(**) (Ingenieurmathematik)  |
  |                                                                          |
@@ -400,6 +400,14 @@ namespace Simplex {
     }
   }
 
+  // windows workaround!
+  #ifdef IN
+    #undef IN
+  #endif
+  #ifdef IB
+    #undef IB
+  #endif
+
   void
   StandardSolver::solve( StandardProblemBase * _problem,
                          valueType x[],
@@ -410,18 +418,19 @@ namespace Simplex {
 
     n = problem->dim_x() ;
     m = problem->dim_g() ;
+    integer nm = n-m ;
 
     // memory allocation
     baseReals.allocate(4*m+2*n) ;
     valueType * gamma  = baseReals(m) ;
     valueType * beta   = baseReals(m) ;
-    valueType * ceta   = baseReals(n-m) ;
+    valueType * ceta   = baseReals(nm) ;
     valueType * y      = baseReals(m) ;
     valueType * c      = baseReals(n) ;
     valueType * values = baseReals(m) ;
 
     baseIntegers.allocate(n) ;
-    integer * IN    = baseIntegers(n-m) ;
+    integer * IN    = baseIntegers(nm) ;
     integer * i_row = baseIntegers(m) ;
 
     problem->load_c( c ) ;
@@ -454,7 +463,7 @@ namespace Simplex {
     for ( integer i = 0 ; i < n ; ++i ) {
       while ( ib < m && IB[ib] < i ) ++ib ;
       if ( ib == m || IB[ib] != i ) IN[in++] = i ;
-      SIMPLEX_ASSERT( in <= n-m, "Bad non basis index construction" ) ;
+      SIMPLEX_ASSERT( in <= nm, "Bad non basis index construction" ) ;
     }
 
     if ( n == m ) { // trivial solution
@@ -495,7 +504,7 @@ namespace Simplex {
     }
 
     // check non basis
-    for ( integer i = 0 ; i < n-m ; ++i ) {
+    for ( integer i = 0 ; i < nm ; ++i ) {
       integer ini = IN[i] ;
       bool ok = false ;
       if ( U_bounded(ini) && x[ini] >= U(ini)-eps ) {
@@ -561,7 +570,7 @@ namespace Simplex {
       valueType ceta_max_L = 0 ;
       valueType ceta_min_U = 0 ;
       // select the non bases (pivot) columns (n-m)
-      for ( integer i = 0 ; i < n-m ; ++i ) {
+      for ( integer i = 0 ; i < nm ; ++i ) {
         integer ini = IN[i] ;
         // 3A.  compute negative reduced costs Y'*A_N - C_N
         //problem->load_A_column( column, ini ) ;
@@ -583,7 +592,7 @@ namespace Simplex {
       }
       // 4.  compute basic solution
       problem->load_b( beta ) ;
-      for ( integer j = 0 ; j < n-m ; ++j ) {
+      for ( integer j = 0 ; j < nm ; ++j ) {
         integer inj = IN[j] ;
         integer nnz = problem->load_A_column( inj, values, i_row ) ;
         for ( integer k = 0 ; k < nnz ; ++k )
@@ -609,7 +618,7 @@ namespace Simplex {
             B[IB[i]] = true ;
             D[IB[i]] = y[i] ;
           }
-          for ( integer i = 0 ; i < n-m ; ++i ) {
+          for ( integer i = 0 ; i < nm ; ++i ) {
             integer ini = IN[i] ;
             if ( alglin::isZero(x[ini]-L(ini)) ) {
               D[ini] = ceta[i] ;

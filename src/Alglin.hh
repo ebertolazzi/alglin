@@ -67,6 +67,7 @@
 //#include <ctgmath>
 #include <cstring>
 #include <limits>
+#include <algorithm>
 
 // if not choosed the linear algebra package select a defaulf one
 #if !defined(ALGLIN_USE_ACCELERATE) && \
@@ -103,6 +104,15 @@
 
   #include <lapacke.h>
 
+  #ifdef ALGLIN_OS_WINDOWS
+    #ifdef max
+      #undef max
+    #endif
+    #ifdef min
+      #undef min
+    #endif
+  #endif
+
   // atlas 3.6.0
   extern "C" {
     #ifdef ALGLIN_OS_LINUX
@@ -119,17 +129,21 @@
 
 #elif defined(ALGLIN_USE_OPENBLAS)
 
-  #ifndef __STDC_VERSION__
-  // WORKAROUND FOR OPENBLAS
-  #define __STDC_VERSION__ __STDC__
-  #endif
-
   #define LAPACK_COMPLEX_CUSTOM
   #include <complex>
   #define lapack_complex_float  std::complex<float>
   #define lapack_complex_double std::complex<double>
 
   #include <lapacke.h>
+
+  #ifdef ALGLIN_OS_WINDOWS
+    #ifdef max
+      #undef max
+    #endif
+    #ifdef min
+      #undef min
+    #endif
+  #endif
 
   #ifdef ALGLIN_OS_LINUX
   #include <openblas/cblas.h>
@@ -273,11 +287,11 @@ namespace alglin {
     typedef doublereal return_precision ;
     #define ALGLIN_USE_CBLAS
   #elif defined(ALGLIN_USE_OPENBLAS)
-    typedef blasint  integer ;
-    typedef float    real ;
-    typedef double   doublereal ;
-    typedef char     character ;
-    typedef double   return_precision ;
+    typedef lapack_int integer ;
+    typedef float      real ;
+    typedef double     doublereal ;
+    typedef char       character ;
+    typedef double     return_precision ;
     #define ALGLIN_USE_CBLAS
   #elif defined(ALGLIN_USE_LAPACK)
     typedef blas_type::integer          integer ;
@@ -6586,6 +6600,8 @@ namespace alglin {
   { return LAPACKNAME(dlange)( const_cast<character*>("M"), &N, &M, A, &LDA, nullptr ) ; }
   #endif
 
+  #ifndef ALGLIN_OS_WINDOWS
+
   /*
   //   _                _
   //  | | __ _ ___  ___| |
@@ -6734,6 +6750,8 @@ namespace alglin {
     #endif
     return info ;
   }
+
+  #endif
 
   /*
   //   _____ _                            _

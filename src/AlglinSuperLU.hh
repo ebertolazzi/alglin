@@ -24,6 +24,9 @@
 #ifndef ALGLIN_SUPERLU_HH
 #define ALGLIN_SUPERLU_HH
 
+#include "AlglinConfig.hh"
+#ifndef ALGLIN_SUPERLU_SUPPORT
+
 // Eigen3
 #ifdef __GCC__
 #pragma GCC diagnostic push
@@ -70,6 +73,8 @@
 #endif
 #ifdef __clang__
 #pragma clang diagnostic pop
+#endif
+
 #endif
 
 #endif

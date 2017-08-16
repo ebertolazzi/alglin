@@ -17,6 +17,9 @@
  |                                                                          |
 \*--------------------------------------------------------------------------*/
 
+#include "AlglinConfig.hh"
+#ifndef ALGLIN_SUPERLU_SUPPORT
+
 #ifdef __GCC__
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 #endif
@@ -25,8 +28,6 @@
 #endif
 
 #include "BABD_SuperLU.hh"
-
-#ifdef ALGLIN_SUPERLU_SUPPORT
 
 #include <iostream>
 #include <algorithm>

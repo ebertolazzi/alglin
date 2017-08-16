@@ -1,6 +1,6 @@
 /*--------------------------------------------------------------------------*\
  |                                                                          |
- |  Copyright 2016                                                          |                                                                          |
+ |  Copyright 2016                                                          |
  |                                                                          |
  |  Enrico Bertolazzi^(*)  and  Matthias Gerdts^(**) (Ingenieurmathematik)  |
  |                                                                          |
