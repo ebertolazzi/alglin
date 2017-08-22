@@ -365,9 +365,9 @@ namespace alglin {
     void select_last_QRP() { last_selected = BORDERED_LAST_QRP ; }
 
     static
-    string
+    std::string
     choice_to_string( BORDERED_Choice c ) {
-      string res = "none" ;
+      std::string res = "none" ;
       switch ( c ) {
       case BORDERED_LU:  res = "CyclicReduction+LU"  ; break ;
       case BORDERED_QR:  res = "CyclicReduction+QR"  ; break ;
@@ -377,9 +377,9 @@ namespace alglin {
     }
 
     static
-    string
+    std::string
     choice_to_string( BORDERED_LAST_Choice c ) {
-      string res = "LastBlock not selected" ;
+      std::string res = "LastBlock not selected" ;
       switch ( c ) {
       case BORDERED_LAST_LU:  res = "LastBlock LU"  ; break ;
       case BORDERED_LAST_LUP: res = "LastBlock LUP" ; break ;
@@ -389,10 +389,10 @@ namespace alglin {
       return res ;
     }
 
-    string
+    std::string
     info_algo() const {
-      string a = choice_to_string(selected);
-      string b = choice_to_string(last_selected);
+      std::string a = choice_to_string(selected);
+      std::string b = choice_to_string(last_selected);
       return a+" and "+b ;
     }
 
@@ -559,7 +559,7 @@ namespace alglin {
     addMv( valueConstPointer x, valuePointer res ) const ;
 
     void
-    dump_ccoord( ostream & stream ) const ;
+    dump_ccoord( std::ostream & stream ) const ;
 
   } ;
 }

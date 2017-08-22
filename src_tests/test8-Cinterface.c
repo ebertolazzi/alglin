@@ -22,7 +22,7 @@
 
 int
 main() {
-
+  int i ;
   ABD_intType n      = 2 ;
   ABD_intType nblock = 3 ;
   ABD_intType row0   = 2 ;
@@ -75,7 +75,7 @@ main() {
 
   ok = ABD_solve( mat_id, rhs ) ;
   if ( ok != 0 ) printf("ERR = %s\n", ABD_get_last_error() ) ;
-  for ( int i=0 ; i < 11 ; ++i )
+  for ( i=0 ; i < 11 ; ++i )
     printf("x[%d] = %lf\n", i, rhs[i] ) ;
 
   printf("All done!\n") ;

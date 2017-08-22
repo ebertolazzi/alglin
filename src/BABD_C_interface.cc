@@ -49,7 +49,7 @@ namespace alglin {
   \*/
 
   static std::map<ABD_intType,DiazLU<ABD_realType> > abd_database ;
-  static string abd_last_error = "no error" ;
+  static std::string abd_last_error = "no error" ;
 
   extern "C"
   int
@@ -70,7 +70,7 @@ namespace alglin {
       lu.loadBlocks( DE, ldDE ) ;
       lu.factorize();
     }
-    catch ( exception const & err ) {
+    catch ( std::exception const & err ) {
       abd_last_error = err.what() ;
       return -1;
     }
@@ -92,7 +92,7 @@ namespace alglin {
       }
       it->second.solve_ABD( rhs_sol ) ;
     }
-    catch ( exception const & err ) {
+    catch ( std::exception const & err ) {
       abd_last_error = err.what() ;
       return -1;
     }
@@ -117,7 +117,7 @@ namespace alglin {
       }
       it->second.solve_ABD( nrhs, rhs_sol, ldRhs ) ;
     }
-    catch ( exception const & err ) {
+    catch ( std::exception const & err ) {
       abd_last_error = err.what() ;
       return -1;
     }
@@ -156,7 +156,7 @@ namespace alglin {
   \*/
 
   static std::map<BABD_intType,BorderedCR<BABD_realType> > babd_database ;
-  static string babd_last_error = "no error" ;
+  static std::string babd_last_error = "no error" ;
 
   extern "C"
   int
@@ -190,7 +190,7 @@ namespace alglin {
         lu.loadDE( nbl, DE + 2*nbl*n*ldDE, ldDE ) ;
       lu.factorize();
     }
-    catch ( exception const & err ) {
+    catch ( std::exception const & err ) {
       babd_last_error = err.what() ;
       return -1;
     }
@@ -245,7 +245,7 @@ namespace alglin {
       lu.loadF( D, ldD );
       lu.factorize();
     }
-    catch ( exception const & err ) {
+    catch ( std::exception const & err ) {
       abd_last_error = err.what() ;
       return -1;
     }
@@ -268,7 +268,7 @@ namespace alglin {
       }
       it->second.solve( rhs_sol ) ;
     }
-    catch ( exception const & err ) {
+    catch ( std::exception const & err ) {
       babd_last_error = err.what() ;
       return -1;
     }
@@ -293,7 +293,7 @@ namespace alglin {
       }
       it->second.solve( nrhs, rhs_sol, ldRhs ) ;
     }
-    catch ( exception const & err ) {
+    catch ( std::exception const & err ) {
       babd_last_error = err.what() ;
       return -1;
     }

@@ -45,7 +45,7 @@ namespace alglin {
     LASTBLOCK_SVD = 3
   } LASTBLOCK_Choice;
 
-  extern string LastBlock_to_string( LASTBLOCK_Choice c ) ;
+  extern std::string LastBlock_to_string( LASTBLOCK_Choice c ) ;
 
   /*\
    |  ____  _            _      ____  _     _ _                               _
@@ -464,10 +464,10 @@ namespace alglin {
     Mv( valueConstPointer x, valuePointer res ) const ;
 
     void
-    dump_ccoord( ostream & stream ) const ;
+    dump_ccoord( std::ostream & stream ) const ;
 
     void
-    dump_to_Maple( basic_ostream<char> & stream ) const ;
+    dump_to_Maple( std::basic_ostream<char> & stream ) const ;
 
   } ;
 }

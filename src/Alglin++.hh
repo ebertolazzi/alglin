@@ -103,15 +103,15 @@ namespace alglin {
           pMalloc = new T[numTotReserved] ;
         }
       }
-      catch ( exception const & exc ) {
-        cerr << "Memory allocation failed: " << exc.what()
+      catch ( std::exception const & exc ) {
+        std::cerr << "Memory allocation failed: " << exc.what()
              << "\nTry to allocate " << n << " bytes for " << _name
              << '\n' ;
-        exit(0) ;
+        std::exit(0) ;
       }
       catch (...) {
-        cerr << "Malloc allocation failed for " << _name << ": memory exausted\n" ;
-        exit(0) ;
+        std::cerr << "Malloc allocation failed for " << _name << ": memory exausted\n" ;
+        std::exit(0) ;
       }
       numTotValues = n ;
       numAllocated = 0 ;
@@ -136,8 +136,8 @@ namespace alglin {
       size_t offs = numAllocated ;
       numAllocated += sz ;
       if ( numAllocated > numTotValues ) {
-        cerr << "\nMalloc<" << _name << ">::operator () (" << sz << ") -- Malloc EXAUSTED\n" ;
-        exit(0) ;
+        std::cerr << "\nMalloc<" << _name << ">::operator () (" << sz << ") -- Malloc EXAUSTED\n" ;
+        std::exit(0) ;
       }
       return pMalloc + offs ;
     }
@@ -407,6 +407,9 @@ namespace alglin {
       allocReals.free() ;
     }
 
+    void
+    allocate( integer nr, integer nc, integer Lwrk ) ;
+
     virtual
     void
     allocate( integer nr, integer nc ) ;
@@ -617,7 +620,13 @@ namespace alglin {
     virtual
     void
     allocate( integer NR, integer NC ) {
-      QR<T>::allocate( NR, NC ) ;
+      if ( this->nRow != NR || this->nCol != NC ) {
+        valueType tmp ; // get optimal allocation
+        integer info = geqp3( NR, NC, nullptr, NR, nullptr, nullptr, &tmp, -1 ) ;
+        ALGLIN_ASSERT( info == 0, "QRP::factorize call alglin::geqp3 return info = " << info ) ;
+        QR<T>::allocate( NR, NC, integer(tmp) );
+      }
+      //QR<T>::allocate( NR, NC ) ;
       allocIntegers.allocate(size_t(NC)) ;
       JPVT = allocIntegers(size_t(NC)) ;
     }
@@ -1126,7 +1135,7 @@ namespace alglin {
            valueType       y[] ) const ;
 
     void
-    dump( ostream & stream ) const ;
+    dump( std::ostream & stream ) const ;
 
   } ;
 

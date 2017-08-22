@@ -16,6 +16,10 @@ CXXFLAGS = -pthread -msse4.2 -msse4.1 -mssse3 -msse3 -msse2 -msse -mmmx -m64 -O3
 override LIBS += -L./lib -lAlglin
 override INC  += -I./src
 
+#MKL_LIB = -lmkl_tbb_thread -lmkl_intel -lmkl_core
+MKL_LIB = -lmkl_sequential -lmkl_intel -lmkl_core
+MKL_PATH = /opt/intel/mkl
+
 # check if the OS string contains 'Linux'
 ifneq (,$(findstring Linux, $(OS)))
   WARN = -Wall
@@ -41,9 +45,18 @@ ifeq ($(ATLAS),1)
   override LIBS += -L/usr/lib/atlas-base -Wl,-rpath,/usr/lib/atlas-base -llapack -lf77blas -lcblas -latlas
   override DEFS += -DALGLIN_USE_ATLAS
 else
+#
+ifeq ($(MKL),1)
+  # for MKL
+  override LIBS += -L$(MKL_PATH)/lib -Wl,-rpath,$(MKL_PATH)/lib $(MKL_LIB)
+  override DEFS += -DALGLIN_USE_MKL
+  override INC  += -I$(MKL_PATH)/include
+else
   # for OPENBLAS
-   LIBS += -L/usr/lib/openblas-base -Wl,-rpath,/usr/lib/openblas-base -lopenblas
+  LIBS += -L/usr/lib/openblas-base -Wl,-rpath,/usr/lib/openblas-base -lopenblas
   override DEFS += -DALGLIN_USE_OPENBLAS
+endif
+#
 endif
   override INC  += -I/usr/include/eigen3 -I/usr/include/atlas/
   override DEFS += -DALGLIN_USE_SUPERLU4
@@ -71,8 +84,17 @@ ifeq ($(OPENBLAS),1)
   override DEFS += -DALGLIN_USE_OPENBLAS
   override INC  += -I/usr/local/opt/openblas/include
 else
+#
+ifeq ($(MKL),1)
+  # for MKL
+  override LIBS += -L$(MKL_PATH)/lib -Xlinker -rpath -Xlinker $(MKL_PATH)/lib $(MKL_LIB)
+  override DEFS += -DALGLIN_USE_MKL
+  override INC  += -I$(MKL_PATH)/include
+else
   override LIBS += -L./lib -lAlglin -framework Accelerate
   override DEFS += -DALGLIN_USE_ACCELERATE
+endif
+#
 endif
   override INC += -I/usr/local/include/eigen3
 endif

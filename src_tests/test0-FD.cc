@@ -99,6 +99,8 @@ public:
 int
 main() {
 
+  using namespace std ;
+
   integer    dim_x = 4 ;
   doublereal x[4] = { 1, 2, 1, 4 } ;
   doublereal gradFD[4], grad[4], jac[4*4], jacFD[4*4] ;

@@ -84,7 +84,7 @@ namespace alglin {
          integer ISEED[4],
          integer N,
          real    X[] ) {
-    #if defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
+    #if defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS) || defined(ALGLIN_USE_MKL)
     LAPACK_NAME(slarnv)( &IDIST, ISEED, &N, X ) ; // return void in openblas
     return 0 ;
     #elif defined(ALGLIN_USE_ACCELERATE)
@@ -100,7 +100,7 @@ namespace alglin {
          integer    ISEED[4],
          integer    N,
          doublereal X[] ) {
-    #if defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
+    #if defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS) || defined(ALGLIN_USE_MKL)
     LAPACK_NAME(dlarnv)( &IDIST, ISEED, &N, X ) ; // return void in openblas
     return 0 ;
     #elif defined(ALGLIN_USE_ACCELERATE)
@@ -362,7 +362,7 @@ namespace alglin {
                 integer                    ldA ) {
     for ( integer i = 0 ; i < nr ; ++i ) {
       for ( integer j = 0 ; j < nc ; ++j )
-        stream << setw(14) << A[i+j*ldA] << " " ;
+        stream << std::setw(14) << A[i+j*ldA] << " " ;
       stream << '\n' ;
     }
   }
@@ -480,26 +480,26 @@ namespace alglin {
     integer sizeBlock = 2*dimBlock*dimBlock ;
     stream << "Block 0\n" ;
     for ( integer i = 0 ; i < row0 ; ++i ) {
-      stream << setw(8) << block0[i] ;
+      stream << std::setw(8) << block0[i] ;
       for ( integer j = 1 ; j < col0 ; ++j )
-        stream << ' ' << setw(8) << block0[i+j*row0] ;
+        stream << ' ' << std::setw(8) << block0[i+j*row0] ;
       stream << '\n' ;
     }
     for ( integer k = 0 ; k < numBlock ; ++k ) {
       stream << "Block " << k+1 << '\n' ;
       t_Value const * blk = blocks+k*sizeBlock ;
       for ( integer i = 0 ; i < dimBlock ; ++i ) {
-        stream << setw(8) << blk[i] ;
+        stream << std::setw(8) << blk[i] ;
         for ( integer j = 1 ; j < 2*dimBlock ; ++j )
-          stream << ' ' << setw(8) << blk[i+j*dimBlock] ;
+          stream << ' ' << std::setw(8) << blk[i+j*dimBlock] ;
         stream << '\n' ;
       }
     }
     stream << "Block N\n" ;
     for ( integer i = 0 ; i < rowN ; ++i ) {
-      stream << setw(8) << blockN[i] ;
+      stream << std::setw(8) << blockN[i] ;
       for ( integer j = 1 ; j < colN ; ++j )
-        stream << ' ' << setw(8) << blockN[i+j*rowN] ;
+        stream << ' ' << std::setw(8) << blockN[i+j*rowN] ;
       stream << '\n' ;
     }
   }
@@ -616,33 +616,33 @@ namespace alglin {
       stream << "Block " << k+1 << '\n' ;
       t_Value const * blk = AdAu+k*sizeBlock ;
       for ( integer i = 0 ; i < n ; ++i ) {
-        stream << setw(8) << blk[i] ;
+        stream << std::setw(8) << blk[i] ;
         for ( integer j = 1 ; j < 2*n ; ++j )
-          stream << ' ' << setw(8) << blk[i+j*n] ;
+          stream << ' ' << std::setw(8) << blk[i+j*n] ;
         stream << '\n' ;
       }
     }
     integer nq = n+q ;
     stream << "Block H0\n" ;
     for ( integer i = 0 ; i < nq ; ++i ) {
-      stream << setw(8) << H0[i] ;
+      stream << std::setw(8) << H0[i] ;
       for ( integer j = 1 ; j < n ; ++j )
-        stream << ' ' << setw(8) << H0[i+j*nq] ;
+        stream << ' ' << std::setw(8) << H0[i+j*nq] ;
       stream << '\n' ;
     }
     stream << "Block HN\n" ;
     for ( integer i = 0 ; i < nq ; ++i ) {
-      stream << setw(8) << HN[i] ;
+      stream << std::setw(8) << HN[i] ;
       for ( integer j = 1 ; j < n ; ++j )
-        stream << ' ' << setw(8) << HN[i+j*nq] ;
+        stream << ' ' << std::setw(8) << HN[i+j*nq] ;
       stream << '\n' ;
     }
     if ( q > 0 ) {
       stream << "Block Hq\n" ;
       for ( integer i = 0 ; i < nq ; ++i ) {
-        stream << setw(8) << Hq[i] ;
+        stream << std::setw(8) << Hq[i] ;
         for ( integer j = 1 ; j < q ; ++j )
-          stream << ' ' << setw(8) << Hq[i+j*nq] ;
+          stream << ' ' << std::setw(8) << Hq[i+j*nq] ;
         stream << '\n' ;
       }
     }

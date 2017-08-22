@@ -28,6 +28,7 @@
 //#define ALGLIN_USE_ATLAS 1
 //#define ALGLIN_USE_OPENBLAS 1
 //#define ALGLIN_USE_LAPACK 1
+//#define ALGLIN_USE_MKL 1
 
 //#define ALGLIN_USE_THREAD
 //#define ALGLIN_DO_NOT_USE_CXX11

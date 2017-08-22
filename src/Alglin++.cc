@@ -344,19 +344,25 @@ namespace alglin {
   \*/
   template <typename T>
   void
+  QR<T>::allocate( integer NR, integer NC, integer Lwrk ) {
+    this->nRow = NR ;
+    this->nCol = NC ;
+    nReflector = std::min(this->nRow,this->nCol) ;
+    Lwork      = Lwrk ;
+    allocReals.allocate(size_t(this->nRow*this->nCol+Lwork+nReflector)) ;
+    this->Amat = allocReals(size_t(this->nRow*this->nCol)) ;
+    this->Work = allocReals(size_t(Lwork)) ;
+    this->Tau  = allocReals(size_t(nReflector)) ;
+  }
+
+  template <typename T>
+  void
   QR<T>::allocate( integer NR, integer NC ) {
     if ( this->nRow != NR || this->nCol != NC ) {
-      this->nRow = NR ;
-      this->nCol = NC ;
-      nReflector = std::min(this->nRow,this->nCol) ;
       valueType tmp ; // get optimal allocation
       integer info = geqrf( NR, NC, nullptr, NR, nullptr, &tmp, -1 ) ;
       ALGLIN_ASSERT( info == 0, "QR::factorize call alglin::geqrf return info = " << info ) ;
-      Lwork = integer(tmp) ;
-      allocReals.allocate(size_t(this->nRow*this->nCol+Lwork+nReflector)) ;
-      this->Amat = allocReals(size_t(this->nRow*this->nCol)) ;
-      this->Work = allocReals(size_t(Lwork)) ;
-      this->Tau  = allocReals(size_t(nReflector)) ;
+      allocate( NR, NC, integer(tmp) ) ;
     }
   }
 
@@ -505,7 +511,7 @@ namespace alglin {
     if ( this->nRow != NR || this->nCol != NC ) {
       this->nRow = NR ;
       this->nCol = NC ;
-      minRC      = min(NR,NC) ;
+      minRC      = std::min(NR,NC) ;
       valueType tmp ;
       integer info = gesvd( REDUCED, REDUCED,
                             NR, NC,
@@ -1154,7 +1160,7 @@ namespace alglin {
     valueType const * col = AB + nL ;
     for ( integer j = 0 ; j < n ; ++j, col += ldAB ) {
       integer imin  = j-nU ;
-      integer imax  = min(j+nL,m-1) ;
+      integer imax  = std::min(j+nL,m-1) ;
       integer imin0 = imin > 0 ? imin : 0 ;
       alglin::axpy( imax-imin0+1,
                     alpha*x[j],
@@ -1165,11 +1171,11 @@ namespace alglin {
 
   template <typename T>
   void
-  BandedLU<T>::dump( ostream & stream ) const {
+  BandedLU<T>::dump( std::ostream & stream ) const {
     for ( integer i = 0 ; i <= nL+nU ; ++i ) {
       valueType const * col = AB + nL + i ;
       for ( integer j = 0 ; j < n ; ++j, col += ldAB )
-        stream << setw(10) << col[0] << ' ' ;
+        stream << std::setw(10) << col[0] << ' ' ;
       stream << '\n' ;
     }
   }

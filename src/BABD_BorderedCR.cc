@@ -64,8 +64,8 @@ namespace alglin {
     Nc      = n_x_2+nx+qx ;
     Tsize   = 2*n_x_n+n ;
 
-    integer N = max(Nr,Nc) ;
-    Lwork = max(N,2*max(n_x_n,max(nr_x_n,n_x_nx))) ;
+    integer N = std::max(Nr,Nc) ;
+    Lwork = std::max(N,2*std::max(n_x_n,std::max(nr_x_n,n_x_nx))) ;
 
     valueType tmp ; // get optimal allocation
     integer info = geqrf( Nr, Nc, nullptr, Nr, nullptr, &tmp, -1 ) ;

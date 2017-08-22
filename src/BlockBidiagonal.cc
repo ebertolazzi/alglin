@@ -28,7 +28,7 @@
 
 namespace alglin {
 
-  string
+  std::string
   LastBlock_to_string( LASTBLOCK_Choice c ) {
     switch ( c ) {
       case LASTBLOCK_LU:  return "last block LU"  ;
@@ -378,11 +378,11 @@ namespace alglin {
   template <typename T>
   static
   void
-  dumpOneMatrix ( basic_ostream<char> & stream,
-                  char const *          name,
-                  T const               M[],
-                  integer               numRow,
-                  integer               numCol ) {
+  dumpOneMatrix ( std::basic_ostream<char> & stream,
+                  char const *               name,
+                  T const                    M[],
+                  integer                    numRow,
+                  integer                    numCol ) {
     stream << "# " << name << " Size: " << numRow << " x " << numCol << '\n' ;
     stream << name << " := <" ;
     for ( integer nc = 0 ; nc < numCol ; ++nc ) {
@@ -399,7 +399,7 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BlockBidiagonal<t_Value>::dump_to_Maple( basic_ostream<char> & stream ) const {
+  BlockBidiagonal<t_Value>::dump_to_Maple( std::basic_ostream<char> & stream ) const {
 
     stream << "interface( rtablesize = 40 ) ;\n" ;
     for ( integer row = 0 ; row < nblock ; ++row ) {
