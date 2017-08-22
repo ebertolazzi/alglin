@@ -16,10 +16,6 @@ CXXFLAGS = -pthread -msse4.2 -msse4.1 -mssse3 -msse3 -msse2 -msse -mmmx -m64 -O3
 override LIBS += -L./lib -lAlglin
 override INC  += -I./src
 
-#MKL_LIB = -lmkl_tbb_thread -lmkl_intel -lmkl_core
-MKL_LIB = -lmkl_sequential -lmkl_intel -lmkl_core
-MKL_PATH = /opt/intel/mkl
-
 # check if the OS string contains 'Linux'
 ifneq (,$(findstring Linux, $(OS)))
   WARN = -Wall
@@ -48,12 +44,15 @@ else
 #
 ifeq ($(MKL),1)
   # for MKL
-  override LIBS += -L$(MKL_PATH)/lib -Wl,-rpath,$(MKL_PATH)/lib $(MKL_LIB)
+  MKL_PATH = /opt/intel/mkl
+  #MKL_LIB = -lmkl_tbb_thread -lmkl_rt -lmkl_core
+  MKL_LIB = -lmkl_sequential -lmkl_rt -lmkl_core
+  override LIBS += -L$(MKL_PATH)/lib/intel64 -Wl,-rpath,$(MKL_PATH)/lib/intel64 $(MKL_LIB)
   override DEFS += -DALGLIN_USE_MKL
   override INC  += -I$(MKL_PATH)/include
 else
   # for OPENBLAS
-  LIBS += -L/usr/lib/openblas-base -Wl,-rpath,/usr/lib/openblas-base -lopenblas
+  override LIBS += -L/usr/lib/openblas-base -Wl,-rpath,/usr/lib/openblas-base -lopenblas
   override DEFS += -DALGLIN_USE_OPENBLAS
 endif
 #
@@ -64,10 +63,10 @@ endif
 
 # check if the OS string contains 'Darwin'
 ifneq (,$(findstring Darwin, $(OS)))
-  WARN    = -Weverything -Wno-reserved-id-macro -Wno-padded
-  CC      = clang
-  CXX     = clang++
-  VERSION = $(shell $(CC) --version 2>&1 | grep -o "Apple LLVM version [0-9]\.[0-9]\.[0-9]" | grep -o " [0-9]\.")
+  WARN     = -Weverything -Wno-reserved-id-macro -Wno-padded
+  CC       = clang
+  CXX      = clang++
+  VERSION  = $(shell $(CC) --version 2>&1 | grep -o "Apple LLVM version [0-9]\.[0-9]\.[0-9]" | grep -o " [0-9]\.")
 ifneq (,$(findstring 8., $(VERSION)))
   CXX += -std=c++11 -stdlib=libc++
 endif
@@ -87,6 +86,9 @@ else
 #
 ifeq ($(MKL),1)
   # for MKL
+  MKL_PATH = /opt/intel/mkl
+  #MKL_LIB = -lmkl_tbb_thread -lmkl_intel -lmkl_core
+  MKL_LIB = -lmkl_sequential -lmkl_intel -lmkl_core
   override LIBS += -L$(MKL_PATH)/lib -Xlinker -rpath -Xlinker $(MKL_PATH)/lib $(MKL_LIB)
   override DEFS += -DALGLIN_USE_MKL
   override INC  += -I$(MKL_PATH)/include
