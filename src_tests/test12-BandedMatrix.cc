@@ -17,169 +17,52 @@
  |                                                                          |
 \*--------------------------------------------------------------------------*/
 
-#include "BABD_C_interface.h"
-#include <stdio.h>
+#include "Alglin++.hh"
+#include <iostream>
 
-static
-void
-test1() {
+using namespace std ;
 
-  int i;
-
-  BABD_intType mat_id          = 1;
-	BABD_intType mat_fact        = 0;
-	BABD_intType last_block_fact = 0;
-	BABD_intType nblock          = 2;
-	BABD_intType n               = 2;
-	BABD_intType qr              = 1;
-	BABD_intType qx              = 1;
-
-  BABD_intType ldDE = 2;
-  BABD_realType const DE[] = {
-    10,2,
-    2,40,
-    2,1,
-    3,-1,
-        10,2,
-        2,40,
-        2,1,
-        3,-1
-  };
-
-  BABD_intType ldH0 = 3;
-  BABD_realType const H0[] = {
-    0,1,1,
-    1,0,2
-  };
-
-  BABD_intType ldHN = 3;
-  BABD_realType const HN[] = {
-    20,0,2,
-    2,-10,2
-  };
-
-  BABD_intType ldHq = 3;
-  BABD_realType const Hq[] = {
-    1,1,30
-  };
-
-  /*
-     Matrix
-     10   2   2   3   .   .   .
-      2  40   1  -1   .   .   .
-      .   .  10   2   2   3   .
-      .   .   2  40   1  -1   .
-      0   1   .   .  20   2   1
-      1   0   .   .   0 -10   1
-      1   2   .   .   2   2  30
-  */
-
-  /* BABD_realType sol[] = { 1, 1, 1, 1, 1, 1, 1 } ; */
-  /* BABD_realType rhs[] = { 17, 42, 17, 42, 24, -8, 37 } ; */
-
-  /* BABD_realType sol[] = { 1, 2, 3, 4, 5, 6, 7 } ; */
-  BABD_realType rhs[] = { 32, 81, 66, 165, 121, -52, 237 } ;
-
-  int ok = BABD_factorize( mat_id, mat_fact, last_block_fact, nblock, n, qr, qx,
-                           DE, ldDE, H0, ldH0, HN, ldHN, Hq, ldHq ) ;
-  if ( ok != 0 ) printf("ERR = %s\n", BABD_get_last_error() ) ;
-
-  for ( i=0 ; i < 7 ; ++i )
-    printf("rhs[%d] = %lf\n", i, rhs[i] ) ;
-
-  ok = BABD_solve( mat_id, rhs ) ;
-  if ( ok != 0 ) printf("ERR = %s\n", BABD_get_last_error() ) ;
-  for ( i=0 ; i < 7 ; ++i )
-    printf("x[%d] = %lf\n", i, rhs[i] ) ;
-}
-
-static
-void
-test2() {
-  int i;
-  /*
-     Matrix
-     10   2   2   3   .   .   .   1
-      2  40   1  -1   .   .   .   1
-      .   .  10   2   2   3   .   1
-      .   .   2  40   1  -1   .   1
-      0   1   .   .  20   2   1   1
-      1   0   .   .   0 -10   1   1
-      1   2   .   .   2   2  30   1
-      1  -1   1  -1   1  -1   1  -1
-  */
-
-  BABD_intType mat_id          = 1;
-	BABD_intType mat_fact        = 0;
-	BABD_intType last_block_fact = 0;
-	BABD_intType nblock          = 2;
-	BABD_intType n               = 2;
-	BABD_intType qr              = 1;
-	BABD_intType qx              = 1;
-
-  BABD_intType ldDE = 2;
-  BABD_realType const DE[] = {
-    10,2,
-    2,40,
-    2,1,
-    3,-1,
-        10,2,
-        2,40,
-        2,1,
-        3,-1
-  };
-
-  BABD_intType ldH0 = 3;
-  BABD_realType const H0[] = {
-    0,1,1,
-    1,0,2
-  };
-
-  BABD_intType ldHN = 3;
-  BABD_realType const HN[] = {
-    20,0,2,
-    2,-10,2
-  };
-
-  BABD_intType ldHq = 3;
-  BABD_realType const Hq[] = {
-    1,1,30
-  };
-
-
-	BABD_intType nr = 1;
-	BABD_intType nx = 1;
-
-  BABD_intType ldB = 7;
-  BABD_realType const B[] = { 1,1,1,1,1,1,1 };
-
-  BABD_intType ldC = 1;
-  BABD_realType const C[] = { 1,-1,1,-1,1,-1,1 };
-
-  BABD_intType ldD = 1;
-  BABD_realType const D[] = { -1 };
-
-  BABD_realType rhs1[] = { 32, 81, 66, 165, 121, -52, 237, 4 } ;
-
-  int ok = BABD_factorize_bordered( mat_id, mat_fact, last_block_fact,
-                                    nblock, n, qr, nr, qx, nx,
-                                    DE, ldDE, H0, ldH0, HN, ldHN, Hq, ldHq,
-                                    B, ldB, C, ldC, D, ldD ) ;
-  if ( ok != 0 ) printf("ERR = %s\n", BABD_get_last_error() ) ;
-
-  for ( i=0 ; i < 8 ; ++i )
-    printf("rhs[%d] = %lf\n", i, rhs1[i] ) ;
-
-  ok = BABD_solve( mat_id, rhs1 ) ;
-  if ( ok != 0 ) printf("ERR = %s\n", BABD_get_last_error() ) ;
-  for ( i=0 ; i < 8 ; ++i )
-    printf("x[%d] = %lf\n", i, rhs1[i] ) ;
-}
 
 int
 main() {
-  test1() ;
-  test2() ;
-  printf("All done!\n") ;
+
+  alglin::BandedLU<alglin::doublereal> BLU ;
+
+  alglin::integer const N  = 10 ;
+  alglin::doublereal D[]   = {1,2,3,4,5,6,7,8,9,10};
+  alglin::doublereal L0[]  = {1,1,1,1,1,1,1,1,1};
+  alglin::doublereal L1[]  = {1,-1,1,-1,1,-1,1};
+  alglin::doublereal L2[]  = {1,-1.4,1,-1,1,-1};
+  alglin::doublereal U0[]  = {-1,-1,-1,-1,-1,-1,-1,-1,-1};
+  alglin::doublereal U1[]  = {1,-1,1,-1,1,-1,1};
+  alglin::doublereal rhs[N];
+
+  BLU.setup( N, N, 3, 2 );
+  BLU.zero() ;
+
+  for ( int i = 0 ; i < N ; ++i )
+    rhs[i] = BLU(i,i) = D[i] ;
+
+  for ( int i = 0 ; i < N-1 ; ++i ) {
+    rhs[i]   += (BLU(i,i+1) = U0[i]) ;
+    rhs[i+1] += (BLU(i+1,i) = L0[i]) ;
+  }
+
+  for ( int i = 0 ; i < N-2 ; ++i ) {
+    rhs[i]   += (BLU(i,i+2) = U1[i]) ;
+    rhs[i+2] += (BLU(i+2,i) = L1[i]) ;
+  }
+
+  for ( int i = 0 ; i < N-2 ; ++i ) {
+    rhs[i+3] += (BLU(i+3,i) = L2[i]) ;
+  }
+
+  BLU.factorize() ;
+  BLU.solve(rhs) ;
+
+  for ( int i = 0 ; i < N ; ++i )
+    cout << "x[ " << i << " ] = " << rhs[i] << '\n' ;
+
+  cout << "All done!\n" ;
   return 0 ;
 }

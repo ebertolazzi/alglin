@@ -304,13 +304,13 @@ BABD_factorize_bordered( BABD_intType        mat_id,
                          BABD_intType        nr,
                          BABD_intType        qx,
                          BABD_intType        nx,
-                         BABD_realType const DE[], BABD_intType ldDE,  // n x (2*n*nblock)
-                         BABD_realType const H0[], BABD_intType ldH0,  // (n+qr) x n
-                         BABD_realType const HN[], BABD_intType ldHN,  // (n+qr) x n
-                         BABD_realType const Hq[], BABD_intType ldHq,  // (n+qr) x qx
-                         BABD_realType const B[],  BABD_intType ldB,   // (n*(nblock+1)+qr) x nx
-                         BABD_realType const C[],  BABD_intType ldC,   // nr x (n*(nblock+1)+qx)
-                         BABD_realType const D[],  BABD_intType ldD ); // nr x nx
+                         BABD_realType const DE[], BABD_intType ldDE,  /* n x (2*n*nblock) */
+                         BABD_realType const H0[], BABD_intType ldH0,  /* (n+qr) x n */
+                         BABD_realType const HN[], BABD_intType ldHN,  /* (n+qr) x n */
+                         BABD_realType const Hq[], BABD_intType ldHq,  /* (n+qr) x qx */
+                         BABD_realType const B[],  BABD_intType ldB,   /* (n*(nblock+1)+qr) x nx */
+                         BABD_realType const C[],  BABD_intType ldC,   /* nr x (n*(nblock+1)+qx) */
+                         BABD_realType const D[],  BABD_intType ldD ); /* nr x nx */
 
 /*!
  *  solve linear ABD system using factorization of `ABD_factorize` call

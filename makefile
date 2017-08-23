@@ -168,6 +168,7 @@ all: lib
 	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test7-BorderedCR          src_tests/test7-BorderedCR.cc $(LIBS)
 	$(CC)  $(INC) $(DEFS) $(CXXFLAGS) -o bin/test8-Cinterface          src_tests/test8-Cinterface.c $(LIBS) $(LIBSGCC)
 	$(CC)  $(INC) $(DEFS) $(CXXFLAGS) -o bin/test9-Cinterface          src_tests/test9-Cinterface.c $(LIBS) $(LIBSGCC)
+	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test12-BandedMatrix       src_tests/test12-BandedMatrix.cc $(LIBS) $(LIBSGCC)
 
 all1: lib
 	mkdir -p bin
@@ -226,6 +227,7 @@ run:
 	./bin/test6-ABD-Block
 	./bin/test7-BorderedCR
 	./bin/test8-Cinterface
+	./bin/test12-BandedMatrix
 
 run_simplex:
 	./bin/SimplexTest1

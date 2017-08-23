@@ -231,6 +231,28 @@ namespace alglin {
     solve( valuePointer b ) const ;
 
   };
+
+  // explicit instantiation declaration to suppress warnings
+
+  #ifdef __GCC__
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Wc++98-compat-pedantic"
+  #endif
+  #ifdef __clang__
+  #pragma clang diagnostic push
+  #pragma clang diagnostic ignored "-Wc++98-compat-pedantic"
+  #endif
+
+  extern template class ArcecoLU<float> ;
+  extern template class ArcecoLU<double> ;
+
+  #ifdef __GCC__
+  #pragma GCC diagnostic pop
+  #endif
+  #ifdef __clang__
+  #pragma clang diagnostic pop
+  #endif
+
 }
 
 #endif

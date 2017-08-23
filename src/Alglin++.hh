@@ -1091,7 +1091,7 @@ namespace alglin {
 
     void
     setup( integer M,    // number of rows
-           integer N,    // numbe of columns
+           integer N,    // number of columns
            integer nL,   // number of lower diagonal
            integer nU ); // number of upper diagonal
 
@@ -1198,6 +1198,44 @@ namespace alglin {
     */
 
   } ;
+
+  // explicit instantiation declaration to suppress warnings
+
+  #ifdef __GCC__
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Wc++98-compat-pedantic"
+  #endif
+  #ifdef __clang__
+  #pragma clang diagnostic push
+  #pragma clang diagnostic ignored "-Wc++98-compat-pedantic"
+  #endif
+
+  extern template class LU<real> ;
+  extern template class LU<doublereal> ;
+
+  extern template class QR<real> ;
+  extern template class QR<doublereal> ;
+
+  extern template class QRP<real> ;
+  extern template class QRP<doublereal> ;
+
+  extern template class SVD<real> ;
+  extern template class SVD<doublereal> ;
+
+  extern template class TridiagonalSPD<real> ;
+  extern template class TridiagonalSPD<doublereal> ;
+
+  extern template class TridiagonalLU<real> ;
+  extern template class TridiagonalLU<doublereal> ;
+
+  extern template class TridiagonalQR<real> ;
+  extern template class TridiagonalQR<doublereal> ;
+
+  extern template class BandedLU<real> ;
+  extern template class BandedLU<doublereal> ;
+
+  extern template class BandedSPD<real> ;
+  extern template class BandedSPD<doublereal> ;
 
 } // end namespace alglin
 

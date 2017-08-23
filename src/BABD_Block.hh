@@ -192,6 +192,29 @@ namespace alglin {
 
   } ;
 
+  // explicit instantiation declaration to suppress warnings
+
+  #ifdef __GCC__
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Wc++98-compat-pedantic"
+  #pragma GCC diagnostic ignored "-Wweak-template-vtables"
+  #endif
+  #ifdef __clang__
+  #pragma clang diagnostic push
+  #pragma clang diagnostic ignored "-Wc++98-compat-pedantic"
+  #pragma clang diagnostic ignored "-Wweak-template-vtables"
+  #endif
+
+  extern template class BBlockLU<float> ;
+  extern template class BBlockLU<double> ;
+
+  #ifdef __GCC__
+  #pragma GCC diagnostic pop
+  #endif
+  #ifdef __clang__
+  #pragma clang diagnostic pop
+  #endif
+
 }
 
 #endif

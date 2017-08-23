@@ -28,11 +28,15 @@
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpadded"
 #pragma GCC diagnostic ignored "-Wc++98-compat"
+#pragma GCC diagnostic ignored "-Wc++98-compat-pedantic"
+#pragma GCC diagnostic ignored "-Wweak-template-vtables"
 #endif
 #ifdef __clang__
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wpadded"
 #pragma clang diagnostic ignored "-Wc++98-compat"
+#pragma clang diagnostic ignored "-Wc++98-compat-pedantic"
+#pragma clang diagnostic ignored "-Wweak-template-vtables"
 #pragma clang diagnostic ignored "-Wundefined-func-template"
 #endif
 
@@ -401,6 +405,10 @@ namespace alglin {
    *  C*x + D*y = b
    * 
   \*/
+
+  // explicit instantiation declaration to suppress warnings
+  extern template class KKT<float> ;
+  extern template class KKT<double> ;
 
 }
 
