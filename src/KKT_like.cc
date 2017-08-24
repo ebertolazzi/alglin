@@ -376,6 +376,7 @@ namespace alglin {
         break ;
       }
     }
+    banded_LU.factorize();
     factorize() ;
   }
 
