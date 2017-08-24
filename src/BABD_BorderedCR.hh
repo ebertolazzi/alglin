@@ -290,7 +290,7 @@ namespace alglin {
   public:
 
     #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
-    explicit ALGLIN_CONSTEXPR
+    explicit
     BorderedCR( integer nth = integer(std::thread::hardware_concurrency()) )
     #else
     explicit ALGLIN_CONSTEXPR
