@@ -1,6 +1,6 @@
 /*--------------------------------------------------------------------------*\
  |                                                                          |
- |  Copyright (C) 2003                                                      |
+ |  Copyright (C) 2017                                                      |
  |                                                                          |
  |         , __                 , __                                        |
  |        /|/  \               /|/  \                                       |
@@ -152,42 +152,114 @@ namespace alglin {
     void
     allocate( integer n, integer m ) ;
 
+    /*!
+      Load A block as a factorized Matrix class
+      \param[in] Asystem the pointer to the object containing the factorized matrix
+    \*/
     void
     load_A( LSS const * Asystem ) ;
 
+    /*!
+      Load A block in sparse form
+
+      \param[in] A_values     vector with the values
+      \param[in] A_row        vector with the row index of the values
+      \param[in] r_offs       offset to be applied, `A_row[j]+r_offs` is the index
+      \param[in] A_col        vector with the column index of the values
+      \param[in] c_offs       offset to be applied, `A_col[j]+c_offs` is the index
+      \param[in] A_nnz        number of element of the sparse matrix
+      \param[in] is_symmetric true if matrix is symmetric and only lower or upper parte is passed
+    \*/
     void
     load_A( valueConstPointer A_values,
-            integer const *   A_row,
-            integer const *   A_col,
-            integer           A_nnz ) ;
+            integer const *   A_row, integer r_offs,
+            integer const *   A_col, integer c_offs,
+            integer           A_nnz,
+            bool  is_symmetric = false ) ;
     
+    /*!
+      Load A block as a FORTRAN matrix
+      \param[in] A          the pointer to the matrix
+      \param[in] ldA        leading dimension of `A`
+      \param[in] transposed true if the matrix must be loaded transposed
+    \*/
     void
     load_A( valueConstPointer A, integer ldA, bool transposed = false ) ;
 
+    /*!
+      Load B block in sparse form
+
+      \param[in] B_values vector with the values
+      \param[in] B_row    vector with the row index of the values
+      \param[in] r_offs   offset to be applied, `B_row[j]+r_offs` is the index
+      \param[in] B_col    vector with the column index of the values
+      \param[in] c_offs   offset to be applied, `B_col[j]+c_offs` is the index
+      \param[in] B_nnz    number of element of the sparse matrix
+    \*/
     void
     load_B( valueConstPointer B_values,
-            integer const *   B_row,
-            integer const *   B_col,
+            integer const *   B_row, integer r_offs,
+            integer const *   B_col, integer c_offs,
             integer           B_nnz ) ;
     
+    /*!
+      Load B block as a FORTRAN matrix
+      \param[in] B          the pointer to the matrix
+      \param[in] ldB        leading dimension of `B`
+      \param[in] transposed true if the matrix must be loaded transposed
+    \*/
     void
     load_B( valueConstPointer B, integer ldB, bool transposed = false ) ;
 
+    /*!
+      Load C block in sparse form
+
+      \param[in] C_values vector with the values
+      \param[in] C_row    vector with the row index of the values
+      \param[in] r_offs   offset to be applied, `C_row[j]+r_offs` is the index
+      \param[in] C_col    vector with the column index of the values
+      \param[in] c_offs   offset to be applied, `C_col[j]+c_offs` is the index
+      \param[in] C_nnz    number of element of the sparse matrix
+    \*/
     void
     load_C( valueConstPointer C_values,
-            integer const *   C_row,
-            integer const *   C_col,
+            integer const *   C_row, integer r_offs,
+            integer const *   C_col, integer c_offs,
             integer           C_nnz ) ;
     
+    /*!
+      Load C block as a FORTRAN matrix
+      \param[in] C          the pointer to the matrix
+      \param[in] ldC        leading dimension of `C`
+      \param[in] transposed true if the matrix must be loaded transposed
+    \*/
     void
     load_C( valueConstPointer C, integer ldC, bool transposed = false ) ;
 
+    /*!
+      Load D block in sparse form
+
+      \param[in] D_values     vector with the values
+      \param[in] D_row        vector with the row index of the values
+      \param[in] r_offs       offset to be applied, `D_row[j]+r_offs` is the index
+      \param[in] D_col        vector with the column index of the values
+      \param[in] c_offs       offset to be applied, `D_col[j]+c_offs` is the index
+      \param[in] D_nnz        number of element of the sparse matrix
+      \param[in] is_symmetric true if matrix `D` is symmetric and only lower or upper part is passed
+    \*/
     void
     load_D( valueConstPointer D_values,
-            integer const *   D_row,
-            integer const *   D_col,
-            integer           D_nnz ) ;
+            integer const *   D_row, integer r_offs,
+            integer const *   D_col, integer c_offs,
+            integer           D_nnz,
+            bool is_symmetric = false ) ;
     
+    /*!
+      Load D block as a FORTRAN matrix
+      \param[in] D          the pointer to the matrix
+      \param[in] ldD        leading dimension of `D`
+      \param[in] transposed true if the matrix must be loaded transposed
+    \*/
     void
     load_D( valueConstPointer D, integer ldD, bool transposed = false ) ;
 
@@ -195,52 +267,64 @@ namespace alglin {
 
     //! load matrix in the class
     /*!
-      \param _n       # of row and column of the first block
-      \param _m       # of rows of block C and columns o B
+      \param _n  number of row and column of the first block
+      \param _m  number of rows of block `C` and columns of block `B`
 
-      \param A_values elements `Aij` of the matrix `A`
-      \param A_row    row index of the corresponding element in `A_values`
-      \param A_col    column index of the corresponding element in `A_values`
-      \param A_nnz    number of entries in the vectors `values`, `row` and `col`
+      \param[in] A_values elements `Aij` of the matrix `A`
+      \param[in] A_row    row index of the corresponding element in `A_values`
+      \param[in] A_col    column index of the corresponding element in `A_values`
+      \param[in] A_nnz    number of entries in the vectors `values`, `row` and `col`
+      \param[in] Ar_offs  offset to be applied, `A_row[j]+Ar_offs` is the index
+      \param[in] Ac_offs  offset to be applied, `A_col[j]+Ac_offs` is the index
+      \param[in] A_is_symmetric true if matrix `A` is symmetric and only lower or upper part is passed
 
-      \param B_values elements `Bij` of the matrix `B`
-      \param B_row    row index of the corresponding element in `B_values`
-      \param B_col    column index of the corresponding element in `B_values`
-      \param B_nnz    number of entries in the vectors `values`, `row` and `col`
+      \param[in] B_values elements `Bij` of the matrix `B`
+      \param[in] B_row    row index of the corresponding element in `B_values`
+      \param[in] B_col    column index of the corresponding element in `B_values`
+      \param[in] B_nnz    number of entries in the vectors `values`, `row` and `col`
+      \param[in] Br_offs  offset to be applied, `B_row[j]+Br_offs` is the index
+      \param[in] Bc_offs  offset to be applied, `B_col[j]+Bc_offs` is the index
 
-      \param C_values elements `Cij` of the matrix `C`
-      \param C_row    row index of the corresponding element in `C_values`
-      \param C_col    column index of the corresponding element in `C_values`
-      \param C_nnz    number of entries in the vectors `values`, `row` and `col`
+      \param[in] C_values elements `Cij` of the matrix `C`
+      \param[in] C_row    row index of the corresponding element in `C_values`
+      \param[in] C_col    column index of the corresponding element in `C_values`
+      \param[in] C_nnz    number of entries in the vectors `values`, `row` and `col`
+      \param[in] Cr_offs  offset to be applied, `C_row[j]+Cr_offs` is the index
+      \param[in] Cc_offs  offset to be applied, `C_col[j]+Cc_offs` is the index
 
-      \param D_values elements `Dij` of the matrix `D`
-      \param D_row    row index of the corresponding element in `D_values`
-      \param D_col    column index of the corresponding element in `D_values`
-      \param D_nnz    number of entries in the vectors `values`, `row` and `col`
+      \param[in] D_values elements `Dij` of the matrix `D`
+      \param[in] D_row    row index of the corresponding element in `D_values`
+      \param[in] D_col    column index of the corresponding element in `D_values`
+      \param[in] D_nnz    number of entries in the vectors `values`, `row` and `col`
+      \param[in] Dr_offs  offset to be applied, `D_row[j]+Dr_offs` is the index
+      \param[in] Dc_offs  offset to be applied, `D_col[j]+Dc_offs` is the index
+      \param[in] D_is_symmetric true if matrix `D` is symmetric and only lower or upper part is passed
     */
     void
     factorize( integer           _n,
                integer           _m,
                // -----------------------
                valueConstPointer A_values,
-               integer const *   A_row,
-               integer const *   A_col,
+               integer const *   A_row, integer Ar_offs,
+               integer const *   A_col, integer Ac_offs,
                integer           A_nnz,
+               bool              A_is_symmetric,
                // -----------------------
                valueConstPointer B_values,
-               integer const *   B_row,
-               integer const *   B_col,
+               integer const *   B_row, integer Br_offs,
+               integer const *   B_col, integer Bc_offs,
                integer           B_nnz,
                // -----------------------
                valueConstPointer C_values,
-               integer const *   C_row,
-               integer const *   C_col,
+               integer const *   C_row, integer Cr_offs,
+               integer const *   C_col, integer Cc_offs,
                integer           C_nnz,
                // -----------------------
                valueConstPointer D_values,
-               integer const *   D_row,
-               integer const *   D_col,
-               integer           D_nnz ) ;
+               integer const *   D_row, integer Dr_offs,
+               integer const *   D_col, integer Dc_offs,
+               integer           D_nnz,
+               bool              D_is_symmetric ) ;
 
     //! load matrix in the class
     /*!
@@ -285,25 +369,32 @@ namespace alglin {
 
     //! load matrix in the class
     /*!
-      \param _n        # of row and column of the first block
-      \param _m        # of rows of block C and columns o B
+      \param[in] _n number row and column of the first block
+      \param[in] _m number of rows of block `C` and columns of block `B`
 
-      \param Asystem  pointer to a class with `solve` and `t_solve` method
+      \param[in] Asystem  pointer to a class with `solve` and `t_solve` method
 
-      \param B_values elements `Bij` of the matrix `B`
-      \param B_row    row index of the corresponding element in `B_values`
-      \param B_col    column index of the corresponding element in `B_values`
-      \param B_nnz    number of entries in the vectors `values`, `row` and `col`
+      \param[in] B_values elements `Bij` of the matrix `B`
+      \param[in] B_row    row index of the corresponding element in `B_values`
+      \param[in] B_col    column index of the corresponding element in `B_values`
+      \param[in] B_nnz    number of entries in the vectors `values`, `row` and `col`
+      \param[in] Br_offs  offset to be applied, `B_row[j]+Br_offs` is the index
+      \param[in] Bc_offs  offset to be applied, `B_col[j]+Bc_offs` is the index
 
-      \param C_values elements `Cij` of the matrix `C`
-      \param C_row    row index of the corresponding element in `C_values`
-      \param C_col    column index of the corresponding element in `C_values`
-      \param C_nnz    number of entries in the vectors `values`, `row` and `col`
+      \param[in] C_values elements `Cij` of the matrix `C`
+      \param[in] C_row    row index of the corresponding element in `C_values`
+      \param[in] C_col    column index of the corresponding element in `C_values`
+      \param[in] C_nnz    number of entries in the vectors `values`, `row` and `col`
+      \param[in] Cr_offs  offset to be applied, `C_row[j]+Cr_offs` is the index
+      \param[in] Cc_offs  offset to be applied, `C_col[j]+Cc_offs` is the index
 
-      \param D_values elements `Dij` of the matrix `D`
-      \param D_row    row index of the corresponding element in `D_values`
-      \param D_col    column index of the corresponding element in `D_values`
-      \param D_nnz    number of entries in the vectors `values`, `row` and `col`
+      \param[in] D_values elements `Dij` of the matrix `D`
+      \param[in] D_row    row index of the corresponding element in `D_values`
+      \param[in] D_col    column index of the corresponding element in `D_values`
+      \param[in] D_nnz    number of entries in the vectors `values`, `row` and `col`
+      \param[in] Dr_offs  offset to be applied, `D_row[j]+Dr_offs` is the index
+      \param[in] Dc_offs  offset to be applied, `D_col[j]+Dc_offs` is the index
+      \param[in] D_is_symmetric true if matrix `D` is symmetric and only lower or upper part is passed
     */
     void
     factorize( integer           _n,
@@ -312,24 +403,25 @@ namespace alglin {
                LSS     const *   Asystem,
                // -----------------------
                valueConstPointer B_values,
-               integer const *   B_row,
-               integer const *   B_col,
+               integer const *   B_row, integer Br_offs,
+               integer const *   B_col, integer Bc_offs,
                integer           B_nnz,
                // -----------------------
                valueConstPointer C_values,
-               integer const *   C_row,
-               integer const *   C_col,
+               integer const *   C_row, integer Cr_offs,
+               integer const *   C_col, integer Cc_offs,
                integer           C_nnz,
                // -----------------------
                valueConstPointer D_values,
-               integer const *   D_row,
-               integer const *   D_col,
-               integer           D_nnz ) ;
+               integer const *   D_row, integer Dr_offs,
+               integer const *   D_col, integer Dc_offs,
+               integer           D_nnz,
+               bool              D_is_symmetric ) ;
 
     //! load matrix in the class
     /*!
-      \param _n        # of row and column of the first block
-      \param _m        # of rows of block C and columns o B
+      \param _n number of row and column of the first block
+      \param _m number of rows of block `C` and columns of block `B`
 
       \param Asystem  pointer to a class with `solve` and `t_solve` method
 

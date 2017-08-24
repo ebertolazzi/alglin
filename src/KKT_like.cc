@@ -1,6 +1,6 @@
 /*--------------------------------------------------------------------------*\
  |                                                                          |
- |  Copyright (C) 2003                                                      |
+ |  Copyright (C) 2017                                                       |
  |                                                                          |
  |         , __                 , __                                        |
  |        /|/  \               /|/  \                                       |
@@ -68,15 +68,16 @@ namespace alglin {
   template <typename t_Value>
   void
   KKT<t_Value>::load_A( valueConstPointer A_values,
-                        integer const *   A_row,
-                        integer const *   A_col,
-                        integer           A_nnz ) {
+                        integer const *   A_row, integer r_offs,
+                        integer const *   A_col, integer c_offs,
+                        integer           A_nnz,
+                        bool  is_symmetric ) {
     pAsolver = &A_lu ;
     A_lu.allocate(n,n) ;
-    A_lu.load_sparse( A_nnz,
-                      A_values,
-                      A_row,
-                      A_col ) ;
+    if ( is_symmetric )
+      A_lu.load_sparse_sym( A_nnz, A_values, A_row, r_offs, A_col, c_offs ) ;
+    else
+      A_lu.load_sparse( A_nnz, A_values, A_row, r_offs, A_col, c_offs ) ;
     A_lu.factorize() ;
   }
     
@@ -102,13 +103,13 @@ namespace alglin {
   template <typename t_Value>
   void
   KKT<t_Value>::load_B( valueConstPointer B_values,
-                        integer const *   B_row,
-                        integer const *   B_col,
+                        integer const *   B_row, integer r_offs,
+                        integer const *   B_col, integer c_offs,
                         integer           B_nnz ) {
      gezero( n, m, Zmat, n ) ;
      for ( integer k = 0 ; k < B_nnz ; ++k ) {
-       integer i = B_row[k] ;
-       integer j = B_col[k] ;
+       integer i = B_row[k]+r_offs ;
+       integer j = B_col[k]+c_offs ;
        ALGLIN_ASSERT( i >= 0 && i < n && j >= 0 && j < m,
                       "KKT::load_B bad index (i,j) = (" << i << "," << j <<
                       ") at position " << k ) ;
@@ -138,13 +139,13 @@ namespace alglin {
   template <typename t_Value>
   void
   KKT<t_Value>::load_C( valueConstPointer C_values,
-                        integer const *   C_row,
-                        integer const *   C_col,
+                        integer const *   C_row, integer r_offs,
+                        integer const *   C_col, integer c_offs,
                         integer           C_nnz ) {
      gezero( m, n, Cmat, m ) ;
      for ( integer k = 0 ; k < C_nnz ; ++k ) {
-       integer i = C_row[k] ;
-       integer j = C_col[k] ;
+       integer i = C_row[k]+r_offs ;
+       integer j = C_col[k]+c_offs ;
        ALGLIN_ASSERT( i >= 0 && i < m && j >= 0 && j < n,
                       "KKT::load_C bad index (i,j) = (" << i << "," << j <<
                       ") at position " << k ) ;
@@ -174,18 +175,21 @@ namespace alglin {
   template <typename t_Value>
   void
   KKT<t_Value>::load_D( valueConstPointer D_values,
-                        integer const *   D_row,
-                        integer const *   D_col,
-                        integer           D_nnz ) {
+                        integer const *   D_row, integer r_offs,
+                        integer const *   D_col, integer c_offs,
+                        integer           D_nnz,
+                        bool is_symmetric_D ) {
      valuePointer Wmat = W_lu.Apointer() ;
      gezero( m, m, Wmat, m ) ;
      for ( integer k = 0 ; k < D_nnz ; ++k ) {
-       integer i = D_row[k] ;
-       integer j = D_col[k] ;
+       integer i = D_row[k]+r_offs ;
+       integer j = D_col[k]+c_offs ;
        ALGLIN_ASSERT( i >= 0 && i < m && j >= 0 && j < m,
                       "KKT::load_D bad index (i,j) = (" << i << "," << j <<
                       ") at position " << k ) ;
        Wmat[ i + m * j ] += D_values[k] ;
+       if ( is_symmetric_D && i == j )
+         Wmat[ j + m * i ] += D_values[k] ;
      }
   }
 
@@ -233,29 +237,31 @@ namespace alglin {
                            integer           _m,
                            // -----------------------
                            valueConstPointer A_values,
-                           integer const *   A_row,
-                           integer const *   A_col,
+                           integer const *   A_row, integer Ar_offs,
+                           integer const *   A_col, integer Ac_offs,
                            integer           A_nnz,
+                           bool              A_is_symmetric,
                            // -----------------------
                            valueConstPointer B_values,
-                           integer const *   B_row,
-                           integer const *   B_col,
+                           integer const *   B_row, integer Br_offs,
+                           integer const *   B_col, integer Bc_offs,
                            integer           B_nnz,
                            // -----------------------
                            valueConstPointer C_values,
-                           integer const *   C_row,
-                           integer const *   C_col,
+                           integer const *   C_row, integer Cr_offs,
+                           integer const *   C_col, integer Cc_offs,
                            integer           C_nnz,
                            // -----------------------
                            valueConstPointer D_values,
-                           integer const *   D_row,
-                           integer const *   D_col,
-                           integer           D_nnz ) {
+                           integer const *   D_row, integer Dr_offs,
+                           integer const *   D_col, integer Dc_offs,
+                           integer           D_nnz,
+                           bool              D_is_symmetric ) {
     allocate( _n, _m ) ;
-    load_A( A_values, A_row, A_col, A_nnz ) ;
-    load_B( B_values, B_row, B_col, B_nnz ) ;
-    load_C( C_values, C_row, C_col, C_nnz ) ;
-    load_D( D_values, D_row, D_col, D_nnz ) ;
+    load_A( A_values, A_row, Ar_offs, A_col, Ac_offs, A_nnz, A_is_symmetric ) ;
+    load_B( B_values, B_row, Br_offs, B_col, Bc_offs, B_nnz ) ;
+    load_C( C_values, C_row, Cr_offs, C_col, Cc_offs, C_nnz ) ;
+    load_D( D_values, D_row, Dr_offs, D_col, Dc_offs, D_nnz, D_is_symmetric ) ;
     factorize() ;
   }
 
@@ -295,24 +301,25 @@ namespace alglin {
                            LSS     const *   Asystem,
                            // -----------------------
                            valueConstPointer B_values,
-                           integer const *   B_row,
-                           integer const *   B_col,
+                           integer const *   B_row, integer Br_offs,
+                           integer const *   B_col, integer Bc_offs,
                            integer           B_nnz,
                            // -----------------------
                            valueConstPointer C_values,
-                           integer const *   C_row,
-                           integer const *   C_col,
+                           integer const *   C_row, integer Cr_offs,
+                           integer const *   C_col, integer Cc_offs,
                            integer           C_nnz,
                            // -----------------------
                            valueConstPointer D_values,
-                           integer const *   D_row,
-                           integer const *   D_col,
-                           integer           D_nnz ) {
+                           integer const *   D_row, integer Dr_offs,
+                           integer const *   D_col, integer Dc_offs,
+                           integer           D_nnz,
+                           bool              D_is_symmetric ) {
     allocate( _n, _m ) ;
     load_A( Asystem ) ;
-    load_B( B_values, B_row, B_col, B_nnz ) ;
-    load_C( C_values, C_row, C_col, C_nnz ) ;
-    load_D( D_values, D_row, D_col, D_nnz ) ;
+    load_B( B_values, B_row, Br_offs, B_col, Bc_offs, B_nnz ) ;
+    load_C( C_values, C_row, Cr_offs, C_col, Cc_offs, C_nnz ) ;
+    load_D( D_values, D_row, Dr_offs, D_col, Dc_offs, D_nnz, D_is_symmetric ) ;
     factorize() ;
   }
 
