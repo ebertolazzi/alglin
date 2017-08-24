@@ -18,7 +18,9 @@
 \*--------------------------------------------------------------------------*/
 
 #include <iostream>
+#include <fstream>
 #include <vector>
+
 #include "Alglin.hh"
 #include "Alglin++.hh"
 #include "Alglin_aux.hh"
@@ -394,6 +396,34 @@ test4() {
     cout << "x[" << i << "] = " << rhs[i] << '\n' ;
 }
 
+static
+void
+test5() {
+
+  alglin::KKT<valueType> kkt ;
+  integer const N = 72 ;
+  integer const M = 10 ;
+
+  ifstream file("src_tests/SparseSort.txt");
+  ALGLIN_ASSERT( file.good(),
+                 "Failed to open file `SparseSort.txt`") ;
+  alglin::integer nnz, irow[1000], icol[1000];
+  valueType val[1000] ;
+  file >> nnz ;
+  for ( integer k = 0 ; k < nnz ; ++k )
+    file >> irow[k] >> icol[k] >> val[k] ;
+
+  // must be factorized before to call kkt.factorize
+  kkt.factorize( N, M, 7, 7,
+                 val,
+                 irow, -1,
+                 icol, -1,
+                 nnz, true ) ;
+
+  //kkt.t_solve( 2, rhs, N+M ) ;
+  //for ( integer i = 0 ; i < N+M ; ++i )
+  //  cout << "x[" << i << "] = " << rhs[i] << '\n' ;
+}
 
 int
 main() {
@@ -409,6 +439,8 @@ main() {
     test3() ;
     cout << "\n\n\ntest4\n" ;
     test4() ;
+    //cout << "\n\n\ntest5\n" ;
+    //test5() ;
   } catch ( exception const & exc ) {
     cerr << exc.what() << '\n' ;
   } catch ( ... ) {

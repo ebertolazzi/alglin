@@ -344,12 +344,16 @@ namespace alglin {
     valuePointer Wmat = W_lu.Apointer() ;
     gezero( m, m, Wmat, m ) ;
 
+    integer mn = m+n ;
+
     // load elements
     for ( integer k = 0 ; k < M_nnz ; ++k ) {
       t_Value v = M_values[k] ;
       integer i = M_row[k]+r_offs ;
       integer j = M_col[k]+c_offs ;
       integer quad = (i < _n ? 0 : 1) + (j < _n ? 0 : 2) ;
+      ALGLIN_ASSERT( i >= 0 && i < mn &&  j >= 0 && j < mn,
+                     "Element (" << i << "," << j << ") outside the matrix M") ;
       switch ( quad ) {
       case 0: // A
         ALGLIN_ASSERT( j <= i + _nU && j >= i - _nL,
@@ -371,7 +375,7 @@ namespace alglin {
         i -= n ;
         j -= n ;
         Wmat[ i + m * j ] += v ;
-        if ( M_is_symmetric && i == j )
+        if ( M_is_symmetric && i != j )
           Wmat[ j + m * i ] += v;
         break ;
       }
