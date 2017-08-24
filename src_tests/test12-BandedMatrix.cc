@@ -30,11 +30,11 @@ main() {
 
   alglin::integer const N  = 10 ;
   alglin::doublereal D[]   = {1,2,3,4,5,6,7,8,9,10};
-  alglin::doublereal L0[]  = {1,1,1,1,1,1,1,1,1};
-  alglin::doublereal L1[]  = {1,-1,1,-1,1,-1,1};
-  alglin::doublereal L2[]  = {1,-1.4,1,-1,1,-1};
-  alglin::doublereal U0[]  = {-1,-1,-1,-1,-1,-1,-1,-1,-1};
-  alglin::doublereal U1[]  = {1,-1,1,-1,1,-1,1};
+  alglin::doublereal L0[]  = { 1,   1, 1,  1, 1,  1, 1, 1, 1};
+  alglin::doublereal L1[]  = { 1,  -1, 1, -1, 1, -1, 1, 1};
+  alglin::doublereal L2[]  = { 1,-1.4, 1, -1, 1, -1, 1 };
+  alglin::doublereal U0[]  = {-1,  -1,-1, -1,-1, -1,-1, -1,-1};
+  alglin::doublereal U1[]  = { 1,  -1, 1, -1, 1, -1, 1, -1};
   alglin::doublereal rhs[N];
 
   BLU.setup( N, N, 3, 2 );
@@ -53,7 +53,7 @@ main() {
     rhs[i+2] += L1[i] ; BLU(i+2,i) = L1[i];
   }
 
-  for ( int i = 0 ; i < N-2 ; ++i ) {
+  for ( int i = 0 ; i < N-3 ; ++i ) {
     rhs[i+3] += L2[i] ; BLU(i+3,i) = L2[i];
   }
 
