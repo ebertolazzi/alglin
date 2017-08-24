@@ -122,6 +122,8 @@ namespace alglin {
 
     valuePointer Zmat, Cmat ;
 
+    BandedLU<valueType> banded_LU;
+
   private:
 
     // A is n x n
@@ -454,6 +456,33 @@ namespace alglin {
                valueConstPointer D_values,
                integer           ldD,
                bool              D_transposed ) ;
+
+    //! load matrix in the class
+    /*!
+      \param _n  number of row and column of the first block
+      \param _m  number of rows of block `C` and columns of block `B`
+      \param _nL number of extra lower diagonals
+      \param _nU number of extra upper diagonals
+
+      \param[in] M_values elements `Aij` of the matrix `A`
+      \param[in] M_row    row index of the corresponding element in `A_values`
+      \param[in] M_col    column index of the corresponding element in `A_values`
+      \param[in] M_nnz    number of entries in the vectors `values`, `row` and `col`
+      \param[in] r_offs  offset to be applied, `A_row[j]+Ar_offs` is the index
+      \param[in] c_offs  offset to be applied, `A_col[j]+Ac_offs` is the index
+      \param[in] M_is_symmetric true if matrix `A` is symmetric and only lower or upper part is passed
+    */
+    void
+    factorize( integer           _n,
+               integer           _m,
+               integer           _nL,
+               integer           _nU,
+               // -----------------------
+               valueConstPointer M_values,
+               integer const *   M_row, integer r_offs,
+               integer const *   M_col, integer c_offs,
+               integer           M_nnz,
+               bool              M_is_symmetric ) ;
 
     // -------------------------------------------------------------------------
     // virtuals redefined

@@ -142,15 +142,15 @@ namespace alglin {
                         integer const *   C_row, integer r_offs,
                         integer const *   C_col, integer c_offs,
                         integer           C_nnz ) {
-     gezero( m, n, Cmat, m ) ;
-     for ( integer k = 0 ; k < C_nnz ; ++k ) {
-       integer i = C_row[k]+r_offs ;
-       integer j = C_col[k]+c_offs ;
-       ALGLIN_ASSERT( i >= 0 && i < m && j >= 0 && j < n,
-                      "KKT::load_C bad index (i,j) = (" << i << "," << j <<
-                      ") at position " << k ) ;
-       Cmat[ i + m * j ] += C_values[k] ;
-     }
+    gezero( m, n, Cmat, m ) ;
+    for ( integer k = 0 ; k < C_nnz ; ++k ) {
+      integer i = C_row[k]+r_offs ;
+      integer j = C_col[k]+c_offs ;
+      ALGLIN_ASSERT( i >= 0 && i < m && j >= 0 && j < n,
+                     "KKT::load_C bad index (i,j) = (" << i << "," << j <<
+                     ") at position " << k ) ;
+      Cmat[ i + m * j ] += C_values[k] ;
+    }
   }
 
   // m x n
@@ -165,9 +165,9 @@ namespace alglin {
       for ( integer i = 0 ; i < m ; ++i )
         copy( n, C+i, m, Cmat+i*m, 1 ) ;
     } else {
-     integer info = gecopy( m, n, C, ldC, Cmat, m ) ;
-     ALGLIN_ASSERT( info == 0,
-                    "KKT::load_C bad call gecopy, info = " << info ) ;
+      integer info = gecopy( m, n, C, ldC, Cmat, m ) ;
+      ALGLIN_ASSERT( info == 0,
+                     "KKT::load_C bad call gecopy, info = " << info ) ;
     }
   }
 
@@ -320,6 +320,62 @@ namespace alglin {
     load_B( B_values, B_row, Br_offs, B_col, Bc_offs, B_nnz ) ;
     load_C( C_values, C_row, Cr_offs, C_col, Cc_offs, C_nnz ) ;
     load_D( D_values, D_row, Dr_offs, D_col, Dc_offs, D_nnz, D_is_symmetric ) ;
+    factorize() ;
+  }
+
+  template <typename t_Value>
+  void
+  KKT<t_Value>::factorize( integer           _n,
+                           integer           _m,
+                           integer           _nL,
+                           integer           _nU,
+                           // -----------------------
+                           valueConstPointer M_values,
+                           integer const *   M_row, integer r_offs,
+                           integer const *   M_col, integer c_offs,
+                           integer           M_nnz,
+                           bool              M_is_symmetric ) {
+    allocate( _n, _m ) ;
+    banded_LU.setup( _n, _n, _nL, _nU );
+    banded_LU.zero();
+    pAsolver = &banded_LU;
+    gezero( n, m, Zmat, n ) ;
+    gezero( m, n, Cmat, m ) ;
+    valuePointer Wmat = W_lu.Apointer() ;
+    gezero( m, m, Wmat, m ) ;
+
+    // load elements
+    for ( integer k = 0 ; k < M_nnz ; ++k ) {
+      t_Value v = M_values[k] ;
+      integer i = M_row[k]+r_offs ;
+      integer j = M_col[k]+c_offs ;
+      integer quad = (i < _n ? 0 : 1) + (j < _n ? 0 : 2) ;
+      switch ( quad ) {
+      case 0: // A
+        ALGLIN_ASSERT( j <= i + _nU && j >= i - _nL,
+                       "Element (" << i << "," << j << ") outside the band of the matrix A") ;
+        banded_LU(i,j) += v ;
+        if ( M_is_symmetric && i != j ) banded_LU(j,i) += v ;
+        break;
+      case 1: // C
+        i -= n ;
+        Cmat[ i + m * j ] += v ;
+        if ( M_is_symmetric ) Zmat[ j + n * i ] += v;
+        break ;
+      case 2: // B
+        j -= n ;
+        Zmat[ i + n * j ] += v ;
+        if ( M_is_symmetric ) Cmat[ j + m * i ] += v;
+        break ;
+      case 3: // D
+        i -= n ;
+        j -= n ;
+        Wmat[ i + m * j ] += v ;
+        if ( M_is_symmetric && i == j )
+          Wmat[ j + m * i ] += v;
+        break ;
+      }
+    }
     factorize() ;
   }
 
