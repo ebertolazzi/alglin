@@ -116,13 +116,15 @@ namespace alglin {
 
     Malloc<valueType> allocReals ;
 
+    // solver for A block
     LSS const * pAsolver ;
-    LU<t_Value> A_lu ;
+    LU<t_Value>         A_lu ;
+    BandedLU<valueType> banded_LU;
+
+    // sover for D block
     LU<t_Value> W_lu ;
 
     valuePointer Zmat, Cmat ;
-
-    BandedLU<valueType> banded_LU;
 
   private:
 

@@ -430,15 +430,15 @@ main() {
 
   try {
     cout << "\n\n\ntest0\n" ;
-    test0() ;
+    test0();
     cout << "\n\n\ntest1\n" ;
-    test1() ;
+    test1();
     cout << "\n\n\ntest2\n" ;
-    test2() ;
+    test2();
     cout << "\n\n\ntest3\n" ;
-    test3() ;
+    test3();
     cout << "\n\n\ntest4\n" ;
-    test4() ;
+    test4();
     //cout << "\n\n\ntest5\n" ;
     //test5() ;
   } catch ( exception const & exc ) {
