@@ -44,17 +44,17 @@ main() {
     rhs[i] = BLU(i,i) = D[i] ;
 
   for ( int i = 0 ; i < N-1 ; ++i ) {
-    rhs[i]   += (BLU(i,i+1) = U0[i]) ;
-    rhs[i+1] += (BLU(i+1,i) = L0[i]) ;
+    rhs[i]   += U0[i]; BLU(i,i+1) = U0[i];
+    rhs[i+1] += L0[i]; BLU(i+1,i) = L0[i];
   }
 
   for ( int i = 0 ; i < N-2 ; ++i ) {
-    rhs[i]   += (BLU(i,i+2) = U1[i]) ;
-    rhs[i+2] += (BLU(i+2,i) = L1[i]) ;
+    rhs[i]   += U1[i] ; BLU(i,i+2) = U1[i];
+    rhs[i+2] += L1[i] ; BLU(i+2,i) = L1[i];
   }
 
   for ( int i = 0 ; i < N-2 ; ++i ) {
-    rhs[i+3] += (BLU(i+3,i) = L2[i]) ;
+    rhs[i+3] += L2[i] ; BLU(i+3,i) = L2[i];
   }
 
   BLU.factorize() ;
