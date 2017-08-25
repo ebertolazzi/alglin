@@ -190,7 +190,7 @@ namespace alglin {
         integer             ldA,
         real                xb[],
         integer             incx ) {
-    #if defined(ALGLIN_USE_ACCELERATE)
+    #if defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
     CBLASNAME(stbmv)( CblasColMajor,
                       uplo_cblas[UPLO],
                       trans_cblas[TRANS],
@@ -219,7 +219,7 @@ namespace alglin {
         integer             ldA,
         doublereal          xb[],
         integer             incx ) {
-    #if defined(ALGLIN_USE_ACCELERATE)
+    #if defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
     CBLASNAME(dtbmv)( CblasColMajor,
                       uplo_cblas[UPLO],
                       trans_cblas[TRANS],
@@ -401,7 +401,7 @@ namespace alglin {
         integer             ldA,
         real                xb[],
         integer             incx ) {
-    #if defined(ALGLIN_USE_ACCELERATE)
+    #if defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
     CBLASNAME(stbsv)( CblasColMajor,
                       uplo_cblas[UPLO],
                       trans_cblas[TRANS],
@@ -430,7 +430,7 @@ namespace alglin {
         integer             ldA,
         doublereal          xb[],
         integer             incx ) {
-    #if defined(ALGLIN_USE_ACCELERATE)
+    #if defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
     CBLASNAME(dtbsv)( CblasColMajor,
                       uplo_cblas[UPLO],
                       trans_cblas[TRANS],

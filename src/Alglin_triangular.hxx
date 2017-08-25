@@ -149,7 +149,7 @@ namespace alglin {
   #if defined(ALGLIN_USE_MKL)
   { strmv( uplo_blas[UPLO], trans_blas[TRANS], diag_blas[DIAG],
            &N, A, &LDA, X, &INCX ) ; }
-  #elif defined(ALGLIN_USE_ACCELERATE)
+  #elif defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
   { CBLASNAME(strmv)( CblasColMajor,
                       uplo_cblas[UPLO],
                       trans_cblas[TRANS],
@@ -175,7 +175,7 @@ namespace alglin {
   #if defined(ALGLIN_USE_MKL)
   { dtrmv( uplo_blas[UPLO], trans_blas[TRANS], diag_blas[DIAG],
            &N, A, &LDA, X, &INCX ) ; }
-  #elif defined(ALGLIN_USE_ACCELERATE)
+  #elif defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
   { CBLASNAME(dtrmv)( CblasColMajor,
                       uplo_cblas[UPLO],
                       trans_cblas[TRANS],
@@ -314,7 +314,7 @@ namespace alglin {
   #if defined(ALGLIN_USE_MKL)
   { strsv( uplo_blas[UPLO], trans_blas[TRANS], diag_blas[DIAG],
            &N, A, &LDA, X, &INCX ) ; }
-  #elif defined(ALGLIN_USE_ACCELERATE)
+  #elif defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
   { CBLASNAME(strsv)( CblasColMajor,
                       uplo_cblas[UPLO],
                       trans_cblas[TRANS],
@@ -340,7 +340,7 @@ namespace alglin {
   #if defined(ALGLIN_USE_MKL)
   { dtrsv( uplo_blas[UPLO], trans_blas[TRANS], diag_blas[DIAG],
            &N, A, &LDA, X, &INCX ) ; }
-  #elif defined(ALGLIN_USE_ACCELERATE)
+  #elif defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
   { CBLASNAME(dtrsv)( CblasColMajor,
                       uplo_cblas[UPLO],
                       trans_cblas[TRANS],
@@ -512,7 +512,7 @@ namespace alglin {
   { strmm( side_blas[SIDE], uplo_blas[UPLO],
            trans_blas[TRANSA], diag_blas[DIAG],
            &M, &N, &alpha, A, &LDA, B, &LDB ) ; }
-  #elif defined(ALGLIN_USE_ACCELERATE)
+  #elif defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
   { CBLASNAME(strmm) ( CblasColMajor,
                        side_cblas[SIDE],
                        uplo_cblas[UPLO],
@@ -544,7 +544,7 @@ namespace alglin {
   { dtrmm( side_blas[SIDE], uplo_blas[UPLO],
            trans_blas[TRANSA], diag_blas[DIAG],
            &M, &N, &alpha, A, &LDA, B, &LDB ) ; }
-  #elif defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_OPENBLAS)
+  #elif defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
   { CBLASNAME(dtrmm) ( CblasColMajor,
                        side_cblas[SIDE],
                        uplo_cblas[UPLO],
@@ -720,7 +720,7 @@ namespace alglin {
   { strsm( side_blas[SIDE], uplo_blas[UPLO],
            trans_blas[TRANS], diag_blas[DIAG],
            &M, &N, &alpha, A, &LDA, B, &LDB ) ; }
-  #elif defined(ALGLIN_USE_ACCELERATE)
+  #elif defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
   { CBLASNAME(strsm)( CblasColMajor,
                       side_cblas[SIDE],
                       uplo_cblas[UPLO],
@@ -752,7 +752,7 @@ namespace alglin {
   { dtrsm( side_blas[SIDE], uplo_blas[UPLO],
            trans_blas[TRANS], diag_blas[DIAG],
            &M, &N, &alpha, A, &LDA, B, &LDB ) ; }
-  #elif defined(ALGLIN_USE_ACCELERATE)
+  #elif defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
   { CBLASNAME(dtrsm)( CblasColMajor,
                       side_cblas[SIDE],
                       uplo_cblas[UPLO],

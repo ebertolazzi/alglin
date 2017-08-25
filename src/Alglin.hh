@@ -133,6 +133,10 @@
   #endif
   #define LAPACK_F77NAME(A) A##_
 
+  #ifndef BLASFUNC
+  #define BLASFUNC(A) LAPACK_F77NAME(A)
+  #endif
+
 #elif defined(ALGLIN_USE_OPENBLAS)
 
   #ifdef ALGLIN_OS_LINUX

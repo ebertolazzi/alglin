@@ -45,7 +45,7 @@ endif
   LIBSGCC = -lstdc++ -lm
 ifeq ($(ATLAS),1)
   # for ATLAS (default)
-  override LIBS += -L/usr/lib/atlas-base -Wl,-rpath,/usr/lib/atlas-base -llapack -lf77blas -lcblas -latlas -lopenblas
+  override LIBS += -L/usr/lib/atlas-base -Wl,-rpath,/usr/lib/atlas-base -llapack_atlas -llapack -latlas -lf77blas -lcblas
   USED_LIB = ALGLIN_USE_ATLAS
 else
 #

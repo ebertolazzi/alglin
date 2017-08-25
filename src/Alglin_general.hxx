@@ -144,7 +144,7 @@ namespace alglin {
                     const_cast<real*>(X), &INCX,
                     const_cast<real*>(Y), &INCY,
                     A, &LDA ) ; }
-  #elif defined(ALGLIN_USE_ACCELERATE)
+  #elif defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
   { CBLASNAME(sger)( CblasColMajor, M, N, ALPHA, X, INCX, Y, INCY, A, LDA ) ; }
   #else
   #error "Alglin undefined mapping!"
@@ -168,7 +168,7 @@ namespace alglin {
                     const_cast<doublereal*>(X), &INCX,
                     const_cast<doublereal*>(Y), &INCY,
                     A, &LDA ) ; }
-  #elif defined(ALGLIN_USE_ACCELERATE)
+  #elif defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
   { CBLASNAME(dger)( CblasColMajor, M, N, ALPHA, X, INCX, Y, INCY, A, LDA ) ; }
   #else
   #error "Alglin undefined mapping!"
@@ -315,7 +315,7 @@ namespace alglin {
                      const_cast<real*>(A), &LDA,
                      const_cast<real*>(X), &INCX,
                      &BETA, Y, &INCY ) ; }
-  #elif defined(ALGLIN_USE_ACCELERATE)
+  #elif defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
   { CBLASNAME(sgemv)( CblasColMajor, trans_cblas[TRANS],
                       M, N, ALPHA, A, LDA, X, INCX, BETA, Y, INCY ) ; }
   #else
@@ -344,7 +344,7 @@ namespace alglin {
                      const_cast<doublereal*>(A), &LDA,
                      const_cast<doublereal*>(X), &INCX,
                      &BETA, Y, &INCY ) ; }
-  #elif defined(ALGLIN_USE_ACCELERATE)
+  #elif defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
   { CBLASNAME(dgemv)( CblasColMajor, trans_cblas[TRANS],
                       M, N, ALPHA, A, LDA, X, INCX, BETA, Y, INCY ) ; }
   #else
@@ -527,7 +527,7 @@ namespace alglin {
                      &ALPHA, const_cast<real*>(A), &LDA,
                      const_cast<real*>(B), &LDB,
                      &BETA, C, &LDC ) ; }
-  #elif defined(ALGLIN_USE_ACCELERATE)
+  #elif defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
   { CBLASNAME(sgemm)( CblasColMajor,
                       trans_cblas[TRANSA],
                       trans_cblas[TRANSB],
@@ -565,7 +565,7 @@ namespace alglin {
                      &ALPHA, const_cast<doublereal*>(A), &LDA,
                      const_cast<doublereal*>(B), &LDB,
                      &BETA, C, &LDC ) ; }
-  #elif defined(ALGLIN_USE_ACCELERATE)
+  #elif defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
   { CBLASNAME(dgemm)( CblasColMajor,
                       trans_cblas[TRANSA],
                       trans_cblas[TRANSB],
@@ -1753,7 +1753,7 @@ namespace alglin {
    *          The leading dimension of the array B.  LDB >= max(1,M).
    *
   \*/
-  #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS)
+  #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
   extern "C" {
     void
     LAPACK_F77NAME(slacpy)( character const   UPLO[],
@@ -1782,7 +1782,7 @@ namespace alglin {
           integer    LDA,
           real       B[],
           integer    LDB )
-  #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_ATLAS) || defined(ALGLIN_USE_OPENBLAS)
+  #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
   { LAPACK_F77NAME(slacpy)( "A", &M, &N, A, &LDA, B, &LDB ) ; return 0 ; }
   #elif defined(ALGLIN_USE_MKL)
   { slacpy( "A", &M, &N, A, &LDA, B, &LDB ) ; return 0 ; }
@@ -1801,7 +1801,7 @@ namespace alglin {
           integer          LDA,
           doublereal       B[],
           integer          LDB )
-  #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_ATLAS) || defined(ALGLIN_USE_OPENBLAS)
+  #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
   { LAPACK_F77NAME(dlacpy)( "A", &M, &N, A, &LDA, B, &LDB ) ; return 0 ; }
   #elif defined(ALGLIN_USE_MKL)
   { dlacpy( "A", &M, &N, A, &LDA, B, &LDB ) ; return 0 ; }
@@ -1862,7 +1862,7 @@ namespace alglin {
    *          The leading dimension of the array A.  LDA >= max(1,M).
    *
   \*/
-  #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS)
+  #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
   extern "C" {
     void
     LAPACK_F77NAME(slaset)( character const   UPLO[],
