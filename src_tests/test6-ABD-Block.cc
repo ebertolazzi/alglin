@@ -119,7 +119,7 @@ main() {
     #endif
 
     for ( int test = 0 ; test < 3 ; ++test ) {
-      cout << "\n\n\ntest N." << test << " NB = " << NB << "\n" ;
+      cout << "\n\n\ntest N." << test << " NB = " << NB << " kind = " << kind[test] << "\n" ;
       valueType diag = 2*dim ;
 
       alglin::integer nn = row0-col00 ;

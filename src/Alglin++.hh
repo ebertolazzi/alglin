@@ -705,9 +705,11 @@ namespace alglin {
         valueType tmp ; // get optimal allocation
         integer info = geqp3( NR, NC, nullptr, NR, nullptr, nullptr, &tmp, -1 ) ;
         ALGLIN_ASSERT( info == 0, "QRP::factorize call alglin::geqp3 return info = " << info ) ;
-        QR<T>::allocate( NR, NC, integer(tmp) );
+        integer L = integer(tmp);
+        if ( L < NR ) L = NR ;
+        if ( L < NC ) L = NC ;
+        QR<T>::allocate( NR, NC, L );
       }
-      //QR<T>::allocate( NR, NC ) ;
       allocIntegers.allocate(size_t(NC)) ;
       JPVT = allocIntegers(size_t(NC)) ;
     }

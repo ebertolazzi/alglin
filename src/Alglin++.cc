@@ -345,10 +345,10 @@ namespace alglin {
   template <typename T>
   void
   QR<T>::allocate( integer NR, integer NC, integer Lwrk ) {
-    this->nRow = NR ;
-    this->nCol = NC ;
-    nReflector = std::min(this->nRow,this->nCol) ;
-    Lwork      = Lwrk ;
+    this->nRow       = NR ;
+    this->nCol       = NC ;
+    this->nReflector = std::min(this->nRow,this->nCol) ;
+    this->Lwork      = Lwrk ;
     allocReals.allocate(size_t(this->nRow*this->nCol+Lwork+nReflector)) ;
     this->Amat = allocReals(size_t(this->nRow*this->nCol)) ;
     this->Work = allocReals(size_t(Lwork)) ;
@@ -362,7 +362,10 @@ namespace alglin {
       valueType tmp ; // get optimal allocation
       integer info = geqrf( NR, NC, nullptr, NR, nullptr, &tmp, -1 ) ;
       ALGLIN_ASSERT( info == 0, "QR::factorize call alglin::geqrf return info = " << info ) ;
-      allocate( NR, NC, integer(tmp) ) ;
+      integer L = integer(tmp);
+      if ( L < NR ) L = NR ;
+      if ( L < NC ) L = NC ;
+      allocate( NR, NC, L ) ;
     }
   }
 
@@ -385,7 +388,9 @@ namespace alglin {
                           Tau,
                           C, ldC,
                           Work, Lwork ) ;
-    ALGLIN_ASSERT( info == 0, "QR::applyQ call alglin::ormqr return info = " << info ) ;
+    ALGLIN_ASSERT( info == 0,
+                   "QR::applyQ call alglin::ormqr return info = " << info <<
+                   " Lwork = " << Lwork ) ;
   }
       
   template <typename T>
