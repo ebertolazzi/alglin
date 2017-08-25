@@ -33,19 +33,18 @@ namespace alglin {
   */
   #ifdef ALGLIN_USE_LAPACK
   extern "C" {
-    using namespace blas_type ;
     void
-    BLASNAME(scopy)( integer          const * N,
-                     single_precision const   X[],
-                     integer          const * INCX,
-                     single_precision         Y[],
-                     integer          const * INCY ) ;
+    LAPACK_F77NAME(scopy)( integer const * N,
+                           real    const   X[],
+                           integer const * INCX,
+                           real            Y[],
+                           integer const * INCY ) ;
     void
-    BLASNAME(dcopy)( integer          const * N,
-                     double_precision const   X[],
-                     integer          const * INCX,
-                     double_precision         Y[],
-                     integer          const * INCY ) ;
+    LAPACK_F77NAME(dcopy)( integer    const * N,
+                           doublereal const   X[],
+                           integer    const * INCX,
+                           doublereal         Y[],
+                           integer    const * INCY ) ;
   }
   #endif
 
@@ -56,10 +55,12 @@ namespace alglin {
         integer    INCX,
         real       Y[],
         integer    INCY )
-  #ifdef ALGLIN_USE_CBLAS
+  #if defined(ALGLIN_USE_MKL)
+  { scopy( &N, X, &INCX, Y, &INCY ) ; }
+  #elif defined(ALGLIN_USE_CBLAS)
   { CBLASNAME(scopy)( N, X, INCX, Y, INCY ) ; }
   #else
-  { BLASNAME(scopy)( &N, X, &INCX, Y, &INCY ) ; }
+  { LAPACK_F77NAME(scopy)( &N, X, &INCX, Y, &INCY ) ; }
   #endif
 
   inline
@@ -69,10 +70,12 @@ namespace alglin {
         integer          INCX,
         doublereal       Y[],
         integer          INCY )
-  #ifdef ALGLIN_USE_CBLAS
+  #if defined(ALGLIN_USE_MKL)
+  { dcopy( &N, X, &INCX, Y, &INCY ) ; }
+  #elif defined(ALGLIN_USE_CBLAS)
   { CBLASNAME(dcopy)( N, X, INCX, Y, INCY ) ; }
   #else
-  { BLASNAME(dcopy)( &N, X, &INCX, Y, &INCY ) ; }
+  { LAPACK_F77NAME(dcopy)( &N, X, &INCX, Y, &INCY ) ; }
   #endif
 
   inline
@@ -100,35 +103,34 @@ namespace alglin {
   */
   #ifdef ALGLIN_USE_LAPACK
   extern "C" {
-    using namespace blas_type ;
     void
-    BLASNAME(sswap)( integer  const * N,
-                     single_precision X[],
-                     integer  const * INCX,
-                     single_precision Y[],
-                     integer  const * INCY ) ;
+    LAPACK_F77NAME(sswap)( integer const * N,
+                           real            X[],
+                           integer const * INCX,
+                           real            Y[],
+                           integer const * INCY ) ;
     void
-    BLASNAME(dswap)( integer  const * N,
-                     double_precision X[],
-                     integer  const * INCX,
-                     double_precision Y[],
-                     integer  const * INCY ) ;
+    LAPACK_F77NAME(dswap)( integer const * N,
+                           doublereal      X[],
+                           integer const * INCX,
+                           doublereal      Y[],
+                           integer const * INCY ) ;
     void
-    BLASNAME(slaswp)( integer  const * NCOL,
-                      single_precision A[],
-                      integer  const * LDA,
-                      integer  const * K1,
-                      integer  const * K2,
-                      integer  const   IPIV[],
-                      integer  const * INC ) ;
+    LAPACK_F77NAME(slaswp)( integer const * NCOL,
+                            real            A[],
+                            integer const * LDA,
+                            integer const * K1,
+                            integer const * K2,
+                            integer const   IPIV[],
+                            integer const * INC ) ;
     void
-    BLASNAME(dlaswp)( integer  const * NCOL,
-                      double_precision A[],
-                      integer  const * LDA,
-                      integer  const * K1,
-                      integer  const * K2,
-                      integer  const   IPIV[],
-                      integer  const * INC ) ;
+    LAPACK_F77NAME(dlaswp)( integer const * NCOL,
+                            doublereal      A[],
+                            integer const * LDA,
+                            integer const * K1,
+                            integer const * K2,
+                            integer const   IPIV[],
+                            integer const * INC ) ;
   }
   #endif
 
@@ -139,10 +141,12 @@ namespace alglin {
         integer INCX,
         real    Y[],
         integer INCY )
-  #ifdef ALGLIN_USE_CBLAS
+  #if defined(ALGLIN_USE_MKL)
+  { sswap( &N, X, &INCX, Y, &INCY ) ; }
+  #elif defined(ALGLIN_USE_CBLAS)
   { CBLASNAME(sswap)( N, X, INCX, Y, INCY ) ; }
   #else
-  { BLASNAME(sswap)( &N, X, &INCX, Y, &INCY ) ; }
+  { LAPACK_F77NAME(sswap)( &N, X, &INCX, Y, &INCY ) ; }
   #endif
 
   inline
@@ -152,10 +156,12 @@ namespace alglin {
         integer    INCX,
         doublereal Y[],
         integer    INCY )
-  #ifdef ALGLIN_USE_CBLAS
+  #if defined(ALGLIN_USE_MKL)
+  { dswap( &N, X, &INCX, Y, &INCY ) ; }
+  #elif defined(ALGLIN_USE_CBLAS)
   { CBLASNAME(dswap)( N, X, INCX, Y, INCY ) ; }
   #else
-  { BLASNAME(dswap)( &N, X, &INCX, Y, &INCY ) ; }
+  { LAPACK_F77NAME(dswap)( &N, X, &INCX, Y, &INCY ) ; }
   #endif
 
   /*\
@@ -270,27 +276,26 @@ namespace alglin {
   */
   #ifdef ALGLIN_USE_LAPACK
   extern "C" {
-    using namespace blas_type ;
     void
-    BLASNAME(sscal)( integer          const * N,
-                     single_precision const * S,
-                     single_precision         X[],
-                     integer          const * INCX ) ;
+    LAPACK_F77NAME(sscal)( integer const * N,
+                           real    const * S,
+                           real            X[],
+                           integer const * INCX ) ;
     void
-    BLASNAME(dscal)( integer          const * N,
-                     double_precision const * S,
-                     double_precision         X[],
-                     integer          const * INCX ) ;
+    LAPACK_F77NAME(dscal)( integer    const * N,
+                           doublereal const * S,
+                           doublereal         X[],
+                           integer    const * INCX ) ;
     void
-    BLASNAME(srscl)( integer const * N,
-                     real    const * SA,
-                     real          * SX,
-                     integer const * INCX ) ;
+    LAPACK_F77NAME(srscl)( integer const * N,
+                           real    const * SA,
+                           real          * SX,
+                           integer const * INCX ) ;
     void
-    BLASNAME(drscl)( integer    const * N,
-                     doublereal const * SA,
-                     doublereal       * SX,
-                     integer    const * INCX ) ;
+    LAPACK_F77NAME(drscl)( integer    const * N,
+                           doublereal const * SA,
+                           doublereal       * SX,
+                           integer    const * INCX ) ;
   }
   #endif
 
@@ -300,10 +305,12 @@ namespace alglin {
         real    S,
         real    X[],
         integer INCX )
-  #ifdef ALGLIN_USE_CBLAS
+  #if defined(ALGLIN_USE_MKL)
+  { sscal( &N, &S, X, &INCX ) ; }
+  #elif defined(ALGLIN_USE_CBLAS)
   { CBLASNAME(sscal)( N, S, X, INCX ) ; }
   #else
-  { BLASNAME(sscal)( &N, &S, X, &INCX ) ; }
+  { LAPACK_F77NAME(sscal)( &N, &S, X, &INCX ) ; }
   #endif
 
   inline
@@ -312,10 +319,12 @@ namespace alglin {
         doublereal S,
         doublereal X[],
         integer    INCX )
-  #ifdef ALGLIN_USE_CBLAS
+  #if defined(ALGLIN_USE_MKL)
+  { dscal( &N, &S, X, &INCX ) ; }
+  #elif defined(ALGLIN_USE_CBLAS)
   { CBLASNAME(dscal)( N, S, X, INCX ) ; }
   #else
-  { BLASNAME(dscal)( &N, &S, X, &INCX ) ; }
+  { LAPACK_F77NAME(dscal)( &N, &S, X, &INCX ) ; }
   #endif
 
   inline
@@ -324,10 +333,12 @@ namespace alglin {
          real    S,
          real    X[],
          integer INCX )
-  #ifdef ALGLIN_USE_CBLAS
+  #if defined(ALGLIN_USE_MKL)
+  { srscl( &N, &S, X, &INCX ) ; }
+  #elif defined(ALGLIN_USE_CBLAS)
   { real rS = 1/S ; CBLASNAME(sscal)( N, rS, X, INCX ) ; }
   #else
-  { BLASNAME(srscl)( &N, &S, X, &INCX ) ; }
+  { LAPACK_F77NAME(srscl)( &N, &S, X, &INCX ) ; }
   #endif
 
   inline
@@ -336,10 +347,12 @@ namespace alglin {
          doublereal S,
          doublereal X[],
          integer    INCX )
-  #ifdef ALGLIN_USE_CBLAS
+  #if defined(ALGLIN_USE_MKL)
+  { drscl( &N, &S, X, &INCX ) ; }
+  #elif defined(ALGLIN_USE_CBLAS)
   { doublereal rS = 1/S ; CBLASNAME(dscal)( N, rS, X, INCX ) ; }
   #else
-  { BLASNAME(drscl)( &N, &S, X, &INCX ) ; }
+  { LAPACK_F77NAME(drscl)( &N, &S, X, &INCX ) ; }
   #endif
 
   /*
@@ -351,21 +364,20 @@ namespace alglin {
   */
   #ifdef ALGLIN_USE_LAPACK
   extern "C" {
-    using namespace blas_type ;
     void
-    BLASNAME(saxpy)( integer          const * N,
-                     single_precision const * A,
-                     single_precision const   X[],
-                     integer          const * INCX,
-                     single_precision         Y[],
-                     integer          const * INCY ) ;
+    LAPACK_F77NAME(saxpy)( integer const * N,
+                           real    const * A,
+                           real    const   X[],
+                           integer const * INCX,
+                           real            Y[],
+                           integer const * INCY ) ;
     void
-    BLASNAME(daxpy)( integer          const * N,
-                     double_precision const * A,
-                     double_precision const   X[],
-                     integer          const * INCX,
-                     double_precision         Y[],
-                     integer          const * INCY ) ;
+    LAPACK_F77NAME(daxpy)( integer    const * N,
+                           doublereal const * A,
+                           doublereal const   X[],
+                           integer    const * INCX,
+                           doublereal         Y[],
+                           integer    const * INCY ) ;
   }
   #endif
   inline
@@ -376,10 +388,12 @@ namespace alglin {
         integer    INCX,
         real       Y[],
         integer    INCY )
-  #ifdef ALGLIN_USE_CBLAS
+  #if defined(ALGLIN_USE_MKL)
+  { saxpy( &N, &A, X, &INCX, Y, &INCY ) ; }
+  #elif defined(ALGLIN_USE_CBLAS)
   { CBLASNAME(saxpy)( N, A, X, INCX, Y, INCY ) ; }
   #else
-  { BLASNAME(saxpy)( &N, &A, X, &INCX, Y, &INCY ) ; }
+  { LAPACK_F77NAME(saxpy)( &N, &A, X, &INCX, Y, &INCY ) ; }
   #endif
 
   inline
@@ -390,10 +404,12 @@ namespace alglin {
         integer          INCX,
         doublereal       Y[],
         integer          INCY )
-  #ifdef ALGLIN_USE_CBLAS
+  #if defined(ALGLIN_USE_MKL)
+  { daxpy( &N, &A, X, &INCX, Y, &INCY ) ; }
+  #elif defined(ALGLIN_USE_CBLAS)
   { CBLASNAME(daxpy)( N, A, X, INCX, Y, INCY ) ; }
   #else
-  { BLASNAME(daxpy)( &N, &A, X, &INCX, Y, &INCY ) ; }
+  { LAPACK_F77NAME(daxpy)( &N, &A, X, &INCX, Y, &INCY ) ; }
   #endif
 
   /*
@@ -407,10 +423,12 @@ namespace alglin {
   zero( integer N,
         real    X[],
         integer INCX )
-  #ifdef ALGLIN_USE_CBLAS
+  #if defined(ALGLIN_USE_MKL)
+  { real z = 0 ; integer iz = 0 ; scopy( &N, &z, &iz, X, &INCX ) ; }
+  #elif defined(ALGLIN_USE_CBLAS)
   { real z = 0 ; CBLASNAME(scopy)( N, &z, 0, X, INCX ) ; }
   #else
-  { real z = 0 ; integer iz = 0 ; BLASNAME(scopy)( &N, &z, &iz, X, &INCX ) ; }
+  { real z = 0 ; integer iz = 0 ; LAPACK_F77NAME(scopy)( &N, &z, &iz, X, &INCX ) ; }
   #endif
 
   inline
@@ -418,10 +436,12 @@ namespace alglin {
   zero( integer    N,
         doublereal X[],
         integer    INCX )
-  #ifdef ALGLIN_USE_CBLAS
+  #if defined(ALGLIN_USE_MKL)
+  { doublereal z = 0 ; integer iz = 0 ; dcopy( &N, &z, &iz, X, &INCX ) ; }
+  #elif defined(ALGLIN_USE_CBLAS)
   { doublereal z = 0 ; CBLASNAME(dcopy)( N, &z, 0, X, INCX ) ; }
   #else
-  { doublereal z = 0 ; integer iz = 0 ; BLASNAME(dcopy)( &N, &z, &iz, X, &INCX ) ; }
+  { doublereal z = 0 ; integer iz = 0 ; LAPACK_F77NAME(dcopy)( &N, &z, &iz, X, &INCX ) ; }
   #endif
 
   /*
@@ -434,21 +454,21 @@ namespace alglin {
   #ifdef ALGLIN_USE_LAPACK
   extern "C" {
     void
-    BLASNAME(srot)( integer const * N,
-                    real            DX[],
-                    integer const * INCX,
-                    real            DY[],
-                    integer const * INCY,
-                    real    const * C,
-                    real    const * S ) ;
+    LAPACK_F77NAME(srot)( integer const * N,
+                          real            DX[],
+                          integer const * INCX,
+                          real            DY[],
+                          integer const * INCY,
+                          real    const * C,
+                          real    const * S ) ;
     void
-    BLASNAME(drot)( integer    const * N,
-                    doublereal         DX[],
-                    integer    const * INCX,
-                    doublereal         DY[],
-                    integer    const * INCY,
-                    doublereal const * C,
-                    doublereal const * S ) ;
+    LAPACK_F77NAME(drot)( integer    const * N,
+                          doublereal         DX[],
+                          integer    const * INCX,
+                          doublereal         DY[],
+                          integer    const * INCY,
+                          doublereal const * C,
+                          doublereal const * S ) ;
   }
   #endif
 
@@ -461,10 +481,12 @@ namespace alglin {
        integer INCY,
        real    C,
        real    S )
-  #ifdef ALGLIN_USE_CBLAS
+  #if defined(ALGLIN_USE_MKL)
+  { srot( &N, DX, &INCX, DY, &INCY, &C, &S ) ; }
+  #elif defined(ALGLIN_USE_CBLAS)
   { CBLASNAME(srot)( N, DX, INCX, DY, INCY, C, S ) ; }
   #else
-  { BLASNAME(srot)( &N, DX, &INCX, DY, &INCY, &C, &S ) ; }
+  { LAPACK_F77NAME(srot)( &N, DX, &INCX, DY, &INCY, &C, &S ) ; }
   #endif
 
   inline
@@ -476,10 +498,12 @@ namespace alglin {
        integer    INCY,
        doublereal C,
        doublereal S )
-  #ifdef ALGLIN_USE_CBLAS
+  #if defined(ALGLIN_USE_MKL)
+  { drot( &N, DX, &INCX, DY, &INCY, &C, &S ) ; }
+  #elif defined(ALGLIN_USE_CBLAS)
   { CBLASNAME(drot)( N, DX, INCX, DY, INCY, C, S ) ; }
   #else
-  { BLASNAME(drot)( &N, DX, &INCX, DY, &INCY, &C, &S ) ; }
+  { LAPACK_F77NAME(drot)( &N, DX, &INCX, DY, &INCY, &C, &S ) ; }
   #endif
 
   /*
@@ -506,15 +530,15 @@ namespace alglin {
   #ifdef ALGLIN_USE_LAPACK
   extern "C" {
     void
-    BLASNAME(srotg)( real * DX,
-                     real * DY,
-                     real * C,
-                     real * S ) ;
+    LAPACK_F77NAME(srotg)( real * DX,
+                           real * DY,
+                           real * C,
+                           real * S ) ;
     void
-    BLASNAME(drotg)( doublereal * DX,
-                     doublereal * DY,
-                     doublereal * C,
-                     doublereal * S ) ;
+    LAPACK_F77NAME(drotg)( doublereal * DX,
+                           doublereal * DY,
+                           doublereal * C,
+                           doublereal * S ) ;
   }
   #endif
 
@@ -524,10 +548,12 @@ namespace alglin {
         real & DY,
         real & C,
         real & S )
-  #ifdef ALGLIN_USE_CBLAS
+  #if defined(ALGLIN_USE_MKL)
+  { srotg( &DX, &DY, &C, &S ) ; }
+  #elif defined(ALGLIN_USE_CBLAS)
   { CBLASNAME(srotg)( &DX, &DY, &C, &S ) ; }
   #else
-  { BLASNAME(srotg)( &DX, &DY, &C, &S ) ; }
+  { LAPACK_F77NAME(srotg)( &DX, &DY, &C, &S ) ; }
   #endif
 
   inline
@@ -536,10 +562,12 @@ namespace alglin {
         doublereal & DY,
         doublereal & C,
         doublereal & S )
-  #ifdef ALGLIN_USE_CBLAS
+  #if defined(ALGLIN_USE_MKL)
+  { drotg( &DX, &DY, &C, &S ) ; }
+  #elif defined(ALGLIN_USE_CBLAS)
   { CBLASNAME(drotg)( &DX, &DY, &C, &S ) ; }
   #else
-  { BLASNAME(drotg)( &DX, &DY, &C, &S ) ; }
+  { LAPACK_F77NAME(drotg)( &DX, &DY, &C, &S ) ; }
   #endif
 
   /*
@@ -558,16 +586,15 @@ namespace alglin {
   \*/
   #ifdef ALGLIN_USE_LAPACK
   extern "C" {
-    using namespace blas_type ;
-    single_precision
-    BLASNAME(snrm2)( integer          const * N,
-                     single_precision const   X[],
-                     integer          const * INCX ) ;
+    real
+    LAPACK_F77NAME(snrm2)( integer const * N,
+                           real    const   X[],
+                           integer const * INCX ) ;
 
-    double_precision
-    BLASNAME(dnrm2)( integer          const * N,
-                     double_precision const   X[],
-                     integer          const * INCX ) ;
+    doublereal
+    LAPACK_F77NAME(dnrm2)( integer    const * N,
+                           doublereal const   X[],
+                           integer    const * INCX ) ;
   }
   #endif
 
@@ -576,10 +603,12 @@ namespace alglin {
   nrm2( integer    N,
         real const X[],
         integer    INCX )
-  #ifdef ALGLIN_USE_CBLAS
+  #if defined(ALGLIN_USE_MKL)
+  { return snrm2( &N, X, &INCX ) ; }
+  #elif defined(ALGLIN_USE_CBLAS)
   { return CBLASNAME(snrm2)( N, X, INCX ) ; }
   #else
-  { return BLASNAME(snrm2)( &N, X, &INCX ) ; }
+  { return LAPACK_F77NAME(snrm2)( &N, X, &INCX ) ; }
   #endif
 
   inline
@@ -587,10 +616,12 @@ namespace alglin {
   nrm2( integer          N,
         doublereal const X[],
         integer          INCX )
-  #ifdef ALGLIN_USE_CBLAS
+  #if defined(ALGLIN_USE_MKL)
+  { return dnrm2( &N, X, &INCX ) ; }
+  #elif defined(ALGLIN_USE_CBLAS)
   { return CBLASNAME(dnrm2)( N, X, INCX ) ; }
   #else
-  { return BLASNAME(dnrm2)( &N, X, &INCX ) ; }
+  { return LAPACK_F77NAME(dnrm2)( &N, X, &INCX ) ; }
   #endif
 
   /*
@@ -607,16 +638,15 @@ namespace alglin {
   \*/
   #ifdef ALGLIN_USE_LAPACK
   extern "C" {
-    using namespace blas_type ;
-    single_precision
-    BLASNAME(sasum)( integer          const * N,
-                     single_precision const   X[],
-                     integer          const * INCX ) ;
+    real
+    LAPACK_F77NAME(sasum)( integer const * N,
+                           real    const   X[],
+                           integer const * INCX ) ;
 
-    double_precision
-    BLASNAME(dasum)( integer          const * N,
-                     double_precision const   X[],
-                     integer          const * INCX ) ;
+    doublereal
+    LAPACK_F77NAME(dasum)( integer    const * N,
+                           doublereal const   X[],
+                           integer    const * INCX ) ;
   }
   #endif
 
@@ -625,10 +655,12 @@ namespace alglin {
   asum( integer    N,
         real const X[],
         integer    INCX)
-  #ifdef ALGLIN_USE_CBLAS
+  #if defined(ALGLIN_USE_MKL)
+  { return sasum( &N, X, &INCX ) ; }
+  #elif defined(ALGLIN_USE_CBLAS)
   { return CBLASNAME(sasum)( N, X, INCX ) ; }
   #else
-  { return BLASNAME(sasum)( &N, X, &INCX ) ; }
+  { return LAPACK_F77NAME(sasum)( &N, X, &INCX ) ; }
   #endif
 
   inline
@@ -636,10 +668,12 @@ namespace alglin {
   asum( integer          N,
         doublereal const X[],
         integer          INCX)
-  #ifdef ALGLIN_USE_CBLAS
+  #if defined(ALGLIN_USE_MKL)
+  { return dasum( &N, X, &INCX ) ; }
+  #elif defined(ALGLIN_USE_CBLAS)
   { return CBLASNAME(dasum)( N, X, INCX ) ; }
   #else
-  { return BLASNAME(dasum)( &N, X, &INCX ) ; }
+  { return LAPACK_F77NAME(dasum)( &N, X, &INCX ) ; }
   #endif
 
   /*
@@ -656,16 +690,15 @@ namespace alglin {
   \*/
   #ifdef ALGLIN_USE_LAPACK
   extern "C" {
-    using namespace blas_type ;
     integer
-    BLASNAME(isamax)( integer          const * N,
-                      single_precision const   X[],
-                      integer          const * INCX ) ;
+    LAPACK_F77NAME(isamax)( integer const * N,
+                            real    const   X[],
+                            integer const * INCX ) ;
 
     integer
-    BLASNAME(idamax)( integer          const * N,
-                      double_precision const   X[],
-                      integer          const * INCX ) ;
+    LAPACK_F77NAME(idamax)( integer    const * N,
+                            doublereal const   X[],
+                            integer    const * INCX ) ;
   }
   #endif
 
@@ -674,10 +707,12 @@ namespace alglin {
   iamax( integer    N,
          real const X[],
          integer    INCX )
-  #ifdef ALGLIN_USE_CBLAS
+  #if defined(ALGLIN_USE_MKL)
+  { return isamax( &N, X, &INCX )-1 ; }
+  #elif defined(ALGLIN_USE_CBLAS)
   { return integer(CBLASNAME(isamax)( N, X, INCX )) ; }
   #else
-  { return BLASNAME(isamax)( &N, X, &INCX )-1 ; }
+  { return LAPACK_F77NAME(isamax)( &N, X, &INCX )-1 ; }
   #endif
 
   inline
@@ -685,10 +720,12 @@ namespace alglin {
   iamax( integer          N,
          doublereal const X[],
          integer          INCX )
-  #ifdef ALGLIN_USE_CBLAS
+  #if defined(ALGLIN_USE_MKL)
+  { return idamax( &N, X, &INCX )-1 ; }
+  #elif defined(ALGLIN_USE_CBLAS)
   { return integer(CBLASNAME(idamax)( N, X, INCX )) ; }
   #else
-  { return BLASNAME(idamax)( &N, X, &INCX )-1 ; }
+  { return LAPACK_F77NAME(idamax)( &N, X, &INCX )-1 ; }
   #endif
 
   inline
@@ -721,20 +758,19 @@ namespace alglin {
   \*/
   #ifdef ALGLIN_USE_LAPACK
   extern "C" {
-    using namespace blas_type ;
-    single_precision
-    BLASNAME(sdot)( integer          const * N,
-                    single_precision const   SX[],
-                    integer          const * INCX,
-                    single_precision const   SY[],
-                    integer          const * INCY ) ;
+    real
+    LAPACK_F77NAME(sdot)( integer const * N,
+                          real    const   SX[],
+                          integer const * INCX,
+                          real    const   SY[],
+                          integer const * INCY ) ;
 
-    double_precision
-    BLASNAME(ddot)( integer          const * N,
-                    double_precision const   SX[],
-                    integer          const * INCX,
-                    double_precision const   SY[],
-                    integer          const * INCY ) ;
+    doublereal
+    LAPACK_F77NAME(ddot)( integer    const * N,
+                          doublereal const   SX[],
+                          integer    const * INCX,
+                          doublereal const   SY[],
+                          integer    const * INCY ) ;
   }
   #endif
 
@@ -745,10 +781,12 @@ namespace alglin {
        integer    INCX,
        real const SY[],
        integer    INCY )
-  #ifdef ALGLIN_USE_CBLAS
+  #if defined(ALGLIN_USE_MKL)
+  { return sdot( &N, SX, &INCX, SY, &INCY ) ; }
+  #elif defined(ALGLIN_USE_CBLAS)
   { return CBLASNAME(sdot)( N, SX, INCX, SY, INCY ) ; }
   #else
-  { return BLASNAME(sdot)( &N, SX, &INCX, SY, &INCY ) ; }
+  { return LAPACK_F77NAME(sdot)( &N, SX, &INCX, SY, &INCY ) ; }
   #endif
 
   inline
@@ -758,10 +796,12 @@ namespace alglin {
        integer          INCX,
        doublereal const SY[],
        integer          INCY )
-  #ifdef ALGLIN_USE_CBLAS
+  #if defined(ALGLIN_USE_MKL)
+  { return ddot( &N, SX, &INCX, SY, &INCY ) ; }
+  #elif defined(ALGLIN_USE_CBLAS)
   { return CBLASNAME(ddot)( N, SX, INCX, SY, INCY ) ; }
   #else
-  { return BLASNAME(ddot)( &N, SX, &INCX, SY, &INCY ) ; }
+  { return LAPACK_F77NAME(ddot)( &N, SX, &INCX, SY, &INCY ) ; }
   #endif
 
 }

@@ -76,6 +76,9 @@
 		D9BD01EE1EE0023900912006 /* libBABD_Lib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D9BD01C11EE0012F00912006 /* libBABD_Lib.a */; };
 		D9BD01EF1EE0023D00912006 /* libBABD_Lib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D9BD01C11EE0012F00912006 /* libBABD_Lib.a */; };
 		D9BD01F01EE0024100912006 /* libBABD_Lib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D9BD01C11EE0012F00912006 /* libBABD_Lib.a */; };
+		D9C5D6DC1F4F753D00412D50 /* Alglin_blas.hxx in Headers */ = {isa = PBXBuildFile; fileRef = D9C5D6DB1F4F753D00412D50 /* Alglin_blas.hxx */; };
+		D9C5D6DE1F4F75E600412D50 /* Alglin_blas_ge.hxx in Headers */ = {isa = PBXBuildFile; fileRef = D9C5D6DD1F4F75E600412D50 /* Alglin_blas_ge.hxx */; };
+		D9C5D6E01F4F75EB00412D50 /* Alglin_ge.hxx in Headers */ = {isa = PBXBuildFile; fileRef = D9C5D6DF1F4F75EB00412D50 /* Alglin_ge.hxx */; };
 		D9CF609D1E1C0FDA0096750D /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D937DF251CEA75A2006642C6 /* Accelerate.framework */; };
 		D9CF60A31E1C0FEA0096750D /* test2-Threads.cc in Sources */ = {isa = PBXBuildFile; fileRef = D9CF60901E1C0FD30096750D /* test2-Threads.cc */; };
 		D9D159D71E3B46BC0037E55A /* test1-small-factorization.cc in Sources */ = {isa = PBXBuildFile; fileRef = D9D159D51E3B46BC0037E55A /* test1-small-factorization.cc */; };
@@ -279,6 +282,9 @@
 		D9A06AF11D93C02E00573D89 /* test4-KKT */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "test4-KKT"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D9B8185F1D8B42C100082BB3 /* test1-small-factorization */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "test1-small-factorization"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D9BD01C11EE0012F00912006 /* libBABD_Lib.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libBABD_Lib.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		D9C5D6DB1F4F753D00412D50 /* Alglin_blas.hxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Alglin_blas.hxx; sourceTree = "<group>"; };
+		D9C5D6DD1F4F75E600412D50 /* Alglin_blas_ge.hxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Alglin_blas_ge.hxx; sourceTree = "<group>"; };
+		D9C5D6DF1F4F75EB00412D50 /* Alglin_ge.hxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Alglin_ge.hxx; sourceTree = "<group>"; };
 		D9CF60901E1C0FD30096750D /* test2-Threads.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "test2-Threads.cc"; sourceTree = "<group>"; };
 		D9CF60A21E1C0FDA0096750D /* test2-Threads */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "test2-Threads"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D9D159D51E3B46BC0037E55A /* test1-small-factorization.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "test1-small-factorization.cc"; sourceTree = "<group>"; };
@@ -450,6 +456,9 @@
 				D95EB3891D6C5067005772D0 /* Alglin++.hh */,
 				D95EB38A1D6C5067005772D0 /* Alglin.cc */,
 				D95EB38B1D6C5067005772D0 /* Alglin.hh */,
+				D9C5D6DF1F4F75EB00412D50 /* Alglin_ge.hxx */,
+				D9C5D6DB1F4F753D00412D50 /* Alglin_blas.hxx */,
+				D9C5D6DD1F4F75E600412D50 /* Alglin_blas_ge.hxx */,
 				D9D9496C1DB57ABF002D2343 /* AlglinFD.hh */,
 				D95EB38C1D6C5067005772D0 /* Alglin_aux.hh */,
 				D95EB38D1D6C5067005772D0 /* Alglin_tmpl.hh */,
@@ -561,8 +570,11 @@
 				D9BD01E31EE0014400912006 /* KKT_like.hh in Headers */,
 				D9BD01D41EE0014400912006 /* TicToc.hh in Headers */,
 				D9BD01CE1EE0014400912006 /* Alglin_tmpl.hh in Headers */,
+				D9C5D6DE1F4F75E600412D50 /* Alglin_blas_ge.hxx in Headers */,
 				D9BD01D11EE0014400912006 /* BABD_BorderedCR.hh in Headers */,
 				D9BD01DC1EE0014400912006 /* BABD_Block.hh in Headers */,
+				D9C5D6DC1F4F753D00412D50 /* Alglin_blas.hxx in Headers */,
+				D9C5D6E01F4F75EB00412D50 /* Alglin_ge.hxx in Headers */,
 				D9BD01D81EE0014400912006 /* ABD_Block.hh in Headers */,
 				D9BD01DE1EE0014400912006 /* BABD_SuperLU.hh in Headers */,
 			);

@@ -62,11 +62,24 @@
 #pragma warning( disable : 4200 )
 #endif
 
+// workaround for SUPERLU INCLUSION
+#define dgemm_  dgemm_BUGGED
+#define dtrsv_  dtrsv_BUGGED
+#define dtrsm_  dtrsm_BUGGED
+#define dgemv_  dgemv_BUGGED
+#define xerbla_ xerbla_BUGGED
+
 #ifdef USE_MECHATRONIX_SUPERLU
   #include <MechatronixCore/superlu/slu_ddefs.h>
 #else
   #include <superlu/slu_ddefs.h>
 #endif
+
+#undef dgemm_
+#undef dtrsv_
+#undef dtrsm_
+#undef dgemv_
+#undef xerbla_
 
 #ifdef __GCC__
 #pragma GCC diagnostic pop

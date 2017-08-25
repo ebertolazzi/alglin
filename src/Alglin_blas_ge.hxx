@@ -93,29 +93,28 @@ namespace alglin {
    *
    *  Level 2 Blas routine.
   \*/
-  #ifdef ALGLIN_USE_LAPACK
+  #if defined(ALGLIN_USE_LAPACK)
   extern "C" {
-    using namespace blas_type ;
     void
-    BLASNAME(sger)( integer          const * M,
-                    integer          const * N,
-                    single_precision const * ALPHA,
-                    single_precision const   X[],
-                    integer          const * INCX,
-                    single_precision const   Y[],
-                    integer          const * INCY,
-                    single_precision         A[],
-                    integer          const * LDA ) ;
+    LAPACK_F77NAME(sger)( integer const * M,
+                          integer const * N,
+                          real    const * ALPHA,
+                          real    const   X[],
+                          integer const * INCX,
+                          real    const   Y[],
+                          integer const * INCY,
+                          real            A[],
+                          integer const * LDA ) ;
     void
-    BLASNAME(dger)( integer          const * M,
-                    integer          const * N,
-                    double_precision const * ALPHA,
-                    double_precision const   X[],
-                    integer          const * INCX,
-                    double_precision const   Y[],
-                    integer          const * INCY,
-                    double_precision         A[],
-                    integer          const * LDA ) ;
+    LAPACK_F77NAME(dger)( integer    const * M,
+                          integer    const * N,
+                          doublereal const * ALPHA,
+                          doublereal const   X[],
+                          integer    const * INCX,
+                          doublereal const   Y[],
+                          integer    const * INCY,
+                          doublereal         A[],
+                          integer    const * LDA ) ;
   }
   #endif
 
@@ -130,10 +129,17 @@ namespace alglin {
        integer    INCY,
        real       A[],
        integer    LDA )
-  #ifdef ALGLIN_USE_CBLAS
+  #if defined(ALGLIN_USE_MKL)
+  { sger( &M, &N, &ALPHA, X, &INCX, Y, &INCY, A, &LDA ) ; }
+  #elif defined(ALGLIN_USE_OPENBLAS)
+  { BLASFUNC(sger)( &M, &N, &ALPHA,
+                    const_cast<real*>(X), &INCX,
+                    const_cast<real*>(Y), &INCY,
+                    A, &LDA ) ; }
+  #elif defined(ALGLIN_USE_CBLAS)
   { CBLASNAME(sger)( CblasColMajor, M, N, ALPHA, X, INCX, Y, INCY, A, LDA ) ; }
   #else
-  { BLASNAME(sger)( &M, &N, &ALPHA, X, &INCX, Y, &INCY, A, &LDA ) ; }
+  { LAPACK_F77NAME(sger)( &M, &N, &ALPHA, X, &INCX, Y, &INCY, A, &LDA ) ; }
   #endif
 
   inline
@@ -147,10 +153,17 @@ namespace alglin {
        integer          INCY,
        doublereal       A[],
        integer          LDA )
-  #ifdef ALGLIN_USE_CBLAS
+  #if defined(ALGLIN_USE_MKL)
+  { dger( &M, &N, &ALPHA, X, &INCX, Y, &INCY, A, &LDA ) ; }
+  #elif defined(ALGLIN_USE_OPENBLAS)
+  { BLASFUNC(dger)( &M, &N, &ALPHA,
+                    const_cast<doublereal*>(X), &INCX,
+                    const_cast<doublereal*>(Y), &INCY,
+                    A, &LDA ) ; }
+  #elif defined(ALGLIN_USE_CBLAS)
   { CBLASNAME(dger)( CblasColMajor, M, N, ALPHA, X, INCX, Y, INCY, A, LDA ) ; }
   #else
-  { BLASNAME(dger)( &M, &N, &ALPHA, X, &INCX, Y, &INCY, A, &LDA ) ; }
+  { LAPACK_F77NAME(dger)( &M, &N, &ALPHA, X, &INCX, Y, &INCY, A, &LDA ) ; }
   #endif
 
   /*
@@ -243,33 +256,32 @@ namespace alglin {
    *
    *  Level 2 Blas routine.
   \*/
-  #ifdef ALGLIN_USE_LAPACK
+  #if defined(ALGLIN_USE_LAPACK)
   extern "C" {
-    using namespace blas_type ;
     void
-    BLASNAME(sgemv)( character        const   TRANS[],
-                     integer          const * M,
-                     integer          const * N,
-                     single_precision const * ALPHA,
-                     single_precision const   A[],
-                     integer          const * LDA,
-                     single_precision const   X[],
-                     integer          const * INCX,
-                     single_precision const * BETA,
-                     single_precision         Y[],
-                     integer          const * INCY ) ;
+    LAPACK_F77NAME(sgemv)( character const   TRANS[],
+                           integer   const * M,
+                           integer   const * N,
+                           real      const * ALPHA,
+                           real      const   A[],
+                           integer   const * LDA,
+                           real      const   X[],
+                           integer   const * INCX,
+                           real      const * BETA,
+                           real              Y[],
+                           integer   const * INCY ) ;
     void
-    BLASNAME(dgemv)( character        const   TRANS[],
-                     integer          const * M,
-                     integer          const * N,
-                     double_precision const * ALPHA,
-                     double_precision const   A[],
-                     integer          const * LDA,
-                     double_precision const   X[],
-                     integer          const * INCX,
-                     double_precision const * BETA,
-                     double_precision         Y[],
-                     integer          const * INCY ) ;
+    LAPACK_F77NAME(dgemv)( character  const   TRANS[],
+                           integer    const * M,
+                           integer    const * N,
+                           doublereal const * ALPHA,
+                           doublereal const   A[],
+                           integer    const * LDA,
+                           doublereal const   X[],
+                           integer    const * INCX,
+                           doublereal const * BETA,
+                           doublereal         Y[],
+                           integer    const * INCY ) ;
     }
   #endif
 
@@ -286,12 +298,21 @@ namespace alglin {
         real                  BETA,
         real                  Y[],
         integer               INCY )
-  #ifdef ALGLIN_USE_CBLAS
+  #if defined(ALGLIN_USE_MKL)
+  { sgemv( trans_blas[TRANS],
+           &M, &N, &ALPHA, A, &LDA, X, &INCX, &BETA, Y, &INCY ) ; }
+  #elif defined(ALGLIN_USE_OPENBLAS)
+  { BLASFUNC(sgemv)( const_cast<character*>(trans_blas[TRANS]),
+                     &M, &N, &ALPHA,
+                     const_cast<real*>(A), &LDA,
+                     const_cast<real*>(X), &INCX,
+                     &BETA, Y, &INCY ) ; }
+  #elif defined(ALGLIN_USE_CBLAS)
   { CBLASNAME(sgemv)( CblasColMajor, trans_cblas[TRANS],
                       M, N, ALPHA, A, LDA, X, INCX, BETA, Y, INCY ) ; }
   #else
-  { BLASNAME(sgemv)( trans_blas[TRANS],
-                     &M, &N, &ALPHA, A, &LDA, X, &INCX, &BETA, Y, &INCY ) ; }
+  { LAPACK_F77NAME(sgemv)( trans_blas[TRANS],
+                           &M, &N, &ALPHA, A, &LDA, X, &INCX, &BETA, Y, &INCY ) ; }
   #endif
 
   inline
@@ -307,7 +328,16 @@ namespace alglin {
         doublereal            BETA,
         doublereal            Y[],
         integer               INCY )
-  #ifdef ALGLIN_USE_CBLAS
+  #if defined(ALGLIN_USE_MKL)
+  { dgemv( trans_blas[TRANS],
+           &M, &N, &ALPHA, A, &LDA, X, &INCX, &BETA, Y, &INCY ) ; }
+  #elif defined(ALGLIN_USE_OPENBLAS)
+  { BLASFUNC(dgemv)( const_cast<character*>(trans_blas[TRANS]),
+                     &M, &N, &ALPHA,
+                     const_cast<doublereal*>(A), &LDA,
+                     const_cast<doublereal*>(X), &INCX,
+                     &BETA, Y, &INCY ) ; }
+  #elif defined(ALGLIN_USE_CBLAS)
   { CBLASNAME(dgemv)( CblasColMajor, trans_cblas[TRANS],
                       M, N, ALPHA, A, LDA, X, INCX, BETA, Y, INCY ) ; }
   #else
@@ -432,37 +462,36 @@ namespace alglin {
    *
    *  Level 3 Blas routine.
   \*/
-  #ifdef ALGLIN_USE_LAPACK
+  #if defined(ALGLIN_USE_LAPACK)
   extern "C" {
-    using namespace blas_type ;
     void
-    BLASNAME(sgemm)( character        const   TRANSA[],
-                     character        const   TRANSB[],
-                     integer          const * M,
-                     integer          const * N,
-                     integer          const * K,
-                     single_precision const * ALPHA,
-                     single_precision const   A[],
-                     integer          const * LDA,
-                     single_precision const   B[],
-                     integer          const * LDB,
-                     single_precision const * BETA,
-                     single_precision         C[],
-                     integer          const * LDC ) ;
+    LAPACK_F77NAME(sgemm)( character const   TRANSA[],
+                           character const   TRANSB[],
+                           integer   const * M,
+                           integer   const * N,
+                           integer   const * K,
+                           real      const * ALPHA,
+                           real      const   A[],
+                           integer   const * LDA,
+                           real      const   B[],
+                           integer   const * LDB,
+                           real      const * BETA,
+                           real              C[],
+                           integer   const * LDC ) ;
     void
-    BLASNAME(dgemm)( character        const   TRANSA[],
-                     character        const   TRANSB[],
-                     integer          const * M,
-                     integer          const * N,
-                     integer          const * K,
-                     double_precision const * ALPHA,
-                     double_precision const   A[],
-                     integer          const * LDA,
-                     double_precision const   B[],
-                     integer          const * LDB,
-                      double_precision const * BETA,
-                     double_precision         C[],
-                     integer          const * LDC ) ;
+    LAPACK_F77NAME(dgemm)( character  const   TRANSA[],
+                           character  const   TRANSB[],
+                           integer    const * M,
+                           integer    const * N,
+                           integer    const * K,
+                           doublereal const * ALPHA,
+                           doublereal const   A[],
+                           integer    const * LDA,
+                           doublereal const   B[],
+                           integer    const * LDB,
+                           doublereal const * BETA,
+                           doublereal         C[],
+                           integer    const * LDC ) ;
     }
   #endif
 
@@ -481,7 +510,18 @@ namespace alglin {
         real                  BETA,
         real                  C[],
         integer               LDC )
-  #ifdef ALGLIN_USE_CBLAS
+  #if defined(ALGLIN_USE_MKL)
+  { sgemm( trans_blas[TRANSA], trans_blas[TRANSB],
+           &M, &N, &K, &ALPHA, A, &LDA, B, &LDB,
+           &BETA, C, &LDC ) ; }
+  #elif defined(ALGLIN_USE_OPENBLAS)
+  { BLASFUNC(sgemm)( const_cast<character*>(trans_blas[TRANSA]),
+                     const_cast<character*>(trans_blas[TRANSB]),
+                     &M, &N, &K,
+                     &ALPHA, const_cast<real*>(A), &LDA,
+                     const_cast<real*>(B), &LDB,
+                     &BETA, C, &LDC ) ; }
+  #elif defined(ALGLIN_USE_CBLAS)
   { CBLASNAME(sgemm)( CblasColMajor,
                       trans_cblas[TRANSA],
                       trans_cblas[TRANSB],
@@ -490,12 +530,12 @@ namespace alglin {
                       B, LDB,
                       BETA, C, LDC ) ; }
   #else
-  { BLASNAME(sgemm)( trans_blas[TRANSA],
-                     trans_blas[TRANSB],
-                     &M, &N, &K,
-                     &ALPHA, A, &LDA,
-                     B, &LDB,
-                     &BETA, C, &LDC ) ; }
+  { LAPACK_F77NAME(sgemm)( trans_blas[TRANSA],
+                           trans_blas[TRANSB],
+                           &M, &N, &K,
+                           &ALPHA, A, &LDA,
+                           B, &LDB,
+                           &BETA, C, &LDC ) ; }
   #endif
 
   inline
@@ -513,7 +553,18 @@ namespace alglin {
         doublereal            BETA,
         doublereal            C[],
         integer               LDC )
-  #ifdef ALGLIN_USE_CBLAS
+  #if defined(ALGLIN_USE_MKL)
+  { dgemm( trans_blas[TRANSA], trans_blas[TRANSB],
+           &M, &N, &K, &ALPHA, A, &LDA, B, &LDB,
+           &BETA, C, &LDC ) ; }
+  #elif defined(ALGLIN_USE_OPENBLAS)
+  { BLASFUNC(dgemm)( const_cast<character*>(trans_blas[TRANSA]),
+                     const_cast<character*>(trans_blas[TRANSB]),
+                     &M, &N, &K,
+                     &ALPHA, const_cast<doublereal*>(A), &LDA,
+                     const_cast<doublereal*>(B), &LDB,
+                     &BETA, C, &LDC ) ; }
+  #elif defined(ALGLIN_USE_CBLAS)
   { CBLASNAME(dgemm)( CblasColMajor,
                       trans_cblas[TRANSA],
                       trans_cblas[TRANSB],
@@ -522,12 +573,12 @@ namespace alglin {
                       B, LDB,
                       BETA, C, LDC ) ; }
   #else
-  { BLASNAME(dgemm)( const_cast<character*>(trans_blas[TRANSA]),
-                     const_cast<character*>(trans_blas[TRANSB]),
-                     &M, &N, &K,
-                     &ALPHA, A, &LDA,
-                     B, &LDB,
-                     &BETA, C, &LDC ) ; }
+  { LAPACK_F77NAME(dgemm)( trans_blas[TRANSA],
+                           trans_blas[TRANSB],
+                           &M, &N, &K,
+                           &ALPHA, A, &LDA,
+                           B, &LDB,
+                           &BETA, C, &LDC ) ; }
   #endif
 
 }

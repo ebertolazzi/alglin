@@ -157,9 +157,10 @@ namespace alglin {
 
     SuperMatrix AC ;
 
-#if defined(SUPERLU_MAJOR_VERSION) && SUPERLU_MAJOR_VERSION >= 5
+    #if defined(SUPERLU_MAJOR_VERSION) && SUPERLU_MAJOR_VERSION >= 5
     GlobalLU_t  glu ;
-#endif
+    #endif
+
     /*
      * Get column permutation vector perm_c[], according to permc_spec:
      *   ColPerm = 0: natural ordering
@@ -178,9 +179,9 @@ namespace alglin {
     //cout << "dgstrf.\n" ;
     dgstrf(&slu_options, &AC, relax, panel_size,
            etree, NULL, 0, perm_c, perm_r, &L, &U,
-#if defined(SUPERLU_MAJOR_VERSION) && SUPERLU_MAJOR_VERSION >= 5
+    #if defined(SUPERLU_MAJOR_VERSION) && SUPERLU_MAJOR_VERSION >= 5
            &glu,
-#endif
+    #endif
            &slu_stats, &info);
 
     // Free un-wanted storage

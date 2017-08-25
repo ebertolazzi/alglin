@@ -61,20 +61,20 @@ namespace alglin {
   \*/
 
   // use standard Lapack routine
-  #ifdef ALGLIN_USE_LAPACK
+  #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS)
   extern "C" {
 
     integer
-    LAPACKNAME(slarnv)( integer * IDIST,
-                        integer * ISEED,
-                        integer * N,
-                        real      X[] ) ;
+    LAPACK_F77NAME(slarnv)( integer * IDIST,
+                            integer * ISEED,
+                            integer * N,
+                            real      X[] ) ;
 
     integer
-    LAPACKNAME(dlarnv)( integer  * IDIST,
-                        integer  * ISEED,
-                        integer  * N,
-                        doublereal X[]) ;
+    LAPACK_F77NAME(dlarnv)( integer  * IDIST,
+                            integer  * ISEED,
+                            integer  * N,
+                            doublereal X[]) ;
   }
   #endif
 
@@ -84,8 +84,14 @@ namespace alglin {
          integer ISEED[4],
          integer N,
          real    X[] ) {
-    #if defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS) || defined(ALGLIN_USE_MKL)
+    #if defined(ALGLIN_USE_OPENBLAS)
+    LAPACK_F77NAME(slarnv)( &IDIST, ISEED, &N, X ) ; // return void in openblas
+    return 0 ;
+    #elif defined(ALGLIN_USE_ATLAS)
     LAPACK_NAME(slarnv)( &IDIST, ISEED, &N, X ) ; // return void in openblas
+    return 0 ;
+    #elif defined(ALGLIN_USE_MKL)
+    slarnv( &IDIST, ISEED, &N, X ) ; // return void in openblas
     return 0 ;
     #elif defined(ALGLIN_USE_ACCELERATE)
     return CLAPACKNAME(slarnv)( &IDIST, ISEED, &N, X ) ;
@@ -100,8 +106,14 @@ namespace alglin {
          integer    ISEED[4],
          integer    N,
          doublereal X[] ) {
-    #if defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS) || defined(ALGLIN_USE_MKL)
+    #if defined(ALGLIN_USE_OPENBLAS)
+    LAPACK_F77NAME(dlarnv)( &IDIST, ISEED, &N, X ) ; // return void in openblas
+    return 0 ;
+    #elif defined(ALGLIN_USE_ATLAS)
     LAPACK_NAME(dlarnv)( &IDIST, ISEED, &N, X ) ; // return void in openblas
+    return 0 ;
+    #elif defined(ALGLIN_USE_MKL)
+    dlarnv( &IDIST, ISEED, &N, X ) ; // return void in openblas
     return 0 ;
     #elif defined(ALGLIN_USE_ACCELERATE)
     return CLAPACKNAME(dlarnv)( &IDIST, ISEED, &N, X ) ;
