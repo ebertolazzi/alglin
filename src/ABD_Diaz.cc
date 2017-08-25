@@ -21,7 +21,9 @@
 /// file: ABD_Diaz.cc
 ///
 
+#include "Alglin_aux.hh"
 #include "ABD_Diaz.hh"
+
 #include <iomanip>
 #include <vector>
 #include <limits>

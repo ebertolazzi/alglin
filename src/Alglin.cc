@@ -57,7 +57,9 @@ char * basename(char *path) {
 
 namespace alglin {
 
-  #ifdef ALGLIN_USE_CBLAS
+  #if defined(ALGLIN_USE_ACCELERATE) || \
+      defined(ALGLIN_USE_ATLAS)      || \
+      defined(ALGLIN_USE_OPENBLAS)
     CBLAS_TRANSPOSE trans_cblas[3] = { CblasNoTrans, CblasTrans, CblasConjTrans } ;
     CBLAS_UPLO      uplo_cblas[2]  = { CblasUpper, CblasLower } ;
     CBLAS_DIAG      diag_cblas[2]  = { CblasUnit, CblasNonUnit } ;
