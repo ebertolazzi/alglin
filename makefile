@@ -45,7 +45,7 @@ endif
   LIBSGCC = -lstdc++ -lm
 ifeq ($(ATLAS),1)
   # for ATLAS (default)
-  override LIBS += -L/usr/lib/atlas-base -Wl,-rpath,/usr/lib/atlas-base -llapack -lf77blas -lcblas -latlas
+  override LIBS += -L/usr/lib/atlas-base -Wl,-rpath,/usr/lib/atlas-base -llapack -llapack_atlas -lf77blas -lcblas -latlas
   USED_LIB = ALGLIN_USE_ATLAS
 else
 #
@@ -65,7 +65,6 @@ endif
 #
 endif
   override INC  += -I/usr/include/eigen3 -I/usr/include/atlas/
-  override DEFS += -DALGLIN_USE_SUPERLU4
 endif
 
 # check if the OS string contains 'Darwin'
