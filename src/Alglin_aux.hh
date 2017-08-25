@@ -654,6 +654,130 @@ namespace alglin {
     }
   }
 
+  /*
+  //              _                 __
+  //    __ _  ___| |_ _ ____  __   / /   _
+  //   / _` |/ _ \ __| '__\ \/ /  / / | | |
+  //  | (_| |  __/ |_| |   >  <  / /| |_| |
+  //   \__, |\___|\__|_|  /_/\_\/_/  \__, |
+  //   |___/                         |___/
+  */
+  template <typename REAL>
+  integer
+  getrx( integer M,
+         integer N,
+         REAL    A[],
+         integer LDA,
+         integer IPIV[],
+         integer NB ) ;
+
+  template <typename REAL>
+  integer
+  getry( integer M,
+         integer N,
+         REAL    A[],
+         integer LDA,
+         integer IPIV[],
+         integer NB ) ;
+
+  template <typename REAL>
+  integer
+  gtx( integer M,
+       integer N,
+       REAL    A[],
+       integer LDA,
+       integer IPIV[] ) ;
+
+  template <typename REAL>
+  integer
+  gty( integer M,
+       integer N,
+       REAL    A[],
+       integer LDA,
+       integer IPIV[] ) ;
+
+  // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+  template <typename T>
+  integer
+  equilibrate( integer M,
+               integer N,
+               T const A[],
+               integer LDA,
+               T       R[],
+               T       C[],
+               integer maxIter,
+               T       epsi ) ;
+
+  // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+  template <typename T>
+  void
+  triTikhonov( integer N,
+               T const Tmat[],
+               integer LDT,
+               integer nrhs,
+               T       RHS[],
+               integer ldRHS,
+               T       lambda ) ;
+
+  inline
+  bool
+  outMATRIXcheck( MatrixType const & MT, integer i, integer j ) {
+    bool ok = MT == FULL_MATRIX ||
+              ( MT == LOWER_TRIANGULAR_MATRIX && i >= j ) ||
+              ( MT == UPPER_TRIANGULAR_MATRIX && i <= j ) ;
+    return ok ;
+  }
+
+  template <typename T>
+  inline
+  void
+  outMATRIX( MatrixType const &         MT,
+             integer                    NR,
+             integer                    NC,
+             T const                    A[],
+             integer                    LDA,
+             std::basic_ostream<char> & s,
+             integer                    prec = 4,
+             integer                    rperm[] = nullptr,
+             integer                    cperm[] = nullptr ) {
+    integer j0 = cperm == nullptr ? 0 : cperm[0]-1 ;
+    for ( integer i = 0 ; i < NR ; ++i ) {
+      integer ii = rperm == nullptr ? i : rperm[i]-1 ;
+      if ( outMATRIXcheck(MT,i,0) )
+        s << std::setprecision(prec) << std::setw(prec+6) << A[ii+j0*LDA] ;
+      else
+        s << std::setw(prec+6) << " " ;
+      for ( integer j = 1 ; j < NC ; ++j ) {
+        integer jj = cperm == nullptr ? j : cperm[j]-1 ;
+        if ( outMATRIXcheck(MT,i,j) )
+          s << " " << std::setprecision(prec) << std::setw(prec+6) << A[ii+jj*LDA] ;
+        else
+          s << " " << std::setw(prec+6) << " " ;
+      }
+      s << '\n' ;
+    }
+  }
+
+  template <typename T>
+  inline
+  void
+  outMAPLE( integer                    NR,
+            integer                    NC,
+            T const                    A[],
+            integer                    LDA,
+            std::basic_ostream<char> & s ) {
+    s << "<" ;
+    for ( integer j = 0 ; j < NC ; ++j ) {
+      s << "<" << std::setprecision(20) << A[j*LDA] ;
+      for ( integer i = 1 ; i < NR ; ++i )
+        s << "," << std::setprecision(20) << A[i+j*LDA] ;
+      if ( j < NC-1 ) s << ">|\n" ;
+      else            s << ">>;\n" ;
+    }
+  }
+
 } // end namespace alglin
 
 #endif
