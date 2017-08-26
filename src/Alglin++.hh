@@ -336,12 +336,29 @@ namespace alglin {
 
     /*!
       Copy a sparse matrix into the internal stored matrix
-      \param[in] nnz        number of nonzeros of the columns
-      \param[in] values     the values of the sparse vector
-      \param[in] row        index row position of the values of the sparse vector
-      \param[in] r_offs     offset for the index, 0 for C based vector -1 for FORTRAN based vector
-      \param[in] col        index column position of the values of the sparse vector
-      \param[in] c_offs     offset for the index, 0 for C based vector -1 for FORTRAN based vector
+      \param[in] nnz    number of nonzeros of the columns
+      \param[in] values the values of the sparse vector
+      \param[in] row    index row position of the values of the sparse vector
+      \param[in] col    index column position of the values of the sparse vector
+    \*/
+    void
+    load_sparse( integer         nnz,
+                 valueType const values[],
+                 integer   const row[],
+                 integer   const col[] ) {
+      zero( nRow*nCol, Amat, 1 ) ;
+      for ( integer i = 0 ; i < nnz ; ++i )
+        Amat[row[i] + col[i] * nRow] = values[i] ;
+    }
+
+    /*!
+      Copy a sparse matrix into the internal stored matrix
+      \param[in] nnz    number of nonzeros of the columns
+      \param[in] values the values of the sparse vector
+      \param[in] row    index row position of the values of the sparse vector
+      \param[in] r_offs offset for the index, 0 for C based vector -1 for FORTRAN based vector
+      \param[in] col    index column position of the values of the sparse vector
+      \param[in] c_offs offset for the index, 0 for C based vector -1 for FORTRAN based vector
     \*/
     void
     load_sparse( integer         nnz,
@@ -358,12 +375,36 @@ namespace alglin {
       The matrix is assumed symmetric and only the lower or upper
       part is passed.
 
-      \param[in] nnz        number of nonzeros of the columns
-      \param[in] values     the values of the sparse vector
-      \param[in] row        index row position of the values of the sparse vector
-      \param[in] r_offs     offset for the index, 0 for C based vector -1 for FORTRAN based vector
-      \param[in] col        index column position of the values of the sparse vector
-      \param[in] c_offs     offset for the index, 0 for C based vector -1 for FORTRAN based vector
+      \param[in] nnz    number of nonzeros of the columns
+      \param[in] values the values of the sparse vector
+      \param[in] row    index row position of the values of the sparse vector
+      \param[in] col    index column position of the values of the sparse vector
+    \*/
+    void
+    load_sparse_sym( integer         nnz,
+                     valueType const values[],
+                     integer   const row[],
+                     integer   const col[] ) {
+      zero( nRow*nCol, Amat, 1 ) ;
+      for ( integer i = 0 ; i < nnz ; ++i ) {
+        integer ii = row[i] ;
+        integer jj = col[i] ;
+        Amat[ii + jj * nRow] = values[i] ;
+        if ( ii != jj ) Amat[ jj + ii * nRow] = values[i] ;
+      }
+    }
+
+    /*!
+      Copy a sparse matrix into the internal stored matrix.
+      The matrix is assumed symmetric and only the lower or upper
+      part is passed.
+
+      \param[in] nnz    number of nonzeros of the columns
+      \param[in] values the values of the sparse vector
+      \param[in] row    index row position of the values of the sparse vector
+      \param[in] r_offs offset for the index, 0 for C based vector -1 for FORTRAN based vector
+      \param[in] col    index column position of the values of the sparse vector
+      \param[in] c_offs offset for the index, 0 for C based vector -1 for FORTRAN based vector
     \*/
     void
     load_sparse_sym( integer         nnz,
