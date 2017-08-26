@@ -215,18 +215,16 @@ lib/libAlglin.so: $(OBJS)
 
 install_local: lib/$(LIB_ALGLIN)
 	$(MKDIR) ./lib/include
-	cp src/*.hh ./lib/include
-	cp src/*.h  ./lib/include
+	cp src/*.h* ./lib/include
 
 install: lib/$(LIB_ALGLIN)
 	$(MKDIR) $(PREFIX)/include
-	cp src/*.hh          $(PREFIX)/include
-	cp src/*.h           $(PREFIX)/include
+	cp src/*.h*          $(PREFIX)/include
 	cp lib/$(LIB_ALGLIN) $(PREFIX)/lib
 
 install_as_framework: lib/$(LIB_ALGLIN)
 	$(MKDIR) $(PREFIX)/include/$(FRAMEWORK)
-	cp src/*.hh          $(PREFIX)/include/$(FRAMEWORK)
+	cp src/*.h*          $(PREFIX)/include/$(FRAMEWORK)
 	cp lib/$(LIB_ALGLIN) $(PREFIX)/lib
 
 config:
