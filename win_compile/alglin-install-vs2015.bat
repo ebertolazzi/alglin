@@ -11,4 +11,4 @@
 @copy vs2015_64\Debug\%LIBNAME%.lib   %LIBDIR%\%LIBNAME_FULL%_debug.lib
 @copy vs2015_64\Release\%LIBNAME%.lib %LIBDIR%\%LIBNAME_FULL%.lib
 
-@xcopy /Y /I ..\src\*.hh %INCDIR%
+@xcopy /Y /I ..\src\*.h* %INCDIR%
