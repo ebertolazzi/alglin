@@ -1,4 +1,5 @@
 @echo off
+@copy /Y src\AlglinConfigWIN.hh src\AlglinConfig.hh
 @pushd win_compile
 @call alglin-compile-vs2013
 @call alglin-compile-vs2015
