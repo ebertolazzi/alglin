@@ -44,16 +44,29 @@
 namespace alglin {
 
   class SpinLock {
+    #ifdef ALGLIN_OS_WINDOWS
+    std::atomic_flag locked;
+    #else
     std::atomic_flag locked = ATOMIC_FLAG_INIT ;
+    #endif
   public:
+
+    #ifdef ALGLIN_OS_WINDOWS
+    SpinLock() { locked.clear(); }
+    #else
+    SpinLock() {}
+    #endif
+
     void
     lock() {
       while (locked.test_and_set(std::memory_order_acquire)) { ; }
     }
+
     void
     unlock() {
       locked.clear(std::memory_order_release);
     }
+
   };
 
   class SpinLock_barrier {
