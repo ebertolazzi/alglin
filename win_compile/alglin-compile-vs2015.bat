@@ -3,7 +3,7 @@
 @rmdir vs2015_32 /s /q
 @mkdir vs2015_32
 @pushd vs2015_32
-@cmake -DLAPACK_BASE="lib/win32" -G "Visual Studio 14 2015 Win32" ..\..
+@cmake -DLAPACK_BASE="lib/win32" -G "Visual Studio 14 2015" ..\..
 @popd
 
 @rmdir vs2015_64 /s /q
