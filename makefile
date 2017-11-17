@@ -58,19 +58,13 @@ ifeq ($(MKL),1)
   override INC  += -I$(MKL_PATH)/include
   USED_LIB = ALGLIN_USE_MKL
 else
-
-ifeq ($(OPENBLAS),1)
   # for OPENBLAS
   override LIBS += -L/usr/lib/openblas-base -Wl,-rpath,/usr/lib/openblas-base -lopenblas
   USED_LIB = ALGLIN_USE_OPENBLAS
-else
-  # for standard lapack
-  USED_LIB = ALGLIN_USE_LAPACK
-endif
 endif
 #
 endif
-  override INC += -I/usr/include/eigen3 -I/usr/include/atlas/
+  override INC  += -I/usr/include/eigen3 -I/usr/include/atlas/
 endif
 
 # check if the OS string contains 'Darwin'
