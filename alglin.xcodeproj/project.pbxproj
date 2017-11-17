@@ -1017,7 +1017,7 @@
 		D96BFE6B1CD01B4B00AB31CD /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0800;
+				LastUpgradeCheck = 0910;
 				ORGANIZATIONNAME = "Enrico Bertolazzi";
 				TargetAttributes = {
 					D924A0271E40A2A1007C4694 = {
@@ -1470,7 +1470,7 @@
 					"$(inherited)",
 				);
 				OTHER_LDFLAGS = (
-					"-L/usr/local/lib",
+					"-L$(PROJECT_DIR)/lib3rd/lib",
 					"-lsuperlu",
 					"-lstdc++",
 				);
@@ -1486,7 +1486,7 @@
 				CLANG_WARN_SUSPICIOUS_MOVES = YES;
 				DEVELOPMENT_TEAM = S8X788ZA8Y;
 				OTHER_LDFLAGS = (
-					"-L/usr/local/lib",
+					"-L$(PROJECT_DIR)/lib3rd/lib",
 					"-lsuperlu",
 					"-lstdc++",
 				);
@@ -1506,7 +1506,7 @@
 					"$(inherited)",
 				);
 				OTHER_LDFLAGS = (
-					"-L/usr/local/lib",
+					"-L$(PROJECT_DIR)/lib3rd/lib",
 					"-lsuperlu",
 					"-lstdc++",
 				);
@@ -1522,7 +1522,7 @@
 				CLANG_WARN_SUSPICIOUS_MOVES = YES;
 				DEVELOPMENT_TEAM = S8X788ZA8Y;
 				OTHER_LDFLAGS = (
-					"-L/usr/local/lib",
+					"-L$(PROJECT_DIR)/lib3rd/lib",
 					"-lsuperlu",
 					"-lstdc++",
 				);
@@ -1541,7 +1541,9 @@
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_ASSIGN_ENUM = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_CXX0X_EXTENSIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
@@ -1552,6 +1554,8 @@
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
@@ -1590,8 +1594,8 @@
 				HEADER_SEARCH_PATHS = (
 					/usr/local/include,
 					/usr/local/include/eigen3,
-					/usr/local/opt/openblas/include,
 					/opt/intel/mkl/include/,
+					"$(PROJECT_DIR)/lib3rd/include",
 				);
 				LIBRARY_SEARCH_PATHS = /usr/local/lib;
 				MTL_ENABLE_DEBUG_INFO = YES;
@@ -1599,7 +1603,7 @@
 				OTHER_CFLAGS = "-pthread";
 				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
 				OTHER_LDFLAGS = (
-					"-L/usr/local/lib",
+					"-L$(PROJECT_DIR)/lib3rd/lib",
 					"-lsuperlu",
 				);
 				OTHER_LIBTOOLFLAGS = "";
@@ -1625,7 +1629,9 @@
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_ASSIGN_ENUM = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_CXX0X_EXTENSIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
@@ -1636,6 +1642,8 @@
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
@@ -1672,15 +1680,15 @@
 				HEADER_SEARCH_PATHS = (
 					/usr/local/include,
 					/usr/local/include/eigen3,
-					/usr/local/opt/openblas/include,
 					/opt/intel/mkl/include/,
+					"$(PROJECT_DIR)/lib3rd/include",
 				);
 				LIBRARY_SEARCH_PATHS = /usr/local/lib;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_CFLAGS = "-pthread";
 				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
 				OTHER_LDFLAGS = (
-					"-L/usr/local/lib",
+					"-L$(PROJECT_DIR)/lib3rd/lib",
 					"-lsuperlu",
 				);
 				OTHER_LIBTOOLFLAGS = "";
@@ -1991,6 +1999,7 @@
 				D9C5D6EA1F5075C400412D50 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		D9CF609F1E1C0FDA0096750D /* Build configuration list for PBXNativeTarget "test2-Threads" */ = {
 			isa = XCConfigurationList;

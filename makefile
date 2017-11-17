@@ -13,8 +13,8 @@ CLIBS = -lc++
 DEFS  =
 
 CXXFLAGS = -pthread -msse4.2 -msse4.1 -mssse3 -msse3 -msse2 -msse -mmmx -m64 -O3 -funroll-loops -fPIC
-override LIBS += -L./lib -lAlglin
-override INC  += -I./src
+override LIBS += -L./lib -lAlglin -L$(PWD)/lib3rd/lib
+override INC  += -I./src -I$(PWD)/lib3rd/include
 
 # check if the OS string contains 'Linux'
 ifneq (,$(findstring Linux, $(OS)))
@@ -52,14 +52,15 @@ else
 ifeq ($(MKL),1)
   # for MKL
   MKL_PATH = /opt/intel/mkl
+  MKL_ARCH = intel64
   #MKL_LIB = -lmkl_tbb_thread -lmkl_rt -lmkl_core
   MKL_LIB = -lmkl_sequential -lmkl_rt -lmkl_core
-  override LIBS += -L$(MKL_PATH)/lib/intel64 -Wl,-rpath,$(MKL_PATH)/lib/intel64 $(MKL_LIB)
+  override LIBS += -L$(MKL_PATH)/lib/$(MKL_ARCH) -Wl,-rpath,$(MKL_PATH)/lib/$(MKL_ARCH) $(MKL_LIB)
   override INC  += -I$(MKL_PATH)/include
   USED_LIB = ALGLIN_USE_MKL
 else
   # for OPENBLAS
-  override LIBS += -L/usr/lib/openblas-base -Wl,-rpath,/usr/lib/openblas-base -lopenblas
+  override LIBS += -L$(PWD)/lib3rd/lib -Wl,-rpath,$(PWD)/lib3rd/lib -lopenblas
   USED_LIB = ALGLIN_USE_OPENBLAS
 endif
 #
@@ -90,9 +91,8 @@ endif
   AR      = libtool -static -o
   LIBSGCC = -lstdc++ -lm
 ifeq ($(OPENBLAS),1)
-  # for OPENBLAS
-  override LIBS += -L/usr/local/opt/openblas/lib -lopenblas
-  override INC  += -I/usr/local/opt/openblas/include
+  # for OPENBLAS 
+  override LIBS += -L$(PWD)/lib3rd/lib -Xlinker -rpath -Xlinker $(PWD)/lib3rd/lib -lopenblas
   USED_LIB = ALGLIN_USE_OPENBLAS
 else
 #
@@ -118,7 +118,7 @@ CXX += -O3 -g0
 #CC  += -O1 -g3
 #CXX += -O1 -g3
 
-SRCS_ALGLIN = \
+SRCS = \
 src/ABD_Arceco.cc \
 src/ABD_Block.cc \
 src/ABD_Diaz.cc \
@@ -129,17 +129,12 @@ src/BABD.cc \
 src/BABD_Block.cc \
 src/BABD_C_interface.cc \
 src/BABD_BorderedCR.cc \
-src/KKT_like.cc
-
-SRCS_SUPERLU=\
+src/KKT_like.cc \
 src/BABD_SuperLU.cc \
 src/Simplex.cc
 
-#SRCS = $(SRCS_ALGLIN) $(SRCS_SUPERLU)
-SRCS = $(SRCS_ALGLIN)
-
-OBJS  = $(SRCS:.cc=.o)
-DEPS  = \
+OBJS = $(SRCS:.cc=.o)
+DEPS = \
 src/ABD_Arceco.hh \
 src/ABD_Diaz.hh \
 src/ABD_Block.hh \
@@ -187,11 +182,11 @@ all1: config lib
 	$(F90) $(INC) -o bin/test10-FORTRAN src_tests/test10-FORTRAN.f90 $(LIBS) $(LIBSGCC) $(CLIBS)
 	$(F90) $(INC) -o bin/test11-FORTRAN src_tests/test11-FORTRAN.f90 $(LIBS) $(LIBSGCC) $(CLIBS)
 
-all_simplex: libAlglin
-	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/SimplexTest1              src_tests/SimplexTest1.cc $(LIBS)
-	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/SimplexTest2              src_tests/SimplexTest2.cc $(LIBS)
-	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/SimplexTest3              src_tests/SimplexTest3.cc $(LIBS)
-	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/SimplexTest4              src_tests/SimplexTest4.cc $(LIBS)
+all_simplex: config lib
+	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/SimplexTest1 src_tests/SimplexTest1.cc $(LIBS)
+	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/SimplexTest2 src_tests/SimplexTest2.cc $(LIBS)
+	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/SimplexTest3 src_tests/SimplexTest3.cc $(LIBS)
+	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/SimplexTest4 src_tests/SimplexTest4.cc $(LIBS)
 
 lib: lib/$(LIB_ALGLIN)
 
@@ -253,5 +248,5 @@ doc:
 	doxygen
 
 clean:
-	rm -rf lib/libAlglin.* lib/include src/*.o
+	rm -rf lib/libAlglin.* src/*.o
 	rm -rf bin

@@ -138,24 +138,19 @@
   #endif
 
 #elif defined(ALGLIN_USE_OPENBLAS)
-
-  #ifdef ALGLIN_OS_LINUX
-    #include <openblas/cblas.h>
-    #include <openblas/f77blas.h>
-  #else
-    // workaround for OPENBLAS on OSX
-    #ifdef ALGLIN_OS_OSX
-      #ifdef __GCC__
-      #pragma GCC diagnostic ignored "-Wreserved-id-macro"
-      #endif
-      #ifdef __clang__
-      #pragma clang diagnostic ignored "-Wreserved-id-macro"
-      #endif
-      #define __STDC_VERSION__ __STDC__
+  // workaround for OPENBLAS on OSX
+  #ifdef ALGLIN_OS_OSX
+    #ifdef __GCC__
+    #pragma GCC diagnostic ignored "-Wreserved-id-macro"
     #endif
-    #include <cblas.h>
-    #include <f77blas.h>
+    #ifdef __clang__
+    #pragma clang diagnostic ignored "-Wreserved-id-macro"
+    #endif
+    #define __STDC_VERSION__ __STDC__
   #endif
+
+  #include <openblas/cblas.h>
+  #include <openblas/f77blas.h>
 
   #define CBLASNAME(A)      cblas_##A
   #define LAPACK_F77NAME(A) A##_

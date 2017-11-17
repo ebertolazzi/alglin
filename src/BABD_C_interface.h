@@ -142,7 +142,7 @@ ABD_free( ABD_intType mat_id ) ;
  */
 
 char const *
-ABD_get_last_error( ) ;
+ABD_get_last_error(void) ;
 
 void
 ABD_get_last_error_f90( char [], long len ) ;
@@ -356,7 +356,7 @@ BABD_free( BABD_intType mat_id ) ;
  */
 
 char const *
-BABD_get_last_error( ) ;
+BABD_get_last_error(void) ;
 
 void
 BABD_get_last_error_f90( char [], long len ) ;
