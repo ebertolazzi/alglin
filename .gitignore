@@ -13,3 +13,9 @@ AlglinConfig.hh
 lib/include
 lib3rd
 .alglin_config
+third_parties/Atlas/ATLAS
+third_parties/Atlas/libs
+third_parties/Atlas/atlas3.10.3.tar.bz2
+third_parties/OpenBlas/libs
+third_parties/OpenBlas/OpenBlas
+third_parties/SuperLU/libs
