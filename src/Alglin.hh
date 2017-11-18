@@ -116,13 +116,13 @@
 
   // atlas 3.6.0
   extern "C" {
-    #ifdef ALGLIN_OS_LINUX
+    //#ifdef ALGLIN_OS_LINUX
     #include <atlas/cblas.h>
     #include <atlas/clapack.h>
-    #else
-    #include <cblas.h>
-    #include <clapack.h>
-    #endif
+    //#else
+    //#include <cblas.h>
+    //#include <clapack.h>
+    //#endif
   }
 
   #define CBLASNAME(A)      cblas_##A
@@ -830,12 +830,18 @@ namespace alglin {
          real     & SESTPR,
          real     & S,
          real     & C )
-  #ifdef ALGLIN_USE_ACCELERATE
+  #if defined(ALGLIN_USE_ACCELERATE)
   { CLAPACKNAME(slaic1)( &JOB, &J,
                          const_cast<real*>(X), &SEST,
                          const_cast<real*>(W), &GAMMA,
                          &SESTPR, &S, &C  ) ; }
-  #elif defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_ATLAS) || defined(ALGLIN_USE_OPENBLAS)
+  #elif defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS)
+  { LAPACK_F77NAME(slaic1)( &JOB, &J,
+                            const_cast<real*>(X), &SEST,
+                            const_cast<real*>(W), &GAMMA,
+                            &SESTPR, &S, &C  ) ; }
+  #elif defined(ALGLIN_USE_ATLAS)
+  //@@ USE LAPACK ROUTINE @@
   { LAPACK_F77NAME(slaic1)( &JOB, &J,
                             const_cast<real*>(X), &SEST,
                             const_cast<real*>(W), &GAMMA,
@@ -857,16 +863,22 @@ namespace alglin {
          doublereal     & SESTPR,
          doublereal     & S,
          doublereal     & C )
-  #ifdef ALGLIN_USE_ACCELERATE
+  #if defined(ALGLIN_USE_ACCELERATE)
   { CLAPACKNAME(dlaic1)( &JOB, &J,
                          const_cast<doublereal*>(X), &SEST,
                          const_cast<doublereal*>(W), &GAMMA,
                          &SESTPR, &S, &C  ) ; }
-  #elif defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_ATLAS) || defined(ALGLIN_USE_OPENBLAS)
+  #elif defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS)
   { LAPACK_F77NAME(dlaic1)( &JOB, &J,
                             const_cast<doublereal*>(X), &SEST,
                             const_cast<doublereal*>(W), &GAMMA,
-                            &SESTPR, &S, &C  ) ; }
+                            &SESTPR, &S, &C ) ; }
+  #elif defined(ALGLIN_USE_ATLAS)
+  //@@ USE LAPACK ROUTINE @@
+  { LAPACK_F77NAME(dlaic1)( &JOB, &J,
+                            const_cast<doublereal*>(X), &SEST,
+                            const_cast<doublereal*>(W), &GAMMA,
+                            &SESTPR, &S, &C ) ; }
   #elif defined(ALGLIN_USE_MKL)
   { dlaic1( &JOB, &J, X, &SEST, W, &GAMMA, &SESTPR, &S, &C  ) ; }
   #else

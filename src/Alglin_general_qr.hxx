@@ -372,7 +372,12 @@ namespace alglin {
          real                  WORK[],
          integer               LWORK )
   { integer info = 0 ;
-    #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
+    #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS)
+    LAPACK_F77NAME(sormqr)( side_blas[SIDE], trans_blas[TRANS],
+                            &M, &N, &K, A, &LDA,
+                            TAU, C, &LDC, WORK, &LWORK, &info);
+    #elif defined(ALGLIN_USE_ATLAS)
+    //@@ USE LAPACK ROUTINE @@
     LAPACK_F77NAME(sormqr)( side_blas[SIDE], trans_blas[TRANS],
                             &M, &N, &K, A, &LDA,
                             TAU, C, &LDC, WORK, &LWORK, &info);
@@ -406,7 +411,13 @@ namespace alglin {
          doublereal            WORK[],
          integer               LWORK )
   { integer info = 0 ;
-    #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
+    #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS)
+    LAPACK_F77NAME(dormqr)( side_blas[SIDE], trans_blas[TRANS],
+                            &M, &N, &K, A, &LDA,
+                            TAU, C, &LDC,
+                            WORK, &LWORK, &info);
+    #elif defined(ALGLIN_USE_ATLAS)
+    //@@ USE LAPACK ROUTINE @@
     LAPACK_F77NAME(dormqr)( side_blas[SIDE], trans_blas[TRANS],
                             &M, &N, &K, A, &LDA,
                             TAU, C, &LDC,
@@ -538,7 +549,12 @@ namespace alglin {
                       const_cast<character*>(trans_blas[TRANS]),
                       &M, &N, &K, A, &LDA, TAU, C, &LDC,
                       WORK, &LWORK, &info ) ;
-    #elif defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_ATLAS)
+    #elif defined(ALGLIN_USE_LAPACK)
+    LAPACK_F77NAME(sormqr)( side_blas[SIDE], trans_blas[TRANS],
+                            &M, &N, &K, A, &LDA, TAU, C, &LDC,
+                            WORK, &LWORK, &info ) ;
+    #elif defined(ALGLIN_USE_ATLAS)
+    //@@ USE LAPACK ROUTINE @@
     LAPACK_F77NAME(sormqr)( side_blas[SIDE], trans_blas[TRANS],
                             &M, &N, &K, A, &LDA, TAU, C, &LDC,
                             WORK, &LWORK, &info ) ;
@@ -577,7 +593,12 @@ namespace alglin {
                       const_cast<character*>(trans_blas[TRANS]),
                       &M, &N, &K, A, &LDA, TAU, C, &LDC,
                       WORK, &LWORK,&info ) ;
-    #elif defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_ATLAS)
+    #elif defined(ALGLIN_USE_LAPACK)
+    LAPACK_F77NAME(dormqr)( side_blas[SIDE], trans_blas[TRANS],
+                            &M, &N, &K, A, &LDA, TAU, C, &LDC,
+                            WORK, &LWORK, &info ) ;
+    #elif defined(ALGLIN_USE_ATLAS)
+    //@@ USE LAPACK ROUTINE @@
     LAPACK_F77NAME(dormqr)( side_blas[SIDE], trans_blas[TRANS],
                             &M, &N, &K, A, &LDA, TAU, C, &LDC,
                             WORK, &LWORK, &info ) ;
@@ -1425,7 +1446,10 @@ namespace alglin {
          real    WORK[],
          integer LWORK )
   { integer info = 0 ;
-    #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
+    #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS)
+    LAPACK_F77NAME(sgeqp3)( &M, &N, A, &LDA, JPVT, TAU, WORK, &LWORK, &info ) ;
+    #elif defined(ALGLIN_USE_ATLAS)
+    //@@ USE LAPACK ROUTINE @@
     LAPACK_F77NAME(sgeqp3)( &M, &N, A, &LDA, JPVT, TAU, WORK, &LWORK, &info ) ;
     #elif defined(ALGLIN_USE_MKL)
     sgeqp3( &M, &N, A, &LDA, JPVT, TAU, WORK, &LWORK, &info ) ;
@@ -1448,7 +1472,10 @@ namespace alglin {
          doublereal WORK[],
          integer    LWORK )
   { integer info = 0 ;
-    #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
+    #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS)
+    LAPACK_F77NAME(dgeqp3)( &M, &N, A, &LDA, JPVT, TAU, WORK, &LWORK, &info ) ;
+    #elif defined(ALGLIN_USE_ATLAS)
+    //@@ USE LAPACK ROUTINE @@
     LAPACK_F77NAME(dgeqp3)( &M, &N, A, &LDA, JPVT, TAU, WORK, &LWORK, &info ) ;
     #elif defined(ALGLIN_USE_MKL)
     dgeqp3( &M, &N, A, &LDA, JPVT, TAU, WORK, &LWORK, &info ) ;

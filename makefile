@@ -16,12 +16,62 @@ CXXFLAGS = -pthread -msse4.2 -msse4.1 -mssse3 -msse3 -msse2 -msse -mmmx -m64 -O3
 override LIBS += -L./lib -lAlglin -L$(PWD)/lib3rd/lib
 override INC  += -I./src -I$(PWD)/lib3rd/include
 
+#
+# select which version of BLAS/LAPACK use
+#
+USED_LIB=""
+ifeq ($(ATLAS),1)
+  USED_LIB = ALGLIN_USE_ATLAS
+endif
+#
+ifeq ($(MKL),1)
+  USED_LIB = ALGLIN_USE_MKL
+endif
+#
+ifeq ($(OPENBLAS),1)
+  USED_LIB = ALGLIN_USE_OPENBLAS
+endif
+#
+ifeq ($(LAPACK),1)
+  USED_LIB = ALGLIN_USE_LAPACK
+endif
+#
+ifeq ($(ACCELERATE),1)
+  USED_LIB = ALGLIN_USE_ACCELERATE
+endif
+#
+# if missig setup default
+#
+ifeq ($(USED_LIB), "")
+ifeq (,$(wildcard .alglin_config))
+ifneq (,$(findstring Darwin, $(OS)))
+  USED_LIB = ALGLIN_USE_ACCELERATE
+else
+  USED_LIB = ALGLIN_USE_LAPACK
+endif
+else
+ USED_LIB = $(shell cat .alglin_config)
+endif
+endif
+
+$(shell echo "$(USED_LIB)" > .alglin_config )
+$(info $(USED_LIB))
+
+#      # #    # #    # #    #
+#      # ##   # #    #  #  #
+#      # # #  # #    #   ##
+#      # #  # # #    #   ##
+#      # #   ## #    #  #  #
+###### # #    #  ####  #    #
+
 # check if the OS string contains 'Linux'
 ifneq (,$(findstring Linux, $(OS)))
   WARN = -Wall
   CC   = gcc
   CXX  = g++
+  #
   # activate C++11 for g++ >= 4.9
+  #
   VERSION  = $(shell $(CC) -dumpversion)
 ifneq (,$(findstring 4.9, $(VERSION)))
   CXX += -std=c++11 -pthread
@@ -39,17 +89,34 @@ else
 endif
 endif
 endif
+  #
+  #
+  #
   CC     += $(WARN)
   CXX    += $(WARN)
   AR      = ar rcs
   LIBSGCC = -lstdc++ -lm
-ifeq ($(ATLAS),1)
-  # for ATLAS (default)
-  override LIBS += -L/usr/lib/atlas-base -Wl,-rpath,/usr/lib/atlas-base -llapack_atlas -llapack -latlas -lf77blas -lcblas
-  USED_LIB = ALGLIN_USE_ATLAS
+
+ifneq (,$(findstring ALGLIN_USE_LAPACK,$(USED_LIB)))
+  override LIBS += -llapack -lblas
+endif
+
+ifneq (,$(findstring ALGLIN_USE_OPENBLAS,$(USED_LIB)))
+  OPENBLAS_PATH = $(PWD)/lib3rd/lib/openblas
+  override LIBS += -L$(OPENBLAS_PATH) -Wl,-rpath,$(OPENBLAS_PATH) -lopenblas
+endif
+
+ifneq (,$(findstring ALGLIN_USE_ATLAS,$(USED_LIB)))
+ifneq (,$(wildcard $(PWD)/lib3rd/lib/atlas/libatlas.a))
+  ATLAS_PATH = $(PWD)/lib3rd/lib/atlas
 else
-#
-ifeq ($(MKL),1)
+  ATLAS_PATH = /usr/lib/atlas-base
+endif
+  ATLAS_LIBS = -latlas -llapack -lcblas -lf77blas -latlas -lgfortran
+  override LIBS += -L$(ATLAS_PATH) -Wl,-rpath,$(ATLAS_PATH) $(ATLAS_LIBS)
+endif
+
+ifneq (,$(findstring ALGLIN_USE_MKL,$(USED_LIB)))
   # for MKL
   MKL_PATH = /opt/intel/mkl
   MKL_ARCH = intel64
@@ -57,16 +124,23 @@ ifeq ($(MKL),1)
   MKL_LIB = -lmkl_sequential -lmkl_rt -lmkl_core
   override LIBS += -L$(MKL_PATH)/lib/$(MKL_ARCH) -Wl,-rpath,$(MKL_PATH)/lib/$(MKL_ARCH) $(MKL_LIB)
   override INC  += -I$(MKL_PATH)/include
-  USED_LIB = ALGLIN_USE_MKL
-else
-  # for OPENBLAS
-  override LIBS += -L$(PWD)/lib3rd/lib -Wl,-rpath,$(PWD)/lib3rd/lib -lopenblas
-  USED_LIB = ALGLIN_USE_OPENBLAS
 endif
-#
+
+ifneq (,$(findstring ALGLIN_USE_ACCELERATE,$(USED_LIB)))
+  $(error error is "Accelerate is supported only on Darwin!")
 endif
+
+  #
   override INC  += -I/usr/include/eigen3 -I/usr/include/atlas/
 endif
+
+#######  #####  #     #
+#     # #     #  #   #
+#     # #         # #
+#     #  #####     #
+#     #       #   # #
+#     # #     #  #   #
+#######  #####  #     #
 
 # check if the OS string contains 'Darwin'
 ifneq (,$(findstring Darwin, $(OS)))
@@ -74,49 +148,46 @@ ifneq (,$(findstring Darwin, $(OS)))
   CC       = clang
   CXX      = clang++
   VERSION  = $(shell $(CC) --version 2>&1 | grep -o "Apple LLVM version [0-9]\.[0-9]\.[0-9]" | grep -o " [0-9]\.")
-ifneq (,$(findstring 8., $(VERSION)))
-  CXX += -std=c++11 -stdlib=libc++
-  THREAD = ALGLIN_USE_THREAD
-else
-ifneq (,$(findstring 7., $(VERSION)))
-  CXX += -std=c++11 -stdlib=libc++
-  THREAD = ALGLIN_USE_THREAD
-else
-  CXX += -std=c++11
-  THREAD = ALGLIN_USE_THREAD
-endif
-endif
+  #---------
+  CXX     += -std=c++11 -stdlib=libc++
+  THREAD   = ALGLIN_USE_THREAD
+  #---------
   CC     += $(WARN)
   CXX    += $(WARN)
   AR      = libtool -static -o
   LIBSGCC = -lstdc++ -lm
-ifeq ($(OPENBLAS),1)
-  # for OPENBLAS 
+
+ifneq (,$(findstring ALGLIN_USE_LAPACK,$(USED_LIB)))
+  override LIBS += -llapack -lblas
+endif
+
+ifneq (,$(findstring ALGLIN_USE_OPENBLAS,$(USED_LIB)))
   override LIBS += -L$(PWD)/lib3rd/lib -Xlinker -rpath -Xlinker $(PWD)/lib3rd/lib -lopenblas
-  USED_LIB = ALGLIN_USE_OPENBLAS
-else
-#
-ifeq ($(MKL),1)
+endif
+
+ifneq (,$(findstring ALGLIN_USE_ATLAS,$(USED_LIB)))
+  #gfortran_lib_search_paths=$(shell gfortran -print-search-dirs | sed -n -e '/libraries:/s/libraries: *=//p' | tr ':' ' -L')         
+  gfortran_lib_search_paths=$(shell gfortran -print-search-dirs | sed -n -e '/libraries:/s/libraries: *=//p' | sed -e 's/:/ -L/g')
+  ATLAS_PATH = $(PWD)/lib3rd/lib/atlas
+  ATLAS_LIBS = -latlas -llapack -lcblas -lf77blas -latlas -framework Accelerate
+  override LIBS += -L$(ATLAS_PATH) -Wl,-rpath,$(ATLAS_PATH) $(ATLAS_LIBS)  -L$(gfortran_lib_search_paths) -lgfortran
+endif
+
+ifneq (,$(findstring ALGLIN_USE_MKL,$(USED_LIB)))
   # for MKL
   MKL_PATH = /opt/intel/mkl
   #MKL_LIB = -lmkl_tbb_thread -lmkl_intel -lmkl_core
   MKL_LIB = -lmkl_sequential -lmkl_intel -lmkl_core
   override LIBS += -L$(MKL_PATH)/lib -Xlinker -rpath -Xlinker $(MKL_PATH)/lib $(MKL_LIB)
   override INC  += -I$(MKL_PATH)/include
-  USED_LIB = ALGLIN_USE_MKL
-else
-  override LIBS += -L./lib -lAlglin -framework Accelerate
-  USED_LIB = ALGLIN_USE_ACCELERATE
-endif
-#
-endif
-  override INC += -I/usr/local/include/eigen3
 endif
 
-CC  += -O3 -g0
-CXX += -O3 -g0
-#CC  += -O1 -g3
-#CXX += -O1 -g3
+ifneq (,$(findstring ALGLIN_USE_ACCELERATE,$(USED_LIB)))
+  override LIBS += -L./lib -lAlglin -framework Accelerate
+endif
+
+  override INC += -I/usr/local/include/eigen3
+endif
 
 SRCS = \
 src/ABD_Arceco.cc \
@@ -132,15 +203,28 @@ src/BABD_BorderedCR.cc \
 src/KKT_like.cc \
 src/BABD_SuperLU.cc \
 src/Simplex.cc
-
 OBJS = $(SRCS:.cc=.o)
+
+SRCS_TESTS = \
+src_tests/test0-FD.cc \
+src_tests/test1-small-factorization.cc \
+src_tests/test2-Threads.cc \
+src_tests/test3-Timing.cc \
+src_tests/test4-KKT.cc \
+src_tests/test5-ABD-Diaz.cc \
+src_tests/test6-ABD-Block.cc \
+src_tests/test7-BorderedCR.cc \
+src_tests/test12-BandedMatrix.cc
+
+OBJS_TESTS = $(SRCS_TESTS:.cc=.o)
+
+#src/AlglinConfig.hh
 DEPS = \
 src/ABD_Arceco.hh \
 src/ABD_Diaz.hh \
 src/ABD_Block.hh \
 src/Alglin++.hh \
 src/Alglin.hh \
-src/AlglinConfig.hh \
 src/AlglinEigen.hh \
 src/AlglinFD.hh \
 src/AlglinSuperLU.hh \
@@ -163,19 +247,19 @@ MKDIR = mkdir -p
 PREFIX    = /usr/local
 FRAMEWORK = Alglin
 
-all: config lib
+all: config lib $(OBJS_TESTS)
 	mkdir -p bin
-	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test0-FD                  src_tests/test0-FD.cc $(LIBS)
-	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test1-small-factorization src_tests/test1-small-factorization.cc $(LIBS)
-	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test2-Threads             src_tests/test2-Threads.cc $(LIBS)
-	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test3-Timing              src_tests/test3-Timing.cc $(LIBS)
-	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test4-KKT                 src_tests/test4-KKT.cc $(LIBS)
-	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test5-ABD-Diaz            src_tests/test5-ABD-Diaz.cc $(LIBS)
-	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test6-ABD-Block           src_tests/test6-ABD-Block.cc $(LIBS)
-	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test7-BorderedCR          src_tests/test7-BorderedCR.cc $(LIBS)
+	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test0-FD                  src_tests/test0-FD.o $(LIBS)
+	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test1-small-factorization src_tests/test1-small-factorization.o $(LIBS)
+	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test2-Threads             src_tests/test2-Threads.o $(LIBS)
+	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test3-Timing              src_tests/test3-Timing.o $(LIBS)
+	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test4-KKT                 src_tests/test4-KKT.o $(LIBS)
+	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test5-ABD-Diaz            src_tests/test5-ABD-Diaz.o $(LIBS)
+	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test6-ABD-Block           src_tests/test6-ABD-Block.o $(LIBS)
+	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test7-BorderedCR          src_tests/test7-BorderedCR.o $(LIBS)
 	$(CC)  $(INC) $(DEFS) $(CXXFLAGS) -o bin/test8-Cinterface          src_tests/test8-Cinterface.c $(LIBS) $(LIBSGCC)
 	$(CC)  $(INC) $(DEFS) $(CXXFLAGS) -o bin/test9-Cinterface          src_tests/test9-Cinterface.c $(LIBS) $(LIBSGCC)
-	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test12-BandedMatrix       src_tests/test12-BandedMatrix.cc $(LIBS) $(LIBSGCC)
+	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test12-BandedMatrix       src_tests/test12-BandedMatrix.o $(LIBS) $(LIBSGCC)
 
 all1: config lib
 	mkdir -p bin
@@ -188,12 +272,18 @@ all_simplex: config lib
 	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/SimplexTest3 src_tests/SimplexTest3.cc $(LIBS)
 	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/SimplexTest4 src_tests/SimplexTest4.cc $(LIBS)
 
-lib: lib/$(LIB_ALGLIN)
+lib: config lib/$(LIB_ALGLIN)
 
 src/%.o: src/%.cc $(DEPS)
 	$(CXX) $(INC) $(CXXFLAGS) $(DEFS) -c $< -o $@
 
 src/%.o: src/%.c $(DEPS)
+	$(CC) $(INC) $(CFLAGS) $(DEFS) -c -o $@ $<
+
+src_tests/%.o: src_tests/%.cc $(DEPS)
+	$(CXX) $(INC) $(CXXFLAGS) $(DEFS) -c $< -o $@
+
+src_tests/%.o: src_tests/%.c $(DEPS)
 	$(CC) $(INC) $(CFLAGS) $(DEFS) -c -o $@ $<
 
 lib/libAlglin.a: $(OBJS)
@@ -225,7 +315,8 @@ install_as_framework: lib/$(LIB_ALGLIN)
 config:
 	rm -f src/AlglinConfig.hh
 	sed 's/@@ALGLIN_USE@@/#define $(USED_LIB) 1/' <src/AlglinConfig.hh.tmpl | \
-	sed 's/@@ALGLIN_THREAD@@/#define $(THREAD) 1/' >src/AlglinConfig.hh 
+	sed 's/@@ALGLIN_THREAD@@/#define $(THREAD) 1/' >src/AlglinConfig.hh
+
 run:
 	./bin/test0-FD
 	./bin/test1-small-factorization
@@ -248,5 +339,5 @@ doc:
 	doxygen
 
 clean:
-	rm -rf lib/libAlglin.* src/*.o
+	rm -rf lib/libAlglin.* src/*.o  src_tests/*.o
 	rm -rf bin

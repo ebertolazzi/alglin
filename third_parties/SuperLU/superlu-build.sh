@@ -42,11 +42,11 @@ if [ ! -d $PREFIX/include/superlu ];
 then
   mkdir -p $PREFIX/include/superlu
 fi
-if [ ! -d $PREFIX/lib ];
+if [ ! -d $PREFIX/lib/superlu  ];
 then
-  mkdir -p $PREFIX/lib
+  mkdir -p $PREFIX/lib/superlu
 fi
 
 cp -f -R -P libs/include/* $PREFIX/include/superlu
-cp -f -R -P libs/lib/*     $PREFIX/lib
+cp -f -R -P libs/lib/*     $PREFIX/lib/superlu 
 

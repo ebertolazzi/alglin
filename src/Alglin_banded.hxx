@@ -564,7 +564,10 @@ namespace alglin {
          integer ldAB,
          integer ipiv[]) {
     integer info = 0 ;
-    #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
+    #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS)
+    LAPACK_F77NAME(sgbtrf)( &M, &N, &KL, &KU, AB, &ldAB, ipiv, &info ) ;
+    #elif defined(ALGLIN_USE_ATLAS)
+    //@@ USE LAPACK ROUTINE @@
     LAPACK_F77NAME(sgbtrf)( &M, &N, &KL, &KU, AB, &ldAB, ipiv, &info ) ;
     #elif defined(ALGLIN_USE_MKL)
     sgbtrf( &M, &N, &KL, &KU, AB, &ldAB, ipiv, &info ) ;
@@ -586,7 +589,10 @@ namespace alglin {
          integer    ldAB,
          integer    ipiv[]) {
     integer info = 0 ;
-    #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
+    #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS)
+    LAPACK_F77NAME(dgbtrf)( &M, &N, &KL, &KU, AB, &ldAB, ipiv, &info ) ;
+    #elif  defined(ALGLIN_USE_ATLAS)
+    //@@ USE LAPACK ROUTINE @@
     LAPACK_F77NAME(dgbtrf)( &M, &N, &KL, &KU, AB, &ldAB, ipiv, &info ) ;
     #elif defined(ALGLIN_USE_MKL)
     dgbtrf( &M, &N, &KL, &KU, AB, &ldAB, ipiv, &info ) ;
@@ -700,7 +706,12 @@ namespace alglin {
          real          B[],
          integer       ldB ) {
     integer info = 0 ;
-    #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
+    #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS)
+    LAPACK_F77NAME(sgbtrs)( trans_blas[TRANS],
+                            &N, &KL, &KU, &nrhs,
+                            AB, &ldAB, ipiv, B, &ldB, &info ) ;
+    #elif defined(ALGLIN_USE_ATLAS)
+    //@@ USE LAPACK ROUTINE @@
     LAPACK_F77NAME(sgbtrs)( trans_blas[TRANS],
                             &N, &KL, &KU, &nrhs,
                             AB, &ldAB, ipiv, B, &ldB, &info ) ;
@@ -733,7 +744,12 @@ namespace alglin {
          doublereal       B[],
          integer          ldB ) {
     integer info = 0 ;
-    #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
+    #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS)
+    LAPACK_F77NAME(dgbtrs)( trans_blas[TRANS],
+                            &N, &KL, &KU, &nrhs,
+                            AB, &ldAB, ipiv, B, &ldB, &info ) ;
+    #elif defined(ALGLIN_USE_ATLAS)
+    //@@ USE LAPACK ROUTINE @@
     LAPACK_F77NAME(dgbtrs)( trans_blas[TRANS],
                             &N, &KL, &KU, &nrhs,
                             AB, &ldAB, ipiv, B, &ldB, &info ) ;
@@ -856,7 +872,10 @@ namespace alglin {
          real             AB[],
          integer          ldAB ) {
     integer info = 0 ;
-    #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
+    #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS)
+    LAPACK_F77NAME(spbtrf)( uplo_blas[UPLO], &N, &KD, AB, &ldAB, &info ) ;
+    #elif defined(ALGLIN_USE_ATLAS)
+    //@@ USE LAPACK ROUTINE @@
     LAPACK_F77NAME(spbtrf)( uplo_blas[UPLO], &N, &KD, AB, &ldAB, &info ) ;
     #elif defined(ALGLIN_USE_MKL)
     spbtrf( uplo_blas[UPLO], &N, &KD, AB, &ldAB, &info ) ;
@@ -876,7 +895,10 @@ namespace alglin {
          doublereal       AB[],
          integer          ldAB ) {
     integer info = 0 ;
-    #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
+    #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS)
+    LAPACK_F77NAME(dpbtrf)( uplo_blas[UPLO], &N, &KD, AB, &ldAB, &info ) ;
+    #elif defined(ALGLIN_USE_ATLAS)
+    //@@ USE LAPACK ROUTINE @@
     LAPACK_F77NAME(dpbtrf)( uplo_blas[UPLO], &N, &KD, AB, &ldAB, &info ) ;
     #elif defined(ALGLIN_USE_MKL)
     dpbtrf( uplo_blas[UPLO], &N, &KD, AB, &ldAB, &info ) ;
@@ -980,7 +1002,11 @@ namespace alglin {
          real             B[],
          integer          ldB ) {
     integer info = 0 ;
-    #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
+    #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS)
+    LAPACK_F77NAME(spbtrs)( uplo_blas[UPLO],
+                            &N, &KD, &nrhs, AB, &ldAB, B, &ldB, &info ) ;
+    #elif defined(ALGLIN_USE_ATLAS)
+    //@@ USE LAPACK ROUTINE @@
     LAPACK_F77NAME(spbtrs)( uplo_blas[UPLO],
                             &N, &KD, &nrhs, AB, &ldAB, B, &ldB, &info ) ;
     #elif defined(ALGLIN_USE_MKL)
@@ -1007,7 +1033,11 @@ namespace alglin {
          doublereal         B[],
          integer            ldB ) {
     integer info = 0 ;
-    #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
+    #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS)
+    LAPACK_F77NAME(dpbtrs)( uplo_blas[UPLO],
+                            &N, &KD, &nrhs, AB, &ldAB, B, &ldB, &info ) ;
+    #elif defined(ALGLIN_USE_ATLAS)
+    //@@ USE LAPACK ROUTINE @@
     LAPACK_F77NAME(dpbtrs)( uplo_blas[UPLO],
                             &N, &KD, &nrhs, AB, &ldAB, B, &ldB, &info ) ;
     #elif defined(ALGLIN_USE_MKL)

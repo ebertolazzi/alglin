@@ -1470,7 +1470,7 @@
 					"$(inherited)",
 				);
 				OTHER_LDFLAGS = (
-					"-L$(PROJECT_DIR)/lib3rd/lib",
+					"-L$(PROJECT_DIR)/lib3rd/lib/superlu",
 					"-lsuperlu",
 					"-lstdc++",
 				);
@@ -1486,7 +1486,7 @@
 				CLANG_WARN_SUSPICIOUS_MOVES = YES;
 				DEVELOPMENT_TEAM = S8X788ZA8Y;
 				OTHER_LDFLAGS = (
-					"-L$(PROJECT_DIR)/lib3rd/lib",
+					"-L$(PROJECT_DIR)/lib3rd/lib/superlu",
 					"-lsuperlu",
 					"-lstdc++",
 				);
@@ -1506,7 +1506,7 @@
 					"$(inherited)",
 				);
 				OTHER_LDFLAGS = (
-					"-L$(PROJECT_DIR)/lib3rd/lib",
+					"-L$(PROJECT_DIR)/lib3rd/lib/superlu",
 					"-lsuperlu",
 					"-lstdc++",
 				);
@@ -1522,7 +1522,7 @@
 				CLANG_WARN_SUSPICIOUS_MOVES = YES;
 				DEVELOPMENT_TEAM = S8X788ZA8Y;
 				OTHER_LDFLAGS = (
-					"-L$(PROJECT_DIR)/lib3rd/lib",
+					"-L$(PROJECT_DIR)/lib3rd/lib/superlu",
 					"-lsuperlu",
 					"-lstdc++",
 				);
@@ -1603,7 +1603,7 @@
 				OTHER_CFLAGS = "-pthread";
 				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
 				OTHER_LDFLAGS = (
-					"-L$(PROJECT_DIR)/lib3rd/lib",
+					"-L$(PROJECT_DIR)/lib3rd/lib/superlu",
 					"-lsuperlu",
 				);
 				OTHER_LIBTOOLFLAGS = "";
@@ -1688,7 +1688,7 @@
 				OTHER_CFLAGS = "-pthread";
 				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
 				OTHER_LDFLAGS = (
-					"-L$(PROJECT_DIR)/lib3rd/lib",
+					"-L$(PROJECT_DIR)/lib3rd/lib/superlu",
 					"-lsuperlu",
 				);
 				OTHER_LIBTOOLFLAGS = "";

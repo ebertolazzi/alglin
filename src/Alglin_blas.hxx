@@ -217,11 +217,17 @@ namespace alglin {
       integer K1 = I1+1 ;
       integer K2 = I2+1 ;
       slaswp( &NCOL, A, &LDA, &K1, &K2, IPIV, &INC ) ;
-    #elif defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_ATLAS) || defined(ALGLIN_USE_OPENBLAS)
+    #elif defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS)
       integer K1 = I1+1 ;
       integer K2 = I2+1 ;
       BLASFUNC(slaswp)( &NCOL, A, &LDA, &K1, &K2,
                         const_cast<integer*>(IPIV), &INC ) ;
+    #elif defined(ALGLIN_USE_ATLAS)
+    //@@ USE BLAS ROUTINE @@
+    integer K1 = I1+1 ;
+    integer K2 = I2+1 ;
+    BLASFUNC(slaswp)( &NCOL, A, &LDA, &K1, &K2,
+                      const_cast<integer*>(IPIV), &INC ) ;
     #elif defined(ALGLIN_USE_ACCELERATE)
       integer K1 = I1+1 ;
       integer K2 = I2+1 ;
@@ -247,11 +253,17 @@ namespace alglin {
       integer K1 = I1+1 ;
       integer K2 = I2+1 ;
       dlaswp( &NCOL, A, &LDA, &K1, &K2, IPIV, &INC ) ;
-    #elif defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_ATLAS) || defined(ALGLIN_USE_OPENBLAS)
+    #elif defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS)
       integer K1 = I1+1 ;
       integer K2 = I2+1 ;
       BLASFUNC(dlaswp)( &NCOL, A, &LDA, &K1, &K2,
                         const_cast<integer*>(IPIV), &INC ) ;
+    #elif defined(ALGLIN_USE_ATLAS)
+    //@@ USE BLAS ROUTINE @@
+    integer K1 = I1+1 ;
+    integer K2 = I2+1 ;
+    BLASFUNC(dlaswp)( &NCOL, A, &LDA, &K1, &K2,
+                      const_cast<integer*>(IPIV), &INC ) ;
     #elif defined(ALGLIN_USE_ACCELERATE)
       integer K1 = I1+1 ;
       integer K2 = I2+1 ;

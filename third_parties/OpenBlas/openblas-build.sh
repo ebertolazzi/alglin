@@ -9,7 +9,7 @@ else
   curl -L $URL > $FILE
 fi
 
-if [ -f libs/lib/libopenblas.dylib ];
+if [ -f libs/lib/libopenblas.dylib ] || [ -f libs/lib/libopenblas.so ];
 then
   echo "OpenBlas already compiled"
 else
@@ -19,7 +19,14 @@ else
   cd OpenBlas ; make ; make install PREFIX=../libs ; cd ..
 fi
 
-LIB=libopenblas.dylib
+if [ -f libs/lib/libopenblas.dylib ]; then
+  LIB=libopenblas.dylib
+fi
+
+if [ -f libs/lib/libopenblas.so ]; then
+  LIB=libopenblas.so
+fi
+
 if [ -x "$(command -v install_name_tool)" ]; then
   cd libs/lib ; install_name_tool -id @rpath/$LIB $LIB ; cd ../..
 elif [ -x "$(command -v patchelf)" ]; then
@@ -33,10 +40,10 @@ if [ ! -d $PREFIX/include/openblas ];
 then
   mkdir -p $PREFIX/include/openblas
 fi
-if [ ! -d $PREFIX/lib ];
+if [ ! -d $PREFIX/lib/openblas ];
 then
-  mkdir -p $PREFIX/lib
+  mkdir -p $PREFIX/lib/openblas
 fi
 
 cp -f -R -P libs/include/* $PREFIX/include/openblas
-cp -f -R -P libs/lib/*     $PREFIX/lib
+cp -f -R -P libs/lib/*     $PREFIX/lib/openblas

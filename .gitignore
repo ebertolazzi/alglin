@@ -11,3 +11,5 @@ lib/win32_int64
 lib/win64
 AlglinConfig.hh
 lib/include
+lib3rd
+.alglin_config
