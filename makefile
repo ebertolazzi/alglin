@@ -12,7 +12,7 @@ LIBS  =
 CLIBS = -lc++
 DEFS  =
 
-CXXFLAGS = -pthread -msse4.2 -msse4.1 -mssse3 -msse3 -msse2 -msse -mmmx -m64 -O3 -funroll-loops -fPIC
+CXXFLAGS = -msse4.2 -msse4.1 -mssse3 -msse3 -msse2 -msse -mmmx -m64 -O3 -funroll-loops -fPIC
 override LIBS += -L./lib -lAlglin -L$(PWD)/lib3rd/lib
 override INC  += -I./src -I$(PWD)/lib3rd/include
 
