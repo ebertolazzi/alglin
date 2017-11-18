@@ -19,10 +19,6 @@ else
   cd OpenBlas ; make ; make install PREFIX=../libs ; cd ..
 fi
 
-PREFIX="../../lib3rd"
-mkdir -p $PREFIX/include/openblas
-mkdir -p $PREFIX/lib
-
 LIB=libopenblas.dylib
 if [ -x "$(command -v install_name_tool)" ]; then
   cd libs/lib ; install_name_tool -id @rpath/$LIB $LIB ; cd ../..
@@ -30,6 +26,16 @@ elif [ -x "$(command -v patchelf)" ]; then
   cd libs/lib ; patchelf --set-rpath @rpath/$LIB $LIB ; cd ../..
 elif [ -x "$(command -v chrpath)" ]; then
   cd libs/lib ; chrpath --replace @rpath/$LIB $LIB ; cd ../..
+fi
+
+PREFIX="../../lib3rd"
+if [ ! -d $PREFIX/include/openblas ];
+then
+  mkdir -p $PREFIX/include/openblas
+fi
+if [ ! -d $PREFIX/lib ];
+then
+  mkdir -p $PREFIX/lib
 fi
 
 cp -f -R -P libs/include/* $PREFIX/include/openblas

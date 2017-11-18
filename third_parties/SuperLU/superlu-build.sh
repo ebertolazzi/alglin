@@ -37,9 +37,16 @@ else
 fi
 
 PREFIX="../../lib3rd"
-mkdir -p $PREFIX/include/superlu
-mkdir -p $PREFIX/lib
 
-cp -f -R -P libs/include/* $PREFIX/include/openblas
+if [ ! -d $PREFIX/include/superlu ];
+then
+  mkdir -p $PREFIX/include/superlu
+fi
+if [ ! -d $PREFIX/lib ];
+then
+  mkdir -p $PREFIX/lib
+fi
+
+cp -f -R -P libs/include/* $PREFIX/include/superlu
 cp -f -R -P libs/lib/*     $PREFIX/lib
 
