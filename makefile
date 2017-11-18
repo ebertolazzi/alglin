@@ -107,12 +107,8 @@ ifneq (,$(findstring ALGLIN_USE_OPENBLAS,$(USED_LIB)))
 endif
 
 ifneq (,$(findstring ALGLIN_USE_ATLAS,$(USED_LIB)))
-ifneq (,$(wildcard $(PWD)/lib3rd/lib/atlas/libatlas.a))
-  ATLAS_PATH = $(PWD)/lib3rd/lib/atlas
-else
   ATLAS_PATH = /usr/lib/atlas-base
-endif
-  ATLAS_LIBS = -latlas -llapack -lcblas -lf77blas -latlas -lgfortran
+  ATLAS_LIBS = -llapack -lf77blas -lcblas -latlas -lgfortran
   override LIBS += -L$(ATLAS_PATH) -Wl,-rpath,$(ATLAS_PATH) $(ATLAS_LIBS)
 endif
 
@@ -166,11 +162,7 @@ ifneq (,$(findstring ALGLIN_USE_OPENBLAS,$(USED_LIB)))
 endif
 
 ifneq (,$(findstring ALGLIN_USE_ATLAS,$(USED_LIB)))
-  #gfortran_lib_search_paths=$(shell gfortran -print-search-dirs | sed -n -e '/libraries:/s/libraries: *=//p' | tr ':' ' -L')         
-  gfortran_lib_search_paths=$(shell gfortran -print-search-dirs | sed -n -e '/libraries:/s/libraries: *=//p' | sed -e 's/:/ -L/g')
-  ATLAS_PATH = $(PWD)/lib3rd/lib/atlas
-  ATLAS_LIBS = -latlas -llapack -lcblas -lf77blas -latlas -framework Accelerate
-  override LIBS += -L$(ATLAS_PATH) -Wl,-rpath,$(ATLAS_PATH) $(ATLAS_LIBS)  -L$(gfortran_lib_search_paths) -lgfortran
+  $(error error is "Atlas is supported only on Linux!")
 endif
 
 ifneq (,$(findstring ALGLIN_USE_MKL,$(USED_LIB)))
