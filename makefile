@@ -158,7 +158,7 @@ ifneq (,$(findstring ALGLIN_USE_LAPACK,$(USED_LIB)))
 endif
 
 ifneq (,$(findstring ALGLIN_USE_OPENBLAS,$(USED_LIB)))
-  override LIBS += -L$(PWD)/lib3rd/lib -Xlinker -rpath -Xlinker $(PWD)/lib3rd/lib -lopenblas
+  override LIBS += -L$(PWD)/lib3rd/lib/openblas -Xlinker -rpath -Xlinker $(PWD)/lib3rd/lib/openblas -lopenblas
 endif
 
 ifneq (,$(findstring ALGLIN_USE_ATLAS,$(USED_LIB)))

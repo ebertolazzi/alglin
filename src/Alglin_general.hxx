@@ -1952,10 +1952,10 @@ namespace alglin {
         real    A[],
         integer LDA,
         real    diag = 1 )
-  #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_ATLAS)
+  #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS)
   { real zero = 0 ; LAPACK_F77NAME(slaset)( "A", &M, &N, &zero, &diag, A, &LDA ) ; }
-  #elif defined(ALGLIN_USE_OPENBLAS)
-  { gezero(M,N,A,LDA) ; copy( min(M,N), &diag, 0, A, LDA+1); }
+  #elif defined(ALGLIN_USE_ATLAS)
+  { gezero(M,N,A,LDA) ; copy( std::min(M,N), &diag, 0, A, LDA+1); }
   #elif defined(ALGLIN_USE_MKL)
   { real zero = 0 ; slaset( "A", &M, &N, &zero, &diag, A, &LDA ) ; }
   #elif defined(ALGLIN_USE_ACCELERATE)
@@ -1971,10 +1971,10 @@ namespace alglin {
         doublereal A[],
         integer    LDA,
         doublereal diag = 1 )
-  #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_ATLAS)
+  #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS)
   { doublereal zero = 0 ; LAPACK_F77NAME(dlaset)( "A", &M, &N, &zero, &diag, A, &LDA ) ; }
-  #elif defined(ALGLIN_USE_OPENBLAS)
-  { gezero(M,N,A,LDA) ; copy( min(M,N), &diag, 0, A, LDA+1); }
+  #elif defined(ALGLIN_USE_ATLAS)
+  { gezero(M,N,A,LDA) ; copy( std::min(M,N), &diag, 0, A, LDA+1); }
   #elif defined(ALGLIN_USE_MKL)
   { doublereal zero = 0 ; dlaset( "A", &M, &N, &zero, &diag, A, &LDA ) ; }
   #elif defined(ALGLIN_USE_ACCELERATE)
