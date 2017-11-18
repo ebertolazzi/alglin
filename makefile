@@ -95,7 +95,7 @@ endif
   CC     += $(WARN)
   CXX    += $(WARN)
   AR      = ar rcs
-  LIBSGCC = -lstdc++ -lm
+  LIBSGCC = -lstdc++ -lm -pthread
 
 ifneq (,$(findstring ALGLIN_USE_LAPACK,$(USED_LIB)))
   override LIBS += -llapack -lblas
@@ -109,7 +109,7 @@ endif
 ifneq (,$(findstring ALGLIN_USE_ATLAS,$(USED_LIB)))
   ATLAS_PATH = /usr/lib/atlas-base
   ATLAS_LIBS = -llapack -lf77blas -lcblas -latlas -lgfortran
-  override LIBS += -L$(ATLAS_PATH) -Wl,-rpath,$(ATLAS_PATH) $(ATLAS_LIBS)
+  override LIBS += -L$(ATLAS_PATH) $(ATLAS_LIBS) -Wl,-rpath,$(ATLAS_PATH)
 endif
 
 ifneq (,$(findstring ALGLIN_USE_MKL,$(USED_LIB)))
