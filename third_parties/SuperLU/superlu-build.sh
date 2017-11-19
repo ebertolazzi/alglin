@@ -10,7 +10,7 @@ else
   curl $URL > $FILE
 fi
 
-if [ -f libs/lib/libsuperlu.a ];
+if [ -f lib/lib/libsuperlu.a ];
 then
   echo "SuperLU already compiled"
 else
@@ -33,7 +33,7 @@ else
   mv -f tmp.txt superlu/CMakeLists.txt
   sed 's/CMAKE_C_FLAGS \"/CMAKE_C_FLAGS "-fPIC /' superlu/CMakeLists.txt > tmp.txt
   mv -f tmp.txt superlu/CMakeLists.txt
-  cd superlu ; cmake -DCMAKE_INSTALL_PREFIX:PATH=../libs . ; make ; make install ; cd ..
+  cd superlu ; cmake -DCMAKE_INSTALL_PREFIX:PATH=../lib . ; make ; make install ; cd ..
 fi
 
 PREFIX="../../lib3rd"
@@ -47,6 +47,6 @@ then
   mkdir -p $PREFIX/lib/superlu
 fi
 
-cp -f -R -P libs/include/* $PREFIX/include/superlu
-cp -f -R -P libs/lib/*     $PREFIX/lib/superlu 
+cp -f -R -P lib/include/* $PREFIX/include/superlu
+cp -f -R -P lib/lib/*     $PREFIX/lib/superlu
 
