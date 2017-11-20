@@ -1325,6 +1325,8 @@ namespace alglin {
 
   // explicit instantiation declaration to suppress warnings
 
+  #ifdef ALGLIN_USE_CXX11
+
   #ifdef __GCC__
   #pragma GCC diagnostic push
   #pragma GCC diagnostic ignored "-Wc++98-compat-pedantic"
@@ -1360,6 +1362,8 @@ namespace alglin {
 
   extern template class BandedSPD<real> ;
   extern template class BandedSPD<doublereal> ;
+
+  #endif
 
 } // end namespace alglin
 

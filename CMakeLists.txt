@@ -17,7 +17,7 @@ PROJECT( ${TARGET} CXX C )
 
 SET( CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS TRUE )
 SET( CMAKE_VERBOSE_MAKEFILE            TRUE )
-SET( CMAKE_BUILD_TYPE                  Release )
+##ADD_COMPILE_OPTIONSSET( CMAKE_BUILD_TYPE                  Release )
 
 # "${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC"
 IF( ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU") OR
@@ -43,8 +43,6 @@ SET( CMAKE_C_FLAGS         ${CMAKE_CXX_FLAGS} )
 SET( CMAKE_C_FLAGS_RELEASE ${CMAKE_CXX_FLAGS_RELEASE} )
 SET( CMAKE_C_FLAGS_DEBUG   ${CMAKE_CXX_FLAGS_DEBUG} )
 
-ADD_DEFINITIONS( -DUSE_MECHATRONIX_SUPERLU -DUSE_MECHATRONIX_EIGEN )
-
 SET( SOURCES )
 FILE( GLOB S ./src/*.cc )
 FOREACH (F ${S})
@@ -58,9 +56,79 @@ FOREACH (F ${S})
   LIST( APPEND HEADERS ${RF} )
 ENDFOREACH (F ${S})
 
-INCLUDE_DIRECTORIES( src ${LAPACK_BASE}/include )
+INCLUDE_DIRECTORIES( src ${LAPACK_BASE}/include lib3rd/include lib3rd/openblas )
+
 add_library( ${TARGET} STATIC ${SOURCES} ${HEADERS} )
 
+SET(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/bin)
+SET(LIBRARY_OUTPUT_PATH    ${CMAKE_CURRENT_SOURCE_DIR}/lib)
+file(MAKE_DIRECTORY  ${CMAKE_CURRENT_SOURCE_DIR}/bin})
+file(MAKE_DIRECTORY  ${CMAKE_CURRENT_SOURCE_DIR}/lib})
+
+SET(EXELISTCPP test0-FD
+	             test1-small-factorization
+               test2-Threads
+               test3-Timing
+               test4-KKT
+               test5-ABD-Diaz
+               test6-ABD-Block
+               test7-BorderedCR
+  					   test12-BandedMatrix )
+
+SET(EXELISTC test8-Cinterface test9-Cinterface )
+
+FIND_LIBRARY( SUPERLU superlu HINTS lib3rd/lib/superlu  REQUIRED)
+IF( DEFINED OPENBLAS)
+	FIND_LIBRARY( LAPACK openblas HINTS lib3rd/lib/openblas REQUIRED)
+	SET(LIB_LIST ${LAPACK} ${SUPERLU} )
+ELSEIF( DEFINED MKL )
+
+ELSE()
+	FIND_LIBRARY( BLAS   blas   HINTS lib3rd/lib/lapack REQUIRED)
+	FIND_LIBRARY( LAPACK lapacl HINTS lib3rd/lib/lapack REQUIRED)
+	SET(LIB_LIST ${LAPACK} ${BLAS} ${SUPERLU} )	
+ENDIF()
+
+FOREACH( S ${EXELISTCPP} )
+	ADD_EXECUTABLE( ${S} src_tests/${S}.cc ${HEADERS} )
+	TARGET_LINK_LIBRARIES( ${S} ${TARGET} ${LIB_LIST} )
+ENDFOREACH( S $(EXELIST) )
+
+FOREACH( S ${EXELISTC} )
+	ADD_EXECUTABLE( ${S} src_tests/${S}.c ${HEADERS} )
+	TARGET_LINK_LIBRARIES( ${S} ${TARGET} ${LIB_LIST} )
+ENDFOREACH( S $(EXELIST) )
+
+
+FILE( GLOB HDRC   ./src/*.h )
+FILE( GLOB HDRCPP ./src/*.hh )
+install(FILES ${HDRC} ${HDRCPP} DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/lib/include )
+
+
+
+##
+##all1: config lib
+##	mkdir -p bin
+##	$(F90) $(INC) -o bin/test10-FORTRAN src_tests/test10-FORTRAN.f90 $(LIBS) $(LIBSGCC) $(CLIBS)
+##	$(F90) $(INC) -o bin/test11-FORTRAN src_tests/test11-FORTRAN.f90 $(LIBS) $(LIBSGCC) $(CLIBS)
+##
+##all_simplex: config lib
+##	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/SimplexTest1 src_tests/SimplexTest1.cc $(LIBS)
+##	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/SimplexTest2 src_tests/SimplexTest2.cc $(LIBS)
+##	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/SimplexTest3 src_tests/SimplexTest3.cc $(LIBS)
+##	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/SimplexTest4 src_tests/SimplexTest4.cc $(LIBS)
+##
+##	install(FILES
+##	  algprim.hpp brick.hpp csgeom.hpp csg.hpp csgparser.hpp
+##	  curve2d.hpp edgeflw.hpp explicitcurve2d.hpp extrusion.hpp
+##	  gencyl.hpp geoml.hpp identify.hpp manifold.hpp meshsurf.hpp
+##	  polyhedra.hpp revolution.hpp singularref.hpp solid.hpp
+##	  specpoin.hpp spline3d.hpp splinesurface.hpp surface.hpp
+##	  triapprox.hpp vscsg.hpp
+##	  DESTINATION ${NG_INSTALL_DIR_INCLUDE}/csg COMPONENT netgen_devel
+##	)
+##
+	
 MESSAGE( STATUS "Using ${SSE_FLAGS} extensions")
 MESSAGE( STATUS "C compiler                  = ${CMAKE_C_COMPILER_ID} ${CMAKE_C_COMPILER}" )
 MESSAGE( STATUS "C++ compiler                = ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER}" )

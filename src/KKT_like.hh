@@ -508,9 +508,11 @@ namespace alglin {
   } ;
 
   // explicit instantiation declaration to suppress warnings
+
+  #ifdef ALGLIN_USE_CXX11
   extern template class KKT<float> ;
   extern template class KKT<double> ;
-
+  #endif
 }
 
 #ifdef __GCC__
