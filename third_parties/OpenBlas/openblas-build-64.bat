@@ -26,7 +26,7 @@ SET BASE=..\..\lib3rd
 @mkdir %BASE%\lib\openblas
 @mkdir %BASE%\dll\openblas
 
-@copy /y       %DIR64%\bin\libopenblas.dll   %BASE%\dll\openblas\libopenblas_x64.dll
-@copy /y /e /t %DIR64%\include               %BASE%\include\openblas
-@copy /y       %DIR64%\lib\libopenblas.a     %BASE%\lib\openblas\libopenblas_x64_static.lib
-@copy /y       %DIR64%\lib\libopenblas.dll.a %BASE%\lib\openblas\libopenblas_x64.lib
+@copy /y %DIR64%\bin\libopenblas.dll   %BASE%\dll\openblas\libopenblas_x64.dll
+@copy /y %DIR64%\include\*.*           %BASE%\include\openblas
+@copy /y %DIR64%\lib\libopenblas.a     %BASE%\lib\openblas\libopenblas_x64_static.lib
+@copy /y %DIR64%\lib\libopenblas.dll.a %BASE%\lib\openblas\libopenblas_x64.lib

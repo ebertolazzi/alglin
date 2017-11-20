@@ -14,13 +14,15 @@
   @echo "eigen3 already extracted"
 ) else (
   @PowerShell -Command "if (-not (Get-Command Expand-7Zip -ErrorAction Ignore)) { Install-Package -Scope CurrentUser -Force 7Zip4PowerShell > $null } Expand-7Zip %FILE% . ; Expand-7Zip %TARFILE% . ; Remove-Item %TARFILE%"
+  @powershell -command "& { Get-ChildItem . -filter 'eigen-eigen*' | Rename-Item -NewName 'eigen3' }"
 )
 
 @SET PREFIX=..\..\lib3rd
-@if NOT EXIST %PREFIX%                 ( mkdir %PREFIX% )
-@if NOT EXIST %PREFIX%\include         ( mkdir %PREFIX%\include )
-@if NOT EXIST %PREFIX%\include\superlu ( mkdir %PREFIX%\include\superlu )
-@if NOT EXIST %PREFIX%\lib             ( mkdir %PREFIX%\lib )
-@if NOT EXIST %PREFIX%\lib\superlu     ( mkdir %PREFIX%\lib\superlu )
+@if NOT EXIST %PREFIX%                      ( mkdir %PREFIX% )
+@if NOT EXIST %PREFIX%\include              ( mkdir %PREFIX%\include )
+@if NOT EXIST %PREFIX%\include\eigen3       ( mkdir %PREFIX%\include\eigen3 )
+@if NOT EXIST %PREFIX%\include\eigen3\Eigen ( mkdir %PREFIX%\include\eigen3\Eigen )
 
-@xcopy /Y /E eigen3\Eigen  %PREFIX%\include\eigen3
+cd eigen3
+@xcopy /E /Y Eigen ..\%PREFIX%\include\eigen3\Eigen\*
+cd ..
