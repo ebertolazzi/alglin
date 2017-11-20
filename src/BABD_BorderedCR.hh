@@ -449,6 +449,7 @@ namespace alglin {
 
     void
     addtoC( integer nbl, valueConstPointer C, integer ldC ) {
+      ALGLIN_ASSERT( ldC >= nr, "addtoC2( " << nbl << ", C, ldC = " << ldC << " bad ldC" ) ;
       valuePointer CC = Cmat + nbl*nr_x_n ;
       geadd( nr, n, 1.0, C, ldC, 1.0, CC, nr, CC, nr ) ;
     }
@@ -456,6 +457,7 @@ namespace alglin {
     // add to block nbl and nbl+1
     void
     addtoC2( integer nbl, valueConstPointer C, integer ldC ) {
+      ALGLIN_ASSERT( ldC >= nr, "addtoC2( " << nbl << ", C, ldC = " << ldC << " bad ldC" ) ;
       valuePointer CC = Cmat + nbl*nr_x_n ;
       geadd( nr, n_x_2, 1.0, C, ldC, 1.0, CC, nr, CC, nr ) ;
     }
@@ -474,6 +476,7 @@ namespace alglin {
 
     void
     addtoB( integer nbl, valueConstPointer B, integer ldB ) {
+      ALGLIN_ASSERT( ldB >= n, "addtoB( " << nbl << ", B, ldB = " << ldB << " bad ldB" ) ;
       valuePointer BB = Bmat + nbl*n_x_nx ;
       geadd( n, nx, 1.0, B, ldB, 1.0, BB, n, BB, n ) ;
     }

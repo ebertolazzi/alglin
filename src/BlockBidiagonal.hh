@@ -257,11 +257,15 @@ namespace alglin {
     { gecopy( nb, neq, C, ldC, Cmat, nb ) ; }
 
     void
-    loadBottomBlock( integer nbl, valueConstPointer C, integer ldC )
-    { gecopy( nb, n, C, ldC, Cmat + nbl*nxnb, nb ) ; }
+    loadBottomBlock( integer nbl, valueConstPointer C, integer ldC ) {
+      ALGLIN_ASSERT( ldC >= nb, "loadBottomBlock( " << nbl << ", C, ldC = " << ldC << " bad ldC" ) ;
+      valuePointer CC = Cmat + nbl*nxnb ;
+      gecopy( nb, n, C, ldC, CC, nb ) ;
+    }
 
     void
     addtoBottomBlock( integer nbl, valueConstPointer C, integer ldC ) {
+      ALGLIN_ASSERT( ldC >= nb, "addtoBottomBlock( " << nbl << ", C, ldC = " << ldC << " bad ldC" ) ;
       valuePointer CC = Cmat + nbl*nxnb ;
       geadd( nb, n, 1.0, C, ldC, 1.0, CC, nb, CC, nb ) ;
     }
@@ -269,6 +273,7 @@ namespace alglin {
     // add to bottom block nbl and nbl+1
     void
     addtoBottomBlock2( integer nbl, valueConstPointer C, integer ldC ) {
+      ALGLIN_ASSERT( ldC >= nb, "addtoBottomBlock2( " << nbl << ", C, ldC = " << ldC << " bad ldC" ) ;
       valuePointer CC = Cmat + nbl*nxnb ;
       geadd( nb, nx2, 1.0, C, ldC, 1.0, CC, nb, CC, nb ) ;
     }

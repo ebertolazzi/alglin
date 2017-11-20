@@ -2006,9 +2006,8 @@ namespace alglin {
          real       C[], integer LDC )
   #if defined(ALGLIN_USE_ACCELERATE) && MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_10
   {
-    if ( M > 0 && N > 0 )
-      appleblas_sgeadd( CblasColMajor, CblasNoTrans, CblasNoTrans,
-                        M, N, alpha, A, LDA, beta, B, LDB, C, LDC ) ;
+    appleblas_sgeadd( CblasColMajor, CblasNoTrans, CblasNoTrans,
+                      M, N, alpha, A, LDA, beta, B, LDB, C, LDC ) ;
   }
   #else
   {
@@ -2034,9 +2033,8 @@ namespace alglin {
          doublereal       C[], integer LDC )
   #if defined(ALGLIN_USE_ACCELERATE) && MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_10
   {
-    if ( M > 0 && N > 0 )
-      appleblas_dgeadd( CblasColMajor, CblasNoTrans, CblasNoTrans,
-                        M, N, alpha, A, LDA, beta, B, LDB, C, LDC );
+    appleblas_dgeadd( CblasColMajor, CblasNoTrans, CblasNoTrans,
+                      M, N, alpha, A, LDA, beta, B, LDB, C, LDC );
   }
   #else
   {
