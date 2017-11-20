@@ -77,31 +77,95 @@
   #error "linear algebra package NOT selected"
 #endif
 
-#ifndef ALGLIN_OS_WINDOWS
-  #ifdef ALGLIN_USE_CXX11
-    #include <cstdint>
-  #else
-    #include <stdint.h>
+#ifdef ALGLIN_OS_WINDOWS
+  // se in windows includo PRIMA windows.h per evitare conflitti!
+  #ifndef WIN32_LEAN_AND_MEAN
+    #define WIN32_LEAN_AND_MEAN
   #endif
-#else
-// windows define max and min!!!
+  #include <windows.h>
+  #ifdef _MSC_VER
+    #include <stdint.h>
+  #else
+    namespace alglin {
+      typedef          __int8  int8_t   ;
+      typedef          __int16 int16_t  ;
+      typedef          __int32 int32_t  ;
+      typedef          __int64 int64_t  ;
+      typedef unsigned __int8  uint8_t  ;
+      typedef unsigned __int16 uint16_t ;
+      typedef unsigned __int32 uint32_t ;
+      typedef unsigned __int64 uint64_t ;
+    }
+  #endif
+  // windows define max and min!!!
   #ifdef max
     #undef max
   #endif
   #ifdef min
     #undef min
   #endif
-  // Standard types
-  namespace alglin {
-    typedef          __int8  int8_t   ;
-    typedef          __int16 int16_t  ;
-    typedef          __int32 int32_t  ;
-    typedef          __int64 int64_t  ;
-    typedef unsigned __int8  uint8_t  ;
-    typedef unsigned __int16 uint16_t ;
-    typedef unsigned __int32 uint32_t ;
-    typedef unsigned __int64 uint64_t ;
-  }
+
+  // select LAPACK dll/lib for windows
+  #pragma comment(lib, "kernel32.lib")
+  #pragma comment(lib, "Shlwapi.lib")
+  #pragma comment(lib, "ws2_32.lib")
+  #pragma comment(lib, "iphlpapi.lib")
+  #pragma comment(lib, "advapi32.lib")
+  #pragma comment(lib, "shell32.lib")
+  #if _MSC_VER >= 1900
+    #pragma comment(lib, "legacy_stdio_definitions.lib")
+  #endif
+
+  #if defined(ALGLIN_USE_LAPACK)
+    #if defined(_DEBUG) || defined(DEBUG)
+      #ifdef ALGLIN_ARCH64
+        #pragma comment(lib, "blas_win64_MTd.lib")
+        #pragma comment(lib, "lapack_win64_MTd.lib")
+      #else
+        #pragma comment(lib, "blas_win32_MTd.lib")
+        #pragma comment(lib, "lapack_win32_MTd.lib")
+      #endif
+    #else
+      #ifdef ALGLIN_ARCH64
+        #pragma comment(lib, "blas_win64_MT.lib")
+        #pragma comment(lib, "lapack_win64_MT.lib")
+      #else
+        #pragma comment(lib, "blas_win32_MT.lib")
+        #pragma comment(lib, "lapack_win32_MT.lib")
+      #endif
+    #endif
+  #elif defined(ALGLIN_USE_OPENBLAS)
+    #if defined(_DEBUG) || defined(DEBUG)
+      #ifdef ALGLIN_ARCH64
+        #pragma comment(lib, "libopenblas_win64_debug.lib")
+      #else
+        #pragma comment(lib, "libopenblas_win32_debug.lib")
+      #endif
+    #else
+      #ifdef ALGLIN_ARCH64
+        #pragma comment(lib, "libopenblas_win64.lib")
+      #else
+        #pragma comment(lib, "libopenblas_win32.lib")
+      #endif
+    #endif
+  #elif defined(ALGLIN_USE_MKL)
+    #ifdef ALGLIN_ARCH64
+      #pragma comment(lib, "mkl_intel_lp64_dll.lib")
+    #else
+      #pragma comment(lib, "mkl_intel_c_dll.lib")
+    #endif
+    #pragma comment(lib, "mkl_sequential_dll.lib")
+    #pragma comment(lib, "mkl_core_dll.lib")
+  #else
+    #error "Only standard Lapack, Openblas, and MKL are supported for WINDOWS!"
+  #endif
+
+#else
+  #ifdef ALGLIN_USE_CXX11
+    #include <cstdint>
+  #else
+    #include <stdint.h>
+  #endif
 #endif
 
 // find Headers for Lapack/Blas
@@ -116,13 +180,8 @@
 
   // atlas 3.6.0
   extern "C" {
-    //#ifdef ALGLIN_OS_LINUX
     #include <atlas/cblas.h>
     #include <atlas/clapack.h>
-    //#else
-    //#include <cblas.h>
-    //#include <clapack.h>
-    //#endif
   }
 
   #define CBLASNAME(A)      cblas_##A
