@@ -23,4 +23,4 @@
 @if NOT EXIST %PREFIX%\lib             ( mkdir %PREFIX%\lib )
 @if NOT EXIST %PREFIX%\lib\superlu     ( mkdir %PREFIX%\lib\superlu )
 
-@xcopy /Y /E eigen3/Eigen  %PREFIX%\include\eigen3
+@xcopy /Y /E eigen3\Eigen  %PREFIX%\include\eigen3
