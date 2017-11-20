@@ -9,8 +9,7 @@
 ) ELSE IF "%LAPACK%"=="LAPACK" (
   @PowerShell -Command "(Get-Content src\AlglinConfig.hh.tmpl) | ForEach-Object{ $_ -replace '@@ALGLIN_USE@@', '#define ALGLIN_USE_LAPACK 1' } | Set-Content tmp.hh"
 ) ELSE (
-  @error "%LAPACK% tipe unsupported"
-  exit
+  @echo "%LAPACK% tipe unsupported"
 )
 
 @IF "%YEAR%"=="2010" (
@@ -29,8 +28,7 @@
   @set STR="Visual Studio 15 2017"
   @PowerShell -Command "(Get-Content tmp.hh) | ForEach-Object{ $_ -replace '@@ALGLIN_THREAD@@','#define ALGLIN_USE_THREAD 1' } | Set-Content src\AlglinConfig.hh"
 ) ELSE (
-  @error "(Copilation year: %YEAR% unsupported"
-  exit
+  @echo "year: %YEAR% unsupported"
 )
 
 @IF "%BITS%"=="x86" (
@@ -42,6 +40,6 @@
 @RMDIR /S /Q %VSDIR%
 @mkdir %VSDIR%
 @cd %VSDIR%
-cmake -G %STR% -DCMAKE_INSTALL_PREFIX:PATH=..\lib ..
-cmake --build . --config Release --target install
-cmake --build . --config Debug --target install
+cmake -G %STR% -D%LAPACK%=1 -DYEAR=%YEAR% -DBITS=%BITS% -DCMAKE_INSTALL_PREFIX:PATH=..\lib ..
+cmake --build . --config Release
+cmake --build . --config Debug

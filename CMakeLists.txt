@@ -49,6 +49,7 @@ FOREACH (F ${S})
   FILE( RELATIVE_PATH RF ${CMAKE_CURRENT_SOURCE_DIR} "${F}" )
   LIST( APPEND SOURCES ${RF} )
 ENDFOREACH (F ${S})
+
 SET( HEADERS )
 FILE( GLOB S ./src/*.h* )
 FOREACH (F ${S})
@@ -56,14 +57,12 @@ FOREACH (F ${S})
   LIST( APPEND HEADERS ${RF} )
 ENDFOREACH (F ${S})
 
-INCLUDE_DIRECTORIES( src ${LAPACK_BASE}/include lib3rd/include lib3rd/openblas )
-
 add_library( ${TARGET} STATIC ${SOURCES} ${HEADERS} )
 
 SET(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 SET(LIBRARY_OUTPUT_PATH    ${CMAKE_CURRENT_SOURCE_DIR}/lib)
-file(MAKE_DIRECTORY  ${CMAKE_CURRENT_SOURCE_DIR}/bin})
-file(MAKE_DIRECTORY  ${CMAKE_CURRENT_SOURCE_DIR}/lib})
+file(MAKE_DIRECTORY  ${CMAKE_CURRENT_SOURCE_DIR}/bin )
+file(MAKE_DIRECTORY  ${CMAKE_CURRENT_SOURCE_DIR}/lib )
 
 SET(EXELISTCPP test0-FD
 	             test1-small-factorization
@@ -77,15 +76,24 @@ SET(EXELISTCPP test0-FD
 
 SET(EXELISTC test8-Cinterface test9-Cinterface )
 
-FIND_LIBRARY( SUPERLU superlu HINTS lib3rd/lib/superlu  REQUIRED)
+MESSAGE( STATUS "YEAR = ${YEAR}")
+MESSAGE( STATUS "BITS = ${BITS}")
+
+SET( SUPERLU_NAME "superlu_vs${YEAR}_${BITS}" )
+
+FIND_LIBRARY( SUPERLU ${SUPERLU_NAME} HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib/superlu REQUIRED)
+INCLUDE_DIRECTORIES( src ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/include )
+
 IF( DEFINED OPENBLAS)
-	FIND_LIBRARY( LAPACK openblas HINTS lib3rd/lib/openblas REQUIRED)
+	INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/openblas )
+	FIND_LIBRARY( LAPACK openblas HINTS  ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib/openblas  ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/dll/openblas REQUIRED)
 	SET(LIB_LIST ${LAPACK} ${SUPERLU} )
 ELSEIF( DEFINED MKL )
 
 ELSE()
-	FIND_LIBRARY( BLAS   blas   HINTS lib3rd/lib/lapack REQUIRED)
-	FIND_LIBRARY( LAPACK lapacl HINTS lib3rd/lib/lapack REQUIRED)
+	INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lapack )
+	FIND_LIBRARY( BLAS   blas   HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib/lapack REQUIRED)
+	FIND_LIBRARY( LAPACK lapack HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib/lapack REQUIRED)
 	SET(LIB_LIST ${LAPACK} ${BLAS} ${SUPERLU} )	
 ENDIF()
 
@@ -104,31 +112,6 @@ FILE( GLOB HDRC   ./src/*.h )
 FILE( GLOB HDRCPP ./src/*.hh )
 install(FILES ${HDRC} ${HDRCPP} DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/lib/include )
 
-
-
-##
-##all1: config lib
-##	mkdir -p bin
-##	$(F90) $(INC) -o bin/test10-FORTRAN src_tests/test10-FORTRAN.f90 $(LIBS) $(LIBSGCC) $(CLIBS)
-##	$(F90) $(INC) -o bin/test11-FORTRAN src_tests/test11-FORTRAN.f90 $(LIBS) $(LIBSGCC) $(CLIBS)
-##
-##all_simplex: config lib
-##	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/SimplexTest1 src_tests/SimplexTest1.cc $(LIBS)
-##	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/SimplexTest2 src_tests/SimplexTest2.cc $(LIBS)
-##	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/SimplexTest3 src_tests/SimplexTest3.cc $(LIBS)
-##	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/SimplexTest4 src_tests/SimplexTest4.cc $(LIBS)
-##
-##	install(FILES
-##	  algprim.hpp brick.hpp csgeom.hpp csg.hpp csgparser.hpp
-##	  curve2d.hpp edgeflw.hpp explicitcurve2d.hpp extrusion.hpp
-##	  gencyl.hpp geoml.hpp identify.hpp manifold.hpp meshsurf.hpp
-##	  polyhedra.hpp revolution.hpp singularref.hpp solid.hpp
-##	  specpoin.hpp spline3d.hpp splinesurface.hpp surface.hpp
-##	  triapprox.hpp vscsg.hpp
-##	  DESTINATION ${NG_INSTALL_DIR_INCLUDE}/csg COMPONENT netgen_devel
-##	)
-##
-	
 MESSAGE( STATUS "Using ${SSE_FLAGS} extensions")
 MESSAGE( STATUS "C compiler                  = ${CMAKE_C_COMPILER_ID} ${CMAKE_C_COMPILER}" )
 MESSAGE( STATUS "C++ compiler                = ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER}" )
