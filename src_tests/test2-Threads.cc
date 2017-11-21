@@ -100,8 +100,6 @@ test( int nth ) {
 int
 main() {
 
-  #include "load-windows-dll.hxx"
-
   std::thread threads[100] ;
   int usedThread = 10 ;
 
