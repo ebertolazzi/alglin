@@ -1,6 +1,6 @@
 /*--------------------------------------------------------------------------*\
  |                                                                          |
- |  Copyright 2016                                                          |                                                                          |
+ |  Copyright 2016                                                          |
  |                                                                          |
  |  Enrico Bertolazzi^(*)  and  Matthias Gerdts^(**) (Ingenieurmathematik)  |
  |                                                                          |
@@ -52,6 +52,9 @@ using namespace std ;
 
 int
 main() {
+
+  #include "load-windows-dll.hxx"
+
   using Simplex::infinity ;
   Simplex::integer m = 3 ;
   Simplex::integer n = 5 ;

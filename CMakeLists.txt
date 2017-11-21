@@ -64,56 +64,35 @@ SET(LIBRARY_OUTPUT_PATH    ${CMAKE_CURRENT_SOURCE_DIR}/lib)
 file(MAKE_DIRECTORY  ${CMAKE_CURRENT_SOURCE_DIR}/bin )
 file(MAKE_DIRECTORY  ${CMAKE_CURRENT_SOURCE_DIR}/lib )
 
-SET(EXELISTCPP test0-FD
-	             test1-small-factorization
-               test2-Threads
-               test3-Timing
-               test4-KKT
-               test5-ABD-Diaz
-               test6-ABD-Block
-               test7-BorderedCR
-  					   test12-BandedMatrix )
+SET( EXELISTCPP
+     test0-FD
+     test1-small-factorization
+     test2-Threads
+     test3-Timing
+     test4-KKT
+     test5-ABD-Diaz
+     test6-ABD-Block
+     test7-BorderedCR
+     test12-BandedMatrix )
 
 SET(EXELISTC test8-Cinterface test9-Cinterface )
 
-MESSAGE( STATUS "YEAR = ${YEAR}")
-MESSAGE( STATUS "BITS = ${BITS}")
+MESSAGE( STATUS "YEAR = ${YEAR}" )
+MESSAGE( STATUS "BITS = ${BITS}" )
 
 SET( SUPERLU_NAME "superlu_vs${YEAR}_${BITS}" )
 
-SET(LLPATH ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd)
+SET(LLPATH ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd )
 
 SET(LOCLIBS lapack lapack openblas superlu )
-
 FOREACH( S ${LOCLIBS} )
-	FILE( GLOB SS ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib/${S} )
+	FILE( GLOB SS ${LLPATH}/lib/${S} )
 	LINK_DIRECTORIES( ${SS} )
-	FILE( GLOB SS ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/dll/${S} )
+	FILE( GLOB SS ${LLPATH}/dll/${S} )
 	LINK_DIRECTORIES( ${SS} )
 ENDFOREACH( S ${LOCLIBS} )
 
-##FIND_LIBRARY( SUPERLU ${SUPERLU_NAME} HINTS ${LLPATH}/lib/superlu REQUIRED)
 INCLUDE_DIRECTORIES( src ${LLPATH}/include ${LLPATH}/include/eigen3 )
-
-##IF( DEFINED OPENBLAS)
-##	FIND_LIBRARY( LAPACK libopenblas_${BITS} HINTS ${LLPATH}/lib/openblas ${LLPATH}/lib3rd/dll/openblas REQUIRED)
-##	SET(LIB_LIST ${LAPACK} ${SUPERLU} )
-##ELSEIF( DEFINED MKL )
-##
-##	#
-##	#
-##	#
-##	#
-##	#
-##	#
-##
-##ELSE()
-##	FIND_LIBRARY( BLAS   blas   HINTS ${LLPATH}/lib/lapack REQUIRED)
-##	FIND_LIBRARY( LAPACK lapack HINTS ${LLPATH}/lib/lapack REQUIRED)
-##	SET(LIB_LIST ${LAPACK} ${BLAS} ${SUPERLU} )	
-##ENDIF()
-
-###MESSAGE( STATUS "LIB_LIST = ${LIB_LIST}")
 
 FOREACH( S ${EXELISTCPP} )
 	ADD_EXECUTABLE( ${S} src_tests/${S}.cc ${HEADERS} )

@@ -428,6 +428,8 @@ test5() {
 int
 main() {
 
+  #include "load-windows-dll.hxx"
+
   try {
     cout << "\n\n\ntest0\n" ;
     test0();

@@ -135,18 +135,11 @@
       #endif
     #endif
   #elif defined(ALGLIN_USE_OPENBLAS)
-    #if defined(_DEBUG) || defined(DEBUG)
-      #ifdef ALGLIN_ARCH64
-        #pragma comment(lib, "libopenblas_x64_debug.lib")
-      #else
-        #pragma comment(lib, "libopenblas_x86_debug.lib")
-      #endif
+    // no debug version
+    #ifdef ALGLIN_ARCH64
+      #pragma comment(lib, "libopenblas_x64.lib")
     #else
-      #ifdef ALGLIN_ARCH64
-        #pragma comment(lib, "libopenblas_x64.lib")
-      #else
-        #pragma comment(lib, "libopenblas_x86.lib")
-      #endif
+      #pragma comment(lib, "libopenblas_x86.lib")
     #endif
   #elif defined(ALGLIN_USE_MKL)
     #ifdef ALGLIN_ARCH64

@@ -22,6 +22,9 @@
 
 int
 main() {
+
+  #include "load-windows-dll.hxx"
+
   int i ;
   ABD_intType n      = 2 ;
   ABD_intType nblock = 3 ;

@@ -99,6 +99,8 @@ public:
 int
 main() {
 
+  #include "load-windows-dll.hxx"
+
   using namespace std ;
 
   integer    dim_x = 4 ;

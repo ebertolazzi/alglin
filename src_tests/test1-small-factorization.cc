@@ -499,6 +499,8 @@ test7() {
 int
 main() {
 
+  #include "load-windows-dll.hxx"
+
   try {
     test1() ;
     test2() ;
