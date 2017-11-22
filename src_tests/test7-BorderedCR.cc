@@ -58,8 +58,6 @@ rand( valueType xmin, valueType xmax ) {
 int
 main() {
 
-  #include "load-windows-dll.hxx"
-
   alglin::BorderedCR<double> BCR, BCR_SAVED ;
 
   //#define NSIZE 10

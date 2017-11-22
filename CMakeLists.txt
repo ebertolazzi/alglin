@@ -73,7 +73,11 @@ SET( EXELISTCPP
      test5-ABD-Diaz
      test6-ABD-Block
      test7-BorderedCR
-     test12-BandedMatrix )
+     test12-BandedMatrix
+     SimplexTest1
+     SimplexTest2
+     SimplexTest3
+	   SimplexTest4 )
 
 SET(EXELISTC test8-Cinterface test9-Cinterface )
 
@@ -99,6 +103,15 @@ FOREACH( S ${LOCLIBS} )
 ENDFOREACH( S ${LOCLIBS} )
 
 INCLUDE_DIRECTORIES( src ${LLPATH}/include ${LLPATH}/include/eigen3 )
+
+IF( MSVC )
+  INCLUDE_DIRECTORIES( "C:/Program Files (x86)/IntelSWTools/compilers_and_libraries/windows/mkl/include" )
+	IF ( ${BITS} STREQUAL "x64" )
+    LINK_DIRECTORIES( "C:/Program Files (x86)/IntelSWTools/compilers_and_libraries/windows/mkl/lib/intel64" )
+	ELSE()
+    LINK_DIRECTORIES( "C:/Program Files (x86)/IntelSWTools/compilers_and_libraries/windows/mkl/lib/ia32" )
+	ENDIF()
+ENDIF()
 
 FOREACH( S ${EXELISTCPP} )
 	ADD_EXECUTABLE( ${S} src_tests/${S}.cc ${HEADERS} )

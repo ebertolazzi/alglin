@@ -222,8 +222,6 @@ testN() {
 int
 main() {
 
-  #include "load-windows-dll.hxx"
-
   testN<2>() ;
   testN<3>() ;
   testN<4>() ;

@@ -58,8 +58,6 @@ rand( valueType xmin, valueType xmax ) {
 int
 main() {
 
-  #include "load-windows-dll.hxx"
-
   alglin::integer NB = 0 ;
   for ( ; NB < 100 ; NB = NB*2 + 1 ) {
 

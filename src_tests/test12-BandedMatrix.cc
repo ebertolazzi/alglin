@@ -26,8 +26,6 @@ using namespace std ;
 int
 main() {
 
-  #include "load-windows-dll.hxx"
-
   alglin::BandedLU<alglin::doublereal> BLU ;
 
   alglin::integer const N  = 10 ;

@@ -179,8 +179,6 @@ test2() {
 int
 main() {
 
-  #include "load-windows-dll.hxx"
-
   test1() ;
   test2() ;
   printf("All done!\n") ;

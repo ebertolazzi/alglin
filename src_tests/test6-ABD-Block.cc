@@ -71,8 +71,6 @@ using namespace std ;
 int
 main() {
 
-  #include "load-windows-dll.hxx"
-
   alglin::integer NB = 0 ;
   for ( ; NB < 100 ; NB = NB*2 + 1 ) {
     cout << "\n\n\nNB = " << NB << "\n\n\n\n" ;

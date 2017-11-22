@@ -52,8 +52,6 @@ using namespace std ;
 int
 main() {
 
-  #include "load-windows-dll.hxx"
-
   using Simplex::infinity ;
 
   // Cycling pivot test
