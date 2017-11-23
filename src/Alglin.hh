@@ -26,6 +26,9 @@
 #ifndef ALGLIN_HH
 #define ALGLIN_HH
 
+#define ALGLIN_MAJOR_VERSION 0
+#define ALGLIN_MINOR_VERSION 1
+
 /*
 // [sd]lamch
 // [sd]copy
@@ -134,6 +137,7 @@
         #pragma comment(lib, "lapack_win32_MT.lib")
       #endif
     #endif
+
   #elif defined(ALGLIN_USE_OPENBLAS)
     // no debug version
     #ifdef ALGLIN_ARCH64
@@ -159,6 +163,44 @@
   #else
     #include <stdint.h>
   #endif
+#endif
+
+// set macro for used LAPACK name
+
+#if defined(ALGLIN_USE_ACCELERATE)
+  #ifdef ALGLIN_ARCH64
+    #define ALGLIN_LAPACK_NAME "Accelerate OSX (x64)"
+  #else
+    #define ALGLIN_LAPACK_NAME "Accelerate OSX (x86)"
+  #endif
+#elif defined(ALGLIN_USE_LAPACK)
+  #if defined(_DEBUG) || defined(DEBUG)
+    #ifdef ALGLIN_ARCH64
+      #define ALGLIN_LAPACK_NAME "Standard BLAS/LAPACK (x64,DEBUG)"
+    #else
+      #define ALGLIN_LAPACK_NAME "Standard BLAS/LAPACK (x86,DEBUG)"
+    #endif
+  #else
+    #ifdef ALGLIN_ARCH64
+      #define ALGLIN_LAPACK_NAME "Standard BLAS/LAPACK (x64)"
+    #else
+      #define ALGLIN_LAPACK_NAME "Standard BLAS/LAPACK (x86)"
+    #endif
+  #endif
+#elif defined(ALGLIN_USE_OPENBLAS)
+  #ifdef ALGLIN_ARCH64
+    #define ALGLIN_LAPACK_NAME "OPENBLAS (x64,RELEASE)"
+  #else
+    #define ALGLIN_LAPACK_NAME "OPENBLAS (x86,RELEASE)"
+  #endif
+#elif defined(ALGLIN_USE_MKL)
+  #ifdef ALGLIN_ARCH64
+    #define ALGLIN_LAPACK_NAME "MKL (x64)"
+  #else
+    #define ALGLIN_LAPACK_NAME "MKL (x86)"
+  #endif
+#else
+  #define ALGLIN_LAPACK_NAME "UNKNOWN LAPACK LIB"
 #endif
 
 // find Headers for Lapack/Blas
