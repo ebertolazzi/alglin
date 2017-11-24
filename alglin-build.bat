@@ -1,6 +1,6 @@
-@IF [%1] EQU [] (SET YEAR=2013)  else (SET YEAR=%1)
-@IF [%2] EQU [] (SET BITS=x64)   else (SET BITS=%2)
-@IF [%3] EQU [] (SET LAPACK=MKL) else (SET LAPACK=%3)
+@IF [%1] EQU [] (SET YEAR=2013)     else (SET YEAR=%1)
+@IF [%2] EQU [] (SET BITS=x64)      else (SET BITS=%2)
+@IF [%3] EQU [] (SET LAPACK=LAPACK) else (SET LAPACK=%3)
 
 @IF %LAPACK% == MKL (
   @echo.
@@ -13,10 +13,13 @@
 
 @IF %LAPACK% == MKL (
   @PowerShell -Command "(Get-Content src\AlglinConfig.hh.tmpl) | ForEach-Object{ $_ -replace '@@ALGLIN_USE@@', '#define ALGLIN_USE_MKL 1' } | Set-Content tmp.hh"
+	@copy /Y src_windows\AlglinConfigMKL.hh src\AlglinConfig.hh
 ) ELSE IF %LAPACK% == OPENBLAS (
   @PowerShell -Command "(Get-Content src\AlglinConfig.hh.tmpl) | ForEach-Object{ $_ -replace '@@ALGLIN_USE@@', '#define ALGLIN_USE_OPENBLAS 1' } | Set-Content tmp.hh"
+	@copy /Y src_windows\AlglinConfigMKL.hh src\AlglinConfig.hh
 ) ELSE IF %LAPACK% == LAPACK (
   @PowerShell -Command "(Get-Content src\AlglinConfig.hh.tmpl) | ForEach-Object{ $_ -replace '@@ALGLIN_USE@@', '#define ALGLIN_USE_LAPACK 1' } | Set-Content tmp.hh"
+	@copy /Y src_windows\AlglinConfigLAPACK.hh src\AlglinConfig.hh
 ) ELSE (
   @echo.
   powershell -command write-host -foreground "red" -background "yellow" -nonewline "Unsupported %LAPACK%"

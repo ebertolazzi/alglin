@@ -32,7 +32,7 @@
 @cd ..
 
 @cd OpenBlas
-@IF %BITS% == x86 (
+@IF "%BITS%" == x86 (
   @call openblas-build-32.bat
 ) ELSE (
   @call openblas-build-64.bat
