@@ -13,13 +13,10 @@
 
 @IF %LAPACK% == MKL (
   @PowerShell -Command "(Get-Content src\AlglinConfig.hh.tmpl) | ForEach-Object{ $_ -replace '@@ALGLIN_USE@@', '#define ALGLIN_USE_MKL 1' } | Set-Content tmp.hh"
-	@copy /Y src_windows\AlglinConfigMKL.hh src\AlglinConfig.hh
 ) ELSE IF %LAPACK% == OPENBLAS (
   @PowerShell -Command "(Get-Content src\AlglinConfig.hh.tmpl) | ForEach-Object{ $_ -replace '@@ALGLIN_USE@@', '#define ALGLIN_USE_OPENBLAS 1' } | Set-Content tmp.hh"
-	@copy /Y src_windows\AlglinConfigMKL.hh src\AlglinConfig.hh
 ) ELSE IF %LAPACK% == LAPACK (
   @PowerShell -Command "(Get-Content src\AlglinConfig.hh.tmpl) | ForEach-Object{ $_ -replace '@@ALGLIN_USE@@', '#define ALGLIN_USE_LAPACK 1' } | Set-Content tmp.hh"
-	@copy /Y src_windows\AlglinConfigLAPACK.hh src\AlglinConfig.hh
 ) ELSE (
   @echo.
   powershell -command write-host -foreground "red" -background "yellow" -nonewline "Unsupported %LAPACK%"
