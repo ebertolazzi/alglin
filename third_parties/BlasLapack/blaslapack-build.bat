@@ -11,25 +11,29 @@
 @if EXIST %F1%.zip (
   @echo "%F1%.zip already downloaded"
 ) else (
-  PowerShell -Command "Import-Module BitsTransfer ; Start-BitsTransfer -Source \"%URL1%\" -Destination ."
+  @powershell -command write-host -foreground "black" -background "yellow" -nonewline "Download %F1%.zip" 
+  @PowerShell -Command "Import-Module BitsTransfer ; Start-BitsTransfer -Source \"%URL1%\" -Destination ."
 )
 
 @if EXIST %F2%.zip (
   @echo "%F2%.zip already downloaded"
 ) else (
-  PowerShell -Command "Import-Module BitsTransfer ; Start-BitsTransfer -Source \"%URL2%\" -Destination ."
+  @powershell -command write-host -foreground "black" -background "yellow" -nonewline "Download %F2%.zip" 
+  @PowerShell -Command "Import-Module BitsTransfer ; Start-BitsTransfer -Source \"%URL2%\" -Destination ."
 )
 
 @if EXIST %F3%.zip (
   @echo "%F3%.zip already downloaded"
 ) else (
-  PowerShell -Command "Import-Module BitsTransfer ; Start-BitsTransfer -Source \"%URL3%\" -Destination ."
+  @powershell -command write-host -foreground "black" -background "yellow" -nonewline "Download %F3%.zip" 
+  @PowerShell -Command "Import-Module BitsTransfer ; Start-BitsTransfer -Source \"%URL3%\" -Destination ."
 )
 
 @if EXIST %F4%.zip (
   @echo "%F4%.zip already downloaded"
 ) else (
-  PowerShell -Command "Import-Module BitsTransfer ; Start-BitsTransfer -Source \"%URL4%\" -Destination ."
+  @powershell -command write-host -foreground "black" -background "yellow" -nonewline "Download %F4%.zip" 
+  @PowerShell -Command "Import-Module BitsTransfer ; Start-BitsTransfer -Source \"%URL4%\" -Destination ."
 )
 
 @if EXIST libs (
@@ -40,7 +44,6 @@
   @PowerShell -NonInteractive -Command "Expand-Archive -Path %F3%.zip -DestinationPath libs"
   @PowerShell -NonInteractive -Command "Expand-Archive -Path %F4%.zip -DestinationPath libs"
 )
-
 
 @SET PREFIX=..\..\lib3rd
 @if NOT EXIST %PREFIX%\lib        ( mkdir %PREFIX%\lib )

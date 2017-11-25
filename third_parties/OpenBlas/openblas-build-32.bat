@@ -7,7 +7,8 @@
 @if EXIST %FILE32% (
   @echo "%FILE32% already downloaded"
 ) else (
-  PowerShell -NonInteractive -Command "Import-Module BitsTransfer ; Start-BitsTransfer -Source \"%URL32%\" -Destination %FILE32%"
+  @powershell -command write-host -foreground "black" -background "yellow" -nonewline "Download %FILE32%" 
+  @PowerShell -NonInteractive -Command "Import-Module BitsTransfer ; Start-BitsTransfer -Source \"%URL32%\" -Destination %FILE32%"
 )
 
 @if EXIST %DIR32% (
