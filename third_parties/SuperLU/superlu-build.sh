@@ -48,5 +48,5 @@ then
 fi
 
 cp -f -R -P lib/include/* $PREFIX/include/superlu
-cp -f -R -P lib/lib/*     $PREFIX/lib/superlu
+cp -f -R -P lib/lib*/*    $PREFIX/lib/superlu
 
