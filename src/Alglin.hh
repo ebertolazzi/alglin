@@ -29,6 +29,11 @@
 #define ALGLIN_MAJOR_VERSION 0
 #define ALGLIN_MINOR_VERSION 1
 
+// possible user modification
+// ALGLIN_USE_SYSTEM_EIGEN
+// ALGLIN_USE_SYSTEM_SUPERLU
+// ALGLIN_USE_SYSTEM_OPENBLAS
+
 /*
 // [sd]lamch
 // [sd]copy
@@ -243,8 +248,13 @@
     #define __STDC_VERSION__ __STDC__
   #endif
 
+  #ifdef ALGLIN_USE_SYSTEM_OPENBLAS
   #include <openblas/cblas.h>
   #include <openblas/f77blas.h>
+  #else
+  #include "openblas/cblas.h"
+  #include "openblas/f77blas.h"
+  #endif
 
   #define CBLASNAME(A)      cblas_##A
   #define LAPACK_F77NAME(A) A##_

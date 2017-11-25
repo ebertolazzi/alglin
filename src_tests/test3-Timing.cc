@@ -81,10 +81,10 @@ main() {
 #pragma clang diagnostic ignored "-Wc99-extensions"
 #endif
 
-#ifdef USE_MECHATRONIX_EIGEN
-  #include <MechatronixCore/Eigen/Dense>
-#else
+#ifdef ALGLIN_USE_SYSTEM_EIGEN
   #include <Eigen/Dense>
+#else
+  #include "Eigen/Dense"
 #endif
 
 using namespace std ;

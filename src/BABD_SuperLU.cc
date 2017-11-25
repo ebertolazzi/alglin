@@ -1,6 +1,6 @@
 /*--------------------------------------------------------------------------*\
  |                                                                          |
- |  Copyright (C) 2017                                                       |
+ |  Copyright (C) 2017                                                      |
  |                                                                          |
  |         , __                 , __                                        |
  |        /|/  \               /|/  \                                       |
@@ -18,7 +18,6 @@
 \*--------------------------------------------------------------------------*/
 
 #include "AlglinConfig.hh"
-#ifndef ALGLIN_SUPERLU_SUPPORT
 
 #ifdef __GCC__
 #pragma GCC diagnostic ignored "-Wsign-conversion"
@@ -244,5 +243,3 @@ namespace alglin {
   }
 
 }
-
-#endif

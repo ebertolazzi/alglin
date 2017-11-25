@@ -69,10 +69,10 @@
 #pragma warning( disable : 4200 )
 #endif
 
-#ifdef USE_MECHATRONIX_EIGEN
-  #include <MechatronixCore/Eigen/Dense>
-#else
+#ifdef ALGLIN_USE_SYSTEM_EIGEN
   #include <Eigen/Dense>
+#else
+  #include "Eigen/Dense"
 #endif
 
 #ifdef __GCC__

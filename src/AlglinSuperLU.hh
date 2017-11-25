@@ -25,7 +25,6 @@
 #define ALGLIN_SUPERLU_HH
 
 #include "AlglinConfig.hh"
-#ifndef ALGLIN_SUPERLU_SUPPORT
 
 // Eigen3
 #ifdef __GCC__
@@ -69,10 +68,10 @@
 #define dgemv_  dgemv_BUGGED
 #define xerbla_ xerbla_BUGGED
 
-#ifdef USE_MECHATRONIX_SUPERLU
-  #include <MechatronixCore/superlu/slu_ddefs.h>
-#else
+#ifdef ALGLIN_USE_SYSTEM_SUPERLU
   #include <superlu/slu_ddefs.h>
+#else
+  #include "superlu/slu_ddefs.h"
 #endif
 
 #undef dgemm_
@@ -86,8 +85,6 @@
 #endif
 #ifdef __clang__
 #pragma clang diagnostic pop
-#endif
-
 #endif
 
 #endif

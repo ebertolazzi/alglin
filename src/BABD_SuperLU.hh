@@ -1,6 +1,6 @@
 /*--------------------------------------------------------------------------*\
  |                                                                          |
- |  Copyright (C) 2017                                                       |
+ |  Copyright (C) 2017                                                      |
  |                                                                          |
  |         , __                 , __                                        |
  |        /|/  \               /|/  \                                       |
@@ -21,8 +21,6 @@
 #define BABD_SUPERLU_HH
 
 #include "AlglinConfig.hh"
-#ifndef ALGLIN_SUPERLU_SUPPORT
-
 #include "Alglin.hh"
 #include "Alglin++.hh"
 #include "AlglinSuperLU.hh"
@@ -157,8 +155,6 @@ namespace alglin {
 #endif
 #ifdef __clang__
 #pragma clang diagnostic pop
-#endif
-
 #endif
 
 #endif
