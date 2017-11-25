@@ -25,34 +25,29 @@
 @PowerShell -Command "(Get-Content tmp2.txt) | ForEach-Object{ $_ -replace '\"Build tests\" ON','\"Build tests\" OFF' } | Set-Content tmp3.txt"
 @PowerShell -Command "move-item -path tmp3.txt -destination %DIR%\CMakeLists.txt -force ; remove-item tmp1.txt ; remove-item tmp2.txt"
 
-@IF %YEAR% NEQ 2010 IF %YEAR% NEQ 2012 IF %YEAR% NEQ 2013 IF %YEAR% NEQ 2017 (
-  powershell -command write-host -foreground "red" -background "yellow" -nonewline "Unsupported Visual Studio %YEAR%"
-  GOTO:eof
+@IF "%BITS%" NEQ "x86" (
+  @IF "%BITS%" NEQ "x64" (
+    @powershell -command write-host -foreground "red" -background "yellow" -nonewline "Unsupported ARCH %BITS%"
+    @GOTO:eof
+  )
 )
-
-@IF %BITS% NEQ x86 IF %BITS% NEQ x64 (
-  powershell -command write-host -foreground "red" -background "yellow" -nonewline "Unsupported ARCH %BITS%"
-  GOTO:eof
-)
-
-@IF %YEAR% == 2010  (
-  @set STR="Visual Studio 10 2010"
-) ELSE IF %YEAR% == 2012 (
-  @set STR="Visual Studio 11 2012"
-) ELSE IF %YEAR% == 2013 (
-  @set STR="Visual Studio 12 2013"
-) ELSE IF %YEAR% == 2015 (
-  @set STR="Visual Studio 14 2015"
-) ELSE IF %YEAR% == 2017 (
-  @set STR="Visual Studio 15 2017"
+	
+@IF "%YEAR%" == "2010"  (
+  @set STR=Visual Studio 10 2010
+) ELSE IF "%YEAR%" == "2012" (
+  @set STR=Visual Studio 11 2012
+) ELSE IF "%YEAR%" == "2013" (
+  @set STR=Visual Studio 12 2013
+) ELSE IF "%YEAR%" == "2015" (
+  @set STR=Visual Studio 14 2015
+) ELSE IF "%YEAR%" == "2017" (
+  @set STR=Visual Studio 15 2017
 ) ELSE (
   powershell -command write-host -foreground "red" -background "yellow" -nonewline "Unsupported Visual Studio %YEAR%"
   GOTO:eof
 )
 
-@IF "%BITS%"=="x86" (
-  @set STR="%STR% Win64"
-)
+@IF "%BITS%"=="x86" (@set STR=%STR% Win64)
 
 SET VSDIR=vs%YEAR%_%BITS%
 
@@ -61,7 +56,7 @@ SET VSDIR=vs%YEAR%_%BITS%
 
 @cd %VSDIR%
 
-cmake -G %STR% -DCMAKE_INSTALL_PREFIX:PATH=..\lib ..\%DIR%
+cmake -G "%STR%" -DCMAKE_INSTALL_PREFIX:PATH=..\lib ..\%DIR%
 cmake --build . --config Release --target install
 
 @SET PREFIX=..\..\..\lib3rd

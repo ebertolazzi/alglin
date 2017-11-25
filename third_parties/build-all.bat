@@ -8,15 +8,15 @@
   )
 )
 
-@IF %YEAR% == 2010 (
+@IF "%YEAR%" == "2010" (
   @set STR="Visual Studio 10 2010"
-) ELSE IF %YEAR% == 2012  (
+) ELSE IF "%YEAR%" == "2012"  (
   @set STR="Visual Studio 11 2012"
-) ELSE IF %YEAR% == 2013 (
+) ELSE IF "%YEAR%" == "2013" (
   @set STR="Visual Studio 12 2013"
-) ELSE IF %YEAR% == 2015 (
+) ELSE IF "%YEAR%" == "2015" (
   @set STR="Visual Studio 14 2015"
-) ELSE IF %YEAR% == 2017 (
+) ELSE IF "%YEAR%" == "2017" (
   @set STR="Visual Studio 15 2017"
 ) else (
   @echo.
