@@ -61,7 +61,7 @@
 @mkdir %VSDIR%
 @cd %VSDIR%
 cmake -G "%STR%" -D%LAPACK%=1 -DYEAR=%YEAR% -DBITS=%BITS% -DCMAKE_INSTALL_PREFIX:PATH=..\lib ..
-cmake --build . --config Release
-cmake --build . --config Debug
+cmake --build . --config Release --target Install
+cmake --build . --config Debug --target Install
 cd ..
 

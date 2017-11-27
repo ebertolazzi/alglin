@@ -129,7 +129,7 @@ ENDIF()
 
 FILE( GLOB HDRC   ./src/*.h )
 FILE( GLOB HDRCPP ./src/*.hh )
-install(FILES ${HDRC} ${HDRCPP} DESTINATION ${LLPATH}/lib/include )
+INSTALL(FILES ${HDRC} ${HDRCPP} DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/lib/include )
 
 MESSAGE( STATUS "Using ${SSE_FLAGS} extensions")
 MESSAGE( STATUS "C compiler                  = ${CMAKE_C_COMPILER_ID} ${CMAKE_C_COMPILER}" )
