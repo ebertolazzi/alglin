@@ -18,6 +18,19 @@
   @set "PATH=%MYPATH%;%PATH%"
 )
 
+@echo.
+powershell -command write-host -foreground "red" -background "yellow" -nonewline "Build Binary"
+@echo.
+
+@SET VSDIR=vs%YEAR%_%BITS%
+@RMDIR /S /Q %VSDIR%
+@mkdir %VSDIR%
+@cd %VSDIR%
+@cmake -G "%STR%" -DBUILD_EXECUTABLE=1 -D%LAPACK%=1 -DYEAR=%YEAR% -DBITS=%BITS% -DCMAKE_INSTALL_PREFIX:PATH=..\lib ..
+@cmake --build . --config Release --target Install 
+@cmake --build . --config Debug --target Install
+@cd ..
+
 @set DR=Release
 
 @setlocal

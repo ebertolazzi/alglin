@@ -11,6 +11,11 @@
   call "C:\Program Files (x86)\IntelSWTools\compilers_and_libraries\windows\bin\compilervars.bat -arch %ARCH% vs%YEAR%shell"
 )
 
+@echo.
+powershell -command write-host -foreground "red" -background "yellow" -nonewline "Select Lapack Type"
+@echo.
+
+
 @IF "%LAPACK%" == "MKL" (
   @PowerShell -Command "(Get-Content src\AlglinConfig.hh.tmpl) | ForEach-Object{ $_ -replace '@@ALGLIN_USE@@', '#define ALGLIN_USE_MKL 1' } | Set-Content tmp.hh"
 ) ELSE IF "%LAPACK%" == "OPENBLAS" (
@@ -23,6 +28,10 @@
   @echo.
   GOTO:eof
 )
+
+@echo.
+powershell -command write-host -foreground "red" -background "yellow" -nonewline "Select Compiler"
+@echo.
 
 @IF %YEAR% == 2010 (
   @set STR="Visual Studio 10 2010"
@@ -46,6 +55,10 @@
   GOTO:eof
 )
 
+@echo.
+powershell -command write-host -foreground "red" -background "yellow" -nonewline "Select Architecture"
+@echo.
+
 @IF "%BITS%" NEQ "x86" IF "%BITS%" NEQ "x64" (
   @echo.
   powershell -command write-host -foreground "red" -background "yellow" -nonewline "Unsupported ARCH %BITS%"
@@ -55,7 +68,12 @@
 
 @IF "%BITS%" == "x64" (@set STR=%STR% Win64)
 
-@IF NOT EXITS lib/Debug/Alglin.lib (
+@IF NOT EXIST lib\Debug\Alglin.lib (
+
+  @echo.
+  powershell -command write-host -foreground "red" -background "yellow" -nonewline "Build Library"
+  @echo.
+
   @SET VSDIR=vs%YEAR%_%BITS%
   @RMDIR /S /Q %VSDIR%
   @mkdir %VSDIR%
