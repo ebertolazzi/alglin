@@ -4,33 +4,34 @@
 
 @IF "%LAPACK%" == "MKL" (
   @echo.
-  powershell -command write-host -foreground "red" -background "yellow" -nonewline "Setup for MKL"
+  @powershell -command write-host -foreground "red" -background "yellow" -nonewline "Setup for MKL"
   @echo.
   @SET ARCH=intel64
   @IF %BITS% == x86 (SET ARCH=ia32)
-  call "C:\Program Files (x86)\IntelSWTools\compilers_and_libraries\windows\bin\compilervars.bat -arch %ARCH% vs%YEAR%shell"
+  @call "C:\Program Files (x86)\IntelSWTools\compilers_and_libraries\windows\bin\compilervars.bat -arch %ARCH% vs%YEAR%shell"
 )
 
 @echo.
-powershell -command write-host -foreground "red" -background "yellow" -nonewline "Select Lapack Type"
+@powershell -command write-host -foreground "red" -background "yellow" -nonewline "Select Lapack Type: %LAPACK%"
 @echo.
 
-
 @IF "%LAPACK%" == "MKL" (
-  @PowerShell -Command "(Get-Content src\AlglinConfig.hh.tmpl) | ForEach-Object{ $_ -replace '@@ALGLIN_USE@@', '#define ALGLIN_USE_MKL 1' } | Set-Content tmp.hh"
+  @SET BLASLAPACK=MKL
 ) ELSE IF "%LAPACK%" == "OPENBLAS" (
-  @PowerShell -Command "(Get-Content src\AlglinConfig.hh.tmpl) | ForEach-Object{ $_ -replace '@@ALGLIN_USE@@', '#define ALGLIN_USE_OPENBLAS 1' } | Set-Content tmp.hh"
+  @SET BLASLAPACK=OPENBLAS
 ) ELSE IF "%LAPACK%" == "LAPACK" (
-  @PowerShell -Command "(Get-Content src\AlglinConfig.hh.tmpl) | ForEach-Object{ $_ -replace '@@ALGLIN_USE@@', '#define ALGLIN_USE_LAPACK 1' } | Set-Content tmp.hh"
+  @SET BLASLAPACK=LAPACK
 ) ELSE (
   @echo.
-  powershell -command write-host -foreground "red" -background "yellow" -nonewline "Unsupported %LAPACK%"
+  @powershell -command write-host -foreground "red" -background "yellow" -nonewline "Unsupported %LAPACK%"
   @echo.
   GOTO:eof
 )
 
+@PowerShell -Command "(Get-Content src\AlglinConfig.hh.tmpl) | ForEach-Object{ $_ -replace '@@ALGLIN_USE@@', '#define ALGLIN_USE_%BLASLAPACK% 1' } | Set-Content src\AlglinConfig.hh"
+
 @echo.
-powershell -command write-host -foreground "red" -background "yellow" -nonewline "Select Compiler"
+@powershell -command write-host -foreground "red" -background "yellow" -nonewline "Select Compiler Visual Studio %YEAR% "
 @echo.
 
 @IF %YEAR% == 2010 (
@@ -50,41 +51,51 @@ powershell -command write-host -foreground "red" -background "yellow" -nonewline
   @PowerShell -Command "(Get-Content tmp.hh) | ForEach-Object{ $_ -replace '@@ALGLIN_THREAD@@','#define ALGLIN_USE_THREAD 1' } | Set-Content src\AlglinConfig.hh"
 ) ELSE (
   @echo.
-  powershell -command write-host -foreground "red" -background "yellow" -nonewline "Unsupported %YEAR%"
+  @powershell -command write-host -foreground "red" -background "yellow" -nonewline "Unsupported %YEAR%"
   @echo.
   GOTO:eof
 )
 
 @echo.
-powershell -command write-host -foreground "red" -background "yellow" -nonewline "Select Architecture"
+@powershell -command write-host -foreground "red" -background "yellow" -nonewline "Select Architecture %BITS%"
 @echo.
 
 @IF "%BITS%" NEQ "x86" IF "%BITS%" NEQ "x64" (
   @echo.
-  powershell -command write-host -foreground "red" -background "yellow" -nonewline "Unsupported ARCH %BITS%"
+  @powershell -command write-host -foreground "red" -background "yellow" -nonewline "Unsupported ARCH %BITS%"
   @echo.
   GOTO:eof
 )
 
 @IF "%BITS%" == "x64" (@set STR=%STR% Win64)
 
-@IF NOT EXIST lib\Debug\Alglin.lib (
+@SET COMPILE="YES"
+@IF EXIST lib\Debug\Alglin.lib (
+  @IF EXIST lib\Release\Alglin.lib (
+    @IF EXIST lib\include\Alglin.hh (
+      @SET COMPILE="NO"
+	)
+  )
+)
 
-  @echo.
-  powershell -command write-host -foreground "red" -background "yellow" -nonewline "Build Library"
-  @echo.
-
+@IF %COMPILE% == "YES" (
   @SET VSDIR=vs%YEAR%_%BITS%
   @RMDIR /S /Q %VSDIR%
   @mkdir %VSDIR%
   @cd %VSDIR%
+  @echo.
+  @powershell -command write-host -foreground "red" -background "yellow" -nonewline "Build Library: cmake -G \"%STR%\" -D%LAPACK%=1 -DYEAR=%YEAR% -DBITS=%BITS% -DCMAKE_INSTALL_PREFIX:PATH=..\lib .."
+  @echo.
   @cmake -G "%STR%" -D%LAPACK%=1 -DYEAR=%YEAR% -DBITS=%BITS% -DCMAKE_INSTALL_PREFIX:PATH=..\lib ..
   @cmake --build . --config Release --target Install
   @cmake --build . --config Debug --target Install
   @cd ..
 ) else (
   @echo.
-  powershell -command write-host -foreground "red" -background "yellow" -nonewline "Alglin already compiled"
+  @powershell -command write-host -foreground "red" -background "yellow" -nonewline "Alglin already compiled"
   @echo.
 )
 
+@echo.
+@powershell -command write-host -foreground "red" -background "yellow" -nonewline "Alglin all done!"
+@echo.

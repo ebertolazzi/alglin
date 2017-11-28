@@ -20,7 +20,7 @@
   @set STR="Visual Studio 15 2017"
 ) else (
   @echo.
-  powershell -command write-host -foreground "red" -background "yellow" -nonewline "Unsupported  Visual Studio %YEAR%" 
+  @powershell -command write-host -foreground "red" -background "yellow" -nonewline "Unsupported  Visual Studio %YEAR%" 
   @echo.
   GOTO:eof
 )
