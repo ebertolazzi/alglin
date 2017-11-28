@@ -32,7 +32,7 @@
   GOTO:eof
 )
 
-@PowerShell -Command "(Get-Content src\AlglinConfig.hh.tmpl) | ForEach-Object{ $_ -replace '@@ALGLIN_USE@@', '#define ALGLIN_USE_%BLASLAPACK% 1' } | Set-Content src\AlglinConfig.hh"
+@PowerShell -Command "(Get-Content src\AlglinConfig.hh.tmpl) | ForEach-Object{ $_ -replace '@@ALGLIN_USE@@', '#define ALGLIN_USE_%BLASLAPACK% 1' } | Set-Content tmp.hh"
 
 @echo.
 @powershell -command write-host -foreground "red" -background "yellow" -nonewline "Select Compiler Visual Studio %YEAR% "
