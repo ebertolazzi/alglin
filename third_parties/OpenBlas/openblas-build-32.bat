@@ -17,7 +17,7 @@
   @PowerShell -NonInteractive -Command "Expand-Archive -Path %FILE32% -DestinationPath ."
 )
 
-SET BASE=..\..\lib3rd
+@SET BASE=..\..\lib3rd
 
 @mkdir %BASE%\include
 @mkdir %BASE%\lib

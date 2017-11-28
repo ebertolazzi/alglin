@@ -8,7 +8,7 @@
 @if EXIST %FILE64% (
   @echo "%FILE64% already downloaded"
 ) else (
-  PowerShell -NonInteractive -Command "Import-Module BitsTransfer ; Start-BitsTransfer -Source \"%URL64%\" -Destination %FILE64%"
+  @PowerShell -NonInteractive -Command "Import-Module BitsTransfer ; Start-BitsTransfer -Source \"%URL64%\" -Destination %FILE64%"
 )
 
 @if EXIST %DIR64% (
@@ -17,7 +17,7 @@
   @PowerShell -NonInteractive -Command "Expand-Archive -Path %FILE64% -DestinationPath ."
 )
 
-SET BASE=..\..\lib3rd
+@SET BASE=..\..\lib3rd
 
 @mkdir %BASE%\include
 @mkdir %BASE%\lib

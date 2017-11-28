@@ -7,7 +7,7 @@
 @if EXIST %FILE% (
   @echo "%FILE% already downloaded"
 ) else (
-  PowerShell -Command "Import-Module BitsTransfer ; Start-BitsTransfer -Source \"%URL%\" -Destination ."
+  @PowerShell -Command "Import-Module BitsTransfer ; Start-BitsTransfer -Source \"%URL%\" -Destination ."
 )
 
 @if EXIST eigen3 (
@@ -18,11 +18,11 @@
 )
 
 @SET PREFIX=..\..\lib3rd
-@if NOT EXIST %PREFIX%                      ( mkdir %PREFIX% )
-@if NOT EXIST %PREFIX%\include              ( mkdir %PREFIX%\include )
-@if NOT EXIST %PREFIX%\include\eigen3       ( mkdir %PREFIX%\include\eigen3 )
-@if NOT EXIST %PREFIX%\include\eigen3\Eigen ( mkdir %PREFIX%\include\eigen3\Eigen )
+@if NOT EXIST %PREFIX%                      ( @mkdir %PREFIX% )
+@if NOT EXIST %PREFIX%\include              ( @mkdir %PREFIX%\include )
+@if NOT EXIST %PREFIX%\include\eigen3       ( @mkdir %PREFIX%\include\eigen3 )
+@if NOT EXIST %PREFIX%\include\eigen3\Eigen ( @mkdir %PREFIX%\include\eigen3\Eigen )
 
-cd eigen3
+@cd eigen3
 @xcopy /E /Y Eigen ..\%PREFIX%\include\eigen3\Eigen\*
-cd ..
+@cd ..

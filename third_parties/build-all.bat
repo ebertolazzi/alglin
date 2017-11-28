@@ -1,6 +1,10 @@
 @IF [%1] EQU [] (SET YEAR=2013) else (SET YEAR=%1)
 @IF [%2] EQU [] (SET BITS=x64)  else (SET BITS=%2)
 
+@echo.
+@powershell -command write-host -foreground "red" -background "yellow" -nonewline "Select Visual Studio %YEAR% ARCH: %BITS%"
+@echo.
+
 @IF "%BITS%" NEQ "x86" (
   @IF "%BITS%" NEQ "x64" (
     @powershell -command write-host -foreground "red" -background "yellow" -nonewline "Unsupported ARCH %BITS%"
@@ -20,7 +24,7 @@
   @set STR="Visual Studio 15 2017"
 ) else (
   @echo.
-  powershell -command write-host -foreground "red" -background "yellow" -nonewline "Unsupported  Visual Studio %YEAR%" 
+  @powershell -command write-host -foreground "red" -background "yellow" -nonewline "Unsupported  Visual Studio %YEAR%" 
   @echo.
   GOTO:eof
 )
