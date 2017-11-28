@@ -1,8 +1,12 @@
-@IF [%1] EQU [] (SET YEAR=2013)     else (SET YEAR=%1)
-@IF [%2] EQU [] (SET BITS=x64)      else (SET BITS=%2)
-@IF [%3] EQU [] (SET LAPACK=LAPACK) else (SET LAPACK=%3)
+@IF [%1] EQU [] (SET YEAR=2013)  else (SET YEAR=%1)
+@IF [%2] EQU [] (SET BITS=x64)   else (SET BITS=%2)
+@IF [%3] EQU [] (SET LPK=LAPACK) else (SET LPK=%3)
 
-@IF "%LAPACK%" == "MKL" (
+@echo.
+@powershell -command write-host -foreground "red" -background "yellow" -nonewline "YEAR=%YEAR%, BITS=%BITS%, LAPACK=%LPK%"
+@echo.
+
+@IF "%LPK%" == "MKL" (
   @echo.
   @powershell -command write-host -foreground "red" -background "yellow" -nonewline "Setup for MKL"
   @echo.
@@ -12,18 +16,18 @@
 )
 
 @echo.
-@powershell -command write-host -foreground "red" -background "yellow" -nonewline "Select Lapack Type: %LAPACK%"
+@powershell -command write-host -foreground "red" -background "yellow" -nonewline "Select Lapack Type: %LPK%"
 @echo.
 
-@IF "%LAPACK%" == "MKL" (
+@IF "%LPK%" == "MKL" (
   @SET BLASLAPACK=MKL
-) ELSE IF "%LAPACK%" == "OPENBLAS" (
+) ELSE IF "%LPK%" == "OPENBLAS" (
   @SET BLASLAPACK=OPENBLAS
-) ELSE IF "%LAPACK%" == "LAPACK" (
+) ELSE IF "%LPK%" == "LAPACK" (
   @SET BLASLAPACK=LAPACK
 ) ELSE (
   @echo.
-  @powershell -command write-host -foreground "red" -background "yellow" -nonewline "Unsupported %LAPACK%"
+  @powershell -command write-host -foreground "red" -background "yellow" -nonewline "Unsupported %LPK%"
   @echo.
   GOTO:eof
 )
@@ -78,19 +82,24 @@
   )
 )
 
+@echo.
+@powershell -command write-host -foreground "red" -background "yellow" -nonewline "YEAR=%YEAR%, BITS=%BITS%, LAPACK=%LPK%, COMPILE=%COMPILE%"
+@echo.
+
+@SET VSDIR=vs%YEAR%_%BITS%
+
 @IF %COMPILE% == "YES" (
-  @SET VSDIR=vs%YEAR%_%BITS%
   @RMDIR /S /Q %VSDIR%
   @mkdir %VSDIR%
   @cd %VSDIR%
   @echo.
-  @powershell -command write-host -foreground "red" -background "yellow" -nonewline "Build Library: cmake -G \"%STR%\" -D%LAPACK%=1 -DYEAR=%YEAR% -DBITS=%BITS% -DCMAKE_INSTALL_PREFIX:PATH=..\lib .."
+  @powershell -command write-host -foreground "red" -background "yellow" -nonewline "cmake -G \"%STR%\" -D%LPK%=1 -DYEAR=%YEAR% -DBITS=%BITS% -DCMAKE_INSTALL_PREFIX:PATH=..\lib .."
   @echo.
-  @cmake -G "%STR%" -D%LAPACK%=1 -DYEAR=%YEAR% -DBITS=%BITS% -DCMAKE_INSTALL_PREFIX:PATH=..\lib ..
+  @cmake -G "%STR%" -D%LPK%=1 -DYEAR=%YEAR% -DBITS=%BITS% -DCMAKE_INSTALL_PREFIX:PATH=..\lib ..
   @cmake --build . --config Release --target Install
   @cmake --build . --config Debug --target Install
   @cd ..
-) else (
+) ELSE (
   @echo.
   @powershell -command write-host -foreground "red" -background "yellow" -nonewline "Alglin already compiled"
   @echo.

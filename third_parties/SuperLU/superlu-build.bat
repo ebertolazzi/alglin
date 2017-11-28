@@ -11,13 +11,17 @@
 @if EXIST %FILE% (
   @echo "%FILE% already downloaded"
 ) else (
+  @echo.
   @PowerShell -Command "Import-Module BitsTransfer ; Start-BitsTransfer -Source \"%URL%\" -Destination ."
+  @echo.
 )
 
 @if EXIST %DIR% (
   @echo "%DIR% already extracted"
 ) else (
+  @echo.
   @PowerShell -Command "if (-not (Get-Command Expand-7Zip -ErrorAction Ignore)) { Install-Package -Scope CurrentUser -Force 7Zip4PowerShell > $null } Expand-7Zip %FILE% . ; Expand-7Zip %TARFILE% . ; Remove-Item %TARFILE%"
+  @echo.
 )
 
 @PowerShell -Command "(Get-Content %DIR%\CMakeLists.txt) | ForEach-Object{ $_ -replace 'enable_language *\(Fortran\)', '#enable_language(Fortran)' } | Set-Content tmp1.txt"
@@ -27,7 +31,9 @@
 
 @IF "%BITS%" NEQ "x86" (
   @IF "%BITS%" NEQ "x64" (
+    @echo.
     @powershell -command write-host -foreground "red" -background "yellow" -nonewline "Unsupported ARCH %BITS%"
+    @echo.
     @GOTO:eof
   )
 )
@@ -43,21 +49,23 @@
 ) ELSE IF "%YEAR%" == "2017" (
   @set STR=Visual Studio 15 2017
 ) ELSE (
-  powershell -command write-host -foreground "red" -background "yellow" -nonewline "Unsupported Visual Studio %YEAR%"
+  @echo.
+  @powershell -command write-host -foreground "red" -background "yellow" -nonewline "Unsupported Visual Studio %YEAR%"
+  @echo.
   GOTO:eof
 )
 
 @IF "%BITS%"=="x86" (@set STR=%STR% Win64)
 
-SET VSDIR=vs%YEAR%_%BITS%
+@SET VSDIR=vs%YEAR%_%BITS%
 
 @RMDIR /S /Q %VSDIR%
 @mkdir %VSDIR%
 
 @cd %VSDIR%
 
-cmake -G "%STR%" -DCMAKE_INSTALL_PREFIX:PATH=..\lib ..\%DIR%
-cmake --build . --config Release --target install
+@cmake -G "%STR%" -DCMAKE_INSTALL_PREFIX:PATH=..\lib ..\%DIR%
+@cmake --build . --config Release --target install
 
 @SET PREFIX=..\..\..\lib3rd
 @if NOT EXIST %PREFIX%                 ( mkdir %PREFIX% )
@@ -66,10 +74,10 @@ cmake --build . --config Release --target install
 @if NOT EXIST %PREFIX%\lib             ( mkdir %PREFIX%\lib )
 @if NOT EXIST %PREFIX%\lib\superlu     ( mkdir %PREFIX%\lib\superlu )
 
-copy /Y ..\lib\include\*.*     %PREFIX%\include\superlu
-copy /Y ..\lib\lib\superlu.lib %PREFIX%\lib\superlu\superlu_vs%YEAR%_%BITS%.lib
+@copy /Y ..\lib\include\*.*     %PREFIX%\include\superlu
+@copy /Y ..\lib\lib\superlu.lib %PREFIX%\lib\superlu\superlu_vs%YEAR%_%BITS%.lib
 
-cmake --build . --config Debug --target install
-copy /Y ..\lib\lib\superlu.lib %PREFIX%\lib\superlu\superlu_vs%YEAR%_%BITS%_debug.lib
+@cmake --build . --config Debug --target install
+@copy /Y ..\lib\lib\superlu.lib %PREFIX%\lib\superlu\superlu_vs%YEAR%_%BITS%_debug.lib
 
 @cd ..
