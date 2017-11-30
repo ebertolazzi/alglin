@@ -58,7 +58,7 @@ namespace alglin {
   class BABD_SuperLU {
   private:
 
-    typedef double            valueType ; // SOLO DOUBLE PER SUPERLU
+    typedef double            valueType ;
     typedef valueType *       valuePointer ;
     typedef valueType const * valueConstPointer ;
 

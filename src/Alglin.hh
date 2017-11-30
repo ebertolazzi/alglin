@@ -114,12 +114,6 @@
   #endif
 
   // select LAPACK dll/lib for windows
-  #pragma comment(lib, "kernel32.lib")
-  #pragma comment(lib, "Shlwapi.lib")
-  #pragma comment(lib, "ws2_32.lib")
-  #pragma comment(lib, "iphlpapi.lib")
-  #pragma comment(lib, "advapi32.lib")
-  #pragma comment(lib, "shell32.lib")
   #if _MSC_VER >= 1900
     #pragma comment(lib, "legacy_stdio_definitions.lib")
   #endif
@@ -142,7 +136,6 @@
         #pragma comment(lib, "lapack_win32_MT.lib")
       #endif
     #endif
-
   #elif defined(ALGLIN_USE_OPENBLAS)
     // no debug version
     #ifdef ALGLIN_ARCH64
@@ -224,36 +217,36 @@
     #include <atlas/clapack.h>
   }
 
-  #define CBLASNAME(A)      cblas_##A
+  #define CBLASNAME(A) cblas_##A
   #ifdef ALGLIN_OS_OSX
-  #define CLAPACKNAME(A)    A##_
+    #define CLAPACKNAME(A) A##_
   #else
-  #define CLAPACKNAME(A)    clapack_##A
+    #define CLAPACKNAME(A) clapack_##A
   #endif
   #define LAPACK_F77NAME(A) A##_
 
   #ifndef BLASFUNC
-  #define BLASFUNC(A) LAPACK_F77NAME(A)
+    #define BLASFUNC(A) LAPACK_F77NAME(A)
   #endif
 
 #elif defined(ALGLIN_USE_OPENBLAS)
   // workaround for OPENBLAS on OSX
   #ifdef ALGLIN_OS_OSX
     #ifdef __GCC__
-    #pragma GCC diagnostic ignored "-Wreserved-id-macro"
+      #pragma GCC diagnostic ignored "-Wreserved-id-macro"
     #endif
     #ifdef __clang__
-    #pragma clang diagnostic ignored "-Wreserved-id-macro"
+      #pragma clang diagnostic ignored "-Wreserved-id-macro"
     #endif
     #define __STDC_VERSION__ __STDC__
   #endif
 
   #ifdef ALGLIN_USE_SYSTEM_OPENBLAS
-  #include <openblas/cblas.h>
-  #include <openblas/f77blas.h>
+    #include <openblas/cblas.h>
+    #include <openblas/f77blas.h>
   #else
-  #include "openblas/cblas.h"
-  #include "openblas/f77blas.h"
+    #include "openblas/cblas.h"
+    #include "openblas/f77blas.h"
   #endif
 
   #define CBLASNAME(A)      cblas_##A
