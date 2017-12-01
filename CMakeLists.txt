@@ -22,7 +22,7 @@ SET( CMAKE_VERBOSE_MAKEFILE            TRUE )
 # "${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC"
 IF( ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang") OR
     ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang") )
-  SET( CMAKE_CXX_FLAGS "-Wall -Wcast-align -Wno-padded -Wno-documentation-unknown-command -Wno-global-constructors -isystem /usr/local/include/eigen3" )
+  SET( CMAKE_CXX_FLAGS "-Weverything -Wcast-align -Wno-padded -Wno-documentation-unknown-command -Wno-global-constructors -isystem /usr/local/include/eigen3" )
   IF ( APPLE )
     SET( CMAKE_CXX_FLAGS_RELEASE  "-std=c++11 -O3 -g0 -funroll-loops " )
     SET( CMAKE_CXX_FLAGS_DEBUG    "-std=c++11 -O0 -gfull -DDEBUG " )
@@ -31,7 +31,7 @@ IF( ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang") OR
     SET( CMAKE_CXX_FLAGS_DEBUG   "-fPIC -fno-common -O0 -g3 -DDEBUG " )
   ENDIF()
 ELSEIF( ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU") )
-  SET( CMAKE_CXX_FLAGS "-Weverything -Wcast-align -Wno-padded -Wno-documentation-unknown-command -Wno-global-constructors -isystem /usr/local/include/eigen3" )
+  SET( CMAKE_CXX_FLAGS "-Wall -Wcast-align -Wno-padded -Wno-documentation-unknown-command -Wno-global-constructors -isystem /usr/local/include/eigen3" )
   IF ( APPLE )
     SET( CMAKE_CXX_FLAGS_RELEASE  "-std=c++11 -O3 -g0 -funroll-loops " )
     SET( CMAKE_CXX_FLAGS_DEBUG    "-std=c++11 -O0 -gfull -DDEBUG " )
