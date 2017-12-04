@@ -1,17 +1,17 @@
-@IF [%1] EQU [] (SET BITS=x64)      else (SET BITS=%1)
-@IF [%2] EQU [] (SET LAPACK=LAPACK) else (SET LAPACK=%2)
-@IF [%3] EQU [] (SET DR=Release)    else (SET DR=%3)
+@IF [%1] EQU [] (SET BITS=x64)   else (SET BITS=%1)
+@IF [%2] EQU [] (SET LPK=LAPACK) else (SET LPK=%2)
+@IF [%3] EQU [] (SET DR=Release) else (SET DR=%3)
 
-@IF %LAPACK% == MKL (
+@IF %LPK% == MKL (
   @echo.
-  @powershell -command write-host -foreground "red" -background "yellow" -nonewline "\nSetup for MKL\n\n"
+  @powershell -command write-host -foreground "red" -background "yellow" -nonewline "Setup for MKL"
   @echo.
   @SET ARCH=intel64
   @IF %BITS% == x86 (SET ARCH=ia32)
   call "C:\Program Files (x86)\IntelSWTools\compilers_and_libraries\windows\mkl\bin\mklvars.bat" %ARCH%
 ) else (
   @echo.
-  @powershell -command write-host -foreground "red" -background "yellow" -nonewline "\nSetup for LAPACK\n\n"
+  @powershell -command write-host -foreground "red" -background "yellow" -nonewline "Setup for LAPACK"
   @echo.
   PWD=CD
   @set MYPATH=%PWD%\lib3rd\dll\lapack;%PWD%\lib3rd\dll\superlu;%PWD%\lib3rd\dll\openblas;
@@ -26,7 +26,7 @@
 @RMDIR /S /Q %VSDIR%
 @mkdir %VSDIR%
 @cd %VSDIR%
-@cmake -G "%STR%" -DBUILD_EXECUTABLE=1 -D%LAPACK%=1 -DYEAR=%YEAR% -DBITS=%BITS% -DCMAKE_INSTALL_PREFIX:PATH=..\lib ..
+@cmake -G "%STR%" -DBUILD_EXECUTABLE=1 -D%LPK%=1 -DYEAR=%YEAR% -DBITS=%BITS% -DCMAKE_INSTALL_PREFIX:PATH=..\lib ..
 @cmake --build . --config Release --target Install 
 @cmake --build . --config Debug --target Install
 @cd ..
