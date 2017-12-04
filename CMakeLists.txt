@@ -15,8 +15,9 @@ SET( TARGET Alglin )
 
 PROJECT( ${TARGET} CXX C )
 
-IF( EXISTS CMakeLists-cflags.txt )
-  INCLUDE( CMakeLists-cflags.txt )
+FILE( GLOB S ./CMakeLists-cflags.txt )
+IF(EXISTS ${S})
+  INCLUDE( ${S} )
 ELSE()
   SET( CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS TRUE )
   SET( CMAKE_VERBOSE_MAKEFILE            TRUE )
