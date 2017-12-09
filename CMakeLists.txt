@@ -72,7 +72,7 @@ SET( EXELISTCPP
      SimplexTest1
      SimplexTest2
      SimplexTest3
-	 SimplexTest4 )
+     SimplexTest4 )
 
 SET(EXELISTC test8-Cinterface test9-Cinterface )
 
@@ -89,6 +89,8 @@ SET(LLPATH ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd )
 #
 # setup search path for DLL 
 #
+# openblas linked with #pragma
+set(CMAKE_MSVCIDE_RUN_PATH ${LLPATH}/dll/openblas)
 SET(LOCLIBS openblas superlu lapack )
 FOREACH( S ${LOCLIBS} )
 	FILE( GLOB SS ${LLPATH}/lib/${S} )

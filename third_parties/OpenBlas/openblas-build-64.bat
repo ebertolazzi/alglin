@@ -1,33 +1,38 @@
-@SET VER=v0.2.19
+@SET VER=v0.2.14
 
 @SET DIR64=OpenBLAS-%VER%-Win64-int32
 @SET URL64="https://sourceforge.net/projects/openblas/files/%VER%/OpenBLAS-%VER%-Win64-int32.zip/download"
-
-
 @SET FILE64=%DIR64%.zip
-@if EXIST %FILE64% (
-  @echo "%FILE64% already downloaded"
-) else (
-  @PowerShell -NonInteractive -Command "Import-Module BitsTransfer ; Start-BitsTransfer -Source \"%URL64%\" -Destination %FILE64%"
-)
 
-@if EXIST %DIR64% (
-  @echo "%DIR64% already expanded"
-) else (
-  @PowerShell -NonInteractive -Command "Expand-Archive -Path %FILE64% -DestinationPath ."
-)
+@CALL ..\common-download.bat %URL64% %FILE64%
+@CALL ..\common-zip.bat      %DIR64% %DIR64%
+  
+@SET DIR=mingw64_dll
+@SET URL="https://sourceforge.net/projects/openblas/files/v0.2.14/mingw64_dll.zip/download"
+@SET FILE=%DIR%.zip
+
+@CALL ..\common-download.bat %URL% %FILE%
+@CALL ..\common-zip.bat      %DIR% %DIR%
 
 @SET BASE=..\..\lib3rd
 
-@mkdir %BASE%\include
-@mkdir %BASE%\lib
-@mkdir %BASE%\dll
-@mkdir %BASE%\include\openblas
-@mkdir %BASE%\lib\openblas
-@mkdir %BASE%\dll\openblas
+@if NOT EXIST %BASE%                  ( @mkdir %BASE% )
+@if NOT EXIST %BASE%\include          ( @mkdir %BASE%\include )
+@if NOT EXIST %BASE%\lib              ( @mkdir %BASE%\lib )
+@if NOT EXIST %BASE%\dll              ( @mkdir %BASE%\dll )
+@if NOT EXIST %BASE%\include\openblas ( @mkdir %BASE%\include\openblas )
+@if NOT EXIST %BASE%\lib\openblas     ( @mkdir %BASE%\lib\openblas )
+@if NOT EXIST %BASE%\dll\openblas     ( @mkdir %BASE%\dll\openblas )
 
 @copy /y %DIR64%\bin\libopenblas.dll   %BASE%\dll\openblas\libopenblas_x64.dll
-@copy /y mingw32_dll\*.*               %BASE%\dll\openblas
+@copy /y mingw64_dll\lib*.*            %BASE%\dll\openblas
 @copy /y %DIR64%\include\*.*           %BASE%\include\openblas
 @copy /y %DIR64%\lib\libopenblas.a     %BASE%\lib\openblas\libopenblas_x64_static.lib
-@copy /y %DIR64%\lib\libopenblas.dll.a %BASE%\lib\openblas\libopenblas_x64.lib
+
+@dumpbin /exports %DIR64%\bin\libopenblas.dll > exports.txt
+@echo LIBRARY libopenblas_x64 > tmp.def
+@echo EXPORTS >> tmp.def
+@for /f "skip=19 tokens=4" %%A in (exports.txt) do @echo %%A >> tmp.def
+@lib /def:tmp.def /out:%BASE%\lib\openblas\libopenblas_x64.lib /machine:x64
+
+@rem @copy /y %DIR64%\lib\libopenblas.dll.a %BASE%\lib\openblas\libopenblas_x64.lib
