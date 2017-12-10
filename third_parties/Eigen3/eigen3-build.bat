@@ -7,7 +7,8 @@
 @if EXIST eigen3 (
   @echo "eigen3 already downloaded"
 ) else (
-  @..\common-tgz eigen3 %DIR%
+  @..\common-download %URL%  %FILE%
+  @..\common-tgz      eigen3 %DIR%
 )
 
 @SET PREFIX=..\..\lib3rd
