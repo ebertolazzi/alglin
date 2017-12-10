@@ -7,8 +7,9 @@
 @if EXIST eigen3 (
   @echo "eigen3 already downloaded"
 ) else (
-  @..\common-download %URL%  %FILE%
-  @..\common-tgz      eigen3 %DIR%
+  @call ..\common-download %URL%  %FILE%
+  @call ..\common-tgz      eigen3 %DIR%
+  @powershell -command "& { Get-ChildItem . -filter 'eigen-eigen*' | Where-Object { $_.name -ne 'eigen3' } | Move-Item -force -Destination 'eigen3' }"      
 )
 
 @SET PREFIX=..\..\lib3rd

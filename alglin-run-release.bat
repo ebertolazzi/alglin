@@ -1,8 +1,21 @@
+@IF [%1] EQU [] (SET YEAR=2013)    else (SET YEAR=%1)
+@IF [%2] EQU [] (SET BITS=x64)     else (SET BITS=%2)
+@IF [%3] EQU [] (SET LPK=OPENBLAS) else (SET LPK=%3)
+
 @set DR=Release
 
 @setlocal
 @set start=%time%
-@set path=%path%;lib3rd\dll\openblas
+@set path=%path%;lib3rd\dll\openblas  
+
+@IF "%LPK%" == "MKL" (
+  @echo.
+  @powershell -command write-host -foreground "green" -background "black" -nonewline "Setup for MKL"
+  @echo.
+  @SET ARCH=intel64
+  @IF %BITS% == x86 (SET ARCH=ia32)
+  @CALL "'C:\Program Files (x86)\IntelSWTools\compilers_and_libraries\windows\bin\compilervars.bat' -arch %ARCH% vs%YEAR%shell"
+)
 
 bin\%DR%\test0-FD.exe
 bin\%DR%\test1-small-factorization.exe

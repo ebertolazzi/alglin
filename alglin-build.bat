@@ -12,7 +12,7 @@
   @echo.
   @SET ARCH=intel64
   @IF %BITS% == x86 (SET ARCH=ia32)
-  @call "C:\Program Files (x86)\IntelSWTools\compilers_and_libraries\windows\bin\compilervars.bat -arch %ARCH% vs%YEAR%shell"
+  @CALL "'C:\Program Files (x86)\IntelSWTools\compilers_and_libraries\windows\bin\compilervars.bat' -arch %ARCH% vs%YEAR%shell"
 )
 
 @echo.
@@ -108,4 +108,4 @@
 
 @echo.
 @powershell -command write-host -foreground "green" -background "black" -nonewline "Alglin all done!"
-@echoblack
+@echo.
