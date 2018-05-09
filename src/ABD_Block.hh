@@ -118,7 +118,7 @@ namespace alglin {
     using BlockBidiagonal<valueType>::dump_ccoord ;
 
     explicit BlockLU() {}
-    ~BlockLU() {}
+    // ~BlockLU() override {}
 
     virtual
     void

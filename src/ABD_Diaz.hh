@@ -133,7 +133,7 @@ namespace alglin {
     using BlockBidiagonal<valueType>::dump_ccoord ;
 
     explicit ALGLIN_CONSTEXPR DiazLU() : NB(25) {}
-    ~DiazLU() {}
+    // ~DiazLU() override {}
 
     virtual
     void
