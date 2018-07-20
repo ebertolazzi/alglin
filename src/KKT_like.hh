@@ -42,7 +42,7 @@
 
 namespace alglin {
 
-  using namespace std ;
+  using namespace std;
 
   /*
   //   _  ___  _______
@@ -108,23 +108,23 @@ namespace alglin {
   template <typename t_Value>
   class KKT : public LinearSystemSolver<t_Value> {
   public:
-    typedef t_Value         valueType ;
-    typedef t_Value*        valuePointer ;
-    typedef t_Value const * valueConstPointer ;
+    typedef t_Value         valueType;
+    typedef t_Value*        valuePointer;
+    typedef t_Value const * valueConstPointer;
 
-    typedef LinearSystemSolver<t_Value> LSS ;
+    typedef LinearSystemSolver<t_Value> LSS;
 
-    Malloc<valueType> allocReals ;
+    Malloc<valueType> allocReals;
 
     // solver for A block
-    LSS const * pAsolver ;
-    LU<t_Value>         A_lu ;
+    LSS const * pAsolver;
+    LU<t_Value>         A_lu;
     BandedLU<valueType> banded_LU;
 
     // sover for D block
-    LU<t_Value> W_lu ;
+    LU<t_Value> W_lu;
 
-    valuePointer Zmat, Cmat ;
+    valuePointer Zmat, Cmat;
 
   private:
 
@@ -133,8 +133,8 @@ namespace alglin {
     // C is m x n
     // D is m x m
     // m << n
-    integer n ;
-    integer m ;
+    integer n;
+    integer m;
 
     /*
     //
@@ -150,18 +150,18 @@ namespace alglin {
 
   public:
 
-    explicit KKT() ;
+    explicit KKT();
     ~KKT();
 
     void
-    allocate( integer n, integer m ) ;
+    allocate( integer n, integer m );
 
     /*!
       Load A block as a factorized Matrix class
       \param[in] Asystem the pointer to the object containing the factorized matrix
     \*/
     void
-    load_A( LSS const * Asystem ) ;
+    load_A( LSS const * Asystem );
 
     /*!
       Load A block in sparse form
@@ -179,7 +179,7 @@ namespace alglin {
             integer const *   A_row, integer r_offs,
             integer const *   A_col, integer c_offs,
             integer           A_nnz,
-            bool  is_symmetric = false ) ;
+            bool  is_symmetric = false );
     
     /*!
       Load A block as a FORTRAN matrix
@@ -188,7 +188,7 @@ namespace alglin {
       \param[in] transposed true if the matrix must be loaded transposed
     \*/
     void
-    load_A( valueConstPointer A, integer ldA, bool transposed = false ) ;
+    load_A( valueConstPointer A, integer ldA, bool transposed = false );
 
     /*!
       Load B block in sparse form
@@ -204,7 +204,7 @@ namespace alglin {
     load_B( valueConstPointer B_values,
             integer const *   B_row, integer r_offs,
             integer const *   B_col, integer c_offs,
-            integer           B_nnz ) ;
+            integer           B_nnz );
     
     /*!
       Load B block as a FORTRAN matrix
@@ -213,7 +213,7 @@ namespace alglin {
       \param[in] transposed true if the matrix must be loaded transposed
     \*/
     void
-    load_B( valueConstPointer B, integer ldB, bool transposed = false ) ;
+    load_B( valueConstPointer B, integer ldB, bool transposed = false );
 
     /*!
       Load C block in sparse form
@@ -229,7 +229,7 @@ namespace alglin {
     load_C( valueConstPointer C_values,
             integer const *   C_row, integer r_offs,
             integer const *   C_col, integer c_offs,
-            integer           C_nnz ) ;
+            integer           C_nnz );
     
     /*!
       Load C block as a FORTRAN matrix
@@ -238,7 +238,7 @@ namespace alglin {
       \param[in] transposed true if the matrix must be loaded transposed
     \*/
     void
-    load_C( valueConstPointer C, integer ldC, bool transposed = false ) ;
+    load_C( valueConstPointer C, integer ldC, bool transposed = false );
 
     /*!
       Load D block in sparse form
@@ -256,7 +256,7 @@ namespace alglin {
             integer const *   D_row, integer r_offs,
             integer const *   D_col, integer c_offs,
             integer           D_nnz,
-            bool is_symmetric = false ) ;
+            bool is_symmetric = false );
     
     /*!
       Load D block as a FORTRAN matrix
@@ -265,9 +265,9 @@ namespace alglin {
       \param[in] transposed true if the matrix must be loaded transposed
     \*/
     void
-    load_D( valueConstPointer D, integer ldD, bool transposed = false ) ;
+    load_D( valueConstPointer D, integer ldD, bool transposed = false );
 
-    void factorize() ;
+    void factorize();
 
     //! load matrix in the class
     /*!
@@ -328,7 +328,7 @@ namespace alglin {
                integer const *   D_row, integer Dr_offs,
                integer const *   D_col, integer Dc_offs,
                integer           D_nnz,
-               bool              D_is_symmetric ) ;
+               bool              D_is_symmetric );
 
     //! load matrix in the class
     /*!
@@ -369,7 +369,7 @@ namespace alglin {
                // -----------------------
                valueConstPointer D_values,
                integer           ldD,
-               bool              D_transposed ) ;
+               bool              D_transposed );
 
     //! load matrix in the class
     /*!
@@ -420,7 +420,7 @@ namespace alglin {
                integer const *   D_row, integer Dr_offs,
                integer const *   D_col, integer Dc_offs,
                integer           D_nnz,
-               bool              D_is_symmetric ) ;
+               bool              D_is_symmetric );
 
     //! load matrix in the class
     /*!
@@ -457,7 +457,7 @@ namespace alglin {
                // -----------------------
                valueConstPointer D_values,
                integer           ldD,
-               bool              D_transposed ) ;
+               bool              D_transposed );
 
     //! load matrix in the class
     /*!
@@ -481,37 +481,37 @@ namespace alglin {
                integer           _nU,
                // -----------------------
                valueConstPointer M_values,
-               integer const *   M_row, integer r_offs,
-               integer const *   M_col, integer c_offs,
+               integer const     M_row[], integer r_offs,
+               integer const     M_col[], integer c_offs,
                integer           M_nnz,
-               bool              M_is_symmetric ) ;
+               bool              M_is_symmetric );
 
     // -------------------------------------------------------------------------
     // virtuals redefined
 
     virtual
     void
-    solve( valueType xb[] ) const ;
+    solve( valueType xb[] ) const;
 
     virtual
     void
-    t_solve( valueType xb[] ) const ;
+    t_solve( valueType xb[] ) const;
 
     virtual
     void
-    solve( integer nrhs, valueType B[], integer ldB ) const ;
+    solve( integer nrhs, valueType B[], integer ldB ) const;
 
     virtual
     void
-    t_solve( integer nrhs, valueType B[], integer ldB ) const ;
+    t_solve( integer nrhs, valueType B[], integer ldB ) const;
 
-  } ;
+  };
 
   // explicit instantiation declaration to suppress warnings
 
   #ifdef ALGLIN_USE_CXX11
-  extern template class KKT<float> ;
-  extern template class KKT<double> ;
+  extern template class KKT<float>;
+  extern template class KKT<double>;
   #endif
 }
 

@@ -26,12 +26,12 @@
 
 #ifndef ALGLIN_USE_CXX11
 
-using namespace std ;
+using namespace std;
 
 int
 main() {
-  cout << "To test thread you must compile with a C++11 capable compiler\nAll done!\n" ;
-  return 0 ;
+  cout << "To test thread you must compile with a C++11 capable compiler\nAll done!\n";
+  return 0;
 }
 
 #else
@@ -54,69 +54,69 @@ main() {
 #pragma clang diagnostic ignored "-Wexit-time-destructors"
 #endif
 
-using namespace std ;
-typedef double valueType ;
+using namespace std;
+typedef double valueType;
 
-static unsigned seed1 = 2 ;
+static unsigned seed1 = 2;
 static std::mt19937 generator(seed1);
 
-static TicToc tictoc ;
-static std::mutex mtx ;
+static TicToc tictoc;
+static std::mutex mtx;
 
-static alglin::Barrier bar ;
+static alglin::Barrier bar;
 
 static
 void
 test( int nth ) {
 
-  int ms = generator() % 2000 ;
+  int ms = generator() % 2000;
 
-  mtx.lock() ;
-  cout << "Thread N." << nth << " ms = " << ms << "\n" ;
-  mtx.unlock() ;
+  mtx.lock();
+  cout << "Thread N." << nth << " ms = " << ms << "\n";
+  mtx.unlock();
 
-  tictoc.sleep_for_milliseconds( ms ) ;
+  tictoc.sleep_for_milliseconds( ms );
 
-  mtx.lock() ;
-  cout << "Thread N." << nth << " done_and_wait\n" ;
-  mtx.unlock() ;
+  mtx.lock();
+  cout << "Thread N." << nth << " done_and_wait\n";
+  mtx.unlock();
 
-  bar.count_down_and_wait() ;
+  bar.count_down_and_wait();
   
-  ms = generator() % 2000 ;
+  ms = generator() % 2000;
 
-  mtx.lock() ;
-  cout << "Thread N." << nth << " second part ms = " << ms << "\n" ;
-  mtx.unlock() ;
+  mtx.lock();
+  cout << "Thread N." << nth << " second part ms = " << ms << "\n";
+  mtx.unlock();
 
-  tictoc.sleep_for_milliseconds( ms ) ;
+  tictoc.sleep_for_milliseconds( ms );
 
-  mtx.lock() ;
-  cout << "Thread N." << nth << " done second part\n" ;
-  mtx.unlock() ;
-  bar.count_down_and_wait() ;
+  mtx.lock();
+  cout << "Thread N." << nth << " done second part\n";
+  mtx.unlock();
+  bar.count_down_and_wait();
 }
 
 int
 main() {
 
-  std::thread threads[100] ;
-  int usedThread = 10 ;
+  std::thread threads[100];
+  int usedThread = 10;
 
-  bar.setup(usedThread) ;
-  for ( int nt = 0 ; nt < usedThread ; ++nt )
-    threads[nt] = std::thread( &test, nt ) ;
+  bar.setup(usedThread);
+  for ( int nt = 0; nt < usedThread; ++nt )
+    threads[nt] = std::thread( &test, nt );
 
-  for ( int nt = 0 ; nt < usedThread ; ++nt ) {
-    threads[nt].join() ;
-    mtx.lock() ;
-    cout << "Thread N." << nt << " joined\n" ;
-    mtx.unlock() ;
+  for ( int nt = 0; nt < usedThread; ++nt ) {
+    threads[nt].join();
+    mtx.lock();
+    cout << "Thread N." << nt << " joined\n";
+    mtx.unlock();
   }
 
-  cout << "All done!\n" ;
+  cout << "All done!\n";
 
-  return 0 ;
+  return 0;
 }
 
 #endif

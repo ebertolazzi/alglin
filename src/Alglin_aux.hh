@@ -68,13 +68,13 @@ namespace alglin {
     LAPACK_F77NAME(slarnv)( integer * IDIST,
                             integer * ISEED,
                             integer * N,
-                            real      X[] ) ;
+                            real      X[] );
 
     integer
     LAPACK_F77NAME(dlarnv)( integer  * IDIST,
                             integer  * ISEED,
                             integer  * N,
-                            doublereal X[]) ;
+                            doublereal X[] );
   }
   #endif
 
@@ -85,15 +85,15 @@ namespace alglin {
          integer N,
          real    X[] ) {
     #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
-    LAPACK_F77NAME(slarnv)( &IDIST, ISEED, &N, X ) ; // return void in openblas
-    return 0 ;
+    LAPACK_F77NAME(slarnv)( &IDIST, ISEED, &N, X ); // return void in openblas
+    return 0;
     #elif defined(ALGLIN_USE_MKL)
-    slarnv( &IDIST, ISEED, &N, X ) ; // return void in openblas
-    return 0 ;
+    slarnv( &IDIST, ISEED, &N, X ); // return void in openblas
+    return 0;
     #elif defined(ALGLIN_USE_ACCELERATE)
-    return CLAPACKNAME(slarnv)( &IDIST, ISEED, &N, X ) ;
+    return CLAPACKNAME(slarnv)( &IDIST, ISEED, &N, X );
     #else
-    return LAPACKNAME(slarnv)( &IDIST, ISEED, &N, X ) ;
+    return LAPACKNAME(slarnv)( &IDIST, ISEED, &N, X );
     #endif
   }
 
@@ -104,15 +104,15 @@ namespace alglin {
          integer    N,
          doublereal X[] ) {
     #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
-    LAPACK_F77NAME(dlarnv)( &IDIST, ISEED, &N, X ) ; // return void in openblas
-    return 0 ;
+    LAPACK_F77NAME(dlarnv)( &IDIST, ISEED, &N, X ); // return void in openblas
+    return 0;
     #elif defined(ALGLIN_USE_MKL)
-    dlarnv( &IDIST, ISEED, &N, X ) ; // return void in openblas
-    return 0 ;
+    dlarnv( &IDIST, ISEED, &N, X ); // return void in openblas
+    return 0;
     #elif defined(ALGLIN_USE_ACCELERATE)
-    return CLAPACKNAME(dlarnv)( &IDIST, ISEED, &N, X ) ;
+    return CLAPACKNAME(dlarnv)( &IDIST, ISEED, &N, X );
     #else
-    return LAPACKNAME(dlarnv)( &IDIST, ISEED, &N, X ) ;
+    return LAPACKNAME(dlarnv)( &IDIST, ISEED, &N, X );
     #endif
   }
 
@@ -161,33 +161,34 @@ namespace alglin {
          integer ISEED[4],
          T       WORK[],
          integer LWORK ) {
-    ALGLIN_ASSERT( LWORK >= 2*N, "large, LWORK = " << LWORK << " must be >= " << 2*N ) ;
+    ALGLIN_ASSERT( LWORK >= 2*N,
+                   "large, LWORK = " << LWORK << " must be >= " << 2*N );
     // Test the input arguments
-    if ( N < 0 ) return -1 ;
-    if ( LDA < max_index( 1, N ) ) return -3 ;
+    if ( N < 0 ) return -1;
+    if ( LDA < max_index( 1, N ) ) return -3;
     // pre- and post-multiply A by random orthogonal matrix
-    for ( integer i = N-1 ; i >= 0 ; --i ) {
+    for ( integer i = N-1; i >= 0; --i ) {
       // generate random reflection
-      integer Ni = N-i ;
-      lanrv( 3, ISEED, N, WORK ) ;
-      T WN = nrm2( Ni, WORK, 1 ) ;
-      T WA = WN ;
-      if ( WORK[0] < 0 ) WA = -WN  ;
-      T TAU = 0 ;
+      integer Ni = N-i;
+      lanrv( 3, ISEED, N, WORK );
+      T WN = nrm2( Ni, WORK, 1 );
+      T WA = WN;
+      if ( WORK[0] < 0 ) WA = -WN;
+      T TAU = 0;
       if ( WN > 0 ) {
-        T WB = WORK[0] + WA ;
-        scal( Ni-1, 1.0/WB, WORK+1, 1 ) ;
-        WORK[0] = 1 ;
-        TAU = WB / WA ;
+        T WB = WORK[0] + WA;
+        scal( Ni-1, 1.0/WB, WORK+1, 1 );
+        WORK[0] = 1;
+        TAU = WB / WA;
       }
       // multiply A(i:n,1:n) by random reflection from the left
-      gemv( TRANSPOSE, Ni, N, 1.0, A+i, LDA, WORK, 1, 0.0, WORK+N, 1 ) ;
-      ger( Ni, N, -TAU, WORK, 1, WORK+N, 1, A+i, LDA ) ;
+      gemv( TRANSPOSE, Ni, N, 1.0, A+i, LDA, WORK, 1, 0.0, WORK+N, 1 );
+      ger( Ni, N, -TAU, WORK, 1, WORK+N, 1, A+i, LDA );
       // multiply A(1:n,i:n) by random reflection from the right
-      gemv( NO_TRANSPOSE, N, Ni, 1.0, A+i*LDA, LDA, WORK, 1, 0.0, WORK+N, 1 ) ;
-      ger( N, Ni, -TAU, WORK+N, 1, WORK, 1, A+i*LDA, LDA ) ;
+      gemv( NO_TRANSPOSE, N, Ni, 1.0, A+i*LDA, LDA, WORK, 1, 0.0, WORK+N, 1 );
+      ger( N, Ni, -TAU, WORK+N, 1, WORK, 1, A+i*LDA, LDA );
     }
-    return 0 ;
+    return 0;
   }
   
   /*\
@@ -289,71 +290,74 @@ namespace alglin {
          integer              LWORK ) {
 
     if ( LR == LEFT ) {
-      ALGLIN_ASSERT( LWORK >= 2*M + N , "laror, LWORK = " << LWORK << " must be >= " << 2*M + N ) ;
+      ALGLIN_ASSERT( LWORK >= 2*M + N,
+                     "laror, LWORK = " << LWORK << " must be >= " << 2*M + N );
     } else if ( LR == RIGHT ) {
-      ALGLIN_ASSERT( LWORK >= 2*N + M, "laror, LWORK = " << LWORK << " must be >= " << 2*N + M ) ;
+      ALGLIN_ASSERT( LWORK >= 2*N + M,
+                     "laror, LWORK = " << LWORK << " must be >= " << 2*N + M );
     } else {
-      return -1 ;
+      return -1;
     }
 
-    if ( N == 0 || M == 0 ) return 0 ;
+    if ( N == 0 || M == 0 ) return 0;
 
     // Check for argument errors.
-    if ( M   < 0 ) return -3 ;
-    if ( N   < 0 ) return -4 ;
-    if ( LDA < M ) return -6 ;
+    if ( M   < 0 ) return -3;
+    if ( N   < 0 ) return -4;
+    if ( LDA < M ) return -6;
 
     // Initialize A to the identity matrix if desired
-    if ( init ) geid( M, N, A, LDA ) ;
+    if ( init ) geid( M, N, A, LDA );
 
-    ALGLIN_ASSERT( LWORK >= 2*N, "large, LWORK = " << LWORK << " must be >= " << 2*N ) ;
+    ALGLIN_ASSERT( LWORK >= 2*N,
+                   "large, LWORK = " << LWORK << " must be >= " << 2*N );
     // Test the input arguments
-    if ( N < 0 ) return -1 ;
-    if ( LDA < max_index( 1, N ) ) return -3 ;
+    if ( N < 0 ) return -1;
+    if ( LDA < max_index( 1, N ) ) return -3;
     
     if ( LR == LEFT ) {
       // pre-multiply A by random orthogonal matrix
-      for ( integer i = M-1 ; i >= 0 ; --i ) {
+      for ( integer i = M-1; i >= 0; --i ) {
         // generate random reflection
-        integer Mi = M-i ;
-        lanrv( 1, ISEED, M, WORK ) ;
-        T WN = nrm2( Mi, WORK, 1 ) ;
-        T WA = WN ;
-        if ( WORK[0] < 0 ) WA = -WN  ;
-        T TAU = 0 ;
+        integer Mi = M-i;
+        lanrv( 1, ISEED, M, WORK );
+        T WN = nrm2( Mi, WORK, 1 );
+        T WA = WN;
+        if ( WORK[0] < 0 ) WA = -WN;
+        T TAU = 0;
         if ( WN > 0 ) {
-          T WB = WORK[0] + WA ;
-          scal( Mi-1, 1.0/WB, WORK+1, 1 ) ;
-          WORK[0] = 1 ;
-          TAU = WB / WA ;
+          T WB = WORK[0] + WA;
+          scal( Mi-1, 1.0/WB, WORK+1, 1 );
+          WORK[0] = 1;
+          TAU = WB / WA;
         }
         // multiply A(i:n,1:n) by random reflection from the left
-        gemv( TRANSPOSE, Mi, M, 1.0, A+i, LDA, WORK, 1, 0.0, WORK+M, 1 ) ;
-        ger( Mi, N, -TAU, WORK, 1, WORK+M, 1, A+i, LDA ) ;
+        gemv( TRANSPOSE, Mi, M, 1.0, A+i, LDA, WORK, 1, 0.0, WORK+M, 1 );
+        ger( Mi, N, -TAU, WORK, 1, WORK+M, 1, A+i, LDA );
       }
     } else {
       // post-multiply A by random orthogonal matrix
-      for ( integer i = N-1 ; i >= 0 ; --i ) {
+      for ( integer i = N-1; i >= 0; --i ) {
         // generate random reflection
-        integer Ni = N-i ;
-        lanrv( 1, ISEED, N, WORK ) ;
-        T WN = nrm2( Ni, WORK, 1 ) ;
-        T WA = WN ;
-        if ( WORK[0] < 0 ) WA = -WN  ;
-        T TAU = 0 ;
+        integer Ni = N-i;
+        lanrv( 1, ISEED, N, WORK );
+        T WN = nrm2( Ni, WORK, 1 );
+        T WA = WN;
+        if ( WORK[0] < 0 ) WA = -WN;
+        T TAU = 0;
         if ( WN > 0 ) {
-          T WB = WORK[0] + WA ;
-          scal( Ni-1, 1.0/WB, WORK+1, 1 ) ;
-          WORK[0] = 1 ;
-          TAU = WB / WA ;
+          T WB = WORK[0] + WA;
+          scal( Ni-1, 1.0/WB, WORK+1, 1 );
+          WORK[0] = 1;
+          TAU = WB / WA;
         }
         // multiply A(1:n,i:n) by random reflection from the right
-        gemv( NO_TRANSPOSE, N, Ni, 1.0, A+i*LDA, LDA, WORK, 1, 0.0, WORK+N, 1 ) ;
-        ger( N, Ni, -TAU, WORK+N, 1, WORK, 1, A+i*LDA, LDA ) ;
+        gemv( NO_TRANSPOSE, N, Ni, 1.0, A+i*LDA, LDA, WORK, 1, 0.0, WORK+N, 1 );
+        ger( N, Ni, -TAU, WORK+N, 1, WORK, 1, A+i*LDA, LDA );
       }
     }
 
-    return 0 ;
+    return 0;
   }
 
   // ---------------------------------------------------------------------------
@@ -366,10 +370,10 @@ namespace alglin {
                 integer                    nc,
                 t_Value const              A[],
                 integer                    ldA ) {
-    for ( integer i = 0 ; i < nr ; ++i ) {
-      for ( integer j = 0 ; j < nc ; ++j )
-        stream << std::setw(14) << A[i+j*ldA] << " " ;
-      stream << '\n' ;
+    for ( integer i = 0; i < nr; ++i ) {
+      for ( integer j = 0; j < nc; ++j )
+        stream << std::setw(14) << A[i+j*ldA] << " ";
+      stream << '\n';
     }
   }
 
@@ -419,27 +423,27 @@ namespace alglin {
     gemv( NO_TRANSPOSE, row0, col0,
           alpha, block0, row0,
           x, incx,
-          beta, y, incy ) ;
+          beta, y, incy );
 
     // internal blocks block
-    t_Value const * xx   = x+(col0-dimBlock)*incx ;
-    t_Value *       yy   = y+row0*incy ;
-    t_Value const * blks = blocks ;
-    for ( integer i = 0 ; i < numBlock ; ++i ) {
+    t_Value const * xx   = x+(col0-dimBlock)*incx;
+    t_Value *       yy   = y+row0*incy;
+    t_Value const * blks = blocks;
+    for ( integer i = 0; i < numBlock; ++i ) {
       gemv( NO_TRANSPOSE, dimBlock, 2*dimBlock,
             alpha, blks, dimBlock,
             xx, incx,
-            beta, yy, incy ) ;
-      xx   += dimBlock*incx ;
-      yy   += dimBlock*incy ;
-      blks += 2*dimBlock*dimBlock ;
+            beta, yy, incy );
+      xx   += dimBlock*incx;
+      yy   += dimBlock*incy;
+      blks += 2*dimBlock*dimBlock;
     }
 
     // last block
     gemv( NO_TRANSPOSE, rowN, colN,
           alpha, blockN, rowN,
           xx, incx,
-          beta, yy, incy ) ;
+          beta, yy, incy );
   }
 
   //! compute r = b-A*x
@@ -461,11 +465,11 @@ namespace alglin {
                integer         incx,
                t_Value *       res,
                integer         incr ) {
-    copy( numBlock*dimBlock+row0+rowN, b, incb, res, incr ) ;
+    copy( numBlock*dimBlock+row0+rowN, b, incb, res, incr );
     abd_mv( row0, col0, block0,
             numBlock, dimBlock, blocks,
             rowN, colN, blockN,
-            t_Value(-1.0), x, incx, t_Value(1.0), res, incr ) ;
+            t_Value(-1.0), x, incx, t_Value(1.0), res, incr );
   }
 
   // ---------------------------------------------------------------------------
@@ -483,30 +487,30 @@ namespace alglin {
              integer                    rowN,
              integer                    colN,
              t_Value const *            blockN ) {
-    integer sizeBlock = 2*dimBlock*dimBlock ;
-    stream << "Block 0\n" ;
-    for ( integer i = 0 ; i < row0 ; ++i ) {
-      stream << std::setw(8) << block0[i] ;
-      for ( integer j = 1 ; j < col0 ; ++j )
-        stream << ' ' << std::setw(8) << block0[i+j*row0] ;
-      stream << '\n' ;
+    integer sizeBlock = 2*dimBlock*dimBlock;
+    stream << "Block 0\n";
+    for ( integer i = 0; i < row0; ++i ) {
+      stream << std::setw(8) << block0[i];
+      for ( integer j = 1; j < col0; ++j )
+        stream << ' ' << std::setw(8) << block0[i+j*row0];
+      stream << '\n';
     }
-    for ( integer k = 0 ; k < numBlock ; ++k ) {
-      stream << "Block " << k+1 << '\n' ;
-      t_Value const * blk = blocks+k*sizeBlock ;
-      for ( integer i = 0 ; i < dimBlock ; ++i ) {
-        stream << std::setw(8) << blk[i] ;
-        for ( integer j = 1 ; j < 2*dimBlock ; ++j )
-          stream << ' ' << std::setw(8) << blk[i+j*dimBlock] ;
-        stream << '\n' ;
+    for ( integer k = 0; k < numBlock; ++k ) {
+      stream << "Block " << k+1 << '\n';
+      t_Value const * blk = blocks+k*sizeBlock;
+      for ( integer i = 0; i < dimBlock; ++i ) {
+        stream << std::setw(8) << blk[i];
+        for ( integer j = 1; j < 2*dimBlock; ++j )
+          stream << ' ' << std::setw(8) << blk[i+j*dimBlock];
+        stream << '\n';
       }
     }
-    stream << "Block N\n" ;
-    for ( integer i = 0 ; i < rowN ; ++i ) {
-      stream << std::setw(8) << blockN[i] ;
-      for ( integer j = 1 ; j < colN ; ++j )
-        stream << ' ' << std::setw(8) << blockN[i+j*rowN] ;
-      stream << '\n' ;
+    stream << "Block N\n";
+    for ( integer i = 0; i < rowN; ++i ) {
+      stream << std::setw(8) << blockN[i];
+      for ( integer j = 1; j < colN; ++j )
+        stream << ' ' << std::setw(8) << blockN[i+j*rowN];
+      stream << '\n';
     }
   }
 
@@ -558,26 +562,26 @@ namespace alglin {
            integer         incy ) {
 
     // internal blocks block
-    t_Value const * xx   = x ;
-    t_Value *       yy   = y ;
-    t_Value const * blks = AdAu ;
-    for ( integer i = 0 ; i < nblk ; ++i ) {
+    t_Value const * xx   = x;
+    t_Value *       yy   = y;
+    t_Value const * blks = AdAu;
+    for ( integer i = 0; i < nblk; ++i ) {
       gemv( NO_TRANSPOSE, n, 2*n,
             alpha, blks, n,
             xx, incx,
-            beta, yy, incy ) ;
-      xx   += n*incx ;
-      yy   += n*incy ;
-      blks += 2*n*n ;
+            beta, yy, incy );
+      xx   += n*incx;
+      yy   += n*incy;
+      blks += 2*n*n;
     }
 
     // last blocks
-    integer nq = n+q ;
-    gemv( NO_TRANSPOSE, nq, n, alpha, H0, nq, x, incx, beta, yy, incy ) ;
-    gemv( NO_TRANSPOSE, nq, n, alpha, HN, nq, xx, incx, t_Value(1), yy, incy ) ;
+    integer nq = n+q;
+    gemv( NO_TRANSPOSE, nq, n, alpha, H0, nq, x, incx, beta, yy, incy );
+    gemv( NO_TRANSPOSE, nq, n, alpha, HN, nq, xx, incx, t_Value(1), yy, incy );
 
-    xx += n*incx ;
-    gemv( NO_TRANSPOSE, nq, q, alpha, Hq, nq, xx, incx, t_Value(1), yy, incy ) ;
+    xx += n*incx;
+    gemv( NO_TRANSPOSE, nq, q, alpha, Hq, nq, xx, incx, t_Value(1), yy, incy );
 
   }
 
@@ -599,9 +603,9 @@ namespace alglin {
                 integer         incx,
                 t_Value *       res,
                 integer         incr ) {
-    copy( nblk*n+n+q, b, incb, res, incr ) ;
+    copy( nblk*n+n+q, b, incb, res, incr );
     babd_mv( nblk, n, q, AdAu, H0, HN, Hq,
-             t_Value(-1.0), x, incx, t_Value(1.0), res, incr ) ;
+             t_Value(-1.0), x, incx, t_Value(1.0), res, incr );
   }
 
   // ---------------------------------------------------------------------------
@@ -617,39 +621,39 @@ namespace alglin {
               t_Value const *            H0,
               t_Value const *            HN,
               t_Value const *            Hq ) {
-    integer sizeBlock = 2*n*n ;
-    for ( integer k = 0 ; k < nblk ; ++k ) {
-      stream << "Block " << k+1 << '\n' ;
-      t_Value const * blk = AdAu+k*sizeBlock ;
-      for ( integer i = 0 ; i < n ; ++i ) {
-        stream << std::setw(8) << blk[i] ;
-        for ( integer j = 1 ; j < 2*n ; ++j )
-          stream << ' ' << std::setw(8) << blk[i+j*n] ;
-        stream << '\n' ;
+    integer sizeBlock = 2*n*n;
+    for ( integer k = 0; k < nblk; ++k ) {
+      stream << "Block " << k+1 << '\n';
+      t_Value const * blk = AdAu+k*sizeBlock;
+      for ( integer i = 0; i < n; ++i ) {
+        stream << std::setw(8) << blk[i];
+        for ( integer j = 1; j < 2*n; ++j )
+          stream << ' ' << std::setw(8) << blk[i+j*n];
+        stream << '\n';
       }
     }
-    integer nq = n+q ;
-    stream << "Block H0\n" ;
-    for ( integer i = 0 ; i < nq ; ++i ) {
-      stream << std::setw(8) << H0[i] ;
-      for ( integer j = 1 ; j < n ; ++j )
-        stream << ' ' << std::setw(8) << H0[i+j*nq] ;
-      stream << '\n' ;
+    integer nq = n+q;
+    stream << "Block H0\n";
+    for ( integer i = 0; i < nq; ++i ) {
+      stream << std::setw(8) << H0[i];
+      for ( integer j = 1; j < n; ++j )
+        stream << ' ' << std::setw(8) << H0[i+j*nq];
+      stream << '\n';
     }
-    stream << "Block HN\n" ;
-    for ( integer i = 0 ; i < nq ; ++i ) {
-      stream << std::setw(8) << HN[i] ;
-      for ( integer j = 1 ; j < n ; ++j )
-        stream << ' ' << std::setw(8) << HN[i+j*nq] ;
-      stream << '\n' ;
+    stream << "Block HN\n";
+    for ( integer i = 0; i < nq; ++i ) {
+      stream << std::setw(8) << HN[i];
+      for ( integer j = 1; j < n; ++j )
+        stream << ' ' << std::setw(8) << HN[i+j*nq];
+      stream << '\n';
     }
     if ( q > 0 ) {
-      stream << "Block Hq\n" ;
-      for ( integer i = 0 ; i < nq ; ++i ) {
-        stream << std::setw(8) << Hq[i] ;
-        for ( integer j = 1 ; j < q ; ++j )
-          stream << ' ' << std::setw(8) << Hq[i+j*nq] ;
-        stream << '\n' ;
+      stream << "Block Hq\n";
+      for ( integer i = 0; i < nq; ++i ) {
+        stream << std::setw(8) << Hq[i];
+        for ( integer j = 1; j < q; ++j )
+          stream << ' ' << std::setw(8) << Hq[i+j*nq];
+        stream << '\n';
       }
     }
   }
@@ -669,7 +673,7 @@ namespace alglin {
          REAL    A[],
          integer LDA,
          integer IPIV[],
-         integer NB ) ;
+         integer NB );
 
   template <typename REAL>
   integer
@@ -678,7 +682,7 @@ namespace alglin {
          REAL    A[],
          integer LDA,
          integer IPIV[],
-         integer NB ) ;
+         integer NB );
 
   template <typename REAL>
   integer
@@ -686,7 +690,7 @@ namespace alglin {
        integer N,
        REAL    A[],
        integer LDA,
-       integer IPIV[] ) ;
+       integer IPIV[] );
 
   template <typename REAL>
   integer
@@ -694,7 +698,7 @@ namespace alglin {
        integer N,
        REAL    A[],
        integer LDA,
-       integer IPIV[] ) ;
+       integer IPIV[] );
 
   // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
@@ -707,7 +711,7 @@ namespace alglin {
                T       R[],
                T       C[],
                integer maxIter,
-               T       epsi ) ;
+               T       epsi );
 
   // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
@@ -719,15 +723,15 @@ namespace alglin {
                integer nrhs,
                T       RHS[],
                integer ldRHS,
-               T       lambda ) ;
+               T       lambda );
 
   inline
   bool
   outMATRIXcheck( MatrixType const & MT, integer i, integer j ) {
     bool ok = MT == FULL_MATRIX ||
               ( MT == LOWER_TRIANGULAR_MATRIX && i >= j ) ||
-              ( MT == UPPER_TRIANGULAR_MATRIX && i <= j ) ;
-    return ok ;
+              ( MT == UPPER_TRIANGULAR_MATRIX && i <= j );
+    return ok;
   }
 
   template <typename T>
@@ -742,21 +746,22 @@ namespace alglin {
              integer                    prec = 4,
              integer                    rperm[] = nullptr,
              integer                    cperm[] = nullptr ) {
-    integer j0 = cperm == nullptr ? 0 : cperm[0]-1 ;
-    for ( integer i = 0 ; i < NR ; ++i ) {
-      integer ii = rperm == nullptr ? i : rperm[i]-1 ;
+    integer j0 = cperm == nullptr ? 0 : cperm[0]-1;
+    for ( integer i = 0; i < NR; ++i ) {
+      integer ii = rperm == nullptr ? i : rperm[i]-1;
       if ( outMATRIXcheck(MT,i,0) )
-        s << std::setprecision(prec) << std::setw(prec+6) << A[ii+j0*LDA] ;
+        s << std::setprecision(prec) << std::setw(prec+6) << A[ii+j0*LDA];
       else
-        s << std::setw(prec+6) << " " ;
-      for ( integer j = 1 ; j < NC ; ++j ) {
-        integer jj = cperm == nullptr ? j : cperm[j]-1 ;
+        s << std::setw(prec+6) << " ";
+      for ( integer j = 1; j < NC; ++j ) {
+        integer jj = cperm == nullptr ? j : cperm[j]-1;
         if ( outMATRIXcheck(MT,i,j) )
-          s << " " << std::setprecision(prec) << std::setw(prec+6) << A[ii+jj*LDA] ;
+          s << " " << std::setprecision(prec) << std::setw(prec+6)
+            << A[ii+jj*LDA];
         else
-          s << " " << std::setw(prec+6) << " " ;
+          s << " " << std::setw(prec+6) << " ";
       }
-      s << '\n' ;
+      s << '\n';
     }
   }
 
@@ -768,13 +773,13 @@ namespace alglin {
             T const                    A[],
             integer                    LDA,
             std::basic_ostream<char> & s ) {
-    s << "<" ;
-    for ( integer j = 0 ; j < NC ; ++j ) {
-      s << "<" << std::setprecision(20) << A[j*LDA] ;
-      for ( integer i = 1 ; i < NR ; ++i )
-        s << "," << std::setprecision(20) << A[i+j*LDA] ;
-      if ( j < NC-1 ) s << ">|\n" ;
-      else            s << ">>;\n" ;
+    s << "<";
+    for ( integer j = 0; j < NC; ++j ) {
+      s << "<" << std::setprecision(20) << A[j*LDA];
+      for ( integer i = 1; i < NR; ++i )
+        s << "," << std::setprecision(20) << A[i+j*LDA];
+      if ( j < NC-1 ) s << ">|\n";
+      else            s << ">>;\n";
     }
   }
 

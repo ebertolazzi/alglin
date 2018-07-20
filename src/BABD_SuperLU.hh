@@ -58,41 +58,41 @@ namespace alglin {
   class BABD_SuperLU {
   private:
 
-    typedef double            valueType ;
-    typedef valueType *       valuePointer ;
-    typedef valueType const * valueConstPointer ;
+    typedef double            valueType;
+    typedef valueType *       valuePointer;
+    typedef valueType const * valueConstPointer;
 
-    Malloc<valueType> baseValue ;
-    Malloc<int>       baseInteger ;
+    Malloc<valueType> baseValue;
+    Malloc<int>       baseInteger;
 
-    BABD_SuperLU(BABD_SuperLU const &) ;
-    BABD_SuperLU const & operator = (BABD_SuperLU const &) ;
+    BABD_SuperLU(BABD_SuperLU const &);
+    BABD_SuperLU const & operator = (BABD_SuperLU const &);
 
-    integer nblock ; //!< total number of blocks
-    integer n      ; //!< size of square blocks
-    integer m      ; //!< number final rows (m>=n)
-    integer nnz    ; //!< total number of non zeros
-    integer neq    ;
+    integer nblock; //!< total number of blocks
+    integer n;      //!< size of square blocks
+    integer m;      //!< number final rows (m>=n)
+    integer nnz;    //!< total number of non zeros
+    integer neq;
 
-    //int               info ;
+    //int               info;
     //mem_usage_t       mem_usage;
     int         *perm_r; // row permutations from partial pivoting
     int         *perm_c; // column permutation vector
     int         *etree;
-    valueType   one_norm_A, inf_norm_A ;
+    valueType   one_norm_A, inf_norm_A;
 
     superlu_options_t     slu_options;
     mutable SuperLUStat_t slu_stats;
-    mutable SuperMatrix   A, L, U ; // messo mutable per zittire warning
+    mutable SuperMatrix   A, L, U; // messo mutable per zittire warning
 
     //! factorize the matrix
-    void factorize() ;
+    void factorize();
 
   public:
 
-    explicit BABD_SuperLU() ;
+    explicit BABD_SuperLU();
 
-    ~BABD_SuperLU() ;
+    ~BABD_SuperLU();
 
     //! load matrix in the class
     /*!
@@ -140,14 +140,14 @@ namespace alglin {
                valueConstPointer AdAu,
                valueConstPointer H0,
                valueConstPointer HN,
-               valueConstPointer Hq ) ;
+               valueConstPointer Hq );
 
     //! solve linear sistem using internal factorized matrix
-    void solve( valuePointer in_out ) const ;
+    void solve( valuePointer in_out ) const;
 
     //! get condition number
-    void cond( valueType & rcond_1, valueType & rcond_inf ) const ;
-  } ;
+    void cond( valueType & rcond_1, valueType & rcond_inf ) const;
+  };
 }
 
 #ifdef __GCC__

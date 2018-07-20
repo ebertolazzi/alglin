@@ -31,47 +31,50 @@ namespace alglin {
 
   /*!
    *
-   * \date     June 11, 2010
-   * \version  1.0
+   *  \date    June 11, 2010
+   *  \version 1.0
    *
-   * \author   Enrico Bertolazzi and Daniele Bosetti
+   *  \author  Enrico Bertolazzi and Daniele Bosetti
    *
-   * \par      Affiliation:
+   *  \par     Affiliation:
    *           Department of Industrial Engineering<br>
    *           University of Trento <br>
    *           Via Sommarive 9, I-38123 Povo, Trento, Italy<br>
    *           enrico.bertolazzi\@unitn.it
    *
-   * \par Abstract
+   *  \par Abstract
    *  This program solves the linear system A*X = B where A is
    *  an almost block diagonal matrix. The method implemented is
    *  based on Gauss elimination with alternate row and column
    *  eliminaion with partial pivoting, which produces a stable
    *  decomposition of the matrix A without introducing fill-in-
    *
-   *  This class is an implementation of the Alternate Row and Column Elimination in the C++ language.
-   *  Being almost block diagonal, the matrix is given by the 3-tuple (numberOfBlocks,matrixStructure,array), where
-   *  numberOfBlocks is the number of the blocks forming the matrix, matrixStructure is an array which describes the structure
+   *  This class is an implementation of the Alternate Row and
+   *  Column Elimination in the C++ language.
+   *  Being almost block diagonal, the matrix is given by the
+   *  3-tuple (numberOfBlocks,matrixStructure,array), where
+   *  numberOfBlocks is the number of the blocks forming the matrix,
+   *  matrixStructure is an array which describes the structure
    *  of the matrix, and array contains the data of the matrix.
    */
   template <typename t_Value>
   class ArcecoLU {
 
-    typedef t_Value         valueType ;
-    typedef t_Value*        valuePointer ;
-    typedef t_Value const * valueConstPointer ;
+    typedef t_Value         valueType;
+    typedef t_Value*        valuePointer;
+    typedef t_Value const * valueConstPointer;
 
-    Malloc<valueType> baseValue ;
-    Malloc<integer>   baseInteger ;
+    Malloc<valueType> baseValue;
+    Malloc<integer>   baseInteger;
 
     ArcecoLU(ArcecoLU<t_Value> const &);
-    ArcecoLU<t_Value> const &operator = (ArcecoLU<t_Value> const &) ;
+    ArcecoLU<t_Value> const &operator = (ArcecoLU<t_Value> const &);
 
-    integer *    matrixStructure ; //!< structure of the matrix
-    integer *    pivot_array     ; //!< permutation array
-    valuePointer array           ; //!< the matrix data
+    integer *    matrixStructure; //!< structure of the matrix
+    integer *    pivot_array;     //!< permutation array
+    valuePointer array;           //!< the matrix data
 
-    integer      numberOfBlocks  ; //!< total number of blocks of the matrix A
+    integer      numberOfBlocks;  //!< total number of blocks of the matrix A
 
     /*!
      *  RowElimination performs numRowsPivot row elimination on the matrix block.
@@ -82,11 +85,11 @@ namespace alglin {
      *  \param pivot        pointer to a pivot array
      */
     void
-    rowElimination ( valuePointer block,
-                     integer      numRowsBlock,
-                     integer      numColsBlock,
-                     integer      numRowsPivot,
-                     integer    * pivot ) ;
+    rowElimination( valuePointer block,
+                    integer      numRowsBlock,
+                    integer      numColsBlock,
+                    integer      numRowsPivot,
+                    integer    * pivot );
 
     /*!
      *  ColumnElimination performs numColsPivot column elimination on the matrix top-block and bottom-block.
@@ -99,68 +102,76 @@ namespace alglin {
      *  \param pivot              pointer to a pivot array
      */
     void
-    columnElimination ( valuePointer topblk,
-                        integer      numRowsTopBlock,
-                        integer      numOverlapCols,
-                        valuePointer botblk,
-                        integer      numRowsBottomBlock,
-                        integer      numColsPivot,
-                        integer *    pivot ) ;
+    columnElimination( valuePointer topblk,
+                       integer      numRowsTopBlock,
+                       integer      numOverlapCols,
+                       valuePointer botblk,
+                       integer      numRowsBottomBlock,
+                       integer      numColsPivot,
+                       integer *    pivot );
 
     //! Performs the forward elimination step in the solution phase of solveByRef
     void
-    forwardElimination ( valuePointer block,
-                         integer      numRowsBlock,
-                         integer      numRowsPivot,
-                         integer *    pivot,
-                         valuePointer b ) const ;
+    forwardElimination( valuePointer block,
+                        integer      numRowsBlock,
+                        integer      numRowsPivot,
+                        integer *    pivot,
+                        valuePointer b ) const;
 
     //! Performs the forward solution step in the solution phase of solveByRef
     void
-    forwardSolution ( valuePointer block,
-                      integer      numRowsBlock,
-                      integer      numColsPivot,
-                      integer      numOverlapCols,
-                      valuePointer b ) const ;
+    forwardSolution( valuePointer block,
+                     integer      numRowsBlock,
+                     integer      numColsPivot,
+                     integer      numOverlapCols,
+                     valuePointer b ) const;
 
     //! Performs the forward modification step in the solution phase of solve
     void
-    forwardModification ( valuePointer block,
-                          integer      numRowsBlock,
-                          integer      numColsPivot,
-                          valuePointer b ) const ;
+    forwardModification( valuePointer block,
+                         integer      numRowsBlock,
+                         integer      numColsPivot,
+                         valuePointer b ) const;
 
     //! Performs the backward modification step in the solution phase of solve
     void
-    backwardModification ( valuePointer block,
-                           integer      numRowsBlock,
-                           integer      numColsBlock,
-                           integer      numRowsPivot,
-                           valuePointer b ) const ;
+    backwardModification( valuePointer block,
+                          integer      numRowsBlock,
+                          integer      numColsBlock,
+                          integer      numRowsPivot,
+                          valuePointer b ) const;
 
     //! Performs the backward substitution step in the solution phase of solve
     void
-    backwardSolution ( valuePointer block,
-                       integer      numRowsBlock,
-                       integer      numColsBlock,
-                       integer      numRowsPivot,
-                       valuePointer b ) const ;
+    backwardSolution( valuePointer block,
+                      integer      numRowsBlock,
+                      integer      numColsBlock,
+                      integer      numRowsPivot,
+                      valuePointer b ) const;
 
     //! Performs the backward elimination step in the solution phase of solve
     void
-    backwardElimination ( valuePointer block,
-                          integer      numRowsBlock,
-                          integer      numColsPivot,
-                          integer      numOverlapCols,
-                          integer *    pivot,
-                          valuePointer b ) const ;
+    backwardElimination( valuePointer block,
+                         integer      numRowsBlock,
+                         integer      numColsPivot,
+                         integer      numOverlapCols,
+                         integer *    pivot,
+                         valuePointer b ) const;
 
-    integer numRows    ( integer numBlock ) const { return matrixStructure[numBlock*3+0] ; }
-    integer numCols    ( integer numBlock ) const { return matrixStructure[numBlock*3+1] ; }
-    integer numOverlap ( integer numBlock ) const { return matrixStructure[numBlock*3+2] ; }
+    integer
+    numRows( integer numBlock ) const
+    { return matrixStructure[numBlock*3+0]; }
+
+    integer
+    numCols( integer numBlock ) const
+    { return matrixStructure[numBlock*3+1]; }
+
+    integer
+    numOverlap( integer numBlock ) const
+    { return matrixStructure[numBlock*3+2]; }
 
   public:
-  
+
     explicit ALGLIN_CONSTEXPR ArcecoLU()
     : baseValue("ArcecoLU_values")
     , baseInteger("ArcecoLU_integers")
@@ -170,29 +181,35 @@ namespace alglin {
     {}
 
     /*!
-     *  loadByRef function gives to the class the sizes of the problem and the pointers to the memory
-     *  locations the class works on.
+     *  loadByRef function gives to the class the sizes of the
+     *  problem and the pointers to the memory locations the class works on.
      *
      *  \param numberOfBlocks Total number of blocks in A
      *  \param pivot pointer to an array with n elements
-     *  \param matrixStructure pointer to an array with 3*numberOfBlocks elements. Describes the block structure of A:
+     *  \param matrixStructure pointer to an array with
+     *         3*numberOfBlocks elements. Describes the block structure of A:
      *         matrixStructure[3*i] = number of rows in the i-th block,
      *         matrixStructure[3*i+1] = number of columns in the i-th block,
-     *         matrixStructure[3*i+2] = number of columns overlapped by block i and block (i+1).
-     *  \param array pointer to an array with SUM(matrixStructure[3*i]*matrixStructure[3*i+1]),i=0...numberOfBlocks-1, elements.
-     *  Contains the entries of the almost block diagonal system A whose structure is given
-     *  by the integer array matrixStructure. The elements of A are stored by columns, in blocks corresponding
-     *  to the given structure. The class will use this space to store the matrix decomposition.
+     *         matrixStructure[3*i+2] = number of columns overlapped by
+     *         block i and block (i+1).
+     *  \param array pointer to an array with
+     *         SUM(matrixStructure[3*i]*matrixStructure[3*i+1]),
+     *         i=0...numberOfBlocks-1, elements.
+     *         Contains the entries of the almost block diagonal system A whose
+     *         structure is given by the integer array matrixStructure.
+     *         The elements of A are stored by columns, in blocks corresponding
+     *         to the given structure.
+     *         The class will use this space to store the matrix decomposition.
      */
     void
-    loadByRef ( integer      numberOfBlocks,
-                integer *    matrixStructure,
-                valuePointer array,
-                integer *    pivot ) ;
+    loadByRef( integer      numberOfBlocks,
+               integer *    matrixStructure,
+               valuePointer array,
+               integer *    pivot );
 
     //! \@param neq the order of the linear system, and n = SUM(matrixStructure[3*k],K=0,numberOfBlocks-1)
     void
-    checkStructure( integer neq ) ;
+    checkStructure( integer neq );
 
     /*!
      *  Decompose supervises the modified alternate row and column
@@ -201,7 +218,7 @@ namespace alglin {
      *  matrixStructure.
      */
     void
-    factorize() ;
+    factorize();
 
     //! factorize the matrix
     void
@@ -215,7 +232,7 @@ namespace alglin {
                // ----------------
                integer           _rowN,
                integer           _colN,
-               valueConstPointer _blockN ) ;
+               valueConstPointer _blockN );
 
     /*!
      *  Solve supervises the solution of the linear system
@@ -228,7 +245,7 @@ namespace alglin {
      *  elimination.
      */
     void
-    solve( valuePointer b ) const ;
+    solve( valuePointer b ) const;
 
   };
 
@@ -245,8 +262,8 @@ namespace alglin {
   #pragma clang diagnostic ignored "-Wc++98-compat-pedantic"
   #endif
 
-  extern template class ArcecoLU<float> ;
-  extern template class ArcecoLU<double> ;
+  extern template class ArcecoLU<float>;
+  extern template class ArcecoLU<double>;
 
   #ifdef __GCC__
   #pragma GCC diagnostic pop

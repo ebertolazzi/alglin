@@ -32,14 +32,22 @@ namespace alglin {
 
   string
   BABD_Choice_to_string( BABD_Choice c ) {
-    string res = "none" ;
+    string res = "none";
     switch ( c ) {
-    case BABD_DIAZ:                 res = "Diaz" ;                break ;
-    case BABD_CYCLIC_REDUCTION_LU:  res = "CyclicReduction+LU" ;  break ;
-    case BABD_CYCLIC_REDUCTION_QR:  res = "CyclicReduction+QR" ;  break ;
-    case BABD_CYCLIC_REDUCTION_QRP: res = "CyclicReduction+QRP" ; break ;
+    case BABD_DIAZ:
+      res = "Diaz";
+      break;
+    case BABD_CYCLIC_REDUCTION_LU:
+      res = "CyclicReduction+LU";
+      break;
+    case BABD_CYCLIC_REDUCTION_QR:
+      res = "CyclicReduction+QR";
+      break;
+    case BABD_CYCLIC_REDUCTION_QRP:
+      res = "CyclicReduction+QRP";
+      break;
     }
-    return res ;
+    return res;
   }
 
   #if 0
@@ -51,41 +59,42 @@ namespace alglin {
                   valueConstPointer     M,
                   indexType             numRow,
                   indexType             numCol ) {
-    stream << "# " << name << " Size: " << numRow << " x " << numCol << '\n' ;
-    stream << name << " := <" ;
-    for ( indexType nc = 0 ; nc < numCol ; ++nc ) {
-      stream << '<' ;
-      for ( indexType nr = 0 ; nr < numRow ; ++nr ) {
-        stream << M[ nr + nc * numRow ] ;
-        if ( nr+1 < numRow ) stream << ',' ;
-        else                 stream << '>' ;
+    stream << "# " << name << " Size: "
+           << numRow << " x " << numCol << '\n';
+    stream << name << " := <";
+    for ( indexType nc = 0; nc < numCol; ++nc ) {
+      stream << '<';
+      for ( indexType nr = 0; nr < numRow; ++nr ) {
+        stream << M[ nr + nc * numRow ];
+        if ( nr+1 < numRow ) stream << ',';
+        else                 stream << '>';
       }
-      if ( nc+1 < numCol ) stream << "|\n" ;
-      else                 stream << "> ;\n" ;
+      if ( nc+1 < numCol ) stream << "|\n";
+      else                 stream << ">;\n";
     }
   }
 
   void
   BVNLFD_System::dump_to_Maple ( basic_ostream<char> & stream ) const {
 
-    stream << "interface( rtablesize = 40 ) ;\n" ;
+    stream << "interface( rtablesize = 40 );\n";
 
-    indexType N       = numNodes-1 ;
-    indexType dim_z_z = 4*dim_x*dim_x ;
-    for ( indexType row = 0 ; row < N ; ++row ) {
-      valueConstPointer Ad = AdAu_blk + 2*row*dim_z_z ; 
-      valueConstPointer Au = Ad + dim_z_z ;
-      dumpOneMatrix( stream, "Ad", Ad, 2*dim_x, 2*dim_x ) ;
-      dumpOneMatrix( stream, "Au", Au, 2*dim_x, 2*dim_x ) ;
+    indexType N       = numNodes-1;
+    indexType dim_z_z = 4*dim_x*dim_x;
+    for ( indexType row = 0; row < N; ++row ) {
+      valueConstPointer Ad = AdAu_blk + 2*row*dim_z_z;
+      valueConstPointer Au = Ad + dim_z_z;
+      dumpOneMatrix( stream, "Ad", Ad, 2*dim_x, 2*dim_x );
+      dumpOneMatrix( stream, "Au", Au, 2*dim_x, 2*dim_x );
     }
 
-    dumpOneMatrix( stream, "H0Np", H0Np, dim_bc, 4*dim_x + dim_omega ) ;
+    dumpOneMatrix( stream, "H0Np", H0Np, dim_bc, 4*dim_x + dim_omega );
 
-    stream << "with(LinearAlgebra):\n" ;
-    stream << "Determinant(Ad);\n" ;
-    stream << "Determinant(Au);\n" ;
-    stream << "Rank(H0Np);\n" ;
-    stream << "Rank(<H0N|Hp>);\n" ;
+    stream << "with(LinearAlgebra):\n";
+    stream << "Determinant(Ad);\n";
+    stream << "Determinant(Au);\n";
+    stream << "Rank(H0Np);\n";
+    stream << "Rank(<H0N|Hp>);\n";
 
   }
 #endif

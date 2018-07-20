@@ -60,22 +60,22 @@ namespace alglin {
   template <typename T>
   class Malloc {
   public:
-    typedef T                 valueType           ;
-    typedef valueType*        valuePointer        ;
-    typedef const valueType*  valueConstPointer   ;
-    typedef valueType&        valueReference      ;
-    typedef const valueType&  valueConstReference ;
+    typedef T                 valueType;
+    typedef valueType*        valuePointer;
+    typedef const valueType*  valueConstPointer;
+    typedef valueType&        valueReference;
+    typedef const valueType&  valueConstReference;
 
   private:
 
-    std::string  _name ;
-    size_t       numTotValues ;
-    size_t       numTotReserved ;
-    size_t       numAllocated ;
-    valuePointer pMalloc ;
+    std::string  _name;
+    size_t       numTotValues;
+    size_t       numTotReserved;
+    size_t       numAllocated;
+    valuePointer pMalloc;
 
-    Malloc(Malloc<T> const &) ; // blocco costruttore di copia
-    Malloc<T> const & operator = (Malloc<T> &) const ; // blocco copia
+    Malloc(Malloc<T> const &); // blocco costruttore di copia
+    Malloc<T> const & operator = (Malloc<T> &) const; // blocco copia
 
   public:
 
@@ -90,58 +90,59 @@ namespace alglin {
     { }
 
     //! malloc object destructor
-    ~Malloc() { free() ; }
+    ~Malloc() { free(); }
 
     //! allocate memory for `n` objects
     void
     allocate( size_t n ) {
       try {
         if ( n > numTotReserved ) {
-          delete [] pMalloc ;
-          numTotValues   = n ;
-          numTotReserved = n + (n>>3) ; // 12% more values
-          pMalloc = new T[numTotReserved] ;
+          delete [] pMalloc;
+          numTotValues   = n;
+          numTotReserved = n + (n>>3); // 12% more values
+          pMalloc = new T[numTotReserved];
         }
       }
       catch ( std::exception const & exc ) {
         std::cerr << "Memory allocation failed: " << exc.what()
              << "\nTry to allocate " << n << " bytes for " << _name
-             << '\n' ;
-        std::exit(0) ;
+             << '\n';
+        std::exit(0);
       }
       catch (...) {
-        std::cerr << "Malloc allocation failed for " << _name << ": memory exausted\n" ;
-        std::exit(0) ;
+        std::cerr << "Malloc allocation failed for " << _name << ": memory exausted\n";
+        std::exit(0);
       }
-      numTotValues = n ;
-      numAllocated = 0 ;
+      numTotValues = n;
+      numAllocated = 0;
     }
 
     //! free memory
     void
     free(void) {
       if ( pMalloc != nullptr ) {
-        delete [] pMalloc ; pMalloc = nullptr;
-        numTotValues   = 0 ;
-        numTotReserved = 0 ;
-        numAllocated   = 0 ;
+        delete [] pMalloc; pMalloc = nullptr;
+        numTotValues   = 0;
+        numTotReserved = 0;
+        numAllocated   = 0;
       }
     }
 
     //! number of objects allocated
-    size_t size(void) const { return numTotValues ; }
+    size_t size(void) const { return numTotValues; }
 
     //! get pointer of allocated memory for `sz` objets
     T * operator () ( size_t sz ) {
-      size_t offs = numAllocated ;
-      numAllocated += sz ;
+      size_t offs = numAllocated;
+      numAllocated += sz;
       if ( numAllocated > numTotValues ) {
-        std::cerr << "\nMalloc<" << _name << ">::operator () (" << sz << ") -- Malloc EXAUSTED\n" ;
-        std::exit(0) ;
+        std::cerr << "\nMalloc<" << _name
+                  << ">::operator () (" << sz << ") -- Malloc EXAUSTED\n";
+        std::exit(0);
       }
-      return pMalloc + offs ;
+      return pMalloc + offs;
     }
-  } ;
+  };
 
   // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
@@ -152,13 +153,13 @@ namespace alglin {
                 T         A[],
                 integer   LDA,
                 T         RCOND,
-                T         SVAL[3] ) ;
+                T         SVAL[3] );
 
-  //! base class for linear systema solver
+  //! base class for linear system solver
   template <typename T>
   class LinearSystemSolver {
   public:
-    typedef T valueType ;
+    typedef T valueType;
 
   public:
 
@@ -168,27 +169,35 @@ namespace alglin {
     virtual ~LinearSystemSolver()
     {}
 
-    virtual
-    void
-    solve( valueType xb[] ) const ALGLIN_PURE_VIRTUAL ;
+    /*\
+     |         _      _               _
+     |  __   _(_)_ __| |_ _   _  __ _| |___
+     |  \ \ / / | '__| __| | | |/ _` | / __|
+     |   \ V /| | |  | |_| |_| | (_| | \__ \
+     |    \_/ |_|_|   \__|\__,_|\__,_|_|___/
+    \*/
 
     virtual
     void
-    t_solve( valueType xb[] ) const ALGLIN_PURE_VIRTUAL ;
+    solve( valueType xb[] ) const ALGLIN_PURE_VIRTUAL;
+
+    virtual
+    void
+    t_solve( valueType xb[] ) const ALGLIN_PURE_VIRTUAL;
 
     virtual
     void
     solve( integer nrhs, valueType B[], integer ldB ) const {
-      for ( integer i = 0 ; i < nrhs ; ++i ) solve( B + i*ldB ) ;
+      for ( integer i = 0; i < nrhs; ++i ) solve( B + i*ldB );
     }
 
     virtual
     void
     t_solve( integer nrhs, valueType B[], integer ldB ) const {
-      for ( integer i = 0 ; i < nrhs ; ++i ) t_solve( B + i*ldB ) ;
+      for ( integer i = 0; i < nrhs; ++i ) t_solve( B + i*ldB );
     }
 
-  } ;
+  };
   
   /*\
    |   _____          _             _          _   _
@@ -201,13 +210,13 @@ namespace alglin {
   template <typename T>
   class Factorization : public LinearSystemSolver<T> {
   public:
-    typedef T valueType ;
+    typedef T valueType;
   
   protected:
 
-    valueType * Amat ;
-    integer     nRow ;
-    integer     nCol ;
+    valueType * Amat;
+    integer     nRow;
+    integer     nCol;
 
   public:
 
@@ -220,22 +229,10 @@ namespace alglin {
     ~Factorization()
     {}
 
-    integer           numRow()   const { return nRow ; }
-    integer           numCol()   const { return nCol ; }
-    valueType *       Apointer()       { return Amat ; }
-    valueType const * Apointer() const { return Amat ; }
-
-    virtual
-    void
-    allocate( integer NR, integer NC ) ALGLIN_PURE_VIRTUAL;
-
-    virtual
-    void
-    factorize() ALGLIN_PURE_VIRTUAL;
-
-    virtual
-    void
-    factorize( integer NR, integer NC, valueType const A[], integer LDA ) ALGLIN_PURE_VIRTUAL ;
+    integer           numRow()   const { return nRow; }
+    integer           numCol()   const { return nCol; }
+    valueType *       Apointer()       { return Amat; }
+    valueType const * Apointer() const { return Amat; }
 
     /*!
       Zeroes a rectangular block of the stored matrix staring at `(irow,icol)` position
@@ -250,8 +247,8 @@ namespace alglin {
                 integer nc,
                 integer irow,
                 integer icol ) {
-      valueType * Ablk = Amat + irow + icol * nRow ;
-      gezero( nr, nc, Ablk, nRow ) ;
+      valueType * Ablk = Amat + irow + icol * nRow;
+      gezero( nr, nc, Ablk, nRow );
     }
 
     /*!
@@ -271,9 +268,10 @@ namespace alglin {
                 integer         ldB,
                 integer         irow = 0,
                 integer         icol = 0 ) {
-      valueType * Ablk = Amat + irow + icol * nRow ;
-      integer info = gecopy( nr, nc, B, ldB, Ablk, nRow ) ;
-      ALGLIN_ASSERT( info == 0, "block_load call alglin::gecopy return info = " << info ) ;
+      valueType * Ablk = Amat + irow + icol * nRow;
+      integer info = gecopy( nr, nc, B, ldB, Ablk, nRow );
+      ALGLIN_ASSERT( info == 0,
+                     "block_load call alglin::gecopy return info = " << info );
     }
 
     /*!
@@ -283,7 +281,7 @@ namespace alglin {
     \*/
     void
     load_column( valueType const column[], integer icol ) {
-      copy( nRow, column, 1, Amat + icol * nRow, 1 ) ;
+      copy( nRow, column, 1, Amat + icol * nRow, 1 );
     }
 
     /*!
@@ -293,7 +291,7 @@ namespace alglin {
     \*/
     void
     load_row( valueType const row[], integer irow ) {
-      copy( nRow, row, 1, Amat + irow, nRow ) ;
+      copy( nRow, row, 1, Amat + irow, nRow );
     }
 
     /*!
@@ -310,9 +308,9 @@ namespace alglin {
                         integer   const row[],
                         integer         icol,
                         integer         offs = 0 ) {
-      valueType * Acol = Amat + icol * nRow ;
-      zero( nRow, Acol, 1 ) ;
-      for ( integer i = 0 ; i < nnz ; ++i ) Acol[row[i]+offs] = values[i] ;
+      valueType * Acol = Amat + icol * nRow;
+      zero( nRow, Acol, 1 );
+      for ( integer i = 0; i < nnz; ++i ) Acol[row[i]+offs] = values[i];
     }
 
     /*!
@@ -329,9 +327,9 @@ namespace alglin {
                      integer   const col[],
                      integer         irow,
                      integer         offs = 0 ) {
-      valueType * Arow = Amat + irow ;
-      zero( nRow, Arow, nRow ) ;
-      for ( integer i = 0 ; i < nnz ; ++i ) Arow[col[i]+offs] = values[i] ;
+      valueType * Arow = Amat + irow;
+      zero( nRow, Arow, nRow );
+      for ( integer i = 0; i < nnz; ++i ) Arow[col[i]+offs] = values[i];
     }
 
     /*!
@@ -346,9 +344,9 @@ namespace alglin {
                  valueType const values[],
                  integer   const row[],
                  integer   const col[] ) {
-      zero( nRow*nCol, Amat, 1 ) ;
-      for ( integer i = 0 ; i < nnz ; ++i )
-        Amat[row[i] + col[i] * nRow] = values[i] ;
+      zero( nRow*nCol, Amat, 1 );
+      for ( integer i = 0; i < nnz; ++i )
+        Amat[row[i] + col[i] * nRow] = values[i];
     }
 
     /*!
@@ -365,9 +363,9 @@ namespace alglin {
                  valueType const values[],
                  integer   const row[], integer r_offs,
                  integer   const col[], integer c_offs ) {
-      zero( nRow*nCol, Amat, 1 ) ;
-      for ( integer i = 0 ; i < nnz ; ++i )
-        Amat[row[i]+r_offs + (col[i]+c_offs) * nRow] = values[i] ;
+      zero( nRow*nCol, Amat, 1 );
+      for ( integer i = 0; i < nnz; ++i )
+        Amat[row[i]+r_offs + (col[i]+c_offs) * nRow] = values[i];
     }
 
     /*!
@@ -385,12 +383,12 @@ namespace alglin {
                      valueType const values[],
                      integer   const row[],
                      integer   const col[] ) {
-      zero( nRow*nCol, Amat, 1 ) ;
-      for ( integer i = 0 ; i < nnz ; ++i ) {
-        integer ii = row[i] ;
-        integer jj = col[i] ;
-        Amat[ii + jj * nRow] = values[i] ;
-        if ( ii != jj ) Amat[ jj + ii * nRow] = values[i] ;
+      zero( nRow*nCol, Amat, 1 );
+      for ( integer i = 0; i < nnz; ++i ) {
+        integer ii = row[i];
+        integer jj = col[i];
+        Amat[ii + jj * nRow] = values[i];
+        if ( ii != jj ) Amat[ jj + ii * nRow] = values[i];
       }
     }
 
@@ -411,16 +409,39 @@ namespace alglin {
                      valueType const values[],
                      integer   const row[], integer r_offs,
                      integer   const col[], integer c_offs ) {
-      zero( nRow*nCol, Amat, 1 ) ;
-      for ( integer i = 0 ; i < nnz ; ++i ) {
-        integer ii = row[i]+r_offs ;
-        integer jj = col[i]+c_offs ;
-        Amat[ii + jj * nRow] = values[i] ;
-        if ( ii != jj ) Amat[ jj + ii * nRow] = values[i] ;
+      zero( nRow*nCol, Amat, 1 );
+      for ( integer i = 0; i < nnz; ++i ) {
+        integer ii = row[i]+r_offs;
+        integer jj = col[i]+c_offs;
+        Amat[ii + jj * nRow] = values[i];
+        if ( ii != jj ) Amat[ jj + ii * nRow] = values[i];
       }
     }
 
-  } ;
+    /*\
+     |         _      _               _
+     |  __   _(_)_ __| |_ _   _  __ _| |___
+     |  \ \ / / | '__| __| | | |/ _` | / __|
+     |   \ V /| | |  | |_| |_| | (_| | \__ \
+     |    \_/ |_|_|   \__|\__,_|\__,_|_|___/
+    \*/
+
+    virtual
+    void
+    allocate( integer NR, integer NC ) ALGLIN_PURE_VIRTUAL;
+
+    virtual
+    void
+    factorize() ALGLIN_PURE_VIRTUAL;
+
+    virtual
+    void
+    factorize( integer         NR,
+               integer         NC,
+               valueType const A[],
+               integer         LDA ) ALGLIN_PURE_VIRTUAL;
+
+  };
 
   //============================================================================
   /*\
@@ -433,56 +454,71 @@ namespace alglin {
   template <typename T>
   class LU : public Factorization<T> {
   public:
-    typedef typename Factorization<T>::valueType valueType ;
+    typedef typename Factorization<T>::valueType valueType;
   
   private:
 
-    valueType * Work ;
-    integer   * Iwork ;
-    integer   * i_pivot ;
+    valueType * Work;
+    integer   * Iwork;
+    integer   * i_pivot;
   
-    Malloc<valueType> allocReals ;
-    Malloc<integer>   allocIntegers ;
+    Malloc<valueType> allocReals;
+    Malloc<integer>   allocIntegers;
     
-    void check_ls( char const who[] ) const ;
+    void check_ls( char const who[] ) const;
 
   public:
 
-    LU() ;
-    virtual ~LU();
+    LU();
+    virtual ~LU() ALGLIN_OVERRIDE;
+
+    valueType cond1( valueType norm1 ) const;
+    valueType condInf( valueType normInf ) const;
+
+    /*\
+     |         _      _               _
+     |  __   _(_)_ __| |_ _   _  __ _| |___
+     |  \ \ / / | '__| __| | | |/ _` | / __|
+     |   \ V /| | |  | |_| |_| | (_| | \__ \
+     |    \_/ |_|_|   \__|\__,_|\__,_|_|___/
+    \*/
 
     virtual
     void
-    allocate( integer NR, integer NC ) ;
+    allocate( integer NR, integer NC ) ALGLIN_OVERRIDE;
 
     virtual
     void
-    factorize() ;
+    factorize() ALGLIN_OVERRIDE;
 
     virtual
     void
-    factorize( integer NR, integer NC, valueType const A[], integer LDA ) ;
+    factorize( integer         NR,
+               integer         NC,
+               valueType const A[],
+               integer         LDA ) ALGLIN_OVERRIDE;
 
     virtual
     void
-    solve( valueType xb[] ) const ;
+    solve( valueType xb[] ) const ALGLIN_OVERRIDE;
 
     virtual
     void
-    t_solve( valueType xb[] ) const ;
+    t_solve( valueType xb[] ) const ALGLIN_OVERRIDE;
 
     virtual
     void
-    solve( integer nrhs, valueType B[], integer ldB ) const ;
+    solve( integer   nrhs,
+           valueType B[],
+           integer   ldB ) const ALGLIN_OVERRIDE;
 
     virtual
     void
-    t_solve( integer nrhs, valueType B[], integer ldB ) const ;
+    t_solve( integer   nrhs,
+             valueType B[],
+             integer   ldB ) const ALGLIN_OVERRIDE;
 
-    valueType cond1( valueType norm1 ) const ;
-    valueType condInf( valueType normInf ) const ;
-
-  } ;
+  };
 
   //============================================================================
   /*\
@@ -495,18 +531,18 @@ namespace alglin {
   template <typename T>
   class QR : public Factorization<T> {
   public:
-    typedef typename Factorization<T>::valueType valueType ;
+    typedef typename Factorization<T>::valueType valueType;
   
   private:
 
-    Malloc<valueType> allocReals ;
+    Malloc<valueType> allocReals;
 
   protected:
 
-    valueType * Work ;
-    valueType * Tau ;
+    valueType * Work;
+    valueType * Tau;
 
-    integer nReflector, Lwork ;
+    integer nReflector, Lwork;
 
   public:
 
@@ -522,84 +558,15 @@ namespace alglin {
     , allocReals("QR-allocReals")
     , nReflector(0)
     , Lwork(0)
-    { allocate(nr,nc) ; }
+    { allocate(nr,nc); }
 
     virtual
-    ~QR() {
-      allocReals.free() ;
+    ~QR() ALGLIN_OVERRIDE {
+      allocReals.free();
     }
 
     void
-    allocate( integer nr, integer nc, integer Lwrk ) ;
-
-    virtual
-    void
-    allocate( integer nr, integer nc ) ;
-
-    virtual
-    void
-    factorize() {
-      integer info = geqrf( this->nRow, this->nCol, this->Amat, this->nRow, Tau, Work, Lwork ) ;
-      ALGLIN_ASSERT( info == 0, "QR::factorize call alglin::geqrf return info = " << info ) ;
-    }
-
-    /*!
-      Do QR factorization of a rectangular matrix
-      \param NR  number of rows of the matrix
-      \param NC  number of columns of the matrix
-      \param A   pointer to the matrix
-      \param LDA Leading dimension of the matrix
-    \*/
-    virtual
-    void
-    factorize( integer NR, integer NC, valueType const A[], integer LDA ) {
-      allocate( NR, NC ) ;
-      integer info = gecopy( NR, NC, A, LDA, this->Amat, this->nRow ) ;
-      ALGLIN_ASSERT( info == 0, "QR::factorize call alglin::gecopy return info = " << info ) ;
-      factorize() ;
-    }
-
-    /*!
-      Do QR factorization of the transpose of a rectangular matrix
-      \param NR  number of rows of the matrix
-      \param NC  number of columns of the matrix
-      \param A   pointer to the matrix
-      \param LDA Leading dimension of the matrix
-    \*/
-    virtual
-    void
-    t_factorize( integer NR, integer NC, valueType const A[], integer LDA ) {
-      allocate( NC, NR ) ;
-      for ( integer i = 0 ; i < NR ; ++i )
-        copy( NC, A+i, LDA, this->Amat + i*this->nRow, 1 ) ;
-      factorize() ;
-    }
-
-    /*!
-      In case of QR factorization of a square matrix solve the 
-      linear system \f$ QR x = b \f$
-      \param xb on input the rhs of linear system on output the solution
-    \*/
-    virtual
-    void
-    solve( valueType xb[] ) const ;
-
-    /*!
-      In case of QR factorization of a square matrix solve the 
-      linear system \f$ (QR)^T x = b \f$
-      \param xb on input the rhs of linear system on output the solution
-    \*/
-    virtual
-    void
-    t_solve( valueType xb[] ) const ;
-
-    virtual
-    void
-    solve( integer nrhs, valueType B[], integer ldB ) const ;
-
-    virtual
-    void
-    t_solve( integer nrhs, valueType B[], integer ldB ) const ;
+    allocate( integer nr, integer nc, integer Lwrk );
 
     /*\
      *  overwrites the general real M-by-N matrix C with
@@ -615,36 +582,36 @@ namespace alglin {
             integer       nr,
             integer       nc,
             valueType     C[],
-            integer       ldC ) const ;
+            integer       ldC ) const;
     //! x <- Q*x
     void
     Q_mul( valueType x[] ) const
-    { applyQ( LEFT, NO_TRANSPOSE, nReflector, this->nRow, 1, x, this->nRow ) ; }
+    { applyQ( LEFT, NO_TRANSPOSE, nReflector, this->nRow, 1, x, this->nRow ); }
     
     //! x <- Q'*x
     void
     Qt_mul( valueType x[] ) const
-    { applyQ( LEFT, TRANSPOSE, nReflector, this->nRow, 1, x, this->nRow ) ; }
+    { applyQ( LEFT, TRANSPOSE, nReflector, this->nRow, 1, x, this->nRow ); }
 
     //! C <- Q*C
     void
     Q_mul( integer nr, integer nc, valueType C[], integer ldC ) const
-    { applyQ( LEFT, NO_TRANSPOSE, nReflector, nr, nc, C, ldC ) ; }
+    { applyQ( LEFT, NO_TRANSPOSE, nReflector, nr, nc, C, ldC ); }
 
     //! C <- Q'*C
     void
     Qt_mul( integer nr, integer nc, valueType C[], integer ldC ) const
-    { applyQ( LEFT, TRANSPOSE, nReflector, nr, nc, C, ldC ) ; }
+    { applyQ( LEFT, TRANSPOSE, nReflector, nr, nc, C, ldC ); }
     
     //! C <- C*Q
     void
     mul_Q( integer nr, integer nc, valueType C[], integer ldC ) const
-    { applyQ( RIGHT, NO_TRANSPOSE, nReflector, nr, nc, C, ldC ) ; }
+    { applyQ( RIGHT, NO_TRANSPOSE, nReflector, nr, nc, C, ldC ); }
     
     //! C <- C*Q'
     void
     mul_Qt( integer nr, integer nc, valueType C[], integer ldC ) const
-    { applyQ( RIGHT, TRANSPOSE, nReflector, nr, nc, C, ldC ) ; }
+    { applyQ( RIGHT, TRANSPOSE, nReflector, nr, nc, C, ldC ); }
 
     // -------------------------------------------------------------------------
 
@@ -653,7 +620,7 @@ namespace alglin {
             integer       rk,
             valueType     x[],
             integer       incx ) const {
-      trsv( UPPER, TRANS, NON_UNIT, rk, this->Amat, this->nRow, x, incx ) ;
+      trsv( UPPER, TRANS, NON_UNIT, rk, this->Amat, this->nRow, x, incx );
     }
 
     void
@@ -664,40 +631,43 @@ namespace alglin {
             valueType     alpha,
             valueType     Bmat[],
             integer       ldB ) const {
-      trsm( SIDE, UPPER, TRANS, NON_UNIT, nr, nc, alpha, this->Amat, this->nRow, Bmat, ldB ) ;
+      trsm( SIDE, UPPER, TRANS, NON_UNIT,
+            nr, nc, alpha, this->Amat, this->nRow, Bmat, ldB );
     }
     
     //! x <- R^(-1) * x
     void
     invR_mul( valueType x[], integer incx = 1 ) const
-    { trsv( UPPER, NO_TRANSPOSE, NON_UNIT, nReflector, this->Amat, this->nRow, x, incx ) ; }
+    { trsv( UPPER, NO_TRANSPOSE, NON_UNIT,
+            nReflector, this->Amat, this->nRow, x, incx ); }
 
     //! x <- R^(-T) * x
     void
     invRt_mul( valueType x[], integer incx = 1 ) const
-    { trsv( UPPER, TRANSPOSE, NON_UNIT, nReflector, this->Amat, this->nRow, x, incx ) ; }
+    { trsv( UPPER, TRANSPOSE, NON_UNIT,
+            nReflector, this->Amat, this->nRow, x, incx ); }
 
     //! C <- R^(-1) * C
     void
     invR_mul( integer nr, integer nc, valueType C[], integer ldC ) const
-    { Rsolve( LEFT, NO_TRANSPOSE, nr, nc, 1.0, C, ldC ) ; }
+    { Rsolve( LEFT, NO_TRANSPOSE, nr, nc, 1.0, C, ldC ); }
 
     //! C <- R^(-T) * C
     void
     invRt_mul( integer nr, integer nc, valueType C[], integer ldC ) const
-    { Rsolve( LEFT, TRANSPOSE, nr, nc, 1.0, C, ldC ) ; }
+    { Rsolve( LEFT, TRANSPOSE, nr, nc, 1.0, C, ldC ); }
 
     //! C <- C * R^(-1)
     void
     mul_invR( integer nr, integer nc, valueType C[], integer ldC ) const
-    { Rsolve( RIGHT, NO_TRANSPOSE, nr, nc, 1.0, C, ldC ) ; }
+    { Rsolve( RIGHT, NO_TRANSPOSE, nr, nc, 1.0, C, ldC ); }
 
     void
     mul_invRt( integer nr, integer nc, valueType C[], integer ldC ) const
-    { Rsolve( RIGHT, TRANSPOSE,  nr, nc, 1.0, C, ldC ) ; }
+    { Rsolve( RIGHT, TRANSPOSE,  nr, nc, 1.0, C, ldC ); }
     
     void
-    getR( valueType R[], integer ldR ) const ;
+    getR( valueType R[], integer ldR ) const;
     
     // -------------------------------------------------------------------------
     // dummy routines
@@ -705,7 +675,100 @@ namespace alglin {
     void inv_permute( valueType [] ) const {}
     void permute_rows( integer, integer, valueType [], integer ) const { }
     void inv_permute_rows( integer, integer, valueType [], integer ) const { }
-  } ;
+
+    /*!
+      Do QR factorization of the transpose of a rectangular matrix
+      \param NR  number of rows of the matrix
+      \param NC  number of columns of the matrix
+      \param A   pointer to the matrix
+      \param LDA Leading dimension of the matrix
+    \*/
+    void
+    t_factorize( integer         NR,
+                 integer         NC,
+                 valueType const A[],
+                 integer         LDA ) {
+      allocate( NC, NR );
+      for ( integer i = 0; i < NR; ++i )
+        copy( NC, A+i, LDA, this->Amat + i*this->nRow, 1 );
+      factorize();
+    }
+
+    /*\
+     |         _      _               _
+     |  __   _(_)_ __| |_ _   _  __ _| |___
+     |  \ \ / / | '__| __| | | |/ _` | / __|
+     |   \ V /| | |  | |_| |_| | (_| | \__ \
+     |    \_/ |_|_|   \__|\__,_|\__,_|_|___/
+    \*/
+
+    virtual
+    void
+    allocate( integer nr, integer nc ) ALGLIN_OVERRIDE;
+
+    virtual
+    void
+    factorize() ALGLIN_OVERRIDE {
+      integer info = geqrf( this->nRow,
+                            this->nCol,
+                            this->Amat,
+                            this->nRow,
+                            Tau, Work, Lwork );
+      ALGLIN_ASSERT( info == 0,
+                      "QR::factorize call alglin::geqrf return info = " << info );
+    }
+
+    /*!
+      Do QR factorization of a rectangular matrix
+      \param NR  number of rows of the matrix
+      \param NC  number of columns of the matrix
+      \param A   pointer to the matrix
+      \param LDA Leading dimension of the matrix
+    \*/
+    virtual
+    void
+    factorize( integer         NR,
+               integer         NC,
+               valueType const A[],
+               integer         LDA ) ALGLIN_OVERRIDE {
+      allocate( NR, NC );
+      integer info = gecopy( NR, NC, A, LDA, this->Amat, this->nRow );
+      ALGLIN_ASSERT( info == 0,
+                     "QR::factorize call alglin::gecopy return info = " << info );
+      factorize();
+    }
+
+    /*!
+      In case of QR factorization of a square matrix solve the
+      linear system \f$ QR x = b \f$
+      \param xb on input the rhs of linear system on output the solution
+    \*/
+    virtual
+    void
+    solve( valueType xb[] ) const ALGLIN_OVERRIDE;
+
+    /*!
+      In case of QR factorization of a square matrix solve the
+      linear system \f$ (QR)^T x = b \f$
+      \param xb on input the rhs of linear system on output the solution
+    \*/
+    virtual
+    void
+    t_solve( valueType xb[] ) const ALGLIN_OVERRIDE;
+
+    virtual
+    void
+    solve( integer   nrhs,
+           valueType B[],
+           integer   ldB ) const ALGLIN_OVERRIDE;
+
+    virtual
+    void
+    t_solve( integer   nrhs,
+             valueType B[],
+             integer   ldB ) const ALGLIN_OVERRIDE;
+
+  };
 
   //============================================================================
   /*\
@@ -718,11 +781,11 @@ namespace alglin {
   template <typename T>
   class QRP : public QR<T> {
   public:
-    typedef typename QR<T>::valueType valueType ;
+    typedef typename QR<T>::valueType valueType;
 
   private:
-    Malloc<integer> allocIntegers ;
-    integer * JPVT ;
+    Malloc<integer> allocIntegers;
+    integer * JPVT;
 
   public:
 
@@ -732,39 +795,99 @@ namespace alglin {
 
     QRP( integer nr, integer nc )
     : QR<T>(), allocIntegers("QRP-allocIntegers")
-    { allocate(nr,nc) ; }
+    { allocate(nr,nc); }
 
     virtual
-    ~QRP() {
-      allocIntegers.free() ;
+    ~QRP() ALGLIN_OVERRIDE {
+      allocIntegers.free();
+    }
+
+    // -------------------------------------------------------------------------
+    void
+    permute( valueType x[] ) const;
+
+    void
+    inv_permute( valueType x[] ) const;
+    
+    void
+    permute_rows( integer nr, integer nc, valueType C[], integer ldC ) const {
+      ALGLIN_ASSERT( nr == this->nRow,
+                     "QRP::permute_rows, bad number of row, expected " <<
+                     this->nRow << " find " << nr );
+      for ( integer j = 0; j < nc; ++j ) permute( C + ldC*j );
     }
     
+    void
+    inv_permute_rows( integer nr, integer nc, valueType C[], integer ldC ) const {
+      ALGLIN_ASSERT( nr == this->nRow,
+                     "QRP::permute_rows, bad number of row, expected " <<
+                     this->nRow << " find " << nr );
+      for ( integer j = 0; j < nc; ++j ) inv_permute( C + ldC*j );
+    }
+    
+    integer
+    rankEstimate( valueType rcond ) const {
+      valueType SVAL[3];
+      return alglin::rankEstimate( this->nRow, this->nCol,
+                                   this->Amat, this->nRow,
+                                   rcond, SVAL );
+    }
+
+    /*!
+      Do QR factorization with column pivoting of the transpose of a rectangular matrix
+      \param NR  number of rows of the matrix
+      \param NC  number of columns of the matrix
+      \param A   pointer to the matrix
+      \param LDA Leading dimension of the matrix
+    \*/
+    void
+    t_factorize( integer         NR,
+                 integer         NC,
+                 valueType const A[],
+                 integer         LDA ) {
+      // calcolo fattorizzazione QR della matrice A
+      allocate( NC, NR );
+      for ( integer i = 0; i < NR; ++i )
+        copy( NC, A+i, LDA, this->Amat + i*this->nRow, 1 );
+      factorize();
+    }
+
+    /*\
+     |         _      _               _
+     |  __   _(_)_ __| |_ _   _  __ _| |___
+     |  \ \ / / | '__| __| | | |/ _` | / __|
+     |   \ V /| | |  | |_| |_| | (_| | \__ \
+     |    \_/ |_|_|   \__|\__,_|\__,_|_|___/
+    \*/
+
     virtual
     void
-    allocate( integer NR, integer NC ) {
+    allocate( integer NR, integer NC ) ALGLIN_OVERRIDE {
       if ( this->nRow != NR || this->nCol != NC ) {
-        valueType tmp ; // get optimal allocation
-        integer info = geqp3( NR, NC, nullptr, NR, nullptr, nullptr, &tmp, -1 ) ;
-        ALGLIN_ASSERT( info == 0, "QRP::factorize call alglin::geqp3 return info = " << info ) ;
+        valueType tmp; // get optimal allocation
+        integer info = geqp3( NR, NC, nullptr, NR, nullptr, nullptr, &tmp, -1 );
+        ALGLIN_ASSERT( info == 0,
+                       "QRP::factorize call alglin::geqp3 return info = " << info );
         integer L = integer(tmp);
-        if ( L < NR ) L = NR ;
-        if ( L < NC ) L = NC ;
+        if ( L < NR ) L = NR;
+        if ( L < NC ) L = NC;
         QR<T>::allocate( NR, NC, L );
       }
-      allocIntegers.allocate(size_t(NC)) ;
-      JPVT = allocIntegers(size_t(NC)) ;
+      allocIntegers.allocate(size_t(NC));
+      JPVT = allocIntegers(size_t(NC));
     }
 
     virtual
     void
-    factorize() {
-      std::fill( JPVT, JPVT + this->nCol, 0 ) ;
+    factorize() ALGLIN_OVERRIDE {
+      std::fill( JPVT, JPVT + this->nCol, 0 );
       integer info = geqp3( this->nRow, this->nCol,
                             this->Amat, this->nRow,
                             JPVT,
                             this->Tau,
-                            this->Work, this->Lwork ) ;
-      ALGLIN_ASSERT( info == 0, "QRP::factorize call alglin::geqrf return info = " << info ) ;
+                            this->Work, this->Lwork );
+      ALGLIN_ASSERT( info == 0,
+                     "QRP::factorize call alglin::geqrf return info = " << info );
     }
 
     /*!
@@ -776,88 +899,48 @@ namespace alglin {
     \*/
     virtual
     void
-    factorize( integer NR, integer NC, valueType const A[], integer LDA ) {
+    factorize( integer         NR,
+               integer         NC,
+               valueType const A[],
+               integer         LDA ) ALGLIN_OVERRIDE {
       // calcolo fattorizzazione QR della matrice A
-      allocate( NC, NR ) ;
-      integer info = gecopy( NR, NC, A, LDA, this->Amat, this->nRow ) ;
-      ALGLIN_ASSERT( info == 0, "QR::factorize call alglin::gecopy return info = " << info ) ;
-      factorize() ;
+      allocate( NC, NR );
+      integer info = gecopy( NR, NC, A, LDA, this->Amat, this->nRow );
+      ALGLIN_ASSERT( info == 0,
+                     "QR::factorize call alglin::gecopy return info = " << info );
+      factorize();
     }
 
     /*!
-      Do QR factorization with column pivoting of the transpose of a rectangular matrix
-      \param NR  number of rows of the matrix
-      \param NC  number of columns of the matrix
-      \param A   pointer to the matrix
-      \param LDA Leading dimension of the matrix
-    \*/
-    virtual
-    void
-    t_factorize( integer NR, integer NC, valueType const A[], integer LDA ) {
-      // calcolo fattorizzazione QR della matrice A
-      allocate( NC, NR ) ;
-      for ( integer i = 0 ; i < NR ; ++i )
-        copy( NC, A+i, LDA, this->Amat + i*this->nRow, 1 ) ;
-      factorize() ;
-    }
-
-    /*!
-      In case of QR factorization of a square matrix solve the 
+      In case of QR factorization of a square matrix solve the
       linear system \f$ QR x = b \f$
       \param xb on input the rhs of linear system on output the solution
     \*/
     virtual
     void
-    solve( valueType xb[] ) const ;
+    solve( valueType xb[] ) const ALGLIN_OVERRIDE;
 
     /*!
-      In case of QR factorization of a square matrix solve the 
+      In case of QR factorization of a square matrix solve the
       linear system \f$ (QR)^T x = b \f$
       \param xb on input the rhs of linear system on output the solution
     \*/
     virtual
     void
-    t_solve( valueType xb[] ) const ;
+    t_solve( valueType xb[] ) const ALGLIN_OVERRIDE;
 
     virtual
     void
-    solve( integer nrhs, valueType B[], integer ldB ) const ;
+    solve( integer   nrhs,
+           valueType B[],
+           integer   ldB ) const ALGLIN_OVERRIDE;
 
     virtual
     void
-    t_solve( integer nrhs, valueType B[], integer ldB ) const ;
-
-    // -------------------------------------------------------------------------
-    void
-    permute( valueType x[] ) const ;
-
-    void
-    inv_permute( valueType x[] ) const ;
-    
-    void
-    permute_rows( integer nr, integer nc, valueType C[], integer ldC ) const {
-      ALGLIN_ASSERT( nr == this->nRow,
-                     "QRP::permute_rows, bad number of row, expected " << this->nRow <<
-                     " find " << nr ) ;
-      for ( integer j = 0 ; j < nc ; ++j ) permute( C + ldC*j ) ;
-    }
-    
-    void
-    inv_permute_rows( integer nr, integer nc, valueType C[], integer ldC ) const {
-      ALGLIN_ASSERT( nr == this->nRow,
-                     "QRP::permute_rows, bad number of row, expected " << this->nRow <<
-                     " find " << nr ) ;
-      for ( integer j = 0 ; j < nc ; ++j ) inv_permute( C + ldC*j ) ;
-    }
-    
-    integer
-    rankEstimate( valueType rcond ) const {
-      valueType SVAL[3] ;
-      return alglin::rankEstimate( this->nRow, this->nCol,
-                                   this->Amat, this->nRow,
-                                   rcond, SVAL ) ;
-    }
-  } ;
+    t_solve( integer   nrhs,
+             valueType B[],
+             integer   ldB ) const ALGLIN_OVERRIDE;
+  };
 
   //============================================================================
   /*\
@@ -870,28 +953,28 @@ namespace alglin {
   template <typename T>
   class SVD : public Factorization<T> {
   public:
-    typedef typename Factorization<T>::valueType valueType ;
+    typedef typename Factorization<T>::valueType valueType;
   
   protected:
 
-    Malloc<valueType> allocReals ;
-    Malloc<integer>   allocIntegers ;
+    Malloc<valueType> allocReals;
+    Malloc<integer>   allocIntegers;
 
-    valueType * Work ;
-    valueType * Umat ;
-    valueType * VTmat ;
-    valueType * Svec ;
-    integer   * IWork ;
+    valueType * Work;
+    valueType * Umat;
+    valueType * VTmat;
+    valueType * Svec;
+    integer   * IWork;
 
-    integer     minRC, Lwork ;
+    integer     minRC, Lwork;
     
-    typedef enum { USE_GESVD = 0, USE_GESDD = 1 } SVD_USED ;
-    SVD_USED    svd_used ;
+    typedef enum { USE_GESVD = 0, USE_GESDD = 1 } SVD_USED;
+    SVD_USED    svd_used;
 
   public:
   
-    using Factorization<T>::solve ;
-    using Factorization<T>::t_solve ;
+    using Factorization<T>::solve;
+    using Factorization<T>::t_solve;
 
     SVD( SVD_USED _svd_used = USE_GESVD )
     : Factorization<T>()
@@ -903,43 +986,11 @@ namespace alglin {
 
     virtual
     ~SVD() ALGLIN_OVERRIDE
-    { allocReals.free() ; }
+    { allocReals.free(); }
 
-    virtual
-    void
-    allocate( integer NR, integer NC ) ALGLIN_OVERRIDE ;
-
-    virtual
-    void
-    factorize() ALGLIN_OVERRIDE ;
-
-    /*!
-      Do SVD factorization of a rectangular matrix
-      \param NR  number of rows of the matrix
-      \param NC  number of columns of the matrix
-      \param A   pointer to the matrix
-      \param LDA Leading dimension of the matrix
-    \*/
-    virtual
-    void
-    factorize( integer NR, integer NC, valueType const A[], integer LDA ) ALGLIN_OVERRIDE {
-      allocate( NR, NC ) ;
-      integer info = gecopy( this->nRow, this->nCol, A, LDA, this->Amat, this->nRow ) ;
-      ALGLIN_ASSERT( info == 0, "SVD::factorize call alglin::gecopy return info = " << info ) ;
-      factorize() ;
-    }
-
-    valueType U( integer i, integer j ) const { return Umat[i+j*this->nRow] ; }
-    valueType V( integer i, integer j ) const { return VTmat[j+i*this->nCol] ; }
-    valueType sigma( integer i ) const { return Svec[i] ; }
-
-    virtual
-    void
-    solve( valueType xb[] ) const ALGLIN_OVERRIDE ;
-
-    virtual
-    void
-    t_solve( valueType xb[] ) const ALGLIN_OVERRIDE ;
+    valueType U( integer i, integer j ) const { return Umat[i+j*this->nRow]; }
+    valueType V( integer i, integer j ) const { return VTmat[j+i*this->nCol]; }
+    valueType sigma( integer i ) const { return Svec[i]; }
 
     //! y <- alpha * U * x + beta * y
     void
@@ -949,7 +1000,7 @@ namespace alglin {
             this->nRow, minRC,
             alpha, Umat, this->nRow,
             x, incx,
-            beta, y, incy ) ;
+            beta, y, incy );
     }
 
     //! y <- alpha * U' * x + beta * y
@@ -960,7 +1011,7 @@ namespace alglin {
             this->nRow, minRC,
             alpha, Umat, this->nRow,
             x, incx,
-            beta, y, incy ) ;
+            beta, y, incy );
     }
 
     //! y <- alpha * V * x + beta * y
@@ -971,7 +1022,7 @@ namespace alglin {
             minRC, this->nCol,
             alpha, VTmat, this->nRow,
             x, incx,
-            beta, y, incy ) ;
+            beta, y, incy );
     }
 
     //! y <- alpha * V' * x + beta * y
@@ -982,10 +1033,55 @@ namespace alglin {
             minRC, this->nCol,
             alpha, VTmat, this->nRow,
             x, incx,
-            beta, y, incy ) ;
+            beta, y, incy );
     }
 
-  } ;
+    /*\
+     |         _      _               _
+     |  __   _(_)_ __| |_ _   _  __ _| |___
+     |  \ \ / / | '__| __| | | |/ _` | / __|
+     |   \ V /| | |  | |_| |_| | (_| | \__ \
+     |    \_/ |_|_|   \__|\__,_|\__,_|_|___/
+    \*/
+
+    virtual
+    void
+    allocate( integer NR, integer NC ) ALGLIN_OVERRIDE;
+
+    virtual
+    void
+    factorize() ALGLIN_OVERRIDE;
+
+    /*!
+      Do SVD factorization of a rectangular matrix
+      \param NR  number of rows of the matrix
+      \param NC  number of columns of the matrix
+      \param A   pointer to the matrix
+      \param LDA Leading dimension of the matrix
+    \*/
+    virtual
+    void
+    factorize( integer         NR,
+               integer         NC,
+               valueType const A[],
+               integer         LDA ) ALGLIN_OVERRIDE {
+      allocate( NR, NC );
+      integer info = gecopy( this->nRow, this->nCol,
+                             A, LDA, this->Amat, this->nRow );
+      ALGLIN_ASSERT( info == 0,
+                     "SVD::factorize call alglin::gecopy return info = " << info );
+      factorize();
+    }
+
+    virtual
+    void
+    solve( valueType xb[] ) const ALGLIN_OVERRIDE;
+
+    virtual
+    void
+    t_solve( valueType xb[] ) const ALGLIN_OVERRIDE;
+
+  };
 
   //============================================================================
   /*\
@@ -1000,16 +1096,16 @@ namespace alglin {
   template <typename T>
   class TridiagonalSPD : public LinearSystemSolver<T> {
   public:
-    typedef T valueType ;
+    typedef T valueType;
   
   private:
   
-    Malloc<valueType> allocReals ;
+    Malloc<valueType> allocReals;
 
-    valueType * L ;
-    valueType * D ;
-    valueType * WORK ;
-    integer     nRC ;
+    valueType * L;
+    valueType * D;
+    valueType * WORK;
+    integer     nRC;
 
   public:
 
@@ -1020,20 +1116,52 @@ namespace alglin {
 
     virtual
     ~TridiagonalSPD() override {
-      allocReals.free() ;
+      allocReals.free();
     }
+
+    valueType cond1( valueType norm1 ) const;
 
     void
     factorize( integer         N,
                valueType const _L[],
-               valueType const _D[] ) ;
+               valueType const _D[] );
 
-    valueType cond1( valueType norm1 ) const ;
+    /*\
+     |         _      _               _
+     |  __   _(_)_ __| |_ _   _  __ _| |___
+     |  \ \ / / | '__| __| | | |/ _` | / __|
+     |   \ V /| | |  | |_| |_| | (_| | \__ \
+     |    \_/ |_|_|   \__|\__,_|\__,_|_|___/
+    \*/
 
-    virtual void solve( valueType xb[] ) const ALGLIN_OVERRIDE;
-    virtual void t_solve( valueType xb[] ) const ALGLIN_OVERRIDE;
-    virtual void solve( integer nrhs, valueType xb[], integer ldXB ) const ALGLIN_OVERRIDE;
-    virtual void t_solve( integer nrhs, valueType xb[], integer ldXB ) const ALGLIN_OVERRIDE;
+    virtual
+    void
+    solve( valueType xb[] ) const ALGLIN_OVERRIDE;
+
+    virtual
+    void
+    t_solve( valueType xb[] ) const ALGLIN_OVERRIDE;
+
+    virtual
+    void
+    solve( integer   nrhs,
+           valueType xb[],
+           integer   ldXB ) const ALGLIN_OVERRIDE;
+
+    virtual
+    void
+    t_solve( integer   nrhs,
+             valueType xb[],
+             integer   ldXB ) const ALGLIN_OVERRIDE;
+
+    /*\
+     |     _
+     |    / \  _   ___  __
+     |   / _ \| | | \ \/ /
+     |  / ___ \ |_| |>  <
+     | /_/   \_\__,_/_/\_\
+     |
+    \*/
 
     void
     axpy( integer         N,
@@ -1042,8 +1170,9 @@ namespace alglin {
           valueType const D[],
           valueType const x[],
           valueType       beta,
-          valueType       y[] ) const ;
-  } ;
+          valueType       y[] ) const;
+
+  };
 
   //============================================================================
   /*\
@@ -1058,22 +1187,22 @@ namespace alglin {
   template <typename T>
   class TridiagonalLU : public LinearSystemSolver<T> {
   public:
-    typedef T valueType ;
+    typedef T valueType;
   
   private:
 
-    Malloc<valueType> allocReals ;
-    Malloc<integer>   allocIntegers ;
+    Malloc<valueType> allocReals;
+    Malloc<integer>   allocIntegers;
 
-    valueType * L ;
-    valueType * D ;
-    valueType * U ;
-    valueType * U2 ;
-    valueType * WORK ;
-    integer   * IPIV ;
-    integer   * IWORK ;
+    valueType * L;
+    valueType * D;
+    valueType * U;
+    valueType * U2;
+    valueType * WORK;
+    integer   * IPIV;
+    integer   * IWORK;
 
-    integer     nRC ;
+    integer     nRC;
 
   public:
 
@@ -1084,24 +1213,56 @@ namespace alglin {
     {}
 
     virtual
-    ~TridiagonalLU() override {
-      allocReals.free() ;
-      allocIntegers.free() ;
+    ~TridiagonalLU() ALGLIN_OVERRIDE {
+      allocReals.free();
+      allocIntegers.free();
     }
+
+    valueType cond1( valueType norm1 ) const;
+    valueType condInf( valueType normInf ) const;
 
     void
     factorize( integer         N,
                valueType const _L[],
                valueType const _D[],
-               valueType const _U[] ) ;
+               valueType const _U[] );
 
-    valueType cond1( valueType norm1 ) const ;
-    valueType condInf( valueType normInf ) const ;
+    /*\
+     |         _      _               _
+     |  __   _(_)_ __| |_ _   _  __ _| |___
+     |  \ \ / / | '__| __| | | |/ _` | / __|
+     |   \ V /| | |  | |_| |_| | (_| | \__ \
+     |    \_/ |_|_|   \__|\__,_|\__,_|_|___/
+    \*/
 
-    virtual void solve( valueType xb[] ) const ALGLIN_OVERRIDE;
-    virtual void t_solve( valueType xb[] ) const ALGLIN_OVERRIDE;
-    virtual void solve( integer nrhs, valueType xb[], integer ldXB ) const ALGLIN_OVERRIDE;
-    virtual void t_solve( integer nrhs, valueType xb[], integer ldXB ) const ALGLIN_OVERRIDE;
+    virtual
+    void
+    solve( valueType xb[] ) const ALGLIN_OVERRIDE;
+
+    virtual
+    void
+    t_solve( valueType xb[] ) const ALGLIN_OVERRIDE;
+
+    virtual
+    void
+    solve( integer   nrhs,
+           valueType xb[],
+           integer   ldXB ) const ALGLIN_OVERRIDE;
+
+    virtual
+    void
+    t_solve( integer   nrhs,
+             valueType xb[],
+             integer   ldXB ) const ALGLIN_OVERRIDE;
+
+    /*\
+     |     _
+     |    / \  _   ___  __
+     |   / _ \| | | \ \/ /
+     |  / ___ \ |_| |>  <
+     | /_/   \_\__,_/_/\_\
+     |
+    \*/
 
     void
     axpy( integer         N,
@@ -1111,8 +1272,9 @@ namespace alglin {
           valueType const U[],
           valueType const x[],
           valueType       beta,
-          valueType       y[] ) const ;
-  } ;
+          valueType       y[] ) const;
+
+  };
 
   //============================================================================
   /*\
@@ -1126,23 +1288,23 @@ namespace alglin {
   template <typename T>
   class TridiagonalQR : public LinearSystemSolver<T> {
   public:
-    typedef T valueType ;
+    typedef T valueType;
   
   private:
 
-    Malloc<valueType> allocReals ;
+    Malloc<valueType> allocReals;
 
-    valueType * C   ; // rotazioni givens
-    valueType * S   ;
-    valueType * BD  ; // band triangular matrix
-    valueType * BU  ; // band triangular matrix
-    valueType * BU2 ; // band triangular matrix
+    valueType * C;   // rotazioni givens
+    valueType * S;
+    valueType * BD;  // band triangular matrix
+    valueType * BU;  // band triangular matrix
+    valueType * BU2; // band triangular matrix
 
-    valueType   normInfA ;
-    integer     nRC ;
+    valueType   normInfA;
+    integer     nRC;
 
-    void Rsolve( valueType xb[] ) const ;
-    void RsolveTransposed( valueType xb[] ) const ;
+    void Rsolve( valueType xb[] ) const;
+    void RsolveTransposed( valueType xb[] ) const;
 
   public:
 
@@ -1153,19 +1315,57 @@ namespace alglin {
 
     virtual
     ~TridiagonalQR() override {
-      allocReals.free() ;
+      allocReals.free();
     }
 
     void
     factorize( integer         N,
                valueType const L[],
                valueType const D[],
-               valueType const U[] ) ;
+               valueType const U[] );
 
-    virtual void solve( valueType xb[] ) const ALGLIN_OVERRIDE;
-    virtual void t_solve( valueType xb[] ) const ALGLIN_OVERRIDE;
-    virtual void solve( integer nrhs, valueType xb[], integer ldXB ) const ALGLIN_OVERRIDE;
-    virtual void t_solve( integer nrhs, valueType xb[], integer ldXB ) const ALGLIN_OVERRIDE;
+    void
+    lsq( integer nrhs,
+         T       RHS[],
+         integer ldRHS,
+         T       lambda ) const;
+
+    /*\
+     |         _      _               _
+     |  __   _(_)_ __| |_ _   _  __ _| |___
+     |  \ \ / / | '__| __| | | |/ _` | / __|
+     |   \ V /| | |  | |_| |_| | (_| | \__ \
+     |    \_/ |_|_|   \__|\__,_|\__,_|_|___/
+    \*/
+
+    virtual
+    void
+    solve( valueType xb[] ) const ALGLIN_OVERRIDE;
+
+    virtual
+    void
+    t_solve( valueType xb[] ) const ALGLIN_OVERRIDE;
+
+    virtual
+    void
+    solve( integer   nrhs,
+           valueType xb[],
+           integer   ldXB ) const ALGLIN_OVERRIDE;
+
+    virtual
+    void
+    t_solve( integer   nrhs,
+             valueType xb[],
+             integer   ldXB ) const ALGLIN_OVERRIDE;
+
+    /*\
+     |     _
+     |    / \  _   ___  __
+     |   / _ \| | | \ \/ /
+     |  / ___ \ |_| |>  <
+     | /_/   \_\__,_/_/\_\
+     |
+    \*/
 
     void
     axpy( integer         N,
@@ -1175,15 +1375,9 @@ namespace alglin {
           valueType const U[],
           valueType const x[],
           valueType       beta,
-          valueType       y[] ) const ;
+          valueType       y[] ) const;
 
-    void
-    lsq( integer nrhs,
-         T       RHS[],
-         integer ldRHS,
-         T       lambda ) const ;
-
-  } ;
+  };
 
   //============================================================================
   /*\
@@ -1197,21 +1391,21 @@ namespace alglin {
   template <typename T>
   class BandedLU : public LinearSystemSolver<T> {
   public:
-    typedef T valueType ;
+    typedef T valueType;
 
-    Malloc<valueType> allocReals ;
-    Malloc<integer>   allocIntegers ;
+    Malloc<valueType> allocReals;
+    Malloc<integer>   allocIntegers;
     
-    integer     m, n, nL, nU, ldAB ;
-    integer   * ipiv ;
-    valueType * AB ;
+    integer     m, n, nL, nU, ldAB;
+    integer   * ipiv;
+    valueType * AB;
 
-    bool is_factorized ;
+    bool is_factorized;
 
   public:
 
-    BandedLU() ;
-    virtual ~BandedLU() override ;
+    BandedLU();
+    virtual ~BandedLU() override;
 
     void
     setup( integer M,    // number of rows
@@ -1219,27 +1413,24 @@ namespace alglin {
            integer nL,   // number of lower diagonal
            integer nU ); // number of upper diagonal
 
-    virtual void solve( valueType xb[] ) const ALGLIN_OVERRIDE;
-    virtual void t_solve( valueType xb[] ) const ALGLIN_OVERRIDE;
-    virtual void solve( integer nrhs, valueType B[], integer ldB ) const ALGLIN_OVERRIDE;
-    virtual void t_solve( integer nrhs, valueType B[], integer ldB ) const ALGLIN_OVERRIDE;
-
     integer
     iaddr( integer i, integer j ) const {
-      integer d = (i-j+nL+nU) ;
-      return d+j*ldAB ;
+      integer d = (i-j+nL+nU);
+      return d+j*ldAB;
     }
 
     void
-    iaddr_check( integer i, integer j ) const ;
+    iaddr_check( integer i, integer j ) const;
 
     valueType const &
-    operator () ( integer i, integer j ) const { return AB[iaddr(i,j)] ; }
+    operator () ( integer i, integer j ) const
+    { return AB[iaddr(i,j)]; }
 
     valueType &
-    operator () ( integer i, integer j ) { return AB[iaddr(i,j)] ; }
+    operator () ( integer i, integer j )
+    { return AB[iaddr(i,j)]; }
 
-    void zero() ;
+    void zero();
 
     void
     load_block( integer         nr,
@@ -1247,21 +1438,58 @@ namespace alglin {
                 valueType const B[],
                 integer         ldB,
                 integer         irow,
-                integer         icol ) ;
+                integer         icol );
 
     // do internal factorization, to be executed (only once) before to call solve or t_solve
-    void factorize() ;
+    void factorize();
+
+    /*\
+     |         _      _               _
+     |  __   _(_)_ __| |_ _   _  __ _| |___
+     |  \ \ / / | '__| __| | | |/ _` | / __|
+     |   \ V /| | |  | |_| |_| | (_| | \__ \
+     |    \_/ |_|_|   \__|\__,_|\__,_|_|___/
+    \*/
+
+    virtual
+    void
+    solve( valueType xb[] ) const ALGLIN_OVERRIDE;
+
+    virtual
+    void
+    t_solve( valueType xb[] ) const ALGLIN_OVERRIDE;
+
+    virtual
+    void
+    solve( integer   nrhs,
+           valueType B[],
+           integer   ldB ) const ALGLIN_OVERRIDE;
+
+    virtual
+    void
+    t_solve( integer   nrhs,
+             valueType B[],
+             integer   ldB ) const ALGLIN_OVERRIDE;
+
+    /*\
+     |     _
+     |    / \  _   ___  __
+     |   / _ \| | | \ \/ /
+     |  / ___ \ |_| |>  <
+     | /_/   \_\__,_/_/\_\
+     |
+    \*/
 
     // y <- beta*y + alpha*A*x
     void
     aAxpy( valueType       alpha,
            valueType const x[],
-           valueType       y[] ) const ;
+           valueType       y[] ) const;
 
     void
-    dump( std::ostream & stream ) const ;
+    dump( std::ostream & stream ) const;
 
-  } ;
+  };
 
   //============================================================================
   /*\
@@ -1275,53 +1503,87 @@ namespace alglin {
   template <typename T>
   class BandedSPD : public LinearSystemSolver<T> {
   public:
-    typedef T valueType ;
+    typedef T valueType;
 
-    Malloc<valueType> allocReals ;
+    Malloc<valueType> allocReals;
 
-    integer     n, nD, ldAB ;
-    valueType * AB ;
-    ULselect    UPLO ;
-    bool is_factorized ;
+    integer     n, nD, ldAB;
+    valueType * AB;
+    ULselect    UPLO;
+    bool is_factorized;
 
   public:
 
-    BandedSPD() ;
-    virtual ~BandedSPD() override ;
+    BandedSPD();
+    virtual ~BandedSPD() override;
 
     void
     setup( ULselect UPLO,
            integer  N,    // numbe of rows and columns
            integer  nD ); // number of upper diagonal
 
-    virtual void solve( valueType xb[] ) const ALGLIN_OVERRIDE;
-    virtual void t_solve( valueType xb[] ) const ALGLIN_OVERRIDE;
-    virtual void solve( integer nrhs, valueType B[], integer ldB ) const ALGLIN_OVERRIDE;
-    virtual void t_solve( integer nrhs, valueType B[], integer ldB ) const ALGLIN_OVERRIDE;
-
     valueType const &
-    operator () ( integer i, integer j ) const { return AB[i+j*ldAB] ; }
+    operator () ( integer i, integer j ) const
+    { return AB[i+j*ldAB]; }
 
     valueType &
-    operator () ( integer i, integer j ) { return AB[i+j*ldAB] ; }
+    operator () ( integer i, integer j )
+    { return AB[i+j*ldAB]; }
 
-    void zero() ;
+    void zero();
 
     // do internal fatcorization, to be executed (only once) before to call solve or t_solve
-    void factorize() ;
+    void factorize();
+
+    /*\
+     |         _      _               _
+     |  __   _(_)_ __| |_ _   _  __ _| |___
+     |  \ \ / / | '__| __| | | |/ _` | / __|
+     |   \ V /| | |  | |_| |_| | (_| | \__ \
+     |    \_/ |_|_|   \__|\__,_|\__,_|_|___/
+    \*/
+
+    virtual
+    void
+    solve( valueType xb[] ) const ALGLIN_OVERRIDE;
+
+    virtual
+    void
+    t_solve( valueType xb[] ) const ALGLIN_OVERRIDE;
+
+    virtual
+    void
+    solve( integer   nrhs,
+           valueType B[],
+           integer   ldB ) const ALGLIN_OVERRIDE;
+
+    virtual
+    void
+    t_solve( integer   nrhs,
+             valueType B[],
+             integer   ldB ) const ALGLIN_OVERRIDE;
+
+    /*\
+     |     _
+     |    / \  _   ___  __
+     |   / _ \| | | \ \/ /
+     |  / ___ \ |_| |>  <
+     | /_/   \_\__,_/_/\_\
+     |
+    \*/
 
     /* not yet available
     // y <- beta*y + alpha*A*x
     void
     aAxpy( valueType       alpha,
            valueType const x[],
-           valueType       y[] ) const ;
+           valueType       y[] ) const;
 
     void
-    dump( ostream & stream ) const ;
+    dump( ostream & stream ) const;
     */
 
-  } ;
+  };
 
   // explicit instantiation declaration to suppress warnings
 
@@ -1336,32 +1598,32 @@ namespace alglin {
   #pragma clang diagnostic ignored "-Wc++98-compat-pedantic"
   #endif
 
-  extern template class LU<real> ;
-  extern template class LU<doublereal> ;
+  extern template class LU<real>;
+  extern template class LU<doublereal>;
 
-  extern template class QR<real> ;
-  extern template class QR<doublereal> ;
+  extern template class QR<real>;
+  extern template class QR<doublereal>;
 
-  extern template class QRP<real> ;
-  extern template class QRP<doublereal> ;
+  extern template class QRP<real>;
+  extern template class QRP<doublereal>;
 
-  extern template class SVD<real> ;
-  extern template class SVD<doublereal> ;
+  extern template class SVD<real>;
+  extern template class SVD<doublereal>;
 
-  extern template class TridiagonalSPD<real> ;
-  extern template class TridiagonalSPD<doublereal> ;
+  extern template class TridiagonalSPD<real>;
+  extern template class TridiagonalSPD<doublereal>;
 
-  extern template class TridiagonalLU<real> ;
-  extern template class TridiagonalLU<doublereal> ;
+  extern template class TridiagonalLU<real>;
+  extern template class TridiagonalLU<doublereal>;
 
-  extern template class TridiagonalQR<real> ;
-  extern template class TridiagonalQR<doublereal> ;
+  extern template class TridiagonalQR<real>;
+  extern template class TridiagonalQR<doublereal>;
 
-  extern template class BandedLU<real> ;
-  extern template class BandedLU<doublereal> ;
+  extern template class BandedLU<real>;
+  extern template class BandedLU<doublereal>;
 
-  extern template class BandedSPD<real> ;
-  extern template class BandedSPD<doublereal> ;
+  extern template class BandedSPD<real>;
+  extern template class BandedSPD<doublereal>;
 
   #endif
 

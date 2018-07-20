@@ -1,6 +1,6 @@
 /*--------------------------------------------------------------------------*\
  |                                                                          |
- |  Copyright (C) 2017                                                       |
+ |  Copyright (C) 2017                                                      |
  |                                                                          |
  |         , __                 , __                                        |
  |        /|/  \               /|/  \                                       |
@@ -83,7 +83,7 @@ namespace alglin {
    *
   \*/
 
-  /*\0
+  /*\
    |
    |  Matrix structure
    |
@@ -118,44 +118,44 @@ namespace alglin {
   \*/
 
   template <typename t_Value>
-  class BorderedCR { // : public BlockBidiagonal<t_Value> {
+  class BorderedCR : public LinearSystemSolver<t_Value> {
   public:
-    typedef t_Value         valueType ;
-    typedef t_Value*        valuePointer ;
-    typedef t_Value const * valueConstPointer ;
+    typedef t_Value         valueType;
+    typedef t_Value*        valuePointer;
+    typedef t_Value const * valueConstPointer;
 
   private:
-    BorderedCR(BorderedCR const &) ;
-    BorderedCR const & operator = (BorderedCR const &) ;
+    BorderedCR(BorderedCR const &);
+    BorderedCR const & operator = (BorderedCR const &);
 
   protected:
 
-    Malloc<valueType> baseValue ;
-    Malloc<integer>   baseInteger ;
+    Malloc<valueType> baseValue;
+    Malloc<integer>   baseInteger;
 
-    integer nblock ; //!< total number of blocks
-    integer n      ; //!< size of square blocks
-    integer qr, qx ; //!< extra BC
-    integer nr, nx ; //!< border size
+    integer nblock; //!< total number of blocks
+    integer n;      //!< size of square blocks
+    integer qr, qx; //!< extra BC
+    integer nr, nx; //!< border size
 
     // some derived constants
-    integer n_x_2 ;
-    integer n_x_n ;
-    integer n_x_nx ;
-    integer nr_x_n ;
-    integer nr_x_nx ;
-    integer Nr, Nc ;
-    integer Tsize ;
+    integer n_x_2;
+    integer n_x_n;
+    integer n_x_nx;
+    integer nr_x_n;
+    integer nr_x_nx;
+    integer Nr, Nc;
+    integer Tsize;
 
-    BORDERED_LAST_Choice last_selected ;
-    BORDERED_Choice      selected ;
+    BORDERED_LAST_Choice last_selected;
+    BORDERED_Choice      selected;
 
     void
     buildT( integer           nth,
             valueConstPointer TOP,
             valueConstPointer BOTTOM,
             valuePointer      T,
-            integer *         iperm ) const ;
+            integer *         iperm ) const;
 
     void
     applyT( integer           nth,
@@ -165,24 +165,24 @@ namespace alglin {
             integer           ldTOP,
             valuePointer      BOTTOM,
             integer           ldBOTTOM,
-            integer           ncol ) const ;
+            integer           ncol ) const;
 
     void
     applyT( integer           nth,
             valueConstPointer T,
             integer const *   iperm,
             valuePointer      TOP,
-            valuePointer      BOTTOM ) const ;
+            valuePointer      BOTTOM ) const;
 
     // convert permutation to exchanges
     void
     permutation_to_exchange( integer nn, integer P[], integer S[] ) const {
-      for ( integer i = 0 ; i < nn ; ++i ) {
-        integer j = i ;
-        while ( j < nn ) { if ( P[j] == i+1 ) break ; ++j ; }
-        //ALGLIN_ASSERT( j < nn, "permutation_to_exchange error!" ) ;
-        std::swap( P[j], P[i] ) ;
-        S[i] = j ;
+      for ( integer i = 0; i < nn; ++i ) {
+        integer j = i;
+        while ( j < nn ) { if ( P[j] == i+1 ) break; ++j; }
+        //ALGLIN_ASSERT( j < nn, "permutation_to_exchange error!" );
+        std::swap( P[j], P[i] );
+        S[i] = j;
       }
     }
 
@@ -194,10 +194,10 @@ namespace alglin {
     */
 
     void
-    factorize_block( integer nth ) ;
+    factorize_block( integer nth );
 
     void
-    factorize_reduced() ;
+    factorize_reduced();
 
     /*
     //    __                            _
@@ -207,21 +207,21 @@ namespace alglin {
     */
 
     void
-    forward( integer nth, valuePointer x, valuePointer xb ) const ;
+    forward( integer nth, valuePointer x, valuePointer xb ) const;
 
     void
     forward_n( integer      nth,
                integer      nrhs,
                valuePointer rhs,
-               integer      ldRhs ) const ;
+               integer      ldRhs ) const;
 
     void
-    forward_reduced( valuePointer x, valuePointer xb ) const ;
+    forward_reduced( valuePointer x, valuePointer xb ) const;
 
     void
     forward_n_reduced( integer      nrhs,
                        valuePointer rhs,
-                       integer      ldRhs ) const ;
+                       integer      ldRhs ) const;
 
     /*
     //   _             _                       _
@@ -231,24 +231,24 @@ namespace alglin {
     */
 
     void
-    backward( integer nth, valuePointer x ) const ;
+    backward( integer nth, valuePointer x ) const;
 
     void
-    backward_reduced( valuePointer x ) const ;
+    backward_reduced( valuePointer x ) const;
 
     void
     backward_n( integer      nth,
                 integer      nrhs,
                 valuePointer rhs,
-                integer      ldRhs ) const ;
+                integer      ldRhs ) const;
 
     void
     backward_n_reduced( integer      nrhs,
                         valuePointer rhs,
-                        integer      ldRhs ) const ;
+                        integer      ldRhs ) const;
 
     void
-    load_and_factorize_last() ;
+    load_and_factorize_last();
 
     /*
     //   _         _
@@ -258,33 +258,33 @@ namespace alglin {
     */
 
     void
-    solve_last( valuePointer ) const ;
+    solve_last( valuePointer ) const;
 
     void
     solve_last( integer      nrhs,
                 valuePointer rhs,
-                integer      ldRhs ) const ;
+                integer      ldRhs ) const;
 
-    valuePointer H0Nqp ;
-    valuePointer Bmat, Cmat, Cqmat, Dmat, Emat, Fmat, WorkT, WorkQR ;
+    valuePointer H0Nqp;
+    valuePointer Bmat, Cmat, Cqmat, Dmat, Emat, Fmat, WorkT, WorkQR;
 
     // working block
-    valuePointer Tmat, Ttau, Work ;
-    integer      *Perm, Lwork, LworkT, LworkQR ;
+    valuePointer Tmat, Ttau, Work;
+    integer      *Perm, Lwork, LworkT, LworkQR;
 
     // last block
-    valuePointer Hmat, Htau ;
-    integer      *Hperm, *Hswaps ;
+    valuePointer Hmat, Htau;
+    integer      *Hperm, *Hswaps;
 
-    integer      *iBlock, *kBlock ;
+    integer      *iBlock, *kBlock;
 
     // used also with a unique thread
-    integer maxThread, usedThread ;
-    mutable integer      *perm_thread ;
-    mutable valuePointer xb_thread ;
+    integer maxThread, usedThread;
+    mutable integer      *perm_thread;
+    mutable valuePointer xb_thread;
     #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
-    mutable std::thread threads[BORDERED_CYCLIC_REDUCTION_MAX_THREAD] ;
-    mutable SpinLock spin ;
+    mutable std::thread threads[BORDERED_CYCLIC_REDUCTION_MAX_THREAD];
+    mutable SpinLock spin;
     #endif
 
   public:
@@ -335,12 +335,13 @@ namespace alglin {
       #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
       ALGLIN_ASSERT( nth > 0 && nth <= BORDERED_CYCLIC_REDUCTION_MAX_THREAD,
                      "Bad number of thread specification [" << nth << "]\n"
-                     "must be a number > 0 and <= " << BORDERED_CYCLIC_REDUCTION_MAX_THREAD ) ;
-      maxThread = nth ;
+                     "must be a number > 0 and <= " << BORDERED_CYCLIC_REDUCTION_MAX_THREAD );
+      maxThread = nth;
       #endif
     }
 
-    virtual ~BorderedCR()
+    virtual
+    ~BorderedCR() ALGLIN_OVERRIDE
     {}
 
     //! load matrix in the class
@@ -350,176 +351,201 @@ namespace alglin {
               integer _qr,
               integer _qx,
               integer _nr,
-              integer _nx ) ;
+              integer _nx );
 
     void
-    dup( BorderedCR const & ) ;
+    dup( BorderedCR const & );
 
-    void select_LU()  { selected = BORDERED_LU ; }
-    void select_QR()  { selected = BORDERED_QR ; }
-    void select_QRP() { selected = BORDERED_QRP ; }
+    /*!
+     | \name Select Linar Algebra solver
+     | @{
+    \*/
 
-    void select_last_LU()  { last_selected = BORDERED_LAST_LU  ; }
-    void select_last_LUP() { last_selected = BORDERED_LAST_LUP ; }
-    void select_last_QR()  { last_selected = BORDERED_LAST_QR  ; }
-    void select_last_QRP() { last_selected = BORDERED_LAST_QRP ; }
+    void select_LU()  { selected = BORDERED_LU; }
+    void select_QR()  { selected = BORDERED_QR; }
+    void select_QRP() { selected = BORDERED_QRP; }
+
+    void select_last_LU()  { last_selected = BORDERED_LAST_LU;  }
+    void select_last_LUP() { last_selected = BORDERED_LAST_LUP; }
+    void select_last_QR()  { last_selected = BORDERED_LAST_QR;  }
+    void select_last_QRP() { last_selected = BORDERED_LAST_QRP; }
 
     static
     std::string
     choice_to_string( BORDERED_Choice c ) {
-      std::string res = "none" ;
+      std::string res = "none";
       switch ( c ) {
-      case BORDERED_LU:  res = "CyclicReduction+LU"  ; break ;
-      case BORDERED_QR:  res = "CyclicReduction+QR"  ; break ;
-      case BORDERED_QRP: res = "CyclicReduction+QRP" ; break ;
+      case BORDERED_LU:  res = "CyclicReduction+LU";  break;
+      case BORDERED_QR:  res = "CyclicReduction+QR";  break;
+      case BORDERED_QRP: res = "CyclicReduction+QRP"; break;
       }
-      return res ;
+      return res;
     }
 
     static
     std::string
     choice_to_string( BORDERED_LAST_Choice c ) {
-      std::string res = "LastBlock not selected" ;
+      std::string res = "LastBlock not selected";
       switch ( c ) {
-      case BORDERED_LAST_LU:  res = "LastBlock LU"  ; break ;
-      case BORDERED_LAST_LUP: res = "LastBlock LUP" ; break ;
-      case BORDERED_LAST_QR:  res = "LastBlock QR"  ; break ;
-      case BORDERED_LAST_QRP: res = "LastBlock QRP" ; break ;
+      case BORDERED_LAST_LU:  res = "LastBlock LU";  break;
+      case BORDERED_LAST_LUP: res = "LastBlock LUP"; break;
+      case BORDERED_LAST_QR:  res = "LastBlock QR";  break;
+      case BORDERED_LAST_QRP: res = "LastBlock QRP"; break;
       }
-      return res ;
+      return res;
     }
 
     std::string
     info_algo() const {
       std::string a = choice_to_string(selected);
       std::string b = choice_to_string(last_selected);
-      return a+" and "+b ;
+      return a+" and "+b;
     }
 
-    integer numRows() const { return n * (nblock+1) + qx + nx ; }
-    integer numCols() const { return n * (nblock+1) + qr + nr ; }
+    void info( std::ostream & stream ) const;
 
-    void info( std::ostream & stream ) const ;
+    /*!
+     | @}
+    \*/
 
-    // filling bidiagonal part of the matrix
-    // -------------------------------------------------------------------------
-    void zeroB()  { zero( nblock*n_x_nx, Cmat, 1 ) ; }
-    void zeroD()  { zero( nblock*n_x_n,  Dmat, 1 ) ; }
-    void zeroE()  { zero( nblock*n_x_n,  Emat, 1 ) ; }
-    void zeroF()  { zero( nr_x_nx, Fmat, 1 ) ; }
-    void zeroH()  { zero( (n+qr)*Nc, H0Nqp, 1 ) ; }
-    void zeroC()  { zero( (nblock+1)*nr_x_n, Cmat, 1 ) ; }
-    void zeroCq() { zero( nr*qx, Cqmat, 1 ) ; }
+    //! \brief Number of rows of the linear system
+    integer
+    numRows() const
+    { return n * (nblock+1) + qx + nx; }
+
+    //! \brief Number of columns of the linear system
+    integer
+    numCols() const
+    { return n * (nblock+1) + qr + nr; }
+
+    /*!
+     | \name Filling all or part of the linear system with zero
+     | @{
+    \*/
+
+    void zeroB()  { zero( nblock*n_x_nx, Cmat, 1 ); }
+    void zeroD()  { zero( nblock*n_x_n,  Dmat, 1 ); }
+    void zeroE()  { zero( nblock*n_x_n,  Emat, 1 ); }
+    void zeroF()  { zero( nr_x_nx, Fmat, 1 ); }
+    void zeroH()  { zero( (n+qr)*Nc, H0Nqp, 1 ); }
+    void zeroC()  { zero( (nblock+1)*nr_x_n, Cmat, 1 ); }
+    void zeroCq() { zero( nr*qx, Cqmat, 1 ); }
 
     void
     fillZero()
     { zeroB(); zeroC(); zeroCq(); zeroD(); zeroE(); zeroF(); zeroH(); }
 
+    /*!
+     | @}
+     |
+     | \name Access to single block
+     |
+     | Matrix structure
+     |
+     | \verbatim
+     |
+     |                 n * (nblock+1)
+     |    ___________________^____________________
+     |   /                                        \
+     |    n   n   n                              n  qx  nx
+     |  +---+---+---+----.................-----+---+---+---+   -+
+     |  | D | E |   |                          |   |   | B | n  |
+     |  +---+---+---+                     -----+---+---+---+    |
+     |  |   | D | E |                          |   |   | B | n  |
+     |  +---+---+---+---+                 -----+---+---+---+    |
+     |  |   |   | D | E |                      |   |   | B | n  |
+     |  +---+---+---+---+                 -----+---+---+---+    |
+     |  :                                                  :    |
+     |  :                                                  :    |
+     |  :                                                  :     > n * nblock
+     |  :                                                  :    |
+     |  :                                                  :    |
+     |  :                              +---+---+---+---+---+    |
+     |  :                              | D | E |   |   | B | n  |
+     |  :                              +---+---+---+---+---+    |
+     |  :                                  | D | E |   | B | n  |
+     |  +---+---+---................---+---+---+---+---+---+   -+
+     |  |   |   |                          |   |   |   |   |    |
+     |  |H0 | 0 |                          | 0 |HN | Hq| Hp|    | n+qr
+     |  |   |   |                          |   |   |   |   |    |
+     |  +---+---+---................---+---+---+---+---+---+   -+
+     |  | C | C |                      | C | C | C | Cq| F |    | nr
+     |  +---+---+---................---+---+---+---+---+---+   -+
+     |                                             nr*qx
+     | \endverbatim
+     |
+     | @{
+    \*/
+
+    // Border Right blocks
     void
-    loadD( integer nbl, valueConstPointer D, integer ldD )
-    { gecopy( n, n, D, ldD, Dmat + nbl*n_x_n, n ) ; }
-
-    t_Value & D( integer nbl, integer i, integer j )
-    { return Dmat[ nbl*n_x_n + i + j*n] ; }
-
-    t_Value const & D( integer nbl, integer i, integer j ) const
-    { return Dmat[ nbl*n_x_n + i + j*n] ; }
+    loadB( integer nbl, valueConstPointer B, integer ldB )
+    { gecopy( n, nx, B, ldB, Bmat + nbl*n_x_nx, n ); }
 
     void
-    loadE( integer nbl, valueConstPointer E, integer ldE )
-    { gecopy( n, n, E, ldE, Emat + nbl*n_x_n, n ) ; }
-
-    t_Value & E( integer nbl, integer i, integer j )
-    { return Emat[ nbl*n_x_n + i + j*n] ; }
-
-    t_Value const & E( integer nbl, integer i, integer j ) const
-    { return Emat[ nbl*n_x_n + i + j*n] ; }
-
-    void
-    loadDE( integer nbl, valueConstPointer DE, integer ldDE ) {
-      gecopy( n, n, DE, ldDE, Dmat + nbl*n_x_n, n ) ; DE += n*ldDE ;
-      gecopy( n, n, DE, ldDE, Emat + nbl*n_x_n, n ) ;
+    addtoB( integer nbl, valueConstPointer B, integer ldB ) {
+      ALGLIN_ASSERT( ldB >= n,
+                     "addtoB( " << nbl << ", B, ldB = " << ldB << " bad ldB" );
+      valuePointer BB = Bmat + nbl*n_x_nx;
+      geadd( n, nx, 1.0, B, ldB, 1.0, BB, n, BB, n );
     }
 
-    // -------------------------------------------------------------------------
     // Border Bottom blocks
     void
     loadC( integer nbl, valueConstPointer C, integer ldC )
-    { gecopy( nr, n, C, ldC, Cmat + nbl*nr_x_n, nr ) ; }
+    { gecopy( nr, n, C, ldC, Cmat + nbl*nr_x_n, nr ); }
 
     void
     addtoC( integer nbl, valueConstPointer C, integer ldC ) {
-      ALGLIN_ASSERT( ldC >= nr, "addtoC2( " << nbl << ", C, ldC = " << ldC << " bad ldC" ) ;
-      valuePointer CC = Cmat + nbl*nr_x_n ;
-      geadd( nr, n, 1.0, C, ldC, 1.0, CC, nr, CC, nr ) ;
+      ALGLIN_ASSERT( ldC >= nr, "addtoC( " << nbl << ", C, ldC = " << ldC << " bad ldC" );
+      valuePointer CC = Cmat + nbl*nr_x_n;
+      geadd( nr, n, 1.0, C, ldC, 1.0, CC, nr, CC, nr );
     }
 
     // add to block nbl and nbl+1
     void
     addtoC2( integer nbl, valueConstPointer C, integer ldC ) {
-      ALGLIN_ASSERT( ldC >= nr, "addtoC2( " << nbl << ", C, ldC = " << ldC << " bad ldC" ) ;
-      valuePointer CC = Cmat + nbl*nr_x_n ;
-      geadd( nr, n_x_2, 1.0, C, ldC, 1.0, CC, nr, CC, nr ) ;
+      ALGLIN_ASSERT( ldC >= nr, "addtoC2( " << nbl << ", C, ldC = " << ldC << " bad ldC" );
+      valuePointer CC = Cmat + nbl*nr_x_n;
+      geadd( nr, n_x_2, 1.0, C, ldC, 1.0, CC, nr, CC, nr );
     }
-
-    t_Value & C( integer nbl, integer i, integer j )
-    { return Cmat[ nbl*nr_x_n + i + j*nr ] ; }
-
-    t_Value const & C( integer nbl, integer i, integer j ) const
-    { return Cmat[ nbl*nr_x_n + i + j*nr ] ; }
 
     // -------------------------------------------------------------------------
-    // Border Right blocks
     void
-    loadB( integer nbl, valueConstPointer B, integer ldB )
-    { gecopy( n, nx, B, ldB, Bmat + nbl*n_x_nx, n ) ; }
+    loadD( integer nbl, valueConstPointer D, integer ldD )
+    { gecopy( n, n, D, ldD, Dmat + nbl*n_x_n, n ); }
 
     void
-    addtoB( integer nbl, valueConstPointer B, integer ldB ) {
-      ALGLIN_ASSERT( ldB >= n, "addtoB( " << nbl << ", B, ldB = " << ldB << " bad ldB" ) ;
-      valuePointer BB = Bmat + nbl*n_x_nx ;
-      geadd( n, nx, 1.0, B, ldB, 1.0, BB, n, BB, n ) ;
+    loadE( integer nbl, valueConstPointer E, integer ldE )
+    { gecopy( n, n, E, ldE, Emat + nbl*n_x_n, n ); }
+
+    void
+    loadDE( integer nbl, valueConstPointer DE, integer ldDE ) {
+      gecopy( n, n, DE, ldDE, Dmat + nbl*n_x_n, n ); DE += n*ldDE;
+      gecopy( n, n, DE, ldDE, Emat + nbl*n_x_n, n );
     }
-
-    t_Value & B( integer nbl, integer i, integer j )
-    { return Bmat[ nbl*n_x_nx + i + j*n ] ; }
-
-    t_Value const & B( integer nbl, integer i, integer j ) const
-    { return Bmat[ nbl*n_x_nx + i + j*n ] ; }
 
     void
     loadDEB( integer nbl, valueConstPointer DEB, integer ldDEB ) {
-      gecopy( n, n,  DEB, ldDEB, Dmat + nbl*n_x_n,  n  ) ; DEB += n*ldDEB ;
-      gecopy( n, n,  DEB, ldDEB, Emat + nbl*n_x_n,  n  ) ; DEB += n*ldDEB ;
-      gecopy( n, nx, DEB, ldDEB, Bmat + nbl*n_x_nx, nx ) ;
+      gecopy( n, n,  DEB, ldDEB, Dmat + nbl*n_x_n,  n  ); DEB += n*ldDEB;
+      gecopy( n, n,  DEB, ldDEB, Emat + nbl*n_x_n,  n  ); DEB += n*ldDEB;
+      gecopy( n, nx, DEB, ldDEB, Bmat + nbl*n_x_nx, nx );
     }
 
     // -------------------------------------------------------------------------
     void
     loadF( valueConstPointer F, integer ldF )
-    { gecopy( nr, nx, F, ldF, Fmat, nr ) ; }
-
-    t_Value & F( integer i, integer j )
-    { return Fmat[ i + j*nr ] ; }
-
-    t_Value const & F( integer i, integer j ) const
-    { return Fmat[ i + j*nr ] ; }
+    { gecopy( nr, nx, F, ldF, Fmat, nr ); }
 
     // -------------------------------------------------------------------------
     void
     loadCq( valueConstPointer Cq, integer ldC )
-    { gecopy( nr, qx, Cq, ldC, Cqmat, nr ) ; }
-
-    t_Value & Cq( integer i, integer j )
-    { return Cqmat[ i + j*nr ] ; }
-
-    t_Value const & Cq( integer i, integer j ) const
-    { return Cqmat[ i + j*nr ] ; }
+    { gecopy( nr, qx, Cq, ldC, Cqmat, nr ); }
 
     void
     loadCqF( valueConstPointer CqF, integer ldCF ) {
-      gecopy( nr, qx, CqF, ldCF, Cqmat, nr ) ; CqF += qx*ldCF ;
-      gecopy( nr, nx, CqF, ldCF, Fmat,  nr ) ;
+      gecopy( nr, qx, CqF, ldCF, Cqmat, nr ); CqF += qx*ldCF;
+      gecopy( nr, nx, CqF, ldCF, Fmat,  nr );
     }
 
     // -------------------------------------------------------------------------
@@ -528,43 +554,163 @@ namespace alglin {
     loadBottom( valueConstPointer H0, integer ld0,
                 valueConstPointer HN, integer ldN,
                 valueConstPointer Hq, integer ldQ,
-                valueConstPointer Hp, integer ldP ) ;
+                valueConstPointer Hp, integer ldP );
 
     void
     loadBottom( valueConstPointer _H0Nqp, integer ldH ) {
-      integer nq = n+qr ;
-      gecopy( nq, Nc, _H0Nqp, ldH, H0Nqp, nq ) ;
+      integer nq = n+qr;
+      gecopy( nq, Nc, _H0Nqp, ldH, H0Nqp, nq );
     }
 
-    t_Value & H( integer i, integer j )
-    { return H0Nqp[ i + j*(n+qr) ] ; }
+    /*!
+     | @}
+    \*/
 
-    t_Value const & H( integer i, integer j ) const
-    { return H0Nqp[ i + j*(n+qr) ] ; }
+    /*!
+     |
+     | \name Access to blocks by element
+     |
+     | @{
+    \*/
+
+    t_Value &
+    B( integer nbl, integer i, integer j )
+    { return Bmat[ nbl*n_x_nx + i + j*n ]; }
+
+    t_Value const &
+    B( integer nbl, integer i, integer j ) const
+    { return Bmat[ nbl*n_x_nx + i + j*n ]; }
+
+    t_Value &
+    C( integer nbl, integer i, integer j )
+    { return Cmat[ nbl*nr_x_n + i + j*nr ]; }
+
+    t_Value const &
+    C( integer nbl, integer i, integer j ) const
+    { return Cmat[ nbl*nr_x_n + i + j*nr ]; }
+
+    t_Value &
+    D( integer nbl, integer i, integer j )
+    { return Dmat[ nbl*n_x_n + i + j*n]; }
+
+    t_Value const &
+    D( integer nbl, integer i, integer j ) const
+    { return Dmat[ nbl*n_x_n + i + j*n]; }
+
+    t_Value &
+    E( integer nbl, integer i, integer j )
+    { return Emat[ nbl*n_x_n + i + j*n]; }
+
+    t_Value const &
+    E( integer nbl, integer i, integer j ) const
+    { return Emat[ nbl*n_x_n + i + j*n]; }
+
+    t_Value &
+    F( integer i, integer j )
+    { return Fmat[ i + j*nr ]; }
+
+    t_Value const &
+    F( integer i, integer j ) const
+    { return Fmat[ i + j*nr ]; }
+
+    t_Value &
+    Cq( integer i, integer j )
+    { return Cqmat[ i + j*nr ]; }
+
+    t_Value const &
+    Cq( integer i, integer j ) const
+    { return Cqmat[ i + j*nr ]; }
+
+    t_Value &
+    H( integer i, integer j )
+    { return H0Nqp[ i + j*(n+qr) ]; }
+
+    t_Value const &
+    H( integer i, integer j ) const
+    { return H0Nqp[ i + j*(n+qr) ]; }
+
+    /*!
+     | @}
+    \*/
 
     void
-    factorize() ;
+    factorize();
 
+    /*\
+     |         _      _               _
+     |  __   _(_)_ __| |_ _   _  __ _| |___
+     |  \ \ / / | '__| __| | | |/ _` | / __|
+     |   \ V /| | |  | |_| |_| | (_| | \__ \
+     |    \_/ |_|_|   \__|\__,_|\__,_|_|___/
+    \*/
+
+    virtual
     void
-    solve( valuePointer x ) const ;
+    solve( valuePointer x ) const ALGLIN_OVERRIDE;
 
+    virtual
     void
-    solve( integer nrhs, valuePointer rhs, integer ldRhs ) const ;
+    solve( integer nrhs, valuePointer rhs, integer ldRhs ) const ALGLIN_OVERRIDE;
 
-    // aux function
+    virtual
+    void
+    t_solve( valuePointer ) const ALGLIN_OVERRIDE {
+      ALGLIN_ERROR( "BorderedCR::t_solve() not defined" );
+    }
+
+    virtual
+    void
+    t_solve( integer, valuePointer, integer ) const ALGLIN_OVERRIDE {
+      ALGLIN_ERROR( "BorderedCR::t_solve() not defined" );
+    }
+
+    /*\
+     |     _
+     |    / \  _   ___  __
+     |   / _ \| | | \ \/ /
+     |  / ___ \ |_| |>  <
+     | /_/   \_\__,_/_/\_\
+     |
+    \*/
     void
     Mv( valueConstPointer x, valuePointer res ) const {
-      zero( numRows(), res, 1 ) ;
-      addMv( x, res ) ;
+      zero( numRows(), res, 1 );
+      addMv( x, res );
     }
 
     void
-    addMv( valueConstPointer x, valuePointer res ) const ;
+    addMv( valueConstPointer x, valuePointer res ) const;
+
+    /*\
+     |  ____
+     | / ___| _ __   __ _ _ __ ___  ___
+     | \___ \| '_ \ / _` | '__/ __|/ _ \
+     |  ___) | |_) | (_| | |  \__ \  __/
+     | |____/| .__/ \__,_|_|  |___/\___|
+     |       |_|
+     |
+    \*/
+
+    integer
+    sparseNnz() const {
+      integer nnz = nblock*(2*n_x_n+n_x_nx+nr_x_n) +
+                    nr_x_n + nr*(qx+nx) + (n+qr)*(2*n+qx+nx);
+      return nnz ;
+    }
 
     void
-    dump_ccoord( std::ostream & stream ) const ;
+    sparsePattern( integer I[], integer J[], integer offs ) const;
 
-  } ;
+    void
+    sparseValues( valuePointer V ) const;
+
+    void
+    sparseLoad( valueConstPointer M_values,
+                integer const     M_row[], integer r_offs,
+                integer const     M_col[], integer c_offs,
+                integer           M_nnz );
+
+  };
 
   // explicit instantiation declaration to suppress warnings
 
@@ -581,8 +727,8 @@ namespace alglin {
   #pragma clang diagnostic ignored "-Wweak-template-vtables"
   #endif
 
-  extern template class BorderedCR<float> ;
-  extern template class BorderedCR<double> ;
+  extern template class BorderedCR<float>;
+  extern template class BorderedCR<double>;
 
   #ifdef __GCC__
   #pragma GCC diagnostic pop

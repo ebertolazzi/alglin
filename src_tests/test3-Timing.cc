@@ -61,12 +61,12 @@
 
 #ifndef ALGLIN_USE_CXX11
 
-using namespace std ;
+using namespace std;
 
 int
 main() {
-  cout << "To test timing you must compile with a C++11 capable compiler\nAll done!\n" ;
-  return 0 ;
+  cout << "To test timing you must compile with a C++11 capable compiler\nAll done!\n";
+  return 0;
 }
 
 #else
@@ -87,21 +87,21 @@ main() {
   #include "Eigen/Dense"
 #endif
 
-using namespace std ;
-typedef double valueType ;
+using namespace std;
+typedef double valueType;
 
-static unsigned seed1 = 2 ;
+static unsigned seed1 = 2;
 static std::mt19937 generator(seed1);
 
 static
 valueType
 rand( valueType xmin, valueType xmax ) {
   valueType random = valueType(generator())/generator.max();
-  return xmin + (xmax-xmin)*random ;
+  return xmin + (xmax-xmin)*random;
 }
 
-using namespace alglin ;
-typedef Eigen::Matrix<valueType,Eigen::Dynamic,Eigen::Dynamic> dmat_t ;
+using namespace alglin;
+typedef Eigen::Matrix<valueType,Eigen::Dynamic,Eigen::Dynamic> dmat_t;
 
 #define N_TIMES 1000000
 
@@ -109,112 +109,112 @@ template <int N>
 void
 testN() {
 
-  typedef Eigen::Matrix<valueType,N,N> matN_t ;
+  typedef Eigen::Matrix<valueType,N,N> matN_t;
 
-  cout << "\nSize N = " << N << "\n" ;
+  cout << "\nSize N = " << N << "\n";
 
-  Malloc<valueType>       baseValue("real") ;
-  Malloc<alglin::integer> baseIndex("integer") ;
+  Malloc<valueType>       baseValue("real");
+  Malloc<alglin::integer> baseIndex("integer");
 
-  baseValue.allocate(N*N*10) ;
-  baseIndex.allocate(N*10) ;
+  baseValue.allocate(N*N*10);
+  baseIndex.allocate(N*10);
 
-  valueType * M1 = baseValue(N*N) ;
-  valueType * M2 = baseValue(N*N) ;
-  valueType * M3 = baseValue(N*N) ;
+  valueType * M1 = baseValue(N*N);
+  valueType * M2 = baseValue(N*N);
+  valueType * M3 = baseValue(N*N);
   
-  matN_t m1, m2, m3 ;
-  dmat_t dm1, dm2, dm3 ;
+  matN_t m1, m2, m3;
+  dmat_t dm1, dm2, dm3;
   
-  dm1.resize(N,N) ;
-  dm2.resize(N,N) ;
-  dm3.resize(N,N) ;
+  dm1.resize(N,N);
+  dm2.resize(N,N);
+  dm3.resize(N,N);
   
-  for ( int i = 0 ; i < N ; ++i ) {
-    for ( int j = 0 ; j < N ; ++j ) {
-      m1(i,j) = dm1(i,j) = M1[i+j*N] = rand(-1,1) ;
-      m2(i,j) = dm2(i,j) = M2[i+j*N] = rand(-1,1) ;
-      m3(i,j) = dm3(i,j) = M3[i+j*N] = rand(-1,1) ;
+  for ( int i = 0; i < N; ++i ) {
+    for ( int j = 0; j < N; ++j ) {
+      m1(i,j) = dm1(i,j) = M1[i+j*N] = rand(-1,1);
+      m2(i,j) = dm2(i,j) = M2[i+j*N] = rand(-1,1);
+      m3(i,j) = dm3(i,j) = M3[i+j*N] = rand(-1,1);
     }
   }
 
-  TicToc tm ;
-  tm.reset() ;
+  TicToc tm;
+  tm.reset();
 
   // ===========================================================================
 
-  tm.tic() ;
-  for ( int i = 0 ; i < N_TIMES ; ++i ) {
+  tm.tic();
+  for ( int i = 0; i < N_TIMES; ++i ) {
     gemm( NO_TRANSPOSE, NO_TRANSPOSE,
           N, N, N,
           -1.0, M1, N,
           M2, N,
-          1.0, M3, N ) ;
-    copy( N*N, M3, 1, M2, 1) ;
+          1.0, M3, N );
+    copy( N*N, M3, 1, M2, 1);
   }
-  tm.toc() ;
-  cout << "MULT = " << tm.elapsedMilliseconds() << " [ms] (lapack)\n" ;
+  tm.toc();
+  cout << "MULT = " << tm.elapsedMilliseconds() << " [ms] (lapack)\n";
 
   // ===========================================================================
 
-  tm.tic() ;
-  for ( int i = 0 ; i < N_TIMES ; ++i ) {
-    dm3.noalias() -= dm1*dm2 ;
-    dm2 = dm3 ;
+  tm.tic();
+  for ( int i = 0; i < N_TIMES; ++i ) {
+    dm3.noalias() -= dm1*dm2;
+    dm2 = dm3;
   }
-  tm.toc() ;
-  cout << "MULT = " << tm.elapsedMilliseconds() << " [ms] (eigen dynamic)\n" ;
+  tm.toc();
+  cout << "MULT = " << tm.elapsedMilliseconds() << " [ms] (eigen dynamic)\n";
 
   // ===========================================================================
 
-  tm.tic() ;
-  for ( int i = 0 ; i < N_TIMES ; ++i ) {
-    Eigen::Map<dmat_t> mm1(M1,N,N) ;
-    Eigen::Map<dmat_t> mm2(M2,N,N) ;
-    Eigen::Map<dmat_t> mm3(M3,N,N) ;
-    mm3.noalias() -= mm1*mm2 ;
-    mm2 = mm3 ;
+  tm.tic();
+  for ( int i = 0; i < N_TIMES; ++i ) {
+    Eigen::Map<dmat_t> mm1(M1,N,N);
+    Eigen::Map<dmat_t> mm2(M2,N,N);
+    Eigen::Map<dmat_t> mm3(M3,N,N);
+    mm3.noalias() -= mm1*mm2;
+    mm2 = mm3;
   }
-  tm.toc() ;
-  cout << "MULT = " << tm.elapsedMilliseconds() << " [ms] (eigen map dynamic)\n" ;
+  tm.toc();
+  cout << "MULT = " << tm.elapsedMilliseconds() << " [ms] (eigen map dynamic)\n";
 
   // ===========================================================================
 
-  tm.tic() ;
-  for ( int i = 0 ; i < N_TIMES ; ++i ) {
-    m3.noalias() -= m1*m2 ;
-    m2 = m3 ;
+  tm.tic();
+  for ( int i = 0; i < N_TIMES; ++i ) {
+    m3.noalias() -= m1*m2;
+    m2 = m3;
   }
-  tm.toc() ;
-  cout << "MULT = " << tm.elapsedMilliseconds() << " [ms] (eigen fixed)\n" ;
+  tm.toc();
+  cout << "MULT = " << tm.elapsedMilliseconds() << " [ms] (eigen fixed)\n";
 
   // ===========================================================================
 
-  tm.tic() ;
-  for ( int i = 0 ; i < N_TIMES ; ++i ) {
-    Eigen::Map<matN_t> mm1(M1) ;
-    Eigen::Map<matN_t> mm2(M2) ;
-    Eigen::Map<matN_t> mm3(M3) ;
-    mm3.noalias() -= mm1*mm2 ;
-    mm2 = mm3 ;
+  tm.tic();
+  for ( int i = 0; i < N_TIMES; ++i ) {
+    Eigen::Map<matN_t> mm1(M1);
+    Eigen::Map<matN_t> mm2(M2);
+    Eigen::Map<matN_t> mm3(M3);
+    mm3.noalias() -= mm1*mm2;
+    mm2 = mm3;
   }
-  tm.toc() ;
-  cout << "MULT = " << tm.elapsedMilliseconds() << " [ms] (eigen fixed map)\n" ;
+  tm.toc();
+  cout << "MULT = " << tm.elapsedMilliseconds() << " [ms] (eigen fixed map)\n";
 
   // ===========================================================================
 
-  tm.tic() ;
-  for ( int i = 0 ; i < N_TIMES ; ++i ) {
-    MM<valueType,N,N,N,N,N,N>::subTo(M1,M2,M3) ;
-    memcpy( M2, M3, N*N*sizeof(valueType) ) ;
+  tm.tic();
+  for ( int i = 0; i < N_TIMES; ++i ) {
+    MM<valueType,N,N,N,N,N,N>::subTo(M1,M2,M3);
+    memcpy( M2, M3, N*N*sizeof(valueType) );
     //Vec2<valueType,N*N,1,1>::copy(M3,M2);
   }
-  tm.toc() ;
-  cout << "MULT = " << tm.elapsedMilliseconds() << " [ms] (hand unrolled)\n" ;
+  tm.toc();
+  cout << "MULT = " << tm.elapsedMilliseconds() << " [ms] (hand unrolled)\n";
 
   // ===========================================================================
 
-  cout << "All done!\n" ;
+  cout << "All done!\n";
 }
 
 
@@ -222,17 +222,17 @@ testN() {
 int
 main() {
 
-  testN<2>() ;
-  testN<3>() ;
-  testN<4>() ;
-  testN<5>() ;
-  testN<6>() ;
-  testN<7>() ;
-  testN<8>() ;
+  testN<2>();
+  testN<3>();
+  testN<4>();
+  testN<5>();
+  testN<6>();
+  testN<7>();
+  testN<8>();
 
-  cout << "\n\nAll done!\n" ;
+  cout << "\n\nAll done!\n";
 
-  return 0 ;
+  return 0;
 }
 
 #endif

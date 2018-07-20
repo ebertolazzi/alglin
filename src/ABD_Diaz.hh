@@ -87,20 +87,20 @@ namespace alglin {
   class DiazLU : public BlockBidiagonal<t_Value> {
   public:
 
-    typedef t_Value         valueType ;
-    typedef t_Value*        valuePointer ;
-    typedef t_Value const * valueConstPointer ;
+    typedef t_Value         valueType;
+    typedef t_Value*        valuePointer;
+    typedef t_Value const * valueConstPointer;
 
   private:
 
-    DiazLU( DiazLU const & ) ;
-    DiazLU const & operator = ( DiazLU const & ) ;
+    DiazLU( DiazLU const & );
+    DiazLU const & operator = ( DiazLU const & );
 
-    integer NB ;
+    integer NB;
 
-    mutable integer nblk ;
+    mutable integer nblk;
 
-    integer * swapRC_blks ;
+    integer * swapRC_blks;
 
     void
     LU_left_right( integer nrA,
@@ -108,7 +108,7 @@ namespace alglin {
                    integer ncL,
                    integer ncR,
                    t_Value * A, integer ldA,
-                   integer swapR[] ) ;
+                   integer swapR[] );
 
     void
     LU_top_bottom( integer nrT,
@@ -117,20 +117,20 @@ namespace alglin {
                    t_Value * A, integer ldA,
                    integer nrB,
                    t_Value * B, integer ldB,
-                   integer swapC[] ) ;
+                   integer swapC[] );
 
     //! solve linear sistem using internal factorized matrix
     void
-    solve_internal( bool do_permute, valuePointer in_out ) const ;
+    solve_internal( bool do_permute, valuePointer in_out ) const;
 
     //! solve linear sistem using internal factorized matrix
     void
-    solve_internal( bool do_permute, integer nrhs, valuePointer in_out, integer ldRhs ) const ;
+    solve_internal( bool do_permute, integer nrhs, valuePointer in_out, integer ldRhs ) const;
 
   public:
 
-    using BlockBidiagonal<valueType>::factorize ;
-    using BlockBidiagonal<valueType>::dump_ccoord ;
+    using BlockBidiagonal<valueType>::factorize;
+    using BlockBidiagonal<valueType>::dump_ccoord;
 
     explicit ALGLIN_CONSTEXPR DiazLU() : NB(25) {}
     // ~DiazLU() override {}
@@ -148,7 +148,7 @@ namespace alglin {
               integer /* numInitialOMEGA */,
               integer /* numFinalOMEGA   */,
               integer /* numCyclicOMEGA  */ ) ALGLIN_OVERRIDE
-    { ALGLIN_ERROR("DiazLU::allocate() not defined!") ; }
+    { ALGLIN_ERROR("DiazLU::allocate() not defined!"); }
 
     virtual
     void
@@ -159,41 +159,41 @@ namespace alglin {
                        integer _rowN,
                        integer _colN,
                        integer _nb ) ALGLIN_OVERRIDE {
-      integer inv = _nblock*_n+(_col0+_colN-2*_n) ;
+      integer inv = _nblock*_n+(_col0+_colN-2*_n);
       BlockBidiagonal<t_Value>::allocateTopBottom( _nblock, _n,
                                                    _row0, _col0,
                                                    _rowN, _colN,
-                                                   _nb, 0, inv) ;
-      swapRC_blks = this->baseInteger(size_t(inv)) ;
+                                                   _nb, 0, inv);
+      swapRC_blks = this->baseInteger(size_t(inv));
     }
 
     virtual
     void
-    factorize() ALGLIN_OVERRIDE ;
+    factorize() ALGLIN_OVERRIDE;
 
     //! solve linear sistem using internal factorized matrix
     virtual
     void
     solve( valuePointer in_out ) const ALGLIN_OVERRIDE
-    { solve_internal( true, in_out ) ; }
+    { solve_internal( true, in_out ); }
 
     //! solve linear sistem using internal factorized matrix
     virtual
     void
     solve( integer nrhs, valuePointer in_out, integer ldRhs ) const ALGLIN_OVERRIDE
-    { solve_internal( true, nrhs, in_out, ldRhs ) ; }
+    { solve_internal( true, nrhs, in_out, ldRhs ); }
 
     //! solve linear sistem using internal factorized matrix
     void
     solve_ABD( valuePointer in_out ) const
-    { solve_internal( false, in_out ) ; }
+    { solve_internal( false, in_out ); }
 
     //! solve linear sistem using internal factorized matrix
     void
     solve_ABD( integer nrhs, valuePointer in_out, integer ldRhs ) const
-    { solve_internal( false, nrhs, in_out, ldRhs ) ; }
+    { solve_internal( false, nrhs, in_out, ldRhs ); }
 
-  } ;
+  };
 
   // explicit instantiation declaration to suppress warnings
 
@@ -210,8 +210,8 @@ namespace alglin {
   #pragma clang diagnostic ignored "-Wweak-template-vtables"
   #endif
 
-  extern template class DiazLU<float> ;
-  extern template class DiazLU<double> ;
+  extern template class DiazLU<float>;
+  extern template class DiazLU<double>;
 
   #ifdef __GCC__
   #pragma GCC diagnostic pop

@@ -112,7 +112,7 @@ namespace alglin {
                     real    const   Y[],
                     integer const * INCY,
                     real            A[],
-                    integer const * LDA ) ;
+                    integer const * LDA );
     void
     BLASFUNC(dger)( integer    const * M,
                     integer    const * N,
@@ -122,7 +122,7 @@ namespace alglin {
                     doublereal const   Y[],
                     integer    const * INCY,
                     doublereal         A[],
-                    integer    const * LDA ) ;
+                    integer    const * LDA );
   }
   #endif
 
@@ -138,14 +138,14 @@ namespace alglin {
        real       A[],
        integer    LDA )
   #if defined(ALGLIN_USE_MKL)
-  { sger( &M, &N, &ALPHA, X, &INCX, Y, &INCY, A, &LDA ) ; }
+  { sger( &M, &N, &ALPHA, X, &INCX, Y, &INCY, A, &LDA ); }
   #elif defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS)
   { BLASFUNC(sger)( &M, &N, &ALPHA,
                     const_cast<real*>(X), &INCX,
                     const_cast<real*>(Y), &INCY,
-                    A, &LDA ) ; }
+                    A, &LDA ); }
   #elif defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
-  { CBLASNAME(sger)( CblasColMajor, M, N, ALPHA, X, INCX, Y, INCY, A, LDA ) ; }
+  { CBLASNAME(sger)( CblasColMajor, M, N, ALPHA, X, INCX, Y, INCY, A, LDA ); }
   #else
   #error "Alglin undefined mapping!"
   #endif
@@ -162,14 +162,14 @@ namespace alglin {
        doublereal       A[],
        integer          LDA )
   #if defined(ALGLIN_USE_MKL)
-  { dger( &M, &N, &ALPHA, X, &INCX, Y, &INCY, A, &LDA ) ; }
+  { dger( &M, &N, &ALPHA, X, &INCX, Y, &INCY, A, &LDA ); }
   #elif defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS)
   { BLASFUNC(dger)( &M, &N, &ALPHA,
                     const_cast<doublereal*>(X), &INCX,
                     const_cast<doublereal*>(Y), &INCY,
-                    A, &LDA ) ; }
+                    A, &LDA ); }
   #elif defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
-  { CBLASNAME(dger)( CblasColMajor, M, N, ALPHA, X, INCX, Y, INCY, A, LDA ) ; }
+  { CBLASNAME(dger)( CblasColMajor, M, N, ALPHA, X, INCX, Y, INCY, A, LDA ); }
   #else
   #error "Alglin undefined mapping!"
   #endif
@@ -277,7 +277,7 @@ namespace alglin {
                      integer   const * INCX,
                      real      const * BETA,
                      real              Y[],
-                     integer   const * INCY ) ;
+                     integer   const * INCY );
     void
     BLASFUNC(dgemv)( character  const   TRANS[],
                      integer    const * M,
@@ -289,7 +289,7 @@ namespace alglin {
                      integer    const * INCX,
                      doublereal const * BETA,
                      doublereal         Y[],
-                     integer    const * INCY ) ;
+                     integer    const * INCY );
     }
   #endif
 
@@ -308,16 +308,16 @@ namespace alglin {
         integer               INCY )
   #if defined(ALGLIN_USE_MKL)
   { sgemv( trans_blas[TRANS],
-           &M, &N, &ALPHA, A, &LDA, X, &INCX, &BETA, Y, &INCY ) ; }
+           &M, &N, &ALPHA, A, &LDA, X, &INCX, &BETA, Y, &INCY ); }
   #elif defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS)
   { BLASFUNC(sgemv)( const_cast<character*>(trans_blas[TRANS]),
                      &M, &N, &ALPHA,
                      const_cast<real*>(A), &LDA,
                      const_cast<real*>(X), &INCX,
-                     &BETA, Y, &INCY ) ; }
+                     &BETA, Y, &INCY ); }
   #elif defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
   { CBLASNAME(sgemv)( CblasColMajor, trans_cblas[TRANS],
-                      M, N, ALPHA, A, LDA, X, INCX, BETA, Y, INCY ) ; }
+                      M, N, ALPHA, A, LDA, X, INCX, BETA, Y, INCY ); }
   #else
   #error "Alglin undefined mapping!"
   #endif
@@ -337,16 +337,16 @@ namespace alglin {
         integer               INCY )
   #if defined(ALGLIN_USE_MKL)
   { dgemv( trans_blas[TRANS],
-           &M, &N, &ALPHA, A, &LDA, X, &INCX, &BETA, Y, &INCY ) ; }
+           &M, &N, &ALPHA, A, &LDA, X, &INCX, &BETA, Y, &INCY ); }
   #elif defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS)
   { BLASFUNC(dgemv)( const_cast<character*>(trans_blas[TRANS]),
                      &M, &N, &ALPHA,
                      const_cast<doublereal*>(A), &LDA,
                      const_cast<doublereal*>(X), &INCX,
-                     &BETA, Y, &INCY ) ; }
+                     &BETA, Y, &INCY ); }
   #elif defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
   { CBLASNAME(dgemv)( CblasColMajor, trans_cblas[TRANS],
-                      M, N, ALPHA, A, LDA, X, INCX, BETA, Y, INCY ) ; }
+                      M, N, ALPHA, A, LDA, X, INCX, BETA, Y, INCY ); }
   #else
   #error "Alglin undefined mapping!"
   #endif
@@ -483,7 +483,7 @@ namespace alglin {
                      integer   const * LDB,
                      real      const * BETA,
                      real              C[],
-                     integer   const * LDC ) ;
+                     integer   const * LDC );
     void
     BLASFUNC(dgemm)( character  const   TRANSA[],
                      character  const   TRANSB[],
@@ -497,7 +497,7 @@ namespace alglin {
                      integer    const * LDB,
                      doublereal const * BETA,
                      doublereal         C[],
-                     integer    const * LDC ) ;
+                     integer    const * LDC );
     }
   #endif
 
@@ -519,14 +519,14 @@ namespace alglin {
   #if defined(ALGLIN_USE_MKL)
   { sgemm( trans_blas[TRANSA], trans_blas[TRANSB],
            &M, &N, &K, &ALPHA, A, &LDA, B, &LDB,
-           &BETA, C, &LDC ) ; }
+           &BETA, C, &LDC ); }
   #elif defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS)
   { BLASFUNC(sgemm)( const_cast<character*>(trans_blas[TRANSA]),
                      const_cast<character*>(trans_blas[TRANSB]),
                      &M, &N, &K,
                      &ALPHA, const_cast<real*>(A), &LDA,
                      const_cast<real*>(B), &LDB,
-                     &BETA, C, &LDC ) ; }
+                     &BETA, C, &LDC ); }
   #elif defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
   { CBLASNAME(sgemm)( CblasColMajor,
                       trans_cblas[TRANSA],
@@ -534,7 +534,7 @@ namespace alglin {
                       M, N, K,
                       ALPHA, A, LDA,
                       B, LDB,
-                      BETA, C, LDC ) ; }
+                      BETA, C, LDC ); }
   #else
   #error "Alglin undefined mapping!"
   #endif
@@ -557,14 +557,14 @@ namespace alglin {
   #if defined(ALGLIN_USE_MKL)
   { dgemm( trans_blas[TRANSA], trans_blas[TRANSB],
            &M, &N, &K, &ALPHA, A, &LDA, B, &LDB,
-           &BETA, C, &LDC ) ; }
+           &BETA, C, &LDC ); }
   #elif defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS)
   { BLASFUNC(dgemm)( const_cast<character*>(trans_blas[TRANSA]),
                      const_cast<character*>(trans_blas[TRANSB]),
                      &M, &N, &K,
                      &ALPHA, const_cast<doublereal*>(A), &LDA,
                      const_cast<doublereal*>(B), &LDB,
-                     &BETA, C, &LDC ) ; }
+                     &BETA, C, &LDC ); }
   #elif defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
   { CBLASNAME(dgemm)( CblasColMajor,
                       trans_cblas[TRANSA],
@@ -572,7 +572,7 @@ namespace alglin {
                       M, N, K,
                       ALPHA, A, LDA,
                       B, LDB,
-                      BETA, C, LDC ) ; }
+                      BETA, C, LDC ); }
   #else
   #error "Alglin undefined mapping!"
   #endif
@@ -638,14 +638,14 @@ namespace alglin {
                       real            A[],
                       integer const * LDA,
                       integer         IPIV[],
-                      integer       * INFO ) ;
+                      integer       * INFO );
     void
     BLASFUNC(dgetrf)( integer const * N,
                       integer const * M,
                       doublereal      A[],
                       integer const * LDA,
                       integer         IPIV[],
-                      integer       * INFO ) ;
+                      integer       * INFO );
   }
   #endif
 
@@ -658,15 +658,15 @@ namespace alglin {
          integer IPIV[] )
   { integer INFO = 0;
     #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_ATLAS) || defined(ALGLIN_USE_OPENBLAS)
-    BLASFUNC(sgetrf)( &N, &M, A, &LDA, IPIV, &INFO ) ;
+    BLASFUNC(sgetrf)( &N, &M, A, &LDA, IPIV, &INFO );
     #elif defined(ALGLIN_USE_MKL)
-    sgetrf( &N, &M, A, &LDA, IPIV, &INFO ) ;
+    sgetrf( &N, &M, A, &LDA, IPIV, &INFO );
     #elif defined(ALGLIN_USE_ACCELERATE)
-    CLAPACKNAME(sgetrf)( &N, &M, A, &LDA, IPIV, &INFO ) ;
+    CLAPACKNAME(sgetrf)( &N, &M, A, &LDA, IPIV, &INFO );
     #else
     #error "Alglin undefined mapping!"
     #endif
-    return INFO ;
+    return INFO;
   }
 
   inline
@@ -686,7 +686,7 @@ namespace alglin {
     #else
     #error "Alglin undefined mapping!"
     #endif
-    return INFO ;
+    return INFO;
   }
 
   /*
@@ -756,7 +756,7 @@ namespace alglin {
                       integer   const   IPIV[],
                       real              B[],
                       integer   const * LDB,
-                      integer         * INFO ) ;
+                      integer         * INFO );
     void
     BLASFUNC(dgetrs)( character  const   TRANS[],
                       integer    const * N,
@@ -766,7 +766,7 @@ namespace alglin {
                       integer    const   IPIV[],
                       doublereal         B[],
                       integer    const * LDB,
-                      integer          * INFO ) ;
+                      integer          * INFO );
   }
   #endif
 
@@ -786,19 +786,19 @@ namespace alglin {
                       &N, &NRHS,
                       const_cast<real*>(A), &LDA,
                       const_cast<integer*>(IPIV),
-                      B, &LDB, &INFO ) ;
+                      B, &LDB, &INFO );
     #elif defined(ALGLIN_USE_MKL)
-    sgetrs( trans_blas[TRANS], &N, &NRHS, A, &LDA, IPIV, B, &LDB, &INFO ) ;
+    sgetrs( trans_blas[TRANS], &N, &NRHS, A, &LDA, IPIV, B, &LDB, &INFO );
     #elif defined(ALGLIN_USE_ACCELERATE)
     CLAPACKNAME(sgetrs)( const_cast<character*>(trans_blas[TRANS]),
                          &N, &NRHS,
                          const_cast<real*>(A), &LDA,
                          const_cast<integer*>(IPIV),
-                         B, &LDB, &INFO ) ;
+                         B, &LDB, &INFO );
     #else
     #error "Alglin undefined mapping!"
     #endif
-    return INFO ;
+    return INFO;
   }
 
   inline
@@ -817,19 +817,19 @@ namespace alglin {
                       &N, &NRHS,
                       const_cast<doublereal*>(A), &LDA,
                       const_cast<integer*>(IPIV),
-                      B, &LDB, &INFO ) ;
+                      B, &LDB, &INFO );
     #elif defined(ALGLIN_USE_MKL)
-    dgetrs( trans_blas[TRANS], &N, &NRHS, A, &LDA, IPIV, B, &LDB, &INFO ) ;
+    dgetrs( trans_blas[TRANS], &N, &NRHS, A, &LDA, IPIV, B, &LDB, &INFO );
     #elif defined(ALGLIN_USE_ACCELERATE)
     CLAPACKNAME(dgetrs)( const_cast<character*>(trans_blas[TRANS]),
                          &N, &NRHS,
                          const_cast<doublereal*>(A), &LDA,
                          const_cast<integer*>(IPIV),
-                         B, &LDB, &INFO ) ;
+                         B, &LDB, &INFO );
     #else
     #error "Alglin undefined mapping!"
     #endif
-    return INFO ;
+    return INFO;
   }
 
   /*
@@ -903,7 +903,7 @@ namespace alglin {
                      integer         IPIV[],
                      real            B[],
                      integer const * LDB,
-                     integer       * INFO ) ;
+                     integer       * INFO );
     void
     BLASFUNC(dgesv)( integer const * N,
                      integer const * NRHS,
@@ -912,7 +912,7 @@ namespace alglin {
                      integer         IPIV[],
                      doublereal      B[],
                      integer const * LDB,
-                     integer       * INFO ) ;
+                     integer       * INFO );
   }
   #endif
 
@@ -927,15 +927,15 @@ namespace alglin {
         integer LDB )
   { integer INFO = 0;
     #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
-    BLASFUNC(sgesv)( &N, &NRHS, A, &LDA, IPIV, B, &LDB, &INFO ) ;
+    BLASFUNC(sgesv)( &N, &NRHS, A, &LDA, IPIV, B, &LDB, &INFO );
     #elif defined(ALGLIN_USE_MKL)
-    sgesv( &N, &NRHS, A, &LDA, IPIV, B, &LDB, &INFO ) ;
+    sgesv( &N, &NRHS, A, &LDA, IPIV, B, &LDB, &INFO );
     #elif defined(ALGLIN_USE_ACCELERATE)
-    CLAPACKNAME(sgesv)( &N, &NRHS, A, &LDA, IPIV, B, &LDB, &INFO ) ;
+    CLAPACKNAME(sgesv)( &N, &NRHS, A, &LDA, IPIV, B, &LDB, &INFO );
     #else
     #error "Alglin undefined mapping!"
     #endif
-    return INFO ;
+    return INFO;
   }
 
   inline
@@ -949,15 +949,15 @@ namespace alglin {
         integer    LDB )
   { integer INFO = 0;
     #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
-    BLASFUNC(dgesv)( &N, &NRHS, A, &LDA, IPIV, B, &LDB, &INFO ) ;
+    BLASFUNC(dgesv)( &N, &NRHS, A, &LDA, IPIV, B, &LDB, &INFO );
     #elif defined(ALGLIN_USE_MKL)
-    dgesv( &N, &NRHS, A, &LDA, IPIV, B, &LDB, &INFO ) ;
+    dgesv( &N, &NRHS, A, &LDA, IPIV, B, &LDB, &INFO );
     #elif defined(ALGLIN_USE_ACCELERATE)
-    CLAPACKNAME(dgesv)( &N, &NRHS, A, &LDA, IPIV, B, &LDB, &INFO ) ;
+    CLAPACKNAME(dgesv)( &N, &NRHS, A, &LDA, IPIV, B, &LDB, &INFO );
     #else
     #error "Alglin undefined mapping!"
     #endif
-    return INFO ;
+    return INFO;
   }
 
   /*
@@ -1027,7 +1027,7 @@ namespace alglin {
                             integer const * LDA,
                             integer       * IPIV,
                             integer       * JPIV,
-                            integer       * INFO ) ;
+                            integer       * INFO );
 
     void
     LAPACK_F77NAME(dgetc2)( integer    const * N,
@@ -1035,7 +1035,7 @@ namespace alglin {
                             integer    const * LDA,
                             integer          * IPIV,
                             integer          * JPIV,
-                            integer          * INFO ) ;
+                            integer          * INFO );
   }
   #endif
 
@@ -1046,7 +1046,7 @@ namespace alglin {
               T       A[],
               integer LDA,
               integer IPIV[],
-              integer JPIV[] ) ;
+              integer JPIV[] );
   #endif
 
   inline
@@ -1058,15 +1058,15 @@ namespace alglin {
          integer   JPIV[] )
   { integer INFO = 0;
     #if defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
-    INFO = getc2_tmpl<real>(N,A,LDA,IPIV,JPIV) ;
+    INFO = getc2_tmpl<real>(N,A,LDA,IPIV,JPIV);
     #elif defined(ALGLIN_USE_MKL)
-    sgetc2( &N, A, &LDA, IPIV, JPIV, &INFO ) ;
+    sgetc2( &N, A, &LDA, IPIV, JPIV, &INFO );
     #elif defined(ALGLIN_USE_ACCELERATE)
-    CLAPACKNAME(sgetc2)( &N, A, &LDA, IPIV, JPIV, &INFO ) ;
+    CLAPACKNAME(sgetc2)( &N, A, &LDA, IPIV, JPIV, &INFO );
     #else
-    LAPACK_F77NAME(sgetc2)( &N, A, &LDA, IPIV, JPIV, &INFO ) ;
+    LAPACK_F77NAME(sgetc2)( &N, A, &LDA, IPIV, JPIV, &INFO );
     #endif
-    return INFO ;
+    return INFO;
   }
 
   inline
@@ -1078,15 +1078,15 @@ namespace alglin {
          integer    JPIV[] )
   { integer INFO = 0;
     #if defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
-    INFO = getc2_tmpl<doublereal>(N,A,LDA,IPIV,JPIV) ;
+    INFO = getc2_tmpl<doublereal>(N,A,LDA,IPIV,JPIV);
     #elif defined(ALGLIN_USE_MKL)
-    dgetc2( &N, A, &LDA, IPIV, JPIV, &INFO ) ;
+    dgetc2( &N, A, &LDA, IPIV, JPIV, &INFO );
     #elif defined(ALGLIN_USE_ACCELERATE)
-    CLAPACKNAME(dgetc2)( &N, A, &LDA, IPIV, JPIV, &INFO ) ;
+    CLAPACKNAME(dgetc2)( &N, A, &LDA, IPIV, JPIV, &INFO );
     #else
-    LAPACK_F77NAME(dgetc2)( &N, A, &LDA, IPIV, JPIV, &INFO ) ;
+    LAPACK_F77NAME(dgetc2)( &N, A, &LDA, IPIV, JPIV, &INFO );
     #endif
-    return INFO ;
+    return INFO;
   }
 
   /*
@@ -1156,7 +1156,7 @@ namespace alglin {
                             real          * RHS,
                             integer const * IPIV,
                             integer const * JPIV,
-                            real          * SCALE ) ;
+                            real          * SCALE );
 
     void
     LAPACK_F77NAME(dgesc2)( integer const * N,
@@ -1165,7 +1165,7 @@ namespace alglin {
                             doublereal    * RHS,
                             integer const * IPIV,
                             integer const * JPIV,
-                            doublereal    * SCALE ) ;
+                            doublereal    * SCALE );
   }
   #endif
 
@@ -1177,7 +1177,7 @@ namespace alglin {
               integer       LDA,
               T             RHS[],
               integer const IPIV[],
-              integer const JPIV[] ) ;
+              integer const JPIV[] );
   #endif
 
   inline
@@ -1190,21 +1190,21 @@ namespace alglin {
          integer const JPIV[] )
   { real SCALE = 0;
     #if defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
-    SCALE = gesc2_tmpl<real>( N, A, LDA, RHS, IPIV, JPIV ) ;
+    SCALE = gesc2_tmpl<real>( N, A, LDA, RHS, IPIV, JPIV );
     #elif defined(ALGLIN_USE_MKL)
-    sgesc2( &N, A, &LDA, RHS, IPIV, JPIV, &SCALE ) ;
+    sgesc2( &N, A, &LDA, RHS, IPIV, JPIV, &SCALE );
     #elif defined(ALGLIN_USE_ACCELERATE)
     CLAPACKNAME(sgesc2)( &N,
                          const_cast<real*>(A), &LDA, RHS,
                          const_cast<integer*>(IPIV),
-                         const_cast<integer*>(JPIV), &SCALE ) ;
+                         const_cast<integer*>(JPIV), &SCALE );
     #else
     LAPACK_F77NAME(sgesc2)( &N,
                             const_cast<real*>(A), &LDA, RHS,
                             const_cast<integer*>(IPIV),
-                            const_cast<integer*>(JPIV), &SCALE ) ;
+                            const_cast<integer*>(JPIV), &SCALE );
     #endif
-    return SCALE ;
+    return SCALE;
   }
 
   inline
@@ -1217,21 +1217,21 @@ namespace alglin {
          integer    const JPIV[] )
   { doublereal SCALE = 0;
     #if defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
-    SCALE = gesc2_tmpl<doublereal>( N, A, LDA, RHS, IPIV, JPIV ) ;
+    SCALE = gesc2_tmpl<doublereal>( N, A, LDA, RHS, IPIV, JPIV );
     #elif defined(ALGLIN_USE_MKL)
-    dgesc2( &N, A, &LDA, RHS, IPIV, JPIV, &SCALE ) ;
+    dgesc2( &N, A, &LDA, RHS, IPIV, JPIV, &SCALE );
     #elif defined(ALGLIN_USE_ACCELERATE)
     CLAPACKNAME(dgesc2)( &N,
                          const_cast<doublereal*>(A), &LDA, RHS,
                          const_cast<integer*>(IPIV),
-                         const_cast<integer*>(JPIV), &SCALE ) ;
+                         const_cast<integer*>(JPIV), &SCALE );
     #else
     LAPACK_F77NAME(dgesc2)( &N,
                             const_cast<doublereal*>(A), &LDA, RHS,
                             const_cast<integer*>(IPIV),
-                            const_cast<integer*>(JPIV), &SCALE) ;
+                            const_cast<integer*>(JPIV), &SCALE);
     #endif
-    return SCALE ;
+    return SCALE;
   }
 
   /*
@@ -1301,7 +1301,7 @@ namespace alglin {
                             real            * RCOND,
                             real            * WORK,
                             integer         * IWORK,
-                            integer         * INFO ) ;
+                            integer         * INFO );
 
     void
     LAPACK_F77NAME(dgecon)( character  const * NORM,
@@ -1312,7 +1312,7 @@ namespace alglin {
                             doublereal       * RCOND,
                             doublereal       * WORK,
                             integer          * IWORK,
-                            integer          * INFO ) ;
+                            integer          * INFO );
   }
   #endif
 
@@ -1325,21 +1325,22 @@ namespace alglin {
           real     & rcond,
           real       work[],
           integer    iwork[] ) {
-    integer INFO = 0 ;
+    integer INFO = 0;
     #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS)
-    LAPACK_F77NAME(sgecon)( "1", &N, A, &LDA, &anorm, &rcond, work, iwork, &INFO ) ;
+    LAPACK_F77NAME(sgecon)( "1", &N, A, &LDA, &anorm, &rcond, work, iwork, &INFO );
     #elif defined(ALGLIN_USE_ATLAS)
     //@@ USE LAPACK ROUTINE @@
-    LAPACK_F77NAME(sgecon)( "1", &N, A, &LDA, &anorm, &rcond, work, iwork, &INFO ) ;
+    LAPACK_F77NAME(sgecon)( "1", &N, A, &LDA, &anorm, &rcond, work, iwork, &INFO );
     #elif defined(ALGLIN_USE_MKL)
-    sgecon( "1", &N, A, &LDA, &anorm, &rcond, work, iwork, &INFO ) ;
+    sgecon( "1", &N, A, &LDA, &anorm, &rcond, work, iwork, &INFO );
     #elif defined(ALGLIN_USE_ACCELERATE)
     CLAPACKNAME(sgecon)( const_cast<character*>("1"), &N,
-                         const_cast<real*>(A), &LDA, &anorm, &rcond, work, iwork, &INFO ) ;
+                         const_cast<real*>(A),
+                         &LDA, &anorm, &rcond, work, iwork, &INFO );
     #else
-    LAPACK_F77NAME(sgecon)( "1", &N, A, &LDA, &anorm, &rcond, work, iwork, &INFO) ;
+    LAPACK_F77NAME(sgecon)( "1", &N, A, &LDA, &anorm, &rcond, work, iwork, &INFO);
     #endif
-    return INFO ;
+    return INFO;
   }
 
   inline
@@ -1351,21 +1352,22 @@ namespace alglin {
           doublereal     & rcond,
           doublereal       work[],
           integer          iwork[] ) {
-    integer INFO = 0 ;
+    integer INFO = 0;
     #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS)
-    LAPACK_F77NAME(dgecon)( "1", &N, A, &LDA, &anorm, &rcond, work, iwork, &INFO ) ;
+    LAPACK_F77NAME(dgecon)( "1", &N, A, &LDA, &anorm, &rcond, work, iwork, &INFO );
     #elif defined(ALGLIN_USE_ATLAS)
     //@@ USE LAPACK ROUTINE @@
-    LAPACK_F77NAME(dgecon)( "1", &N, A, &LDA, &anorm, &rcond, work, iwork, &INFO ) ;
+    LAPACK_F77NAME(dgecon)( "1", &N, A, &LDA, &anorm, &rcond, work, iwork, &INFO );
     #elif defined(ALGLIN_USE_MKL)
-    dgecon( "1", &N, A, &LDA, &anorm, &rcond, work, iwork, &INFO ) ;
+    dgecon( "1", &N, A, &LDA, &anorm, &rcond, work, iwork, &INFO );
     #elif defined(ALGLIN_USE_ACCELERATE)
     CLAPACKNAME(dgecon)( const_cast<character*>("1"), &N,
-                         const_cast<doublereal*>(A), &LDA, &anorm, &rcond, work, iwork, &INFO ) ;
+                         const_cast<doublereal*>(A),
+                         &LDA, &anorm, &rcond, work, iwork, &INFO );
     #else
-    LAPACK_F77NAME(dgecon)( "1", &N, A, &LDA, &anorm, &rcond, work, iwork, &INFO) ;
+    LAPACK_F77NAME(dgecon)( "1", &N, A, &LDA, &anorm, &rcond, work, iwork, &INFO);
     #endif
-    return INFO ;
+    return INFO;
   }
 
   inline
@@ -1377,21 +1379,22 @@ namespace alglin {
             real     & rcond,
             real       work[],
             integer    iwork[] ) {
-    integer INFO = 0 ;
+    integer INFO = 0;
     #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS)
-    LAPACK_F77NAME(sgecon)( "I", &N, A, &LDA, &anorm, &rcond, work, iwork, &INFO ) ;
+    LAPACK_F77NAME(sgecon)( "I", &N, A, &LDA, &anorm, &rcond, work, iwork, &INFO );
     #elif defined(ALGLIN_USE_ATLAS)
     //@@ USE LAPACK ROUTINE @@
-    LAPACK_F77NAME(sgecon)( "I", &N, A, &LDA, &anorm, &rcond, work, iwork, &INFO ) ;
+    LAPACK_F77NAME(sgecon)( "I", &N, A, &LDA, &anorm, &rcond, work, iwork, &INFO );
     #elif defined(ALGLIN_USE_MKL)
-    sgecon( "I", &N, A, &LDA, &anorm, &rcond, work, iwork, &INFO ) ;
+    sgecon( "I", &N, A, &LDA, &anorm, &rcond, work, iwork, &INFO );
     #elif defined(ALGLIN_USE_ACCELERATE)
     CLAPACKNAME(sgecon)( const_cast<character*>("I"), &N,
-                         const_cast<real*>(A), &LDA, &anorm, &rcond, work, iwork, &INFO ) ;
+                         const_cast<real*>(A),
+                         &LDA, &anorm, &rcond, work, iwork, &INFO );
     #else
-    LAPACK_F77NAME(sgecon)( "I", &N, A, &LDA, &anorm, &rcond, work, iwork, &INFO) ;
+    LAPACK_F77NAME(sgecon)( "I", &N, A, &LDA, &anorm, &rcond, work, iwork, &INFO);
     #endif
-    return INFO ;
+    return INFO;
   }
 
   inline
@@ -1403,21 +1406,22 @@ namespace alglin {
             doublereal     & rcond,
             doublereal       work[],
             integer          iwork[] ) {
-    integer INFO = 0 ;
+    integer INFO = 0;
     #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS)
-    LAPACK_F77NAME(dgecon)( "I", &N, A, &LDA, &anorm, &rcond, work, iwork, &INFO ) ;
+    LAPACK_F77NAME(dgecon)( "I", &N, A, &LDA, &anorm, &rcond, work, iwork, &INFO );
     #elif defined(ALGLIN_USE_ATLAS)
     //@@ USE LAPACK ROUTINE @@
-    LAPACK_F77NAME(dgecon)( "I", &N, A, &LDA, &anorm, &rcond, work, iwork, &INFO ) ;
+    LAPACK_F77NAME(dgecon)( "I", &N, A, &LDA, &anorm, &rcond, work, iwork, &INFO );
     #elif defined(ALGLIN_USE_MKL)
-    dgecon( "I", &N, A, &LDA, &anorm, &rcond, work, iwork, &INFO ) ;
+    dgecon( "I", &N, A, &LDA, &anorm, &rcond, work, iwork, &INFO );
     #elif defined(ALGLIN_USE_ACCELERATE)
     CLAPACKNAME(dgecon)( const_cast<character*>("I"), &N,
-                         const_cast<doublereal*>(A), &LDA, &anorm, &rcond, work, iwork, &INFO ) ;
+                         const_cast<doublereal*>(A),
+                         &LDA, &anorm, &rcond, work, iwork, &INFO );
     #else
-    LAPACK_F77NAME(dgecon)( "I", &N, A, &LDA, &anorm, &rcond, work, iwork, &INFO) ;
+    LAPACK_F77NAME(dgecon)( "I", &N, A, &LDA, &anorm, &rcond, work, iwork, &INFO);
     #endif
-    return INFO ;
+    return INFO;
   }
 
   /*\
@@ -1494,7 +1498,7 @@ namespace alglin {
                             real          * ROWCND,
                             real          * COLCND,
                             real          * AMAX,
-                            integer       * INFO ) ;
+                            integer       * INFO );
 
     void
     LAPACK_F77NAME(dgeequ)( integer    const * M,
@@ -1506,7 +1510,7 @@ namespace alglin {
                             doublereal       * ROWCND,
                             doublereal       * COLCND,
                             doublereal       * AMAX,
-                            integer          * INFO ) ;
+                            integer          * INFO );
   }
   #endif
 
@@ -1521,21 +1525,21 @@ namespace alglin {
          real     & ROWCND,
          real     & COLCND,
          real     & AMAX ) {
-    integer INFO = 0 ;
+    integer INFO = 0;
     #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
     LAPACK_F77NAME(sgeequ)( &M, &N,
                             A, &LDA,
-                            R, C, &ROWCND, &COLCND, &AMAX, &INFO ) ;
+                            R, C, &ROWCND, &COLCND, &AMAX, &INFO );
     #elif defined(ALGLIN_USE_MKL)
-    sgeequ( &M, &N, A, &LDA, R, C, &ROWCND, &COLCND, &AMAX, &INFO ) ;
+    sgeequ( &M, &N, A, &LDA, R, C, &ROWCND, &COLCND, &AMAX, &INFO );
     #elif defined(ALGLIN_USE_ACCELERATE)
     CLAPACKNAME(sgeequ)( &M, &N,
                          const_cast<real*>(A), &LDA,
-                         R, C, &ROWCND, &COLCND, &AMAX, &INFO ) ;
+                         R, C, &ROWCND, &COLCND, &AMAX, &INFO );
     #else
     #error "Alglin undefined mapping!"
     #endif
-    return INFO ;
+    return INFO;
   }
 
   inline
@@ -1549,21 +1553,21 @@ namespace alglin {
          doublereal     & ROWCND,
          doublereal     & COLCND,
          doublereal     & AMAX ) {
-    integer INFO = 0 ;
+    integer INFO = 0;
     #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
     LAPACK_F77NAME(dgeequ)( &M, &N,
                             A, &LDA,
-                            R, C, &ROWCND, &COLCND, &AMAX, &INFO ) ;
+                            R, C, &ROWCND, &COLCND, &AMAX, &INFO );
     #elif defined(ALGLIN_USE_MKL)
-    dgeequ( &M, &N, A, &LDA, R, C, &ROWCND, &COLCND, &AMAX, &INFO ) ;
+    dgeequ( &M, &N, A, &LDA, R, C, &ROWCND, &COLCND, &AMAX, &INFO );
     #elif defined(ALGLIN_USE_ACCELERATE)
     CLAPACKNAME(dgeequ)( &M, &N,
                         const_cast<doublereal*>(A), &LDA,
-                        R, C, &ROWCND, &COLCND, &AMAX, &INFO ) ;
+                        R, C, &ROWCND, &COLCND, &AMAX, &INFO );
     #else
     #error "Alglin undefined mapping!"
     #endif
-    return INFO ;
+    return INFO;
   }
 
   /*\
@@ -1645,7 +1649,7 @@ namespace alglin {
                             real      const * ROWCND,
                             real      const * COLCND,
                             real      const * AMAX,
-                            character const * EQUED ) ;
+                            character const * EQUED );
 
     void
     LAPACK_F77NAME(dlaqge)( integer    const * M,
@@ -1657,7 +1661,7 @@ namespace alglin {
                             doublereal const * ROWCND,
                             doublereal const * COLCND,
                             doublereal const * AMAX,
-                            character  const * EQUED ) ;
+                            character  const * EQUED );
   }
   #endif
 
@@ -1675,17 +1679,17 @@ namespace alglin {
          EquilibrationType & equ ) {
     #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
     LAPACK_F77NAME(slaqge)( &M, &N, A, &LDA, R, C, &ROWCND, &COLCND, &AMAX,
-                            equilibrate_blas[equ] ) ;
+                            equilibrate_blas[equ] );
 
     #elif defined(ALGLIN_USE_MKL)
     slaqge( &M, &N, A, &LDA, R, C, &ROWCND, &COLCND, &AMAX,
-            const_cast<character*>(equilibrate_blas[equ])) ;
+            const_cast<character*>(equilibrate_blas[equ]));
     #elif defined(ALGLIN_USE_ACCELERATE)
     CLAPACKNAME(slaqge)( &M, &N, A, &LDA,
                          const_cast<real*>(R),
                          const_cast<real*>(C),
                          &ROWCND, &COLCND, &AMAX,
-                         const_cast<character*>(equilibrate_blas[equ]) ) ;
+                         const_cast<character*>(equilibrate_blas[equ]) );
     #else
     #error "Alglin undefined mapping!"
     #endif
@@ -1705,17 +1709,17 @@ namespace alglin {
          EquilibrationType & equ ) {
     #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
     LAPACK_F77NAME(dlaqge)( &M, &N, A, &LDA, R, C, &ROWCND, &COLCND, &AMAX,
-                            equilibrate_blas[equ] ) ;
+                            equilibrate_blas[equ] );
 
     #elif defined(ALGLIN_USE_MKL)
     dlaqge( &M, &N, A, &LDA, R, C, &ROWCND, &COLCND, &AMAX,
-            const_cast<character*>(equilibrate_blas[equ])) ;
+            const_cast<character*>(equilibrate_blas[equ]));
     #elif defined(ALGLIN_USE_ACCELERATE)
     CLAPACKNAME(dlaqge)( &M, &N, A, &LDA,
                          const_cast<doublereal*>(R),
                          const_cast<doublereal*>(C),
                          &ROWCND, &COLCND, &AMAX,
-                         const_cast<character*>(equilibrate_blas[equ]) ) ;
+                         const_cast<character*>(equilibrate_blas[equ]) );
     #else
     #error "Alglin undefined mapping!"
     #endif
@@ -1774,7 +1778,7 @@ namespace alglin {
                             real      const   A[],
                             integer   const * LDA,
                             real              B[],
-                            integer   const * LDB ) ;
+                            integer   const * LDB );
     void
     LAPACK_F77NAME(dlacpy)( character  const   UPLO[],
                             integer    const * M,
@@ -1782,7 +1786,7 @@ namespace alglin {
                             doublereal const   A[],
                             integer    const * LDA,
                             doublereal         B[],
-                            integer    const * LDB ) ;
+                            integer    const * LDB );
   }
   #endif
 
@@ -1795,15 +1799,15 @@ namespace alglin {
           real       B[],
           integer    LDB )
   #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS)
-  { LAPACK_F77NAME(slacpy)( "A", &M, &N, A, &LDA, B, &LDB ) ; return 0 ; }
+  { LAPACK_F77NAME(slacpy)( "A", &M, &N, A, &LDA, B, &LDB ); return 0; }
   #elif defined(ALGLIN_USE_ATLAS)
-  { for ( integer j = 0 ; j < N ; ++j ) copy( M, A+j*LDA, 1, B+j*LDB, 1 ) ;
-    return 0 ; }
+  { for ( integer j = 0; j < N; ++j ) copy( M, A+j*LDA, 1, B+j*LDB, 1 );
+    return 0; }
   #elif defined(ALGLIN_USE_MKL)
-  { slacpy( "A", &M, &N, A, &LDA, B, &LDB ) ; return 0 ; }
+  { slacpy( "A", &M, &N, A, &LDA, B, &LDB ); return 0; }
   #elif defined(ALGLIN_USE_ACCELERATE)
   { return CLAPACKNAME(slacpy)( const_cast<character*>("A"), &M, &N,
-                                const_cast<real*>(A), &LDA, B, &LDB ) ; }
+                                const_cast<real*>(A), &LDA, B, &LDB ); }
   #else
     #error "Alglin undefined mapping!"
   #endif
@@ -1817,15 +1821,15 @@ namespace alglin {
           doublereal       B[],
           integer          LDB )
   #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS)
-  { LAPACK_F77NAME(dlacpy)( "A", &M, &N, A, &LDA, B, &LDB ) ; return 0 ; }
+  { LAPACK_F77NAME(dlacpy)( "A", &M, &N, A, &LDA, B, &LDB ); return 0; }
   #elif defined(ALGLIN_USE_ATLAS)
-  { for ( integer j = 0 ; j < N ; ++j ) copy( M, A+j*LDA, 1, B+j*LDB, 1 ) ;
-    return 0 ; }
+  { for ( integer j = 0; j < N; ++j ) copy( M, A+j*LDA, 1, B+j*LDB, 1 );
+    return 0; }
   #elif defined(ALGLIN_USE_MKL)
-  { dlacpy( "A", &M, &N, A, &LDA, B, &LDB ) ; return 0 ; }
+  { dlacpy( "A", &M, &N, A, &LDA, B, &LDB ); return 0; }
   #elif defined(ALGLIN_USE_ACCELERATE)
   { return CLAPACKNAME(dlacpy)( const_cast<character*>("A"), &M, &N,
-                                const_cast<doublereal*>(A), &LDA, B, &LDB ) ; }
+                                const_cast<doublereal*>(A), &LDA, B, &LDB ); }
   #else
   #error "Alglin undefined mapping!"
   #endif
@@ -1889,7 +1893,7 @@ namespace alglin {
                             real      const * ALPHA,
                             real      const * BETA,
                             real              A[],
-                            integer   const * LDA ) ;
+                            integer   const * LDA );
     void
     LAPACK_F77NAME(dlaset)( character  const   UPLO[],
                             integer    const * M,
@@ -1897,7 +1901,7 @@ namespace alglin {
                             doublereal const * ALPHA,
                             doublereal const * BETA,
                             doublereal         A[],
-                            integer    const * LDA ) ;
+                            integer    const * LDA );
   }
   #endif
 
@@ -1908,13 +1912,13 @@ namespace alglin {
           real    A[],
           integer LDA )
   #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS)
-  { real zero = 0 ; LAPACK_F77NAME(slaset)( "A", &M, &N, &zero, &zero, A, &LDA ) ; }
+  { real zero = 0; LAPACK_F77NAME(slaset)( "A", &M, &N, &zero, &zero, A, &LDA ); }
   #elif defined(ALGLIN_USE_ATLAS)
-  { for ( integer j = 0 ; j < N ; ++j ) zero( M, A+j*LDA, 1 ) ; }
+  { for ( integer j = 0; j < N; ++j ) zero( M, A+j*LDA, 1 ); }
   #elif defined(ALGLIN_USE_MKL)
-  { real zero = 0 ; slaset( "A", &M, &N, &zero, &zero, A, &LDA ) ; }
+  { real zero = 0; slaset( "A", &M, &N, &zero, &zero, A, &LDA ); }
   #elif defined(ALGLIN_USE_ACCELERATE)
-  { real zero = 0 ; CLAPACKNAME(slaset)( const_cast<character*>("A"), &M, &N, &zero, &zero, A, &LDA ) ; }
+  { real zero = 0; CLAPACKNAME(slaset)( const_cast<character*>("A"), &M, &N, &zero, &zero, A, &LDA ); }
   #else
   #error "Alglin undefined mapping!"
   #endif
@@ -1926,13 +1930,13 @@ namespace alglin {
           doublereal A[],
           integer    LDA )
   #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS)
-  { doublereal zero = 0 ; LAPACK_F77NAME(dlaset)( "A", &M, &N, &zero, &zero, A, &LDA ) ; }
+  { doublereal zero = 0; LAPACK_F77NAME(dlaset)( "A", &M, &N, &zero, &zero, A, &LDA ); }
   #elif defined(ALGLIN_USE_ATLAS)
-  { for ( integer j = 0 ; j < N ; ++j ) zero( M, A+j*LDA, 1 ) ; }
+  { for ( integer j = 0; j < N; ++j ) zero( M, A+j*LDA, 1 ); }
   #elif defined(ALGLIN_USE_MKL)
-  { doublereal zero = 0 ; dlaset( "A", &M, &N, &zero, &zero, A, &LDA ) ; }
+  { doublereal zero = 0; dlaset( "A", &M, &N, &zero, &zero, A, &LDA ); }
   #elif defined(ALGLIN_USE_ACCELERATE)
-  { doublereal zero = 0 ; CLAPACKNAME(dlaset)( const_cast<character*>("A"), &M, &N, &zero, &zero, A, &LDA ) ; }
+  { doublereal zero = 0; CLAPACKNAME(dlaset)( const_cast<character*>("A"), &M, &N, &zero, &zero, A, &LDA ); }
   #else
   #error "Alglin undefined mapping!"
   #endif
@@ -1953,13 +1957,13 @@ namespace alglin {
         integer LDA,
         real    diag = 1 )
   #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS)
-  { real zero = 0 ; LAPACK_F77NAME(slaset)( "A", &M, &N, &zero, &diag, A, &LDA ) ; }
+  { real zero = 0; LAPACK_F77NAME(slaset)( "A", &M, &N, &zero, &diag, A, &LDA ); }
   #elif defined(ALGLIN_USE_ATLAS)
-  { gezero(M,N,A,LDA) ; copy( std::min(M,N), &diag, 0, A, LDA+1); }
+  { gezero(M,N,A,LDA); copy( std::min(M,N), &diag, 0, A, LDA+1); }
   #elif defined(ALGLIN_USE_MKL)
-  { real zero = 0 ; slaset( "A", &M, &N, &zero, &diag, A, &LDA ) ; }
+  { real zero = 0; slaset( "A", &M, &N, &zero, &diag, A, &LDA ); }
   #elif defined(ALGLIN_USE_ACCELERATE)
-  { real zero = 0 ; CLAPACKNAME(slaset)( const_cast<character*>("A"), &M, &N, &zero, &diag, A, &LDA ) ; }
+  { real zero = 0; CLAPACKNAME(slaset)( const_cast<character*>("A"), &M, &N, &zero, &diag, A, &LDA ); }
   #else
   #error "Alglin undefined mapping!"
   #endif
@@ -1972,13 +1976,13 @@ namespace alglin {
         integer    LDA,
         doublereal diag = 1 )
   #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS)
-  { doublereal zero = 0 ; LAPACK_F77NAME(dlaset)( "A", &M, &N, &zero, &diag, A, &LDA ) ; }
+  { doublereal zero = 0; LAPACK_F77NAME(dlaset)( "A", &M, &N, &zero, &diag, A, &LDA ); }
   #elif defined(ALGLIN_USE_ATLAS)
-  { gezero(M,N,A,LDA) ; copy( std::min(M,N), &diag, 0, A, LDA+1); }
+  { gezero(M,N,A,LDA); copy( std::min(M,N), &diag, 0, A, LDA+1); }
   #elif defined(ALGLIN_USE_MKL)
-  { doublereal zero = 0 ; dlaset( "A", &M, &N, &zero, &diag, A, &LDA ) ; }
+  { doublereal zero = 0; dlaset( "A", &M, &N, &zero, &diag, A, &LDA ); }
   #elif defined(ALGLIN_USE_ACCELERATE)
-  { doublereal zero = 0 ; CLAPACKNAME(dlaset)( const_cast<character*>("A"), &M, &N, &zero, &diag, A, &LDA ) ; }
+  { doublereal zero = 0; CLAPACKNAME(dlaset)( const_cast<character*>("A"), &M, &N, &zero, &diag, A, &LDA ); }
   #else
   #error "Alglin undefined mapping!"
   #endif
@@ -2008,17 +2012,17 @@ namespace alglin {
   {
     if ( M > 0 && N > 0 )
       appleblas_sgeadd( CblasColMajor, CblasNoTrans, CblasNoTrans,
-                        M, N, alpha, A, LDA, beta, B, LDB, C, LDC ) ;
+                        M, N, alpha, A, LDA, beta, B, LDB, C, LDC );
   }
   #else
   {
-    integer ierr = gecopy( M, N, B, LDB, C, LDC ) ;
-    ALGLIN_ASSERT( ierr == 0, "geadd, ierr = " << ierr ) ;
-    real const * Aj = A ;
-    real       * Cj = C ;
-    for ( integer j = 0 ; j < N ; ++j, Aj += LDA, Cj += LDC ) {
-      alglin::scal( M, beta,  Cj, 1 ) ;
-      alglin::axpy( M, alpha, Aj, 1, Cj, 1 ) ;
+    integer ierr = gecopy( M, N, B, LDB, C, LDC );
+    ALGLIN_ASSERT( ierr == 0, "geadd, ierr = " << ierr );
+    real const * Aj = A;
+    real       * Cj = C;
+    for ( integer j = 0; j < N; ++j, Aj += LDA, Cj += LDC ) {
+      alglin::scal( M, beta,  Cj, 1 );
+      alglin::axpy( M, alpha, Aj, 1, Cj, 1 );
     }
   }
   #endif
@@ -2040,13 +2044,13 @@ namespace alglin {
   }
   #else
   {
-    integer ierr = gecopy( M, N, B, LDB, C, LDC ) ;
-    ALGLIN_ASSERT( ierr == 0, "geadd, ierr = " << ierr ) ;
-    doublereal const * Aj = A ;
-    doublereal       * Cj = C ;
-    for ( integer j = 0 ; j < N ; ++j, Aj += LDA, Cj += LDC ) {
-      alglin::scal( M, beta,  Cj, 1 ) ;
-      alglin::axpy( M, alpha, Aj, 1, Cj, 1 ) ;
+    integer ierr = gecopy( M, N, B, LDB, C, LDC );
+    ALGLIN_ASSERT( ierr == 0, "geadd, ierr = " << ierr );
+    doublereal const * Aj = A;
+    doublereal       * Cj = C;
+    for ( integer j = 0; j < N; ++j, Aj += LDA, Cj += LDC ) {
+      alglin::scal( M, beta,  Cj, 1 );
+      alglin::axpy( M, alpha, Aj, 1, Cj, 1 );
     }
   }
   #endif
@@ -2073,7 +2077,7 @@ namespace alglin {
                             integer    const * N,
                             doublereal const * A,
                             integer    const * LDA,
-                            doublereal       * WORK ) ;
+                            doublereal       * WORK );
 
     real
     LAPACK_F77NAME(slange)( character const   NORM[],
@@ -2081,7 +2085,7 @@ namespace alglin {
                             integer   const * N,
                             real      const * A,
                             integer   const * LDA,
-                            real            * WORK ) ;
+                            real            * WORK );
 
   }
   #endif
@@ -2144,12 +2148,12 @@ namespace alglin {
            integer    M,
            real const A[],
            integer    LDA )
-  { real res = 0 ;
-    for ( integer i=0 ; i < N ; ++i ) {
-      real normcol = alglin::asum(M,A+i,LDA) ;
-      if ( normcol > res ) res = normcol ;
+  { real res = 0;
+    for ( integer i=0; i < N; ++i ) {
+      real normcol = alglin::asum(M,A+i,LDA);
+      if ( normcol > res ) res = normcol;
     }
-    return res ;
+    return res;
   }
 
   inline
@@ -2158,12 +2162,12 @@ namespace alglin {
            integer          M,
            doublereal const A[],
            integer          LDA )
-  { doublereal res = 0 ;
-    for ( integer i=0 ; i < N ; ++i ) {
-      doublereal normcol = alglin::asum(M,A+i,LDA) ;
-      if ( normcol > res ) res = normcol ;
+  { doublereal res = 0;
+    for ( integer i=0; i < N; ++i ) {
+      doublereal normcol = alglin::asum(M,A+i,LDA);
+      if ( normcol > res ) res = normcol;
     }
-    return res ;
+    return res;
   }
 
   ///////////////////
@@ -2175,12 +2179,12 @@ namespace alglin {
          real const A[],
          integer    LDA )
   #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
-  { return LAPACK_F77NAME(slange)( "1", &N, &M, A, &LDA, nullptr ) ; }
+  { return LAPACK_F77NAME(slange)( "1", &N, &M, A, &LDA, nullptr ); }
   #elif defined(ALGLIN_USE_MKL)
-  { return slange( "1", &N, &M, A, &LDA, nullptr ) ; }
+  { return slange( "1", &N, &M, A, &LDA, nullptr ); }
   #elif defined(ALGLIN_USE_ACCELERATE)
   { return real(CLAPACKNAME(slange)( const_cast<character*>("1"), &N, &M,
-                                     const_cast<real*>(A), &LDA, nullptr ) ) ; }
+                                     const_cast<real*>(A), &LDA, nullptr ) ); }
   #else
   #error "Alglin undefined mapping!"
   #endif
@@ -2192,12 +2196,12 @@ namespace alglin {
          doublereal const A[],
          integer          LDA )
   #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
-  { return LAPACK_F77NAME(dlange)( "1", &N, &M, A, &LDA, nullptr ) ; }
+  { return LAPACK_F77NAME(dlange)( "1", &N, &M, A, &LDA, nullptr ); }
   #elif defined(ALGLIN_USE_MKL)
-  { return dlange( "1", &N, &M, A, &LDA, nullptr ) ; }
+  { return dlange( "1", &N, &M, A, &LDA, nullptr ); }
   #elif defined(ALGLIN_USE_ACCELERATE)
   { return CLAPACKNAME(dlange)( const_cast<character*>("1"), &N, &M,
-                                const_cast<doublereal*>(A), &LDA, nullptr ) ; }
+                                const_cast<doublereal*>(A), &LDA, nullptr ); }
   #else
   #error "Alglin undefined mapping!"
   #endif
@@ -2212,11 +2216,11 @@ namespace alglin {
          integer    LDA )
   #if defined(ALGLIN_USE_ACCELERATE)
   { return CLAPACKNAME(slange)( const_cast<character*>("F"), &N, &M,
-                                const_cast<real*>(A), &LDA, nullptr ) ; }
+                                const_cast<real*>(A), &LDA, nullptr ); }
   #elif defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
-  { return return_precision(LAPACK_F77NAME(slange)( "F", &N, &M, A, &LDA, nullptr )) ; }
+  { return return_precision(LAPACK_F77NAME(slange)( "F", &N, &M, A, &LDA, nullptr )); }
   #elif defined(ALGLIN_USE_MKL)
-  { return return_precision(slange( "F", &N, &M, A, &LDA, nullptr )) ; }
+  { return return_precision(slange( "F", &N, &M, A, &LDA, nullptr )); }
   #else
   #error "Alglin undefined mapping!"
   #endif
@@ -2229,11 +2233,11 @@ namespace alglin {
          integer          LDA )
   #if defined(ALGLIN_USE_ACCELERATE)
   { return CLAPACKNAME(dlange)( const_cast<character*>("F"), &N, &M,
-                                const_cast<doublereal*>(A), &LDA, nullptr ) ; }
+                                const_cast<doublereal*>(A), &LDA, nullptr ); }
   #elif defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
-  { return LAPACK_F77NAME(dlange)( "F", &N, &M, A, &LDA, nullptr ) ; }
+  { return LAPACK_F77NAME(dlange)( "F", &N, &M, A, &LDA, nullptr ); }
   #elif defined(ALGLIN_USE_MKL)
-  { return dlange( "F", &N, &M, A, &LDA, nullptr ) ; }
+  { return dlange( "F", &N, &M, A, &LDA, nullptr ); }
   #else
   #error "Alglin undefined mapping!"
   #endif
@@ -2248,11 +2252,11 @@ namespace alglin {
           integer    LDA )
   #if defined(ALGLIN_USE_ACCELERATE)
   { return real(CLAPACKNAME(slange)( const_cast<character*>("M"), &N, &M,
-                                     const_cast<real*>(A), &LDA, nullptr )) ; }
+                                     const_cast<real*>(A), &LDA, nullptr )); }
   #elif defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
-  { return LAPACK_F77NAME(slange)( "M", &N, &M, A, &LDA, nullptr ) ; }
+  { return LAPACK_F77NAME(slange)( "M", &N, &M, A, &LDA, nullptr ); }
   #elif defined(ALGLIN_USE_MKL)
-  { return slange( "M", &N, &M, A, &LDA, nullptr ) ; }
+  { return slange( "M", &N, &M, A, &LDA, nullptr ); }
   #else
   #error "Alglin undefined mapping!"
   #endif
@@ -2265,11 +2269,11 @@ namespace alglin {
           integer          LDA )
   #if defined(ALGLIN_USE_ACCELERATE)
   { return CLAPACKNAME(dlange)( const_cast<character*>("M"), &N, &M,
-                                const_cast<doublereal*>(A), &LDA, nullptr ) ; }
+                                const_cast<doublereal*>(A), &LDA, nullptr ); }
   #elif defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
-  { return LAPACK_F77NAME(dlange)( "M", &N, &M, A, &LDA, nullptr ) ; }
+  { return LAPACK_F77NAME(dlange)( "M", &N, &M, A, &LDA, nullptr ); }
   #elif defined(ALGLIN_USE_MKL)
-  { return dlange( "M", &N, &M, A, &LDA, nullptr ) ; }
+  { return dlange( "M", &N, &M, A, &LDA, nullptr ); }
   #else
   #error "Alglin undefined mapping!"
   #endif
@@ -2359,7 +2363,7 @@ namespace alglin {
                             integer    const * N,
                             doublereal       * A,
                             integer    const * LDA,
-                            integer          * info ) ;
+                            integer          * info );
 
     void
     LAPACK_F77NAME(slascl)( character const   TYPE[],
@@ -2371,7 +2375,7 @@ namespace alglin {
                             integer   const * N,
                             real            * A,
                             integer   const * LDA,
-                            integer         * info ) ;
+                            integer         * info );
   }
   #endif
 
@@ -2386,19 +2390,19 @@ namespace alglin {
          integer    N,
          real       A[],
          integer    LDA ) {
-    integer info = 0 ;
+    integer info = 0;
     #if defined(ALGLIN_USE_ACCELERATE)
     CLAPACKNAME(slascl)( const_cast<character*>(mtype_blas[TYPE]),
-                         &KL, &KU, &FROM, &TO, &M, &N, A, &LDA, &info ) ;
+                         &KL, &KU, &FROM, &TO, &M, &N, A, &LDA, &info );
     #elif defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
     LAPACK_F77NAME(slascl)( mtype_blas[TYPE],
-                            &KL, &KU, &FROM, &TO, &M, &N, A, &LDA, &info) ;
+                            &KL, &KU, &FROM, &TO, &M, &N, A, &LDA, &info);
     #elif defined(ALGLIN_USE_MKL)
-    slascl( mtype_blas[TYPE], &KL, &KU, &FROM, &TO, &M, &N, A, &LDA, &info) ;
+    slascl( mtype_blas[TYPE], &KL, &KU, &FROM, &TO, &M, &N, A, &LDA, &info);
     #else
     #error "Alglin undefined mapping!"
     #endif
-    return info ;
+    return info;
   }
 
   inline
@@ -2412,19 +2416,19 @@ namespace alglin {
          integer    N,
          doublereal A[],
          integer    LDA ) {
-    integer info = 0 ;
+    integer info = 0;
     #if defined(ALGLIN_USE_ACCELERATE)
     CLAPACKNAME(dlascl)( const_cast<character*>(mtype_blas[TYPE]),
-                         &KL, &KU, &FROM, &TO, &M, &N, A, &LDA, &info ) ;
+                         &KL, &KU, &FROM, &TO, &M, &N, A, &LDA, &info );
     #elif defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
     LAPACK_F77NAME(dlascl)( mtype_blas[TYPE],
-                            &KL, &KU, &FROM, &TO, &M, &N, A, &LDA, &info) ;
+                            &KL, &KU, &FROM, &TO, &M, &N, A, &LDA, &info);
     #elif defined(ALGLIN_USE_MKL)
-    dlascl( mtype_blas[TYPE], &KL, &KU, &FROM, &TO, &M, &N, A, &LDA, &info) ;
+    dlascl( mtype_blas[TYPE], &KL, &KU, &FROM, &TO, &M, &N, A, &LDA, &info);
     #else
     #error "Alglin undefined mapping!"
     #endif
-    return info ;
+    return info;
   }
 
   #endif
@@ -2464,7 +2468,7 @@ namespace alglin {
                            integer    const * Lvr,
                            doublereal       * WORK,
                            integer    const * Lwork,
-                           integer          * info ) ;
+                           integer          * info );
 
     void
     LAPACK_F77NAME(sgeev)( character const   jobvl[],
@@ -2480,7 +2484,7 @@ namespace alglin {
                            integer   const * Lvr,
                            real            * WORK,
                            integer   const * Lwork,
-                           integer         * info ) ;
+                           integer         * info );
   }
   #endif
 
@@ -2597,16 +2601,16 @@ namespace alglin {
         integer ldvr,
         real    work[],
         integer lwork )
-  { integer info = 0 ;
+  { integer info = 0;
     #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
     LAPACK_F77NAME(sgeev)( (jobvl?"V":"N"),
                            (jobvr?"V":"N"),
                            &n, A, &lda, wr, wi,
                            vl, &ldvl,
-                           vr, &ldvr, work, &lwork, &info ) ;
+                           vr, &ldvr, work, &lwork, &info );
     #elif defined(ALGLIN_USE_MKL)
     sgeev( (jobvl?"V":"N"), (jobvr?"V":"N"),
-           &n, A, &lda, wr, wi, vl, &ldvl, vr, &ldvr, work, &lwork, &info ) ;
+           &n, A, &lda, wr, wi, vl, &ldvl, vr, &ldvr, work, &lwork, &info );
     #elif defined(ALGLIN_USE_ACCELERATE)
     CLAPACKNAME(sgeev)( const_cast<character*>(jobvl?"V":"N"),
                         const_cast<character*>(jobvr?"V":"N"),
@@ -2614,11 +2618,11 @@ namespace alglin {
                         const_cast<real*>(A), &lda, wr, wi,
                         vl, &ldvl,
                         vr, &ldvr,
-                        work, &lwork, &info ) ;
+                        work, &lwork, &info );
     #else
     #error "Alglin undefined mapping!"
     #endif
-    return info ;
+    return info;
   }
 
   inline
@@ -2636,16 +2640,16 @@ namespace alglin {
         integer    ldvr,
         doublereal work[],
         integer    lwork )
-  { integer info = 0 ;
+  { integer info = 0;
     #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
     LAPACK_F77NAME(dgeev)( (jobvl?"V":"N"),
                            (jobvr?"V":"N"),
                            &n, A, &lda, wr, wi,
                            vl, &ldvl,
-                           vr, &ldvr, work, &lwork, &info ) ;
+                           vr, &ldvr, work, &lwork, &info );
     #elif defined(ALGLIN_USE_MKL)
     dgeev( (jobvl?"V":"N"), (jobvr?"V":"N"),
-           &n, A, &lda, wr, wi, vl, &ldvl, vr, &ldvr, work, &lwork, &info ) ;
+           &n, A, &lda, wr, wi, vl, &ldvl, vr, &ldvr, work, &lwork, &info );
     #elif defined(ALGLIN_USE_ACCELERATE)
     CLAPACKNAME(dgeev)( const_cast<character*>(jobvl?"V":"N"),
                         const_cast<character*>(jobvr?"V":"N"),
@@ -2653,11 +2657,11 @@ namespace alglin {
                         const_cast<doublereal*>(A), &lda, wr, wi,
                         vl, &ldvl,
                         vr, &ldvr,
-                        work, &lwork, &info ) ;
+                        work, &lwork, &info );
     #else
     #error "Alglin undefined mapping!"
     #endif
-    return info ;
+    return info;
   }
 
   //////////////////////////////////////////////////////////////////////////////
@@ -2698,7 +2702,7 @@ namespace alglin {
                            integer    const * Lvr,
                            doublereal       * WORK,
                            integer    const * Lwork,
-                           integer          * info ) ;
+                           integer          * info );
 
     void
     LAPACK_F77NAME(sggev)( character const   jobvl[],
@@ -2717,7 +2721,7 @@ namespace alglin {
                            integer   const * Lvr,
                            real            * WORK,
                            integer   const * Lwork,
-                           integer         * info ) ;
+                           integer         * info );
   }
   #endif
 
@@ -2864,16 +2868,16 @@ namespace alglin {
         integer ldvr,
         real    work[],
         integer lwork )
-  { integer info = 0 ;
+  { integer info = 0;
     #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
     LAPACK_F77NAME(sggev)( (jobvl?"V":"N"),
                            (jobvr?"V":"N"),
                            &n, A, &lda, B, &ldb, alphar, alphai, beta,
-                           vl, &ldvl, vr, &ldvr, work, &lwork, &info ) ;
+                           vl, &ldvl, vr, &ldvr, work, &lwork, &info );
     #elif defined(ALGLIN_USE_MKL)
     sggev( (jobvl?"V":"N"), (jobvr?"V":"N"),
            &n, A, &lda, B, &ldb, alphar, alphai, beta,
-           vl, &ldvl, vr, &ldvr, work, &lwork, &info ) ;
+           vl, &ldvl, vr, &ldvr, work, &lwork, &info );
     #elif defined(ALGLIN_USE_ACCELERATE)
     CLAPACKNAME(sggev)( const_cast<character*>(jobvl?"V":"N"),
                         const_cast<character*>(jobvr?"V":"N"),
@@ -2881,11 +2885,11 @@ namespace alglin {
                         const_cast<real*>(A), &lda,
                         const_cast<real*>(B), &ldb,
                         alphar, alphai, beta,
-                        vl, &ldvl, vr, &ldvr, work, &lwork, &info ) ;
+                        vl, &ldvl, vr, &ldvr, work, &lwork, &info );
     #else
     #error "Alglin undefined mapping!"
     #endif
-    return info ;
+    return info;
   }
 
   inline
@@ -2906,16 +2910,16 @@ namespace alglin {
         integer    ldvr,
         doublereal work[],
         integer    lwork )
-  { integer info = 0 ;
+  { integer info = 0;
     #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
     LAPACK_F77NAME(dggev)( (jobvl?"V":"N"),
                            (jobvr?"V":"N"),
                            &n, A, &lda, B, &ldb, alphar, alphai, beta,
-                           vl, &ldvl, vr, &ldvr, work, &lwork, &info ) ;
+                           vl, &ldvl, vr, &ldvr, work, &lwork, &info );
     #elif defined(ALGLIN_USE_MKL)
     dggev( (jobvl?"V":"N"), (jobvr?"V":"N"),
            &n, A, &lda, B, &ldb, alphar, alphai, beta,
-           vl, &ldvl, vr, &ldvr, work, &lwork, &info ) ;
+           vl, &ldvl, vr, &ldvr, work, &lwork, &info );
     #elif defined(ALGLIN_USE_ACCELERATE)
     CLAPACKNAME(dggev)( const_cast<character*>(jobvl?"V":"N"),
                         const_cast<character*>(jobvr?"V":"N"),
@@ -2923,11 +2927,11 @@ namespace alglin {
                         const_cast<doublereal*>(A), &lda,
                         const_cast<doublereal*>(B), &ldb,
                         alphar, alphai, beta,
-                        vl, &ldvl, vr, &ldvr, work, &lwork, &info ) ;
+                        vl, &ldvl, vr, &ldvr, work, &lwork, &info );
     #else
     #error "Alglin undefined mapping!"
     #endif
-    return info ;
+    return info;
   }
 
   /*\
@@ -3210,7 +3214,7 @@ namespace alglin {
                            integer    const * Lwork,
                            integer          * Iwork,
                            integer          * Bwork,
-                           integer          * info ) ;
+                           integer          * info );
 
     void
     LAPACK_F77NAME(sggevx)(character  const   balanc[],
@@ -3241,7 +3245,7 @@ namespace alglin {
                            integer     const * Lwork,
                            integer           * Iwork,
                            integer           * Bwork,
-                           integer           * info  ) ;
+                           integer           * info  );
   }
   #endif
 
@@ -3517,7 +3521,7 @@ namespace alglin {
          integer             lwork,
          integer             iwork[],
          integer             bwork[] )
-  { integer info = 0 ;
+  { integer info = 0;
     #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
     LAPACK_F77NAME(sggevx)( balance_blas[balanc],
                             (jobvl?"V":"N"),
@@ -3532,7 +3536,7 @@ namespace alglin {
                             lscale, rscale,
                             &abnrm, &bbnrm,
                             rconde, rcondv,
-                            work, &lwork, iwork, bwork, &info) ;
+                            work, &lwork, iwork, bwork, &info);
     #elif defined(ALGLIN_USE_MKL)
     sggevx( balance_blas[balanc],
             (jobvl?"V":"N"),
@@ -3547,7 +3551,7 @@ namespace alglin {
             lscale, rscale,
             &abnrm, &bbnrm,
             rconde, rcondv,
-            work, &lwork, iwork, bwork, &info) ;
+            work, &lwork, iwork, bwork, &info);
     #elif defined(ALGLIN_USE_ACCELERATE)
     CLAPACKNAME(sggevx)( const_cast<character*>(balance_blas[balanc]),
                          const_cast<character*>(jobvl?"V":"N"),
@@ -3562,11 +3566,11 @@ namespace alglin {
                          lscale, rscale,
                          &abnrm, &bbnrm,
                          rconde, rcondv,
-                         work, &lwork, iwork, bwork, &info ) ;
+                         work, &lwork, iwork, bwork, &info );
     #else
     #error "Alglin undefined mapping!"
     #endif
-    return info ;
+    return info;
   }
 
   inline
@@ -3599,7 +3603,7 @@ namespace alglin {
         integer             lwork,
         integer             iwork[],
         integer             bwork[])
-  { integer info = 0 ;
+  { integer info = 0;
     #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
     LAPACK_F77NAME(dggevx)( balance_blas[balanc],
                             (jobvl?"V":"N"),
@@ -3614,7 +3618,7 @@ namespace alglin {
                             lscale, rscale,
                             &abnrm, &bbnrm,
                             rconde, rcondv,
-                            work, &lwork, iwork, bwork, &info ) ;
+                            work, &lwork, iwork, bwork, &info );
     #elif defined(ALGLIN_USE_MKL)
     dggevx( balance_blas[balanc],
             (jobvl?"V":"N"),
@@ -3629,7 +3633,7 @@ namespace alglin {
             lscale, rscale,
             &abnrm, &bbnrm,
             rconde, rcondv,
-            work, &lwork, iwork, bwork, &info ) ;
+            work, &lwork, iwork, bwork, &info );
     #elif defined(ALGLIN_USE_ACCELERATE)
     CLAPACKNAME(dggevx)( const_cast<character*>(balance_blas[balanc]),
                          const_cast<character*>(jobvl?"V":"N"),
@@ -3644,11 +3648,11 @@ namespace alglin {
                          lscale, rscale,
                          &abnrm, &bbnrm,
                          rconde, rcondv,
-                         work, &lwork, iwork, bwork, &info  ) ;
+                         work, &lwork, iwork, bwork, &info );
     #else
     #error "Alglin undefined mapping!"
     #endif
-    return info ;
+    return info;
   }
 
   /*
@@ -3796,7 +3800,7 @@ namespace alglin {
                             integer   const * LDVT,
                             doublereal      * WORK,
                             integer   const * LWORK,
-                            integer         * info ) ;
+                            integer         * info );
 
     void
     LAPACK_F77NAME(sgesvd)( character const   JOBU[],
@@ -3812,7 +3816,7 @@ namespace alglin {
                             integer   const * LDVT,
                             real            * WORK,
                             integer   const * LWORK,
-                            integer         * info  ) ;
+                            integer         * info );
   }
   #endif
 
@@ -3831,31 +3835,31 @@ namespace alglin {
          integer         LDVT,
          real            WORK[],
          integer         LWORK )
-  { integer info = 0 ;
+  { integer info = 0;
     #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS)
     LAPACK_F77NAME(sgesvd)( job_blas[JOBU],
                             job_blas[JOBVT],
                             &M, &N, A, &LDA, S, U, &LDU, VT, &LDVT,
-                            WORK, &LWORK, &info ) ;
+                            WORK, &LWORK, &info );
     #elif defined(ALGLIN_USE_ATLAS)
     //@@ USE LAPACK ROUTINE @@
     LAPACK_F77NAME(sgesvd)( job_blas[JOBU],
                             job_blas[JOBVT],
                             &M, &N, A, &LDA, S, U, &LDU, VT, &LDVT,
-                            WORK, &LWORK, &info ) ;
+                            WORK, &LWORK, &info );
     #elif defined(ALGLIN_USE_MKL)
     sgesvd( job_blas[JOBU], job_blas[JOBVT],
             &M, &N, A, &LDA, S, U, &LDU, VT, &LDVT,
-            WORK, &LWORK, &info ) ;
+            WORK, &LWORK, &info );
     #elif defined(ALGLIN_USE_ACCELERATE)
     CLAPACKNAME(sgesvd)( const_cast<character*>(job_blas[JOBU]),
                          const_cast<character*>(job_blas[JOBVT]),
                          &M, &N, A, &LDA, S, U, &LDU, VT, &LDVT,
-                         WORK, &LWORK, &info ) ;
+                         WORK, &LWORK, &info );
     #else
     #error "Alglin undefined mapping!"
     #endif
-    return info ;
+    return info;
   }
 
   inline
@@ -3873,31 +3877,31 @@ namespace alglin {
          integer         LDVT,
          doublereal      WORK[],
          integer         LWORK )
-  { integer info = 0 ;
+  { integer info = 0;
     #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS)
     LAPACK_F77NAME(dgesvd)( job_blas[JOBU],
                             job_blas[JOBVT],
                             &M, &N, A, &LDA, S, U, &LDU, VT, &LDVT,
-                            WORK, &LWORK, &info ) ;
+                            WORK, &LWORK, &info );
     #elif defined(ALGLIN_USE_ATLAS)
     //@@ USE LAPACK ROUTINE @@
     LAPACK_F77NAME(dgesvd)( job_blas[JOBU],
                             job_blas[JOBVT],
                             &M, &N, A, &LDA, S, U, &LDU, VT, &LDVT,
-                            WORK, &LWORK, &info ) ;
+                            WORK, &LWORK, &info );
     #elif defined(ALGLIN_USE_MKL)
     dgesvd( job_blas[JOBU], job_blas[JOBVT],
             &M, &N, A, &LDA, S, U, &LDU, VT, &LDVT,
-            WORK, &LWORK, &info ) ;
+            WORK, &LWORK, &info );
     #elif defined(ALGLIN_USE_ACCELERATE)
     CLAPACKNAME(dgesvd)( const_cast<character*>(job_blas[JOBU]),
                          const_cast<character*>(job_blas[JOBVT]),
                          &M, &N, A, &LDA, S, U, &LDU, VT, &LDVT,
-                         WORK, &LWORK, &info ) ;
+                         WORK, &LWORK, &info );
     #else
     #error "Alglin undefined mapping!"
     #endif
-    return info ;
+    return info;
   }
 
   /*
@@ -4055,7 +4059,7 @@ namespace alglin {
                             doublereal      * WORK,
                             integer   const * LWORK,
                             integer   const * IWORK, // (8*min(M,N))
-                            integer         * info ) ;
+                            integer         * info );
 
     void
     LAPACK_F77NAME(sgesdd)( character const   JOBZ[],
@@ -4071,7 +4075,7 @@ namespace alglin {
                             real            * WORK,
                             integer   const * LWORK,
                             integer   const * IWORK, // (8*min(M,N))
-                            integer         * info  ) ;
+                            integer         * info  );
   }
   #endif
 
@@ -4090,26 +4094,26 @@ namespace alglin {
          real            WORK[],
          integer         LWORK,
          integer         IWORK[] ) // (8*min(M,N))
-  { integer info = 0 ;
+  { integer info = 0;
     #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS)
     LAPACK_F77NAME(sgesdd)( job_blas[JOBZ],
                             &M, &N, A, &LDA, S, U, &LDU, VT, &LDVT,
-                            WORK, &LWORK, IWORK, &info ) ;
+                            WORK, &LWORK, IWORK, &info );
     #elif defined(ALGLIN_USE_ATLAS)
     //@@ USE LAPACK ROUTINE @@
     LAPACK_F77NAME(sgesdd)( job_blas[JOBZ],
                             &M, &N, A, &LDA, S, U, &LDU, VT, &LDVT,
-                            WORK, &LWORK, IWORK, &info ) ;
+                            WORK, &LWORK, IWORK, &info );
     #elif defined(ALGLIN_USE_MKL)
     sgesdd( job_blas[JOBZ],
-            &M, &N, A, &LDA, S, U, &LDU, VT, &LDVT, WORK, &LWORK, IWORK, &info ) ;
+            &M, &N, A, &LDA, S, U, &LDU, VT, &LDVT, WORK, &LWORK, IWORK, &info );
     #elif defined(ALGLIN_USE_ACCELERATE)
     CLAPACKNAME(sgesdd)( const_cast<character*>(job_blas[JOBZ]),
-                         &M, &N, A, &LDA, S, U, &LDU, VT, &LDVT, WORK, &LWORK, IWORK, &info ) ;
+                         &M, &N, A, &LDA, S, U, &LDU, VT, &LDVT, WORK, &LWORK, IWORK, &info );
     #else
     #error "Alglin undefined mapping!"
     #endif
-    return info ;
+    return info;
   }
 
   inline
@@ -4127,26 +4131,26 @@ namespace alglin {
          doublereal      WORK[],
          integer         LWORK,
          integer         IWORK[] ) // (8*min(M,N))
-  { integer info = 0 ;
+  { integer info = 0;
     #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS)
     LAPACK_F77NAME(dgesdd)( job_blas[JOBZ],
                             &M, &N, A, &LDA, S, U, &LDU, VT, &LDVT,
-                            WORK, &LWORK, IWORK, &info ) ;
+                            WORK, &LWORK, IWORK, &info );
     #elif defined(ALGLIN_USE_ATLAS)
     //@@ USE LAPACK ROUTINE @@
     LAPACK_F77NAME(dgesdd)( job_blas[JOBZ],
                             &M, &N, A, &LDA, S, U, &LDU, VT, &LDVT,
-                            WORK, &LWORK, IWORK, &info ) ;
+                            WORK, &LWORK, IWORK, &info );
     #elif defined(ALGLIN_USE_MKL)
     dgesdd( job_blas[JOBZ],
-            &M, &N, A, &LDA, S, U, &LDU, VT, &LDVT, WORK, &LWORK, IWORK, &info ) ;
+            &M, &N, A, &LDA, S, U, &LDU, VT, &LDVT, WORK, &LWORK, IWORK, &info );
     #elif defined(ALGLIN_USE_ACCELERATE)
     CLAPACKNAME(dgesdd)( const_cast<character*>(job_blas[JOBZ]),
-                         &M, &N, A, &LDA, S, U, &LDU, VT, &LDVT, WORK, &LWORK, IWORK, &info ) ;
+                         &M, &N, A, &LDA, S, U, &LDU, VT, &LDVT, WORK, &LWORK, IWORK, &info );
     #else
     #error "Alglin undefined mapping!"
     #endif
-    return info ;
+    return info;
   }
 
 
@@ -4285,7 +4289,7 @@ namespace alglin {
                            real            work[],
                            integer const * lwork,
                            integer         iwork[],
-                           integer       * info ) ;
+                           integer       * info );
 
    void
    LAPACK_F77NAME(dgelsd)( integer    const * m,
@@ -4301,7 +4305,7 @@ namespace alglin {
                            doublereal         work[],
                            integer    const * lwork,
                            integer            iwork[],
-                           integer          * info ) ;
+                           integer          * info );
   }
   #endif
 
@@ -4320,17 +4324,17 @@ namespace alglin {
          real      work[],
          integer   lwork,
          integer   iwork[] )
-  { integer info = 0 ;
+  { integer info = 0;
     #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
-    LAPACK_F77NAME(sgelsd)( &m, &n, &nrhs, a, &lda, b, &ldb, s, &rcond, &rank, work, &lwork, iwork, &info) ;
+    LAPACK_F77NAME(sgelsd)( &m, &n, &nrhs, a, &lda, b, &ldb, s, &rcond, &rank, work, &lwork, iwork, &info);
     #elif defined(ALGLIN_USE_MKL)
-    sgelsd( &m, &n, &nrhs, a, &lda, b, &ldb, s, &rcond, &rank, work, &lwork, iwork, &info) ;
+    sgelsd( &m, &n, &nrhs, a, &lda, b, &ldb, s, &rcond, &rank, work, &lwork, iwork, &info);
     #elif defined(ALGLIN_USE_ACCELERATE)
-    CLAPACKNAME(sgelsd)( &m, &n, &nrhs, a, &lda, b, &ldb, s, &rcond, &rank, work, &lwork, iwork, &info ) ;
+    CLAPACKNAME(sgelsd)( &m, &n, &nrhs, a, &lda, b, &ldb, s, &rcond, &rank, work, &lwork, iwork, &info );
     #else
     #error "Alglin undefined mapping!"
     #endif
-    return info ;
+    return info;
   }
 
   inline
@@ -4348,17 +4352,17 @@ namespace alglin {
          doublereal work[],
          integer    lwork,
          integer    iwork[] )
-  { integer info = 0 ;
+  { integer info = 0;
     #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
-    LAPACK_F77NAME(dgelsd)( &m, &n, &nrhs, a, &lda, b, &ldb, s, &rcond, &rank, work, &lwork, iwork, &info) ;
+    LAPACK_F77NAME(dgelsd)( &m, &n, &nrhs, a, &lda, b, &ldb, s, &rcond, &rank, work, &lwork, iwork, &info);
     #elif defined(ALGLIN_USE_MKL)
-    dgelsd( &m, &n, &nrhs, a, &lda, b, &ldb, s, &rcond, &rank, work, &lwork, iwork, &info) ;
+    dgelsd( &m, &n, &nrhs, a, &lda, b, &ldb, s, &rcond, &rank, work, &lwork, iwork, &info);
     #elif defined(ALGLIN_USE_ACCELERATE)
-    CLAPACKNAME(dgelsd)( &m, &n, &nrhs, a, &lda, b, &ldb, s, &rcond, &rank, work, &lwork, iwork, &info ) ;
+    CLAPACKNAME(dgelsd)( &m, &n, &nrhs, a, &lda, b, &ldb, s, &rcond, &rank, work, &lwork, iwork, &info );
     #else
     #error "Alglin undefined mapping!"
     #endif
-    return info ;
+    return info;
   }
 
   /*
@@ -4473,7 +4477,7 @@ namespace alglin {
                            integer       * rank,
                            real          * work,
                            integer const * lwork,
-                           integer       * info ) ;
+                           integer       * info );
 
    void
    LAPACK_F77NAME(dgelss)( integer    const * m,
@@ -4488,7 +4492,7 @@ namespace alglin {
                            integer          * rank,
                            doublereal       * work,
                            integer    const * lwork,
-                           integer          * info ) ;
+                           integer          * info );
   }
   #endif
 
@@ -4506,7 +4510,7 @@ namespace alglin {
          integer & rank,
          real      work[],
          integer   lwork )
-  { integer info = 0 ;
+  { integer info = 0;
     #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
     LAPACK_F77NAME(sgelss)(&m, &n, &nrhs, a, &lda, b, &ldb, s,
                            &rcond, &rank, work, &lwork, &info);
@@ -4515,11 +4519,11 @@ namespace alglin {
            &rcond, &rank, work, &lwork, &info);
     #elif defined(ALGLIN_USE_ACCELERATE)
     CLAPACKNAME(sgelss)( &m, &n, &nrhs, a, &lda, b, &ldb, s,
-                         &rcond, &rank, work, &lwork, &info ) ;
+                         &rcond, &rank, work, &lwork, &info );
     #else
     #error "Alglin undefined mapping!"
     #endif
-    return info ;
+    return info;
   }
 
   inline
@@ -4536,20 +4540,20 @@ namespace alglin {
          integer  & rank,
          doublereal work[],
          integer    lwork )
-  { integer info = 0 ;
+  { integer info = 0;
     #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
     LAPACK_F77NAME(dgelss)( &m, &n, &nrhs, a, &lda, b, &ldb, s,
-                            &rcond, &rank, work, &lwork, &info) ;
+                            &rcond, &rank, work, &lwork, &info);
     #elif defined(ALGLIN_USE_MKL)
     dgelss( &m, &n, &nrhs, a, &lda, b, &ldb, s,
-            &rcond, &rank, work, &lwork, &info) ;
+            &rcond, &rank, work, &lwork, &info);
     #elif defined(ALGLIN_USE_ACCELERATE)
     CLAPACKNAME(dgelss)( &m, &n, &nrhs, a, &lda, b, &ldb, s,
-                         &rcond, &rank, work, &lwork, &info ) ;
+                         &rcond, &rank, work, &lwork, &info );
     #else
     #error "Alglin undefined mapping!"
     #endif
-    return info ;
+    return info;
   }
 
   /*
@@ -4687,7 +4691,7 @@ namespace alglin {
                            integer       * rank,
                            real          * work,
                            integer const * lwork,
-                           integer       * info ) ;
+                           integer       * info );
 
    void
    LAPACK_F77NAME(dgelsy)( integer    const * m,
@@ -4702,7 +4706,7 @@ namespace alglin {
                            integer          * rank,
                            doublereal       * work,
                            integer    const * lwork,
-                           integer          * info ) ;
+                           integer          * info );
   }
   #endif
 
@@ -4720,7 +4724,7 @@ namespace alglin {
          integer & rank,
          real      work[],
          integer   lwork )
-  { integer info = 0 ;
+  { integer info = 0;
     #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
     LAPACK_F77NAME(sgelsy)(&m, &n, &nrhs, a, &lda, b, &ldb, jpvt,
                            &rcond, &rank, work, &lwork, &info);
@@ -4729,11 +4733,11 @@ namespace alglin {
            &rcond, &rank, work, &lwork, &info);
     #elif defined(ALGLIN_USE_ACCELERATE)
     CLAPACKNAME(sgelsy)( &m, &n, &nrhs, a, &lda, b, &ldb, jpvt,
-                         &rcond, &rank, work, &lwork, &info ) ;
+                         &rcond, &rank, work, &lwork, &info );
     #else
     #error "Alglin undefined mapping!"
     #endif
-    return info ;
+    return info;
   }
 
   inline
@@ -4750,20 +4754,20 @@ namespace alglin {
          integer  & rank,
          doublereal work[],
          integer    lwork )
-  { integer info = 0 ;
+  { integer info = 0;
     #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
     LAPACK_F77NAME(dgelsy)( &m, &n, &nrhs, a, &lda, b, &ldb, jpvt,
-                            &rcond, &rank, work, &lwork, &info) ;
+                            &rcond, &rank, work, &lwork, &info);
     #elif defined(ALGLIN_USE_MKL)
     dgelsy( &m, &n, &nrhs, a, &lda, b, &ldb, jpvt,
-            &rcond, &rank, work, &lwork, &info) ;
+            &rcond, &rank, work, &lwork, &info);
     #elif defined(ALGLIN_USE_ACCELERATE)
     CLAPACKNAME(dgelsy)( &m, &n, &nrhs, a, &lda, b, &ldb, jpvt,
-                         &rcond, &rank, work, &lwork, &info ) ;
+                         &rcond, &rank, work, &lwork, &info );
     #else
     #error "Alglin undefined mapping!"
     #endif
-    return info ;
+    return info;
   }
 
 }

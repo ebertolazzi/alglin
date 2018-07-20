@@ -86,31 +86,31 @@ namespace alglin {
                                   integer ncR,
                                   t_Value * A, integer ldA,
                                   integer swapR[] ) {
-    integer ierr ;
-    if ( 2*NB < nrA ) ierr = getry( nrA, ncA, A, ldA, swapR, NB ) ;
-    else              ierr = gty( nrA, ncA, A, ldA, swapR ) ;
+    integer ierr;
+    if ( 2*NB < nrA ) ierr = getry( nrA, ncA, A, ldA, swapR, NB );
+    else              ierr = gty( nrA, ncA, A, ldA, swapR );
 
     ALGLIN_ASSERT( ierr == 0,
-                   "DiazLU::LU_left_right, found ierr: " << ierr ) ;
+                   "DiazLU::LU_left_right, found ierr: " << ierr );
     // applico permutazione al blocco
-    t_Value * R = A + ncA * ldA ;
-    t_Value * L = A - ncL * ldA ;
-    for ( integer i = 0 ; i < ncA ; ++i ) {
-      integer ip = swapR[i] ;
+    t_Value * R = A + ncA * ldA;
+    t_Value * L = A - ncL * ldA;
+    for ( integer i = 0; i < ncA; ++i ) {
+      integer ip = swapR[i];
       if ( ip > i ) {
-        swap( ncR, R + i, ldA, R + ip, ldA ) ;
-        swap( ncL, L + i, ldA, L + ip, ldA ) ;
+        swap( ncR, R + i, ldA, R + ip, ldA );
+        swap( ncL, L + i, ldA, L + ip, ldA );
       }
     }
     trsm( LEFT, LOWER, NO_TRANSPOSE, UNIT,
           ncA, ncR, 1.0,
           A, ldA,
-          R, ldA ) ;
+          R, ldA );
     gemm( NO_TRANSPOSE, NO_TRANSPOSE,
           nrA-ncA, ncR, ncA,
           -1.0,  A+ncA, ldA,
           R, ldA,
-          1.0,  R+ncA, ldA ) ;
+          1.0,  R+ncA, ldA );
   }
 
   /*
@@ -135,30 +135,30 @@ namespace alglin {
                                   integer nrB,
                                   t_Value * B, integer ldB,
                                   integer swapC[] ) {
-    integer ierr ;
-    if ( 2*NB < ncA ) ierr = getrx( nrA, ncA, A, ldA, swapC, NB ) ;
-    else              ierr = gtx( nrA, ncA, A, ldA, swapC ) ;
+    integer ierr;
+    if ( 2*NB < ncA ) ierr = getrx( nrA, ncA, A, ldA, swapC, NB );
+    else              ierr = gtx( nrA, ncA, A, ldA, swapC );
 
     ALGLIN_ASSERT( ierr == 0,
-                   "DiazLU::LU_top_bottom, found ierr: " << ierr ) ;
+                   "DiazLU::LU_top_bottom, found ierr: " << ierr );
     // applico permutazione al blocco
-    t_Value * T = A - nrT ;
-    for ( integer i = 0 ; i < nrA ; ++i ) {
-      integer ip = swapC[i] ;
+    t_Value * T = A - nrT;
+    for ( integer i = 0; i < nrA; ++i ) {
+      integer ip = swapC[i];
       if ( ip > i ) {
-        swap( nrT, T + i*ldA, 1, T + ip*ldA, 1 ) ;
-        swap( nrB, B + i*ldB, 1, B + ip*ldB, 1 ) ;
+        swap( nrT, T + i*ldA, 1, T + ip*ldA, 1 );
+        swap( nrB, B + i*ldB, 1, B + ip*ldB, 1 );
       }
     }
     trsm( RIGHT, UPPER, NO_TRANSPOSE, NON_UNIT,
           nrB, nrA, 1.0,
           A, ldA,
-          B, ldB ) ;
+          B, ldB );
     gemm( NO_TRANSPOSE, NO_TRANSPOSE,
           nrB, ncA-nrA, nrA,
           -1.0, B, ldB,
           A+nrA*ldA, ldA,
-          1.0,  B+nrA*ldB, ldB ) ;
+          1.0,  B+nrA*ldB, ldB );
   }
 
   /*\
@@ -174,29 +174,29 @@ namespace alglin {
   DiazLU<t_Value>::factorize() {
 
     ALGLIN_ASSERT( this->numCyclicOMEGA == 0 && this->numCyclicBC == 0,
-                   "DiazLU cannot manage cyclic BC" ) ;
+                   "DiazLU cannot manage cyclic BC" );
 
-    integer const & n      = this->n ;
-    integer const & nxnx2  = this->nxnx2 ;
-    integer const & nxn    = this->nxn      ;
-    integer const & nblock = this->nblock ;
+    integer const & n      = this->n;
+    integer const & nxnx2  = this->nxnx2;
+    integer const & nxn    = this->nxn;
+    integer const & nblock = this->nblock;
 
-    integer const & col00  = this->numInitialOMEGA ;
-    integer const & row0   = this->numInitialBC ;
-    integer const & rowN   = this->numFinalBC ;
+    integer const & col00  = this->numInitialOMEGA;
+    integer const & row0   = this->numInitialBC;
+    integer const & rowN   = this->numFinalBC;
 
-    integer const col0      = n + col00 ;
-    integer const row00     = row0 - col00 ;
-    integer const n_m_row00 = n - row00 ;
+    integer const col0      = n + col00;
+    integer const row00     = row0 - col00;
+    integer const n_m_row00 = n - row00;
 
-    valuePointer & block0 = this-> block0 ;
-    valuePointer & blockN = this-> blockN ;
+    valuePointer & block0 = this-> block0;
+    valuePointer & blockN = this-> blockN;
 
     // primo blocco
-    integer * swapRC = swapRC_blks ;
+    integer * swapRC = swapRC_blks;
     if ( col00 > 0 ) {
-      LU_left_right( row0, col00, 0, col0-col00, block0, row0, swapRC ) ;
-      swapRC += col00 ;
+      LU_left_right( row0, col00, 0, col0-col00, block0, row0, swapRC );
+      swapRC += col00;
     }
 
     /*
@@ -215,29 +215,29 @@ namespace alglin {
 
     // blocchi intermedi (n-1)
     if ( nblock > 0 ) {
-      valuePointer B1 = block0 + (row0+1)*col00 ;
+      valuePointer B1 = block0 + (row0+1)*col00;
       LU_top_bottom( col00, row00,
                      n, B1, row0,
-                     n, this->DE_blk, n, swapRC ) ;
-      swapRC += row00 ;
-      valuePointer D = this->DE_blk + row00 * n ;
+                     n, this->DE_blk, n, swapRC );
+      swapRC += row00;
+      valuePointer D = this->DE_blk + row00 * n;
       //                 NR          NC            L       R
-      LU_left_right( n, n_m_row00, row00, n, D, n, swapRC ) ;
-      swapRC += n_m_row00 ;
+      LU_left_right( n, n_m_row00, row00, n, D, n, swapRC );
+      swapRC += n_m_row00;
     }
     
-    valuePointer C = this->DE_blk ;
-    for ( nblk = 1 ; nblk < nblock ; ++nblk ) {
+    valuePointer C = this->DE_blk;
+    for ( nblk = 1; nblk < nblock; ++nblk ) {
       C += nxnx2;
-      valuePointer B1 = C - nxn + n_m_row00 ;
+      valuePointer B1 = C - nxn + n_m_row00;
       LU_top_bottom( n_m_row00, row00,
                      n, B1, n,
-                     n,  C, n, swapRC ) ;
-      swapRC += row00 ;
-      valuePointer D = C + row00 * n ;
+                     n,  C, n, swapRC );
+      swapRC += row00;
+      valuePointer D = C + row00 * n;
       //                 NR          NC            L       R
-      LU_left_right( n, n_m_row00, row00, n, D, n, swapRC ) ;
-      swapRC += n_m_row00 ;
+      LU_left_right( n, n_m_row00, row00, n, D, n, swapRC );
+      swapRC += n_m_row00;
     }
 
     // ultimo blocco
@@ -255,25 +255,25 @@ namespace alglin {
     //          row00       colNN
     */
 
-    swapRC = swapRC_blks + ( col00 + nblock*n ) ;
+    swapRC = swapRC_blks + ( col00 + nblock*n );
 
     if ( nblock == 0 ) {
-      valuePointer B1 = block0 + (row0+1) * col00 ;
+      valuePointer B1 = block0 + (row0+1) * col00;
       LU_top_bottom( col00, row00, n,
                      B1, row0,
                      rowN, blockN, rowN,
-                     swapRC ) ;
+                     swapRC );
     } else {
-      valuePointer B1 = this->DE_blk + nblock * nxnx2 - nxn + n_m_row00 ;
+      valuePointer B1 = this->DE_blk + nblock * nxnx2 - nxn + n_m_row00;
       LU_top_bottom( n_m_row00, row00, n,
                      B1, n,
                      rowN, blockN, rowN,
-                     swapRC ) ;
+                     swapRC );
     }
 
     // fattorizzazione ultimo blocco
     valuePointer D0 = blockN + row00 * rowN;
-    this->la_factorization->factorize(rowN,rowN,D0,rowN) ;
+    this->la_factorization->factorize(rowN,rowN,D0,rowN);
   }
 
   /*\
@@ -289,53 +289,53 @@ namespace alglin {
   void
   DiazLU<t_Value>::solve_internal( bool do_permute, valuePointer in_out ) const {
   
-    integer const & n      = this->n ;
-    integer const & nxnx2  = this->nxnx2 ;
-    integer const & nxn    = this->nxn      ;
-    integer const & nblock = this->nblock ;
-    integer const & col00  = this->numInitialOMEGA ;
-    integer const & colNN  = this->numFinalOMEGA ;
-    integer const & row0   = this->numInitialBC ;
-    integer const & rowN   = this->numFinalBC ;
+    integer const & n      = this->n;
+    integer const & nxnx2  = this->nxnx2;
+    integer const & nxn    = this->nxn;
+    integer const & nblock = this->nblock;
+    integer const & col00  = this->numInitialOMEGA;
+    integer const & colNN  = this->numFinalOMEGA;
+    integer const & row0   = this->numInitialBC;
+    integer const & rowN   = this->numFinalBC;
 
-    integer const col0      = n + col00 ;
-    integer const colN      = n + colNN ;
-    integer const row00     = row0 - col00 ;
-    integer const n_m_row00 = n - row00 ;
+    integer const col0      = n + col00;
+    integer const colN      = n + colNN;
+    integer const row00     = row0 - col00;
+    integer const n_m_row00 = n - row00;
 
-    valueConstPointer const & block0 = this->block0 ;
-    valueConstPointer const & blockN = this->blockN ;
+    valueConstPointer const & block0 = this->block0;
+    valueConstPointer const & blockN = this->blockN;
 
-    integer neq = nblock*n+row0+rowN ;
-    if ( do_permute ) std::rotate( in_out, in_out + neq - row0, in_out + neq ) ;
+    integer neq = nblock*n+row0+rowN;
+    if ( do_permute ) std::rotate( in_out, in_out + neq - row0, in_out + neq );
 
     // applico permutazione alla RHS
-    integer const * swapR = swapRC_blks ;
-    valuePointer io = in_out ;
-    for ( integer k = 0 ; k < col00 ; ++k ) {
-      integer k1 = swapR[k] ; // 0 based
-      if ( k1 > k ) std::swap( io[k], io[k1] ) ;
+    integer const * swapR = swapRC_blks;
+    valuePointer io = in_out;
+    for ( integer k = 0; k < col00; ++k ) {
+      integer k1 = swapR[k]; // 0 based
+      if ( k1 > k ) std::swap( io[k], io[k1] );
     }
-    io    += row0 ;
-    swapR += row0 ;
-    for ( nblk = 0 ; nblk < nblock ; ++nblk )  {
-      for ( integer k = 0 ; k < n_m_row00 ; ++k ) {
-        integer k1 = swapR[k] ; // 0 based
-        if ( k1 > k ) std::swap( io[k], io[k1] ) ;
+    io    += row0;
+    swapR += row0;
+    for ( nblk = 0; nblk < nblock; ++nblk )  {
+      for ( integer k = 0; k < n_m_row00; ++k ) {
+        integer k1 = swapR[k]; // 0 based
+        if ( k1 > k ) std::swap( io[k], io[k1] );
       }
-      io    += n ;
-      swapR += n ;
+      io    += n;
+      swapR += n;
     }
 
     // primo blocco
-    io = in_out ;
+    io = in_out;
     trsv( LOWER, NO_TRANSPOSE, UNIT,
           row0,
-          block0, row0, io, 1 ) ;
+          block0, row0, io, 1 );
 
-    io += row0 ;
+    io += row0;
     // blocchi intermedi
-    nblk = 0 ;
+    nblk = 0;
     while ( nblk < nblock ) {
 
       /*
@@ -347,37 +347,37 @@ namespace alglin {
       //  row00
       */
 
-      valuePointer io1 = io - row00 ;
-      valuePointer M   = this->DE_blk + nblk * nxnx2 ;
-      valuePointer L   = M + row00 * n ;
+      valuePointer io1 = io - row00;
+      valuePointer M   = this->DE_blk + nblk * nxnx2;
+      valuePointer L   = M + row00 * n;
 
       // io -= M*io1
       gemv( NO_TRANSPOSE,
             n, row00,
             -1, M, n,
             io1, 1,
-            1, io, 1 ) ;
+            1, io, 1 );
 
       trsv( LOWER, NO_TRANSPOSE, UNIT,
-            n, L, n, io, 1 ) ;
+            n, L, n, io, 1 );
 
-      io += n ;
-      ++nblk ;
+      io += n;
+      ++nblk;
     }
 
     // soluzione ultimo blocco
-    integer ncol = colN-rowN ;
+    integer ncol = colN-rowN;
     gemv( NO_TRANSPOSE,
           rowN, ncol,
           -1, blockN, rowN,
           io-ncol, 1,
-          1, io, 1 ) ;
+          1, io, 1 );
 
-    this->la_factorization->solve(io) ;
+    this->la_factorization->solve(io);
 
     while ( nblk > 0 ) {
-      --nblk ;
-      io -= n ;
+      --nblk;
+      io -= n;
 
       /*
       //  +---------+---+-------+
@@ -387,54 +387,54 @@ namespace alglin {
       //  row00
       */
 
-      valuePointer io1 = io + n ;
-      valuePointer U   = this->DE_blk + nblk * nxnx2 + row00 * n ;
-      valuePointer M   = U + nxn ;
+      valuePointer io1 = io + n;
+      valuePointer U   = this->DE_blk + nblk * nxnx2 + row00 * n;
+      valuePointer M   = U + nxn;
 
       gemv( NO_TRANSPOSE,
             n, n_m_row00,
             -1, M, n,
             io1, 1,
-            1, io, 1 ) ;
+            1, io, 1 );
 
       trsv( UPPER, NO_TRANSPOSE, NON_UNIT,
-            n, U, n, io, 1 ) ;
+            n, U, n, io, 1 );
     }
     
     // primo blocco
-    io -= row0 ;
+    io -= row0;
   
     // soluzione primo blocco
     gemv( NO_TRANSPOSE,
           row0, col0-row0,
           -1, block0+row0*row0, row0,
           io+row0, 1,
-          1, io, 1 ) ;
+          1, io, 1 );
 
     trsv( UPPER, NO_TRANSPOSE, NON_UNIT,
           row0,
-          block0, row0, io, 1 ) ;
+          block0, row0, io, 1 );
 
     // applico permutazione alla Soluzione
-    integer const * swapC = swapRC_blks+(nblock*n+col00) ;
-    io = in_out + nblock*n + col00 ;
-    integer k = row00 ;
+    integer const * swapC = swapRC_blks+(nblock*n+col00);
+    io = in_out + nblock*n + col00;
+    integer k = row00;
     while ( k > 0 ) {
-      integer k1 = swapC[--k] ; // 0 based
-      if ( k1 > k ) std::swap( io[k], io[k1] ) ;
+      integer k1 = swapC[--k]; // 0 based
+      if ( k1 > k ) std::swap( io[k], io[k1] );
     }
-    for ( nblk = 0 ; nblk < nblock ; ++nblk )  {
-      io    -= n ;
-      swapC -= n ;
-      k      = row00 ;
+    for ( nblk = 0; nblk < nblock; ++nblk )  {
+      io    -= n;
+      swapC -= n;
+      k      = row00;
       while ( k > 0 ) {
-        integer k1 = swapC[--k] ; // 0 based
-        if ( k1 > k ) std::swap( io[k], io[k1] ) ;
+        integer k1 = swapC[--k]; // 0 based
+        if ( k1 > k ) std::swap( io[k], io[k1] );
       }
     }
 
     // permuto le x
-    if ( do_permute ) std::rotate( in_out, in_out + col00, in_out + neq ) ;
+    if ( do_permute ) std::rotate( in_out, in_out + col00, in_out + neq );
   }
  
   template <typename t_Value>
@@ -444,64 +444,64 @@ namespace alglin {
                                    valuePointer in_out,
                                    integer      ldRhs ) const {
   
-    integer const & n      = this->n ;
-    integer const & nxnx2  = this->nxnx2 ;
-    integer const & nxn    = this->nxn      ;
-    integer const & nblock = this->nblock ;
-    integer const & col00  = this->numInitialOMEGA ;
-    integer const & colNN  = this->numFinalOMEGA ;
-    integer const & row0   = this->numInitialBC ;
-    integer const & rowN   = this->numFinalBC ;
+    integer const & n      = this->n;
+    integer const & nxnx2  = this->nxnx2;
+    integer const & nxn    = this->nxn;
+    integer const & nblock = this->nblock;
+    integer const & col00  = this->numInitialOMEGA;
+    integer const & colNN  = this->numFinalOMEGA;
+    integer const & row0   = this->numInitialBC;
+    integer const & rowN   = this->numFinalBC;
 
-    integer const col0      = n + col00 ;
-    integer const colN      = n + colNN ;
-    integer const row00     = row0 - col00 ;
-    integer const n_m_row00 = n - row00 ;
+    integer const col0      = n + col00;
+    integer const colN      = n + colNN;
+    integer const row00     = row0 - col00;
+    integer const n_m_row00 = n - row00;
 
-    valueConstPointer const & block0 = this->block0 ;
-    valueConstPointer const & blockN = this->blockN ;
+    valueConstPointer const & block0 = this->block0;
+    valueConstPointer const & blockN = this->blockN;
 
-    integer neq = nblock*n+row0+rowN ;
+    integer neq = nblock*n+row0+rowN;
 
     // permuto le x
-    valuePointer io = in_out ;
+    valuePointer io = in_out;
     if ( do_permute ) {
-      for ( integer k = 0 ; k < nrhs ; ++k ) {
-        std::rotate( io, io + neq - row0, io + neq ) ;
-        io += ldRhs ;
+      for ( integer k = 0; k < nrhs; ++k ) {
+        std::rotate( io, io + neq - row0, io + neq );
+        io += ldRhs;
       }
-      io = in_out ;
+      io = in_out;
     }
 
     // applico permutazione alla RHS
-    integer const * swapR = swapRC_blks ;
-    for ( integer k = 0 ; k < col00 ; ++k ) {
-      integer k1 = swapR[k] ; // 0 based
+    integer const * swapR = swapRC_blks;
+    for ( integer k = 0; k < col00; ++k ) {
+      integer k1 = swapR[k]; // 0 based
       if ( k1 > k )
-        swap( nrhs, io+k, ldRhs, io+k1, ldRhs ) ;
+        swap( nrhs, io+k, ldRhs, io+k1, ldRhs );
     }
-    io    += row0 ;
-    swapR += row0 ;
-    for ( nblk = 0 ; nblk < nblock ; ++nblk )  {
-      for ( integer k = 0 ; k < n_m_row00 ; ++k ) {
-        integer k1 = swapR[k] ; // 0 based
+    io    += row0;
+    swapR += row0;
+    for ( nblk = 0; nblk < nblock; ++nblk )  {
+      for ( integer k = 0; k < n_m_row00; ++k ) {
+        integer k1 = swapR[k]; // 0 based
         if ( k1 > k )
-          swap( nrhs, io+k, ldRhs, io+k1, ldRhs ) ;
+          swap( nrhs, io+k, ldRhs, io+k1, ldRhs );
       }
-      io    += n ;
-      swapR += n ;
+      io    += n;
+      swapR += n;
     }
 
     // primo blocco
-    io = in_out ;
+    io = in_out;
     trsm( LEFT, LOWER, NO_TRANSPOSE, UNIT,
           row0, nrhs,
           1.0, block0, row0,
-          io, ldRhs ) ;
+          io, ldRhs );
 
-    io += row0 ;
+    io += row0;
     // blocchi intermedi
-    nblk = 0 ;
+    nblk = 0;
     while ( nblk < nblock ) {
 
       /*
@@ -513,9 +513,9 @@ namespace alglin {
       //  row00
       */
 
-      valuePointer io1 = io - row00 ;
-      valuePointer M   = this->DE_blk + nblk * nxnx2 ;
-      valuePointer L   = M + row00 * n ;
+      valuePointer io1 = io - row00;
+      valuePointer M   = this->DE_blk + nblk * nxnx2;
+      valuePointer L   = M + row00 * n;
 
       // io -= M*io1
       gemm( NO_TRANSPOSE,
@@ -523,31 +523,31 @@ namespace alglin {
             n, nrhs, row00,
             -1, M, n,
             io1, ldRhs,
-            1, io, ldRhs ) ;
+            1, io, ldRhs );
 
       trsm( LEFT, LOWER, NO_TRANSPOSE, UNIT,
             n, nrhs,
             1.0, L, n,
-            io, ldRhs ) ;
+            io, ldRhs );
 
-      io += n ;
-      ++nblk ;
+      io += n;
+      ++nblk;
     }
 
     // soluzione ultimo blocco
-    integer ncol = colN-rowN ;
+    integer ncol = colN-rowN;
     gemm( NO_TRANSPOSE,
           NO_TRANSPOSE,
           rowN, nrhs, ncol,
           -1, blockN, rowN,
           io-ncol, ldRhs,
-          1, io, ldRhs ) ;
+          1, io, ldRhs );
 
-    this->la_factorization->solve(nrhs,io,ldRhs) ;
+    this->la_factorization->solve(nrhs,io,ldRhs);
 
     while ( nblk > 0 ) {
-      --nblk ;
-      io -= n ;
+      --nblk;
+      io -= n;
 
       /*
       //  +---------+---+-------+
@@ -557,25 +557,25 @@ namespace alglin {
       //  row00
       */
 
-      valuePointer io1 = io + n ;
-      valuePointer U   = this->DE_blk + nblk * nxnx2 + row00 * n ;
-      valuePointer M   = U + nxn ;
+      valuePointer io1 = io + n;
+      valuePointer U   = this->DE_blk + nblk * nxnx2 + row00 * n;
+      valuePointer M   = U + nxn;
 
       gemm( NO_TRANSPOSE,
             NO_TRANSPOSE,
             n, nrhs, n_m_row00,
             -1, M, n,
             io1, ldRhs,
-            1, io, ldRhs ) ;
+            1, io, ldRhs );
 
       trsm( LEFT, UPPER, NO_TRANSPOSE, NON_UNIT,
             n, nrhs,
             1.0, U, n,
-            io, ldRhs ) ;
+            io, ldRhs );
     }
     
     // primo blocco
-    io -= row0 ;
+    io -= row0;
   
     // soluzione primo blocco
     gemm( NO_TRANSPOSE,
@@ -583,49 +583,49 @@ namespace alglin {
           row0, nrhs, col0-row0,
           -1, block0+row0*row0, row0,
           io+row0, ldRhs,
-          1, io, ldRhs ) ;
+          1, io, ldRhs );
 
     trsm( LEFT, UPPER, NO_TRANSPOSE, NON_UNIT,
           row0, nrhs,
           1.0, block0, row0,
-          io, ldRhs ) ;
+          io, ldRhs );
 
     // applico permutazione alla Soluzione
-    integer const * swapC = swapRC_blks+(nblock*n+col00) ;
-    io = in_out + nblock*n + col00 ;
-    integer k = row00 ;
+    integer const * swapC = swapRC_blks+(nblock*n+col00);
+    io = in_out + nblock*n + col00;
+    integer k = row00;
     while ( k > 0 ) {
-      integer k1 = swapC[--k] ; // 0 based
+      integer k1 = swapC[--k]; // 0 based
       if ( k1 > k )
-        swap( nrhs, io+k, ldRhs, io+k1, ldRhs ) ;
+        swap( nrhs, io+k, ldRhs, io+k1, ldRhs );
     }
-    for ( nblk = 0 ; nblk < nblock ; ++nblk )  {
-      io    -= n ;
-      swapC -= n ;
-      k      = row00 ;
+    for ( nblk = 0; nblk < nblock; ++nblk )  {
+      io    -= n;
+      swapC -= n;
+      k      = row00;
       while ( k > 0 ) {
-        integer k1 = swapC[--k] ; // 0 based
+        integer k1 = swapC[--k]; // 0 based
         if ( k1 > k )
-          swap( nrhs, io+k, ldRhs, io+k1, ldRhs ) ;
+          swap( nrhs, io+k, ldRhs, io+k1, ldRhs );
       }
     }
 
     // permuto le x
     if ( do_permute ) {
-      io = in_out ;
-      for ( k = 0 ; k < nrhs ; ++k ) {
-        std::rotate( io, io + col00, io + neq ) ;
-        io += ldRhs ;
+      io = in_out;
+      for ( k = 0; k < nrhs; ++k ) {
+        std::rotate( io, io + col00, io + neq );
+        io += ldRhs;
       }
     }
   }
 
-  template class DiazLU<double> ;
-  template class DiazLU<float> ;
+  template class DiazLU<double>;
+  template class DiazLU<float>;
 
 }
 
 ///
-/// eof: DiazLU.cc
+/// eof: ABD_Diaz.cc
 ///
 

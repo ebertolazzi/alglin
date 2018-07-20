@@ -23,13 +23,13 @@
 int
 main() {
 
-  int i ;
-  ABD_intType n      = 2 ;
-  ABD_intType nblock = 3 ;
-  ABD_intType row0   = 2 ;
-  ABD_intType col0   = 3 ;
-  ABD_intType rowN   = 3 ;
-  ABD_intType colN   = 4 ;
+  int i;
+  ABD_intType n      = 2;
+  ABD_intType nblock = 3;
+  ABD_intType row0   = 2;
+  ABD_intType col0   = 3;
+  ABD_intType rowN   = 3;
+  ABD_intType colN   = 4;
 
   ABD_intType ldTOP = 2;
   ABD_realType const TOP[] = {
@@ -64,22 +64,22 @@ main() {
      2, -1
   };
 
-  ABD_realType rhs[] = { 6, 4, 9, 4, 9, 4, 9, 4, 7, 3, 2 } ;
+  ABD_realType rhs[] = { 6, 4, 9, 4, 9, 4, 9, 4, 7, 3, 2 };
 
   ABD_intType mat_id = 1;
 
   int ok = ABD_factorize( mat_id,
                           row0, col0, TOP, ldTOP,
                           nblock, n, DE, ldDE,
-                          rowN, colN, BOTTOM, ldBOTTOM ) ;
-  if ( ok != 0 ) printf("ERR = %s\n", ABD_get_last_error() ) ;
+                          rowN, colN, BOTTOM, ldBOTTOM );
+  if ( ok != 0 ) printf("ERR = %s\n", ABD_get_last_error() );
 
-  ok = ABD_solve( mat_id, rhs ) ;
-  if ( ok != 0 ) printf("ERR = %s\n", ABD_get_last_error() ) ;
-  for ( i=0 ; i < 11 ; ++i )
-    printf("x[%d] = %lf\n", i, rhs[i] ) ;
+  ok = ABD_solve( mat_id, rhs );
+  if ( ok != 0 ) printf("ERR = %s\n", ABD_get_last_error() );
+  for ( i=0; i < 11; ++i )
+    printf("x[%d] = %lf\n", i, rhs[i] );
 
-  printf("All done!\n") ;
+  printf("All done!\n");
 
-  return 0 ;
+  return 0;
 }

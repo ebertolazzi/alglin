@@ -37,8 +37,8 @@ extern "C" {
  |
 \*/
 
-typedef int    ABD_intType ;
-typedef double ABD_realType ;
+typedef int    ABD_intType;
+typedef double ABD_realType;
 
 /*!
  *  perform Diaz factorization of ABD matrix defined by blocks TOP, BOTTOM, D and E.
@@ -95,7 +95,7 @@ ABD_factorize( ABD_intType        mat_id,
                ABD_realType const DE[], ABD_intType ldDE,
                ABD_intType        rowN,
                ABD_intType        colN,
-               ABD_realType const BOTTOM[], ABD_intType ldBOTTOM ) ;
+               ABD_realType const BOTTOM[], ABD_intType ldBOTTOM );
 
 /*!
  *  solve linear ABD system using factorization of `ABD_factorize` call
@@ -107,7 +107,7 @@ ABD_factorize( ABD_intType        mat_id,
  */
 
 int
-ABD_solve( ABD_intType mat_id, ABD_realType rhs_sol[] ) ;
+ABD_solve( ABD_intType mat_id, ABD_realType rhs_sol[] );
 
 
 /*!
@@ -125,7 +125,7 @@ int
 ABD_solve_nrhs( ABD_intType  mat_id,
                 ABD_intType  nrhs,
                 ABD_realType rhs_sol[],
-                ABD_intType  ldRhs ) ;
+                ABD_intType  ldRhs );
 
 /*!
  *  destroy (and free mempry) of a factorization of ABD matrix.
@@ -135,17 +135,17 @@ ABD_solve_nrhs( ABD_intType  mat_id,
  */
 
 int
-ABD_free( ABD_intType mat_id ) ;
+ABD_free( ABD_intType mat_id );
 
 /*!
  *  \return pointer to a string with the last error found
  */
 
 char const *
-ABD_get_last_error(void) ;
+ABD_get_last_error(void);
 
 void
-ABD_get_last_error_f90( char [], long len ) ;
+ABD_get_last_error_f90( char [], long len );
 
 /*\
  |  ____    _    ____  ____
@@ -156,8 +156,8 @@ ABD_get_last_error_f90( char [], long len ) ;
  |
 \*/
 
-typedef int    BABD_intType ;
-typedef double BABD_realType ;
+typedef int    BABD_intType;
+typedef double BABD_realType;
 
 /*!
  *  Perform factorization of BABD matrix defined by blocks H, D and E.
@@ -226,7 +226,7 @@ BABD_factorize( BABD_intType        mat_id,
                 BABD_realType const DE[], BABD_intType ldDE,
                 BABD_realType const H0[], BABD_intType ldH0,
                 BABD_realType const HN[], BABD_intType ldHN,
-                BABD_realType const Hq[], BABD_intType ldHq ) ;
+                BABD_realType const Hq[], BABD_intType ldHq );
 /*!
  *  Perform factorization of BABD matrix defined by blocks H, D and E.
  *  Matrix can be bordered.
@@ -322,7 +322,7 @@ BABD_factorize_bordered( BABD_intType        mat_id,
  */
 
 int
-BABD_solve( BABD_intType mat_id, BABD_realType rhs_sol[] ) ;
+BABD_solve( BABD_intType mat_id, BABD_realType rhs_sol[] );
 
 /*!
  *  solve linear ABD system using factorization of `ABD_factorize` call
@@ -339,7 +339,7 @@ int
 BABD_solve_nrhs( BABD_intType  mat_id,
                  BABD_intType  nrhs,
                  BABD_realType rhs_sol[],
-                 BABD_intType  ldRhs ) ;
+                 BABD_intType  ldRhs );
 
 /*!
  *  destroy (and free mempry) of a factorization of ABD matrix.
@@ -349,17 +349,17 @@ BABD_solve_nrhs( BABD_intType  mat_id,
  */
 
 int
-BABD_free( BABD_intType mat_id ) ;
+BABD_free( BABD_intType mat_id );
 
 /*!
  *  \return pointer to a string with the last error found
  */
 
 char const *
-BABD_get_last_error(void) ;
+BABD_get_last_error(void);
 
 void
-BABD_get_last_error_f90( char [], long len ) ;
+BABD_get_last_error_f90( char [], long len );
 
 #ifdef __cplusplus
 }

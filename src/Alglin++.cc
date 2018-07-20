@@ -167,52 +167,52 @@ namespace alglin {
                 T         RCOND,
                 T         SVAL[3] ) {
 
-    integer MN = std::min(M, N) ;
-    std::vector<T> Wmin( MN ), Wmax( MN ) ;
+    integer MN = std::min(M, N);
+    std::vector<T> Wmin( MN ), Wmax( MN );
 
     // Test the input scalar arguments.
     ALGLIN_ASSERT( M >= 0 && N >= 0,
-                   "rankEstimate, bad size matrix " << M << " x " << N ) ;
+                   "rankEstimate, bad size matrix " << M << " x " << N );
     ALGLIN_ASSERT( LDA >= max_index(1,M),
-                   "rankEstimate, bad leading dimension ldA = " << LDA ) ;
+                   "rankEstimate, bad leading dimension ldA = " << LDA );
     ALGLIN_ASSERT( RCOND >= 0,
-                   "rankEstimate, bad condision number rcond = " << RCOND ) ;
+                   "rankEstimate, bad condision number rcond = " << RCOND );
 
     // Quick return if possible
-    SVAL[0] = 0 ;
-    SVAL[1] = 0 ;
-    SVAL[2] = 0 ;
-    if ( MN == 0 ) return 0 ;
+    SVAL[0] = 0;
+    SVAL[1] = 0;
+    SVAL[2] = 0;
+    if ( MN == 0 ) return 0;
 
     // Determine RANK using incremental condition estimation
-    integer RANK = 0 ;
-    T SMAX = std::abs( A[0] ) ;
+    integer RANK = 0;
+    T SMAX = std::abs( A[0] );
     if ( SMAX > 0 ) {
-      T SMIN   = SMAX ;
-      T SMINPR = SMIN ;
-      Wmin[0] = Wmax[0] = 1 ;
+      T SMIN   = SMAX;
+      T SMINPR = SMIN;
+      Wmin[0] = Wmax[0] = 1;
       while ( ++RANK < MN ) {
-        T SMAXPR, S1, C1, S2, C2 ;
-        T * pA0r = A + RANK * LDA ;
-        T & Arr  = pA0r[RANK] ;
-        laic1( 2, RANK, &Wmin.front(), SMIN, pA0r, Arr, SMINPR, S1, C1 ) ;
-        laic1( 1, RANK, &Wmax.front(), SMAX, pA0r, Arr, SMAXPR, S2, C2 ) ;
+        T SMAXPR, S1, C1, S2, C2;
+        T * pA0r = A + RANK * LDA;
+        T & Arr  = pA0r[RANK];
+        laic1( 2, RANK, &Wmin.front(), SMIN, pA0r, Arr, SMINPR, S1, C1 );
+        laic1( 1, RANK, &Wmax.front(), SMAX, pA0r, Arr, SMAXPR, S2, C2 );
 
-        if ( SMAXPR*RCOND > SMINPR ) break ;
+        if ( SMAXPR*RCOND > SMINPR ) break;
 
-        for ( integer i=0 ; i < RANK ; ++i )
-          { Wmin[i] *= S1 ; Wmax[i] *= S2 ; }
+        for ( integer i=0; i < RANK; ++i )
+          { Wmin[i] *= S1; Wmax[i] *= S2; }
 
-        Wmin[RANK] = C1 ;
-        Wmax[RANK] = C2 ;
-        SMIN = SMINPR ;
-        SMAX = SMAXPR ;
+        Wmin[RANK] = C1;
+        Wmax[RANK] = C2;
+        SMIN = SMINPR;
+        SMAX = SMAXPR;
       } 
-      SVAL[0] = SMAX ;
-      SVAL[1] = SMIN ;
-      SVAL[2] = SMINPR ;
+      SVAL[0] = SMAX;
+      SVAL[1] = SMIN;
+      SVAL[2] = SMINPR;
     }
-    return RANK ;
+    return RANK;
   }
 
   /*\
@@ -232,39 +232,39 @@ namespace alglin {
 
   template <typename T>
   LU<T>::~LU() {
-    allocReals.free() ;
-    allocIntegers.free() ;
+    allocReals.free();
+    allocIntegers.free();
   }
 
   template <typename T>
   void
   LU<T>::allocate( integer NR, integer NC ) {
     if ( this->nRow != NR || this->nCol != NC ) {
-      this->nRow = NR ;
-      this->nCol = NC ;
-      allocReals.allocate(size_t(this->nRow*this->nCol+2*(this->nRow+this->nCol))) ;
-      allocIntegers.allocate(size_t(2*this->nRow)) ;
-      this -> Amat    = allocReals(size_t(this->nRow*this->nCol)) ;
-      this -> Work    = allocReals(size_t(2*(this->nRow+this->nCol))) ;
-      this -> i_pivot = allocIntegers(size_t(this->nRow)) ;
-      this -> Iwork   = allocIntegers(size_t(this->nRow)) ;
+      this->nRow = NR;
+      this->nCol = NC;
+      allocReals.allocate(size_t(this->nRow*this->nCol+2*(this->nRow+this->nCol)));
+      allocIntegers.allocate(size_t(2*this->nRow));
+      this -> Amat    = allocReals(size_t(this->nRow*this->nCol));
+      this -> Work    = allocReals(size_t(2*(this->nRow+this->nCol)));
+      this -> i_pivot = allocIntegers(size_t(this->nRow));
+      this -> Iwork   = allocIntegers(size_t(this->nRow));
     }
   }
 
   template <typename T>
   void
   LU<T>::factorize() {
-    integer info = getrf( this->nRow, this->nCol, this->Amat, this->nRow, i_pivot ) ;
-    ALGLIN_ASSERT( info == 0, "LU::factorize getrf INFO = " << info ) ;
+    integer info = getrf( this->nRow, this->nCol, this->Amat, this->nRow, i_pivot );
+    ALGLIN_ASSERT( info == 0, "LU::factorize getrf INFO = " << info );
   }
 
   template <typename T>
   void
   LU<T>::factorize( integer NR, integer NC, valueType const A[], integer LDA ) {
-    allocate( NR, NC ) ;
-    integer info = gecopy( this->nRow, this->nCol, A, LDA, this->Amat, this->nRow ) ;
-    ALGLIN_ASSERT( info == 0, "LU::factorize gecopy INFO = " << info ) ;
-    factorize() ;
+    allocate( NR, NC );
+    integer info = gecopy( this->nRow, this->nCol, A, LDA, this->Amat, this->nRow );
+    ALGLIN_ASSERT( info == 0, "LU::factorize gecopy INFO = " << info );
+    factorize();
   }
 
   template <typename T>
@@ -272,67 +272,67 @@ namespace alglin {
   LU<T>::check_ls( char const who[] ) const {
     ALGLIN_ASSERT( this->nRow == this->nCol,
                    "LU<T>::" << who << ", rectangular matrix " <<
-                   this->nRow << " x " << this->nCol ) ;
+                   this->nRow << " x " << this->nCol );
   }
 
   template <typename T>
   void
   LU<T>::solve( valueType xb[] ) const {
-    check_ls("solve") ;
+    check_ls("solve");
     integer info = getrs( NO_TRANSPOSE,
                           this->nRow, 1, this->Amat, this->nRow, i_pivot,
-                          xb, this->nRow ) ;
-    ALGLIN_ASSERT( info == 0, "LU::solve getrs INFO = " << info ) ;
+                          xb, this->nRow );
+    ALGLIN_ASSERT( info == 0, "LU::solve getrs INFO = " << info );
   }
 
   template <typename T>
   void
   LU<T>::t_solve( valueType xb[] ) const {
-    check_ls("t_solve") ;
+    check_ls("t_solve");
     integer info = getrs( TRANSPOSE,
                           this->nRow, 1, this->Amat, this->nRow, i_pivot,
-                          xb, this->nRow ) ;
-    ALGLIN_ASSERT( info == 0, "LU::t_solve getrs INFO = " << info ) ;
+                          xb, this->nRow );
+    ALGLIN_ASSERT( info == 0, "LU::t_solve getrs INFO = " << info );
   }
 
   template <typename T>
   void
   LU<T>::solve( integer nrhs, valueType B[], integer ldB ) const {
-    check_ls("solve") ;
+    check_ls("solve");
     integer info = getrs( NO_TRANSPOSE,
                           this->nRow, nrhs, this->Amat, this->nRow, i_pivot,
-                          B, ldB ) ;
-    ALGLIN_ASSERT( info == 0, "LU::solve getrs INFO = " << info ) ;
+                          B, ldB );
+    ALGLIN_ASSERT( info == 0, "LU::solve getrs INFO = " << info );
   }
 
   template <typename T>
   void
   LU<T>::t_solve( integer nrhs, valueType B[], integer ldB ) const {
-    check_ls("t_solve") ;
+    check_ls("t_solve");
     integer info = getrs( TRANSPOSE,
                           this->nRow, nrhs, this->Amat, this->nRow, i_pivot,
-                          B, ldB ) ;
-    ALGLIN_ASSERT( info >= 0, "LU::t_solve getrs INFO = " << info ) ;
+                          B, ldB );
+    ALGLIN_ASSERT( info >= 0, "LU::t_solve getrs INFO = " << info );
   }
 
   template <typename T>
   typename LU<T>::valueType
   LU<T>::cond1( valueType norm1 ) const {
-    valueType rcond ;
+    valueType rcond;
     integer info = gecon1( this->nRow, this->Amat, this->nRow,
-                           norm1, rcond, Work, Iwork ) ;
-    ALGLIN_ASSERT( info == 0, "LU::cond1, gecon1 return info = " << info ) ;
-    return rcond ;
+                           norm1, rcond, Work, Iwork );
+    ALGLIN_ASSERT( info == 0, "LU::cond1, gecon1 return info = " << info );
+    return rcond;
   }
 
   template <typename T>
   typename LU<T>::valueType
   LU<T>::condInf( valueType normInf ) const {
-    valueType rcond ;
+    valueType rcond;
     integer info = geconInf( this->nRow, this->Amat, this->nRow,
-                             normInf, rcond, Work, Iwork ) ;
-    ALGLIN_ASSERT( info == 0, "LU::condInf, geconInf return info = " << info ) ;
-    return rcond ;
+                             normInf, rcond, Work, Iwork );
+    ALGLIN_ASSERT( info == 0, "LU::condInf, geconInf return info = " << info );
+    return rcond;
   }
 
   /*\
@@ -345,27 +345,27 @@ namespace alglin {
   template <typename T>
   void
   QR<T>::allocate( integer NR, integer NC, integer Lwrk ) {
-    this->nRow       = NR ;
-    this->nCol       = NC ;
-    this->nReflector = std::min(this->nRow,this->nCol) ;
-    this->Lwork      = Lwrk ;
-    allocReals.allocate(size_t(this->nRow*this->nCol+Lwork+nReflector)) ;
-    this->Amat = allocReals(size_t(this->nRow*this->nCol)) ;
-    this->Work = allocReals(size_t(Lwork)) ;
-    this->Tau  = allocReals(size_t(nReflector)) ;
+    this->nRow       = NR;
+    this->nCol       = NC;
+    this->nReflector = std::min(this->nRow,this->nCol);
+    this->Lwork      = Lwrk;
+    allocReals.allocate(size_t(this->nRow*this->nCol+Lwork+nReflector));
+    this->Amat = allocReals(size_t(this->nRow*this->nCol));
+    this->Work = allocReals(size_t(Lwork));
+    this->Tau  = allocReals(size_t(nReflector));
   }
 
   template <typename T>
   void
   QR<T>::allocate( integer NR, integer NC ) {
     if ( this->nRow != NR || this->nCol != NC ) {
-      valueType tmp ; // get optimal allocation
-      integer info = geqrf( NR, NC, nullptr, NR, nullptr, &tmp, -1 ) ;
-      ALGLIN_ASSERT( info == 0, "QR::factorize call alglin::geqrf return info = " << info ) ;
+      valueType tmp; // get optimal allocation
+      integer info = geqrf( NR, NC, nullptr, NR, nullptr, &tmp, -1 );
+      ALGLIN_ASSERT( info == 0, "QR::factorize call alglin::geqrf return info = " << info );
       integer L = integer(tmp);
-      if ( L < NR ) L = NR ;
-      if ( L < NC ) L = NC ;
-      allocate( NR, NC, L ) ;
+      if ( L < NR ) L = NR;
+      if ( L < NC ) L = NC;
+      allocate( NR, NC, L );
     }
   }
 
@@ -380,63 +380,64 @@ namespace alglin {
                  integer       ldC ) const {
     ALGLIN_ASSERT( (SIDE == alglin::LEFT  && NR == this->nRow) ||
                    (SIDE == alglin::RIGHT && NC == this->nRow),
-                   "QR::applyQ NR = " << NR << " NC = " << NC << " nRow = " << this->nRow ) ;
+                   "QR::applyQ NR = " << NR << " NC = " << NC <<
+                   " nRow = " << this->nRow );
     integer info = ormqr( SIDE, TRANS,
                           NR, NC,
                           nRefl,  // numero riflettori usati nel prodotto Q
                           this->Amat, this->nRow /*ldA*/,
                           Tau,
                           C, ldC,
-                          Work, Lwork ) ;
+                          Work, Lwork );
     ALGLIN_ASSERT( info == 0,
                    "QR::applyQ call alglin::ormqr return info = " << info <<
-                   " Lwork = " << Lwork ) ;
+                   " Lwork = " << Lwork );
   }
       
   template <typename T>
   void
   QR<T>::getR( valueType R[], integer ldR ) const {
-    integer minRC = std::min( this->nRow, this->nCol ) ;
-    gezero( minRC, minRC, R, ldR ) ;
-    for ( integer i = 0 ; i < minRC ; ++i )
-      for ( integer j = i ; j < minRC ; ++j )
-        R[i+j*ldR] = this->Amat[ i+j*this->nRow] ;
+    integer minRC = std::min( this->nRow, this->nCol );
+    gezero( minRC, minRC, R, ldR );
+    for ( integer i = 0; i < minRC; ++i )
+      for ( integer j = i; j < minRC; ++j )
+        R[i+j*ldR] = this->Amat[ i+j*this->nRow];
   }
 
   template <typename T>
   void
   QR<T>::solve( valueType xb[] ) const {
     ALGLIN_ASSERT( this->nRow == this->nCol,
-                   "in QR::solve, factored matrix must be square" ) ;
-    Qt_mul(xb) ;
-    invR_mul(xb) ;
+                   "in QR::solve, factored matrix must be square" );
+    Qt_mul(xb);
+    invR_mul(xb);
   }
 
   template <typename T>
   void
   QR<T>::t_solve( valueType xb[] ) const {
     ALGLIN_ASSERT( this->nRow == this->nCol,
-                   "in QR::solve_t, factored matrix must be square" ) ;
-    invRt_mul(xb) ;
-    Q_mul(xb) ;
+                   "in QR::solve_t, factored matrix must be square" );
+    invRt_mul(xb);
+    Q_mul(xb);
   }
 
   template <typename T>
   void
   QR<T>::solve( integer nrhs, valueType XB[], integer ldXB ) const {
     ALGLIN_ASSERT( this->nRow == this->nCol,
-                   "in QR::solve, factored matrix must be square" ) ;
-    Qt_mul( this->nRow, nrhs, XB, ldXB ) ;
-    invR_mul( this->nRow, nrhs, XB, ldXB ) ;
+                   "in QR::solve, factored matrix must be square" );
+    Qt_mul( this->nRow, nrhs, XB, ldXB );
+    invR_mul( this->nRow, nrhs, XB, ldXB );
   }
 
   template <typename T>
   void
   QR<T>::t_solve( integer nrhs, valueType XB[], integer ldXB ) const {
     ALGLIN_ASSERT( this->nRow == this->nCol,
-                   "in QR::solve_t, factored matrix must be square" ) ;
-    invRt_mul( this->nRow, nrhs, XB, ldXB ) ;
-    Q_mul( this->nRow, nrhs, XB, ldXB ) ;
+                   "in QR::solve_t, factored matrix must be square" );
+    invRt_mul( this->nRow, nrhs, XB, ldXB );
+    Q_mul( this->nRow, nrhs, XB, ldXB );
   }
 
   /*\
@@ -450,56 +451,56 @@ namespace alglin {
   void
   QRP<T>::permute( valueType x[] ) const {
     // applico permutazione
-    for ( integer i = 0 ; i < this->nCol ; ++i ) this->Work[JPVT[i]-1] = x[i] ;
-    copy( this->nCol, this->Work, 1, x, 1 ) ;
+    for ( integer i = 0; i < this->nCol; ++i ) this->Work[JPVT[i]-1] = x[i];
+    copy( this->nCol, this->Work, 1, x, 1 );
   }
 
   template <typename T>
   void
   QRP<T>::inv_permute( valueType x[] ) const {
     // applico permutazione
-    for ( integer i = 0 ; i < this->nCol ; ++i ) this->Work[i] = x[JPVT[i]-1] ;
-    copy( this->nCol, this->Work, 1, x, 1 ) ;
+    for ( integer i = 0; i < this->nCol; ++i ) this->Work[i] = x[JPVT[i]-1];
+    copy( this->nCol, this->Work, 1, x, 1 );
   }
 
   template <typename T>
   void
   QRP<T>::solve( valueType xb[] ) const {
     ALGLIN_ASSERT( this->nRow == this->nCol,
-                   "in QRP::solve, factored matrix must be square" ) ;
-    this->Qt_mul(xb) ;
-    this->invR_mul(xb) ;
-    this->permute(xb) ; // da aggiungere!
+                   "in QRP::solve, factored matrix must be square" );
+    this->Qt_mul(xb);
+    this->invR_mul(xb);
+    this->permute(xb); // da aggiungere!
   }
 
   template <typename T>
   void
   QRP<T>::t_solve( valueType xb[] ) const {
     ALGLIN_ASSERT( this->nRow == this->nCol,
-                   "in QRP::solve_t, factored matrix must be square" ) ;
-    this->inv_permute(xb) ; // da aggiungere!
-    this->invRt_mul(xb) ;
-    this->Q_mul(xb) ;
+                   "in QRP::solve_t, factored matrix must be square" );
+    this->inv_permute(xb); // da aggiungere!
+    this->invRt_mul(xb);
+    this->Q_mul(xb);
   }
 
   template <typename T>
   void
   QRP<T>::solve( integer nrhs, valueType XB[], integer ldXB ) const {
     ALGLIN_ASSERT( this->nRow == this->nCol,
-                   "in QRP::solve, factored matrix must be square" ) ;
-    this->Qt_mul( this->nRow, nrhs, XB, ldXB ) ;
-    this->invR_mul( this->nRow, nrhs, XB, ldXB ) ;
-    this->permute_rows( this->nRow, nrhs, XB, ldXB ) ; // da aggiungere!
+                   "in QRP::solve, factored matrix must be square" );
+    this->Qt_mul( this->nRow, nrhs, XB, ldXB );
+    this->invR_mul( this->nRow, nrhs, XB, ldXB );
+    this->permute_rows( this->nRow, nrhs, XB, ldXB ); // da aggiungere!
   }
 
   template <typename T>
   void
   QRP<T>::t_solve( integer nrhs, valueType XB[], integer ldXB ) const {
     ALGLIN_ASSERT( this->nRow == this->nCol,
-                   "in QRP::solve_t, factored matrix must be square" ) ;
-    this->inv_permute_rows( this->nRow, nrhs, XB, ldXB ) ; // da aggiungere!
-    this->invRt_mul( this->nRow, nrhs, XB, ldXB ) ;
-    this->Q_mul( this->nRow, nrhs, XB, ldXB ) ;
+                   "in QRP::solve_t, factored matrix must be square" );
+    this->inv_permute_rows( this->nRow, nrhs, XB, ldXB ); // da aggiungere!
+    this->invRt_mul( this->nRow, nrhs, XB, ldXB );
+    this->Q_mul( this->nRow, nrhs, XB, ldXB );
   }
 
   /*\
@@ -514,43 +515,43 @@ namespace alglin {
   SVD<T>::allocate( integer NR, integer NC ) {
   
     if ( this->nRow != NR || this->nCol != NC ) {
-      this->nRow = NR ;
-      this->nCol = NC ;
-      minRC      = std::min(NR,NC) ;
-      valueType tmp ;
+      this->nRow = NR;
+      this->nCol = NC;
+      minRC      = std::min(NR,NC);
+      valueType tmp;
       integer info = gesvd( REDUCED, REDUCED,
                             NR, NC,
                             nullptr, NR,
                             nullptr,
                             nullptr, NR,
                             nullptr, minRC,
-                            &tmp, -1 ) ;
+                            &tmp, -1 );
       ALGLIN_ASSERT( info == 0,
-                     "alglin::SVD::allocate, in gesvd info = " << info ) ;
-      Lwork = integer(tmp) ;
+                     "alglin::SVD::allocate, in gesvd info = " << info );
+      Lwork = integer(tmp);
       info = gesdd( REDUCED,
                     NR, NC,
                     nullptr, NR,
                     nullptr,
                     nullptr, NR,
                     nullptr, minRC,
-                    &tmp, -1, nullptr ) ;
-       if ( integer(tmp) > Lwork ) Lwork = integer(tmp) ;
-       allocReals.allocate(size_t(this->nRow*this->nCol+minRC*(this->nRow+this->nCol+1)+Lwork)) ;
-       this->Amat = allocReals(size_t(this->nRow*this->nCol)) ;
-       Svec  = allocReals(size_t(minRC)) ;
-       Umat  = allocReals(size_t(minRC*this->nRow)) ;
-       VTmat = allocReals(size_t(minRC*this->nCol)) ;
-       Work  = allocReals(size_t(Lwork)) ;
-       allocIntegers.allocate(size_t(8*minRC)) ;
-       IWork = allocIntegers(size_t(8*minRC)) ;
+                    &tmp, -1, nullptr );
+       if ( integer(tmp) > Lwork ) Lwork = integer(tmp);
+       allocReals.allocate(size_t(this->nRow*this->nCol+minRC*(this->nRow+this->nCol+1)+Lwork));
+       this->Amat = allocReals(size_t(this->nRow*this->nCol));
+       Svec  = allocReals(size_t(minRC));
+       Umat  = allocReals(size_t(minRC*this->nRow));
+       VTmat = allocReals(size_t(minRC*this->nCol));
+       Work  = allocReals(size_t(Lwork));
+       allocIntegers.allocate(size_t(8*minRC));
+       IWork = allocIntegers(size_t(8*minRC));
     }
   }
 
   template <typename T>
   void
   SVD<T>::factorize() {
-    integer info ;
+    integer info;
     switch ( svd_used ) {
     case USE_GESVD:
       info = gesvd( REDUCED,
@@ -559,18 +560,20 @@ namespace alglin {
                     Svec,
                     Umat, this->nRow,
                     VTmat, minRC,
-                    Work, Lwork ) ;
-      ALGLIN_ASSERT( info == 0, "SVD::factorize call alglin::gesvd return info = " << info ) ;
-      break ;
+                    Work, Lwork );
+      ALGLIN_ASSERT( info == 0,
+                     "SVD::factorize call alglin::gesvd return info = " << info );
+      break;
     case USE_GESDD:
       info = gesdd( REDUCED,
                     this->nRow, this->nCol, this->Amat, this->nRow,
                     Svec,
                     Umat, this->nRow,
                     VTmat, minRC,
-                    Work, Lwork, IWork ) ;
-      ALGLIN_ASSERT( info == 0, "SVD::factorize call alglin::gesdd return info = " << info ) ;
-      break ;
+                    Work, Lwork, IWork );
+      ALGLIN_ASSERT( info == 0,
+                     "SVD::factorize call alglin::gesdd return info = " << info );
+      break;
     }
   }
 
@@ -581,9 +584,9 @@ namespace alglin {
     // U*S*VT*x=b --> VT^T S^+ U^T b
     // U  nRow x minRC
     // VT minRC x nCol
-    Ut_mul( 1.0, xb, 1, 0.0, Work, 1 ) ;
-    for ( integer i = 0 ; i < minRC ; ++i ) Work[i] /= Svec[i] ;
-    V_mul( 1.0, Work, 1, 0.0, xb, 1 ) ;
+    Ut_mul( 1.0, xb, 1, 0.0, Work, 1 );
+    for ( integer i = 0; i < minRC; ++i ) Work[i] /= Svec[i];
+    V_mul( 1.0, Work, 1, 0.0, xb, 1 );
   }
 
   template <typename T>
@@ -593,9 +596,9 @@ namespace alglin {
     // U*S*VT*x=b --> VT^T S^+ U^T b
     // U  nRow x minRC
     // VT minRC x nCol
-    Vt_mul( 1.0, xb, 1, 0.0, Work, 1 ) ;
-    for ( integer i = 0 ; i < minRC ; ++i ) Work[i] /= Svec[i] ;
-    U_mul( 1.0, Work, 1, 0.0, xb, 1 ) ;
+    Vt_mul( 1.0, xb, 1, 0.0, Work, 1 );
+    for ( integer i = 0; i < minRC; ++i ) Work[i] /= Svec[i];
+    U_mul( 1.0, Work, 1, 0.0, xb, 1 );
   }
 
   template <typename valueType>
@@ -610,15 +613,15 @@ namespace alglin {
                 valueType       beta,
                 valueType       y[] ) {
     if ( isZero(beta) ) {
-      y[0] = alpha*(D[0]*x[0] + U[0] * x[1]) ;
-      for ( integer i = 1 ; i < N-1 ; ++i )
-        y[i] = alpha*(D[i]*x[i] + U[i] * x[i+1] + L[i-1] * x[i-1]) ;
-      y[N-1] = alpha*(D[N-1]*x[N-1] + L[N-2] * x[N-2]) ;
+      y[0] = alpha*(D[0]*x[0] + U[0] * x[1]);
+      for ( integer i = 1; i < N-1; ++i )
+        y[i] = alpha*(D[i]*x[i] + U[i] * x[i+1] + L[i-1] * x[i-1]);
+      y[N-1] = alpha*(D[N-1]*x[N-1] + L[N-2] * x[N-2]);
     } else {
-      y[0] = beta*y[0] + alpha*(D[0]*x[0] + U[0] * x[1]) ;
-      for ( integer i = 1 ; i < N-1 ; ++i )
-        y[i] = beta*y[i] + alpha*(D[i]*x[i] + U[i] * x[i+1] + L[i-1] * x[i-1]) ;
-      y[N-1] = beta*y[N-1] + alpha*(D[N-1]*x[N-1] + L[N-2] * x[N-2]) ;
+      y[0] = beta*y[0] + alpha*(D[0]*x[0] + U[0] * x[1]);
+      for ( integer i = 1; i < N-1; ++i )
+        y[i] = beta*y[i] + alpha*(D[i]*x[i] + U[i] * x[i+1] + L[i-1] * x[i-1]);
+      y[N-1] = beta*y[N-1] + alpha*(D[N-1]*x[N-1] + L[N-2] * x[N-2]);
     }
   }
 
@@ -637,53 +640,58 @@ namespace alglin {
                                valueType const _L[],
                                valueType const _D[] ) {
     if ( this -> nRC != N ) {
-      this -> nRC = N ;
-      allocReals.allocate(3*N) ;
-      L    = allocReals(N) ;
-      D    = allocReals(N) ;
-      WORK = allocReals(N) ;
+      this -> nRC = N;
+      allocReals.allocate(3*N);
+      L    = allocReals(N);
+      D    = allocReals(N);
+      WORK = allocReals(N);
     }
-    copy( N, _L, 1, L, 1 ) ;
-    copy( N, _D, 1, D, 1 ) ;
-    integer info = pttrf( N, L, D ) ;
-    ALGLIN_ASSERT( info == 0, "TridiagonalSPD::factorize, return info = " << info ) ;
+    copy( N, _L, 1, L, 1 );
+    copy( N, _D, 1, D, 1 );
+    integer info = pttrf( N, L, D );
+    ALGLIN_ASSERT( info == 0,
+                   "TridiagonalSPD::factorize, return info = " << info );
   }
   
   template <typename T>
   T
   TridiagonalSPD<T>::cond1( valueType norm1 ) const {
-    valueType rcond ;
-    integer info = ptcon1( nRC, D, L, norm1, rcond, WORK ) ;
-    ALGLIN_ASSERT( info == 0, "TridiagonalSPD::cond1, return info = " << info ) ;
-    return rcond ;
+    valueType rcond;
+    integer info = ptcon1( nRC, D, L, norm1, rcond, WORK );
+    ALGLIN_ASSERT( info == 0,
+                   "TridiagonalSPD::cond1, return info = " << info );
+    return rcond;
   }
 
   template <typename T>
   void
   TridiagonalSPD<T>::solve( valueType xb[] ) const {
-    integer info = pttrs( nRC, 1, D, L, xb, nRC ) ;
-    ALGLIN_ASSERT( info == 0, "TridiagonalSPD::solve, return info = " << info ) ;
+    integer info = pttrs( nRC, 1, D, L, xb, nRC );
+    ALGLIN_ASSERT( info == 0,
+                   "TridiagonalSPD::solve, return info = " << info );
   }
 
   template <typename T>
   void
   TridiagonalSPD<T>::t_solve( valueType xb[] ) const {
-    integer info = pttrs( nRC, 1, D, L, xb, nRC ) ;
-    ALGLIN_ASSERT( info == 0, "TridiagonalSPD::solve, return info = " << info ) ;
+    integer info = pttrs( nRC, 1, D, L, xb, nRC );
+    ALGLIN_ASSERT( info == 0,
+                   "TridiagonalSPD::solve, return info = " << info );
   }
 
   template <typename T>
   void
   TridiagonalSPD<T>::solve( integer nrhs, valueType xb[], integer ldXB ) const {
-    integer info = pttrs( nRC, nrhs, D, L, xb, ldXB ) ;
-    ALGLIN_ASSERT( info == 0, "TridiagonalSPD::solve, return info = " << info ) ;
+    integer info = pttrs( nRC, nrhs, D, L, xb, ldXB );
+    ALGLIN_ASSERT( info == 0,
+                   "TridiagonalSPD::solve, return info = " << info );
   }
 
   template <typename T>
   void
   TridiagonalSPD<T>::t_solve( integer nrhs, valueType xb[], integer ldXB ) const {
-    integer info = pttrs( nRC, nrhs, D, L, xb, ldXB ) ;
-    ALGLIN_ASSERT( info == 0, "TridiagonalSPD::solve, return info = " << info ) ;
+    integer info = pttrs( nRC, nrhs, D, L, xb, ldXB );
+    ALGLIN_ASSERT( info == 0, "TridiagonalSPD::solve, return info = " << info );
   }
 
   template <typename T>
@@ -695,7 +703,7 @@ namespace alglin {
                            valueType const x[],
                            valueType       beta,
                            valueType       y[] ) const {
-    tridiag_axpy( N, alpha, _L, _D, _L, x, beta, y ) ;
+    tridiag_axpy( N, alpha, _L, _D, _L, x, beta, y );
   }
 
   //============================================================================
@@ -714,68 +722,75 @@ namespace alglin {
                                valueType const _D[],
                                valueType const _U[] ) {
     if ( this -> nRC != N ) {
-      this -> nRC = N ;
-      allocReals.allocate(6*N) ;
-      allocIntegers.allocate(2*N) ;
-      L     = allocReals(N) ;
-      D     = allocReals(N) ;
-      U     = allocReals(N) ;
-      U2    = allocReals(N) ;
-      WORK  = allocReals(2*N) ;
-      IPIV  = allocIntegers(N) ;
-      IWORK = allocIntegers(N) ;
+      this -> nRC = N;
+      allocReals.allocate(6*N);
+      allocIntegers.allocate(2*N);
+      L     = allocReals(N);
+      D     = allocReals(N);
+      U     = allocReals(N);
+      U2    = allocReals(N);
+      WORK  = allocReals(2*N);
+      IPIV  = allocIntegers(N);
+      IWORK = allocIntegers(N);
     }
-    copy( N, _L, 1, L, 1 ) ;
-    copy( N, _D, 1, D, 1 ) ;
-    copy( N, _U, 1, U, 1 ) ;
-    integer info = gttrf( N, L, D, U, U2, IPIV ) ;
-    ALGLIN_ASSERT( info == 0, "TridiagonalLU::factorize, return info = " << info ) ;
+    copy( N, _L, 1, L, 1 );
+    copy( N, _D, 1, D, 1 );
+    copy( N, _U, 1, U, 1 );
+    integer info = gttrf( N, L, D, U, U2, IPIV );
+    ALGLIN_ASSERT( info == 0,
+                   "TridiagonalLU::factorize, return info = " << info );
   }
   
   template <typename T>
   T
   TridiagonalLU<T>::cond1( valueType norm1 ) const {
-    valueType rcond ;
-    integer info = gtcon1( nRC, L, D, U, U2, IPIV, norm1, rcond, WORK, IWORK ) ;
-    ALGLIN_ASSERT( info == 0, "TridiagonalLU::cond1, return info = " << info ) ;
-    return rcond ;
+    valueType rcond;
+    integer info = gtcon1( nRC, L, D, U, U2, IPIV, norm1, rcond, WORK, IWORK );
+    ALGLIN_ASSERT( info == 0,
+                   "TridiagonalLU::cond1, return info = " << info );
+    return rcond;
   }
 
   template <typename T>
   T
   TridiagonalLU<T>::condInf( valueType normInf ) const {
-    valueType rcond ;
-    integer info = gtconInf( nRC, L, D, U, U2, IPIV, normInf, rcond, WORK, IWORK ) ;
-    ALGLIN_ASSERT( info == 0, "TridiagonalLU::cond1, return info = " << info ) ;
-    return rcond ;
+    valueType rcond;
+    integer info = gtconInf( nRC, L, D, U, U2, IPIV, normInf, rcond, WORK, IWORK );
+    ALGLIN_ASSERT( info == 0,
+                   "TridiagonalLU::cond1, return info = " << info );
+    return rcond;
   }
 
   template <typename T>
   void
   TridiagonalLU<T>::solve( valueType xb[] ) const {
-    integer info = gttrs( NO_TRANSPOSE, nRC, 1, L, D, U, U2, IPIV, xb, nRC ) ;
-    ALGLIN_ASSERT( info == 0, "TridiagonalLU::solve, return info = " << info ) ;
+    integer info = gttrs( NO_TRANSPOSE, nRC, 1, L, D, U, U2, IPIV, xb, nRC );
+    ALGLIN_ASSERT( info == 0,
+                   "TridiagonalLU::solve, return info = " << info );
   }
 
   template <typename T>
   void
   TridiagonalLU<T>::t_solve( valueType xb[] ) const {
-    integer info = gttrs( TRANSPOSE, nRC, 1, L, D, U, U2, IPIV, xb, nRC ) ;
-    ALGLIN_ASSERT( info == 0, "TridiagonalLU::solve, return info = " << info ) ;
+    integer info = gttrs( TRANSPOSE, nRC, 1, L, D, U, U2, IPIV, xb, nRC );
+    ALGLIN_ASSERT( info == 0,
+                   "TridiagonalLU::solve, return info = " << info );
   }
 
   template <typename T>
   void
   TridiagonalLU<T>::solve( integer nrhs, valueType xb[], integer ldXB ) const {
-    integer info = gttrs( NO_TRANSPOSE, nRC, nrhs, L, D, U, U2, IPIV, xb, ldXB ) ;
-    ALGLIN_ASSERT( info == 0, "TridiagonalLU::solve, return info = " << info ) ;
+    integer info = gttrs( NO_TRANSPOSE, nRC, nrhs, L, D, U, U2, IPIV, xb, ldXB );
+    ALGLIN_ASSERT( info == 0,
+                   "TridiagonalLU::solve, return info = " << info );
   }
 
   template <typename T>
   void
   TridiagonalLU<T>::t_solve( integer nrhs, valueType xb[], integer ldXB ) const {
-    integer info = gttrs( TRANSPOSE, nRC, nrhs, L, D, U, U2, IPIV, xb, ldXB ) ;
-    ALGLIN_ASSERT( info == 0, "TridiagonalLU::solve, return info = " << info ) ;
+    integer info = gttrs( TRANSPOSE, nRC, nrhs, L, D, U, U2, IPIV, xb, ldXB );
+    ALGLIN_ASSERT( info == 0,
+                   "TridiagonalLU::solve, return info = " << info );
   }
 
   template <typename T>
@@ -788,7 +803,7 @@ namespace alglin {
                           valueType const x[],
                           valueType       beta,
                           valueType       y[] ) const {
-    tridiag_axpy( N, alpha, _L, _D, _U, x, beta, y ) ;
+    tridiag_axpy( N, alpha, _L, _D, _U, x, beta, y );
   }
 
   //============================================================================
@@ -807,13 +822,13 @@ namespace alglin {
                                valueType const L[],
                                valueType const D[],
                                valueType const U[] ) {
-    allocReals.allocate(size_t(5*(N-1))) ;
-    this -> nRC = N ;
-    this -> C   = allocReals(size_t(N-1)) ;
-    this -> S   = allocReals(size_t(N-1)) ;
-    this -> BD  = allocReals(size_t(N)) ;
-    this -> BU  = allocReals(size_t(N-1)) ;
-    this -> BU2 = allocReals(size_t(N-2)) ;
+    allocReals.allocate(size_t(5*(N-1)));
+    this -> nRC = N;
+    this -> C   = allocReals(size_t(N-1));
+    this -> S   = allocReals(size_t(N-1));
+    this -> BD  = allocReals(size_t(N));
+    this -> BU  = allocReals(size_t(N-1));
+    this -> BU2 = allocReals(size_t(N-2));
 
     /*\
       | d u       | d u @     | d u @     | d u @     | d u @     |
@@ -823,28 +838,28 @@ namespace alglin {
       |       l d |       l d |       l d |       l d |       0 d |
     \*/
 
-    alglin::copy( N,   D, 1, BD, 1 ) ;
-    alglin::copy( N-1, U, 1, BU, 1 ) ;
-    alglin::zero( N-2, BU2, 1 ) ;
+    alglin::copy( N,   D, 1, BD, 1 );
+    alglin::copy( N-1, U, 1, BU, 1 );
+    alglin::zero( N-2, BU2, 1 );
 
-    normInfA = 0 ;
-    integer i = 0 ;
-    for ( ; i < N-2 ; ++i ) {
-      valueType Li = L[i] ;
-      rotg( BD[i], Li, C[i], S[i] ) ;
-      rot( 1, &BU[i],  1, &BD[i+1], 1, C[i], S[i] ) ;
-      rot( 1, &BU2[i], 1, &BU[i+1], 1, C[i], S[i] ) ;
-      valueType sum = std::abs(BD[i]) + std::abs(BU[i]) + std::abs(BU2[i]) ;
-      if ( sum > normInfA ) normInfA = sum ;
+    normInfA = 0;
+    integer i = 0;
+    for (; i < N-2; ++i ) {
+      valueType Li = L[i];
+      rotg( BD[i], Li, C[i], S[i] );
+      rot( 1, &BU[i],  1, &BD[i+1], 1, C[i], S[i] );
+      rot( 1, &BU2[i], 1, &BU[i+1], 1, C[i], S[i] );
+      valueType sum = std::abs(BD[i]) + std::abs(BU[i]) + std::abs(BU2[i]);
+      if ( sum > normInfA ) normInfA = sum;
     }
-    valueType Li = L[i] ;
-    rotg( BD[i], Li, C[i], S[i] ) ;
-    rot( 1, &BU[i], 1, &BD[i+1], 1, C[i], S[i] ) ;
+    valueType Li = L[i];
+    rotg( BD[i], Li, C[i], S[i] );
+    rot( 1, &BU[i], 1, &BD[i+1], 1, C[i], S[i] );
 
-    valueType sum = std::abs(BD[i]) + std::abs(BU[i]) ;
-    if ( sum > normInfA ) normInfA = sum ;
-    sum = std::abs(BD[i+1]) ;
-    if ( sum > normInfA ) normInfA = sum ;
+    valueType sum = std::abs(BD[i]) + std::abs(BU[i]);
+    if ( sum > normInfA ) normInfA = sum;
+    sum = std::abs(BD[i+1]);
+    if ( sum > normInfA ) normInfA = sum;
 
     // Q A = R
   }
@@ -852,19 +867,19 @@ namespace alglin {
   template <typename T>
   void
   TridiagonalQR<T>::Rsolve( valueType xb[] ) const {
-    xb[nRC-1] /= BD[nRC-1] ;
-    xb[nRC-2] = (xb[nRC-2]-BU[nRC-2]*xb[nRC-1])/BD[nRC-2] ;
-    for ( integer i = nRC-3 ; i >= 0 ; --i )
-      xb[i] = (xb[i]-BU[i]*xb[i+1]-BU2[i]*xb[i+2])/BD[i] ;
+    xb[nRC-1] /= BD[nRC-1];
+    xb[nRC-2] = (xb[nRC-2]-BU[nRC-2]*xb[nRC-1])/BD[nRC-2];
+    for ( integer i = nRC-3; i >= 0; --i )
+      xb[i] = (xb[i]-BU[i]*xb[i+1]-BU2[i]*xb[i+2])/BD[i];
   }
 
   template <typename T>
   void
   TridiagonalQR<T>::RsolveTransposed( valueType xb[] ) const {
-    xb[0] /= BD[0] ;
-    xb[1] = (xb[1]-BU[0]*xb[0])/BD[1] ;
-    for ( integer i = 2 ; i < nRC ; ++i )
-      xb[i] = (xb[i]-BU[i]*xb[i-1]-BU2[i]*xb[i-2])/BD[i] ;
+    xb[0] /= BD[0];
+    xb[1] = (xb[1]-BU[0]*xb[0])/BD[1];
+    for ( integer i = 2; i < nRC; ++i )
+      xb[i] = (xb[i]-BU[i]*xb[i-1]-BU2[i]*xb[i-2])/BD[i];
   }
 
   template <typename T>
@@ -872,19 +887,19 @@ namespace alglin {
   TridiagonalQR<T>::solve( valueType xb[] ) const {
     // A x = b --> Q A x = Q b --> R x = Q b
     // applico Q b
-    for ( integer i = 0 ; i < nRC-1 ; ++i )
-      rot( 1, &xb[i], 1, &xb[i+1], 1, C[i], S[i] ) ;
-    Rsolve( xb ) ;
+    for ( integer i = 0; i < nRC-1; ++i )
+      rot( 1, &xb[i], 1, &xb[i+1], 1, C[i], S[i] );
+    Rsolve( xb );
   }
 
   template <typename T>
   void
   TridiagonalQR<T>::t_solve( valueType xb[] ) const {
     // A^T x = b --> A^T Q^T Q x = b --> R^T Q x = b --> R^T y = b  x = Q^T y
-    RsolveTransposed( xb ) ;
+    RsolveTransposed( xb );
     // applico Q^T b
-    for ( integer i = nRC-2 ; i >= 0 ; --i )
-      rot( 1, &xb[i], 1, &xb[i+1], 1, C[i], -S[i] ) ;
+    for ( integer i = nRC-2; i >= 0; --i )
+      rot( 1, &xb[i], 1, &xb[i+1], 1, C[i], -S[i] );
   }
 
   template <typename T>
@@ -892,16 +907,20 @@ namespace alglin {
   TridiagonalQR<T>::solve( integer nrhs, valueType xb[], integer ldXB ) const {
     // A x = b --> Q A x = Q b --> R x = Q b
     // applico Q b
-    for ( integer i = 0 ; i < nRC-1 ; ++i ) rot( nrhs, &xb[i], ldXB, &xb[i+1], ldXB, C[i], S[i] ) ;
-    for ( integer i = 0 ; i < nrhs  ; ++i ) Rsolve( xb+i*ldXB ) ;
+    for ( integer i = 0; i < nRC-1; ++i )
+      rot( nrhs, &xb[i], ldXB, &xb[i+1], ldXB, C[i], S[i] );
+    for ( integer i = 0; i < nrhs; ++i )
+      Rsolve( xb+i*ldXB );
   }
 
   template <typename T>
   void
   TridiagonalQR<T>::t_solve( integer nrhs, valueType xb[], integer ldXB ) const {
     // A^T x = b --> A^T Q^T Q x = b --> R^T Q x = b --> R^T y = b  x = Q^T y
-    for ( integer i = 0     ; i < nrhs ; ++i ) RsolveTransposed(xb+i*ldXB) ;
-    for ( integer i = nRC-2 ; i >= 0   ; --i ) rot( nrhs, &xb[i], ldXB, &xb[i+1], ldXB, C[i], -S[i] ) ;
+    for ( integer i = 0; i < nrhs; ++i )
+      RsolveTransposed(xb+i*ldXB);
+    for ( integer i = nRC-2; i >= 0; --i )
+      rot( nrhs, &xb[i], ldXB, &xb[i+1], ldXB, C[i], -S[i] );
   }
 
   template <typename T>
@@ -914,7 +933,7 @@ namespace alglin {
                           valueType const x[],
                           valueType       beta,
                           valueType       y[] ) const {
-    tridiag_axpy( N, alpha, L, D, U, x, beta, y ) ;
+    tridiag_axpy( N, alpha, L, D, U, x, beta, y );
   }
 
   /*\
@@ -946,65 +965,65 @@ namespace alglin {
                          integer ldRHS,
                          T       lambda_in) const {
 
-    valueType lambda = normInfA * lambda_in ;
+    valueType lambda = normInfA * lambda_in;
     std::vector<T> D(nRC),
                    U(nRC-1),
                    U2(nRC-2),
-                   tmp(nrhs) ;
-    T CC, SS ;
+                   tmp(nrhs);
+    T CC, SS;
 
-    for ( integer i = 0 ; i < nRC-1 ; ++i )
-      rot( nrhs, RHS+i, ldRHS, RHS+i+1, ldRHS, C[i], S[i] ) ;
+    for ( integer i = 0; i < nRC-1; ++i )
+      rot( nrhs, RHS+i, ldRHS, RHS+i+1, ldRHS, C[i], S[i] );
 
-    copy( nRC,   BD,  1, &D.front(),  1 ) ;
-    copy( nRC-1, BU,  1, &U.front(),  1 ) ;
-    copy( nRC-2, BU2, 1, &U2.front(), 1 ) ;
-    T line[3] ;
-    integer i = 0 ;
+    copy( nRC,   BD,  1, &D.front(),  1 );
+    copy( nRC-1, BU,  1, &U.front(),  1 );
+    copy( nRC-2, BU2, 1, &U2.front(), 1 );
+    T line[3];
+    integer i = 0;
     while ( i < nRC-1 ) {
-      line[0] = line[2] = 0 ; line[1] = lambda ;
-      std::fill( tmp.begin(), tmp.end(), T(0) ) ;
-      integer j = i ;
+      line[0] = line[2] = 0; line[1] = lambda;
+      std::fill( tmp.begin(), tmp.end(), T(0) );
+      integer j = i;
       while ( j < nRC-2 ) {
-        line[0] = line[1] ;
-        line[1] = line[2] ;
-        line[2] = 0 ;
-        rotg( D[j], line[0], CC, SS ) ;
-        rot( 1, &U[j],  1, &line[1], 1, CC, SS ) ;
-        rot( 1, &U2[j], 1, &line[2], 1, CC, SS ) ;
-        rot( nrhs, RHS+j, ldRHS, &tmp.front(), 1, CC, SS ) ;
-        ++j ;
+        line[0] = line[1];
+        line[1] = line[2];
+        line[2] = 0;
+        rotg( D[j], line[0], CC, SS );
+        rot( 1, &U[j],  1, &line[1], 1, CC, SS );
+        rot( 1, &U2[j], 1, &line[2], 1, CC, SS );
+        rot( nrhs, RHS+j, ldRHS, &tmp.front(), 1, CC, SS );
+        ++j;
       }
       // penultima
-      rotg( D[j], line[1], CC, SS ) ;
-      rot( 1, &U[j],  1, &line[2], 1, CC, SS ) ;
-      rot( nrhs, RHS+j, ldRHS, &tmp.front(), 1, CC, SS ) ;
-      ++j ;
+      rotg( D[j], line[1], CC, SS );
+      rot( 1, &U[j],  1, &line[2], 1, CC, SS );
+      rot( nrhs, RHS+j, ldRHS, &tmp.front(), 1, CC, SS );
+      ++j;
 
-      rotg( D[j], line[2], CC, SS ) ;
-      rot( nrhs, RHS+j, ldRHS, &tmp.front(), 1, CC, SS ) ;
+      rotg( D[j], line[2], CC, SS );
+      rot( nrhs, RHS+j, ldRHS, &tmp.front(), 1, CC, SS );
 
       // ultima
-      line[2] = lambda ;
-      rotg( D[j], line[2], CC, SS ) ;
-      rot( nrhs, RHS+j, ldRHS, &tmp.front(), 1, CC, SS ) ;
+      line[2] = lambda;
+      rotg( D[j], line[2], CC, SS );
+      rot( nrhs, RHS+j, ldRHS, &tmp.front(), 1, CC, SS );
 
-      ++i ; // next lambda
+      ++i; // next lambda
     }
     if ( nRC > 0 ) {
-      integer j = nRC-1 ;
-      line[0] = lambda ;
-      std::fill( tmp.begin(), tmp.end(), T(0) ) ;
-      rotg( D[j], line[0], CC, SS ) ;
-      rot( nrhs, RHS+j, ldRHS, &tmp.front(), 1, CC, SS ) ;
+      integer j = nRC-1;
+      line[0] = lambda;
+      std::fill( tmp.begin(), tmp.end(), T(0) );
+      rotg( D[j], line[0], CC, SS );
+      rot( nrhs, RHS+j, ldRHS, &tmp.front(), 1, CC, SS );
     }
 
-    for ( integer j = 0 ; j < nrhs ; ++j ) {
-      T * xb = RHS + j*ldRHS ;
-      xb[nRC-1] /= D[nRC-1] ;
-      xb[nRC-2] = (xb[nRC-2]-U[nRC-2]*xb[nRC-1])/D[nRC-2] ;
-      for ( integer k = nRC-3 ; k >= 0 ; --k )
-        xb[k] = (xb[k]-U[k]*xb[k+1]-U2[k]*xb[k+2])/D[k] ;
+    for ( integer j = 0; j < nrhs; ++j ) {
+      T * xb = RHS + j*ldRHS;
+      xb[nRC-1] /= D[nRC-1];
+      xb[nRC-2] = (xb[nRC-2]-U[nRC-2]*xb[nRC-1])/D[nRC-2];
+      for ( integer k = nRC-3; k >= 0; --k )
+        xb[k] = (xb[k]-U[k]*xb[k+1]-U2[k]*xb[k+2])/D[k];
     }
   }
 
@@ -1039,80 +1058,82 @@ namespace alglin {
                       integer _n,
                       integer _nL,
                       integer _nU ) {
-    m    = _m ;
-    n    = _n ;
-    nL   = _nL ;
-    nU   = _nU ;
-    ldAB = 2*nL+nU+1 ;
-    integer nnz = n*ldAB ;
-    allocReals.allocate( nnz ) ;
-    allocIntegers.allocate(m) ;
-    AB   = allocReals( nnz ) ;
-    ipiv = allocIntegers( m ) ;
-    is_factorized = false ;
+    m    = _m;
+    n    = _n;
+    nL   = _nL;
+    nU   = _nU;
+    ldAB = 2*nL+nU+1;
+    integer nnz = n*ldAB;
+    allocReals.allocate( nnz );
+    allocIntegers.allocate(m);
+    AB   = allocReals( nnz );
+    ipiv = allocIntegers( m );
+    is_factorized = false;
   }
 
   template <typename T>
   void
   BandedLU<T>::solve( valueType xb[] ) const {
-    ALGLIN_ASSERT( is_factorized, "BandedLU::solve, matrix not yet factorized" ) ;
-    ALGLIN_ASSERT( m == n, "BandedLU::solve, matrix must be square" ) ;
+    ALGLIN_ASSERT( is_factorized, "BandedLU::solve, matrix not yet factorized" );
+    ALGLIN_ASSERT( m == n, "BandedLU::solve, matrix must be square" );
     integer info = gbtrs( NO_TRANSPOSE, m, nL, nU, 1, AB, ldAB, ipiv, xb, m );
-    ALGLIN_ASSERT( info == 0, "BandedLU::solve, info = " << info ) ;
+    ALGLIN_ASSERT( info == 0, "BandedLU::solve, info = " << info );
   }
 
   template <typename T>
   void
   BandedLU<T>::t_solve( valueType xb[] ) const {
-    ALGLIN_ASSERT( is_factorized, "BandedLU::solve, matrix not yet factorized" ) ;
-    ALGLIN_ASSERT( m == n, "BandedLU::solve, matrix must be square" ) ;
+    ALGLIN_ASSERT( is_factorized, "BandedLU::solve, matrix not yet factorized" );
+    ALGLIN_ASSERT( m == n, "BandedLU::solve, matrix must be square" );
     integer info = gbtrs( TRANSPOSE, m, nL, nU, 1, AB, ldAB, ipiv, xb, m );
-    ALGLIN_ASSERT( info == 0, "BandedLU::t_solve, info = " << info ) ;
+    ALGLIN_ASSERT( info == 0, "BandedLU::t_solve, info = " << info );
   }
 
   template <typename T>
   void
   BandedLU<T>::solve( integer nrhs, valueType B[], integer ldB ) const {
-    ALGLIN_ASSERT( is_factorized, "BandedLU::solve, matrix not yet factorized" ) ;
-    ALGLIN_ASSERT( m == n, "BandedLU::solve, matrix must be square" ) ;
+    ALGLIN_ASSERT( is_factorized, "BandedLU::solve, matrix not yet factorized" );
+    ALGLIN_ASSERT( m == n, "BandedLU::solve, matrix must be square" );
     integer info = gbtrs( NO_TRANSPOSE, m, nL, nU, nrhs, AB, ldAB, ipiv, B, ldB );
-    ALGLIN_ASSERT( info == 0, "BandedLU::solve, info = " << info ) ;
+    ALGLIN_ASSERT( info == 0, "BandedLU::solve, info = " << info );
   }
 
   template <typename T>
   void
   BandedLU<T>::t_solve( integer nrhs, valueType B[], integer ldB ) const {
-    ALGLIN_ASSERT( is_factorized, "BandedLU::solve, matrix not yet factorized" ) ;
-    ALGLIN_ASSERT( m == n, "BandedLU::solve, matrix must be square" ) ;
+    ALGLIN_ASSERT( is_factorized, "BandedLU::solve, matrix not yet factorized" );
+    ALGLIN_ASSERT( m == n, "BandedLU::solve, matrix must be square" );
     integer info = gbtrs( TRANSPOSE, m, nL, nU, nrhs, AB, ldAB, ipiv, B, ldB );
-    ALGLIN_ASSERT( info == 0, "BandedLU::t_solve, info = " << info ) ;
+    ALGLIN_ASSERT( info == 0, "BandedLU::t_solve, info = " << info );
   }
 
   template <typename T>
   void
   BandedLU<T>::factorize() {
-    ALGLIN_ASSERT( !is_factorized, "BandedLU::solve, matrix yet factorized" ) ;
-    ALGLIN_ASSERT( m == n, "BandedLU::solve, matrix must be square" ) ;
+    ALGLIN_ASSERT( !is_factorized, "BandedLU::solve, matrix yet factorized" );
+    ALGLIN_ASSERT( m == n, "BandedLU::solve, matrix must be square" );
     integer info = gbtrf( m, n, nL, nU, AB, ldAB, ipiv );
-    ALGLIN_ASSERT( info == 0, "BandedLU::factorize, info = " << info ) ;
-    is_factorized = true ;
+    ALGLIN_ASSERT( info == 0, "BandedLU::factorize, info = " << info );
+    is_factorized = true;
   }
 
   template <typename T>
   void
   BandedLU<T>::zero() {
-    integer nnz = m*(2*nL+nU+1) ;
-    alglin::zero( nnz, AB, 1 ) ;
-    is_factorized = false ;
+    integer nnz = m*(2*nL+nU+1);
+    alglin::zero( nnz, AB, 1 );
+    is_factorized = false;
   }
 
   template <typename T>
   void
   BandedLU<T>::iaddr_check( integer i, integer j ) const {
     ALGLIN_ASSERT( i >= 0 && i < m && j >= 0 && j < n,
-                   "BandedLU:iaddr_check( " << i << " , " << j << " ) out of range" ) ;
+                   "BandedLU:iaddr_check( " << i << " , " << j <<
+                   " ) out of range" );
     ALGLIN_ASSERT( j >= i-nL && j <= i+nU,
-                   "BandedLU:iaddr_check( " << i << " , " << j << " ) out of band" ) ;
+                   "BandedLU:iaddr_check( " << i << " , " << j <<
+                   " ) out of band" );
   }
 
   template <typename T>
@@ -1124,27 +1145,28 @@ namespace alglin {
                            integer         irow,
                            integer         icol ) {
 
-    ALGLIN_ASSERT( !is_factorized, "BandedLU::load_block, matrix is factorized" ) ;
+    ALGLIN_ASSERT( !is_factorized,
+                   "BandedLU::load_block, matrix is factorized" );
 
     #if 1
-    for ( integer r = 0 ; r < nr ; ++r )
-      for ( integer c = 0 ; c < nc ; ++c )
-        AB[iaddr( irow+r, icol+c )] = B[ r + c * ldB ] ;
+    for ( integer r = 0; r < nr; ++r )
+      for ( integer c = 0; c < nc; ++c )
+        AB[iaddr( irow+r, icol+c )] = B[ r + c * ldB ];
     #else
     // must be checked
-    iaddr_check( irow,      icol      ) ;
-    iaddr_check( irow+nr-1, icol+nc-1 ) ;
-    iaddr_check( irow,      icol+nc-1 ) ;
-    iaddr_check( irow+nr-1, icol      ) ;
+    iaddr_check( irow,      icol      );
+    iaddr_check( irow+nr-1, icol+nc-1 );
+    iaddr_check( irow,      icol+nc-1 );
+    iaddr_check( irow+nr-1, icol      );
 
     // copy by diagonal
-    for ( integer r = 0 ; r < nr ; ++r ) {
-      integer ia = iaddr( irow+r, icol ) ;
-      copy( std::min(nr-r,nc), B+r, ldB+1, AB+ia, ldAB ) ;
+    for ( integer r = 0; r < nr; ++r ) {
+      integer ia = iaddr( irow+r, icol );
+      copy( std::min(nr-r,nc), B+r, ldB+1, AB+ia, ldAB );
     }
-    for ( integer c = 1 ; c < nc ; ++c ) {
-      integer ia = iaddr( irow, icol+c ) ;
-      copy( std::min(nc-c,nr), B+c*ldB, ldB+1, AB+ia, ldAB ) ;
+    for ( integer c = 1; c < nc; ++c ) {
+      integer ia = iaddr( irow, icol+c );
+      copy( std::min(nc-c,nr), B+c*ldB, ldB+1, AB+ia, ldAB );
     }
     #endif
   }
@@ -1162,26 +1184,26 @@ namespace alglin {
                       valueType const x[],
                       valueType       y[] ) const {
 
-    valueType const * col = AB + nL ;
-    for ( integer j = 0 ; j < n ; ++j, col += ldAB ) {
-      integer imin  = j-nU ;
-      integer imax  = std::min(j+nL,m-1) ;
-      integer imin0 = imin > 0 ? imin : 0 ;
+    valueType const * col = AB + nL;
+    for ( integer j = 0; j < n; ++j, col += ldAB ) {
+      integer imin  = j-nU;
+      integer imax  = std::min(j+nL,m-1);
+      integer imin0 = imin > 0 ? imin : 0;
       alglin::axpy( imax-imin0+1,
                     alpha*x[j],
                     col+imin0-imin, 1,
-                    y+imin0,        1 ) ;
+                    y+imin0,        1 );
     }
   }
 
   template <typename T>
   void
   BandedLU<T>::dump( std::ostream & stream ) const {
-    for ( integer i = 0 ; i <= nL+nU ; ++i ) {
-      valueType const * col = AB + nL + i ;
-      for ( integer j = 0 ; j < n ; ++j, col += ldAB )
-        stream << std::setw(10) << col[0] << ' ' ;
-      stream << '\n' ;
+    for ( integer i = 0; i <= nL+nU; ++i ) {
+      valueType const * col = AB + nL + i;
+      for ( integer j = 0; j < n; ++j, col += ldAB )
+        stream << std::setw(10) << col[0] << ' ';
+      stream << '\n';
     }
   }
 
@@ -1206,62 +1228,72 @@ namespace alglin {
   BandedSPD<T>::setup( ULselect _UPLO,
                        integer  _N,
                        integer  _nD ) {
-    UPLO = _UPLO ;
-    n    = _N ;
-    nD   = _nD ;
-    ldAB = nD+1 ;
-    integer nnz = n*ldAB ;
-    allocReals.allocate( nnz ) ;
-    AB   = allocReals( nnz ) ;
-    is_factorized = false ;
+    UPLO = _UPLO;
+    n    = _N;
+    nD   = _nD;
+    ldAB = nD+1;
+    integer nnz = n*ldAB;
+    allocReals.allocate( nnz );
+    AB   = allocReals( nnz );
+    is_factorized = false;
   }
 
   template <typename T>
   void
   BandedSPD<T>::solve( valueType xb[] ) const {
-    ALGLIN_ASSERT( is_factorized, "BandedSPD::solve, matrix not yet factorized" ) ;
+    ALGLIN_ASSERT( is_factorized,
+                   "BandedSPD::solve, matrix not yet factorized" );
     integer info = pbtrs( UPLO, n, nD, 1, AB, ldAB, xb, n );
-    ALGLIN_ASSERT( info == 0, "BandedSPD::solve, info = " << info ) ;
+    ALGLIN_ASSERT( info == 0,
+                   "BandedSPD::solve, info = " << info );
   }
 
   template <typename T>
   void
   BandedSPD<T>::t_solve( valueType xb[] ) const {
-    ALGLIN_ASSERT( is_factorized, "BandedSPD::solve, matrix not yet factorized" ) ;
+    ALGLIN_ASSERT( is_factorized,
+                   "BandedSPD::solve, matrix not yet factorized" );
     integer info = pbtrs( UPLO, n, nD, 1, AB, ldAB, xb, n );
-    ALGLIN_ASSERT( info == 0, "BandedSPD::t_solve, info = " << info ) ;
+    ALGLIN_ASSERT( info == 0,
+                   "BandedSPD::t_solve, info = " << info );
   }
 
   template <typename T>
   void
   BandedSPD<T>::solve( integer nrhs, valueType B[], integer ldB ) const {
-    ALGLIN_ASSERT( is_factorized, "BandedSPD::solve, matrix not yet factorized" ) ;
+    ALGLIN_ASSERT( is_factorized,
+                   "BandedSPD::solve, matrix not yet factorized" );
     integer info = pbtrs( UPLO, n, nD, nrhs, AB, ldAB, B, ldB );
-    ALGLIN_ASSERT( info == 0, "BandedSPD::solve, info = " << info ) ;
+    ALGLIN_ASSERT( info == 0,
+                   "BandedSPD::solve, info = " << info );
   }
 
   template <typename T>
   void
   BandedSPD<T>::t_solve( integer nrhs, valueType B[], integer ldB ) const {
-    ALGLIN_ASSERT( is_factorized, "BandedSPD::solve, matrix not yet factorized" ) ;
+    ALGLIN_ASSERT( is_factorized,
+                   "BandedSPD::solve, matrix not yet factorized" );
     integer info = pbtrs( UPLO, n, nD, nrhs, AB, ldAB, B, ldB );
-    ALGLIN_ASSERT( info == 0, "BandedSPD::t_solve, info = " << info ) ;
+    ALGLIN_ASSERT( info == 0,
+                   "BandedSPD::t_solve, info = " << info );
   }
 
   template <typename T>
   void
   BandedSPD<T>::factorize() {
-    ALGLIN_ASSERT( !is_factorized, "BandedSPD::solve, matrix yet factorized" ) ;
+    ALGLIN_ASSERT( !is_factorized,
+                   "BandedSPD::solve, matrix yet factorized" );
     integer info = pbtrf( UPLO, n, nD, AB, ldAB );
-    ALGLIN_ASSERT( info == 0, "BandedSPD::factorize, info = " << info ) ;
-    is_factorized = true ;
+    ALGLIN_ASSERT( info == 0,
+                   "BandedSPD::factorize, info = " << info );
+    is_factorized = true;
   }
 
   template <typename T>
   void
   BandedSPD<T>::zero() {
-    alglin::zero( n*ldAB, AB, 1 ) ;
-    is_factorized = false ;
+    alglin::zero( n*ldAB, AB, 1 );
+    is_factorized = false;
   }
 
   template integer rankEstimate( integer   M,
@@ -1269,41 +1301,41 @@ namespace alglin {
                                  real      A[],
                                  integer   LDA,
                                  real      RCOND,
-                                 real      SVAL[3] ) ;
+                                 real      SVAL[3] );
   
   template integer rankEstimate( integer    M,
                                  integer    N,
                                  doublereal A[],
                                  integer    LDA,
                                  doublereal RCOND,
-                                 doublereal SVAL[3] ) ;
+                                 doublereal SVAL[3] );
 
-  template class LU<real> ;
-  template class LU<doublereal> ;
+  template class LU<real>;
+  template class LU<doublereal>;
 
-  template class QR<real> ;
-  template class QR<doublereal> ;
+  template class QR<real>;
+  template class QR<doublereal>;
 
-  template class QRP<real> ;
-  template class QRP<doublereal> ;
+  template class QRP<real>;
+  template class QRP<doublereal>;
 
-  template class SVD<real> ;
-  template class SVD<doublereal> ;
+  template class SVD<real>;
+  template class SVD<doublereal>;
 
-  template class TridiagonalSPD<real> ;
-  template class TridiagonalSPD<doublereal> ;
+  template class TridiagonalSPD<real>;
+  template class TridiagonalSPD<doublereal>;
 
-  template class TridiagonalLU<real> ;
-  template class TridiagonalLU<doublereal> ;
+  template class TridiagonalLU<real>;
+  template class TridiagonalLU<doublereal>;
 
-  template class TridiagonalQR<real> ;
-  template class TridiagonalQR<doublereal> ;
+  template class TridiagonalQR<real>;
+  template class TridiagonalQR<doublereal>;
 
-  template class BandedLU<real> ;
-  template class BandedLU<doublereal> ;
+  template class BandedLU<real>;
+  template class BandedLU<doublereal>;
 
-  template class BandedSPD<real> ;
-  template class BandedSPD<doublereal> ;
+  template class BandedSPD<real>;
+  template class BandedSPD<doublereal>;
 
 } // end namespace alglin
 

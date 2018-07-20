@@ -1,4 +1,4 @@
-VER=3.3.4
+VER=3.3.5
 DIR=$VER
 FILE="$DIR.tar.gz"
 URL="http://bitbucket.org/eigen/eigen/get/$DIR.tar.gz"

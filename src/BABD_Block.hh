@@ -52,18 +52,18 @@ namespace alglin {
   class BBlockLU : public BlockBidiagonal<t_Value> {
   public:
 
-    typedef t_Value         valueType ;
-    typedef t_Value*        valuePointer ;
-    typedef t_Value const * valueConstPointer ;
+    typedef t_Value         valueType;
+    typedef t_Value*        valuePointer;
+    typedef t_Value const * valueConstPointer;
 
   private:
 
-    BBlockLU(BBlockLU const &) ;
-    BBlockLU const & operator = (BBlockLU const &) ;
+    BBlockLU(BBlockLU const &);
+    BBlockLU const & operator = (BBlockLU const &);
 
-    integer m   ; //!< number final rows (m>=n)
-    integer N   ; //!< n * (nblock+1) + q
-    integer nnz ; //!< total number of non zeros
+    integer m;   //!< number final rows (m>=n)
+    integer N;   //!< n * (nblock+1) + q
+    integer nnz; //!< total number of non zeros
 
     /*!
     //
@@ -114,7 +114,7 @@ namespace alglin {
     //  +-----+-----+---......---+-----+-----+
     //
     */
-    valuePointer AdH_blk ;
+    valuePointer AdH_blk;
 
     /*!
     //
@@ -129,7 +129,7 @@ namespace alglin {
     //  +-----+-----+-----+----.........-----+------+
     //
     */
-    valuePointer Au_blk ;
+    valuePointer Au_blk;
 
     /*!
     //
@@ -143,7 +143,7 @@ namespace alglin {
     //  +=====+=====+
     //
     */    
-    valuePointer DD_blk ;
+    valuePointer DD_blk;
 
     /*!
     //
@@ -167,15 +167,15 @@ namespace alglin {
     //  +-----+-----+   /
     //
     */
-    valuePointer FF_blk ;
+    valuePointer FF_blk;
 
     // pivot vector
-    integer * ipiv_blk ;
+    integer * ipiv_blk;
 
   public:
   
-    using BlockBidiagonal<t_Value>::factorize ;
-    using BlockBidiagonal<t_Value>::dump_ccoord ;
+    using BlockBidiagonal<t_Value>::factorize;
+    using BlockBidiagonal<t_Value>::dump_ccoord;
 
     explicit BBlockLU() { }
 
@@ -183,14 +183,14 @@ namespace alglin {
 
     virtual
     void
-    factorize() ALGLIN_OVERRIDE ;
+    factorize() ALGLIN_OVERRIDE;
 
     //! solve linear system previously factorized
     virtual
     void
-    solve( valuePointer in_out ) const ALGLIN_OVERRIDE ;
+    solve( valuePointer in_out ) const ALGLIN_OVERRIDE;
 
-  } ;
+  };
 
   // explicit instantiation declaration to suppress warnings
 
@@ -207,8 +207,8 @@ namespace alglin {
   #pragma clang diagnostic ignored "-Wweak-template-vtables"
   #endif
 
-  extern template class BBlockLU<float> ;
-  extern template class BBlockLU<double> ;
+  extern template class BBlockLU<float>;
+  extern template class BBlockLU<double>;
 
   #ifdef __GCC__
   #pragma GCC diagnostic pop

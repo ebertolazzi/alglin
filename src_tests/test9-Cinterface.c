@@ -74,23 +74,23 @@ test1() {
       1   2   .   .   2   2  30
   */
 
-  /* BABD_realType sol[] = { 1, 1, 1, 1, 1, 1, 1 } ; */
-  /* BABD_realType rhs[] = { 17, 42, 17, 42, 24, -8, 37 } ; */
+  /* BABD_realType sol[] = { 1, 1, 1, 1, 1, 1, 1 }; */
+  /* BABD_realType rhs[] = { 17, 42, 17, 42, 24, -8, 37 }; */
 
-  /* BABD_realType sol[] = { 1, 2, 3, 4, 5, 6, 7 } ; */
-  BABD_realType rhs[] = { 32, 81, 66, 165, 121, -52, 237 } ;
+  /* BABD_realType sol[] = { 1, 2, 3, 4, 5, 6, 7 }; */
+  BABD_realType rhs[] = { 32, 81, 66, 165, 121, -52, 237 };
 
   int ok = BABD_factorize( mat_id, mat_fact, last_block_fact, nblock, n, qr, qx,
-                           DE, ldDE, H0, ldH0, HN, ldHN, Hq, ldHq ) ;
-  if ( ok != 0 ) printf("ERR = %s\n", BABD_get_last_error() ) ;
+                           DE, ldDE, H0, ldH0, HN, ldHN, Hq, ldHq );
+  if ( ok != 0 ) printf("ERR = %s\n", BABD_get_last_error() );
 
-  for ( i=0 ; i < 7 ; ++i )
-    printf("rhs[%d] = %lf\n", i, rhs[i] ) ;
+  for ( i=0; i < 7; ++i )
+    printf("rhs[%d] = %lf\n", i, rhs[i] );
 
-  ok = BABD_solve( mat_id, rhs ) ;
-  if ( ok != 0 ) printf("ERR = %s\n", BABD_get_last_error() ) ;
-  for ( i=0 ; i < 7 ; ++i )
-    printf("x[%d] = %lf\n", i, rhs[i] ) ;
+  ok = BABD_solve( mat_id, rhs );
+  if ( ok != 0 ) printf("ERR = %s\n", BABD_get_last_error() );
+  for ( i=0; i < 7; ++i )
+    printf("x[%d] = %lf\n", i, rhs[i] );
 }
 
 static
@@ -159,28 +159,28 @@ test2() {
   BABD_intType ldD = 1;
   BABD_realType const D[] = { -1 };
 
-  BABD_realType rhs1[] = { 32, 81, 66, 165, 121, -52, 237, 4 } ;
+  BABD_realType rhs1[] = { 32, 81, 66, 165, 121, -52, 237, 4 };
 
   int ok = BABD_factorize_bordered( mat_id, mat_fact, last_block_fact,
                                     nblock, n, qr, nr, qx, nx,
                                     DE, ldDE, H0, ldH0, HN, ldHN, Hq, ldHq,
-                                    B, ldB, C, ldC, D, ldD ) ;
-  if ( ok != 0 ) printf("ERR = %s\n", BABD_get_last_error() ) ;
+                                    B, ldB, C, ldC, D, ldD );
+  if ( ok != 0 ) printf("ERR = %s\n", BABD_get_last_error() );
 
-  for ( i=0 ; i < 8 ; ++i )
-    printf("rhs[%d] = %lf\n", i, rhs1[i] ) ;
+  for ( i=0; i < 8; ++i )
+    printf("rhs[%d] = %lf\n", i, rhs1[i] );
 
-  ok = BABD_solve( mat_id, rhs1 ) ;
-  if ( ok != 0 ) printf("ERR = %s\n", BABD_get_last_error() ) ;
-  for ( i=0 ; i < 8 ; ++i )
-    printf("x[%d] = %lf\n", i, rhs1[i] ) ;
+  ok = BABD_solve( mat_id, rhs1 );
+  if ( ok != 0 ) printf("ERR = %s\n", BABD_get_last_error() );
+  for ( i=0; i < 8; ++i )
+    printf("x[%d] = %lf\n", i, rhs1[i] );
 }
 
 int
 main() {
 
-  test1() ;
-  test2() ;
-  printf("All done!\n") ;
-  return 0 ;
+  test1();
+  test2();
+  printf("All done!\n");
+  return 0;
 }
