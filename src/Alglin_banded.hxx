@@ -18,7 +18,7 @@
 \*--------------------------------------------------------------------------*/
 
 ///
-/// file: alglin_blas_banded.hxx
+/// file: alglin_banded.hxx
 ///
 
 namespace alglin {

@@ -36,6 +36,7 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		D90F9F27211250CF009E9CA2 /* Alglin_sparse.hxx in Headers */ = {isa = PBXBuildFile; fileRef = D90F9F26211250CE009E9CA2 /* Alglin_sparse.hxx */; };
 		D90FCB671E12DB5F00F9EF68 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D937DF251CEA75A2006642C6 /* Accelerate.framework */; };
 		D90FCB6E1E12DBB800F9EF68 /* test7-BorderedCR.cc in Sources */ = {isa = PBXBuildFile; fileRef = D90FCB6D1E12DBB800F9EF68 /* test7-BorderedCR.cc */; };
 		D924A0011E40A294007C4694 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D937DF251CEA75A2006642C6 /* Accelerate.framework */; };
@@ -377,6 +378,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		D90F9F26211250CE009E9CA2 /* Alglin_sparse.hxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Alglin_sparse.hxx; sourceTree = "<group>"; };
 		D90FCB6C1E12DB5F00F9EF68 /* test7-BorderedCR */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "test7-BorderedCR"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D90FCB6D1E12DBB800F9EF68 /* test7-BorderedCR.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "test7-BorderedCR.cc"; sourceTree = "<group>"; };
 		D924A0061E40A294007C4694 /* Simplex-Test1 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "Simplex-Test1"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -671,6 +673,7 @@
 				D9EF86342109FD6F00F1293E /* Alglin_triangular.hxx */,
 				D9EF86382109FD6F00F1293E /* Alglin_tridiagonal.hxx */,
 				D9EF86442109FD6F00F1293E /* Alglin_general.hxx */,
+				D90F9F26211250CE009E9CA2 /* Alglin_sparse.hxx */,
 				D9EF86452109FD6F00F1293E /* AlglinSuperLU.hh */,
 				D9EF86502109FD6F00F1293E /* Alglin++.cc */,
 				D9EF86392109FD6F00F1293E /* Alglin.cc */,
@@ -743,6 +746,7 @@
 				D9EF86632109FD6F00F1293E /* Simplex.hh in Headers */,
 				D9EF86812109FD6F00F1293E /* BABD_BorderedCR.hh in Headers */,
 				D9EF86662109FD6F00F1293E /* ABD_Block.hh in Headers */,
+				D90F9F27211250CF009E9CA2 /* Alglin_sparse.hxx in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

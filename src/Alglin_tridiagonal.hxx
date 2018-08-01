@@ -18,7 +18,7 @@
 \*--------------------------------------------------------------------------*/
 
 ///
-/// file: alglin_blas_tridiagonal.hxx
+/// file: alglin_tridiagonal.hxx
 ///
 
 namespace alglin {
