@@ -992,6 +992,7 @@ namespace alglin {
 #include "Alglin_triangular.hxx"
 #include "Alglin_tridiagonal.hxx"
 #include "Alglin_banded.hxx"
+#include "Alglin_sparse.hxx"
 
 #ifdef __GCC__
 #pragma GCC diagnostic pop
