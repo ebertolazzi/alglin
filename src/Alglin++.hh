@@ -197,6 +197,14 @@ namespace alglin {
       for ( integer i = 0; i < nrhs; ++i ) t_solve( B + i*ldB );
     }
 
+    void
+    solve( MatrixWrapper<valueType>  & M )
+    { solve( M.numCols, M.data,  M.ldData ); }
+
+    void
+    t_solve( MatrixWrapper<valueType>  & M )
+    { t_solve( M.numCols, M.data,  M.ldData ); }
+
   };
   
   /*\
@@ -219,6 +227,9 @@ namespace alglin {
     integer     nCol;
 
   public:
+
+    using LinearSystemSolver<T>::solve ;
+    using LinearSystemSolver<T>::t_solve ;
 
     Factorization()
     : nRow(0)
@@ -441,6 +452,10 @@ namespace alglin {
                valueType const A[],
                integer         LDA ) ALGLIN_PURE_VIRTUAL;
 
+    void
+    factorize( MatrixWrapper<valueType> const & M )
+    { factorize( M.numRows, M.numCols, M.data,  M.ldData ); }
+
   };
 
   //============================================================================
@@ -468,6 +483,12 @@ namespace alglin {
     void check_ls( char const who[] ) const;
 
   public:
+
+    using LinearSystemSolver<T>::solve ;
+    using LinearSystemSolver<T>::t_solve ;
+    using Factorization<T>::factorize;
+    using Factorization<T>::solve;
+    using Factorization<T>::t_solve;
 
     LU();
     virtual ~LU() ALGLIN_OVERRIDE;
@@ -545,6 +566,12 @@ namespace alglin {
     integer nReflector, Lwork;
 
   public:
+
+    using LinearSystemSolver<T>::solve ;
+    using LinearSystemSolver<T>::t_solve ;
+    using Factorization<T>::factorize;
+    using Factorization<T>::solve;
+    using Factorization<T>::t_solve;
 
     QR()
     : Factorization<T>()
@@ -789,6 +816,12 @@ namespace alglin {
 
   public:
 
+    using LinearSystemSolver<T>::solve ;
+    using LinearSystemSolver<T>::t_solve ;
+    using Factorization<T>::factorize;
+    using Factorization<T>::solve;
+    using Factorization<T>::t_solve;
+
     QRP()
     : QR<T>(), allocIntegers("QRP-allocIntegers")
     {}
@@ -972,7 +1005,10 @@ namespace alglin {
     SVD_USED    svd_used;
 
   public:
-  
+
+    using LinearSystemSolver<T>::solve ;
+    using LinearSystemSolver<T>::t_solve ;
+    using Factorization<T>::factorize;
     using Factorization<T>::solve;
     using Factorization<T>::t_solve;
 
