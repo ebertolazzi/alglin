@@ -483,12 +483,16 @@ namespace alglin {
     { gecopy( n, nx, B, ldB, Bmat + nbl*n_x_nx, n ); }
 
     void
+    loadB( integer nbl, MatrixWrapper<valueType> const & B );
+
+    void
     addtoB( integer nbl, valueConstPointer B, integer ldB ) {
-      ALGLIN_ASSERT( ldB >= n,
-                     "addtoB( " << nbl << ", B, ldB = " << ldB << " bad ldB" );
       valuePointer BB = Bmat + nbl*n_x_nx;
       geadd( n, nx, 1.0, B, ldB, 1.0, BB, n, BB, n );
     }
+
+    void
+    addtoB( integer nbl, MatrixWrapper<valueType> const & B );
 
     // Border Bottom blocks
     void
@@ -496,11 +500,17 @@ namespace alglin {
     { gecopy( nr, n, C, ldC, Cmat + nbl*nr_x_n, nr ); }
 
     void
+    loadC( integer nbl, MatrixWrapper<valueType> const & C );
+
+    void
     addtoC( integer nbl, valueConstPointer C, integer ldC ) {
       ALGLIN_ASSERT( ldC >= nr, "addtoC( " << nbl << ", C, ldC = " << ldC << " bad ldC" );
       valuePointer CC = Cmat + nbl*nr_x_n;
       geadd( nr, n, 1.0, C, ldC, 1.0, CC, nr, CC, nr );
     }
+
+    void
+    addtoC( integer nbl, MatrixWrapper<valueType> const & C );
 
     // add to block nbl and nbl+1
     void
@@ -510,14 +520,23 @@ namespace alglin {
       geadd( nr, n_x_2, 1.0, C, ldC, 1.0, CC, nr, CC, nr );
     }
 
+    void
+    addtoC2( integer nbl, MatrixWrapper<valueType> const & C );
+
     // -------------------------------------------------------------------------
     void
     loadD( integer nbl, valueConstPointer D, integer ldD )
     { gecopy( n, n, D, ldD, Dmat + nbl*n_x_n, n ); }
 
     void
+    loadD( integer nbl, MatrixWrapper<valueType> const & D );
+
+    void
     loadE( integer nbl, valueConstPointer E, integer ldE )
     { gecopy( n, n, E, ldE, Emat + nbl*n_x_n, n ); }
+
+    void
+    loadE( integer nbl, MatrixWrapper<valueType> const & E );
 
     void
     loadDE( integer nbl, valueConstPointer DE, integer ldDE ) {
@@ -537,10 +556,23 @@ namespace alglin {
     loadF( valueConstPointer F, integer ldF )
     { gecopy( nr, nx, F, ldF, Fmat, nr ); }
 
+    void
+    loadF( MatrixWrapper<valueType> const & F );
+
+    void
+    addtoF( valueConstPointer F, integer ldF )
+    { gecopy( nr, nx, F, ldF, Fmat, nr ); }
+
+    void
+    addtoF( MatrixWrapper<valueType> const & F );
+
     // -------------------------------------------------------------------------
     void
     loadCq( valueConstPointer Cq, integer ldC )
     { gecopy( nr, qx, Cq, ldC, Cqmat, nr ); }
+
+    void
+    loadCq( MatrixWrapper<valueType> const & Cq );
 
     void
     loadCqF( valueConstPointer CqF, integer ldCF ) {
@@ -557,10 +589,19 @@ namespace alglin {
                 valueConstPointer Hp, integer ldP );
 
     void
+    loadBottom( MatrixWrapper<valueType> const & H0,
+                MatrixWrapper<valueType> const & HN,
+                MatrixWrapper<valueType> const & Hq,
+                MatrixWrapper<valueType> const & Hp );
+
+    void
     loadBottom( valueConstPointer _H0Nqp, integer ldH ) {
       integer nq = n+qr;
       gecopy( nq, Nc, _H0Nqp, ldH, H0Nqp, nq );
     }
+
+    void
+    loadBottom( MatrixWrapper<valueType> const & H );
 
     /*!
      | @}
@@ -628,6 +669,35 @@ namespace alglin {
     t_Value const &
     H( integer i, integer j ) const
     { return H0Nqp[ i + j*(n+qr) ]; }
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    void
+    B( integer nbl, MatrixWrapper<valueType> & B_wrap )
+    { B_wrap.setup( Bmat + nbl*n_x_nx, n, nx, n ); }
+
+    void
+    C( integer nbl, MatrixWrapper<valueType> & C_wrap )
+    { C_wrap.setup( Cmat + nbl*nr_x_n, nr, n, nr); }
+
+    void
+    D( integer nbl, MatrixWrapper<valueType> & D_wrap )
+    { D_wrap.setup( Dmat + nbl*n_x_n, n, n, n ); }
+
+    void
+    E( integer nbl, MatrixWrapper<valueType> & E_wrap )
+    { E_wrap.setup( Emat + nbl*n_x_n, n, n, n ); }
+
+    void
+    F( MatrixWrapper<valueType> & F_wrap )
+    { F_wrap.setup( Fmat, nr, nx, nr) ; }
+
+    void
+    Cq( MatrixWrapper<valueType> & Cq_wrap )
+    { Cq_wrap.setup( Cqmat, nr, qx, nr ); }
+
+    void
+    H( MatrixWrapper<valueType> & H_wrap ) const
+    { H_wrap.setup( H0Nqp, n + qr, Nc, n + qr ); }
 
     /*!
      | @}
