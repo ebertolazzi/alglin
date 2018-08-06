@@ -108,11 +108,11 @@ main() {
   fun_class  ff;
   fun_class1 gg;
 
-  bool ok = finite_difference_gradient( 0, x, dim_x, ff, gradFD );
+  bool ok = finite_difference_gradient( 0, x, dim_x, &ff, gradFD );
   ok = fun_grad( x, grad );
   doublereal epsi = 1e-6;
   cout << "\n\nCheck Gradient\n";
-  finite_difference_check_gradient( x, dim_x, ff, grad, epsi, cout );
+  finite_difference_check_gradient( x, dim_x, &ff, grad, epsi, cout );
   cout << "Done\n";
 
   cout << "diff grad(FD)[0] = " << gradFD[0] - grad[0] << '\n';
@@ -125,9 +125,9 @@ main() {
   cout << "diff grad(FD)[3] = " << (gradFD[3] - grad[3])/max(1.0,abs(grad[3])) << '\n';
 
   ok = fun_jac( x, jac );
-  ok = finite_difference_jacobian( 0, x, dim_x, gg, dim_x, jacFD, dim_x );
+  ok = finite_difference_jacobian( 0, x, dim_x, &gg, dim_x, jacFD, dim_x );
   cout << "\n\nCheck Jacobian\n";
-  finite_difference_check_jacobian( x, dim_x, gg, dim_x, jac, dim_x, epsi, cout );
+  finite_difference_check_jacobian( x, dim_x, &gg, dim_x, jac, dim_x, epsi, cout );
   cout << "Done\n";
 
   for ( int i = 0; i < dim_x; ++i ) {
@@ -138,7 +138,7 @@ main() {
     }
   }
 
-  ok = finite_difference_hessian( x, dim_x, ff, jacFD, dim_x );
+  ok = finite_difference_hessian( x, dim_x, &ff, jacFD, dim_x );
   cout << "ok = " << (ok?"TRUE\n":"FALSE\n");
   for ( int i = 0; i < dim_x; ++i ) {
     for ( int j = 0; j < dim_x; ++j ) {
@@ -150,7 +150,7 @@ main() {
   }
 
   cout << "\n\nCheck Hessian\n";
-  finite_difference_check_hessian( x, dim_x, ff, jac, dim_x, epsi, cout );
+  finite_difference_check_hessian( x, dim_x, &ff, jac, dim_x, epsi, cout );
   cout << "Done\n";
 
   cout << "All done!\n";

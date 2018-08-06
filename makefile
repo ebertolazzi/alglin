@@ -187,34 +187,43 @@ src/ABD_Block.cc \
 src/ABD_Diaz.cc \
 src/Alglin++.cc \
 src/Alglin.cc \
-src/BlockBidiagonal.cc \
 src/BABD.cc \
 src/BABD_Block.cc \
-src/BABD_C_interface.cc \
 src/BABD_BorderedCR.cc \
-src/KKT_like.cc \
+src/BABD_C_interface.cc \
 src/BABD_SuperLU.cc \
+src/BlockBidiagonal.cc \
+src/KKT_like.cc \
 src/Simplex.cc
+
 OBJS = $(SRCS:.cc=.o)
 
 SRCS_TESTS = \
+src_tests/Simplex-Test1.cc \
+src_tests/Simplex-Test2.cc \
+src_tests/Simplex-Test3.cc \
+src_tests/Simplex-Test4.cc \
+src_tests/SimplexTest1.cc \
+src_tests/SimplexTest2.cc \
+src_tests/SimplexTest3.cc \
+src_tests/SimplexTest4.cc \
 src_tests/test0-FD.cc \
 src_tests/test1-small-factorization.cc \
+src_tests/test12-BandedMatrix.cc \
 src_tests/test2-Threads.cc \
 src_tests/test3-Timing.cc \
 src_tests/test4-KKT.cc \
 src_tests/test5-ABD-Diaz.cc \
 src_tests/test6-ABD-Block.cc \
-src_tests/test7-BorderedCR.cc \
-src_tests/test12-BandedMatrix.cc
+src_tests/test7-BorderedCR.cc
 
 OBJS_TESTS = $(SRCS_TESTS:.cc=.o)
 
 #src/AlglinConfig.hh
 DEPS = \
 src/ABD_Arceco.hh \
-src/ABD_Diaz.hh \
 src/ABD_Block.hh \
+src/ABD_Diaz.hh \
 src/Alglin++.hh \
 src/Alglin.hh \
 src/AlglinEigen.hh \
@@ -225,9 +234,9 @@ src/Alglin_threads.hh \
 src/Alglin_tmpl.hh \
 src/BABD.hh \
 src/BABD_Block.hh \
+src/BABD_BorderedCR.hh \
 src/BABD_SuperLU.hh \
 src/BlockBidiagonal.hh \
-src/BABD_BorderedCR.hh \
 src/KKT_like.hh \
 src/Simplex.hh \
 src/TicToc.hh

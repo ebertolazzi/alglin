@@ -436,13 +436,13 @@ namespace alglin {
     { zeroB(); zeroC(); zeroCq(); zeroD(); zeroE(); zeroF(); zeroH(); }
 
     /*!
-     | @}
+     |  @}
      |
-     | \name Access to single block
+     |  \name Access to single block
      |
-     | Matrix structure
+     |  Matrix structure
      |
-     | \verbatim
+     |  \verbatim
      |
      |                 n * (nblock+1)
      |    ___________________^____________________
@@ -472,9 +472,9 @@ namespace alglin {
      |  | C | C |                      | C | C | C | Cq| F |    | nr
      |  +---+---+---................---+---+---+---+---+---+   -+
      |                                             nr*qx
-     | \endverbatim
+     |  \endverbatim
      |
-     | @{
+     |  @{
     \*/
 
     // Border Right blocks
@@ -504,7 +504,8 @@ namespace alglin {
 
     void
     addtoC( integer nbl, valueConstPointer C, integer ldC ) {
-      ALGLIN_ASSERT( ldC >= nr, "addtoC( " << nbl << ", C, ldC = " << ldC << " bad ldC" );
+      ALGLIN_ASSERT( ldC >= nr,
+                     "addtoC( " << nbl << ", C, ldC = " << ldC << " bad ldC" );
       valuePointer CC = Cmat + nbl*nr_x_n;
       geadd( nr, n, 1.0, C, ldC, 1.0, CC, nr, CC, nr );
     }
@@ -515,7 +516,8 @@ namespace alglin {
     // add to block nbl and nbl+1
     void
     addtoC2( integer nbl, valueConstPointer C, integer ldC ) {
-      ALGLIN_ASSERT( ldC >= nr, "addtoC2( " << nbl << ", C, ldC = " << ldC << " bad ldC" );
+      ALGLIN_ASSERT( ldC >= nr,
+                     "addtoC2( " << nbl << ", C, ldC = " << ldC << " bad ldC" );
       valuePointer CC = Cmat + nbl*nr_x_n;
       geadd( nr, n_x_2, 1.0, C, ldC, 1.0, CC, nr, CC, nr );
     }
@@ -689,7 +691,7 @@ namespace alglin {
 
     void
     F( MatrixWrapper<valueType> & F_wrap )
-    { F_wrap.setup( Fmat, nr, nx, nr) ; }
+    { F_wrap.setup( Fmat, nr, nx, nr); }
 
     void
     Cq( MatrixWrapper<valueType> & Cq_wrap )
@@ -763,9 +765,8 @@ namespace alglin {
 
     integer
     sparseNnz() const {
-      integer nnz = nblock*(2*n_x_n+n_x_nx+nr_x_n) +
-                    nr_x_n + nr*(qx+nx) + (n+qr)*(2*n+qx+nx);
-      return nnz ;
+      return nblock*(2*n_x_n+n_x_nx+nr_x_n) +
+             nr_x_n + nr*(qx+nx) + (n+qr)*(2*n+qx+nx);
     }
 
     void

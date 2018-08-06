@@ -43,7 +43,7 @@ namespace alglin {
   finite_difference_gradient( integer      fd_gradient,
                               Number const x[],
                               integer      dim_x,
-                              FUNCTION     fun,
+                              FUNCTION   * fun,
                               Number       grad[] ) {
 
     Number const eps = sqrt(std::numeric_limits<Number>::epsilon());
@@ -51,7 +51,7 @@ namespace alglin {
     Number value0=0, value1=0; // only to stop warning
     bool ok = true;
     if ( fd_gradient != 0 ) {
-      ok = fun( x, value0 ) && isRegular(value0);
+      ok = (*fun)( x, value0 ) && isRegular(value0);
       if ( !ok ) return false;
     }
 
@@ -63,23 +63,23 @@ namespace alglin {
       switch ( fd_gradient ) {
       case 0:
         X[i] = temp+h; // modify the vector only at i position
-        ok = fun( X, value1 ) && isRegular(value1);
+        ok = (*fun)( X, value1 ) && isRegular(value1);
         if ( !ok ) break;
 
         X[i] = temp-h; // modify the vector only at i position
-        ok = fun( X, value0 ) && isRegular(value0);
+        ok = (*fun)( X, value0 ) && isRegular(value0);
         if ( ok ) grad[i] = (value1-value0)/(2*h);
         break;
 
       case 1:
         X[i] = temp+h; // modify the vector only at i position
-        ok = fun( X, value1 ) && isRegular(value1);
+        ok = (*fun)( X, value1 ) && isRegular(value1);
         if ( ok ) grad[i] = (value1-value0)/h;
         break;
     
       case -1:
         X[i] = temp-h; // modify the vector only at i position
-        ok = fun( X, value1 ) && isRegular(value1);
+        ok = (*fun)( X, value1 ) && isRegular(value1);
         if ( ok ) grad[i] = (value0-value1)/h;
         break;
       default:
@@ -97,7 +97,7 @@ namespace alglin {
   void
   finite_difference_check_gradient( Number const               x[],
                                     integer                    dim_x,
-                                    FUNCTION                   fun,
+                                    FUNCTION                 * fun,
                                     Number const               grad[],
                                     Number                     epsi,
                                     std::basic_ostream<char> & stream ) {
@@ -111,11 +111,11 @@ namespace alglin {
       Number temp = x[i];
       Number h    = std::max( eps*std::abs(temp), eps );
       X[i] = temp+h; // modify the vector only at i position
-      ok = fun( X, value1 ) && isRegular(value1);
+      ok = (*fun)( X, value1 ) && isRegular(value1);
       if ( !ok ) break;
 
       X[i] = temp-h; // modify the vector only at i position
-      ok = fun( X, value0 ) && isRegular(value0);
+      ok = (*fun)( X, value0 ) && isRegular(value0);
       if ( ok ) {
         gradi = (value1-value0)/(2*h);
         ok    = isRegular(gradi);
@@ -126,9 +126,10 @@ namespace alglin {
         Number scale = std::max(Number(1),std::max(std::abs(gradi),std::abs(grad[i])));
         Number err   = std::abs(gradi-grad[i]);
         if ( err > epsi*scale ) {
-          stream << "grad[" << i << "] = " << std::setw(14) << grad[i] << " [A] --- "
-                 << std::setw(14) << gradi << " [FD]  rel err = " << err/scale
-                 << '\n';
+          stream << "grad[" << std::setw(3) << i << "] = "
+                 << std::setw(14) << grad[i] << " [A] --- "
+                 << std::setw(14) << gradi   << " [FD]  rel err = "
+                 << err/scale << '\n';
         }
       }
     }
@@ -159,7 +160,7 @@ namespace alglin {
   finite_difference_jacobian( integer      fd_jacobian,
                               Number const x[],
                               integer      dim_x,
-                              FUNCTION     fun,
+                              FUNCTION   * fun,
                               integer      dim_f,
                               Number       Jac[],
                               integer      ldJ ) {
@@ -172,7 +173,7 @@ namespace alglin {
     bool ok = true;
 
     if ( fd_jacobian != 0 ) {
-      ok = fun( x, g0 ) && isRegular(g0,dim_f);
+      ok = (*fun)( x, g0 ) && isRegular(g0,dim_f);
       if ( !ok ) return false;
     }
 
@@ -185,11 +186,11 @@ namespace alglin {
       switch ( fd_jacobian ) {
       case 0:
         X[j] = temp+h; // modify the vector only at j position
-        ok = fun( X, g1 ) && isRegular(g1,dim_f);
+        ok = (*fun)( X, g1 ) && isRegular(g1,dim_f);
         if ( !ok ) break;
 
         X[j] = temp-h; // modify the vector only at j position
-        ok = fun( X, g0 ) && isRegular(g0,dim_f);
+        ok = (*fun)( X, g0 ) && isRegular(g0,dim_f);
         if ( ok )
           for ( integer i = 0; i < dim_f; ++i )
             pjac[i] = (g1[i]-g0[i])/(2*h);
@@ -197,7 +198,7 @@ namespace alglin {
 
       case 1:
         X[j] = temp+h; // modify the vector only at j position
-        ok = fun( X, g1 ) && isRegular(g1,dim_f);
+        ok = (*fun)( X, g1 ) && isRegular(g1,dim_f);
         if ( ok )
           for ( integer i = 0; i < dim_f; ++i )
             pjac[i] = (g1[i]-g0[i])/h;
@@ -205,7 +206,7 @@ namespace alglin {
     
       case -1:
         X[j] = temp-h; // modify the vector only at i position
-        ok = fun( X, g1 ) && isRegular(g1,dim_f);
+        ok = (*fun)( X, g1 ) && isRegular(g1,dim_f);
         if ( ok )
           for ( integer i = 0; i < dim_f; ++i )
             pjac[j] = (g0[i]-g1[i])/h;
@@ -225,7 +226,7 @@ namespace alglin {
   void
   finite_difference_check_jacobian( Number const               x[],
                                     integer                    dim_x,
-                                    FUNCTION                   fun,
+                                    FUNCTION                 * fun,
                                     integer                    dim_f,
                                     Number const               Jac[],
                                     integer                    ldJ,
@@ -247,11 +248,11 @@ namespace alglin {
       Number h    = std::max( eps*std::abs(temp), eps );
 
       X[j] = temp+h; // modify the vector only at j position
-      ok = fun( X, g1 ) && isRegular(g1,dim_f);
+      ok = (*fun)( X, g1 ) && isRegular(g1,dim_f);
       if ( !ok ) break;
 
       X[j] = temp-h; // modify the vector only at j position
-      ok = fun( X, g0 ) && isRegular(g0,dim_f);
+      ok = (*fun)( X, g0 ) && isRegular(g0,dim_f);
 
       for ( integer i = 0; i < dim_f && ok; ++i ) {
         ok = isRegular(pjac,dim_f);
@@ -259,10 +260,11 @@ namespace alglin {
         Number scale = std::max(Number(1),std::max(std::abs(d),std::abs(pjac[i])));
         Number err   = std::abs(d-pjac[i]);
         if ( err > epsi*scale ) {
-          stream << "jac[" << i << ", " << j << "] = "
+          stream << "jac[" << std::setw(3) << i << ", "
+                 << std::setw(3) << j << "] = "
                  << std::setw(14) << pjac[i] << " [A] --- "
-                 << std::setw(14) << d << " [FD]  rel err = " << err/scale
-                 << '\n';
+                 << std::setw(14) << d << " [FD]  rel err = "
+                 << err/scale << '\n';
         }
       }
 
@@ -284,7 +286,7 @@ namespace alglin {
   bool
   finite_difference_hessian( Number const x[],
                              integer      dim_x,
-                             FUNCTION     fun,
+                             FUNCTION   * fun,
                              Number       Hess[],
                              integer      ldH ) {
 
@@ -298,13 +300,13 @@ namespace alglin {
       Number hj    = std::max( eps*std::abs(tempj), eps );
       
       Number fp, fm, fc;
-      ok = fun( X, fc ) && alglin::isRegular(fc);
+      ok = (*fun)( X, fc ) && alglin::isRegular(fc);
       if ( !ok ) break;
       X[j] = tempj+hj;
-      ok = fun( X, fp ) && alglin::isRegular(fp);
+      ok = (*fun)( X, fp ) && alglin::isRegular(fp);
       if ( !ok ) break;
       X[j] = tempj-hj;
-      ok = fun( X, fm ) && alglin::isRegular(fm);
+      ok = (*fun)( X, fm ) && alglin::isRegular(fm);
       if ( !ok ) break;
       Hess[j*(ldH+1)] = ((fp+fm)-2*fc)/(hj*hj);
       for ( integer i = j+1; i < dim_x && ok; ++i ) {
@@ -312,16 +314,16 @@ namespace alglin {
         Number hi    = std::max( eps*std::abs(tempi), eps );
         X[i] = tempi+hi;
         X[j] = tempj+hj;
-        ok = fun( X, fpp ) && alglin::isRegular(fpp);
+        ok = (*fun)( X, fpp ) && alglin::isRegular(fpp);
         if ( !ok ) break;
         X[i] = tempi-hi;
-        ok = fun( X, fmp ) && alglin::isRegular(fmp);
+        ok = (*fun)( X, fmp ) && alglin::isRegular(fmp);
         if ( !ok ) break;
         X[j] = tempj-hj;
-        ok = fun( X, fmm ) && alglin::isRegular(fmm);
+        ok = (*fun)( X, fmm ) && alglin::isRegular(fmm);
         if ( !ok ) break;
         X[i] = tempi+hi;
-        ok = fun( X, fpm ) && alglin::isRegular(fpm);
+        ok = (*fun)( X, fpm ) && alglin::isRegular(fpm);
         if ( !ok ) break;
         Number hij = 4*hi*hj;
         Hess[j+i*ldH] = Hess[i+j*ldH] = ( (fpp+fmm) - (fpm+fmp) )/hij;
@@ -337,7 +339,7 @@ namespace alglin {
   bool
   finite_difference_check_hessian( Number const               x[],
                                    integer                    dim_x,
-                                   FUNCTION                   fun,
+                                   FUNCTION                 * fun,
                                    Number const               Hess[],
                                    integer                    ldH,
                                    Number                     epsi,
@@ -353,13 +355,13 @@ namespace alglin {
       Number hj    = std::max( eps*std::abs(tempj), eps );
       
       Number fp, fm, fc;
-      ok = fun( X, fc ) && alglin::isRegular(fc);
+      ok = (*fun)( X, fc ) && alglin::isRegular(fc);
       if ( !ok ) break;
       X[j] = tempj+hj;
-      ok = fun( X, fp ) && alglin::isRegular(fp);
+      ok = (*fun)( X, fp ) && alglin::isRegular(fp);
       if ( !ok ) break;
       X[j] = tempj-hj;
-      ok = fun( X, fm ) && alglin::isRegular(fm);
+      ok = (*fun)( X, fm ) && alglin::isRegular(fm);
       if ( !ok ) break;
 
       Number dde = Hess[j*(ldH+1)];
@@ -369,9 +371,11 @@ namespace alglin {
       Number scale = std::max(Number(1),std::max(std::abs(dd),std::abs(dde)));
       Number err   = std::abs(dd-dde);
       if ( err > epsi*scale ) {
-        stream << "Hess[" << j << ", " << j << "] = " << std::setw(14) << dde << " [A] --- "
-               << std::setw(14) << dd << " [FD] rel err = " << err/scale
-               << '\n';
+        stream << "Hess[" << std::setw(3) << j << ", "
+               << std::setw(3) << j << "] = "
+               << std::setw(14) << dde << " [A] --- "
+               << std::setw(14) << dd << " [FD] rel err = "
+               << err/scale << '\n';
       }
 
       for ( integer i = j+1; i < dim_x && ok; ++i ) {
@@ -379,16 +383,16 @@ namespace alglin {
         Number hi    = std::max( eps*std::abs(tempi), eps );
         X[i] = tempi+hi;
         X[j] = tempj+hj;
-        ok = fun( X, fpp ) && alglin::isRegular(fpp);
+        ok = (*fun)( X, fpp ) && alglin::isRegular(fpp);
         if ( !ok ) break;
         X[i] = tempi-hi;
-        ok = fun( X, fmp ) && alglin::isRegular(fmp);
+        ok = (*fun)( X, fmp ) && alglin::isRegular(fmp);
         if ( !ok ) break;
         X[j] = tempj-hj;
-        ok = fun( X, fmm ) && alglin::isRegular(fmm);
+        ok = (*fun)( X, fmm ) && alglin::isRegular(fmm);
         if ( !ok ) break;
         X[i] = tempi+hi;
-        ok = fun( X, fpm ) && alglin::isRegular(fpm);
+        ok = (*fun)( X, fpm ) && alglin::isRegular(fpm);
         if ( !ok ) break;
         Number hij  = 4*hi*hj;
         Number ddji = Hess[j+i*ldH];
@@ -399,7 +403,7 @@ namespace alglin {
         scale = std::max(Number(1),std::max(std::abs(dd),std::abs(ddij)));
         err   = std::abs(dd-ddij);
         if ( err > epsi*scale ) {
-          stream << "Hess[" << i << ", " << j
+          stream << "Hess[" << std::setw(3) << i << ", " << std::setw(3) << j
                  << "] = " << std::setw(14) << ddij << " [A] --- "
                  << std::setw(14) << dd << " [FD]  rel err = " << err/scale
                  << '\n';
@@ -407,7 +411,7 @@ namespace alglin {
         scale = std::max(Number(1),std::max(std::abs(dd),std::abs(ddji)));
         err   = std::abs(dd-ddji);
         if ( err > epsi*scale ) {
-          stream << "Hess[" << j << ", " << i
+          stream << "Hess[" << std::setw(3) << j << ", " << std::setw(3) << i
                  << "] = " << std::setw(14) << ddij << " [A] --- "
                  << std::setw(14) << dd << " [FD]  rel err = " << err/scale
                  << '\n';

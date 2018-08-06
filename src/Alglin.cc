@@ -27,6 +27,7 @@
 #include "Alglin.hh"
 #include <vector>
 #include <limits>
+#include <string>
 
 // workaround for windows
 #ifdef _MSC_VER
@@ -39,18 +40,18 @@
 #endif
 
 #ifdef ALGLIN_OS_WINDOWS
-#include <cstdlib>
-static
-char * basename(char *path) {
-   char *drive = nullptr;
-   char *dir   = nullptr;
-   char *fname = nullptr;
-   char *ext   = nullptr;
-   _splitpath(path, drive, dir, fname, ext);
-  return dir;
-}
+  #include <cstdlib>
+  static
+  char * basename(char *path) {
+    char *drive = nullptr;
+    char *dir   = nullptr;
+    char *fname = nullptr;
+    char *ext   = nullptr;
+    _splitpath(path, drive, dir, fname, ext);
+    return dir;
+  }
 #else
-#include <libgen.h>
+  #include <libgen.h>
 #endif
 
 #include <algorithm>
@@ -170,12 +171,6 @@ namespace alglin {
       }
     }
   }
-
-  bool
-  foundNaN( doublereal pv[], integer DIM );
-
-  bool
-  foundNaN( real pv[], integer DIM );
 
   // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 

@@ -228,8 +228,8 @@ namespace alglin {
 
   public:
 
-    using LinearSystemSolver<T>::solve ;
-    using LinearSystemSolver<T>::t_solve ;
+    using LinearSystemSolver<T>::solve;
+    using LinearSystemSolver<T>::t_solve;
 
     Factorization()
     : nRow(0)
@@ -484,8 +484,8 @@ namespace alglin {
 
   public:
 
-    using LinearSystemSolver<T>::solve ;
-    using LinearSystemSolver<T>::t_solve ;
+    using LinearSystemSolver<T>::solve;
+    using LinearSystemSolver<T>::t_solve;
     using Factorization<T>::factorize;
     using Factorization<T>::solve;
     using Factorization<T>::t_solve;
@@ -567,8 +567,8 @@ namespace alglin {
 
   public:
 
-    using LinearSystemSolver<T>::solve ;
-    using LinearSystemSolver<T>::t_solve ;
+    using LinearSystemSolver<T>::solve;
+    using LinearSystemSolver<T>::t_solve;
     using Factorization<T>::factorize;
     using Factorization<T>::solve;
     using Factorization<T>::t_solve;
@@ -816,8 +816,8 @@ namespace alglin {
 
   public:
 
-    using LinearSystemSolver<T>::solve ;
-    using LinearSystemSolver<T>::t_solve ;
+    using LinearSystemSolver<T>::solve;
+    using LinearSystemSolver<T>::t_solve;
     using Factorization<T>::factorize;
     using Factorization<T>::solve;
     using Factorization<T>::t_solve;
@@ -1006,8 +1006,8 @@ namespace alglin {
 
   public:
 
-    using LinearSystemSolver<T>::solve ;
-    using LinearSystemSolver<T>::t_solve ;
+    using LinearSystemSolver<T>::solve;
+    using LinearSystemSolver<T>::t_solve;
     using Factorization<T>::factorize;
     using Factorization<T>::solve;
     using Factorization<T>::t_solve;

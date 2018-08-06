@@ -701,7 +701,7 @@ namespace alglin {
 
     ALGLIN_ASSERT( kkk == sparseNnz(),
                    "BlockBidiagonal::sparsePattern( V ), inserted " << kkk <<
-                   " values, expected " << sparseNnz() ) ;
+                   " values, expected " << sparseNnz() );
   }
 
   template <typename t_Value>
@@ -769,7 +769,7 @@ namespace alglin {
 
     ALGLIN_ASSERT( kkk == sparseNnz(),
                    "BlockBidiagonal::sparseValues( V ), inserted " << kkk <<
-                   " values, expected " << sparseNnz() ) ;
+                   " values, expected " << sparseNnz() );
 
   }
 

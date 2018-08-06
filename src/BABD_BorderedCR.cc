@@ -203,6 +203,7 @@ namespace alglin {
     valueConstPointer Hq, integer ldQ,
     valueConstPointer Hp, integer ldP
   ) {
+    // (n+qr) x ( n + n + qx + nx )
     integer      m = n + qr;
     valuePointer H = H0Nqp;
     gecopy( m, n,  H0, ld0, H, m ); H += m * n;
@@ -1421,7 +1422,7 @@ namespace alglin {
   BorderedCR<t_Value>::sparsePattern( integer I[],
                                       integer J[],
                                       integer offs ) const {
-    integer kkk = 0 ;
+    integer kkk = 0;
 
     // bidiagonal
     integer je = nblock*n;
@@ -1430,7 +1431,7 @@ namespace alglin {
     for ( integer k = 0; k < nblock; ++k ) {
       integer ii = offs+k*n;
       for ( integer i = 0; i < n; ++i ) {
-        integer iii = ii+i ;
+        integer iii = ii+i;
         for ( integer j = 0; j < n; ++j ) {
           I[kkk] = iii; J[kkk] = ii+j;   ++kkk; // D[i+j*n]
           I[kkk] = iii; J[kkk] = ii+n+j; ++kkk; // E[i+j*n]
@@ -1476,7 +1477,7 @@ namespace alglin {
 
     ALGLIN_ASSERT( kkk == sparseNnz(),
                    "BorderedCR::sparsePattern( V ), inserted " << kkk <<
-                   " values, expected " << sparseNnz() ) ;
+                   " values, expected " << sparseNnz() );
   }
 
   // ---------------------------------------------------------------------------
@@ -1484,7 +1485,7 @@ namespace alglin {
   template <typename t_Value>
   void
   BorderedCR<t_Value>::sparseValues( valuePointer V ) const {
-    integer kkk = 0 ;
+    integer kkk = 0;
     for ( integer k = 0; k < nblock; ++k ) {
       //integer ii = offs+k*n;
       valuePointer D = Dmat + k * n_x_n;
@@ -1521,7 +1522,7 @@ namespace alglin {
 
     ALGLIN_ASSERT( kkk == sparseNnz(),
                    "BorderedCR::sparseValues( V ), inserted " << kkk <<
-                   " values, expected " << sparseNnz() ) ;
+                   " values, expected " << sparseNnz() );
   }
 
   // ---------------------------------------------------------------------------
@@ -1540,9 +1541,9 @@ namespace alglin {
     integer const cF   = cCq + qx;
     integer const ncol = cF  + nx;
 
-    fillZero() ;
+    fillZero();
 
-    for ( integer kkk = 0 ; kkk < M_nnz ; ++kkk ) {
+    for ( integer kkk = 0; kkk < M_nnz; ++kkk ) {
       integer   i = M_row[kkk] - r_offs;
       integer   j = M_col[kkk] - c_offs;
       valueType v = M_values[kkk];
@@ -1551,8 +1552,8 @@ namespace alglin {
       if ( i < rH ) {
         if ( j < cCq ) { // DE
           // cerca blocchi
-          integer ib = i/n ;
-          integer jb = j/n ;
+          integer ib = i/n;
+          integer jb = j/n;
           if ( ib == jb ) {
             D(ib,i%n,j%n) = v;
           } else if ( ib+1 == jb ) {
@@ -1561,7 +1562,7 @@ namespace alglin {
             ok = false;
           }
         } else if ( j < cF ) { // Hq
-          ok = false ;
+          ok = false;
         } else if ( j < ncol ) { // B
           integer ib = i/n;
           B(ib,i%n,j-cF) = v;
@@ -1580,7 +1581,7 @@ namespace alglin {
         }
       } else if ( i < nrow ) {
         if ( j < cCq ) {
-          integer jb = j/n ;
+          integer jb = j/n;
           C(jb,i-rC,j%n) = v;
         } else if ( j < cF ) {
           Cq(i-rC,j-cCq) =v;

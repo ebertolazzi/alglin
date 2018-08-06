@@ -36,6 +36,206 @@
 
 namespace alglin {
 
+  /*
+  //   ____                             ____ ____ ___   ___  ____
+  //  / ___| _ __   __ _ _ __ ___  ___ / ___/ ___/ _ \ / _ \|  _ \
+  //  \___ \| '_ \ / _` | '__/ __|/ _ \ |  | |  | | | | | | | |_) |
+  //   ___) | |_) | (_| | |  \__ \  __/ |__| |__| |_| | |_| |  _ <
+  //  |____/| .__/ \__,_|_|  |___/\___|\____\____\___/ \___/|_| \_\
+  //        |_|
+  */
+
+  //! Sparse Matrix Structure
+  template <typename T>
+  bool
+  SparseCCOOR<T>::foundNaN() const
+  { return alglin::foundNaN( vals, nnz ); }
+
+  /*
+  //   __  __       _        _     __        __
+  //  |  \/  | __ _| |_ _ __(_)_  _\ \      / / __ __ _ _ __  _ __   ___ _ __
+  //  | |\/| |/ _` | __| '__| \ \/ /\ \ /\ / / '__/ _` | '_ \| '_ \ / _ \ '__|
+  //  | |  | | (_| | |_| |  | |>  <  \ V  V /| | | (_| | |_) | |_) |  __/ |
+  //  |_|  |_|\__,_|\__|_|  |_/_/\_\  \_/\_/ |_|  \__,_| .__/| .__/ \___|_|
+  //                                                   |_|   |_|
+  */
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  template <typename T>
+  MatrixWrapper<T>::MatrixWrapper( valueType * _data,
+                                   integer     nr,
+                                   integer     nc,
+                                   integer     ld )
+  : numRows(nr)
+  , numCols(nc)
+  , ldData(ld)
+  , data(_data)
+  {
+  #ifndef ALGLIN_NO_DEBUG
+    ALGLIN_ASSERT( nr >= 0 && nc >= 0 && ldData >= nr,
+                   "MatrixWrapper( data, nr=" << nr <<
+                   ", nc=" << nc << ", ld=" << ld <<
+                   ") bad dimensions" );
+  #endif
+  }
+
+  template <typename T>
+  void
+  MatrixWrapper<T>::setup(
+    valueType * _data,
+    integer     nr,
+    integer     nc,
+    integer     ld
+  ) {
+    data    = _data;
+    numRows = nr;
+    numCols = nc;
+    ldData  = ld;
+    #ifndef ALGLIN_NO_DEBUG
+    ALGLIN_ASSERT( nr >= 0 && nc >= 0 && ldData >= nr,
+                   "MatrixWrapper( data, nr=" << nr <<
+                   ", nc=" << nc << ", ld=" << ld <<
+                   ") bad dimensions" );
+    #endif
+  }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  template <typename T>
+  void
+  MatrixWrapper<T>::check( MatW const & A ) const {
+    ALGLIN_ASSERT( A.numRows == numRows && A.numCols == numCols,
+                   "MatrixWrapper::check(A) size(A) = " <<
+                   A.numRows << " x " << A.numRows << " expected " <<
+                   numRows << " x " << numCols );
+  }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  template <typename T>
+  void
+  MatrixWrapper<T>::check( Sparse const & sp ) const {
+    ALGLIN_ASSERT( sp.numRows <= numRows && sp.numCols <= numCols,
+                   "MatrixWrapper::check(sp) size(sp) = " <<
+                   sp.numRows << " x " << sp.numRows <<
+                   " mus be contained in " << numRows << " x " << numCols );
+  }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  template <typename T>
+  void
+  MatrixWrapper<T>::load( valueType const data_in[], integer ldData_in ) {
+    integer info = gecopy( numRows, numCols, data_in, ldData_in, data, ldData );
+    ALGLIN_ASSERT( info == 0,
+                   "MatrixWrapper::load call alglin::gecopy return info = " << info );
+  }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  template <typename T>
+  void
+  MatrixWrapper<T>::load( MatW const & A ) {
+    #ifndef ALGLIN_NO_DEBUG
+    check(A);
+    #endif
+    integer info = gecopy( A.numRows, A.numCols, A.data, A.ldData, data, ldData );
+    ALGLIN_ASSERT( info == 0,
+                   "MatrixWrapper::load call alglin::gecopy return info = " << info );
+  }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  template <typename T>
+  void
+  MatrixWrapper<T>::load0( Sparse const & sp ) {
+    #ifndef ALGLIN_NO_DEBUG
+    check(sp);
+    #endif
+    zero();
+    for ( integer idx = 0; idx < sp.nnz; ++idx )
+      data[iaddr(sp.rows[idx],sp.cols[idx])] = sp.vals[idx];
+  }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  template <typename T>
+  void
+  MatrixWrapper<T>::load( Sparse const & sp ) {
+    #ifndef ALGLIN_NO_DEBUG
+    check(sp);
+    #endif
+    for ( integer idx = 0; idx < sp.nnz; ++idx )
+      data[iaddr(sp.rows[idx],sp.cols[idx])] = sp.vals[idx];
+  }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  template <typename T>
+  void
+  MatrixWrapper<T>::add( valueType const data_in[], integer ldData_in ) {
+    geadd( numRows, numCols,
+           1.0, data_in, ldData_in,
+           1.0, data, ldData,
+           data, ldData );
+  }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  template <typename T>
+  void
+  MatrixWrapper<T>::add( Sparse const & sp ) {
+    #ifndef ALGLIN_NO_DEBUG
+    check(sp);
+    #endif
+    for ( integer idx = 0; idx < sp.nnz; ++idx )
+      data[iaddr(sp.rows[idx],sp.cols[idx])] += sp.vals[idx];
+  }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  template <typename T>
+  void
+  MatrixWrapper<T>::add( valueType alpha, Sparse const & sp ) {
+    #ifndef ALGLIN_NO_DEBUG
+    check(sp);
+    #endif
+    for ( integer idx = 0; idx < sp.nnz; ++idx )
+      data[iaddr(sp.rows[idx],sp.cols[idx])] += alpha * sp.vals[idx];
+  }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  template <typename T>
+  void
+  MatrixWrapper<T>::load( Sparse const & sp,
+                          integer        i_offs,
+                          integer        j_offs ) {
+    for ( integer idx = 0; idx < sp.nnz; ++idx )
+      data[iaddr(sp.rows[idx]+i_offs,sp.cols[idx]+j_offs)] = sp.vals[idx];
+  }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  template <typename T>
+  void
+  MatrixWrapper<T>::add( Sparse const & sp,
+                         integer        i_offs,
+                         integer        j_offs ) {
+    for ( integer idx = 0; idx < sp.nnz; ++idx )
+      data[iaddr(sp.rows[idx]+i_offs,sp.cols[idx]+j_offs)] += sp.vals[idx];
+  }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  template <typename T>
+  void
+  MatrixWrapper<T>::add( valueType      alpha,
+                         Sparse const & sp,
+                         integer        i_offs,
+                         integer        j_offs ) {
+    for ( integer idx = 0; idx < sp.nnz; ++idx )
+      data[iaddr(sp.rows[idx]+i_offs,sp.cols[idx]+j_offs)] += alpha * sp.vals[idx];
+  }
+
   /*\
    *
    *   RELEASE 3.0, WGS COPYRIGHT 1997.
@@ -221,6 +421,7 @@ namespace alglin {
    |  | |  | | | |
    |  | |__| |_| |
    |  |_____\___/
+   |
   \*/
   
   template <typename T>
@@ -341,6 +542,7 @@ namespace alglin {
    |  | | | | |_) |
    |  | |_| |  _ <
    |   \__\_\_| \_\
+   |
   \*/
   template <typename T>
   void
@@ -446,6 +648,7 @@ namespace alglin {
    |  | | | | |_) | |_) |
    |  | |_| |  _ <|  __/
    |   \__\_\_| \_\_|
+   |
   \*/
   template <typename T>
   void
@@ -509,6 +712,7 @@ namespace alglin {
    |  \___ \\ \ / /| | | |
    |   ___) |\ V / | |_| |
    |  |____/  \_/  |____/
+   |
   \*/
   template <typename T>
   void
@@ -1309,6 +1513,13 @@ namespace alglin {
                                  integer    LDA,
                                  doublereal RCOND,
                                  doublereal SVAL[3] );
+
+
+  template class SparseCCOOR<real>;
+  template class SparseCCOOR<doublereal>;
+
+  template class MatrixWrapper<real>;
+  template class MatrixWrapper<doublereal>;
 
   template class LU<real>;
   template class LU<doublereal>;
