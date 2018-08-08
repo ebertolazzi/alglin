@@ -123,13 +123,14 @@ namespace alglin {
 
       X[i] = temp; // restore i position
       if ( ok ) {
-        Number scale = std::max(Number(1),std::max(std::abs(gradi),std::abs(grad[i])));
+        Number scale = std::max(eps,std::max(std::abs(gradi),std::abs(grad[i])));
         Number err   = std::abs(gradi-grad[i]);
-        if ( err > epsi*scale ) {
+        if ( err > epsi*std::max(Number(1),scale) ) {
           stream << "grad[" << std::setw(3) << i << "] = "
                  << std::setw(14) << grad[i] << " [A] --- "
-                 << std::setw(14) << gradi   << " [FD]  rel err = "
-                 << err/scale << '\n';
+                 << std::setw(14) << gradi   << " [FD]  err = "
+                 << std::setw(14) << err << "  err (%) = "
+                 << 100*err/scale << '\n';
         }
       }
     }
@@ -257,14 +258,15 @@ namespace alglin {
       for ( integer i = 0; i < dim_f && ok; ++i ) {
         ok = isRegular(pjac,dim_f);
         Number d     = (g1[i]-g0[i])/(2*h);
-        Number scale = std::max(Number(1),std::max(std::abs(d),std::abs(pjac[i])));
+        Number scale = std::max(eps,std::max(std::abs(d),std::abs(pjac[i])));
         Number err   = std::abs(d-pjac[i]);
-        if ( err > epsi*scale ) {
+        if ( err > epsi*std::max(Number(1),scale) ) {
           stream << "jac[" << std::setw(3) << i << ", "
                  << std::setw(3) << j << "] = "
                  << std::setw(14) << pjac[i] << " [A] --- "
-                 << std::setw(14) << d << " [FD]  rel err = "
-                 << err/scale << '\n';
+                 << std::setw(14) << d << " [FD]  err = "
+                 << std::setw(14) << err << "  err (%) = "
+                 << 100*err/scale << '\n';
         }
       }
 
@@ -368,14 +370,15 @@ namespace alglin {
       Number dd  = ((fp+fm)-2*fc)/(hj*hj);
       ok = alglin::isRegular(dd);
       if ( !ok ) break;
-      Number scale = std::max(Number(1),std::max(std::abs(dd),std::abs(dde)));
+      Number scale = std::max(eps,std::max(std::abs(dd),std::abs(dde)));
       Number err   = std::abs(dd-dde);
-      if ( err > epsi*scale ) {
+      if ( err > epsi*std::max(Number(1),scale) ) {
         stream << "Hess[" << std::setw(3) << j << ", "
                << std::setw(3) << j << "] = "
                << std::setw(14) << dde << " [A] --- "
-               << std::setw(14) << dd << " [FD] rel err = "
-               << err/scale << '\n';
+               << std::setw(14) << dd << " [FD]  err = "
+               << std::setw(14) << err << "  err (%) = "
+               << 100*err/scale << '\n';
       }
 
       for ( integer i = j+1; i < dim_x && ok; ++i ) {
@@ -400,21 +403,23 @@ namespace alglin {
         dd   = ( (fpp+fmm) - (fpm+fmp) )/hij;
         ok = alglin::isRegular(dd);
         if ( !ok ) break;
-        scale = std::max(Number(1),std::max(std::abs(dd),std::abs(ddij)));
+        scale = std::max(eps,std::max(std::abs(dd),std::abs(ddij)));
         err   = std::abs(dd-ddij);
-        if ( err > epsi*scale ) {
+        if ( err > epsi*std::max(Number(1),scale) ) {
           stream << "Hess[" << std::setw(3) << i << ", " << std::setw(3) << j
                  << "] = " << std::setw(14) << ddij << " [A] --- "
-                 << std::setw(14) << dd << " [FD]  rel err = " << err/scale
-                 << '\n';
+                 << std::setw(14) << dd << " [FD]  err = "
+                 << std::setw(14) << err << "  err (%) = "
+                 << 100*err/scale << '\n';
         }
-        scale = std::max(Number(1),std::max(std::abs(dd),std::abs(ddji)));
+        scale = std::max(eps,std::max(std::abs(dd),std::abs(ddji)));
         err   = std::abs(dd-ddji);
-        if ( err > epsi*scale ) {
+        if ( err > epsi*std::max(Number(1),scale) ) {
           stream << "Hess[" << std::setw(3) << j << ", " << std::setw(3) << i
                  << "] = " << std::setw(14) << ddij << " [A] --- "
-                 << std::setw(14) << dd << " [FD]  rel err = " << err/scale
-                 << '\n';
+                 << std::setw(14) << dd << " [FD]  err = "
+                 << std::setw(14) << err << "  err (%) = "
+                 << 100*err/scale << '\n';
         }
         X[i] = tempi;
       }
