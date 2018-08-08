@@ -46,7 +46,9 @@ namespace alglin {
                               FUNCTION   * fun,
                               Number       grad[] ) {
 
-    Number const eps = sqrt(std::numeric_limits<Number>::epsilon());
+    Number const eps = fd_gradient == 0 ?
+                       cbrt(std::numeric_limits<Number>::epsilon()):
+                       sqrt(std::numeric_limits<Number>::epsilon());
 
     Number value0=0, value1=0; // only to stop warning
     bool ok = true;
@@ -102,7 +104,7 @@ namespace alglin {
                                     Number                     epsi,
                                     std::basic_ostream<char> & stream ) {
 
-    Number const eps = sqrt(std::numeric_limits<Number>::epsilon());
+    Number const eps = cbrt(std::numeric_limits<Number>::epsilon());
     Number * X = const_cast<Number*>(x);
 
     bool ok = true;
@@ -123,13 +125,14 @@ namespace alglin {
 
       X[i] = temp; // restore i position
       if ( ok ) {
-        Number scale = std::max(Number(1),std::max(std::abs(gradi),std::abs(grad[i])));
+        Number scale = std::max(eps,std::max(std::abs(gradi),std::abs(grad[i])));
         Number err   = std::abs(gradi-grad[i]);
-        if ( err > epsi*scale ) {
+        if ( err > epsi*std::max(Number(1),scale) ) {
           stream << "grad[" << std::setw(3) << i << "] = "
                  << std::setw(14) << grad[i] << " [A] --- "
-                 << std::setw(14) << gradi   << " [FD]  rel err = "
-                 << err/scale << '\n';
+                 << std::setw(14) << gradi   << " [FD]  err = "
+                 << std::setw(14) << err << "  err (%) = "
+                 << 100*err/scale << '\n';
         }
       }
     }
@@ -165,7 +168,9 @@ namespace alglin {
                               Number       Jac[],
                               integer      ldJ ) {
 
-    Number const eps = sqrt(std::numeric_limits<Number>::epsilon());
+    Number const eps = fd_gradient == 0 ?
+                       cbrt(std::numeric_limits<Number>::epsilon()):
+                       sqrt(std::numeric_limits<Number>::epsilon());
 
     std::vector<Number> tmp(size_t(2*dim_f));
     Number * g0 = &tmp[size_t(0)];
@@ -233,7 +238,7 @@ namespace alglin {
                                     Number                     epsi,
                                     std::basic_ostream<char> & stream  ) {
 
-    Number const eps = sqrt(std::numeric_limits<Number>::epsilon());
+    Number const eps = cbrt(std::numeric_limits<Number>::epsilon());
 
     std::vector<Number> tmp(size_t(2*dim_f));
     Number * g0 = &tmp[size_t(0)];
@@ -257,14 +262,15 @@ namespace alglin {
       for ( integer i = 0; i < dim_f && ok; ++i ) {
         ok = isRegular(pjac,dim_f);
         Number d     = (g1[i]-g0[i])/(2*h);
-        Number scale = std::max(Number(1),std::max(std::abs(d),std::abs(pjac[i])));
+        Number scale = std::max(eps,std::max(std::abs(d),std::abs(pjac[i])));
         Number err   = std::abs(d-pjac[i]);
-        if ( err > epsi*scale ) {
+        if ( err > epsi*std::max(Number(1),scale) ) {
           stream << "jac[" << std::setw(3) << i << ", "
                  << std::setw(3) << j << "] = "
                  << std::setw(14) << pjac[i] << " [A] --- "
-                 << std::setw(14) << d << " [FD]  rel err = "
-                 << err/scale << '\n';
+                 << std::setw(14) << d << " [FD]  err = "
+                 << std::setw(14) << err << "  err (%) = "
+                 << 100*err/scale << '\n';
         }
       }
 
@@ -290,7 +296,7 @@ namespace alglin {
                              Number       Hess[],
                              integer      ldH ) {
 
-    Number const eps = pow(std::numeric_limits<Number>::epsilon(),0.25);
+    Number const eps = cbrt(std::numeric_limits<Number>::epsilon());
     bool ok = true;
 
     Number * X = const_cast<Number*>(x);
@@ -345,7 +351,7 @@ namespace alglin {
                                    Number                     epsi,
                                    std::basic_ostream<char> & stream ) {
 
-    Number const eps = pow(std::numeric_limits<Number>::epsilon(),0.25);
+    Number const eps = cbrt(std::numeric_limits<Number>::epsilon());
     bool ok = true;
 
     Number * X = const_cast<Number*>(x);
@@ -368,14 +374,15 @@ namespace alglin {
       Number dd  = ((fp+fm)-2*fc)/(hj*hj);
       ok = alglin::isRegular(dd);
       if ( !ok ) break;
-      Number scale = std::max(Number(1),std::max(std::abs(dd),std::abs(dde)));
+      Number scale = std::max(eps,std::max(std::abs(dd),std::abs(dde)));
       Number err   = std::abs(dd-dde);
-      if ( err > epsi*scale ) {
+      if ( err > epsi*std::max(Number(1),scale) ) {
         stream << "Hess[" << std::setw(3) << j << ", "
                << std::setw(3) << j << "] = "
                << std::setw(14) << dde << " [A] --- "
-               << std::setw(14) << dd << " [FD] rel err = "
-               << err/scale << '\n';
+               << std::setw(14) << dd << " [FD]  err = "
+               << std::setw(14) << err << "  err (%) = "
+               << 100*err/scale << '\n';
       }
 
       for ( integer i = j+1; i < dim_x && ok; ++i ) {
@@ -400,21 +407,23 @@ namespace alglin {
         dd   = ( (fpp+fmm) - (fpm+fmp) )/hij;
         ok = alglin::isRegular(dd);
         if ( !ok ) break;
-        scale = std::max(Number(1),std::max(std::abs(dd),std::abs(ddij)));
+        scale = std::max(eps,std::max(std::abs(dd),std::abs(ddij)));
         err   = std::abs(dd-ddij);
-        if ( err > epsi*scale ) {
+        if ( err > epsi*std::max(Number(1),scale) ) {
           stream << "Hess[" << std::setw(3) << i << ", " << std::setw(3) << j
                  << "] = " << std::setw(14) << ddij << " [A] --- "
-                 << std::setw(14) << dd << " [FD]  rel err = " << err/scale
-                 << '\n';
+                 << std::setw(14) << dd << " [FD]  err = "
+                 << std::setw(14) << err << "  err (%) = "
+                 << 100*err/scale << '\n';
         }
-        scale = std::max(Number(1),std::max(std::abs(dd),std::abs(ddji)));
+        scale = std::max(eps,std::max(std::abs(dd),std::abs(ddji)));
         err   = std::abs(dd-ddji);
-        if ( err > epsi*scale ) {
+        if ( err > epsi*std::max(Number(1),scale) ) {
           stream << "Hess[" << std::setw(3) << j << ", " << std::setw(3) << i
                  << "] = " << std::setw(14) << ddij << " [A] --- "
-                 << std::setw(14) << dd << " [FD]  rel err = " << err/scale
-                 << '\n';
+                 << std::setw(14) << dd << " [FD]  err = "
+                 << std::setw(14) << err << "  err (%) = "
+                 << 100*err/scale << '\n';
         }
         X[i] = tempi;
       }
