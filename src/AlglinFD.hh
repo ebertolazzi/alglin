@@ -168,7 +168,7 @@ namespace alglin {
                               Number       Jac[],
                               integer      ldJ ) {
 
-    Number const eps = fd_gradient == 0 ?
+    Number const eps = fd_jacobian == 0 ?
                        cbrt(std::numeric_limits<Number>::epsilon()):
                        sqrt(std::numeric_limits<Number>::epsilon());
 
@@ -296,7 +296,7 @@ namespace alglin {
                              Number       Hess[],
                              integer      ldH ) {
 
-    Number const eps = cbrt(std::numeric_limits<Number>::epsilon());
+    Number const eps = pow(std::numeric_limits<Number>::epsilon(),0.25);
     bool ok = true;
 
     Number * X = const_cast<Number*>(x);
@@ -351,7 +351,7 @@ namespace alglin {
                                    Number                     epsi,
                                    std::basic_ostream<char> & stream ) {
 
-    Number const eps = cbrt(std::numeric_limits<Number>::epsilon());
+    Number const eps = pow(std::numeric_limits<Number>::epsilon(),0.25);
     bool ok = true;
 
     Number * X = const_cast<Number*>(x);
