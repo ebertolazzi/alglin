@@ -779,19 +779,22 @@ namespace alglin {
     integer info = 0;
     switch ( last_selected ) {
     case BORDERED_LAST_LU:
-      info = getrf( Nr, Nc, Hmat, Nr, Hperm );
+      last_lu.factorize( Nr, Nc, Hmat, Nr );
       break;
     case BORDERED_LAST_LUP:
       info = getc2( Nr, Hmat, Nr, Hperm, Hswaps );
       break;
     case BORDERED_LAST_QR:
-      info = geqrf( Nr, Nc, Hmat, Nr, Htau, Work, Lwork );
+      last_qr.factorize( Nr, Nc, Hmat, Nr );
       break;
     case BORDERED_LAST_QRP:
-      std::fill( Hperm, Hperm+Nc, 0 );
-      info = geqp3( Nr, Nc, Hmat, Nr, Hperm, Htau, Work, Lwork );
-      // convert permutation to exchanges
-      if ( info == 0 ) permutation_to_exchange( Nr, Hperm, Hswaps );
+      last_qrp.factorize( Nr, Nc, Hmat, Nr );
+      break;
+    case BORDERED_LAST_LSS:
+      last_lss.factorize( Nr, Nc, Hmat, Nr );
+      break;
+    case BORDERED_LAST_LSY:
+      last_lsy.factorize( Nr, Nc, Hmat, Nr );
       break;
     }
     ALGLIN_ASSERT( info == 0,
@@ -816,7 +819,7 @@ namespace alglin {
     integer info = 0;
     switch ( last_selected ) {
     case BORDERED_LAST_LU:
-      info = getrs( NO_TRANSPOSE, Nr, 1, Hmat, Nr, Hperm, X, Nr );
+      last_lu.solve( X );
       break;
     case BORDERED_LAST_LUP:
       {
@@ -826,27 +829,16 @@ namespace alglin {
       }
       break;
     case BORDERED_LAST_QR:
+      last_qr.solve( X );
+      break;
     case BORDERED_LAST_QRP:
-      info = ormqr( LEFT, TRANSPOSE,
-                    Nr, 1, // righe x colonne
-                    Nr-1,  // numero riflettori usati nel prodotto Q
-                    Hmat, Nr /*ldA*/,
-                    Htau,
-                    X, Nr,
-                    Work, Lwork );
-      if ( info == 0 ) {
-        trsv( UPPER, NO_TRANSPOSE, NON_UNIT, Nc, Hmat, Nr, X, 1 );
-        if ( last_selected == BORDERED_LAST_QRP ) {
-          for ( integer i = 0; i < Nr; ++i )
-            if ( Hswaps[i] > i )
-              std::swap( X[i], X[Hswaps[i]] );
-          //integer i = n;
-          //do {
-          //  --i;
-          //  if ( Hswaps[i] > i ) std::swap( X[i], X[Hswaps[i]] );
-          //} while ( i > 0 );
-        }
-      }
+      last_qrp.solve( X );
+      break;
+    case BORDERED_LAST_LSS:
+      last_lss.solve( X );
+      break;
+    case BORDERED_LAST_LSY:
+      last_lsy.solve( X );
       break;
     }
     ALGLIN_ASSERT( info == 0, "BorderedCR::solve_last INFO = " << info );
@@ -865,7 +857,7 @@ namespace alglin {
     integer info = 0;
     switch ( last_selected ) {
     case BORDERED_LAST_LU:
-      info = getrs( NO_TRANSPOSE, Nr, nrhs, Hmat, Nr, Hperm, X, ldX );
+      last_lu.solve( nrhs, X, ldX );
       break;
     case BORDERED_LAST_LUP:
       for ( integer i = 0; i < nrhs && info == 0; ++i ) {
@@ -875,28 +867,16 @@ namespace alglin {
       }
       break;
     case BORDERED_LAST_QR:
+      last_qr.solve( nrhs, X, ldX );
+      break;
     case BORDERED_LAST_QRP:
-      info = ormqr( LEFT, TRANSPOSE,
-                    Nr, nrhs, // righe x colonne
-                    Nr-1,     // numero riflettori usati nel prodotto Q
-                    Hmat, Nr,
-                    Htau,
-                    X, ldX,
-                    Work, Lwork );
-      if ( info == 0 ) { // A P P^T x = b --> Q R P^T x = b --> x = P R^(-1) Q^T b
-        trsm( LEFT, UPPER, NO_TRANSPOSE, NON_UNIT,
-              Nr, nrhs, 1.0, Hmat, Nr, X, ldX );
-        if ( last_selected == BORDERED_LAST_QRP ) {
-          for ( integer i = 0; i < Nr; ++i )
-            if ( Hswaps[i] > i )
-              swap( nrhs, X+i, ldX, X+Hswaps[i], ldX );
-          //integer i = n;
-          //do {
-          //  --i;
-          //  if ( Hswaps[i] > i ) swap( nrhs, X+i, ldX, X+Hswaps[i], ldX );
-          //} while ( i > 0 );
-        }
-      }
+      last_qrp.solve( nrhs, X, ldX );
+      break;
+    case BORDERED_LAST_LSS:
+      last_lss.solve( nrhs, X, ldX );
+      break;
+    case BORDERED_LAST_LSY:
+      last_lsy.solve( nrhs, X, ldX );
       break;
     }
     ALGLIN_ASSERT( info == 0, "BorderedCR::solve_last INFO = " << info );

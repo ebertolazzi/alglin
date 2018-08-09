@@ -56,7 +56,9 @@ namespace alglin {
     BORDERED_LAST_LU  = 0,
     BORDERED_LAST_LUP = 1,
     BORDERED_LAST_QR  = 2,
-    BORDERED_LAST_QRP = 3
+    BORDERED_LAST_QRP = 3,
+    BORDERED_LAST_LSS = 4,
+    BORDERED_LAST_LSY = 5
   } BORDERED_LAST_Choice;
 
   /*\
@@ -276,6 +278,12 @@ namespace alglin {
     valuePointer Hmat, Htau;
     integer      *Hperm, *Hswaps;
 
+    LU<valueType>  last_lu;
+    QR<valueType>  last_qr;
+    QRP<valueType> last_qrp;
+    LSS<valueType> last_lss;
+    LSY<valueType> last_lsy;
+
     integer      *iBlock, *kBlock;
 
     // used also with a unique thread
@@ -369,6 +377,8 @@ namespace alglin {
     void select_last_LUP() { last_selected = BORDERED_LAST_LUP; }
     void select_last_QR()  { last_selected = BORDERED_LAST_QR;  }
     void select_last_QRP() { last_selected = BORDERED_LAST_QRP; }
+    void select_last_LSS() { last_selected = BORDERED_LAST_LSS; }
+    void select_last_LSY() { last_selected = BORDERED_LAST_LSY; }
 
     static
     std::string
@@ -391,6 +401,8 @@ namespace alglin {
       case BORDERED_LAST_LUP: res = "LastBlock LUP"; break;
       case BORDERED_LAST_QR:  res = "LastBlock QR";  break;
       case BORDERED_LAST_QRP: res = "LastBlock QRP"; break;
+      case BORDERED_LAST_LSS: res = "LastBlock LSS"; break;
+      case BORDERED_LAST_LSY: res = "LastBlock LSY"; break;
       }
       return res;
     }

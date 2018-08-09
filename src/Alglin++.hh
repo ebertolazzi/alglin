@@ -206,7 +206,7 @@ namespace alglin {
     { t_solve( M.numCols, M.data,  M.ldData ); }
 
   };
-  
+
   /*\
    |   _____          _             _          _   _
    |  |  ___|_ _  ___| |_ ___  _ __(_)______ _| |_(_) ___  _ __
@@ -219,7 +219,7 @@ namespace alglin {
   class Factorization : public LinearSystemSolver<T> {
   public:
     typedef T valueType;
-  
+
   protected:
 
     valueType * Amat;
@@ -246,12 +246,12 @@ namespace alglin {
     valueType const * Apointer() const { return Amat; }
 
     /*!
-      Zeroes a rectangular block of the stored matrix staring at `(irow,icol)` position
-
-      \param[in] nr    number of rows of the block to be zeroed
-      \param[in] nc    number of columns of the block to be zeroed
-      \param[in] irow  starting row
-      \param[in] icol  stating column
+     |  Zeroes a rectangular block of the stored matrix staring at `(irow,icol)` position
+     |
+     |  \param[in] nr    number of rows of the block to be zeroed
+     |  \param[in] nc    number of columns of the block to be zeroed
+     |  \param[in] irow  starting row
+     |  \param[in] icol  stating column
     \*/
     void
     zero_block( integer nr,
@@ -263,14 +263,14 @@ namespace alglin {
     }
 
     /*!
-      Copy a matrix to a rectangular block of the stored matrix staring at `(irow,icol)` position
-
-      \param[in] nr    number of rows of the block to be zeroed
-      \param[in] nc    number of columns of the block to be zeroed
-      \param[in] B     pointer to memory storing the input matrix `B`
-      \param[in] ldB   leading dimension of the matrix `B`
-      \param[in] irow  starting row
-      \param[in] icol  stating column
+     |  Copy a matrix to a rectangular block of the stored matrix staring at `(irow,icol)` position
+     |
+     |  \param[in] nr    number of rows of the block to be zeroed
+     |  \param[in] nc    number of columns of the block to be zeroed
+     |  \param[in] B     pointer to memory storing the input matrix `B`
+     |  \param[in] ldB   leading dimension of the matrix `B`
+     |  \param[in] irow  starting row
+     |  \param[in] icol  stating column
     \*/
     void
     load_block( integer         nr,
@@ -286,9 +286,9 @@ namespace alglin {
     }
 
     /*!
-      Copy vector `column` to the `icol`th column of the internal stored matrix
-      \param[in] column the column vector
-      \param[in] icol   the column to be changed
+     |  Copy vector `column` to the `icol`th column of the internal stored matrix
+     |  \param[in] column the column vector
+     |  \param[in] icol   the column to be changed
     \*/
     void
     load_column( valueType const column[], integer icol ) {
@@ -296,9 +296,9 @@ namespace alglin {
     }
 
     /*!
-      Copy vector `row` to the `irow`th row of the internal stored matrix
-      \param[in] row  the row vector
-      \param[in] irow the row to be changed
+     |  Copy vector `row` to the `irow`th row of the internal stored matrix
+     |  \param[in] row  the row vector
+     |  \param[in] irow the row to be changed
     \*/
     void
     load_row( valueType const row[], integer irow ) {
@@ -306,12 +306,12 @@ namespace alglin {
     }
 
     /*!
-      Copy vector element of a sparse vector to a column of the internal stored matrix
-      \param[in] nnz    number of nonzeros of the columns
-      \param[in] values the values of the sparse vector
-      \param[in] row    index position of the values of the sparse vector
-      \param[in] icol   the column to be changed
-      \param[in] offs   offset for the index, 0 for C based vector -1 for FORTRAN based vector
+     |  Copy vector element of a sparse vector to a column of the internal stored matrix
+     |  \param[in] nnz    number of nonzeros of the columns
+     |  \param[in] values the values of the sparse vector
+     |  \param[in] row    index position of the values of the sparse vector
+     |  \param[in] icol   the column to be changed
+     |  \param[in] offs   offset for the index, 0 for C based vector -1 for FORTRAN based vector
     \*/
     void
     load_sparse_column( integer         nnz,
@@ -325,12 +325,12 @@ namespace alglin {
     }
 
     /*!
-      Copy vector element of a sparse vector to a row of the internal stored matrix
-      \param[in] nnz    number of nonzeros of the columns
-      \param[in] values the values of the sparse vector
-      \param[in] col    index position of the values of the sparse vector
-      \param[in] irow   the column to be changed
-      \param[in] offs   offset for the index, 0 for C based vector -1 for FORTRAN based vector
+     |  Copy vector element of a sparse vector to a row of the internal stored matrix
+     |  \param[in] nnz    number of nonzeros of the columns
+     |  \param[in] values the values of the sparse vector
+     |  \param[in] col    index position of the values of the sparse vector
+     |  \param[in] irow   the column to be changed
+     |  \param[in] offs   offset for the index, 0 for C based vector -1 for FORTRAN based vector
     \*/
     void
     load_sparse_row( integer         nnz,
@@ -344,11 +344,11 @@ namespace alglin {
     }
 
     /*!
-      Copy a sparse matrix into the internal stored matrix
-      \param[in] nnz    number of nonzeros of the columns
-      \param[in] values the values of the sparse vector
-      \param[in] row    index row position of the values of the sparse vector
-      \param[in] col    index column position of the values of the sparse vector
+     |  Copy a sparse matrix into the internal stored matrix
+     |  \param[in] nnz    number of nonzeros of the columns
+     |  \param[in] values the values of the sparse vector
+     |  \param[in] row    index row position of the values of the sparse vector
+     |  \param[in] col    index column position of the values of the sparse vector
     \*/
     void
     load_sparse( integer         nnz,
@@ -361,13 +361,13 @@ namespace alglin {
     }
 
     /*!
-      Copy a sparse matrix into the internal stored matrix
-      \param[in] nnz    number of nonzeros of the columns
-      \param[in] values the values of the sparse vector
-      \param[in] row    index row position of the values of the sparse vector
-      \param[in] r_offs offset for the index, 0 for C based vector -1 for FORTRAN based vector
-      \param[in] col    index column position of the values of the sparse vector
-      \param[in] c_offs offset for the index, 0 for C based vector -1 for FORTRAN based vector
+     |  Copy a sparse matrix into the internal stored matrix
+     |  \param[in] nnz    number of nonzeros of the columns
+     |  \param[in] values the values of the sparse vector
+     |  \param[in] row    index row position of the values of the sparse vector
+     |  \param[in] r_offs offset for the index, 0 for C based vector -1 for FORTRAN based vector
+     |  \param[in] col    index column position of the values of the sparse vector
+     |  \param[in] c_offs offset for the index, 0 for C based vector -1 for FORTRAN based vector
     \*/
     void
     load_sparse( integer         nnz,
@@ -380,14 +380,14 @@ namespace alglin {
     }
 
     /*!
-      Copy a sparse matrix into the internal stored matrix.
-      The matrix is assumed symmetric and only the lower or upper
-      part is passed.
-
-      \param[in] nnz    number of nonzeros of the columns
-      \param[in] values the values of the sparse vector
-      \param[in] row    index row position of the values of the sparse vector
-      \param[in] col    index column position of the values of the sparse vector
+     |  Copy a sparse matrix into the internal stored matrix.
+     |  The matrix is assumed symmetric and only the lower or upper
+     |  part is passed.
+     |
+     |  \param[in] nnz    number of nonzeros of the columns
+     |  \param[in] values the values of the sparse vector
+     |  \param[in] row    index row position of the values of the sparse vector
+     |  \param[in] col    index column position of the values of the sparse vector
     \*/
     void
     load_sparse_sym( integer         nnz,
@@ -404,16 +404,16 @@ namespace alglin {
     }
 
     /*!
-      Copy a sparse matrix into the internal stored matrix.
-      The matrix is assumed symmetric and only the lower or upper
-      part is passed.
-
-      \param[in] nnz    number of nonzeros of the columns
-      \param[in] values the values of the sparse vector
-      \param[in] row    index row position of the values of the sparse vector
-      \param[in] r_offs offset for the index, 0 for C based vector -1 for FORTRAN based vector
-      \param[in] col    index column position of the values of the sparse vector
-      \param[in] c_offs offset for the index, 0 for C based vector -1 for FORTRAN based vector
+     |  Copy a sparse matrix into the internal stored matrix.
+     |  The matrix is assumed symmetric and only the lower or upper
+     |  part is passed.
+     |
+     |  \param[in] nnz    number of nonzeros of the columns
+     |  \param[in] values the values of the sparse vector
+     |  \param[in] row    index row position of the values of the sparse vector
+     |  \param[in] r_offs offset for the index, 0 for C based vector -1 for FORTRAN based vector
+     |  \param[in] col    index column position of the values of the sparse vector
+     |  \param[in] c_offs offset for the index, 0 for C based vector -1 for FORTRAN based vector
     \*/
     void
     load_sparse_sym( integer         nnz,
@@ -470,16 +470,16 @@ namespace alglin {
   class LU : public Factorization<T> {
   public:
     typedef typename Factorization<T>::valueType valueType;
-  
+
   private:
 
     valueType * Work;
     integer   * Iwork;
     integer   * i_pivot;
-  
+
     Malloc<valueType> allocReals;
     Malloc<integer>   allocIntegers;
-    
+
     void check_ls( char const who[] ) const;
 
   public:
@@ -553,7 +553,7 @@ namespace alglin {
   class QR : public Factorization<T> {
   public:
     typedef typename Factorization<T>::valueType valueType;
-  
+
   private:
 
     Malloc<valueType> allocReals;
@@ -596,11 +596,11 @@ namespace alglin {
     allocate( integer nr, integer nc, integer Lwrk );
 
     /*\
-     *  overwrites the general real M-by-N matrix C with
-     *
-     *                  SIDE = 'L'     SIDE = 'R'
-     *  TRANS = 'N':      Q * C          C * Q
-     *  TRANS = 'T':      Q**T * C       C * Q**T
+     |  overwrites the general real M-by-N matrix C with
+     |
+     |                  SIDE = 'L'     SIDE = 'R'
+     |  TRANS = 'N':      Q * C          C * Q
+     |  TRANS = 'T':      Q**T * C       C * Q**T
     \*/
     void
     applyQ( SideMultiply  SIDE,
@@ -614,7 +614,7 @@ namespace alglin {
     void
     Q_mul( valueType x[] ) const
     { applyQ( LEFT, NO_TRANSPOSE, nReflector, this->nRow, 1, x, this->nRow ); }
-    
+
     //! x <- Q'*x
     void
     Qt_mul( valueType x[] ) const
@@ -629,12 +629,12 @@ namespace alglin {
     void
     Qt_mul( integer nr, integer nc, valueType C[], integer ldC ) const
     { applyQ( LEFT, TRANSPOSE, nReflector, nr, nc, C, ldC ); }
-    
+
     //! C <- C*Q
     void
     mul_Q( integer nr, integer nc, valueType C[], integer ldC ) const
     { applyQ( RIGHT, NO_TRANSPOSE, nReflector, nr, nc, C, ldC ); }
-    
+
     //! C <- C*Q'
     void
     mul_Qt( integer nr, integer nc, valueType C[], integer ldC ) const
@@ -661,7 +661,7 @@ namespace alglin {
       trsm( SIDE, UPPER, TRANS, NON_UNIT,
             nr, nc, alpha, this->Amat, this->nRow, Bmat, ldB );
     }
-    
+
     //! x <- R^(-1) * x
     void
     invR_mul( valueType x[], integer incx = 1 ) const
@@ -692,10 +692,10 @@ namespace alglin {
     void
     mul_invRt( integer nr, integer nc, valueType C[], integer ldC ) const
     { Rsolve( RIGHT, TRANSPOSE,  nr, nc, 1.0, C, ldC ); }
-    
+
     void
     getR( valueType R[], integer ldR ) const;
-    
+
     // -------------------------------------------------------------------------
     // dummy routines
     void permute( valueType [] ) const {}
@@ -746,11 +746,11 @@ namespace alglin {
     }
 
     /*!
-      Do QR factorization of a rectangular matrix
-      \param NR  number of rows of the matrix
-      \param NC  number of columns of the matrix
-      \param A   pointer to the matrix
-      \param LDA Leading dimension of the matrix
+     |  Do QR factorization of a rectangular matrix
+     |  \param NR  number of rows of the matrix
+     |  \param NC  number of columns of the matrix
+     |  \param A   pointer to the matrix
+     |  \param LDA Leading dimension of the matrix
     \*/
     virtual
     void
@@ -766,18 +766,18 @@ namespace alglin {
     }
 
     /*!
-      In case of QR factorization of a square matrix solve the
-      linear system \f$ QR x = b \f$
-      \param xb on input the rhs of linear system on output the solution
+     |  In case of QR factorization of a square matrix solve the
+     |  linear system \f$ QR x = b \f$
+     |  \param xb on input the rhs of linear system on output the solution
     \*/
     virtual
     void
     solve( valueType xb[] ) const ALGLIN_OVERRIDE;
 
     /*!
-      In case of QR factorization of a square matrix solve the
-      linear system \f$ (QR)^T x = b \f$
-      \param xb on input the rhs of linear system on output the solution
+     |  In case of QR factorization of a square matrix solve the
+     |  linear system \f$ (QR)^T x = b \f$
+     |  \param xb on input the rhs of linear system on output the solution
     \*/
     virtual
     void
@@ -841,7 +841,7 @@ namespace alglin {
 
     void
     inv_permute( valueType x[] ) const;
-    
+
     void
     permute_rows( integer nr, integer nc, valueType C[], integer ldC ) const {
       ALGLIN_ASSERT( nr == this->nRow,
@@ -849,7 +849,7 @@ namespace alglin {
                      this->nRow << " find " << nr );
       for ( integer j = 0; j < nc; ++j ) permute( C + ldC*j );
     }
-    
+
     void
     inv_permute_rows( integer nr, integer nc, valueType C[], integer ldC ) const {
       ALGLIN_ASSERT( nr == this->nRow,
@@ -857,7 +857,7 @@ namespace alglin {
                      this->nRow << " find " << nr );
       for ( integer j = 0; j < nc; ++j ) inv_permute( C + ldC*j );
     }
-    
+
     integer
     rankEstimate( valueType rcond ) const {
       valueType SVAL[3];
@@ -867,11 +867,11 @@ namespace alglin {
     }
 
     /*!
-      Do QR factorization with column pivoting of the transpose of a rectangular matrix
-      \param NR  number of rows of the matrix
-      \param NC  number of columns of the matrix
-      \param A   pointer to the matrix
-      \param LDA Leading dimension of the matrix
+     |  Do QR factorization with column pivoting of the transpose of a rectangular matrix
+     |  \param NR  number of rows of the matrix
+     |  \param NC  number of columns of the matrix
+     |  \param A   pointer to the matrix
+     |  \param LDA Leading dimension of the matrix
     \*/
     void
     t_factorize( integer         NR,
@@ -924,11 +924,11 @@ namespace alglin {
     }
 
     /*!
-      Do QR factorization with column pivoting of a rectangular matrix
-      \param NR  number of rows of the matrix
-      \param NC  number of columns of the matrix
-      \param A   pointer to the matrix
-      \param LDA Leading dimension of the matrix
+     |  Do QR factorization with column pivoting of a rectangular matrix
+     |  \param NR  number of rows of the matrix
+     |  \param NC  number of columns of the matrix
+     |  \param A   pointer to the matrix
+     |  \param LDA Leading dimension of the matrix
     \*/
     virtual
     void
@@ -945,18 +945,18 @@ namespace alglin {
     }
 
     /*!
-      In case of QR factorization of a square matrix solve the
-      linear system \f$ QR x = b \f$
-      \param xb on input the rhs of linear system on output the solution
+     |  In case of QR factorization of a square matrix solve the
+     |  linear system \f$ QR x = b \f$
+     |  \param xb on input the rhs of linear system on output the solution
     \*/
     virtual
     void
     solve( valueType xb[] ) const ALGLIN_OVERRIDE;
 
     /*!
-      In case of QR factorization of a square matrix solve the
-      linear system \f$ (QR)^T x = b \f$
-      \param xb on input the rhs of linear system on output the solution
+     |  In case of QR factorization of a square matrix solve the
+     |  linear system \f$ (QR)^T x = b \f$
+     |  \param xb on input the rhs of linear system on output the solution
     \*/
     virtual
     void
@@ -987,7 +987,7 @@ namespace alglin {
   class SVD : public Factorization<T> {
   public:
     typedef typename Factorization<T>::valueType valueType;
-  
+
   protected:
 
     Malloc<valueType> allocReals;
@@ -1000,7 +1000,7 @@ namespace alglin {
     integer   * IWork;
 
     integer     minRC, Lwork;
-    
+
     typedef enum { USE_GESVD = 0, USE_GESDD = 1 } SVD_USED;
     SVD_USED    svd_used;
 
@@ -1022,7 +1022,7 @@ namespace alglin {
 
     virtual
     ~SVD() ALGLIN_OVERRIDE
-    { allocReals.free(); }
+    { allocReals.free(); allocIntegers.free(); }
 
     valueType U( integer i, integer j ) const { return Umat[i+j*this->nRow]; }
     valueType V( integer i, integer j ) const { return VTmat[j+i*this->nCol]; }
@@ -1089,11 +1089,11 @@ namespace alglin {
     factorize() ALGLIN_OVERRIDE;
 
     /*!
-      Do SVD factorization of a rectangular matrix
-      \param NR  number of rows of the matrix
-      \param NC  number of columns of the matrix
-      \param A   pointer to the matrix
-      \param LDA Leading dimension of the matrix
+     |  Do SVD factorization of a rectangular matrix
+     |  \param NR  number of rows of the matrix
+     |  \param NC  number of columns of the matrix
+     |  \param A   pointer to the matrix
+     |  \param LDA Leading dimension of the matrix
     \*/
     virtual
     void
@@ -1121,6 +1121,249 @@ namespace alglin {
 
   //============================================================================
   /*\
+   |   _     ____ ____
+   |  | |   / ___/ ___|
+   |  | |   \___ \___ \
+   |  | |___ ___) |__) |
+   |  |_____|____/____/
+   |
+  \*/
+  template <typename T>
+  class LSS : public Factorization<T> {
+  public:
+    typedef typename Factorization<T>::valueType valueType;
+
+  protected:
+
+    Malloc<valueType> allocReals;
+
+    mutable valueType * Work;
+    mutable valueType * sigma;
+    mutable valueType * AmatWork;
+    mutable integer     rank;
+
+    integer     Lwork;
+    valueType   rcond;
+
+  public:
+
+    using LinearSystemSolver<T>::solve;
+    using LinearSystemSolver<T>::t_solve;
+    using Factorization<T>::factorize;
+    using Factorization<T>::solve;
+    using Factorization<T>::t_solve;
+
+    using Factorization<T>::nRow;
+    using Factorization<T>::nCol;
+    using Factorization<T>::Amat;
+
+    explicit
+    LSS()
+    : Factorization<T>()
+    , allocReals("LSS-allocReals")
+    , Work(nullptr)
+    , sigma(nullptr)
+    , AmatWork(nullptr)
+    , rank(0)
+    , Lwork(0)
+    , rcond(-1)
+    {}
+
+    virtual
+    ~LSS() ALGLIN_OVERRIDE
+    { allocReals.free(); }
+
+    void
+    setRcond( valueType r )
+    { rcond = r; }
+
+    integer
+    getRank() const
+    { return rank; }
+
+    valueType
+    getSigma( integer i ) const
+    { return sigma[i]; }
+
+    /*\
+     |         _      _               _
+     |  __   _(_)_ __| |_ _   _  __ _| |___
+     |  \ \ / / | '__| __| | | |/ _` | / __|
+     |   \ V /| | |  | |_| |_| | (_| | \__ \
+     |    \_/ |_|_|   \__|\__,_|\__,_|_|___/
+    \*/
+
+    virtual
+    void
+    allocate( integer NR, integer NC ) ALGLIN_OVERRIDE;
+
+    virtual
+    void
+    factorize() ALGLIN_OVERRIDE {
+      // nothing to do
+    }
+
+    /*!
+     |  Do SVD factorization of a rectangular matrix
+     |  \param NR  number of rows of the matrix
+     |  \param NC  number of columns of the matrix
+     |  \param A   pointer to the matrix
+     |  \param LDA Leading dimension of the matrix
+    \*/
+    virtual
+    void
+    factorize( integer         NR,
+               integer         NC,
+               valueType const A[],
+               integer         LDA ) ALGLIN_OVERRIDE {
+      allocate( NR, NC );
+      integer info = gecopy( this->nRow, this->nCol,
+                             A, LDA, this->Amat, this->nRow );
+      ALGLIN_ASSERT( info == 0,
+                     "LSS::factorize call alglin::gecopy return info = " << info );
+      factorize();
+    }
+
+    virtual
+    void
+    solve( valueType xb[] ) const ALGLIN_OVERRIDE;
+
+    virtual
+    void
+    t_solve( valueType xb[] ) const ALGLIN_OVERRIDE;
+
+    virtual
+    void
+    solve( integer nrhs, valueType B[], integer ldB ) const ALGLIN_OVERRIDE;
+
+    virtual
+    void
+    t_solve( integer nrhs, valueType B[], integer ldB ) const ALGLIN_OVERRIDE;
+
+  };
+
+  //============================================================================
+  /*\
+   |  _     ______   __
+   | | |   / ___\ \ / /
+   | | |   \___ \\ V /
+   | | |___ ___) || |
+   | |_____|____/ |_|
+   |
+  \*/
+  template <typename T>
+  class LSY : public Factorization<T> {
+  public:
+    typedef typename Factorization<T>::valueType valueType;
+
+  protected:
+
+    Malloc<valueType> allocReals;
+    Malloc<integer>   allocInts;
+
+    mutable valueType * Work;
+    mutable valueType * AmatWork;
+    mutable integer   * jpvt;
+    mutable integer     rank;
+
+    integer     Lwork;
+    valueType   rcond;
+
+  public:
+
+    using LinearSystemSolver<T>::solve;
+    using LinearSystemSolver<T>::t_solve;
+    using Factorization<T>::factorize;
+    using Factorization<T>::solve;
+    using Factorization<T>::t_solve;
+
+    using Factorization<T>::nRow;
+    using Factorization<T>::nCol;
+    using Factorization<T>::Amat;
+
+    explicit
+    LSY()
+    : Factorization<T>()
+    , allocReals("LSY-allocReals")
+    , allocInts("LSY-allocInts")
+    , Work(nullptr)
+    , AmatWork(nullptr)
+    , rank(0)
+    , Lwork(0)
+    , rcond(-1)
+    {}
+
+    virtual
+    ~LSY() ALGLIN_OVERRIDE
+    { allocReals.free(); allocInts.free(); }
+
+    void
+    setRcond( valueType r )
+    { rcond = r; }
+
+    integer
+    getRank() const
+    { return rank; }
+
+    /*\
+     |         _      _               _
+     |  __   _(_)_ __| |_ _   _  __ _| |___
+     |  \ \ / / | '__| __| | | |/ _` | / __|
+     |   \ V /| | |  | |_| |_| | (_| | \__ \
+     |    \_/ |_|_|   \__|\__,_|\__,_|_|___/
+    \*/
+
+    virtual
+    void
+    allocate( integer NR, integer NC ) ALGLIN_OVERRIDE;
+
+    virtual
+    void
+    factorize() ALGLIN_OVERRIDE {
+      // nothing to do
+    }
+
+    /*!
+     |  Do SVD factorization of a rectangular matrix
+     |  \param NR  number of rows of the matrix
+     |  \param NC  number of columns of the matrix
+     |  \param A   pointer to the matrix
+     |  \param LDA Leading dimension of the matrix
+    \*/
+    virtual
+    void
+    factorize( integer         NR,
+               integer         NC,
+               valueType const A[],
+               integer         LDA ) ALGLIN_OVERRIDE {
+      allocate( NR, NC );
+      integer info = gecopy( this->nRow, this->nCol,
+                             A, LDA, this->Amat, this->nRow );
+      ALGLIN_ASSERT( info == 0,
+                     "LSY::factorize call alglin::gecopy return info = " << info );
+      factorize();
+    }
+
+    virtual
+    void
+    solve( valueType xb[] ) const ALGLIN_OVERRIDE;
+
+    virtual
+    void
+    t_solve( valueType xb[] ) const ALGLIN_OVERRIDE;
+
+    virtual
+    void
+    solve( integer nrhs, valueType B[], integer ldB ) const ALGLIN_OVERRIDE;
+
+    virtual
+    void
+    t_solve( integer nrhs, valueType B[], integer ldB ) const ALGLIN_OVERRIDE;
+
+  };
+
+  //============================================================================
+  /*\
    |   _____     _     _ _                               _ ____  ____  ____
    |  |_   _| __(_) __| (_) __ _  __ _  ___  _ __   __ _| / ___||  _ \|  _ \
    |    | || '__| |/ _` | |/ _` |/ _` |/ _ \| '_ \ / _` | \___ \| |_) | | | |
@@ -1133,9 +1376,9 @@ namespace alglin {
   class TridiagonalSPD : public LinearSystemSolver<T> {
   public:
     typedef T valueType;
-  
+
   private:
-  
+
     Malloc<valueType> allocReals;
 
     valueType * L;
@@ -1224,7 +1467,7 @@ namespace alglin {
   class TridiagonalLU : public LinearSystemSolver<T> {
   public:
     typedef T valueType;
-  
+
   private:
 
     Malloc<valueType> allocReals;
@@ -1325,7 +1568,7 @@ namespace alglin {
   class TridiagonalQR : public LinearSystemSolver<T> {
   public:
     typedef T valueType;
-  
+
   private:
 
     Malloc<valueType> allocReals;
@@ -1431,7 +1674,7 @@ namespace alglin {
 
     Malloc<valueType> allocReals;
     Malloc<integer>   allocIntegers;
-    
+
     integer     m, n, nL, nU, ldAB;
     integer   * ipiv;
     valueType * AB;
@@ -1645,6 +1888,12 @@ namespace alglin {
 
   extern template class SVD<real>;
   extern template class SVD<doublereal>;
+
+  extern template class LSS<real>;
+  extern template class LSS<doublereal>;
+
+  extern template class LSY<real>;
+  extern template class LSY<doublereal>;
 
   extern template class TridiagonalSPD<real>;
   extern template class TridiagonalSPD<doublereal>;

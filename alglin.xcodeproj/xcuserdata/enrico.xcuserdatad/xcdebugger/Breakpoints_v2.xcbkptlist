@@ -2,4 +2,54 @@
 <Bucket
    type = "1"
    version = "2.0">
+   <Breakpoints>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "src/Alglin++.cc"
+            timestampString = "555551618.66515"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "900"
+            endingLineNumber = "900"
+            landmarkName = "t_solve( integer nrhs, valueType B[], integer ldB )"
+            landmarkType = "9">
+            <Locations>
+               <Location
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "alglin::LSS&lt;float&gt;::t_solve(int, float*, int) const"
+                  moduleName = "test7-BorderedCR"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/enrico/Ricerca/develop/C++/pins-mechatronix/LibSources/submodules/alglin/src/Alglin++.cc"
+                  timestampString = "555551618.973163"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "900"
+                  endingLineNumber = "900"
+                  offsetFromSymbolStart = "49">
+               </Location>
+               <Location
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "alglin::LSS&lt;double&gt;::t_solve(int, double*, int) const"
+                  moduleName = "test7-BorderedCR"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/enrico/Ricerca/develop/C++/pins-mechatronix/LibSources/submodules/alglin/src/Alglin++.cc"
+                  timestampString = "555551618.97597"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "900"
+                  endingLineNumber = "900"
+                  offsetFromSymbolStart = "49">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+   </Breakpoints>
 </Bucket>

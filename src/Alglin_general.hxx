@@ -4484,7 +4484,7 @@ namespace alglin {
                            integer    const * n,
                            integer    const * nrhs,
                            doublereal         a[],
-	                   integer    const * lda,
+                           integer    const * lda,
                            doublereal         b[],
                            integer    const * ldb,
                            doublereal         s[],

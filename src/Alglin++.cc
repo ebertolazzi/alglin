@@ -4,7 +4,7 @@
  |                                                                          |
  |         , __                 , __                                        |
  |        /|/  \               /|/  \                                       |
- |         | __/ _   ,_         | __/ _   ,_                                | 
+ |         | __/ _   ,_         | __/ _   ,_                                |
  |         |   \|/  /  |  |   | |   \|/  /  |  |   |                        |
  |         |(__/|__/   |_/ \_/|/|(__/|__/   |_/ \_/|/                       |
  |                           /|                   /|                        |
@@ -242,9 +242,9 @@ namespace alglin {
    *
    *   PURPOSE
    *
-   *   To compute (optionally) a rank-revealing QR factorization of a 
+   *   To compute (optionally) a rank-revealing QR factorization of a
    *   real general M-by-N matrix  A,  which may be rank-deficient,
-   *   and estimate its effective rank using incremental condition 
+   *   and estimate its effective rank using incremental condition
    *   estimation.
    *
    *   The routine uses a QR factorization with column pivoting:
@@ -256,38 +256,38 @@ namespace alglin {
    *
    *   MB03OD  does not perform any scaling of the matrix A.
    *
-   *   ARGUMENTS 
+   *   ARGUMENTS
    *
    *   Mode Parameters
    *
    *   JOBQR   CHARACTER*1
    *           = 'Q':  Perform a QR factorization with column pivoting;
    *           = 'N':  Do not perform the QR factorization (but assume
-   *                   that it has been done outside).  
+   *                   that it has been done outside).
    *
    *   Input/Output Parameters
    *
    *   M       (input) INTEGER
    *           The number of rows of the matrix A.  M >= 0.
-   *          
+   *
    *   N       (input) INTEGER
    *           The number of columns of the matrix A.  N >= 0.
-   *          
-   *   A       (input/output) DOUBLE PRECISION array, dimension 
+   *
+   *   A       (input/output) DOUBLE PRECISION array, dimension
    *           ( LDA, N )
    *           On entry with JOBQR = 'Q', the leading M by N part of this
    *           array must contain the given matrix A.
    *           On exit with JOBQR = 'Q', the leading min(M,N) by N upper
-   *           triangular part of A contains the triangular factor R, 
-   *           and the elements below the diagonal, with the array TAU, 
-   *           represent the orthogonal matrix Q as a product of 
+   *           triangular part of A contains the triangular factor R,
+   *           and the elements below the diagonal, with the array TAU,
+   *           represent the orthogonal matrix Q as a product of
    *           min(M,N) elementary reflectors.
    *           On entry and on exit with JOBQR = 'N', the leading
    *           min(M,N) by N upper triangular part of A contains the
    *           triangular factor R, as determined by the QR factorization
-   *           with pivoting.  The elements below the diagonal of A are 
+   *           with pivoting.  The elements below the diagonal of A are
    *           not referenced.
-   *          
+   *
    *   LDA     INTEGER
    *           The leading dimension of the array A.  LDA >= max(1,M).
    *
@@ -302,16 +302,16 @@ namespace alglin {
    *
    *   TAU     (output) DOUBLE PRECISION array, dimension ( MIN( M, N ) )
    *           On exit with JOBQR = 'Q', the leading min(M,N) elements of
-   *           TAU contain the scalar factors of the elementary 
+   *           TAU contain the scalar factors of the elementary
    *           reflectors.
    *           Array TAU is not referenced when JOBQR = 'N'.
-   *          
+   *
    *   RANK    (output) INTEGER
-   *           The effective (estimated) rank of A, i.e. the order of 
+   *           The effective (estimated) rank of A, i.e. the order of
    *           the submatrix R11.
-   *          
+   *
    *   SVAL    (output) DOUBLE PRECISION array, dimension ( 3 )
-   *           The estimates of some of the singular values of the 
+   *           The estimates of some of the singular values of the
    *           triangular factor R:
    *           SVAL(1): largest singular value of R(1:RANK,1:RANK);
    *           SVAL(2): smallest singular value of R(1:RANK,1:RANK);
@@ -328,7 +328,7 @@ namespace alglin {
    *           is well defined with respect to the chosen value of RCOND.
    *           The ratio SVAL(1)/SVAL(2) is an estimate of the condition
    *           number of R(1:RANK,1:RANK).
-   *          
+   *
    *   Workspace
    *
    *   DWORK   DOUBLE PRECISION array, dimension ( LDWORK )
@@ -338,12 +338,12 @@ namespace alglin {
    *
    *   INFO    INTEGER
    *           = 0:  successful exit
-   *           < 0:  if INFO = -i, the i-th argument had an illegal 
+   *           < 0:  if INFO = -i, the i-th argument had an illegal
    *                 value.
    *
    *   METHOD
    *
-   *   The routine computes or uses a QR factorization with column 
+   *   The routine computes or uses a QR factorization with column
    *   pivoting of A,  A * P = Q * R,  with  R  defined above, and then
    *   finds the largest leading submatrix whose estimated condition
    *   number is less than 1/RCOND, taking the possible positive value of
@@ -407,7 +407,7 @@ namespace alglin {
         Wmax[RANK] = C2;
         SMIN = SMINPR;
         SMAX = SMAXPR;
-      } 
+      }
       SVAL[0] = SMAX;
       SVAL[1] = SMIN;
       SVAL[2] = SMINPR;
@@ -423,7 +423,7 @@ namespace alglin {
    |  |_____\___/
    |
   \*/
-  
+
   template <typename T>
   LU<T>::LU()
   : Factorization<T>()
@@ -595,7 +595,7 @@ namespace alglin {
                    "QR::applyQ call alglin::ormqr return info = " << info <<
                    " Lwork = " << Lwork );
   }
-      
+
   template <typename T>
   void
   QR<T>::getR( valueType R[], integer ldR ) const {
@@ -717,7 +717,7 @@ namespace alglin {
   template <typename T>
   void
   SVD<T>::allocate( integer NR, integer NC ) {
-  
+
     if ( this->nRow != NR || this->nCol != NC ) {
       this->nRow = NR;
       this->nCol = NC;
@@ -805,6 +805,215 @@ namespace alglin {
     U_mul( 1.0, Work, 1, 0.0, xb, 1 );
   }
 
+  /*\
+   |   _     ____ ____
+   |  | |   / ___/ ___|
+   |  | |   \___ \___ \
+   |  | |___ ___) |__) |
+   |  |_____|____/____/
+   |
+  \*/
+  template <typename T>
+  void
+  LSS<T>::allocate( integer NR, integer NC ) {
+
+    if ( this->nRow != NR || this->nCol != NC ) {
+      this->nRow = NR;
+      this->nCol = NC;
+      valueType tmp;
+      integer info = gelss( NR, NC, 1, nullptr, NR, nullptr, NR, nullptr,
+                            rcond, rank, &tmp, -1 );
+      ALGLIN_ASSERT( info == 0,
+                     "alglin::LSS::allocate, in gelss info = " << info );
+
+      Lwork = integer(tmp);
+      if ( NR != NC ) {
+        info = gelss( NC, NR, 1, nullptr, NC, nullptr, NC, nullptr,
+                      rcond, rank, &tmp, -1 );
+        ALGLIN_ASSERT( info == 0,
+                       "alglin::LSS::allocate, in gelss info = " << info );
+        if ( Lwork < integer(tmp) ) Lwork = integer(tmp);
+      }
+
+      integer minRC = std::min(NR,NC);
+
+      allocReals.allocate( size_t(2*NR*NC+Lwork+minRC) );
+      this->Amat     = allocReals(size_t(2*this->nRow*this->nCol));
+      this->Work     = allocReals(size_t(Lwork));
+      this->sigma    = allocReals(size_t(minRC));
+      this->AmatWork = this->Amat+this->nRow*this->nCol;
+    }
+  }
+
+  template <typename T>
+  void
+  LSS<T>::solve( valueType xb[] ) const {
+    // save matrix
+    copy( nRow*nCol, Amat, 1, AmatWork, 1);
+    integer info = gelss( nRow, nCol, 1,
+                          AmatWork, nRow,
+                          xb, nRow,
+                          sigma, rcond, rank,
+                          Work, Lwork );
+    ALGLIN_ASSERT( info == 0,
+                   "alglin::LSS::solve (rhs=1), in gelss info = " << info );
+  }
+
+  template <typename T>
+  void
+  LSS<T>::t_solve( valueType xb[] ) const {
+    // save matrix
+    for ( integer i = 0; i < nCol; ++i )
+      copy( nRow, Amat+i*nRow, 1, AmatWork+i, nCol );
+    integer info = gelss( nCol, nRow, 1,
+                          AmatWork, nCol,
+                          xb, nCol,
+                          sigma, rcond, rank,
+                          Work, Lwork );
+    ALGLIN_ASSERT( info == 0,
+                   "alglin::LSS::t_solve (rhs=1), in gelss info = " << info );
+  }
+
+  template <typename T>
+  void
+  LSS<T>::solve( integer   nrhs,
+                 valueType B[],
+                 integer   ldB ) const {
+    // save matrix
+    copy( nRow*nCol, Amat, 1, AmatWork, 1 );
+    integer info = gelss( nRow, nCol, nrhs,
+                          AmatWork, nRow,
+                          B, ldB,
+                          sigma, rcond, rank,
+                          Work, Lwork );
+    ALGLIN_ASSERT( info == 0,
+                   "alglin::LSS::solve (rhs=" << nrhs <<
+                   "), in gelss info = " << info );
+  }
+
+  template <typename T>
+  void
+  LSS<T>::t_solve( integer   nrhs,
+                   valueType B[],
+                   integer   ldB ) const {
+    // save matrix
+    for ( integer i = 0; i < nCol; ++i )
+      copy( nRow, Amat+i*nRow, 1, AmatWork+i, nCol );
+    integer info = gelss( nCol, nRow, nrhs,
+                          AmatWork, nCol,
+                          B, ldB,
+                          sigma, rcond, rank,
+                          Work, Lwork );
+    ALGLIN_ASSERT( info == 0,
+                   "alglin::LSS::t_solve (rhs=" << nrhs <<
+                   "), in gelss info = " << info );
+  }
+
+  /*\
+   |  _     ______   __
+   | | |   / ___\ \ / /
+   | | |   \___ \\ V /
+   | | |___ ___) || |
+   | |_____|____/ |_|
+   |
+  \*/
+  template <typename T>
+  void
+  LSY<T>::allocate( integer NR, integer NC ) {
+
+    if ( this->nRow != NR || this->nCol != NC ) {
+      this->nRow = NR;
+      this->nCol = NC;
+      valueType tmp;
+      integer info = gelsy( NR, NC, 1, nullptr, NR, nullptr, NR, nullptr,
+                            rcond, rank, &tmp, -1 );
+      ALGLIN_ASSERT( info == 0,
+                     "alglin::LSY::allocate, in gelss info = " << info );
+
+      Lwork = integer(tmp);
+      if ( NR != NC ) {
+        info = gelsy( NC, NR, 1, nullptr, NC, nullptr, NC, nullptr,
+                      rcond, rank, &tmp, -1 );
+        ALGLIN_ASSERT( info == 0,
+                       "alglin::LSY::allocate, in gelss info = " << info );
+        if ( Lwork < integer(tmp) ) Lwork = integer(tmp);
+      }
+
+      allocReals.allocate( size_t(2*NR*NC+Lwork) );
+      this->Amat     = allocReals( size_t(2*this->nRow*this->nCol) );
+      this->Work     = allocReals( size_t(Lwork) );
+      this->AmatWork = this->Amat+this->nRow*this->nCol;
+      allocInts.allocate( size_t(NC) );
+      this->jpvt = allocInts( size_t(NC) );
+    }
+  }
+
+  template <typename T>
+  void
+  LSY<T>::solve( valueType xb[] ) const {
+    // save matrix
+    copy( nRow*nCol, Amat, 1, AmatWork, 1);
+    integer info = gelsy( nRow, nCol, 1,
+                          AmatWork, nRow,
+                          xb, nRow, jpvt,
+                          rcond, rank,
+                          Work, Lwork );
+    ALGLIN_ASSERT( info == 0,
+                   "alglin::LSS::solve (rhs=1), in gelss info = " << info );
+  }
+
+  template <typename T>
+  void
+  LSY<T>::t_solve( valueType xb[] ) const {
+    // save matrix
+    for ( integer i = 0; i < nCol; ++i )
+      copy( nRow, Amat+i*nRow, 1, AmatWork+i, nCol );
+    integer info = gelsy( nCol, nRow, 1,
+                          AmatWork, nCol,
+                          xb, nCol, jpvt,
+                          rcond, rank,
+                          Work, Lwork );
+    ALGLIN_ASSERT( info == 0,
+                   "alglin::LSS::t_solve (rhs=1), in gelss info = " << info );
+  }
+
+  template <typename T>
+  void
+  LSY<T>::solve( integer   nrhs,
+                 valueType B[],
+                 integer   ldB ) const {
+    // save matrix
+    copy( nRow*nCol, Amat, 1, AmatWork, 1 );
+    integer info = gelsy( nRow, nCol, nrhs,
+                          AmatWork, nRow,
+                          B, ldB, jpvt,
+                          rcond, rank,
+                          Work, Lwork );
+    ALGLIN_ASSERT( info == 0,
+                   "alglin::LSD::solve (rhs=" << nrhs <<
+                   "), in gelsd info = " << info );
+  }
+
+  template <typename T>
+  void
+  LSY<T>::t_solve( integer   nrhs,
+                   valueType B[],
+                   integer   ldB ) const {
+    // save matrix
+    for ( integer i = 0; i < nCol; ++i )
+      copy( nRow, Amat+i*nRow, 1, AmatWork+i, nCol );
+    integer info = gelsy( nCol, nRow, nrhs,
+                          AmatWork, nCol,
+                          B, ldB, jpvt,
+                          rcond, rank,
+                          Work, Lwork );
+    ALGLIN_ASSERT( info == 0,
+                   "alglin::LSD::t_solve (rhs=" << nrhs <<
+                   "), in gelsd info = " << info );
+  }
+
+  //============================================================================
+
   template <typename valueType>
   inline
   void
@@ -856,7 +1065,7 @@ namespace alglin {
     ALGLIN_ASSERT( info == 0,
                    "TridiagonalSPD::factorize, return info = " << info );
   }
-  
+
   template <typename T>
   T
   TridiagonalSPD<T>::cond1( valueType norm1 ) const {
@@ -944,7 +1153,7 @@ namespace alglin {
     ALGLIN_ASSERT( info == 0,
                    "TridiagonalLU::factorize, return info = " << info );
   }
-  
+
   template <typename T>
   T
   TridiagonalLU<T>::cond1( valueType norm1 ) const {
@@ -1506,7 +1715,7 @@ namespace alglin {
                                  integer   LDA,
                                  real      RCOND,
                                  real      SVAL[3] );
-  
+
   template integer rankEstimate( integer    M,
                                  integer    N,
                                  doublereal A[],
@@ -1533,6 +1742,12 @@ namespace alglin {
   template class SVD<real>;
   template class SVD<doublereal>;
 
+  template class LSS<real>;
+  template class LSS<doublereal>;
+
+  template class LSY<real>;
+  template class LSY<doublereal>;
+
   template class TridiagonalSPD<real>;
   template class TridiagonalSPD<doublereal>;
 
@@ -1553,4 +1768,3 @@ namespace alglin {
 ///
 /// eof: Alglin++.cc
 ///
-
