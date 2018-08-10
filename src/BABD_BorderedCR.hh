@@ -53,12 +53,12 @@ namespace alglin {
   } BORDERED_Choice;
 
   typedef enum {
-    BORDERED_LAST_LU  = 0,
-    BORDERED_LAST_LUP = 1,
-    BORDERED_LAST_QR  = 2,
-    BORDERED_LAST_QRP = 3,
-    BORDERED_LAST_LSS = 4,
-    BORDERED_LAST_LSY = 5
+    BORDERED_LAST_LU   = 0,
+    BORDERED_LAST_LUPQ = 1,
+    BORDERED_LAST_QR   = 2,
+    BORDERED_LAST_QRP  = 3,
+    BORDERED_LAST_LSS  = 4,
+    BORDERED_LAST_LSY  = 5
   } BORDERED_LAST_Choice;
 
   /*\
@@ -275,14 +275,14 @@ namespace alglin {
     integer      *Perm, Lwork, LworkT, LworkQR;
 
     // last block
-    valuePointer Hmat, Htau;
-    integer      *Hperm, *Hswaps;
+    valuePointer Hmat;
 
-    LU<valueType>  last_lu;
-    QR<valueType>  last_qr;
-    QRP<valueType> last_qrp;
-    LSS<valueType> last_lss;
-    LSY<valueType> last_lsy;
+    LU<valueType>   last_lu;
+    LUPQ<valueType> last_lupq;
+    QR<valueType>   last_qr;
+    QRP<valueType>  last_qrp;
+    LSS<valueType>  last_lss;
+    LSY<valueType>  last_lsy;
 
     integer      *iBlock, *kBlock;
 
@@ -334,8 +334,6 @@ namespace alglin {
     , Perm(nullptr)
     , Lwork(0)
     , Hmat(nullptr)
-    , Htau(nullptr)
-    , Hperm(nullptr)
     #ifndef BORDERED_CYCLIC_REDUCTION_USE_THREAD
     , maxThread(1)
     #endif
@@ -373,12 +371,12 @@ namespace alglin {
     void select_QR()  { selected = BORDERED_QR; }
     void select_QRP() { selected = BORDERED_QRP; }
 
-    void select_last_LU()  { last_selected = BORDERED_LAST_LU;  }
-    void select_last_LUP() { last_selected = BORDERED_LAST_LUP; }
-    void select_last_QR()  { last_selected = BORDERED_LAST_QR;  }
-    void select_last_QRP() { last_selected = BORDERED_LAST_QRP; }
-    void select_last_LSS() { last_selected = BORDERED_LAST_LSS; }
-    void select_last_LSY() { last_selected = BORDERED_LAST_LSY; }
+    void select_last_LU()   { last_selected = BORDERED_LAST_LU;  }
+    void select_last_LUPQ() { last_selected = BORDERED_LAST_LUPQ; }
+    void select_last_QR()   { last_selected = BORDERED_LAST_QR;  }
+    void select_last_QRP()  { last_selected = BORDERED_LAST_QRP; }
+    void select_last_LSS()  { last_selected = BORDERED_LAST_LSS; }
+    void select_last_LSY()  { last_selected = BORDERED_LAST_LSY; }
 
     static
     std::string
@@ -397,12 +395,12 @@ namespace alglin {
     choice_to_string( BORDERED_LAST_Choice c ) {
       std::string res = "LastBlock not selected";
       switch ( c ) {
-      case BORDERED_LAST_LU:  res = "LastBlock LU";  break;
-      case BORDERED_LAST_LUP: res = "LastBlock LUP"; break;
-      case BORDERED_LAST_QR:  res = "LastBlock QR";  break;
-      case BORDERED_LAST_QRP: res = "LastBlock QRP"; break;
-      case BORDERED_LAST_LSS: res = "LastBlock LSS"; break;
-      case BORDERED_LAST_LSY: res = "LastBlock LSY"; break;
+      case BORDERED_LAST_LU:   res = "LastBlock LU";   break;
+      case BORDERED_LAST_LUPQ: res = "LastBlock LUPQ"; break;
+      case BORDERED_LAST_QR:   res = "LastBlock QR";   break;
+      case BORDERED_LAST_QRP:  res = "LastBlock QRP";  break;
+      case BORDERED_LAST_LSS : res = "LastBlock LSS";  break;
+      case BORDERED_LAST_LSY : res = "LastBlock LSY";  break;
       }
       return res;
     }

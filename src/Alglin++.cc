@@ -440,22 +440,22 @@ namespace alglin {
   template <typename T>
   void
   LU<T>::allocate( integer NR, integer NC ) {
-    if ( this->nRow != NR || this->nCol != NC ) {
-      this->nRow = NR;
-      this->nCol = NC;
-      allocReals.allocate(size_t(this->nRow*this->nCol+2*(this->nRow+this->nCol)));
-      allocIntegers.allocate(size_t(2*this->nRow));
-      this -> Amat    = allocReals(size_t(this->nRow*this->nCol));
-      this -> Work    = allocReals(size_t(2*(this->nRow+this->nCol)));
-      this -> i_pivot = allocIntegers(size_t(this->nRow));
-      this -> Iwork   = allocIntegers(size_t(this->nRow));
+    if ( nRow != NR || nCol != NC ) {
+      nRow = NR;
+      nCol = NC;
+      allocReals.allocate( size_t(nRow*nCol+2*(nRow+nCol)) );
+      allocIntegers.allocate( size_t(2*nRow) );
+      this -> Amat    = allocReals( size_t(nRow*nCol) );
+      this -> Work    = allocReals( size_t(2*(nRow+nCol)) );
+      this -> i_pivot = allocIntegers( size_t(nRow) );
+      this -> Iwork   = allocIntegers( size_t(nRow) );
     }
   }
 
   template <typename T>
   void
   LU<T>::factorize() {
-    integer info = getrf( this->nRow, this->nCol, this->Amat, this->nRow, i_pivot );
+    integer info = getrf( nRow, nCol, Amat, nRow, i_pivot );
     ALGLIN_ASSERT( info == 0, "LU::factorize getrf INFO = " << info );
   }
 
@@ -463,7 +463,7 @@ namespace alglin {
   void
   LU<T>::factorize( integer NR, integer NC, valueType const A[], integer LDA ) {
     allocate( NR, NC );
-    integer info = gecopy( this->nRow, this->nCol, A, LDA, this->Amat, this->nRow );
+    integer info = gecopy( nRow, nCol, A, LDA, Amat, nRow );
     ALGLIN_ASSERT( info == 0, "LU::factorize gecopy INFO = " << info );
     factorize();
   }
@@ -471,9 +471,9 @@ namespace alglin {
   template <typename T>
   void
   LU<T>::check_ls( char const who[] ) const {
-    ALGLIN_ASSERT( this->nRow == this->nCol,
+    ALGLIN_ASSERT( nRow == nCol,
                    "LU<T>::" << who << ", rectangular matrix " <<
-                   this->nRow << " x " << this->nCol );
+                   nRow << " x " << nCol );
   }
 
   template <typename T>
@@ -481,8 +481,8 @@ namespace alglin {
   LU<T>::solve( valueType xb[] ) const {
     check_ls("solve");
     integer info = getrs( NO_TRANSPOSE,
-                          this->nRow, 1, this->Amat, this->nRow, i_pivot,
-                          xb, this->nRow );
+                          nRow, 1, Amat, nRow, i_pivot,
+                          xb, nRow );
     ALGLIN_ASSERT( info == 0, "LU::solve getrs INFO = " << info );
   }
 
@@ -491,8 +491,8 @@ namespace alglin {
   LU<T>::t_solve( valueType xb[] ) const {
     check_ls("t_solve");
     integer info = getrs( TRANSPOSE,
-                          this->nRow, 1, this->Amat, this->nRow, i_pivot,
-                          xb, this->nRow );
+                          nRow, 1, Amat, nRow, i_pivot,
+                          xb, nRow );
     ALGLIN_ASSERT( info == 0, "LU::t_solve getrs INFO = " << info );
   }
 
@@ -501,7 +501,7 @@ namespace alglin {
   LU<T>::solve( integer nrhs, valueType B[], integer ldB ) const {
     check_ls("solve");
     integer info = getrs( NO_TRANSPOSE,
-                          this->nRow, nrhs, this->Amat, this->nRow, i_pivot,
+                          nRow, nrhs, Amat, nRow, i_pivot,
                           B, ldB );
     ALGLIN_ASSERT( info == 0, "LU::solve getrs INFO = " << info );
   }
@@ -511,7 +511,7 @@ namespace alglin {
   LU<T>::t_solve( integer nrhs, valueType B[], integer ldB ) const {
     check_ls("t_solve");
     integer info = getrs( TRANSPOSE,
-                          this->nRow, nrhs, this->Amat, this->nRow, i_pivot,
+                          nRow, nrhs, Amat, nRow, i_pivot,
                           B, ldB );
     ALGLIN_ASSERT( info >= 0, "LU::t_solve getrs INFO = " << info );
   }
@@ -520,7 +520,7 @@ namespace alglin {
   typename LU<T>::valueType
   LU<T>::cond1( valueType norm1 ) const {
     valueType rcond;
-    integer info = gecon1( this->nRow, this->Amat, this->nRow,
+    integer info = gecon1( nRow, Amat, nRow,
                            norm1, rcond, Work, Iwork );
     ALGLIN_ASSERT( info == 0, "LU::cond1, gecon1 return info = " << info );
     return rcond;
@@ -530,10 +530,134 @@ namespace alglin {
   typename LU<T>::valueType
   LU<T>::condInf( valueType normInf ) const {
     valueType rcond;
-    integer info = geconInf( this->nRow, this->Amat, this->nRow,
+    integer info = geconInf( nRow, Amat, nRow,
                              normInf, rcond, Work, Iwork );
     ALGLIN_ASSERT( info == 0, "LU::condInf, geconInf return info = " << info );
     return rcond;
+  }
+
+  /*\
+   |   _    _   _ ____   ___
+   |  | |  | | | |  _ \ / _ \
+   |  | |  | | | | |_) | | | |
+   |  | |__| |_| |  __/| |_| |
+   |  |_____\___/|_|    \__\_\
+   |
+  \*/
+
+  template <typename T>
+  LUPQ<T>::LUPQ()
+  : Factorization<T>()
+  , allocReals("LUPQ-allocReals")
+  , allocIntegers("LUPQ-allocIntegers")
+  {}
+
+  template <typename T>
+  LUPQ<T>::~LUPQ() {
+    allocReals.free();
+    allocIntegers.free();
+  }
+
+  template <typename T>
+  void
+  LUPQ<T>::allocate( integer NR, integer NC ) {
+    ALGLIN_ASSERT( NR == NC,
+                   "LUPQ<T>::allocate, cannot allocate rectangular matrix " <<
+                   NR << " x " << NC );
+    if ( nRow != NR || nCol != NC ) {
+      nRow = NR;
+      nCol = NC;
+      allocReals.allocate( size_t(nRow*nCol) );
+      Amat = allocReals( size_t(nRow*nCol) );
+      allocIntegers.allocate( size_t(2*nRow) );
+      ipiv = allocIntegers( size_t(nRow) );
+      jpiv = allocIntegers( size_t(nRow) );
+    }
+  }
+
+  template <typename T>
+  void
+  LUPQ<T>::factorize() {
+    integer info = getc2( nRow, Amat, nRow, ipiv, jpiv );
+    ALGLIN_ASSERT( info == 0, "LUPQ::factorize getrf INFO = " << info );
+  }
+
+  template <typename T>
+  void
+  LUPQ<T>::factorize( integer NR, integer NC, valueType const A[], integer LDA ) {
+    ALGLIN_ASSERT( NR == NC,
+                   "LUPQ<T>::factorize, cannot factorize rectangular matrix " <<
+                   NR << " x " << NC );
+    allocate( NR, NC );
+    integer info = gecopy( nRow, nCol, A, LDA, Amat, nRow );
+    ALGLIN_ASSERT( info == 0, "LUPQ::factorize gecopy INFO = " << info );
+    factorize();
+  }
+
+  template <typename T>
+  void
+  LUPQ<T>::solve( valueType xb[] ) const {
+    // Apply permutations IPIV to RHS
+    swaps( 1, xb, nRow, 0, nRow-2, ipiv, 1 );
+
+    // Solve for L part
+    trsv( LOWER, NO_TRANSPOSE, UNIT, nRow, Amat, nRow, xb, 1 );
+
+    // Solve for U part
+    trsv( UPPER, NO_TRANSPOSE, NON_UNIT, nRow, Amat, nRow, xb, 1 );
+
+    // Apply permutations JPIV to the solution (RHS)
+    swaps( 1, xb, nRow, 0, nRow-2, jpiv, -1 );
+  }
+
+  template <typename T>
+  void
+  LUPQ<T>::solve( integer nrhs, valueType B[], integer ldB ) const {
+    // Apply permutations IPIV to RHS
+    swaps( nrhs, B, ldB, 0, nRow-2, ipiv, 1 );
+
+    // Solve for L part
+    trsm( LEFT, LOWER, NO_TRANSPOSE, UNIT, nRow, nrhs, 1.0, Amat, nRow, B, ldB );
+
+    // Solve for U part
+    trsm( LEFT, UPPER, NO_TRANSPOSE, NON_UNIT, nRow, nrhs, 1.0, Amat, nRow, B, ldB );
+
+    // Apply permutations JPIV to the solution (RHS)
+    swaps( nrhs, B, ldB, 0, nRow-2, jpiv, -1 );
+  }
+
+  template <typename T>
+  void
+  LUPQ<T>::t_solve( valueType xb[] ) const {
+    // Apply permutations JPIV to the solution (RHS)
+    swaps( 1, xb, nRow, 0, nRow-2, jpiv, 1 );
+
+    // Solve for U part
+    trsv( UPPER, TRANSPOSE, NON_UNIT, nRow, Amat, nRow, xb, 1 );
+
+    // Solve for L part
+    trsv( LOWER, TRANSPOSE, UNIT, nRow, Amat, nRow, xb, 1 );
+
+    // Apply permutations IPIV to RHS
+    swaps( 1, xb, nRow, 0, nRow-2, ipiv, -1 );
+
+  }
+
+  template <typename T>
+  void
+  LUPQ<T>::t_solve( integer nrhs, valueType B[], integer ldB ) const {
+
+    // Apply permutations JPIV to the solution (RHS)
+    swaps( nrhs, B, ldB, 0, nRow-2, jpiv, 1 );
+
+    // Solve for U part
+    trsm( LEFT, UPPER, TRANSPOSE, NON_UNIT, nRow, nrhs, 1.0, Amat, nRow, B, ldB );
+
+    // Solve for L part
+    trsm( LEFT, LOWER, TRANSPOSE, UNIT, nRow, nrhs, 1.0, Amat, nRow, B, ldB );
+
+    // Apply permutations IPIV to RHS
+    swaps( nrhs, B, ldB, 0, nRow-2, ipiv, -1 );
   }
 
   /*\
@@ -547,20 +671,20 @@ namespace alglin {
   template <typename T>
   void
   QR<T>::allocate( integer NR, integer NC, integer Lwrk ) {
-    this->nRow       = NR;
-    this->nCol       = NC;
-    this->nReflector = std::min(this->nRow,this->nCol);
-    this->Lwork      = Lwrk;
-    allocReals.allocate(size_t(this->nRow*this->nCol+Lwork+nReflector));
-    this->Amat = allocReals(size_t(this->nRow*this->nCol));
-    this->Work = allocReals(size_t(Lwork));
-    this->Tau  = allocReals(size_t(nReflector));
+    nRow       = NR;
+    nCol       = NC;
+    nReflector = std::min(nRow,nCol);
+    Lwork      = Lwrk;
+    allocReals.allocate( size_t(nRow*nCol+Lwork+nReflector) );
+    Amat = allocReals( size_t(nRow*nCol) );
+    Work = allocReals( size_t(Lwork) );
+    Tau  = allocReals( size_t(nReflector) );
   }
 
   template <typename T>
   void
   QR<T>::allocate( integer NR, integer NC ) {
-    if ( this->nRow != NR || this->nCol != NC ) {
+    if ( nRow != NR || nCol != NC ) {
       valueType tmp; // get optimal allocation
       integer info = geqrf( NR, NC, nullptr, NR, nullptr, &tmp, -1 );
       ALGLIN_ASSERT( info == 0, "QR::factorize call alglin::geqrf return info = " << info );
@@ -580,14 +704,14 @@ namespace alglin {
                  integer       NC,
                  valueType     C[],
                  integer       ldC ) const {
-    ALGLIN_ASSERT( (SIDE == alglin::LEFT  && NR == this->nRow) ||
-                   (SIDE == alglin::RIGHT && NC == this->nRow),
+    ALGLIN_ASSERT( (SIDE == alglin::LEFT  && NR == nRow) ||
+                   (SIDE == alglin::RIGHT && NC == nRow),
                    "QR::applyQ NR = " << NR << " NC = " << NC <<
-                   " nRow = " << this->nRow );
+                   " nRow = " << nRow );
     integer info = ormqr( SIDE, TRANS,
                           NR, NC,
                           nRefl,  // numero riflettori usati nel prodotto Q
-                          this->Amat, this->nRow /*ldA*/,
+                          Amat, nRow /*ldA*/,
                           Tau,
                           C, ldC,
                           Work, Lwork );
@@ -599,17 +723,17 @@ namespace alglin {
   template <typename T>
   void
   QR<T>::getR( valueType R[], integer ldR ) const {
-    integer minRC = std::min( this->nRow, this->nCol );
+    integer minRC = std::min( nRow, nCol );
     gezero( minRC, minRC, R, ldR );
     for ( integer i = 0; i < minRC; ++i )
       for ( integer j = i; j < minRC; ++j )
-        R[i+j*ldR] = this->Amat[ i+j*this->nRow];
+        R[i+j*ldR] = Amat[ i+j*nRow];
   }
 
   template <typename T>
   void
   QR<T>::solve( valueType xb[] ) const {
-    ALGLIN_ASSERT( this->nRow == this->nCol,
+    ALGLIN_ASSERT( nRow == nCol,
                    "in QR::solve, factored matrix must be square" );
     Qt_mul(xb);
     invR_mul(xb);
@@ -618,7 +742,7 @@ namespace alglin {
   template <typename T>
   void
   QR<T>::t_solve( valueType xb[] ) const {
-    ALGLIN_ASSERT( this->nRow == this->nCol,
+    ALGLIN_ASSERT( nRow == nCol,
                    "in QR::solve_t, factored matrix must be square" );
     invRt_mul(xb);
     Q_mul(xb);
@@ -627,19 +751,19 @@ namespace alglin {
   template <typename T>
   void
   QR<T>::solve( integer nrhs, valueType XB[], integer ldXB ) const {
-    ALGLIN_ASSERT( this->nRow == this->nCol,
+    ALGLIN_ASSERT( nRow == nCol,
                    "in QR::solve, factored matrix must be square" );
-    Qt_mul( this->nRow, nrhs, XB, ldXB );
-    invR_mul( this->nRow, nrhs, XB, ldXB );
+    Qt_mul( nRow, nrhs, XB, ldXB );
+    invR_mul( nRow, nrhs, XB, ldXB );
   }
 
   template <typename T>
   void
   QR<T>::t_solve( integer nrhs, valueType XB[], integer ldXB ) const {
-    ALGLIN_ASSERT( this->nRow == this->nCol,
+    ALGLIN_ASSERT( nRow == nCol,
                    "in QR::solve_t, factored matrix must be square" );
-    invRt_mul( this->nRow, nrhs, XB, ldXB );
-    Q_mul( this->nRow, nrhs, XB, ldXB );
+    invRt_mul( nRow, nrhs, XB, ldXB );
+    Q_mul( nRow, nrhs, XB, ldXB );
   }
 
   /*\
@@ -654,56 +778,56 @@ namespace alglin {
   void
   QRP<T>::permute( valueType x[] ) const {
     // applico permutazione
-    for ( integer i = 0; i < this->nCol; ++i ) this->Work[JPVT[i]-1] = x[i];
-    copy( this->nCol, this->Work, 1, x, 1 );
+    for ( integer i = 0; i < nCol; ++i ) Work[JPVT[i]-1] = x[i];
+    copy( nCol, Work, 1, x, 1 );
   }
 
   template <typename T>
   void
   QRP<T>::inv_permute( valueType x[] ) const {
     // applico permutazione
-    for ( integer i = 0; i < this->nCol; ++i ) this->Work[i] = x[JPVT[i]-1];
-    copy( this->nCol, this->Work, 1, x, 1 );
+    for ( integer i = 0; i < nCol; ++i ) Work[i] = x[JPVT[i]-1];
+    copy( nCol, Work, 1, x, 1 );
   }
 
   template <typename T>
   void
   QRP<T>::solve( valueType xb[] ) const {
-    ALGLIN_ASSERT( this->nRow == this->nCol,
+    ALGLIN_ASSERT( nRow == nCol,
                    "in QRP::solve, factored matrix must be square" );
-    this->Qt_mul(xb);
-    this->invR_mul(xb);
-    this->permute(xb); // da aggiungere!
+    Qt_mul(xb);
+    invR_mul(xb);
+    permute(xb); // da aggiungere!
   }
 
   template <typename T>
   void
   QRP<T>::t_solve( valueType xb[] ) const {
-    ALGLIN_ASSERT( this->nRow == this->nCol,
+    ALGLIN_ASSERT( nRow == nCol,
                    "in QRP::solve_t, factored matrix must be square" );
-    this->inv_permute(xb); // da aggiungere!
-    this->invRt_mul(xb);
-    this->Q_mul(xb);
+    inv_permute(xb); // da aggiungere!
+    invRt_mul(xb);
+    Q_mul(xb);
   }
 
   template <typename T>
   void
   QRP<T>::solve( integer nrhs, valueType XB[], integer ldXB ) const {
-    ALGLIN_ASSERT( this->nRow == this->nCol,
+    ALGLIN_ASSERT( nRow == nCol,
                    "in QRP::solve, factored matrix must be square" );
-    this->Qt_mul( this->nRow, nrhs, XB, ldXB );
-    this->invR_mul( this->nRow, nrhs, XB, ldXB );
-    this->permute_rows( this->nRow, nrhs, XB, ldXB ); // da aggiungere!
+    Qt_mul( nRow, nrhs, XB, ldXB );
+    invR_mul( nRow, nrhs, XB, ldXB );
+    permute_rows( nRow, nrhs, XB, ldXB ); // da aggiungere!
   }
 
   template <typename T>
   void
   QRP<T>::t_solve( integer nrhs, valueType XB[], integer ldXB ) const {
-    ALGLIN_ASSERT( this->nRow == this->nCol,
+    ALGLIN_ASSERT( nRow == nCol,
                    "in QRP::solve_t, factored matrix must be square" );
-    this->inv_permute_rows( this->nRow, nrhs, XB, ldXB ); // da aggiungere!
-    this->invRt_mul( this->nRow, nrhs, XB, ldXB );
-    this->Q_mul( this->nRow, nrhs, XB, ldXB );
+    inv_permute_rows( nRow, nrhs, XB, ldXB ); // da aggiungere!
+    invRt_mul( nRow, nrhs, XB, ldXB );
+    Q_mul( nRow, nrhs, XB, ldXB );
   }
 
   /*\
@@ -718,9 +842,9 @@ namespace alglin {
   void
   SVD<T>::allocate( integer NR, integer NC ) {
 
-    if ( this->nRow != NR || this->nCol != NC ) {
-      this->nRow = NR;
-      this->nCol = NC;
+    if ( nRow != NR || nCol != NC ) {
+      nRow = NR;
+      nCol = NC;
       minRC      = std::min(NR,NC);
       valueType tmp;
       integer info = gesvd( REDUCED, REDUCED,
@@ -741,14 +865,14 @@ namespace alglin {
                     nullptr, minRC,
                     &tmp, -1, nullptr );
        if ( integer(tmp) > Lwork ) Lwork = integer(tmp);
-       allocReals.allocate(size_t(this->nRow*this->nCol+minRC*(this->nRow+this->nCol+1)+Lwork));
-       this->Amat = allocReals(size_t(this->nRow*this->nCol));
-       Svec  = allocReals(size_t(minRC));
-       Umat  = allocReals(size_t(minRC*this->nRow));
-       VTmat = allocReals(size_t(minRC*this->nCol));
-       Work  = allocReals(size_t(Lwork));
-       allocIntegers.allocate(size_t(8*minRC));
-       IWork = allocIntegers(size_t(8*minRC));
+       allocReals.allocate( size_t(nRow*nCol+minRC*(nRow+nCol+1)+Lwork) );
+       Amat = allocReals( size_t(nRow*nCol));
+       Svec  = allocReals( size_t(minRC) );
+       Umat  = allocReals( size_t(minRC*nRow) );
+       VTmat = allocReals( size_t(minRC*nCol) );
+       Work  = allocReals( size_t(Lwork) );
+       allocIntegers.allocate( size_t(8*minRC) );
+       IWork = allocIntegers( size_t(8*minRC) );
     }
   }
 
@@ -760,9 +884,9 @@ namespace alglin {
     case USE_GESVD:
       info = gesvd( REDUCED,
                     REDUCED,
-                    this->nRow, this->nCol, this->Amat, this->nRow,
+                    nRow, nCol, Amat, nRow,
                     Svec,
-                    Umat, this->nRow,
+                    Umat, nRow,
                     VTmat, minRC,
                     Work, Lwork );
       ALGLIN_ASSERT( info == 0,
@@ -770,9 +894,9 @@ namespace alglin {
       break;
     case USE_GESDD:
       info = gesdd( REDUCED,
-                    this->nRow, this->nCol, this->Amat, this->nRow,
+                    nRow, nCol, Amat, nRow,
                     Svec,
-                    Umat, this->nRow,
+                    Umat, nRow,
                     VTmat, minRC,
                     Work, Lwork, IWork );
       ALGLIN_ASSERT( info == 0,
@@ -817,9 +941,9 @@ namespace alglin {
   void
   LSS<T>::allocate( integer NR, integer NC ) {
 
-    if ( this->nRow != NR || this->nCol != NC ) {
-      this->nRow = NR;
-      this->nCol = NC;
+    if ( nRow != NR || nCol != NC ) {
+      nRow = NR;
+      nCol = NC;
       valueType tmp;
       integer info = gelss( NR, NC, 1, nullptr, NR, nullptr, NR, nullptr,
                             rcond, rank, &tmp, -1 );
@@ -838,10 +962,10 @@ namespace alglin {
       integer minRC = std::min(NR,NC);
 
       allocReals.allocate( size_t(2*NR*NC+Lwork+minRC) );
-      this->Amat     = allocReals(size_t(2*this->nRow*this->nCol));
-      this->Work     = allocReals(size_t(Lwork));
-      this->sigma    = allocReals(size_t(minRC));
-      this->AmatWork = this->Amat+this->nRow*this->nCol;
+      Amat     = allocReals( size_t(2*nRow*nCol) );
+      Work     = allocReals( size_t(Lwork) );
+      sigma    = allocReals( size_t(minRC) );
+      AmatWork = Amat+nRow*nCol;
     }
   }
 
@@ -921,9 +1045,9 @@ namespace alglin {
   void
   LSY<T>::allocate( integer NR, integer NC ) {
 
-    if ( this->nRow != NR || this->nCol != NC ) {
-      this->nRow = NR;
-      this->nCol = NC;
+    if ( nRow != NR || nCol != NC ) {
+      nRow = NR;
+      nCol = NC;
       valueType tmp;
       integer info = gelsy( NR, NC, 1, nullptr, NR, nullptr, NR, nullptr,
                             rcond, rank, &tmp, -1 );
@@ -940,11 +1064,11 @@ namespace alglin {
       }
 
       allocReals.allocate( size_t(2*NR*NC+Lwork) );
-      this->Amat     = allocReals( size_t(2*this->nRow*this->nCol) );
-      this->Work     = allocReals( size_t(Lwork) );
-      this->AmatWork = this->Amat+this->nRow*this->nCol;
+      Amat     = allocReals( size_t(2*nRow*nCol) );
+      Work     = allocReals( size_t(Lwork) );
+      AmatWork = Amat+nRow*nCol;
       allocInts.allocate( size_t(NC) );
-      this->jpvt = allocInts( size_t(NC) );
+      jpvt = allocInts( size_t(NC) );
     }
   }
 
@@ -1732,6 +1856,9 @@ namespace alglin {
 
   template class LU<real>;
   template class LU<doublereal>;
+
+  template class LUPQ<real>;
+  template class LUPQ<doublereal>;
 
   template class QR<real>;
   template class QR<doublereal>;

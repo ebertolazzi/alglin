@@ -12,6 +12,6 @@
   @IF EXIST C:\GnuWin32\bin\wget.exe (
     @"C:\GnuWin32\bin\wget.exe" --no-check-certificate -O %FILE% "%URL%"
   ) ELSE (
-    @PowerShell -Command "Import-Module BitsTransfer ; Start-BitsTransfer -Source \"%URL%\" -Destination %FILE%"
-  )    
+    @PowerShell -Command "Import-Module BitsTransfer; Start-BitsTransfer -Source \"%URL%\" -Destination %FILE%"
+  )
 )

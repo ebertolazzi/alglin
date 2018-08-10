@@ -188,16 +188,35 @@ test3() {
   cout << "done test3\n";
 }
 
+#define TEST4(NAME,F) \
+  cout << "\n\nDo " << NAME << " factorization of A\n"; \
+  F.factorize( M, M, A, LDA ); \
+  \
+  cout << NAME << " solution of A x = b"; \
+  alglin::copy( M, rhs, 1, x, 1 ); \
+  alglin::copy( M, rhs, 1, b, 1 ); \
+  /* L.solve( x ); */ \
+  F.solve( 1, x, M); \
+  cout << "x=\n"; \
+  alglin::print_matrix( cout, M, 1, x, M ); \
+  \
+  alglin::gemv( alglin::NO_TRANSPOSE, M, M, -1, A, LDA, x, 1, 1, b, 1 ); \
+  cout << "residual=\n"; \
+  alglin::print_matrix( cout, M, 1, b, M ); \
+  res = alglin::nrm2( M, b, 1 ); \
+  cout << "||res||_2 = " << res << '\n'; \
+  ALGLIN_ASSERT( res < 1e-6, "test failed!" );
 
 static
 void
 test4() {
-  alglin::LU<valueType>  lu;
-  alglin::QR<valueType>  qr;
-  alglin::QRP<valueType> qrp;
-  alglin::SVD<valueType> svd;
-  alglin::LSS<valueType> lss;
-  alglin::LSY<valueType> lsy;
+  alglin::LU<valueType>   lu;
+  alglin::LUPQ<valueType> lupq;
+  alglin::QR<valueType>   qr;
+  alglin::QRP<valueType>  qrp;
+  alglin::SVD<valueType>  svd;
+  alglin::LSS<valueType>  lss;
+  alglin::LSY<valueType>  lsy;
 
   integer const M   = 5;
   integer const LDA = 5;
@@ -209,7 +228,7 @@ test4() {
     0.000001,   5,     3,  1e-6+5,      3+1
   };
 
-  valueType rhs[M], b[M];
+  valueType rhs[M], b[M], res;
   valueType x[M] = {1,2,3,4,5};
   alglin::gemv( alglin::NO_TRANSPOSE, M, M, 1, A, LDA, x, 1, 0, rhs, 1 );
   alglin::gemv( alglin::NO_TRANSPOSE, M, M, 1, A, LDA, x, 1, 0, b, 1 );
@@ -217,111 +236,47 @@ test4() {
   cout << "\n\n\nTest4:\n\nInitial A\n";
   alglin::print_matrix( cout, M, M, A, M );
 
-  cout << "\n\nDo QR  factorization of A\n";
-  qr.factorize( M, M, A, LDA );
-
-  cout << "QR solution of A x = b";
-  alglin::copy( M, rhs, 1, x, 1 );
-  alglin::copy( M, rhs, 1, b, 1 );
-  //qr.solve( x );
-  qr.solve( 1, x, M);
-  cout << "x=\n";
-  alglin::print_matrix( cout, M, 1, x, M );
-
-  alglin::gemv( alglin::NO_TRANSPOSE, M, M, -1, A, LDA, x, 1, 1, b, 1 );
-  cout << "residual=\n";
-  alglin::print_matrix( cout, M, 1, b, M );
-
-  cout << "\n\nDo QRP factorization of A\n";
-  qrp.factorize( M, M, A, LDA );
-
-  cout << "QRP solution of A x = b";
-  alglin::copy( M, rhs, 1, x, 1 );
-  alglin::copy( M, rhs, 1, b, 1 );
-  //qrp.solve( x );
-  qrp.solve( 1, x, M );
-  cout << "x=\n";
-  alglin::print_matrix( cout, 5, 1, x, 5 );
-
-  alglin::gemv( alglin::NO_TRANSPOSE, M, M, -1, A, LDA, x, 1, 1, b, 1 );
-  cout << "residual=\n";
-  alglin::print_matrix( cout, M, 1, b, M );
-
-  cout << "\n\nDo LU factorization of A\n";
-  lu.factorize( M, M, A, LDA );
-  
-  cout << "LU solution of A x = b";
-  alglin::copy( M, rhs, 1, x, 1 );
-  alglin::copy( M, rhs, 1, b, 1 );
-  //lu.solve( x );
-  lu.solve( 1, x, M );
-  cout << "x=\n";
-  alglin::print_matrix( cout, 5, 1, x, 5 );
-
-  alglin::gemv( alglin::NO_TRANSPOSE, M, M, -1, A, LDA, x, 1, 1, b, 1 );
-  cout << "residual=\n";
-  alglin::print_matrix( cout, M, 1, b, M );
-
-  cout << "\n\nDo SVD factorization of A\n";
-  svd.factorize( M, M, A, LDA );
-  
-  cout << "SVD solution of A x = b";
-  alglin::copy( M, rhs, 1, x, 1 );
-  alglin::copy( M, rhs, 1, b, 1 );
-  svd.solve( 1, x, M );
-  cout << "x=\n";
-  alglin::print_matrix( cout, 5, 1, x, 5 );
-
-  alglin::gemv( alglin::NO_TRANSPOSE, M, M, -1, A, LDA, x, 1, 1, b, 1 );
-  cout << "residual=\n";
-  alglin::print_matrix( cout, M, 1, b, M );
-
-
-
-  cout << "\n\nDo LSS factorization of A\n";
-  lss.factorize( M, M, A, LDA );
-
-  cout << "LSS solution of A x = b";
-  alglin::copy( M, rhs, 1, x, 1 );
-  alglin::copy( M, rhs, 1, b, 1 );
-  lss.solve( 1, x, M );
-  cout << "x=\n";
-  alglin::print_matrix( cout, 5, 1, x, 5 );
-
-  alglin::gemv( alglin::NO_TRANSPOSE, M, M, -1, A, LDA, x, 1, 1, b, 1 );
-  cout << "residual=\n";
-  alglin::print_matrix( cout, M, 1, b, M );
-
-
-
-  cout << "\n\nDo LSY factorization of A\n";
-  lsy.factorize( M, M, A, LDA );
-
-  cout << "LSY solution of A x = b";
-  alglin::copy( M, rhs, 1, x, 1 );
-  alglin::copy( M, rhs, 1, b, 1 );
-  lsy.solve( 1, x, M );
-  cout << "x=\n";
-  alglin::print_matrix( cout, 5, 1, x, 5 );
-
-  alglin::gemv( alglin::NO_TRANSPOSE, M, M, -1, A, LDA, x, 1, 1, b, 1 );
-  cout << "residual=\n";
-  alglin::print_matrix( cout, M, 1, b, M );
-
+  TEST4("LU",lu);
+  TEST4("LUPQ",lupq);
+  TEST4("QR",qr);
+  TEST4("QRP",qrp);
+  TEST4("SVD",svd);
+  TEST4("LSS",lss);
+  TEST4("LSY",lsy);
 
   cout << "done test4\n";
 }
+
+#define TEST5(NAME,F) \
+  cout << "\n\nDo " << NAME << " factorization of A\n"; \
+  F.factorize( M, M, A, LDA ); \
+  \
+  cout << NAME << " solution of A x = b"; \
+  alglin::copy( M, rhs, 1, x, 1 ); \
+  alglin::copy( M, rhs, 1, b, 1 ); \
+  /* F.t_solve( x ); */ \
+  F.t_solve( 1, x, M); \
+  cout << "x=\n"; \
+  alglin::print_matrix( cout, M, 1, x, M ); \
+  \
+  alglin::gemv( alglin::TRANSPOSE, M, M, -1, A, LDA, x, 1, 1, b, 1 ); \
+  cout << "residual=\n"; \
+  alglin::print_matrix( cout, M, 1, b, M ); \
+  res = alglin::nrm2( M, b, 1 ); \
+  cout << "||res||_2 = " << res << '\n'; \
+  ALGLIN_ASSERT( res < 1e-6, "test failed!" );
 
 
 static
 void
 test5() {
-  alglin::LU<valueType>  lu;
-  alglin::QR<valueType>  qr;
-  alglin::QRP<valueType> qrp;
-  alglin::SVD<valueType> svd;
-  alglin::LSS<valueType> lss;
-  alglin::LSY<valueType> lsy;
+  alglin::LU<valueType>   lu;
+  alglin::LUPQ<valueType> lupq;
+  alglin::QR<valueType>   qr;
+  alglin::QRP<valueType>  qrp;
+  alglin::SVD<valueType>  svd;
+  alglin::LSS<valueType>  lss;
+  alglin::LSY<valueType>  lsy;
 
   integer const M   = 5;
   integer const LDA = 5;
@@ -333,7 +288,7 @@ test5() {
     0.000001,   5,     3,  1e-6+5,      3+1
   };
 
-  valueType rhs[M], b[M];
+  valueType rhs[M], b[M], res;
   valueType x[M] = {1,2,3,4,5};
   alglin::gemv( alglin::TRANSPOSE, M, M, 1, A, LDA, x, 1, 0, rhs, 1 );
   alglin::gemv( alglin::TRANSPOSE, M, M, 1, A, LDA, x, 1, 0, b, 1 );
@@ -341,107 +296,13 @@ test5() {
   cout << "\n\n\nTest5:\n\nInitial A\n";
   alglin::print_matrix( cout, M, M, A, M );
 
-
-
-
-  cout << "\n\nDo QR  factorization of A\n";
-  qr.factorize( M, M, A, LDA );
-
-  cout << "QR solution of A x = b";
-  alglin::copy( M, rhs, 1, x, 1 );
-  alglin::copy( M, rhs, 1, b, 1 );
-  qr.t_solve( x );
-  //qr.t_solve( 1, x, M);
-  cout << "x=\n";
-  alglin::print_matrix( cout, M, 1, x, M );
-
-  alglin::gemv( alglin::TRANSPOSE, M, M, -1, A, LDA, x, 1, 1, b, 1 );
-  cout << "residual=\n";
-  alglin::print_matrix( cout, M, 1, b, M );
-
-
-
-
-  cout << "\n\nDo QRP factorization of A\n";
-  qrp.factorize( M, M, A, LDA );
-
-  cout << "QRP solution of A x = b";
-  alglin::copy( M, rhs, 1, x, 1 );
-  alglin::copy( M, rhs, 1, b, 1 );
-  qrp.t_solve( x );
-  //qrp.t_solve( 1, x, M );
-  cout << "x=\n";
-  alglin::print_matrix( cout, 5, 1, x, 5 );
-
-  alglin::gemv( alglin::TRANSPOSE, M, M, -1, A, LDA, x, 1, 1, b, 1 );
-  cout << "residual=\n";
-  alglin::print_matrix( cout, M, 1, b, M );
-
-
-
-
-  cout << "\n\nDo LU factorization of A\n";
-  lu.factorize( M, M, A, LDA );
-  
-  cout << "LU solution of A x = b";
-  alglin::copy( M, rhs, 1, x, 1 );
-  alglin::copy( M, rhs, 1, b, 1 );
-  lu.t_solve( x );
-  //lu.t_solve( 1, x, M );
-  cout << "x=\n";
-  alglin::print_matrix( cout, 5, 1, x, 5 );
-
-  alglin::gemv( alglin::TRANSPOSE, M, M, -1, A, LDA, x, 1, 1, b, 1 );
-  cout << "residual=\n";
-  alglin::print_matrix( cout, M, 1, b, M );
-
-
-
-
-  cout << "\n\nDo SVD factorization of A\n";
-  svd.factorize( M, M, A, LDA );
-  
-  cout << "SVD solution of A x = b";
-  alglin::copy( M, rhs, 1, b, 1 );
-  alglin::copy( M, rhs, 1, x, 1 );
-  svd.t_solve( x );
-  //svd.t_solve( 1, rhs, M, x, M );
-  cout << "x=\n";
-  alglin::print_matrix( cout, 5, 1, x, 5 );
-
-  alglin::gemv( alglin::TRANSPOSE, M, M, -1, A, LDA, x, 1, 1, b, 1 );
-  cout << "residual=\n";
-  alglin::print_matrix( cout, M, 1, b, M );
-
-
-  cout << "\n\nDo LSS factorization of A\n";
-  lss.factorize( M, M, A, LDA );
-
-  cout << "LSS solution of A x = b";
-  alglin::copy( M, rhs, 1, b, 1 );
-  alglin::copy( M, rhs, 1, x, 1 );
-  lss.t_solve( x );
-  cout << "x=\n";
-  alglin::print_matrix( cout, 5, 1, x, 5 );
-
-  alglin::gemv( alglin::TRANSPOSE, M, M, -1, A, LDA, x, 1, 1, b, 1 );
-  cout << "residual=\n";
-  alglin::print_matrix( cout, M, 1, b, M );
-
-
-  cout << "\n\nDo LSY factorization of A\n";
-  lsy.factorize( M, M, A, LDA );
-
-  cout << "LSY solution of A x = b";
-  alglin::copy( M, rhs, 1, b, 1 );
-  alglin::copy( M, rhs, 1, x, 1 );
-  lsy.t_solve( x );
-  cout << "x=\n";
-  alglin::print_matrix( cout, 5, 1, x, 5 );
-
-  alglin::gemv( alglin::TRANSPOSE, M, M, -1, A, LDA, x, 1, 1, b, 1 );
-  cout << "residual=\n";
-  alglin::print_matrix( cout, M, 1, b, M );
+  TEST5("LU",lu);
+  TEST5("LUPQ",lupq);
+  TEST5("QR",qr);
+  TEST5("QRP",qrp);
+  TEST5("SVD",svd);
+  TEST5("LSS",lss);
+  TEST5("LSY",lsy);
 
   cout << "done test5\n";
 
@@ -522,7 +383,7 @@ test7() {
   alglin::gemv( alglin::TRANSPOSE, M, M, 1, A, LDA, x, 1, 0, rhs, 1 );
   alglin::gemv( alglin::TRANSPOSE, M, M, 1, A, LDA, x, 1, 0, b, 1 );
 
-  cout << "\n\n\nTest5:\n\nInitial A\n";
+  cout << "\n\n\nTest7:\n\nInitial A\n";
   alglin::print_matrix( cout, M, M, A, M );
 
   cout << "\n\nDo QRP factorization of A\n";

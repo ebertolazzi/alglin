@@ -34,12 +34,12 @@ program main
 	X  = reshape((/32, 81, 66, 165, 121, -52, 237/), shape(X))
 
   print *, 'DE = ', DE
-	
+
   ok = BABD_factorize( id, mat_fact, last_block_fact, nblock, n, qr, qx, &
-                       DE, ldDE, H0, ldH0, HN, ldHN, Hq, ldHq ) !, B, ldB, C, ldC, D, ldD ) ;
+                       DE, ldDE, H0, ldH0, HN, ldHN, Hq, ldHq ) !, B, ldB, C, ldC, D, ldD );
   print *, 'ok = ', ok
-  ok = BABD_solve( 1, X ) ;
-  !ok = BABD_solve_nrhs( id, 1, X, 12 ) ;
+  ok = BABD_solve( 1, X );
+  !ok = BABD_solve_nrhs( id, 1, X, 12 );
   print *, 'ok = ', ok
   print *, 'X = ', X
   call BABD_get_last_error_f90(err_message,len(err_message))
@@ -50,18 +50,18 @@ program main
   ldD = 1
 	nr  = 1
 	nx  = 1
-	
+
 	B = reshape((/1,1,1,1,1,1,1/), shape(B))
 	C = reshape((/1,-1,1,-1,1,-1,1/), shape(C))
 	D = reshape((/-1/), shape(D))
 
   ok = BABD_factorize_bordered( id, mat_fact, last_block_fact, nblock, n, qr, nr, qx, nx, &
                                 DE, ldDE, H0, ldH0, HN, ldHN, Hq, ldHq, &
-																B, ldB, C, ldC, D, ldD ) ;
+																B, ldB, C, ldC, D, ldD );
   print *, 'ok = ', ok
 	X1  = reshape((/32, 81, 66, 165, 121, -52, 237, 4/), shape(X1))
-  ok = BABD_solve( 1, X1 ) ;
-  !ok = BABD_solve_nrhs( id, 1, X, 12 ) ;
+  ok = BABD_solve( 1, X1 );
+  !ok = BABD_solve_nrhs( id, 1, X, 12 );
   print *, 'ok = ', ok
   print *, 'X1 = ', X1
   call BABD_get_last_error_f90(err_message,len(err_message))

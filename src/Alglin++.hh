@@ -490,11 +490,98 @@ namespace alglin {
     using Factorization<T>::solve;
     using Factorization<T>::t_solve;
 
+    using Factorization<T>::nRow;
+    using Factorization<T>::nCol;
+    using Factorization<T>::Amat;
+
     LU();
     virtual ~LU() ALGLIN_OVERRIDE;
 
     valueType cond1( valueType norm1 ) const;
     valueType condInf( valueType normInf ) const;
+
+    /*\
+     |         _      _               _
+     |  __   _(_)_ __| |_ _   _  __ _| |___
+     |  \ \ / / | '__| __| | | |/ _` | / __|
+     |   \ V /| | |  | |_| |_| | (_| | \__ \
+     |    \_/ |_|_|   \__|\__,_|\__,_|_|___/
+    \*/
+
+    virtual
+    void
+    allocate( integer NR, integer NC ) ALGLIN_OVERRIDE;
+
+    virtual
+    void
+    factorize() ALGLIN_OVERRIDE;
+
+    virtual
+    void
+    factorize( integer         NR,
+               integer         NC,
+               valueType const A[],
+               integer         LDA ) ALGLIN_OVERRIDE;
+
+    virtual
+    void
+    solve( valueType xb[] ) const ALGLIN_OVERRIDE;
+
+    virtual
+    void
+    t_solve( valueType xb[] ) const ALGLIN_OVERRIDE;
+
+    virtual
+    void
+    solve( integer   nrhs,
+           valueType B[],
+           integer   ldB ) const ALGLIN_OVERRIDE;
+
+    virtual
+    void
+    t_solve( integer   nrhs,
+             valueType B[],
+             integer   ldB ) const ALGLIN_OVERRIDE;
+
+  };
+
+  //============================================================================
+  /*\
+   |   _    _   _ ____   ___
+   |  | |  | | | |  _ \ / _ \
+   |  | |  | | | | |_) | | | |
+   |  | |__| |_| |  __/| |_| |
+   |  |_____\___/|_|    \__\_\
+  \*/
+  template <typename T>
+  class LUPQ : public Factorization<T> {
+  public:
+    typedef typename Factorization<T>::valueType valueType;
+
+  private:
+
+    integer * ipiv;
+    integer * jpiv;
+
+    Malloc<valueType> allocReals;
+    Malloc<integer>   allocIntegers;
+
+    void check_ls( char const who[] ) const;
+
+  public:
+
+    using LinearSystemSolver<T>::solve;
+    using LinearSystemSolver<T>::t_solve;
+    using Factorization<T>::factorize;
+    using Factorization<T>::solve;
+    using Factorization<T>::t_solve;
+
+    using Factorization<T>::nRow;
+    using Factorization<T>::nCol;
+    using Factorization<T>::Amat;
+
+    LUPQ();
+    virtual ~LUPQ() ALGLIN_OVERRIDE;
 
     /*\
      |         _      _               _
@@ -572,6 +659,10 @@ namespace alglin {
     using Factorization<T>::factorize;
     using Factorization<T>::solve;
     using Factorization<T>::t_solve;
+
+    using Factorization<T>::nRow;
+    using Factorization<T>::nCol;
+    using Factorization<T>::Amat;
 
     QR()
     : Factorization<T>()
@@ -822,6 +913,16 @@ namespace alglin {
     using Factorization<T>::solve;
     using Factorization<T>::t_solve;
 
+    using Factorization<T>::nRow;
+    using Factorization<T>::nCol;
+    using Factorization<T>::Amat;
+
+    using QR<T>::Work;
+    using QR<T>::Q_mul;
+    using QR<T>::Qt_mul;
+    using QR<T>::invR_mul;
+    using QR<T>::invRt_mul;
+
     QRP()
     : QR<T>(), allocIntegers("QRP-allocIntegers")
     {}
@@ -1011,6 +1112,10 @@ namespace alglin {
     using Factorization<T>::factorize;
     using Factorization<T>::solve;
     using Factorization<T>::t_solve;
+
+    using Factorization<T>::nRow;
+    using Factorization<T>::nCol;
+    using Factorization<T>::Amat;
 
     SVD( SVD_USED _svd_used = USE_GESVD )
     : Factorization<T>()
@@ -1879,6 +1984,9 @@ namespace alglin {
 
   extern template class LU<real>;
   extern template class LU<doublereal>;
+
+  extern template class LUPQ<real>;
+  extern template class LUPQ<doublereal>;
 
   extern template class QR<real>;
   extern template class QR<doublereal>;

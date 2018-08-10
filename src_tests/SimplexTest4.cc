@@ -34,60 +34,60 @@
 #include <vector>
 #include <iostream>
 
-using namespace std ;
+using namespace std;
 
 int
 main() {
 
-  using Simplex::infinity ;
+  using Simplex::infinity;
 
   // Cycling pivot test
-  Simplex::integer   m    = 3 ;
-  Simplex::integer   n    = 3 ;
+  Simplex::integer   m    = 3;
+  Simplex::integer   n    = 3;
   Simplex::valueType A[]  = {  1,  2,  0,
                                1,  1, -1,
-                               1, -1,  1 } ;
-  Simplex::valueType c[]  = { -2, -3, -1 } ;
-  Simplex::valueType L[]  = { 0, 0, 0, -infinity, 10, 10 } ;
-  Simplex::valueType U[]  = { infinity, infinity, infinity, 40, infinity, infinity } ;
-  //Simplex::valueType x[]  = { 0, 0, 0, 0, 0, 1 } ;
-  //Simplex::integer   IB[] = { 0, 1, 2 } ;
-  
-  Simplex::Problem        simplex_problem ;
-  Simplex::AuxProblem     simplex_problem_aux ;
-  Simplex::StandardSolver simplex("simplex") ;
-  
+                               1, -1,  1 };
+  Simplex::valueType c[]  = { -2, -3, -1 };
+  Simplex::valueType L[]  = { 0, 0, 0, -infinity, 10, 10 };
+  Simplex::valueType U[]  = { infinity, infinity, infinity, 40, infinity, infinity };
+  //Simplex::valueType x[]  = { 0, 0, 0, 0, 0, 1 };
+  //Simplex::integer   IB[] = { 0, 1, 2 };
+
+  Simplex::Problem        simplex_problem;
+  Simplex::AuxProblem     simplex_problem_aux;
+  Simplex::StandardSolver simplex("simplex");
+
   try {
-    //simplex.solve( &simplex_problem, x, IB ) ;
-    Simplex::valueType xd[100], xdd[100] ;
-    Simplex::integer   IBd[100] ;
-    
-    simplex_problem.setup( m, n, A, m, c, L, U ) ;
+    //simplex.solve( &simplex_problem, x, IB );
+    Simplex::valueType xd[100], xdd[100];
+    Simplex::integer   IBd[100];
 
-    Simplex::StandardProblemAdaptor simplex_problem_adaptor(simplex_problem) ;
+    simplex_problem.setup( m, n, A, m, c, L, U );
 
-    cout << "simplex_problem\n" ;
-    simplex_problem.info(cout) ;
-    cout << "\n\nsimplex_problem_adaptor\n" ;
-    simplex_problem_adaptor.info(cout) ;
-    
-    simplex_problem_aux.setup( &simplex_problem_adaptor ) ;
+    Simplex::StandardProblemAdaptor simplex_problem_adaptor(simplex_problem);
 
-    simplex_problem_aux.feasible_point( xd, IBd ) ;
-    simplex.solve( &simplex_problem_aux, xd, IBd ) ;
+    cout << "simplex_problem\n";
+    simplex_problem.info(cout);
+    cout << "\n\nsimplex_problem_adaptor\n";
+    simplex_problem_adaptor.info(cout);
 
-    std::cout << "\n\n\n\n\n\n\n\n\n\n" ;
+    simplex_problem_aux.setup( &simplex_problem_adaptor );
 
-    simplex_problem_aux.to_primal( xd, xdd, IBd ) ;
-    simplex.solve( &simplex_problem_adaptor, xdd, IBd ) ;
+    simplex_problem_aux.feasible_point( xd, IBd );
+    simplex.solve( &simplex_problem_aux, xd, IBd );
+
+    std::cout << "\n\n\n\n\n\n\n\n\n\n";
+
+    simplex_problem_aux.to_primal( xd, xdd, IBd );
+    simplex.solve( &simplex_problem_adaptor, xdd, IBd );
   }
   catch (  exception const & err ) {
-    cerr << "Error: " << err.what() << "\n" ;
+    cerr << "Error: " << err.what() << "\n";
   }
   catch (...) {
-    cerr << "Unknwn error\n" ;
+    cerr << "Unknwn error\n";
   }
 
-  cout << "\nAll Done Folks!\n" ;
-  return 0 ;
+  cout << "\nAll Done Folks!\n";
+  return 0;
 }

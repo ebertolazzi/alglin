@@ -95,39 +95,35 @@ namespace alglin {
     integer nnz = nblock*(n_x_nx+2*n_x_n+Tsize+n) +
                   (nblock+1)*nr_x_n +
                   nr*qx +
-                  Nr*Nc + N + (n+qr)*Nc +
+                  Nr*Nc + (n+qr)*Nc +
                   Lwork + (LworkT+LworkQR+nr_x_nx+nr)*usedThread;
-    integer innz = 2*N + nblock*n + (3+n)*usedThread;
+    integer innz = nblock*n + (3+n)*usedThread;
 
     baseValue.allocate(size_t(nnz));
     baseInteger.allocate(size_t(innz));
 
-    Bmat  = baseValue(size_t(nblock*n_x_nx));
-    Cmat  = baseValue(size_t((nblock+1)*nr_x_n));
-    Cqmat = baseValue(size_t(nr*qx));
-    Dmat  = baseValue(size_t(nblock*n_x_n));
-    Emat  = baseValue(size_t(nblock*n_x_n));
-    Fmat  = baseValue(size_t(nr_x_nx*usedThread));
+    Bmat  = baseValue( size_t(nblock*n_x_nx) );
+    Cmat  = baseValue( size_t((nblock+1)*nr_x_n) );
+    Cqmat = baseValue( size_t(nr*qx) );
+    Dmat  = baseValue( size_t(nblock*n_x_n) );
+    Emat  = baseValue( size_t(nblock*n_x_n) );
+    Fmat  = baseValue( size_t(nr_x_nx*usedThread) );
 
-    Tmat  = baseValue(size_t(nblock*Tsize));
-    Ttau  = baseValue(size_t(nblock*n));
-    Hmat  = baseValue(size_t(Nr*Nc));
-    Htau  = baseValue(size_t(N));
-    H0Nqp = baseValue(size_t((n+qr)*Nc));
+    Tmat  = baseValue( size_t(nblock*Tsize) );
+    Ttau  = baseValue( size_t(nblock*n) );
+    Hmat  = baseValue( size_t(Nr*Nc) );
+    H0Nqp = baseValue( size_t((n+qr)*Nc) );
 
-    Work   = baseValue(size_t(Lwork));
-    WorkT  = baseValue(size_t(LworkT*usedThread));
-    WorkQR = baseValue(size_t(LworkQR*usedThread));
+    Work   = baseValue( size_t(Lwork) );
+    WorkT  = baseValue( size_t(LworkT*usedThread) );
+    WorkQR = baseValue( size_t(LworkQR*usedThread) );
 
-    xb_thread = baseValue(size_t(nr*usedThread));
+    xb_thread = baseValue( size_t(nr*usedThread) );
 
-    Hperm  = baseInteger(size_t(N));
-    Hswaps = baseInteger(size_t(N));
-    Perm   = baseInteger(size_t(nblock*n));
-
-    perm_thread = baseInteger(size_t(n*usedThread));
-    iBlock      = baseInteger(size_t(2*usedThread));
-    kBlock      = baseInteger(size_t(usedThread));
+    Perm        = baseInteger( size_t(nblock*n) );
+    perm_thread = baseInteger( size_t(n*usedThread) );
+    iBlock      = baseInteger( size_t(2*usedThread) );
+    kBlock      = baseInteger( size_t(usedThread) );
 
     // precompute partition for parallel computation
     if ( usedThread > 1 ) {
@@ -781,8 +777,8 @@ namespace alglin {
     case BORDERED_LAST_LU:
       last_lu.factorize( Nr, Nc, Hmat, Nr );
       break;
-    case BORDERED_LAST_LUP:
-      info = getc2( Nr, Hmat, Nr, Hperm, Hswaps );
+    case BORDERED_LAST_LUPQ:
+      last_lupq.factorize( Nr, Nc, Hmat, Nr );
       break;
     case BORDERED_LAST_QR:
       last_qr.factorize( Nr, Nc, Hmat, Nr );
@@ -821,12 +817,8 @@ namespace alglin {
     case BORDERED_LAST_LU:
       last_lu.solve( X );
       break;
-    case BORDERED_LAST_LUP:
-      {
-        valueType scale = gesc2( Nr, Hmat, Nr, X, Hperm, Hswaps );
-        ALGLIN_ASSERT( isZero(scale-1),
-                       "BorderedCR::solve_last scale = " << scale );
-      }
+    case BORDERED_LAST_LUPQ:
+      last_lupq.solve( X );
       break;
     case BORDERED_LAST_QR:
       last_qr.solve( X );
@@ -859,12 +851,8 @@ namespace alglin {
     case BORDERED_LAST_LU:
       last_lu.solve( nrhs, X, ldX );
       break;
-    case BORDERED_LAST_LUP:
-      for ( integer i = 0; i < nrhs && info == 0; ++i ) {
-        valueType scale = gesc2( Nr, Hmat, Nr, X+i*ldX, Hperm, Hswaps );
-        ALGLIN_ASSERT( isZero(scale-1),
-                       "BorderedCR::solve_last scale = " << scale );
-      }
+    case BORDERED_LAST_LUPQ:
+      last_lupq.solve( nrhs, X, ldX );
       break;
     case BORDERED_LAST_QR:
       last_qr.solve( nrhs, X, ldX );

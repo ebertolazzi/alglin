@@ -16,7 +16,7 @@ else
   rm -rf OpenBlas
   tar -zxvf $FILE
   mv $DIR OpenBlas
-  cd OpenBlas ; make ; make install PREFIX=../libs ; cd ..
+  cd OpenBlas; make; make install PREFIX=../libs; cd ..
 fi
 
 if [ -e libs/lib/libopenblas.dylib ]; then
@@ -26,11 +26,11 @@ elif [ -e libs/lib/libopenblas.so ]; then
 fi
 
 if [ -x "$(command -v install_name_tool)" ]; then
-  cd libs/lib ; install_name_tool -id @rpath/$LIB $LIB ; cd ../..
+  cd libs/lib; install_name_tool -id @rpath/$LIB $LIB; cd ../..
 elif [ -x "$(command -v patchelf)" ]; then
-  cd libs/lib ; patchelf --set-rpath @rpath/$LIB $LIB ; cd ../..
+  cd libs/lib; patchelf --set-rpath @rpath/$LIB $LIB; cd ../..
 elif [ -x "$(command -v chrpath)" ]; then
-  cd libs/lib ; chrpath --replace @rpath/$LIB $LIB ; cd ../..
+  cd libs/lib; chrpath --replace @rpath/$LIB $LIB; cd ../..
 fi
 
 PREFIX="../../lib3rd"

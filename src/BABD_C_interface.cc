@@ -180,10 +180,12 @@ namespace alglin {
         case 2: lu.select_QRP(); break;
       }
       switch ( last_block_fact ) {
-        case 0: lu.select_last_LU();  break;
-        case 1: lu.select_last_LUP(); break;
-        case 2: lu.select_last_QR();  break;
-        case 3: lu.select_last_QRP(); break;
+        case 0: lu.select_last_LU();   break;
+        case 1: lu.select_last_LUPQ(); break;
+        case 2: lu.select_last_QR();   break;
+        case 3: lu.select_last_QRP();  break;
+        case 4: lu.select_last_LSS();  break;
+        case 5: lu.select_last_LSY();  break;
       }
       lu.loadBottom( H0, ldH0, HN, ldHN, Hq, ldHq, nullptr, 0 );
       for ( BABD_intType nbl = 0; nbl < nblock; ++nbl )
@@ -230,10 +232,12 @@ namespace alglin {
         case 2: lu.select_QRP(); break;
       }
       switch ( last_block_fact ) {
-        case 0: lu.select_last_LU();  break;
-        case 1: lu.select_last_LUP(); break;
-        case 2: lu.select_last_QR();  break;
-        case 3: lu.select_last_QRP(); break;
+        case 0: lu.select_last_LU();   break;
+        case 1: lu.select_last_LUPQ(); break;
+        case 2: lu.select_last_QR();   break;
+        case 3: lu.select_last_QRP();  break;
+        case 4: lu.select_last_LSS();  break;
+        case 5: lu.select_last_LSY();  break;
       }
       for ( BABD_intType nbl = 0; nbl < nblock; ++nbl ) {
         lu.loadB( nbl, B + nbl*n, ldB );

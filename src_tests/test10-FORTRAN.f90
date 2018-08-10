@@ -18,7 +18,7 @@ program main
   DIMENSION TOP(2,4), AR(4,8,2), BOT(2,4), B(12), X(12)
   DATA TOP(1,1), TOP(1,2), TOP(1,3), TOP(1,4), TOP(2,1), TOP(2,2), TOP(2,3), TOP(2,4) &
        /0.0D0,-0.98D0,-0.79D0,-0.15D0,-1.00D0,0.25D0,-0.87D0,0.35D0/
-  DATA AR(1,1,1), AR(1,2,1), AR(1,3,1), AR(1,4,1), AR(1,5,1), AR(1,6,1), AR(1,7,1), AR(1,8,1) & 
+  DATA AR(1,1,1), AR(1,2,1), AR(1,3,1), AR(1,4,1), AR(1,5,1), AR(1,6,1), AR(1,7,1), AR(1,8,1) &
        /0.78D0,0.31D0,-0.85D0,0.89D0,-0.69D0,-0.98D0,-0.76D0,-0.82D0/
   DATA AR(2,1,1), AR(2,2,1), AR(2,3,1), AR(2,4,1), AR(2,5,1), AR(2,6,1), AR(2,7,1), AR(2,8,1) &
        /0.12D0,-0.01D0,0.75D0,0.32D0,-1.00D0,-0.53D0,-0.83D0,-0.98D0/
@@ -26,7 +26,7 @@ program main
        /-0.58D0,0.04D0,0.87D0,0.38D0,-1.00D0,-0.21D0,-0.93D0,-0.84D0/
   DATA AR(4,1,1), AR(4,2,1), AR(4,3,1), AR(4,4,1), AR(4,5,1), AR(4,6,1), AR(4,7,1), AR(4,8,1) &
        /-0.21D0,-0.91D0,-0.09D0,-0.62D0,-1.99D0,-1.12D0,-1.21D0,0.07D0/
-  DATA AR(1,1,2), AR(1,2,2), AR(1,3,2), AR(1,4,2), AR(1,5,2), AR(1,6,2), AR(1,7,2), AR(1,8,2) & 
+  DATA AR(1,1,2), AR(1,2,2), AR(1,3,2), AR(1,4,2), AR(1,5,2), AR(1,6,2), AR(1,7,2), AR(1,8,2) &
        /0.78D0,-0.93D0,-0.76D0,0.48D0,-0.87D0,-0.14D0,-1.00D0,-0.59D0/
   DATA AR(2,1,2), AR(2,2,2), AR(2,3,2), AR(2,4,2), AR(2,5,2), AR(2,6,2), AR(2,7,2), AR(2,8,2) &
        /-0.99D0,0.21D0,-0.73D0,-0.48D0,-0.93D0,-0.91D0,0.10D0,-0.89D0/
@@ -39,10 +39,10 @@ program main
   DATA B(1), B(2), B(3), B(4), B(5), B(6), B(7), B(8), B(9), B(10), B(11), B(12) &
        /-1.92D0,-1.27D0,-2.12D0,-2.16D0,-2.27D0,-6.08D0, -3.03D0,-4.62D0,-1.02D0,-3.52D0,.55D0,165.08D0/
   DATA X /1,1,1,1,1,1,1,1,1,1,1,1/
-  
+
   integer :: row0, col0, ldTOP, nblock, n, ldDE, rowN, colN, ldBOTTOM, ok
   character(LEN=1000) :: err_message
-  
+
   !
   !***********************************************************************
   !
@@ -81,11 +81,11 @@ program main
   rowN     = 2
   colN     = 4
   ldBOTTOM = 2
-  
-  ok = ABD_factorize( 1, row0, col0, TOP, ldTOP, nblock, n, AR, ldDE, rowN, colN, BOT, ldBOTTOM ) ;
+
+  ok = ABD_factorize( 1, row0, col0, TOP, ldTOP, nblock, n, AR, ldDE, rowN, colN, BOT, ldBOTTOM );
   print *, 'ok = ', ok
-  !ok = ABD_solve( 1, B ) ;
-  ok = ABD_solve_nrhs( 1, 1, B, 12 ) ;
+  !ok = ABD_solve( 1, B );
+  ok = ABD_solve_nrhs( 1, 1, B, 12 );
   print *, 'ok = ', ok
   print *, 'B = ', B
   print *, 'X = ', X
