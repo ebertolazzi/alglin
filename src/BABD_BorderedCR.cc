@@ -786,6 +786,9 @@ namespace alglin {
     case BORDERED_LAST_QRP:
       last_qrp.factorize( Nr, Nc, Hmat, Nr );
       break;
+    case BORDERED_LAST_SVD:
+      last_svd.factorize( Nr, Nc, Hmat, Nr );
+      break;
     case BORDERED_LAST_LSS:
       last_lss.factorize( Nr, Nc, Hmat, Nr );
       break;
@@ -826,6 +829,9 @@ namespace alglin {
     case BORDERED_LAST_QRP:
       last_qrp.solve( X );
       break;
+    case BORDERED_LAST_SVD:
+      last_svd.solve( X );
+      break;
     case BORDERED_LAST_LSS:
       last_lss.solve( X );
       break;
@@ -859,6 +865,9 @@ namespace alglin {
       break;
     case BORDERED_LAST_QRP:
       last_qrp.solve( nrhs, X, ldX );
+      break;
+    case BORDERED_LAST_SVD:
+      last_svd.solve( nrhs, X, ldX );
       break;
     case BORDERED_LAST_LSS:
       last_lss.solve( nrhs, X, ldX );

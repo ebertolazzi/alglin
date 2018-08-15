@@ -57,8 +57,9 @@ namespace alglin {
     BORDERED_LAST_LUPQ = 1,
     BORDERED_LAST_QR   = 2,
     BORDERED_LAST_QRP  = 3,
-    BORDERED_LAST_LSS  = 4,
-    BORDERED_LAST_LSY  = 5
+    BORDERED_LAST_SVD  = 4,
+    BORDERED_LAST_LSS  = 5,
+    BORDERED_LAST_LSY  = 6
   } BORDERED_LAST_Choice;
 
   /*\
@@ -281,6 +282,7 @@ namespace alglin {
     LUPQ<valueType> last_lupq;
     QR<valueType>   last_qr;
     QRP<valueType>  last_qrp;
+    SVD<valueType>  last_svd;
     LSS<valueType>  last_lss;
     LSY<valueType>  last_lsy;
 
@@ -375,6 +377,7 @@ namespace alglin {
     void select_last_LUPQ() { last_selected = BORDERED_LAST_LUPQ; }
     void select_last_QR()   { last_selected = BORDERED_LAST_QR;  }
     void select_last_QRP()  { last_selected = BORDERED_LAST_QRP; }
+    void select_last_SVD()  { last_selected = BORDERED_LAST_SVD; }
     void select_last_LSS()  { last_selected = BORDERED_LAST_LSS; }
     void select_last_LSY()  { last_selected = BORDERED_LAST_LSY; }
 
@@ -399,6 +402,7 @@ namespace alglin {
       case BORDERED_LAST_LUPQ: res = "LastBlock LUPQ"; break;
       case BORDERED_LAST_QR:   res = "LastBlock QR";   break;
       case BORDERED_LAST_QRP:  res = "LastBlock QRP";  break;
+      case BORDERED_LAST_SVD:  res = "LastBlock SVD";  break;
       case BORDERED_LAST_LSS : res = "LastBlock LSS";  break;
       case BORDERED_LAST_LSY : res = "LastBlock LSY";  break;
       }

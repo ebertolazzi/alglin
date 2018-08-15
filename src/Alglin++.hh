@@ -1100,6 +1100,8 @@ namespace alglin {
     valueType * Svec;
     integer   * IWork;
 
+    valueType   rcond;
+
     integer     minRC, Lwork;
 
     typedef enum { USE_GESVD = 0, USE_GESDD = 1 } SVD_USED;
@@ -1121,6 +1123,7 @@ namespace alglin {
     : Factorization<T>()
     , allocReals("SVD-allocReals")
     , allocIntegers("SVD-allocIntegers")
+    , rcond(machineEps<valueType>())
     , Lwork(0)
     , svd_used(_svd_used)
     {}
@@ -1128,6 +1131,10 @@ namespace alglin {
     virtual
     ~SVD() ALGLIN_OVERRIDE
     { allocReals.free(); allocIntegers.free(); }
+
+    void
+    setRcond( valueType r )
+    { rcond = r; }
 
     valueType U( integer i, integer j ) const { return Umat[i+j*this->nRow]; }
     valueType V( integer i, integer j ) const { return VTmat[j+i*this->nCol]; }

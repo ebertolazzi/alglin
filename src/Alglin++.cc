@@ -912,8 +912,9 @@ namespace alglin {
     // U*S*VT*x=b --> VT^T S^+ U^T b
     // U  nRow x minRC
     // VT minRC x nCol
+    valueType smin = rcond*Svec[0];
     Ut_mul( 1.0, xb, 1, 0.0, Work, 1 );
-    for ( integer i = 0; i < minRC; ++i ) Work[i] /= Svec[i];
+    for ( integer i = 0; i < minRC; ++i ) Work[i] /= std::max(Svec[i],smin);
     V_mul( 1.0, Work, 1, 0.0, xb, 1 );
   }
 
@@ -924,8 +925,9 @@ namespace alglin {
     // U*S*VT*x=b --> VT^T S^+ U^T b
     // U  nRow x minRC
     // VT minRC x nCol
+    valueType smin = rcond*Svec[0];
     Vt_mul( 1.0, xb, 1, 0.0, Work, 1 );
-    for ( integer i = 0; i < minRC; ++i ) Work[i] /= Svec[i];
+    for ( integer i = 0; i < minRC; ++i ) Work[i] /= std::max(Svec[i],smin);
     U_mul( 1.0, Work, 1, 0.0, xb, 1 );
   }
 
