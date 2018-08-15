@@ -91,7 +91,8 @@ main() {
   //BCR.select_QRP();
 
   //BCR.select_last_LU();
-  BCR.select_last_LUPQ();
+  //BCR.select_last_LUPQ();
+  BCR.select_last_SVD();
   //BCR.select_last_QR();
   //BCR.select_last_QRP();
   //BCR.select_last_LSS();
