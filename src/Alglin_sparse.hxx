@@ -286,6 +286,49 @@ namespace alglin {
                   C.data, C.ldData );
   }
 
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  // c = beta*c + alpha*A*v
+  template <typename T>
+  inline
+  void
+  gemv( T                        alpha,
+        MatrixWrapper<T> const & A,
+        T const                  v[],
+        integer                  incv,
+        T                        beta,
+        T                        c[],
+        integer                  incc ) {
+    alglin::gemv( NO_TRANSPOSE,
+                  A.numRows, A.numCols,
+                  alpha,
+                  A.data, A.ldData,
+                  v, incv,
+                  beta,
+                  c, incc );
+  }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  // c = beta*c + alpha*A*v
+  template <typename T>
+  inline
+  void
+  gemv( T                        alpha,
+        Transposition    const & TRANSA,
+        MatrixWrapper<T> const & A,
+        T const                  v,
+        integer                  incv,
+        T                        beta,
+        T                        c,
+        integer                  incc ) {
+    alglin::gemv( TRANSA,
+                  A.numRows, A.numCols,
+                  alpha,
+                  A.data, A.ldData,
+                  v, incv,
+                  beta,
+                  c, incc );
+  }
+
   // explicit instantiation declaration to suppress warnings
 
   #ifdef ALGLIN_USE_CXX11
