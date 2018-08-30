@@ -75,10 +75,20 @@ main() {
 #ifdef __GCC__
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 #pragma GCC diagnostic ignored "-Wc99-extensions"
+#pragma GCC diagnostic ignored "-Wzero-as-null-pointer-constant"
+#pragma GCC diagnostic ignored "-Wreserved-id-macro"
+#pragma GCC diagnostic ignored "-Wshadow"
+#pragma GCC diagnostic ignored "-Wunused-template"
+#pragma GCC diagnostic ignored "-Wcast-qual"
 #endif
 #ifdef __clang__
 #pragma clang diagnostic ignored "-Wsign-conversion"
 #pragma clang diagnostic ignored "-Wc99-extensions"
+#pragma clang diagnostic ignored "-Wzero-as-null-pointer-constant"
+#pragma clang diagnostic ignored "-Wreserved-id-macro"
+#pragma clang diagnostic ignored "-Wshadow"
+#pragma clang diagnostic ignored "-Wunused-template"
+#pragma clang diagnostic ignored "-Wcast-qual"
 #endif
 
 #ifdef ALGLIN_USE_SYSTEM_EIGEN

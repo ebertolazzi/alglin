@@ -49,6 +49,7 @@
 		D924A04A1E40A2C7007C4694 /* Simplex-Test4.cc in Sources */ = {isa = PBXBuildFile; fileRef = D924A03A1E40A2C7007C4694 /* Simplex-Test4.cc */; };
 		D92B0CBF1D047E2600222F63 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D937DF251CEA75A2006642C6 /* Accelerate.framework */; };
 		D93ACAE81CF64FE000622119 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D937DF251CEA75A2006642C6 /* Accelerate.framework */; };
+		D9400E7B21386A8900C5AF8A /* Alglin_wrapper.hxx in Headers */ = {isa = PBXBuildFile; fileRef = D9400E7A21386A8900C5AF8A /* Alglin_wrapper.hxx */; };
 		D942D1551F1F9BF70094F8F6 /* libBABD_Lib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D9BD01C11EE0012F00912006 /* libBABD_Lib.a */; };
 		D942D1561F1F9BF70094F8F6 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D937DF251CEA75A2006642C6 /* Accelerate.framework */; };
 		D942D15D1F1F9C390094F8F6 /* test8-Cinterface.c in Sources */ = {isa = PBXBuildFile; fileRef = D942D15C1F1F9C390094F8F6 /* test8-Cinterface.c */; };
@@ -392,6 +393,7 @@
 		D92B0CC41D047E2600222F63 /* Timing */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; name = Timing; path = "test3-Timing"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D937DF251CEA75A2006642C6 /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
 		D93ACAED1CF64FE000622119 /* Block_test */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; name = Block_test; path = "test6-Block"; sourceTree = BUILT_PRODUCTS_DIR; };
+		D9400E7A21386A8900C5AF8A /* Alglin_wrapper.hxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Alglin_wrapper.hxx; sourceTree = "<group>"; };
 		D942D15B1F1F9BF70094F8F6 /* test8-Cinterface */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "test8-Cinterface"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D942D15C1F1F9C390094F8F6 /* test8-Cinterface.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "test8-Cinterface.c"; sourceTree = "<group>"; };
 		D95EB3A91D6C5067005772D0 /* test6-ABD-Block.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "test6-ABD-Block.cc"; sourceTree = "<group>"; };
@@ -674,6 +676,7 @@
 				D9EF86382109FD6F00F1293E /* Alglin_tridiagonal.hxx */,
 				D9EF86442109FD6F00F1293E /* Alglin_general.hxx */,
 				D90F9F26211250CE009E9CA2 /* Alglin_sparse.hxx */,
+				D9400E7A21386A8900C5AF8A /* Alglin_wrapper.hxx */,
 				D9EF86452109FD6F00F1293E /* AlglinSuperLU.hh */,
 				D9EF86502109FD6F00F1293E /* Alglin++.cc */,
 				D9EF86392109FD6F00F1293E /* Alglin.cc */,
@@ -724,6 +727,7 @@
 				D9EF86622109FD6F00F1293E /* AlglinFD.hh in Headers */,
 				D9EF866B2109FD6F00F1293E /* Alglin_triangular.hxx in Headers */,
 				D9EF868F2109FD6F00F1293E /* KKT_like.hh in Headers */,
+				D9400E7B21386A8900C5AF8A /* Alglin_wrapper.hxx in Headers */,
 				D9EF86912109FD6F00F1293E /* BABD_SuperLU.hh in Headers */,
 				D9EF868B2109FD6F00F1293E /* Alglin_tmpl.hh in Headers */,
 				D9EF86922109FD6F00F1293E /* Alglin_aux.hh in Headers */,

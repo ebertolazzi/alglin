@@ -296,12 +296,14 @@
 #pragma GCC diagnostic ignored "-Wundefined-func-template"
 #pragma GCC diagnostic ignored "-Wpartial-availability"
 #pragma GCC diagnostic ignored "-Wc++98-compat"
+#pragma GCC diagnostic ignored "-Wc++98-compat-pedantic"
 #endif
 #ifdef __clang__
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundefined-func-template"
 #pragma clang diagnostic ignored "-Wpartial-availability"
 #pragma clang diagnostic ignored "-Wc++98-compat"
+#pragma clang diagnostic ignored "-Wc++98-compat-pedantic"
 #endif
 
 namespace alglin {
@@ -993,6 +995,7 @@ namespace alglin {
 #include "Alglin_tridiagonal.hxx"
 #include "Alglin_banded.hxx"
 #include "Alglin_sparse.hxx"
+#include "Alglin_wrapper.hxx"
 
 #ifdef __GCC__
 #pragma GCC diagnostic pop
