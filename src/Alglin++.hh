@@ -105,12 +105,13 @@ namespace alglin {
       }
       catch ( std::exception const & exc ) {
         std::cerr << "Memory allocation failed: " << exc.what()
-             << "\nTry to allocate " << n << " bytes for " << _name
-             << '\n';
+                  << "\nTry to allocate " << n << " bytes for " << _name
+                  << '\n';
         std::exit(0);
       }
       catch (...) {
-        std::cerr << "Malloc allocation failed for " << _name << ": memory exausted\n";
+        std::cerr << "Malloc allocation failed for " << _name
+                  << ": memory exausted\n";
         std::exit(0);
       }
       numTotValues = n;
@@ -148,12 +149,12 @@ namespace alglin {
 
   template <typename T>
   integer
-  rankEstimate( integer   M,
-                integer   N,
-                T         A[],
-                integer   LDA,
-                T         RCOND,
-                T         SVAL[3] );
+  rankEstimate( integer M,
+                integer N,
+                T       A[],
+                integer LDA,
+                T       RCOND,
+                T       SVAL[3] );
 
   //! base class for linear system solver
   template <typename T>
@@ -246,7 +247,8 @@ namespace alglin {
     valueType const * Apointer() const { return Amat; }
 
     /*!
-     |  Zeroes a rectangular block of the stored matrix staring at `(irow,icol)` position
+     |  Zeroes a rectangular block of the stored matrix
+     |  staring at `(irow,icol)` position
      |
      |  \param[in] nr    number of rows of the block to be zeroed
      |  \param[in] nc    number of columns of the block to be zeroed
@@ -258,12 +260,30 @@ namespace alglin {
                 integer nc,
                 integer irow,
                 integer icol ) {
-      valueType * Ablk = Amat + irow + icol * nRow;
-      gezero( nr, nc, Ablk, nRow );
+      gezero( nr, nc, Amat + irow + icol * nRow, nRow );
     }
 
     /*!
-     |  Copy a matrix to a rectangular block of the stored matrix staring at `(irow,icol)` position
+     |  Copy a matrix to a rectangular block of the stored matrix
+     |  staring at `(irow,icol)` position
+     |
+     |  \param[in] B     matrix wrapper of the input matrix `B`
+     |  \param[in] irow  starting row
+     |  \param[in] icol  stating column
+    \*/
+    void
+    load( MatrixWrapper<T> const & B ) {
+      allocate( B.numRows, B.numCols );
+      integer info = gecopy( B.numRows, B.numCols,
+                             B.data, B.ldData,
+                             Amat, nRow );
+      ALGLIN_ASSERT( info == 0,
+                     "block_load call alglin::gecopy return info = " << info );
+    }
+
+    /*!
+     |  Copy a matrix to a rectangular block of the stored matrix
+     |  staring at `(irow,icol)` position
      |
      |  \param[in] nr    number of rows of the block to be zeroed
      |  \param[in] nc    number of columns of the block to be zeroed
@@ -279,8 +299,9 @@ namespace alglin {
                 integer         ldB,
                 integer         irow = 0,
                 integer         icol = 0 ) {
-      valueType * Ablk = Amat + irow + icol * nRow;
-      integer info = gecopy( nr, nc, B, ldB, Ablk, nRow );
+      integer info = gecopy( nr, nc,
+                             B, ldB,
+                             Amat + irow + icol * nRow, nRow );
       ALGLIN_ASSERT( info == 0,
                      "block_load call alglin::gecopy return info = " << info );
     }
@@ -306,7 +327,8 @@ namespace alglin {
     }
 
     /*!
-     |  Copy vector element of a sparse vector to a column of the internal stored matrix
+     |  Copy vector element of a sparse vector to a column of
+     |  the internal stored matrix
      |  \param[in] nnz    number of nonzeros of the columns
      |  \param[in] values the values of the sparse vector
      |  \param[in] row    index position of the values of the sparse vector
@@ -325,7 +347,8 @@ namespace alglin {
     }
 
     /*!
-     |  Copy vector element of a sparse vector to a row of the internal stored matrix
+     |  Copy vector element of a sparse vector to a row of the
+     |  internal stored matrix
      |  \param[in] nnz    number of nonzeros of the columns
      |  \param[in] values the values of the sparse vector
      |  \param[in] col    index position of the values of the sparse vector
@@ -427,6 +450,11 @@ namespace alglin {
         Amat[ii + jj * nRow] = values[i];
         if ( ii != jj ) Amat[ jj + ii * nRow] = values[i];
       }
+    }
+
+    void
+    add_to_diag( valueType mu ) {
+      alglin::axpy( std::min(nRow,nCol), 1.0, &mu, 0, Amat, nRow+1 );
     }
 
     /*\
@@ -704,12 +732,12 @@ namespace alglin {
     //! x <- Q*x
     void
     Q_mul( valueType x[] ) const
-    { applyQ( LEFT, NO_TRANSPOSE, nReflector, this->nRow, 1, x, this->nRow ); }
+    { applyQ( LEFT, NO_TRANSPOSE, nReflector, nRow, 1, x, nRow ); }
 
     //! x <- Q'*x
     void
     Qt_mul( valueType x[] ) const
-    { applyQ( LEFT, TRANSPOSE, nReflector, this->nRow, 1, x, this->nRow ); }
+    { applyQ( LEFT, TRANSPOSE, nReflector, nRow, 1, x, nRow ); }
 
     //! C <- Q*C
     void
@@ -738,7 +766,7 @@ namespace alglin {
             integer       rk,
             valueType     x[],
             integer       incx ) const {
-      trsv( UPPER, TRANS, NON_UNIT, rk, this->Amat, this->nRow, x, incx );
+      trsv( UPPER, TRANS, NON_UNIT, rk, Amat, nRow, x, incx );
     }
 
     void
@@ -750,20 +778,20 @@ namespace alglin {
             valueType     Bmat[],
             integer       ldB ) const {
       trsm( SIDE, UPPER, TRANS, NON_UNIT,
-            nr, nc, alpha, this->Amat, this->nRow, Bmat, ldB );
+            nr, nc, alpha, Amat, nRow, Bmat, ldB );
     }
 
     //! x <- R^(-1) * x
     void
     invR_mul( valueType x[], integer incx = 1 ) const
     { trsv( UPPER, NO_TRANSPOSE, NON_UNIT,
-            nReflector, this->Amat, this->nRow, x, incx ); }
+            nReflector, Amat, nRow, x, incx ); }
 
     //! x <- R^(-T) * x
     void
     invRt_mul( valueType x[], integer incx = 1 ) const
     { trsv( UPPER, TRANSPOSE, NON_UNIT,
-            nReflector, this->Amat, this->nRow, x, incx ); }
+            nReflector, Amat, nRow, x, incx ); }
 
     //! C <- R^(-1) * C
     void
@@ -791,8 +819,8 @@ namespace alglin {
     // dummy routines
     void permute( valueType [] ) const {}
     void inv_permute( valueType [] ) const {}
-    void permute_rows( integer, integer, valueType [], integer ) const { }
-    void inv_permute_rows( integer, integer, valueType [], integer ) const { }
+    void permute_rows( integer, integer, valueType [], integer ) const {}
+    void inv_permute_rows( integer, integer, valueType [], integer ) const {}
 
     /*!
       Do QR factorization of the transpose of a rectangular matrix
@@ -808,7 +836,7 @@ namespace alglin {
                  integer         LDA ) {
       allocate( NC, NR );
       for ( integer i = 0; i < NR; ++i )
-        copy( NC, A+i, LDA, this->Amat + i*this->nRow, 1 );
+        copy( NC, A+i, LDA, Amat + i*nRow, 1 );
       factorize();
     }
 
@@ -827,13 +855,11 @@ namespace alglin {
     virtual
     void
     factorize() ALGLIN_OVERRIDE {
-      integer info = geqrf( this->nRow,
-                            this->nCol,
-                            this->Amat,
-                            this->nRow,
+      integer info = geqrf( nRow, nCol,
+                            Amat, nRow,
                             Tau, Work, Lwork );
       ALGLIN_ASSERT( info == 0,
-                      "QR::factorize call alglin::geqrf return info = " << info );
+                     "QR::factorize call alglin::geqrf return info = " << info );
     }
 
     /*!
@@ -850,7 +876,7 @@ namespace alglin {
                valueType const A[],
                integer         LDA ) ALGLIN_OVERRIDE {
       allocate( NR, NC );
-      integer info = gecopy( NR, NC, A, LDA, this->Amat, this->nRow );
+      integer info = gecopy( NR, NC, A, LDA, Amat, nRow );
       ALGLIN_ASSERT( info == 0,
                      "QR::factorize call alglin::gecopy return info = " << info );
       factorize();
@@ -918,6 +944,8 @@ namespace alglin {
     using Factorization<T>::Amat;
 
     using QR<T>::Work;
+    using QR<T>::Lwork;
+    using QR<T>::Tau;
     using QR<T>::Q_mul;
     using QR<T>::Qt_mul;
     using QR<T>::invR_mul;
@@ -944,26 +972,32 @@ namespace alglin {
     inv_permute( valueType x[] ) const;
 
     void
-    permute_rows( integer nr, integer nc, valueType C[], integer ldC ) const {
-      ALGLIN_ASSERT( nr == this->nRow,
+    permute_rows( integer   nr,
+                  integer   nc,
+                  valueType C[],
+                  integer   ldC ) const {
+      ALGLIN_ASSERT( nr == nRow,
                      "QRP::permute_rows, bad number of row, expected " <<
-                     this->nRow << " find " << nr );
+                     nRow << " find " << nr );
       for ( integer j = 0; j < nc; ++j ) permute( C + ldC*j );
     }
 
     void
-    inv_permute_rows( integer nr, integer nc, valueType C[], integer ldC ) const {
-      ALGLIN_ASSERT( nr == this->nRow,
+    inv_permute_rows( integer   nr,
+                      integer   nc,
+                      valueType C[],
+                      integer   ldC ) const {
+      ALGLIN_ASSERT( nr == nRow,
                      "QRP::permute_rows, bad number of row, expected " <<
-                     this->nRow << " find " << nr );
+                     nRow << " find " << nr );
       for ( integer j = 0; j < nc; ++j ) inv_permute( C + ldC*j );
     }
 
     integer
     rankEstimate( valueType rcond ) const {
       valueType SVAL[3];
-      return alglin::rankEstimate( this->nRow, this->nCol,
-                                   this->Amat, this->nRow,
+      return alglin::rankEstimate( nRow, nCol,
+                                   Amat, nRow,
                                    rcond, SVAL );
     }
 
@@ -982,7 +1016,7 @@ namespace alglin {
       // calcolo fattorizzazione QR della matrice A
       allocate( NC, NR );
       for ( integer i = 0; i < NR; ++i )
-        copy( NC, A+i, LDA, this->Amat + i*this->nRow, 1 );
+        copy( NC, A+i, LDA, Amat + i*nRow, 1 );
       factorize();
     }
 
@@ -997,7 +1031,7 @@ namespace alglin {
     virtual
     void
     allocate( integer NR, integer NC ) ALGLIN_OVERRIDE {
-      if ( this->nRow != NR || this->nCol != NC ) {
+      if ( nRow != NR || nCol != NC ) {
         valueType tmp; // get optimal allocation
         integer info = geqp3( NR, NC, nullptr, NR, nullptr, nullptr, &tmp, -1 );
         ALGLIN_ASSERT( info == 0,
@@ -1014,12 +1048,12 @@ namespace alglin {
     virtual
     void
     factorize() ALGLIN_OVERRIDE {
-      std::fill( JPVT, JPVT + this->nCol, 0 );
-      integer info = geqp3( this->nRow, this->nCol,
-                            this->Amat, this->nRow,
+      std::fill( JPVT, JPVT + nCol, 0 );
+      integer info = geqp3( nRow, nCol,
+                            Amat, nRow,
                             JPVT,
-                            this->Tau,
-                            this->Work, this->Lwork );
+                            Tau,
+                            Work, Lwork );
       ALGLIN_ASSERT( info == 0,
                      "QRP::factorize call alglin::geqrf return info = " << info );
     }
@@ -1039,7 +1073,7 @@ namespace alglin {
                integer         LDA ) ALGLIN_OVERRIDE {
       // calcolo fattorizzazione QR della matrice A
       allocate( NC, NR );
-      integer info = gecopy( NR, NC, A, LDA, this->Amat, this->nRow );
+      integer info = gecopy( NR, NC, A, LDA, Amat, nRow );
       ALGLIN_ASSERT( info == 0,
                      "QR::factorize call alglin::gecopy return info = " << info );
       factorize();
@@ -1136,8 +1170,8 @@ namespace alglin {
     setRcond( valueType r )
     { rcond = r; }
 
-    valueType U( integer i, integer j ) const { return Umat[i+j*this->nRow]; }
-    valueType V( integer i, integer j ) const { return VTmat[j+i*this->nCol]; }
+    valueType U( integer i, integer j ) const { return Umat[i+j*nRow]; }
+    valueType V( integer i, integer j ) const { return VTmat[j+i*nCol]; }
     valueType sigma( integer i ) const { return Svec[i]; }
 
     //! y <- alpha * U * x + beta * y
@@ -1145,8 +1179,8 @@ namespace alglin {
     U_mul( valueType alpha, valueType const x[], integer incx,
            valueType beta,  valueType       y[], integer incy ) const {
       gemv( NO_TRANSPOSE,
-            this->nRow, minRC,
-            alpha, Umat, this->nRow,
+            nRow, minRC,
+            alpha, Umat, nRow,
             x, incx,
             beta, y, incy );
     }
@@ -1156,8 +1190,8 @@ namespace alglin {
     Ut_mul( valueType alpha, valueType const x[], integer incx,
             valueType beta,  valueType       y[], integer incy ) const {
       gemv( TRANSPOSE,
-            this->nRow, minRC,
-            alpha, Umat, this->nRow,
+            nRow, minRC,
+            alpha, Umat, nRow,
             x, incx,
             beta, y, incy );
     }
@@ -1167,8 +1201,8 @@ namespace alglin {
     V_mul( valueType alpha, valueType const x[], integer incx,
            valueType beta,  valueType       y[], integer incy ) const {
       gemv( TRANSPOSE,
-            minRC, this->nCol,
-            alpha, VTmat, this->nRow,
+            minRC, nCol,
+            alpha, VTmat, nRow,
             x, incx,
             beta, y, incy );
     }
@@ -1178,8 +1212,8 @@ namespace alglin {
     Vt_mul( valueType alpha, valueType const x[], integer incx,
             valueType beta,  valueType       y[], integer incy ) const {
       gemv( NO_TRANSPOSE,
-            minRC, this->nCol,
-            alpha, VTmat, this->nRow,
+            minRC, nCol,
+            alpha, VTmat, nRow,
             x, incx,
             beta, y, incy );
     }
@@ -1214,8 +1248,8 @@ namespace alglin {
                valueType const A[],
                integer         LDA ) ALGLIN_OVERRIDE {
       allocate( NR, NC );
-      integer info = gecopy( this->nRow, this->nCol,
-                             A, LDA, this->Amat, this->nRow );
+      integer info = gecopy( nRow, nCol,
+                             A, LDA, Amat, nRow );
       ALGLIN_ASSERT( info == 0,
                      "SVD::factorize call alglin::gecopy return info = " << info );
       factorize();
@@ -1329,8 +1363,7 @@ namespace alglin {
                valueType const A[],
                integer         LDA ) ALGLIN_OVERRIDE {
       allocate( NR, NC );
-      integer info = gecopy( this->nRow, this->nCol,
-                             A, LDA, this->Amat, this->nRow );
+      integer info = gecopy( nRow, nCol, A, LDA, Amat, nRow );
       ALGLIN_ASSERT( info == 0,
                      "LSS::factorize call alglin::gecopy return info = " << info );
       factorize();
@@ -1449,8 +1482,7 @@ namespace alglin {
                valueType const A[],
                integer         LDA ) ALGLIN_OVERRIDE {
       allocate( NR, NC );
-      integer info = gecopy( this->nRow, this->nCol,
-                             A, LDA, this->Amat, this->nRow );
+      integer info = gecopy( nRow, nCol, A, LDA, Amat, nRow );
       ALGLIN_ASSERT( info == 0,
                      "LSY::factorize call alglin::gecopy return info = " << info );
       factorize();

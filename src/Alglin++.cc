@@ -445,10 +445,10 @@ namespace alglin {
       nCol = NC;
       allocReals.allocate( size_t(nRow*nCol+2*(nRow+nCol)) );
       allocIntegers.allocate( size_t(2*nRow) );
-      this -> Amat    = allocReals( size_t(nRow*nCol) );
-      this -> Work    = allocReals( size_t(2*(nRow+nCol)) );
-      this -> i_pivot = allocIntegers( size_t(nRow) );
-      this -> Iwork   = allocIntegers( size_t(nRow) );
+      Amat    = allocReals( size_t(nRow*nCol) );
+      Work    = allocReals( size_t(2*(nRow+nCol)) );
+      i_pivot = allocIntegers( size_t(nRow) );
+      Iwork   = allocIntegers( size_t(nRow) );
     }
   }
 
@@ -1178,8 +1178,8 @@ namespace alglin {
   TridiagonalSPD<T>::factorize( integer         N,
                                valueType const _L[],
                                valueType const _D[] ) {
-    if ( this -> nRC != N ) {
-      this -> nRC = N;
+    if ( nRC != N ) {
+      nRC = N;
       allocReals.allocate(3*N);
       L    = allocReals(N);
       D    = allocReals(N);
@@ -1260,8 +1260,8 @@ namespace alglin {
                                valueType const _L[],
                                valueType const _D[],
                                valueType const _U[] ) {
-    if ( this -> nRC != N ) {
-      this -> nRC = N;
+    if ( nRC != N ) {
+      nRC = N;
       allocReals.allocate(6*N);
       allocIntegers.allocate(2*N);
       L     = allocReals(N);
@@ -1362,12 +1362,12 @@ namespace alglin {
                                valueType const D[],
                                valueType const U[] ) {
     allocReals.allocate(size_t(5*(N-1)));
-    this -> nRC = N;
-    this -> C   = allocReals(size_t(N-1));
-    this -> S   = allocReals(size_t(N-1));
-    this -> BD  = allocReals(size_t(N));
-    this -> BU  = allocReals(size_t(N-1));
-    this -> BU2 = allocReals(size_t(N-2));
+    nRC = N;
+    C   = allocReals(size_t(N-1));
+    S   = allocReals(size_t(N-1));
+    BD  = allocReals(size_t(N));
+    BU  = allocReals(size_t(N-1));
+    BU2 = allocReals(size_t(N-2));
 
     /*\
       | d u       | d u @     | d u @     | d u @     | d u @     |
