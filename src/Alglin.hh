@@ -994,6 +994,7 @@ namespace alglin {
 #include "Alglin_triangular.hxx"
 #include "Alglin_tridiagonal.hxx"
 #include "Alglin_banded.hxx"
+#include "Alglin_symmetric.hxx"
 #include "Alglin_sparse.hxx"
 #include "Alglin_wrapper.hxx"
 
