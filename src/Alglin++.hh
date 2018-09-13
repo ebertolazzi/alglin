@@ -2141,6 +2141,7 @@ namespace alglin {
     using QN<T>::zero;
     using QN<T>::init;
     using QN<T>::mult;
+    using QN<T>::update;
 
     using QN<T>::n;
     using QN<T>::H;
@@ -2180,6 +2181,7 @@ namespace alglin {
     using QN<T>::zero;
     using QN<T>::init;
     using QN<T>::mult;
+    using QN<T>::update;
 
     using QN<T>::n;
     using QN<T>::H;
