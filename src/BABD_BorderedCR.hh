@@ -416,7 +416,7 @@ namespace alglin {
       return a+" and "+b;
     }
 
-    void info( std::ostream & stream ) const;
+    void info( ostream_type & stream ) const;
 
     /*!
      | @}

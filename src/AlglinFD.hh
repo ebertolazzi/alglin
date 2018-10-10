@@ -78,7 +78,7 @@ namespace alglin {
         ok = (*fun)( X, value1 ) && isRegular(value1);
         if ( ok ) grad[i] = (value1-value0)/h;
         break;
-    
+
       case -1:
         X[i] = temp-h; // modify the vector only at i position
         ok = (*fun)( X, value1 ) && isRegular(value1);
@@ -97,12 +97,12 @@ namespace alglin {
   template <typename FUNCTION, typename Number>
   inline
   void
-  finite_difference_check_gradient( Number const               x[],
-                                    integer                    dim_x,
-                                    FUNCTION                 * fun,
-                                    Number const               grad[],
-                                    Number                     epsi,
-                                    std::basic_ostream<char> & stream ) {
+  finite_difference_check_gradient( Number const   x[],
+                                    integer        dim_x,
+                                    FUNCTION     * fun,
+                                    Number const   grad[],
+                                    Number         epsi,
+                                    ostream_type & stream ) {
 
     Number const eps = cbrt(std::numeric_limits<Number>::epsilon());
     Number * X = const_cast<Number*>(x);
@@ -208,7 +208,7 @@ namespace alglin {
           for ( integer i = 0; i < dim_f; ++i )
             pjac[i] = (g1[i]-g0[i])/h;
         break;
-    
+
       case -1:
         X[j] = temp-h; // modify the vector only at i position
         ok = (*fun)( X, g1 ) && isRegular(g1,dim_f);
@@ -229,14 +229,14 @@ namespace alglin {
 
   template <typename FUNCTION, typename Number>
   void
-  finite_difference_check_jacobian( Number const               x[],
-                                    integer                    dim_x,
-                                    FUNCTION                 * fun,
-                                    integer                    dim_f,
-                                    Number const               Jac[],
-                                    integer                    ldJ,
-                                    Number                     epsi,
-                                    std::basic_ostream<char> & stream  ) {
+  finite_difference_check_jacobian( Number const   x[],
+                                    integer        dim_x,
+                                    FUNCTION    *  fun,
+                                    integer        dim_f,
+                                    Number const   Jac[],
+                                    integer        ldJ,
+                                    Number         epsi,
+                                    ostream_type & stream  ) {
 
     Number const eps = cbrt(std::numeric_limits<Number>::epsilon());
 
@@ -304,7 +304,7 @@ namespace alglin {
     for ( integer j = 0; j < dim_x && ok; ++j ) {
       Number tempj = x[j];
       Number hj    = std::max( eps*std::abs(tempj), eps );
-      
+
       Number fp, fm, fc;
       ok = (*fun)( X, fc ) && alglin::isRegular(fc);
       if ( !ok ) break;
@@ -339,17 +339,17 @@ namespace alglin {
     }
     return ok;
   }
-  
-  
+
+
   template <typename FUNCTION, typename Number>
   bool
-  finite_difference_check_hessian( Number const               x[],
-                                   integer                    dim_x,
-                                   FUNCTION                 * fun,
-                                   Number const               Hess[],
-                                   integer                    ldH,
-                                   Number                     epsi,
-                                   std::basic_ostream<char> & stream ) {
+  finite_difference_check_hessian( Number const   x[],
+                                   integer        dim_x,
+                                   FUNCTION     * fun,
+                                   Number const   Hess[],
+                                   integer        ldH,
+                                   Number         epsi,
+                                   ostream_type & stream ) {
 
     Number const eps = pow(std::numeric_limits<Number>::epsilon(),0.25);
     bool ok = true;
@@ -359,7 +359,7 @@ namespace alglin {
     for ( integer j = 0; j < dim_x && ok; ++j ) {
       Number tempj = x[j];
       Number hj    = std::max( eps*std::abs(tempj), eps );
-      
+
       Number fp, fm, fc;
       ok = (*fun)( X, fc ) && alglin::isRegular(fc);
       if ( !ok ) break;

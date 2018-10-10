@@ -1738,7 +1738,7 @@ namespace alglin {
 
   template <typename T>
   void
-  BandedLU<T>::dump( std::ostream & stream ) const {
+  BandedLU<T>::dump( ostream_type & stream ) const {
     for ( integer i = 0; i <= nL+nU; ++i ) {
       valueType const * col = AB + nL + i;
       for ( integer j = 0; j < n; ++j, col += ldAB )
@@ -1859,7 +1859,7 @@ namespace alglin {
 
   template <typename T>
   void
-  QN<T>::print( std::basic_ostream<char> & stream ) const
+  QN<T>::print( ostream_type & stream ) const
   { print_matrix( stream, n, n, H, n); }
 
   /*\

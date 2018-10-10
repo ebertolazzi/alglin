@@ -150,7 +150,7 @@ namespace Simplex {
     if ( Lower_is_free(i) ) return infinity;
     else                    return 0;
   }
-  
+
   valueType
   AuxProblem::Upper( integer ) const
   { return infinity; }
@@ -279,14 +279,14 @@ namespace Simplex {
     // some check
     SIMPLEX_ASSERT( m >= 0 && n > 0,
                     "Bad problem dimensions, m = " << m << " n = " << n );
-  
+
     SIMPLEX_ASSERT( ldA >= m,
                     "Bad leading dimension of matrix A, ldA = " << ldA << " A is " << m << " x " << n );
 
     SIMPLEX_ASSERT( n >= m,
                     "Dimension of x (" << n <<
                     ") must be greater than number of equality constraints (" << m << ")" );
-    
+
     L_free.resize(n);
     U_free.resize(n);
     for ( integer i = 0; i < n; ++i ) {
@@ -329,10 +329,10 @@ namespace Simplex {
     // some check
     SIMPLEX_ASSERT( m >= 0 && n > 0,
                     "Bad problem dimensions, m = " << m << " n = " << n );
-  
+
     SIMPLEX_ASSERT( ldA >= m,
                     "Bad leading dimension of matrix A, ldA = " << ldA << " A is " << m << " x " << n );
-    
+
     L_free.resize(n);
     U_free.resize(n);
     for ( integer i = 0; i < n+m; ++i ) {
@@ -362,11 +362,11 @@ namespace Simplex {
   , maxIter(1000)
   {
   }
-  
+
   static
   inline
   void
-  writeIter( std::ostream * pStream,
+  writeIter( ostream_type * pStream,
              integer        iter,
              integer const  IB[],
              integer        m ) {
@@ -388,7 +388,7 @@ namespace Simplex {
       return "-Infinity";
     }
   }
-  
+
   std::string
   StandardSolver::Ustring( integer i ) const {
     if ( U_bounded(i) ) {
@@ -448,7 +448,7 @@ namespace Simplex {
       }
       return;
     }
-    
+
     // build non bases index set IN
     std::sort( IB, IB+m );
     SIMPLEX_ASSERT( IB[0] >= 0 && IB[m-1] < n,
@@ -490,7 +490,7 @@ namespace Simplex {
 
     alglin::QRP<valueType> qr; // qr decomposition manage class
     qr.allocate( m, m );
-    
+
     // check basis
     for ( integer i = 0; i < m; ++i ) {
       integer ibi = IB[i];

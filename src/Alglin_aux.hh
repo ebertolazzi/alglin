@@ -151,7 +151,7 @@ namespace alglin {
    *
    *  =====================================================================
   \*/
-  
+
   template <typename T>
   inline
   integer
@@ -190,7 +190,7 @@ namespace alglin {
     }
     return 0;
   }
-  
+
   /*\
    *  Purpose
    *  =======
@@ -275,7 +275,7 @@ namespace alglin {
    *
    *  =====================================================================
   \*/
-  
+
   template <typename T>
   inline
   integer
@@ -314,7 +314,7 @@ namespace alglin {
     // Test the input arguments
     if ( N < 0 ) return -1;
     if ( LDA < max_index( 1, N ) ) return -3;
-    
+
     if ( LR == LEFT ) {
       // pre-multiply A by random orthogonal matrix
       for ( integer i = M-1; i >= 0; --i ) {
@@ -365,11 +365,11 @@ namespace alglin {
   template <typename t_Value>
   inline
   void
-  print_matrix( std::basic_ostream<char> & stream,
-                integer                    nr,
-                integer                    nc,
-                t_Value const              A[],
-                integer                    ldA ) {
+  print_matrix( ostream_type & stream,
+                integer        nr,
+                integer        nc,
+                t_Value const  A[],
+                integer        ldA ) {
     for ( integer i = 0; i < nr; ++i ) {
       for ( integer j = 0; j < nc; ++j )
         stream << std::setw(14) << A[i+j*ldA] << " ";
@@ -477,16 +477,16 @@ namespace alglin {
   template <typename t_Value>
   inline
   void
-  abd_print( std::basic_ostream<char> & stream,
-             integer                    row0,
-             integer                    col0,
-             t_Value const *            block0,
-             integer                    numBlock,
-             integer                    dimBlock,
-             t_Value const *            blocks,
-             integer                    rowN,
-             integer                    colN,
-             t_Value const *            blockN ) {
+  abd_print( ostream_type &  stream,
+             integer         row0,
+             integer         col0,
+             t_Value const * block0,
+             integer         numBlock,
+             integer         dimBlock,
+             t_Value const * blocks,
+             integer         rowN,
+             integer         colN,
+             t_Value const * blockN ) {
     integer sizeBlock = 2*dimBlock*dimBlock;
     stream << "Block 0\n";
     for ( integer i = 0; i < row0; ++i ) {
@@ -516,7 +516,7 @@ namespace alglin {
 
   /*!
     Matrix structure
-      
+
                       n * nblock
         ________________^_________________
        /                                  \
@@ -527,10 +527,10 @@ namespace alglin {
       |  0  | Ad  | Au  |  0               |  0  |  0  | n   |
       +-----+-----+-----+-----+       -----+-----+-----+     |
       |  0  |  0  | Ad  | Au  |            |  0  |  0  | n   |
-      +-----+-----+-----+-----+       -----+-----+-----+     |   
+      +-----+-----+-----+-----+       -----+-----+-----+     |
       |                                                :     |
       :                                                :      > n * nblock
-      :                                                :     | 
+      :                                                :     |
       :                                                :     |
       :                                                :     |
       :                              +-----+-----+-----+     |
@@ -613,14 +613,14 @@ namespace alglin {
   template <typename t_Value>
   inline
   void
-  babd_print( std::basic_ostream<char> & stream,
-              integer                    nblk,
-              integer                    n,
-              integer                    q,
-              t_Value const *            AdAu,
-              t_Value const *            H0,
-              t_Value const *            HN,
-              t_Value const *            Hq ) {
+  babd_print( ostream_type  & stream,
+              integer         nblk,
+              integer         n,
+              integer         q,
+              t_Value const * AdAu,
+              t_Value const * H0,
+              t_Value const * HN,
+              t_Value const * Hq ) {
     integer sizeBlock = 2*n*n;
     for ( integer k = 0; k < nblk; ++k ) {
       stream << "Block " << k+1 << '\n';
@@ -737,15 +737,15 @@ namespace alglin {
   template <typename T>
   inline
   void
-  outMATRIX( MatrixType const &         MT,
-             integer                    NR,
-             integer                    NC,
-             T const                    A[],
-             integer                    LDA,
-             std::basic_ostream<char> & s,
-             integer                    prec = 4,
-             integer                    rperm[] = nullptr,
-             integer                    cperm[] = nullptr ) {
+  outMATRIX( MatrixType const & MT,
+             integer            NR,
+             integer            NC,
+             T const            A[],
+             integer            LDA,
+             ostream_type     & s,
+             integer            prec = 4,
+             integer            rperm[] = nullptr,
+             integer            cperm[] = nullptr ) {
     integer j0 = cperm == nullptr ? 0 : cperm[0]-1;
     for ( integer i = 0; i < NR; ++i ) {
       integer ii = rperm == nullptr ? i : rperm[i]-1;
@@ -768,11 +768,11 @@ namespace alglin {
   template <typename T>
   inline
   void
-  outMAPLE( integer                    NR,
-            integer                    NC,
-            T const                    A[],
-            integer                    LDA,
-            std::basic_ostream<char> & s ) {
+  outMAPLE( integer        NR,
+            integer        NC,
+            T const        A[],
+            integer        LDA,
+            ostream_type & s ) {
     s << "<";
     for ( integer j = 0; j < NC; ++j ) {
       s << "<" << std::setprecision(20) << A[j*LDA];
@@ -790,4 +790,3 @@ namespace alglin {
 ///
 /// eof: Alglin_aux.hh
 ///
-

@@ -2107,7 +2107,7 @@ namespace alglin {
     }
 
     void
-    print( std::basic_ostream<char> & stream ) const;
+    print( ostream_type & stream ) const;
 
     /*\
      |         _      _               _

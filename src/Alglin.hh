@@ -310,6 +310,8 @@ namespace alglin {
 
   // using namespace std;
 
+  typedef std::basic_ostream<char> ostream_type;
+
   typedef enum { NO_TRANSPOSE        = 0,
                  TRANSPOSE           = 1,
                  CONJUGATE_TRANSPOSE = 2 } Transposition;

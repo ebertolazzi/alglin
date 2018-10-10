@@ -171,7 +171,7 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::info( std::ostream & stream ) const {
+  BorderedCR<t_Value>::info( ostream_type & stream ) const {
     stream
       << "rows   = " << numRows() << '\n'
       << "cols   = " << numCols() << '\n'

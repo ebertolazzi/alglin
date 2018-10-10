@@ -4,7 +4,7 @@
  |                                                                          |
  |         , __                 , __                                        |
  |        /|/  \               /|/  \                                       |
- |         | __/ _   ,_         | __/ _   ,_                                | 
+ |         | __/ _   ,_         | __/ _   ,_                                |
  |         |   \|/  /  |  |   | |   \|/  /  |  |   |                        |
  |         |(__/|__/   |_/ \_/|/|(__/|__/   |_/ \_/|/                       |
  |                           /|                   /|                        |
@@ -38,7 +38,7 @@ namespace alglin {
     }
     return "last block not selected";
   }
-  
+
   /*\
    |         _ _                 _
    |    __ _| | | ___   ___ __ _| |_ ___
@@ -46,7 +46,7 @@ namespace alglin {
    |  | (_| | | | (_) | (_| (_| | ||  __/
    |   \__,_|_|_|\___/ \___\__,_|\__\___|
   \*/
-  
+
   template <typename t_Value>
   void
   BlockBidiagonal<t_Value>::allocate( integer _nblock,
@@ -205,7 +205,7 @@ namespace alglin {
     valueConstPointer block0_in, integer ld0,
     valueConstPointer blockN_in, integer ldN
   ) {
-  
+
     ALGLIN_ASSERT( numCyclicBC == 0 && numCyclicOMEGA == 0,
                    "in loadTopBottom numCyclicBC = " << numCyclicBC <<
                    " and numCyclicOMEGA = " << numCyclicOMEGA <<
@@ -223,7 +223,7 @@ namespace alglin {
     gecopy( rowN, colN, blockN_in, ldN, blockN, rowN );
 
   }
-  
+
   /*\
    |   _           _     _     _            _
    |  | | __ _ ___| |_  | |__ | | ___   ___| | __
@@ -294,7 +294,7 @@ namespace alglin {
   template <typename t_Value>
   void
   BlockBidiagonal<t_Value>::factorize_bordered() {
-  
+
     this->factorize(); // factorize top left block
     if ( nb > 0 ) {
       // Compute aux matrix
@@ -359,7 +359,7 @@ namespace alglin {
       valuePointer Zmat = this->Bmat;
       gemm( NO_TRANSPOSE,
             NO_TRANSPOSE,
-            neq, nrhs, nb, 
+            neq, nrhs, nb,
             -1, Zmat, neq,
             xb+neq, ldRhs,
             1, xb, ldRhs );
@@ -378,11 +378,11 @@ namespace alglin {
   template <typename T>
   static
   void
-  dumpOneMatrix ( std::basic_ostream<char> & stream,
-                  char const *               name,
-                  T const                    M[],
-                  integer                    numRow,
-                  integer                    numCol ) {
+  dumpOneMatrix ( ostream_type & stream,
+                  char const *   name,
+                  T const        M[],
+                  integer        numRow,
+                  integer        numCol ) {
     stream << "# " << name
            << " Size: " << numRow << " x " << numCol << '\n'
            << name << " := <";
@@ -400,7 +400,7 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BlockBidiagonal<t_Value>::dump_to_Maple( std::basic_ostream<char> & stream ) const {
+  BlockBidiagonal<t_Value>::dump_to_Maple( ostream_type & stream ) const {
 
     stream << "interface( rtablesize = 40 );\n";
     for ( integer row = 0; row < nblock; ++row ) {
@@ -430,7 +430,7 @@ namespace alglin {
       integer rowN  = numFinalBC;
       integer col00 = numInitialOMEGA;
       integer colNN = numFinalOMEGA;
-      
+
       valueConstPointer xe   = x+neq-(n+colNN+col00);
       valuePointer      rese = res+neq-(row0+rowN);
 
@@ -497,7 +497,7 @@ namespace alglin {
             1.0, res+neq, 1 );
     }
   }
-  
+
   /*\
    |
    |       _
@@ -560,7 +560,7 @@ namespace alglin {
         for ( integer j = 0; j < n+q; ++j )
           stream << ii+i << '\t' << ii+j << '\t' << HNq[i+j*(n+q)] << '\n';
     }
-    
+
     // bidiagonal
     for ( integer k = 0; k < nblock; ++k ) {
       ii = k*n;

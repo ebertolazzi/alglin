@@ -89,6 +89,7 @@
 //! namespace for nonlinear systems and nonlinearsolver
 namespace Simplex {
 
+  using alglin::ostream_type;
   using alglin::integer;
   using std::vector;
 
@@ -148,7 +149,7 @@ namespace Simplex {
 
     SIMPLEX_VIRTUAL void load_c( valueType c[] ) const ALGLIN_PURE_VIRTUAL;
 
-    //! fill the vector b with the rhs of the constraints \f$ Ax = b \$f 
+    //! fill the vector b with the rhs of the constraints \f$ Ax = b \$f
     SIMPLEX_VIRTUAL void load_b( valueType b[] ) const ALGLIN_PURE_VIRTUAL;
 
     /*!
@@ -175,10 +176,10 @@ namespace Simplex {
 
     //! return true if upper bound of `x_i` is unlimited
     SIMPLEX_VIRTUAL bool Upper_is_free( integer i ) const ALGLIN_PURE_VIRTUAL;
-    
+
     SIMPLEX_API_DLL
     void
-    info( std::ostream & stream ) {
+    info( ostream_type & stream ) {
       stream
         << std::setw(14) << "Flag"
         << std::setw(14) << "Lower"
@@ -231,7 +232,7 @@ namespace Simplex {
     SIMPLEX_VIRTUAL
     ~ProblemBase()
     {}
-    
+
     SIMPLEX_VIRTUAL valueType get_c_max_abs() const ALGLIN_PURE_VIRTUAL;
     SIMPLEX_VIRTUAL valueType get_A_max_abs() const ALGLIN_PURE_VIRTUAL;
 
@@ -264,10 +265,10 @@ namespace Simplex {
 
     //! return true if upper bound of `x_i` is unlimited
     SIMPLEX_VIRTUAL bool Upper_is_free( integer i ) const ALGLIN_PURE_VIRTUAL;
-    
+
     SIMPLEX_API_DLL
     void
-    info( std::ostream & stream ) {
+    info( ostream_type & stream ) {
       stream
         << std::setw(14) << "Flag"
         << std::setw(14) << "Lower"
@@ -440,7 +441,7 @@ namespace Simplex {
 
     valuePointer d;
     valuePointer values;
-   
+
     integer n;
     integer m;
     integer nz;
@@ -503,7 +504,7 @@ namespace Simplex {
 
     SIMPLEX_VIRTUAL bool Lower_is_free( integer ) const;
     SIMPLEX_VIRTUAL bool Upper_is_free( integer ) const;
-   
+
     SIMPLEX_VIRTUAL void subtract_Ax( valueType const x[], valueType res[] ) const;
 
     //! get initial feasible point for the solution of Simplex problem
@@ -572,7 +573,7 @@ namespace Simplex {
       where \f$ A \f$ is a \f$ m \f$ by \f$ n\f$  matrix,
       \f$ \textrm{rank}(A)=m \f$ , \f$ m \leq n\f$ , \f$ l \leq u\f$ .
       The initial \f$ x \f$ is supposed to be a feasible basic solution.
-      
+
       \param m   Number of rows of A (number of linear constraints)
       \param n   Number of optimization variables (dimension of x)
       \param A   The matrix A stored columnwise (Fortran storage)
@@ -688,7 +689,7 @@ namespace Simplex {
       where \f$ A \f$ is a \f$ m \f$ by \f$ n\f$  matrix,
       \f$ \textrm{rank}(A)=m \f$ , \f$ m \leq n\f$ , \f$ l \leq u\f$ .
       The initial \f$ x \f$ is supposed to be a feasible basic solution.
-      
+
       \param m   Number of rows of A (number of linear constraints)
       \param n   Number of optimization variables (dimension of x)
       \param A   The matrix A stored columnwise (Fortran storage)
@@ -772,11 +773,11 @@ namespace Simplex {
     StandardSolver();
     StandardSolver(StandardSolver const &);
     StandardSolver const & operator = (StandardSolver const &);
-    
+
     alglin::Malloc<valueType> baseReals;
     alglin::Malloc<integer>   baseIntegers;
 
-    std::ostream        * pStream;
+    ostream_type        * pStream;
     StandardProblemBase * problem;
 
     valueType L( integer i ) const { return problem->Lower(i); }
@@ -820,7 +821,7 @@ namespace Simplex {
       where \f$ A \f$ is a \f$ m \f$ by \f$ n\f$  matrix,
       \f$ \textrm{rank}(A)=m \f$ , \f$ m \leq n\f$ , \f$ l \leq u\f$ .
       The initial \f$ x \f$ is supposed to be a feasible basic solution.
-      
+
       \param _problem Pointer to a class instance describing the problem
       \param x   in input feasible starting point for simplex algorithm.
                  On outpout the computed solution

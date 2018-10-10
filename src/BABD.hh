@@ -4,7 +4,7 @@
  |                                                                          |
  |         , __                 , __                                        |
  |        /|/  \               /|/  \                                       |
- |         | __/ _   ,_         | __/ _   ,_                                | 
+ |         | __/ _   ,_         | __/ _   ,_                                |
  |         |   \|/  /  |  |   | |   \|/  /  |  |   |                        |
  |         |(__/|__/   |_/ \_/|/|(__/|__/   |_/ \_/|/                       |
  |                           /|                   /|                        |
@@ -44,7 +44,7 @@ namespace alglin {
 
   //! LU decomposition of a ABD matrix
   /*!
-   * 
+   *
    * \date     June 30, 2007
    * \version  1.0
    * \note     first release June 30, 2007
@@ -56,7 +56,7 @@ namespace alglin {
    *           University of Trento <br>
    *           Via Sommarive 9, I-38123 Povo, Trento, Italy<br>
    *           enrico.bertolazzi@\unitn.it
-   * 
+   *
    */
   template <typename t_Value>
   class BABD {
@@ -272,11 +272,11 @@ namespace alglin {
     \*/
 
     void
-    dump_to_Maple( basic_ostream<char> & stream ) const
+    dump_to_Maple( ostream_type & stream ) const
     { babd_solver->dump_to_Maple( stream ); }
 
     void
-    dump_ccoord( basic_ostream<char> & stream ) const
+    dump_ccoord( ostream_type & stream ) const
     { babd_solver->dump_ccoord( stream ); }
 
     /*\

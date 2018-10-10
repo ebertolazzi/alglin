@@ -4,7 +4,7 @@
  |                                                                          |
  |         , __                 , __                                        |
  |        /|/  \               /|/  \                                       |
- |         | __/ _   ,_         | __/ _   ,_                                | 
+ |         | __/ _   ,_         | __/ _   ,_                                |
  |         |   \|/  /  |  |   | |   \|/  /  |  |   |                        |
  |         |(__/|__/   |_/ \_/|/|(__/|__/   |_/ \_/|/                       |
  |                           /|                   /|                        |
@@ -58,7 +58,7 @@ namespace alglin {
 
   //! Cyclic reduction of a block bidiagonal matrix
   /*!
-   * 
+   *
    * \date     October 25, 2016
    * \version  1.0
    * \note     October 25, 2016
@@ -119,7 +119,7 @@ namespace alglin {
     //                 (n+1) * nblock
     //    ___________________^____________________
     //   /                                        \
-    //     n     n     n                        n   
+    //     n     n     n                        n
     //  +-----+-----+-----+----.........-----+-----+    \
     //  |  D  |  E  |  0  |                  |  0  | n   |
     //  +-----+-----+-----+             -----+-----+     |
@@ -129,7 +129,7 @@ namespace alglin {
     //  +-----+-----+-----+-----+       -----+-----+     |
     //  |                                                |
     //  :                                                 > n * nblock
-    //  :                                                | 
+    //  :                                                |
     //  :                                                |
     //  :                                                |
     //  :                              +-----+-----+     |
@@ -484,10 +484,10 @@ namespace alglin {
     \*/
 
     void
-    dump_ccoord( std::ostream & stream ) const;
+    dump_ccoord( ostream_type & stream ) const;
 
     void
-    dump_to_Maple( std::basic_ostream<char> & stream ) const;
+    dump_to_Maple( ostream_type & stream ) const;
 
     /*\
      |   ___ _ __   __ _ _ __ ___  ___
