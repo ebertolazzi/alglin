@@ -1019,7 +1019,7 @@ namespace alglin {
     {}
 
     virtual
-    ~TridiagonalSPD() {
+    ~TridiagonalSPD() ALGLIN_OVERRIDE {
       allocReals.free() ;
     }
 
@@ -1084,7 +1084,7 @@ namespace alglin {
     {}
 
     virtual
-    ~TridiagonalLU() {
+    ~TridiagonalLU() ALGLIN_OVERRIDE {
       allocReals.free() ;
       allocIntegers.free() ;
     }
@@ -1152,7 +1152,7 @@ namespace alglin {
     {}
 
     virtual
-    ~TridiagonalQR() {
+    ~TridiagonalQR() ALGLIN_OVERRIDE {
       allocReals.free() ;
     }
 
@@ -1211,7 +1211,9 @@ namespace alglin {
   public:
 
     BandedLU() ;
-    virtual ~BandedLU();
+
+    virtual
+    ~BandedLU() ALGLIN_OVERRIDE;
 
     void
     setup( integer M,    // number of rows
@@ -1286,8 +1288,10 @@ namespace alglin {
 
   public:
 
-    BandedSPD() ;
-    virtual ~BandedSPD();
+    BandedSPD();
+
+    virtual
+    ~BandedSPD() ALGLIN_OVERRIDE;
 
     void
     setup( ULselect UPLO,

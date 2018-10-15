@@ -179,7 +179,9 @@ namespace alglin {
 
     explicit BBlockLU() { }
 
-    ~BBlockLU() { }
+    virtual
+    ~BBlockLU() ALGLIN_OVERRIDE
+    { }
 
     virtual
     void

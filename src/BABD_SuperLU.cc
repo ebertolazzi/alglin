@@ -178,7 +178,7 @@ namespace alglin {
     int info = 0 ;
     //cout << "dgstrf.\n" ;
     dgstrf(&slu_options, &AC, relax, panel_size,
-           etree, NULL, 0, perm_c, perm_r, &L, &U,
+           etree, nullptr, 0, perm_c, perm_r, &L, &U,
     #if defined(SUPERLU_MAJOR_VERSION) && SUPERLU_MAJOR_VERSION >= 5
            &glu,
     #endif
