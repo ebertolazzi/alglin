@@ -1,0 +1,28 @@
+require "rake"
+require "./common.rb"
+
+task :default => [:install]
+
+desc "install 3rd parties"
+task :install do
+  FileUtils.cd "OpenBlas"
+  # no openblas for unix/linux
+  # sh "rake install"
+  FileUtils.cd "../Eigen3"
+  sh "rake install"
+  FileUtils.cd "../SuperLU"
+  sh "rake install"
+  FileUtils.cd ".."
+end
+
+desc "install 3rd parties"
+task :install_win, [:year, :bits] do |t, args|
+  args.with_defaults(:year => "2017", :bits => "x64" )
+  FileUtils.cd "OpenBlas"
+  sh "rake install_win"
+  FileUtils.cd "../Eigen3"
+  sh "rake install_win"
+  FileUtils.cd "../SuperLU"
+  sh "rake install_win[#{args.year},#{args.bits}]"
+  FileUtils.cd ".."
+end
