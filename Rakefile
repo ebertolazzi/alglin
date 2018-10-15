@@ -42,11 +42,6 @@ task :build_win, [:year, :bits] do |t, args|
   args.with_defaults(:year => "2017", :bits => "x64" )
 
   dir = "vs_#{args.year}_#{args.bits}"
-  
-	FileUtils.rm_f "src/AlglinConfig.hh"
-	sed 's/@@ALGLIN_USE@@/#define $(USED_LIB) 1/' <src/AlglinConfig.hh.tmpl | \
-	sed 's/@@ALGLIN_THREAD@@/#define $(THREAD) 1/' >src/AlglinConfig.hh
-  
 
   FileUtils.rm_rf   dir
   FileUtils.mkdir_p dir
