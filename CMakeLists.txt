@@ -60,19 +60,25 @@ ENDFOREACH (F ${S})
 add_library( ${TARGET} STATIC ${SOURCES} ${HEADERS} )
 
 SET( EXELISTCPP
-     test0-FD
-     test1-small-factorization
-     test2-Threads
-     test3-Timing
-     test4-KKT
-     test5-ABD-Diaz
-     test6-ABD-Block
-     test7-BorderedCR
-     test12-BandedMatrix
-     SimplexTest1
-     SimplexTest2
-     SimplexTest3
-     SimplexTest4 )
+  Simplex-Test1
+  Simplex-Test2
+  Simplex-Test3
+  Simplex-Test4
+  SimplexTest1
+  SimplexTest2
+  SimplexTest3
+  SimplexTest4
+  test0-FD
+  test1-small-factorization
+  test12-BandedMatrix
+  test13-BFGS
+  test2-Threads
+  test3-Timing
+  test4-KKT
+  test5-ABD-Diaz
+  test6-ABD-Block
+  test7-BorderedCR
+)
 
 SET(EXELISTC test8-Cinterface test9-Cinterface )
 
@@ -113,19 +119,44 @@ IF( CMAKE_CXX_COMPILER_ID MATCHES "MSVC" )
 ENDIF()
 
 IF( BUILD_EXECUTABLE )
+
+  ## add_custom_command(OUTPUT tests.txt 
+  ##                    POST_BUILD
+  ##                    COMMAND ctest --output-on-failure)
+  ##
+
+  ENABLE_TESTING()
+
+  FIND_PACKAGE(BLAS)
+  FIND_PACKAGE(LAPACK)
+
+  if(LAPACK_FOUND AND BLAS_FOUND)
+    SET(lapackblas_libraries ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} )
+  endif()
+
+  ADD_CUSTOM_TARGET( all_tests ALL )
+
   SET(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/bin)
   FILE(MAKE_DIRECTORY  ${CMAKE_CURRENT_SOURCE_DIR}/bin )	
   FOREACH( S ${EXELISTCPP} )
   	ADD_EXECUTABLE( ${S} src_tests/${S}.cc ${HEADERS} )
-  	TARGET_LINK_LIBRARIES( ${S} ${TARGET} )
-  	ADD_TEST( ${S} ${S} )
+  	TARGET_LINK_LIBRARIES( ${S} ${TARGET} ${lapackblas_libraries} )
+  	ADD_TEST( ${S} COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/${S} )
+    ADD_DEPENDENCIES( all_tests ${S} )
   ENDFOREACH( S $(EXELIST) )
 
   FOREACH( S ${EXELISTC} )
   	ADD_EXECUTABLE( ${S} src_tests/${S}.c ${HEADERS} )
-  	TARGET_LINK_LIBRARIES( ${S} ${TARGET} )
-  	ADD_TEST( ${S} ${S} )
+  	TARGET_LINK_LIBRARIES( ${S} ${TARGET} ${lapackblas_libraries} )
+  	ADD_TEST( ${S} COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/${S} )
+    ADD_DEPENDENCIES( all_tests ${S} )
   ENDFOREACH( S $(EXELIST) )
+
+  ADD_CUSTOM_COMMAND( TARGET all_tests
+                      COMMENT "Run tests"
+                      POST_BUILD COMMAND ctest ARGS --output-on-failure
+                      WORKING_DIRECTORY ${CMAKE_BINARY_DIR} )
+
 ENDIF()
 
 FILE( GLOB HDRC   ./src/*.h )
@@ -137,6 +168,7 @@ INSTALL( TARGETS ${TARGET}
          ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX} )
 
 INSTALL(FILES ${HDRC} ${HDRCPP} DESTINATION ${CMAKE_INSTALL_PREFIX}/include)
+
 
 MESSAGE( STATUS "Using ${SSE_FLAGS} extensions")
 MESSAGE( STATUS "C compiler                  = ${CMAKE_C_COMPILER_ID} ${CMAKE_C_COMPILER}" )
@@ -152,4 +184,8 @@ IF(APPLE)
   MESSAGE( STATUS "CMAKE_OSX_SYSROOT           = ${CMAKE_OSX_SYSROOT}" )
   MESSAGE( STATUS "CMAKE_OSX_ARCHITECTURES     = ${CMAKE_OSX_ARCHITECTURES}" )
   MESSAGE( STATUS "CMAKE_OSX_DEPLOYMENT_TARGET = ${CMAKE_OSX_DEPLOYMENT_TARGET}" )
+ENDIF()
+
+IF( BUILD_EXECUTABLE )
+  MESSAGE( STATUS "lapackblas_libraries        = ${lapackblas_libraries}" )
 ENDIF()

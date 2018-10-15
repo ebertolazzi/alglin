@@ -1,0 +1,119 @@
+require "rake"
+require "../common.rb"
+
+task :default => [:install]
+
+VER     = '0.3.3'
+VER_WIN = '0.2.15'
+
+desc "download OpenBlas libs"
+task :download do
+  filename = "OpenBLAS.tar.gz"
+  url_addr = "https://sourceforge.net/projects/openblas/files/v#{VER}/OpenBLAS%20#{VER}%20version.tar.gz/download"
+  url_download( url_addr, filename )
+end
+
+task :download_win do
+  filename = "OpenBLAS-v#{VER_WIN}-Win32.zip"
+  url_addr = "https://sourceforge.net/projects/openblas/files/v#{VER_WIN}/OpenBLAS-v#{VER_WIN}-Win32.zip/download"
+  url_download( url_addr, filename )
+  filename = "OpenBLAS-v#{VER_WIN}-Win64-int32.zip"
+  url_addr = "https://sourceforge.net/projects/openblas/files/v#{VER_WIN}/OpenBLAS-v#{VER_WIN}-Win64-int32.zip/download"
+  url_download( url_addr, filename )
+end
+
+desc "untar OpenBLAS files"
+task :unzip => [:download_win] do
+  zip_archive = "OpenBLAS-v#{VER_WIN}-Win32.zip"
+  extract_zip( zip_archive )
+  zip_archive = "OpenBLAS-v#{VER_WIN}-Win64-int32.zip"
+  extract_zip( zip_archive )
+end
+
+desc "untar OpenBLAS.tar.gz file"
+task :targz => [:download] do
+  tar_gz_archive = "OpenBLAS.tar.gz"
+  if File.directory?('eigen3')
+    puts "directory: eigen3 found, file `#{tar_gz_archive}` not processed"    
+  else
+    extract_tgz( tar_gz_archive, '.' )
+    FileUtils.rm_rf 'OpenBLAS'
+    Dir['*-OpenBLAS-*'].each{ |f| FileUtils.mv f, 'OpenBLAS' }    
+  end
+end
+
+desc "build OpenBLAS file"
+task :build => [:targz] do
+  lib = 'libs/lib/libopenblas'
+  if File.exists?(lib+'.dylib') or
+     File.exists?(lib+'.so') then
+     puts "OpenBLAS already compiled"
+  else
+    FileUtils.cd "OpenBlas"
+    sh "make ; make install PREFIX=../libs"
+    FileUtils.cd ".."
+
+    FileUtils.cd "libs/lib"
+
+    def unix_command?(name)
+      `which #{name}`
+      $?.success?
+    end
+
+    if File.exists?(lib+'.dylib') then
+      l = lib+'.dylib'
+      sh "install_name_tool -id @rpath/#{l} #{l}"
+    end 
+
+    if File.exists?(lib+'.so') then
+      l = lib+'.so'
+      if unix_command?("patchelf") then
+        sh "patchelf --set-rpath @rpath/#{l} #{l}"
+      elsif unix_command?("chrpath") then
+        sh "chrpath --replace @rpath/#{l} #{l}"
+      end
+    end 
+
+    FileUtils.cd "../.."
+
+  end
+end
+
+desc "install OpenBLAS libs"
+task :install => [:build] do
+  prefix = "../../lib3rd"
+  puts "OpenBLAS copy files to #{prefix}"
+  FileUtils.rm_rf   "#{prefix}/include/openblas"
+  FileUtils.rm_rf   "#{prefix}/lib/openblas"
+  FileUtils.mkdir_p "#{prefix}/include/openblas"
+  FileUtils.mkdir_p "#{prefix}/lib/openblas"
+
+  FileUtils.cp_r "libs/include", "#{prefix}/include/openblas"
+  FileUtils.cp_r "libs/lib",     "#{prefix}/lib/openblas"
+end
+
+desc "build OpenBLAS file"
+task :install_win => [:unzip] do
+  prefix = "../../lib3rd"
+  puts "OpenBLAS copy files to #{prefix}"
+  dir32 = "OpenBLAS-v#{VER_WIN}-Win32/"
+  dir64 = "OpenBLAS-v#{VER_WIN}-Win64-int32/"
+
+  FileUtils.rm_rf   "#{prefix}/include/openblas"
+  FileUtils.rm_rf   "#{prefix}/lib/openblas"
+  FileUtils.rm_rf   "#{prefix}/dll/openblas"
+  FileUtils.mkdir_p "#{prefix}/include/openblas"
+  FileUtils.mkdir_p "#{prefix}/lib/openblas"
+  FileUtils.mkdir_p "#{prefix}/dll/openblas"
+
+  FileUtils.cp dir32+'/lib/libopenblas.dll.a', prefix+'/dll/openblas/libopenblas_x86.lib'
+  FileUtils.cp dir32+'/bin/libopenblas.dll',   prefix+'/dll/openblas/libopenblas_x86.dll'
+  Dir['mingw32_dll/*'].each{ |f| FileUtils.cp(f,prefix+'/dll/openblas/'+File.basename(f)) }
+  Dir[dir32+'include/*'].each{ |f| FileUtils.cp(f,prefix+'/include/openblas/'+File.basename(f)) }
+
+  FileUtils.cp dir64+'/lib/libopenblas.dll.a', prefix+'/dll/openblas/libopenblas_x64.lib'
+  FileUtils.cp dir64+'/bin/libopenblas.dll',   prefix+'/dll/openblas/libopenblas_x64.dll'
+  Dir['mingw64_dll/*'].each{ |f| FileUtils.cp(f,prefix+'/dll/openblas/'+File.basename(f)) }
+  Dir[dir64+'include/*'].each{ |f| FileUtils.cp(f,prefix+'/include/openblas/'+File.basename(f)) }
+
+end

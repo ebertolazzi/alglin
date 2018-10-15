@@ -1,0 +1,35 @@
+require "rake"
+require "../common.rb"
+
+task :default => [:install]
+
+VER = "3.3.4"
+
+desc "download Eigen3 libs"
+task :download do
+  filename = VER + ".tar.gz"
+  url_download( "https://bitbucket.org/eigen/eigen/get/#{filename}", filename )
+end
+
+desc "untar Eigen3 #{VER} file"
+task :targz => [:download] do
+  tar_gz_archive = VER + ".tar.gz"
+  if File.directory?('eigen3')
+    puts "directory: eigen3 found, file `#{tar_gz_archive}` not processed"    
+  else
+    extract_tgz( tar_gz_archive, '.' )
+    FileUtils.rm_rf 'eigen3'
+    Dir['eigen-eigen-*'].each{ |f| FileUtils.mv f, 'eigen3' }    
+  end
+end
+
+desc "install eigen3"
+task :install => [:targz] do
+  dir = "../../lib3rd/include"
+  puts "eigen3 copy files to #{dir}"
+  FileUtils.mkdir_p dir
+  FileUtils.cp_r "eigen3/Eigen", dir
+end
+
+task :install_win => [:install] do
+end

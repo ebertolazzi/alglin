@@ -1667,9 +1667,8 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = (
 					/usr/local/include,
-					/usr/local/include/eigen3,
 					/opt/intel/mkl/include/,
-					"$(PROJECT_DIR)/lib3rd/include",
+					"$(SOURCE_ROOT)/lib3rd/include",
 				);
 				LIBRARY_SEARCH_PATHS = /usr/local/lib;
 				MTL_ENABLE_DEBUG_INFO = YES;
@@ -1677,7 +1676,7 @@
 				OTHER_CFLAGS = "-pthread";
 				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
 				OTHER_LDFLAGS = (
-					"-L$(PROJECT_DIR)/lib3rd/lib/superlu",
+					"-L$(SOURCE_ROOT)/lib3rd/lib/superlu",
 					"-lsuperlu",
 				);
 				OTHER_LIBTOOLFLAGS = "";
@@ -1755,16 +1754,15 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = (
 					/usr/local/include,
-					/usr/local/include/eigen3,
 					/opt/intel/mkl/include/,
-					"$(PROJECT_DIR)/lib3rd/include",
+					"$(SOURCE_ROOT)/lib3rd/include",
 				);
 				LIBRARY_SEARCH_PATHS = /usr/local/lib;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_CFLAGS = "-pthread";
 				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
 				OTHER_LDFLAGS = (
-					"-L$(PROJECT_DIR)/lib3rd/lib/superlu",
+					"-L$(SOURCE_ROOT)/lib3rd/lib/superlu",
 					"-lsuperlu",
 				);
 				OTHER_LIBTOOLFLAGS = "";
