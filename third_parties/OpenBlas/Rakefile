@@ -83,13 +83,22 @@ desc "install OpenBLAS libs"
 task :install => [:build] do
   prefix = "../../lib3rd"
   puts "OpenBLAS copy files to #{prefix}"
+
   FileUtils.rm_rf   "#{prefix}/include/openblas"
   FileUtils.rm_rf   "#{prefix}/lib/openblas"
+  FileUtils.rm_rf   "#{prefix}/dll/openblas"
+
   FileUtils.mkdir_p "#{prefix}/include/openblas"
   FileUtils.mkdir_p "#{prefix}/lib/openblas"
+  FileUtils.mkdir_p "#{prefix}/dll/openblas"
 
   FileUtils.cp_r "libs/include", "#{prefix}/include/openblas"
   FileUtils.cp_r "libs/lib",     "#{prefix}/lib/openblas"
+end
+
+def ChangeOnFile( file, text_to_replace, text_to_put_in_place )
+  text= File.read file
+  File.open(file, 'w+'){|f| f << text.gsub(text_to_replace, text_to_put_in_place)}
 end
 
 desc "build OpenBLAS file"
@@ -102,18 +111,27 @@ task :install_win => [:unzip] do
   FileUtils.rm_rf   "#{prefix}/include/openblas"
   FileUtils.rm_rf   "#{prefix}/lib/openblas"
   FileUtils.rm_rf   "#{prefix}/dll/openblas"
-  FileUtils.mkdir_p "#{prefix}/include/openblas"
-  FileUtils.mkdir_p "#{prefix}/lib/openblas"
-  FileUtils.mkdir_p "#{prefix}/dll/openblas"
 
-  FileUtils.cp dir32+'/lib/libopenblas.dll.a', prefix+'/dll/openblas/libopenblas_x86.lib'
-  FileUtils.cp dir32+'/bin/libopenblas.dll',   prefix+'/dll/openblas/libopenblas_x86.dll'
-  Dir['mingw32_dll/*'].each{ |f| FileUtils.cp(f,prefix+'/dll/openblas/'+File.basename(f)) }
+  FileUtils.mkdir_p "#{prefix}/include/openblas"
+
+  FileUtils.mkdir_p "#{prefix}/lib/openblas/x86"
+  FileUtils.mkdir_p "#{prefix}/lib/openblas/x64"
+
+  FileUtils.mkdir_p "#{prefix}/dll/openblas/x86"
+  FileUtils.mkdir_p "#{prefix}/dll/openblas/x64"
+  
+  # remove _Complex for Visual Studio (not supported)
+  ChangeOnFile( dir64+'include/openblas_config.h','_MSC_VER >= 1800', '1 >= 1800')
+  ChangeOnFile( dir32+'include/openblas_config.h','_MSC_VER >= 1800', '1 >= 1800')
+
+  FileUtils.cp dir32+'/lib/libopenblas.dll.a', prefix+'/dll/openblas/x86/libopenblas.lib'
+  FileUtils.cp dir32+'/bin/libopenblas.dll',   prefix+'/dll/openblas/x86/libopenblas.dll'
+  Dir['mingw32_dll/*'].each{ |f| FileUtils.cp(f,prefix+'/dll/openblas/x86/'+File.basename(f)) }
   Dir[dir32+'include/*'].each{ |f| FileUtils.cp(f,prefix+'/include/openblas/'+File.basename(f)) }
 
-  FileUtils.cp dir64+'/lib/libopenblas.dll.a', prefix+'/dll/openblas/libopenblas_x64.lib'
-  FileUtils.cp dir64+'/bin/libopenblas.dll',   prefix+'/dll/openblas/libopenblas_x64.dll'
-  Dir['mingw64_dll/*'].each{ |f| FileUtils.cp(f,prefix+'/dll/openblas/'+File.basename(f)) }
+  FileUtils.cp dir64+'/lib/libopenblas.dll.a', prefix+'/dll/openblas/x64/libopenblas.lib'
+  FileUtils.cp dir64+'/bin/libopenblas.dll',   prefix+'/dll/openblas/x64/libopenblas.dll'
+  Dir['mingw64_dll/*'].each{ |f| FileUtils.cp(f,prefix+'/dll/openblas/x64/'+File.basename(f)) }
   Dir[dir64+'include/*'].each{ |f| FileUtils.cp(f,prefix+'/include/openblas/'+File.basename(f)) }
 
 end

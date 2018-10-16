@@ -180,7 +180,7 @@ namespace alglin {
   #elif defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS)
   { BLASFUNC(dsyr)( const_cast<character*>(uplo_blas[UPLO]),
                     &N, &ALPHA,
-                    const_cast<real*>(X), &INCX,
+                    const_cast<doublereal*>(X), &INCX,
                     A, &LDA ); }
   #elif defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
   { CBLASNAME(dsyr)( CblasColMajor, uplo_cblas[UPLO],
@@ -353,8 +353,8 @@ namespace alglin {
   #elif defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS)
   { BLASFUNC(dsyr2)( const_cast<character*>(uplo_blas[UPLO]),
                      &N, &ALPHA,
-                     const_cast<real*>(X), &INCX,
-                     const_cast<real*>(Y), &INCY,
+                     const_cast<doublereal*>(X), &INCX,
+                     const_cast<doublereal*>(Y), &INCY,
                      A, &LDA ); }
   #elif defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
   { CBLASNAME(dsyr2)( CblasColMajor, uplo_cblas[UPLO],

@@ -139,9 +139,9 @@
   #elif defined(ALGLIN_USE_OPENBLAS)
     // no debug version
     #ifdef ALGLIN_ARCH64
-      #pragma comment(lib, "libopenblas_x64.lib")
+      #pragma comment(lib, "x64/libopenblas.lib")
     #else
-      #pragma comment(lib, "libopenblas_x86.lib")
+      #pragma comment(lib, "x86/libopenblas.lib")
     #endif
   #elif defined(ALGLIN_USE_MKL)
     #ifdef ALGLIN_ARCH64
@@ -240,6 +240,8 @@
     #endif
     #define __STDC_VERSION__ __STDC__
   #endif
+
+  #include <complex>
 
   #ifdef ALGLIN_USE_SYSTEM_OPENBLAS
     #include <openblas/cblas.h>

@@ -143,7 +143,13 @@ namespace alglin {
   extern "C"
   void
   ABD_get_last_error_f90( char res[], long len ) {
+    #ifdef ALGLIN_OS_WINDOWS
+    errno_t e = strncpy_s( res, len,
+                           abd_last_error.c_str(),
+                           abd_last_error.length() );
+    #else
     strncpy( res, abd_last_error.c_str(), size_t(len) );
+    #endif
   }
 
   /*\
@@ -326,7 +332,13 @@ namespace alglin {
   extern "C"
   void
   BABD_get_last_error_f90( char res[], long len ) {
-   strncpy( res, babd_last_error.c_str(), size_t(len) );
+    #ifdef ALGLIN_OS_WINDOWS
+    errno_t e = strncpy_s( res, len,
+                           babd_last_error.c_str(),
+                           babd_last_error.length() );
+    #else
+    strncpy( res, babd_last_error.c_str(), size_t(len) );
+    #endif
   }
 
 }

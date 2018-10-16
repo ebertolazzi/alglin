@@ -578,6 +578,14 @@ namespace alglin {
 
   template <typename T>
   void
+  LUPQ<T>::check_ls( char const who[] ) const {
+    ALGLIN_ASSERT( nRow == nCol,
+                   "LUPQ<T>::" << who << ", rectangular matrix " <<
+                   nRow << " x " << nCol );
+  }
+
+  template <typename T>
+  void
   LUPQ<T>::factorize() {
     integer info = getc2( nRow, Amat, nRow, ipiv, jpiv );
     ALGLIN_ASSERT( info == 0, "LUPQ::factorize getrf INFO = " << info );

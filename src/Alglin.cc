@@ -42,12 +42,17 @@
 #ifdef ALGLIN_OS_WINDOWS
   #include <cstdlib>
   static
-  char * basename(char *path) {
-    char *drive = nullptr;
-    char *dir   = nullptr;
-    char *fname = nullptr;
-    char *ext   = nullptr;
-    _splitpath(path, drive, dir, fname, ext);
+  char *
+  basename(char *path) {
+    static char drive[100];
+    static char dir[1024];
+    static char fname[256];
+    static char ext[128];
+    errno_t e = _splitpath_s( path,
+                              drive, 100,
+                              dir,   1024,
+                              fname, 256,
+                              ext,   128);
     return dir;
   }
 #else
