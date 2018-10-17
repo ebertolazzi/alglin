@@ -97,9 +97,9 @@ task :build_win, [:year, :bits, :lapack, :thread] do |t, args|
 
   sh 'cmake --build . --config Release  --target ALL_BUILD'
   FileUtils.mkdir_p "../lib"
-  FileUtils.cp_f    'Release/Alglin.lib', "../lib/Alglin_vs#{args.year}_#{args.bits}.lib"  
+  FileUtils.cp 'Release/Alglin.lib', "../lib/Alglin_vs#{args.year}_#{args.bits}.lib"  
   sh 'cmake --build . --config Debug --target ALL_BUILD'
-  FileUtils.cp_f    'Debug/Alglin.lib', "../lib/Alglin_vs#{args.year}_#{args.bits}_debug.lib"
+  FileUtils.cp 'Debug/Alglin.lib', "../lib/Alglin_vs#{args.year}_#{args.bits}_debug.lib"
 
   FileUtils.cd '..'
 
