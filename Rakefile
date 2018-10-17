@@ -34,28 +34,8 @@ task :run  do
 end
 
 task :run_win, [:year, :bits] do |t, args|
-  args.with_defaults( :year => "2017",
-                      :bits => "x64" )
-  cmd = "set path=%path%;lib3rd\\dll;lib3rd\\dll\\openblas;"
-  sh "#{cmd} ; bin\\Release\\Simplex-Test1.exe"
-  sh "#{cmd} ; bin\\Release\\Simplex-Test2.exe"
-  sh "#{cmd} ; bin\\Release\\Simplex-Test3.exe"
-  sh "#{cmd} ; bin\\Release\\Simplex-Test4.exe"
-  sh "#{cmd} ; bin\\Release\\SimplexTest1.exe"
-  sh "#{cmd} ; bin\\Release\\SimplexTest2.exe"
-  sh "#{cmd} ; bin\\Release\\SimplexTest3.exe"
-  sh "#{cmd} ; bin\\Release\\SimplexTest4.exe"
-  sh "#{cmd} ; bin\\Release\\test0-FD.exe"
-  sh "#{cmd} ; bin\\Release\\test1-small-factorization.exe"
-  sh "#{cmd} ; bin\\Release\\test12-BandedMatrix.exe"
-  sh "#{cmd} ; bin\\Release\\test13-BFGS.exe"
-  sh "#{cmd} ; bin\\Release\\test2-Threads.exe"
-  sh "#{cmd} ; bin\\Release\\test3-Timing.exe"
-  sh "#{cmd} ; bin\\Release\\test4-KKT.exe"
-  sh "#{cmd} ; bin\\Release\\test5-ABD-Diaz.exe"
-  sh "#{cmd} ; bin\\Release\\test6-ABD-Block.exe"
-  sh "#{cmd} ; bin\\Release\\test7-BorderedCR.exe"
-  sh "#{cmd} ; bin\\Release\\test8-Cinterface.exe"
+  args.with_defaults( :year => "2017", :bits => "x64" )
+  sh "runtest.bat"
 end
 
 desc "build lib"
@@ -68,14 +48,16 @@ def ChangeOnFile( file, text_to_replace, text_to_put_in_place )
   File.open(file, 'w+'){|f| f << text.gsub(text_to_replace, text_to_put_in_place)}
 end
 
-desc "build[year,bits] compile for Visual Studio [defualt year=2017 bits=x64]"
+desc "compile for Visual Studio [default year=2017 bits=x64]"
 task :build_win, [:year, :bits, :lapack, :thread] do |t, args|
   args.with_defaults( :year   => "2017",
                       :bits   => "x64",
                       :lapack => "ALGLIN_USE_LAPACK",
+                      #:lapack => "ALGLIN_USE_LAPACK2",
+                      #:lapack => "ALGLIN_USE_OPENBLAS",
                       :thread => "ALGLIN_USE_THREAD" )
 
-  cmd = "set path=%path%;lib3rd\\lib;lib3rd\\dll;lib3rd\\dll\\openblas;"
+  cmd = "set path=%path%;lib3rd\\lib;lib3rd\\dll;"
 
   FileUtils.rm_f 'src/AlglinConfig.hh'
   FileUtils.cp   'src/AlglinConfig.hh.tmpl', 'src/AlglinConfig.hh'

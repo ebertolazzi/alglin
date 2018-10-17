@@ -76,6 +76,10 @@
 #include <limits>
 #include <algorithm>
 
+#ifdef ALGLIN_USE_LAPACK2
+  #define ALGLIN_USE_LAPACK 1
+#endif
+
 // if not choosed the linear algebra package give an error
 #if !defined(ALGLIN_USE_ACCELERATE) && \
     !defined(ALGLIN_USE_ATLAS)      && \
@@ -118,7 +122,25 @@
     #pragma comment(lib, "legacy_stdio_definitions.lib")
   #endif
 
-  #if defined(ALGLIN_USE_LAPACK)
+  #if defined(ALGLIN_USE_LAPACK2)
+    #if defined(_DEBUG) || defined(DEBUG)
+      #ifdef ALGLIN_ARCH64
+        #pragma comment(lib, "cbia.lib.blas.dyn.dbg.x64.12.lib")
+        #pragma comment(lib, "cbia.lib.lapack.dyn.dbg.x64.12.lib")
+      #else
+        #pragma comment(lib, "cbia.lib.blas.dyn.dbg.x86.12.lib")
+        #pragma comment(lib, "cbia.lib.lapack.dyn.dbg.x86.12.lib")
+      #endif
+    #else
+      #ifdef ALGLIN_ARCH64
+        #pragma comment(lib, "cbia.lib.blas.dyn.rel.x64.12.lib")
+        #pragma comment(lib, "cbia.lib.lapack.dyn.rel.x64.12.lib")
+      #else
+        #pragma comment(lib, "cbia.lib.blas.dyn.rel.x86.12.lib")
+        #pragma comment(lib, "cbia.lib.lapack.dyn.rel.x86.12.lib")
+      #endif
+    #endif
+  #elif defined(ALGLIN_USE_LAPACK)
     #if defined(_DEBUG) || defined(DEBUG)
       #ifdef ALGLIN_ARCH64
         #pragma comment(lib, "blas_win64_MTd.lib")
@@ -140,15 +162,15 @@
     // no debug version
     #if defined(_DEBUG) || defined(DEBUG)
       #ifdef ALGLIN_ARCH64
-        #pragma comment(lib, "x64_debug/libopenblas.lib")
+        #pragma comment(lib, "x64_debug/openblas.lib")
       #else
-        #pragma comment(lib, "x86_debug/libopenblas.lib")
+        #pragma comment(lib, "x86_debug/openblas.lib")
       #endif
     #else
       #ifdef ALGLIN_ARCH64
-        #pragma comment(lib, "x64/libopenblas.lib")
+        #pragma comment(lib, "x64/openblas.lib")
       #else
-        #pragma comment(lib, "x86/libopenblas.lib")
+        #pragma comment(lib, "x86/openblas.lib")
       #endif
     #endif
   #elif defined(ALGLIN_USE_MKL)
@@ -249,14 +271,32 @@
     #define __STDC_VERSION__ __STDC__
   #endif
 
-  #include <complex>
-
-  #ifdef ALGLIN_USE_SYSTEM_OPENBLAS
-    #include <openblas/cblas.h>
-    #include <openblas/f77blas.h>
+  #ifdef ALGLIN_OS_WINDOWS
+    #ifdef ALGLIN_ARCH64
+      #ifdef ALGLIN_USE_SYSTEM_OPENBLAS
+        #include <openblas/x64/f77blas.h>
+        #include <openblas/x64/cblas.h>
+      #else
+        #include "openblas/x64/f77blas.h"
+        #include "openblas/x64/cblas.h"
+      #endif
+    #else
+      #ifdef ALGLIN_USE_SYSTEM_OPENBLAS
+        #include <openblas/x86/f77blas.h>
+        #include <openblas/x86/cblas.h>
+      #else
+        #include "openblas/x86/f77blas.h"
+        #include "openblas/x86/cblas.h"
+      #endif
+    #endif
   #else
-    #include "openblas/cblas.h"
-    #include "openblas/f77blas.h"
+    #ifdef ALGLIN_USE_SYSTEM_OPENBLAS
+      #include <openblas/f77blas.h>
+      #include <openblas/cblas.h>
+    #else
+      #include "openblas/f77blas.h"
+      #include "openblas/cblas.h"
+    #endif
   #endif
 
   #define CBLASNAME(A)      cblas_##A

@@ -102,31 +102,32 @@ task :install_win do
   prefix = "../../lib3rd"
   puts "OpenBLAS copy files to #{prefix}"
 
-  FileUtils.rm_rf   "#{prefix}/include/openblas"
-  FileUtils.mkdir_p "#{prefix}/include/openblas"
+  FileUtils.rm_rf   "#{prefix}/include/openblas/x86/"
+  FileUtils.rm_rf   "#{prefix}/include/openblas/x64/"
+
+  FileUtils.mkdir_p "#{prefix}/include/openblas/x86/"
+  FileUtils.mkdir_p "#{prefix}/include/openblas/x64/"
 
   FileUtils.mkdir_p "#{prefix}/lib/x86"
   FileUtils.mkdir_p "#{prefix}/lib/x64"
   FileUtils.mkdir_p "#{prefix}/lib/x86_debug"
   FileUtils.mkdir_p "#{prefix}/lib/x64_debug"
-
-  FileUtils.mkdir_p "#{prefix}/dll/x86"
-  FileUtils.mkdir_p "#{prefix}/dll/x64"
-  FileUtils.mkdir_p "#{prefix}/dll/x86_debug"
-  FileUtils.mkdir_p "#{prefix}/dll/x64_debug"
   
   # remove _Complex for Visual Studio (not supported)
   #ChangeOnFile( dir64+'include/openblas_config.h','_MSC_VER >= 1800', '1 >= 1800')
   #ChangeOnFile( dir32+'include/openblas_config.h','_MSC_VER >= 1800', '1 >= 1800')
 
-  FileUtils.cp 'win32_debug/openblas.lib',   prefix+'/lib/x86_debug/openblas.lib'
-  FileUtils.cp 'win32_debug/openblas.dll',   prefix+'/dll/x86_debug/openblas.dll'
-  FileUtils.cp 'win32_release/openblas.lib', prefix+'/lib/x86/openblas.lib'
-  FileUtils.cp 'win32_release/openblas.dll', prefix+'/dll/x86/openblas.dll'
+  FileUtils.cp 'win32_debug/lib/openblas.lib',   prefix+'/lib/x86_debug/openblas.lib'
+  FileUtils.cp 'win32_debug/bin/openblas.dll',   prefix+'/lib/x86_debug/openblas.dll'
+  FileUtils.cp 'win32_release/lib/openblas.lib', prefix+'/lib/x86/openblas.lib'
+  FileUtils.cp 'win32_release/bin/openblas.dll', prefix+'/lib/x86/openblas.dll'
 
-  FileUtils.cp 'win64_debug/openblas.lib',   prefix+'/lib/x64_debug/openblas.lib'
-  FileUtils.cp 'win64_debug/openblas.dll',   prefix+'/dll/x64_debug/openblas.dll'
-  FileUtils.cp 'win64_release/openblas.lib', prefix+'/lib/x64/openblas.lib'
-  Dir['include/*'].each{ |f| FileUtils.cp(f,prefix+'/include/openblas/'+File.basename(f)) }
+  FileUtils.cp 'win64_debug/lib/openblas.lib',   prefix+'/lib/x64_debug/openblas.lib'
+  FileUtils.cp 'win64_debug/bin/openblas.dll',   prefix+'/lib/x64_debug/openblas.dll'
+  FileUtils.cp 'win64_release/lib/openblas.lib', prefix+'/lib/x64/openblas.lib'
+  FileUtils.cp 'win64_release/bin/openblas.dll', prefix+'/lib/x64/openblas.dll'
+
+  Dir['win32_release/include/*'].each{ |f| FileUtils.cp(f,prefix+'/include/openblas/x86/'+File.basename(f)) }
+  Dir['win64_release/include/*'].each{ |f| FileUtils.cp(f,prefix+'/include/openblas/x64/'+File.basename(f)) }
 
 end

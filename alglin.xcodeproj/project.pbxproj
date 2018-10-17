@@ -1676,7 +1676,7 @@
 				OTHER_CFLAGS = "-pthread";
 				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
 				OTHER_LDFLAGS = (
-					"-L$(SOURCE_ROOT)/lib3rd/lib/superlu",
+					"-L$(SOURCE_ROOT)/lib3rd/lib",
 					"-lsuperlu",
 				);
 				OTHER_LIBTOOLFLAGS = "";
@@ -1762,7 +1762,7 @@
 				OTHER_CFLAGS = "-pthread";
 				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
 				OTHER_LDFLAGS = (
-					"-L$(SOURCE_ROOT)/lib3rd/lib/superlu",
+					"-L$(SOURCE_ROOT)/lib3rd/lib",
 					"-lsuperlu",
 				);
 				OTHER_LIBTOOLFLAGS = "";

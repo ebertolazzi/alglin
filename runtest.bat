@@ -1,0 +1,20 @@
+set path=%path%;lib3rd\\lib;lib3rd\\dll
+bin\\Release\\Simplex-Test1.exe
+bin\\Release\\Simplex-Test2.exe
+bin\\Release\\Simplex-Test3.exe
+bin\\Release\\Simplex-Test4.exe
+bin\\Release\\SimplexTest1.exe
+bin\\Release\\SimplexTest2.exe
+bin\\Release\\SimplexTest3.exe
+bin\\Release\\SimplexTest4.exe
+bin\\Release\\test0-FD.exe
+bin\\Release\\test1-small-factorization.exe
+bin\\Release\\test12-BandedMatrix.exe
+bin\\Release\\test13-BFGS.exe
+bin\\Release\\test2-Threads.exe
+bin\\Release\\test3-Timing.exe
+bin\\Release\\test4-KKT.exe
+bin\\Release\\test5-ABD-Diaz.exe
+bin\\Release\\test6-ABD-Block.exe
+bin\\Release\\test7-BorderedCR.exe
+bin\\Release\\test8-Cinterface.exe

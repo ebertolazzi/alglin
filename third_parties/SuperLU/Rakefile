@@ -65,12 +65,12 @@ task :build_win, [:year, :bits] => [:download] do |t, args|
     tmp = " -DBITS=#{args.bits} -DYEAR=#{args.year} " + ' -DCMAKE_INSTALL_PREFIX:PATH=..\libs ..\superlu'
 
     win32_64 = ''
-    case bits
+    case args.bits
     when /x64/
       win32_64 = ' Win64'
     end
 
-    case year
+    case args.year
     when "2010"
       sh 'cmake -G "Visual Studio 10 2010' + win32_64 +'" ' + tmp
     when "2012"
@@ -99,14 +99,12 @@ task :install => [:build] do
   prefix = "../../lib3rd"
   puts "SuperLU copy files to #{prefix}"
   FileUtils.rm_rf   "#{prefix}/include/superlu"
-  FileUtils.rm_rf   "#{prefix}/lib/superlu"
   FileUtils.mkdir_p "#{prefix}/include/superlu"
-  FileUtils.mkdir_p "#{prefix}/lib/superlu"
   Dir['lib/include/*'].each do |f|
     FileUtils.cp f, prefix+'/include/superlu/'+File.basename(f)
   end
   Dir['lib/lib/*'].each do |f|
-    FileUtils.cp f, prefix+'/lib/superlu/'+File.basename(f)
+    FileUtils.cp f, prefix+'/lib/'+File.basename(f)
   end
 end
 
@@ -117,7 +115,7 @@ task :install_win, [:year, :bits] do |t, args|
   Rake::Task[:build_win].invoke(args.year, args.bits)
 
   include = '..\\..\\lib3rd\\include\\superlu\\'
-  lib     = '..\\..\\lib3rd\\lib\\superlu\\'
+  lib     = '..\\..\\lib3rd\\lib\\'+args.bits+"\\"
   
   FileUtils.mkdir_p include
   FileUtils.mkdir_p lib

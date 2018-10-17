@@ -22,6 +22,8 @@ task :install_win, [:year, :bits] do |t, args|
   sh "rake install_win"
   FileUtils.cd "../BlasLapack"
   sh "rake install_win"
+  FileUtils.cd "../BlasLapack2"
+  sh "rake install_win"
   FileUtils.cd "../Eigen3"
   sh "rake install_win"
   FileUtils.cd "../SuperLU"
