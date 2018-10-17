@@ -763,7 +763,7 @@ namespace alglin {
         integer              LDC )
   #if defined(ALGLIN_USE_MKL)
   { dsymm( side_blas[SIDE], uplo_blas[UPLO],
-           &M, &N, &K, &ALPHA, A, &LDA, B, &LDB,
+           &M, &N, &ALPHA, A, &LDA, B, &LDB,
            &BETA, C, &LDC ); }
   #elif defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS)
   { BLASFUNC(dsymm)( const_cast<character*>(side_blas[SIDE]),

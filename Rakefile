@@ -71,8 +71,9 @@ task :build_win, [:year, :bits, :lapack, :thread] do |t, args|
   FileUtils.mkdir_p dir
   FileUtils.cd      dir
 
-  #tmp = " -DBITS=#{args.bits} -DYEAR=#{args.year} " + ' -DCMAKE_INSTALL_PREFIX:PATH=..\lib ..'
-  tmp = " -DBITS=#{args.bits} -DYEAR=#{args.year} " + ' -DBUILD_EXECUTABLE=1 -DCMAKE_INSTALL_PREFIX:PATH=..\lib ..'
+  # do not build executable
+  #tmp = " -DBITS=#{args.bits} -DYEAR=#{args.year} " + ' -DBUILD_EXECUTABLE=1 -DCMAKE_INSTALL_PREFIX:PATH=..\lib ..'
+  tmp = " -DBITS=#{args.bits} -DYEAR=#{args.year} " + ' -DCMAKE_INSTALL_PREFIX:PATH=..\lib ..'
 
   win32_64 = ''
   case args.bits
