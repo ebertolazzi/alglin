@@ -20,6 +20,8 @@ task :install_win, [:year, :bits] do |t, args|
   args.with_defaults(:year => "2017", :bits => "x64" )
   FileUtils.cd "OpenBlas"
   sh "rake install_win"
+  FileUtils.cd "../BlasLapack"
+  sh "rake install_win"
   FileUtils.cd "../Eigen3"
   sh "rake install_win"
   FileUtils.cd "../SuperLU"

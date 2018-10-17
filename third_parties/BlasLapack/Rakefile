@@ -23,3 +23,10 @@ task :unzip => [:download] do
     extract_zip( filename, 'dll' )
   end
 end
+
+task :install_win => [:unzip] do
+  FileUtils.mkdir_p "../../lib3rd/lib"
+  FileUtils.mkdir_p "../../lib3rd/dll"
+  Dir['*/*.dll'].each{ |f| FileUtils.cp(f,'../../lib3rd/dll/'+File.basename(f)) }
+  Dir['*/*.lib'].each{ |f| FileUtils.cp(f,'../../lib3rd/lib/'+File.basename(f)) }
+end

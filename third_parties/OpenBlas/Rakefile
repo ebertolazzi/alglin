@@ -85,15 +85,11 @@ task :install => [:build] do
   puts "OpenBLAS copy files to #{prefix}"
 
   FileUtils.rm_rf   "#{prefix}/include/openblas"
-  FileUtils.rm_rf   "#{prefix}/lib/openblas"
-  FileUtils.rm_rf   "#{prefix}/dll/openblas"
-
   FileUtils.mkdir_p "#{prefix}/include/openblas"
-  FileUtils.mkdir_p "#{prefix}/lib/openblas"
-  FileUtils.mkdir_p "#{prefix}/dll/openblas"
+  FileUtils.mkdir_p "#{prefix}/lib"
 
   FileUtils.cp_r "libs/include", "#{prefix}/include/openblas"
-  FileUtils.cp_r "libs/lib",     "#{prefix}/lib/openblas"
+  FileUtils.cp_r "libs/lib",     "#{prefix}/lib"
 end
 
 def ChangeOnFile( file, text_to_replace, text_to_put_in_place )
@@ -101,37 +97,36 @@ def ChangeOnFile( file, text_to_replace, text_to_put_in_place )
   File.open(file, 'w+'){|f| f << text.gsub(text_to_replace, text_to_put_in_place)}
 end
 
-desc "build OpenBLAS file"
-task :install_win => [:unzip] do
+desc "install OpenBLAS libs"
+task :install_win do
   prefix = "../../lib3rd"
   puts "OpenBLAS copy files to #{prefix}"
-  dir32 = "OpenBLAS-v#{VER_WIN}-Win32/"
-  dir64 = "OpenBLAS-v#{VER_WIN}-Win64-int32/"
 
   FileUtils.rm_rf   "#{prefix}/include/openblas"
-  FileUtils.rm_rf   "#{prefix}/lib/openblas"
-  FileUtils.rm_rf   "#{prefix}/dll/openblas"
-
   FileUtils.mkdir_p "#{prefix}/include/openblas"
 
-  FileUtils.mkdir_p "#{prefix}/lib/openblas/x86"
-  FileUtils.mkdir_p "#{prefix}/lib/openblas/x64"
+  FileUtils.mkdir_p "#{prefix}/lib/x86"
+  FileUtils.mkdir_p "#{prefix}/lib/x64"
+  FileUtils.mkdir_p "#{prefix}/lib/x86_debug"
+  FileUtils.mkdir_p "#{prefix}/lib/x64_debug"
 
-  FileUtils.mkdir_p "#{prefix}/dll/openblas/x86"
-  FileUtils.mkdir_p "#{prefix}/dll/openblas/x64"
+  FileUtils.mkdir_p "#{prefix}/dll/x86"
+  FileUtils.mkdir_p "#{prefix}/dll/x64"
+  FileUtils.mkdir_p "#{prefix}/dll/x86_debug"
+  FileUtils.mkdir_p "#{prefix}/dll/x64_debug"
   
   # remove _Complex for Visual Studio (not supported)
-  ChangeOnFile( dir64+'include/openblas_config.h','_MSC_VER >= 1800', '1 >= 1800')
-  ChangeOnFile( dir32+'include/openblas_config.h','_MSC_VER >= 1800', '1 >= 1800')
+  #ChangeOnFile( dir64+'include/openblas_config.h','_MSC_VER >= 1800', '1 >= 1800')
+  #ChangeOnFile( dir32+'include/openblas_config.h','_MSC_VER >= 1800', '1 >= 1800')
 
-  FileUtils.cp dir32+'/lib/libopenblas.dll.a', prefix+'/dll/openblas/x86/libopenblas.lib'
-  FileUtils.cp dir32+'/bin/libopenblas.dll',   prefix+'/dll/openblas/x86/libopenblas.dll'
-  Dir['mingw32_dll/*'].each{ |f| FileUtils.cp(f,prefix+'/dll/openblas/x86/'+File.basename(f)) }
-  Dir[dir32+'include/*'].each{ |f| FileUtils.cp(f,prefix+'/include/openblas/'+File.basename(f)) }
+  FileUtils.cp 'win32_debug/openblas.lib',   prefix+'/lib/x86_debug/openblas.lib'
+  FileUtils.cp 'win32_debug/openblas.dll',   prefix+'/dll/x86_debug/openblas.dll'
+  FileUtils.cp 'win32_release/openblas.lib', prefix+'/lib/x86/openblas.lib'
+  FileUtils.cp 'win32_release/openblas.dll', prefix+'/dll/x86/openblas.dll'
 
-  FileUtils.cp dir64+'/lib/libopenblas.dll.a', prefix+'/dll/openblas/x64/libopenblas.lib'
-  FileUtils.cp dir64+'/bin/libopenblas.dll',   prefix+'/dll/openblas/x64/libopenblas.dll'
-  Dir['mingw64_dll/*'].each{ |f| FileUtils.cp(f,prefix+'/dll/openblas/x64/'+File.basename(f)) }
-  Dir[dir64+'include/*'].each{ |f| FileUtils.cp(f,prefix+'/include/openblas/'+File.basename(f)) }
+  FileUtils.cp 'win64_debug/openblas.lib',   prefix+'/lib/x64_debug/openblas.lib'
+  FileUtils.cp 'win64_debug/openblas.dll',   prefix+'/dll/x64_debug/openblas.dll'
+  FileUtils.cp 'win64_release/openblas.lib', prefix+'/lib/x64/openblas.lib'
+  Dir['include/*'].each{ |f| FileUtils.cp(f,prefix+'/include/openblas/'+File.basename(f)) }
 
 end

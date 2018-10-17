@@ -125,6 +125,8 @@ IF( BUILD_EXECUTABLE )
   ##                    COMMAND ctest --output-on-failure)
   ##
 
+  LINK_DIRECTORIES( ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/dll )
+
   ENABLE_TESTING()
 
   FIND_PACKAGE(BLAS)

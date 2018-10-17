@@ -34,9 +34,9 @@ task :run  do
 end
 
 task :run_win, [:year, :bits] do |t, args|
-  args.with_defaults( :year   => "2017",
-                      :bits   => "x64" )
-  cmd = "set path=%path%;lib3rd\\dll\\openblas\\#{args.bits};"
+  args.with_defaults( :year => "2017",
+                      :bits => "x64" )
+  cmd = "set path=%path%;lib3rd\\dll;lib3rd\\dll\\openblas;"
   sh "#{cmd} ; bin\\Release\\Simplex-Test1.exe"
   sh "#{cmd} ; bin\\Release\\Simplex-Test2.exe"
   sh "#{cmd} ; bin\\Release\\Simplex-Test3.exe"
@@ -68,13 +68,14 @@ def ChangeOnFile( file, text_to_replace, text_to_put_in_place )
   File.open(file, 'w+'){|f| f << text.gsub(text_to_replace, text_to_put_in_place)}
 end
 
+desc "build[year,bits] compile for Visual Studio [defualt year=2017 bits=x64]"
 task :build_win, [:year, :bits, :lapack, :thread] do |t, args|
   args.with_defaults( :year   => "2017",
                       :bits   => "x64",
-                      :lapack => "ALGLIN_USE_MKL",
+                      :lapack => "ALGLIN_USE_LAPACK",
                       :thread => "ALGLIN_USE_THREAD" )
 
-  sh "set path=%path%;lib3rd\\dll\\openblas\\#{args.bits}"
+  cmd = "set path=%path%;lib3rd\\lib;lib3rd\\dll;lib3rd\\dll\\openblas;"
 
   FileUtils.rm_f 'src/AlglinConfig.hh'
   FileUtils.cp   'src/AlglinConfig.hh.tmpl', 'src/AlglinConfig.hh'
