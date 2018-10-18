@@ -117,7 +117,7 @@ task :install_win, [:year, :bits] do |t, args|
   Rake::Task[:build_win].invoke(args.year, args.bits)
 
   include = '..\\..\\lib3rd\\include\\superlu\\'
-  lib     = '..\\..\\lib3rd\\lib\\"
+  lib     = '..\\..\\lib3rd\\lib\\'
   
   FileUtils.mkdir_p include
   FileUtils.mkdir_p lib
