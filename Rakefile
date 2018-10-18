@@ -61,9 +61,12 @@ task :build_win, [:year, :bits, :lapack, :thread] do |t, args|
 
   FileUtils.rm_f 'src/AlglinConfig.hh'
   FileUtils.cp   'src/AlglinConfig.hh.tmpl', 'src/AlglinConfig.hh'
+  FileUtils.rm_f 'src/AlglinSuperLU.hh'
+  FileUtils.cp   'src/AlglinSuperLU.hh.tmpl', 'src/AlglinSuperLU.hh'
 
-  ChangeOnFile( 'src/AlglinConfig.hh', '@@ALGLIN_USE@@',    "#define #{args.lapack} 1")
-  ChangeOnFile( 'src/AlglinConfig.hh', '@@ALGLIN_THREAD@@', "#define #{args.thread} 1")
+  ChangeOnFile( 'src/AlglinConfig.hh',  '@@ALGLIN_USE@@',    "#define #{args.lapack} 1")
+  ChangeOnFile( 'src/AlglinConfig.hh',  '@@ALGLIN_THREAD@@', "#define #{args.thread} 1")
+  ChangeOnFile( 'src/AlglinSuperLU.hh', '@@VSYEARANDBITS@@', "vs#{args.year}_#{args.bits}")
 
   dir = "vs_#{args.year}_#{args.bits}"
 

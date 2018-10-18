@@ -85,12 +85,10 @@ task :build_win, [:year, :bits] => [:download] do |t, args|
       puts "Visual Studio year #{year} not supported!\n";
     end
     sh 'cmake --build . --config Release  --target install'
-    ##FileUtils.mv '../libs/lib/superlu.lib', "../libs/lib/superlu_vs#{args.year}_#{args.bits}.lib"
-    FileUtils.mv '../libs/lib/superlu.lib', "../libs/lib/superlu_#{args.bits}.lib"
+    FileUtils.mv '../libs/lib/superlu.lib', "../libs/lib/superlu_vs#{args.year}_#{args.bits}.lib"
 
     sh 'cmake --build . --config Debug --target install'
-    ##FileUtils.mv '../libs/lib/superlu.lib', "../libs/lib/superlu_vs#{args.year}_#{args.bits}_debug.lib"
-    FileUtils.mv '../libs/lib/superlu.lib', "../libs/lib/superlu_#{args.bits}_debug.lib"
+    FileUtils.mv '../libs/lib/superlu.lib', "../libs/lib/superlu_vs#{args.year}_#{args.bits}_debug.lib"
 
     FileUtils.cd '..'
   end

@@ -320,6 +320,8 @@ config:
 	rm -f src/AlglinConfig.hh
 	sed 's/@@ALGLIN_USE@@/#define $(USED_LIB) 1/' <src/AlglinConfig.hh.tmpl | \
 	sed 's/@@ALGLIN_THREAD@@/#define $(THREAD) 1/' >src/AlglinConfig.hh
+	rm -f src/AlglinSuperLU.hh
+	sed 's/@@VSYEARANDBITS@@/_SET_YEAR_AND_BITS_/' < src/AlglinSuperLU.hh.tmpl > src/AlglinSuperLU.hh
 
 run:
 	./bin/test0-FD
