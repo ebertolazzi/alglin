@@ -1908,7 +1908,7 @@ namespace alglin {
            valueType       y[] ) const;
 
     void
-    dump( std::ostream & stream ) const;
+    dump( ostream_type & stream ) const;
 
   };
 
@@ -2003,7 +2003,7 @@ namespace alglin {
            valueType       y[] ) const;
 
     void
-    dump( ostream & stream ) const;
+    dump( ostream_type & stream ) const;
     */
 
   };

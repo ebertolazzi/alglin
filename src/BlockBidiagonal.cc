@@ -510,7 +510,7 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BlockBidiagonal<t_Value>::dump_ccoord( std::ostream & stream ) const {
+  BlockBidiagonal<t_Value>::dump_ccoord( ostream_type & stream ) const {
     integer nnz = nblock*nxnx2 + 2*(nblock+1)*n*nb + nb*nb;
 
     // BC
