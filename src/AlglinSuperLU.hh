@@ -87,6 +87,23 @@
 #pragma clang diagnostic pop
 #endif
 
+// automatic library inclusion
+#ifdef ALGLIN_OS_WINDOWS
+  #if defined(_DEBUG) || defined(DEBUG)
+    #ifdef ALGLIN_ARCH64
+      #pragma comment(lib, "superlu_x64_debug.lib")
+    #else
+      #pragma comment(lib, "superlu_x86_debug.lib")
+    #endif
+  #else
+    #ifdef ALGLIN_ARCH64
+      #pragma comment(lib, "superlu_x64.lib")
+    #else
+      #pragma comment(lib, "superlu_x86.lib")
+    #endif
+  #endif
+#endif
+
 #endif
 
 ///
