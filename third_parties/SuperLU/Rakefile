@@ -100,6 +100,7 @@ task :install => [:build] do
   puts "SuperLU copy files to #{prefix}"
   FileUtils.rm_rf   "#{prefix}/include/superlu"
   FileUtils.mkdir_p "#{prefix}/include/superlu"
+  FileUtils.mkdir_p "#{prefix}/lib"
   Dir['lib/include/*'].each do |f|
     FileUtils.cp f, prefix+'/include/superlu/'+File.basename(f)
   end
