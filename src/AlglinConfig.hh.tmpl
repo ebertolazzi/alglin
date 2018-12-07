@@ -24,16 +24,25 @@
 #ifndef ALGLIN_CONFIG_HH
 #define ALGLIN_CONFIG_HH
 
-/* values
-   ALGLIN_USE_ACCELERATE, ALGLIN_USE_ATLAS, ALGLIN_USE_OPENBLAS, 
-   ALGLIN_USE_LAPACK, ALGLIN_USE_MKL
-*/
+/*\
+ ! values
+ !  ALGLIN_USE_ACCELERATE, ALGLIN_USE_ATLAS, ALGLIN_USE_OPENBLAS, 
+ !  ALGLIN_USE_LAPACK, ALGLIN_USE_MKL
+\*/
 @@ALGLIN_USE@@
 
-/* values
-   ALGLIN_USE_THREAD, ALGLIN_DO_NOT_USE_CXX11
-*/
+/*\
+ ! values
+ !  ALGLIN_USE_THREAD, ALGLIN_DO_NOT_USE_CXX11
+\*/
 @@ALGLIN_THREAD@@
+
+/*\
+ ! define
+ ! ALGLIN_DO_NOT_USE_SYSTEM_OPENBLAS
+ ! if you want to use locally compiled openblas
+\*/
+@@ALGLIN_NOSYSTEM_OPENBLAS@@
 
 // select computer architecture
 #if defined(__APPLE__) && defined(__MACH__)

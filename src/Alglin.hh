@@ -290,13 +290,13 @@
       #endif
     #endif
   #else
-    #ifdef ALGLIN_USE_SYSTEM_OPENBLAS
+    #ifdef ALGLIN_DO_NOT_USE_SYSTEM_OPENBLAS
+      #include "openblas/f77blas.h"
+      #include "openblas/cblas.h"
+    #else
       // use -I/usr/include/openblas
       #include <f77blas.h>
       #include <cblas.h>
-    #else
-      #include "openblas/f77blas.h"
-      #include "openblas/cblas.h"
     #endif
   #endif
 

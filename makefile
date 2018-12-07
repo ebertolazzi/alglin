@@ -20,6 +20,7 @@ override INC  += -I./src -I$(PWD)/lib3rd/include
 # select which version of BLAS/LAPACK use
 #
 USED_LIB=""
+SYSTEMOPENBLAS=\/\/
 ifeq ($(ATLAS),1)
   USED_LIB = ALGLIN_USE_ATLAS
 endif
@@ -319,7 +320,8 @@ install_as_framework: lib/$(LIB_ALGLIN)
 config:
 	rm -f src/AlglinConfig.hh
 	sed 's/@@ALGLIN_USE@@/#define $(USED_LIB) 1/' <src/AlglinConfig.hh.tmpl | \
-	sed 's/@@ALGLIN_THREAD@@/#define $(THREAD) 1/' >src/AlglinConfig.hh
+	sed 's/@@ALGLIN_THREAD@@/#define $(THREAD) 1/' | \
+	sed 's/@@ALGLIN_NOSYSTEM_OPENBLAS@@/$(SYSTEMOPENBLAS)#define ALGLIN_DO_NOT_USE_SYSTEM_OPENBLAS 1/' >src/AlglinConfig.hh
 	rm -f src/AlglinSuperLU.hh
 	sed 's/@@VSYEARANDBITS@@/_SET_YEAR_AND_BITS_/' < src/AlglinSuperLU.hh.tmpl > src/AlglinSuperLU.hh
 
