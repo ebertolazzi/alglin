@@ -4,10 +4,21 @@ require "./common.rb"
 task :default => [:install]
 
 desc "install 3rd parties"
-task :install do
+task :install_osx do
   FileUtils.cd "OpenBlas"
   # no openblas for unix/linux
   # sh "rake install"
+  FileUtils.cd "../Eigen3"
+  sh "rake install"
+  FileUtils.cd "../SuperLU"
+  sh "rake install"
+  FileUtils.cd ".."
+end
+
+desc "install 3rd parties"
+task :install_linux do
+  FileUtils.cd "OpenBlas"
+  sh "rake install"
   FileUtils.cd "../Eigen3"
   sh "rake install"
   FileUtils.cd "../SuperLU"

@@ -3,10 +3,10 @@ require "../common.rb"
 
 task :default => [:install]
 
-VER     = '0.3.3'
+VER     = '0.3.4'
 VER_WIN = '0.2.15'
 
-desc "download OpenBlas libs"
+desc "download OpenBLAS libs"
 task :download do
   filename = "OpenBLAS.tar.gz"
   url_addr = "https://sourceforge.net/projects/openblas/files/v#{VER}/OpenBLAS%20#{VER}%20version.tar.gz/download"
@@ -49,7 +49,7 @@ task :build => [:targz] do
      File.exists?(lib+'.so') then
      puts "OpenBLAS already compiled"
   else
-    FileUtils.cd "OpenBlas"
+    FileUtils.cd "OpenBLAS"
     sh "make ; make install PREFIX=../libs"
     FileUtils.cd ".."
 
@@ -88,13 +88,15 @@ task :install => [:build] do
   FileUtils.mkdir_p "#{prefix}/include/openblas"
   FileUtils.mkdir_p "#{prefix}/lib"
 
-  FileUtils.cp_r "libs/include", "#{prefix}/include/openblas"
-  FileUtils.cp_r "libs/lib",     "#{prefix}/lib"
+  FileUtils.cp_r "libs/include/.",          "#{prefix}/include/openblas"
+  FileUtils.mv   Dir.glob("libs/lib/lib*"), "#{prefix}/lib"
 end
 
 def ChangeOnFile( file, text_to_replace, text_to_put_in_place )
   text= File.read file
-  File.open(file, 'w+'){|f| f << text.gsub(text_to_replace, text_to_put_in_place)}
+  File.open(file, 'w+') do |f|
+    f << text.gsub(text_to_replace, text_to_put_in_place)
+  end
 end
 
 desc "install OpenBLAS libs"

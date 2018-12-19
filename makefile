@@ -2,6 +2,9 @@
 OS=$(shell uname)
 PWD=$(shell pwd)
 
+LIB3RD=$(PWD)/lib3rd/lib
+INC3RD=$(PWD)/lib3rd/include
+
 LIB_ALGLIN = libAlglin.a
 
 CC    = gcc
@@ -13,8 +16,8 @@ CLIBS = -lc++
 DEFS  =
 
 CXXFLAGS = -msse4.2 -msse4.1 -mssse3 -msse3 -msse2 -msse -mmmx -m64 -O3 -funroll-loops -fPIC
-override LIBS += -L./lib -lAlglin -L$(PWD)/lib3rd/lib
-override INC  += -I./src -I$(PWD)/lib3rd/include
+override LIBS += -L./lib -lAlglin -L$(LIB3RD)
+override INC  += -I./src -I$(INC3RD)
 
 #
 # select which version of BLAS/LAPACK use
@@ -103,8 +106,8 @@ ifneq (,$(findstring ALGLIN_USE_LAPACK,$(USED_LIB)))
 endif
 
 ifneq (,$(findstring ALGLIN_USE_OPENBLAS,$(USED_LIB)))
-  OPENBLAS_PATH = $(PWD)/lib3rd/lib/openblas
-  override LIBS += -L$(OPENBLAS_PATH) -Wl,-rpath,$(OPENBLAS_PATH) -lopenblas
+  FPATH=$(dir $(shell gfortran -print-libgcc-file-name))
+  override LIBS += -L$(LIB3RD) -Wl,-rpath,$(LIB3RD) -lopenblas -L$(FPATH)/../../.. -Wl,-rpath,$(LIB3RD)/../../..  -lgfortran
 endif
 
 ifneq (,$(findstring ALGLIN_USE_ATLAS,$(USED_LIB)))
@@ -159,7 +162,8 @@ ifneq (,$(findstring ALGLIN_USE_LAPACK,$(USED_LIB)))
 endif
 
 ifneq (,$(findstring ALGLIN_USE_OPENBLAS,$(USED_LIB)))
-  override LIBS += -L$(PWD)/lib3rd/lib/openblas -Xlinker -rpath -Xlinker $(PWD)/lib3rd/lib/openblas -lopenblas
+  FPATH=$(dir $(shell gfortran -print-libgcc-file-name))
+  override LIBS += -L$(LIB3RD) -Wl,-rpath,$(LIB3RD) -lopenblas -L$(FPATH)/../../.. -Wl,-rpath,$(LIB3RD)/../../..  -lgfortran
 endif
 
 ifneq (,$(findstring ALGLIN_USE_ATLAS,$(USED_LIB)))
@@ -302,7 +306,7 @@ lib/libAlglin.so: $(OBJS)
 
 install_local: lib/$(LIB_ALGLIN)
 	$(MKDIR) ./lib/include
-	cp -f -P src/*.h*          ./lib/include
+	cp -f -P src/*.h*        ./lib/include
 	cp -rf lib3rd/include/*  ./lib/include
 
 install: lib/$(LIB_ALGLIN)
@@ -314,7 +318,7 @@ install: lib/$(LIB_ALGLIN)
 install_as_framework: lib/$(LIB_ALGLIN)
 	$(MKDIR) $(PREFIX)/include/$(FRAMEWORK)
 	cp -f -P src/*.h*          $(PREFIX)/include/$(FRAMEWORK)
-	cp -rf lib3rd/include/*  $(PREFIX)/include/$(FRAMEWORK)
+	cp -rf lib3rd/include/*    $(PREFIX)/include/$(FRAMEWORK)
 	cp -f -P lib/$(LIB_ALGLIN) $(PREFIX)/lib
 
 config:
