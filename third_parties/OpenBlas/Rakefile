@@ -89,7 +89,7 @@ task :install => [:build] do
   FileUtils.mkdir_p "#{prefix}/lib"
 
   FileUtils.cp_r "libs/include/.",          "#{prefix}/include/openblas"
-  FileUtils.mv   Dir.glob("libs/lib/lib*"), "#{prefix}/lib"
+  FileUtils.cp   Dir.glob("libs/lib/lib*"), "#{prefix}/lib"
 end
 
 def ChangeOnFile( file, text_to_replace, text_to_put_in_place )
