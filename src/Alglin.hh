@@ -331,9 +331,11 @@
 #include <stdexcept>
 
 #ifndef ALGLIN_ERROR
-  #define ALGLIN_ERROR(MSG) {                   \
-    std::ostringstream ost; ost << MSG << '\n'; \
-    throw std::runtime_error(ost.str());        \
+  #define ALGLIN_ERROR(MSG) {                    \
+    std::ostringstream ost;                      \
+    ost << "in file: " << __FILE__ << "\nline: " \
+        << __LINE__ << '\n' << MSG << '\n';      \
+    throw std::runtime_error(ost.str());         \
   }
 #endif
 
