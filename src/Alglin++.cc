@@ -677,6 +677,15 @@ namespace alglin {
    |   \__\_\_| \_\
    |
   \*/
+
+  template <typename T>
+  void
+  QR<T>::setMaxNrhs( integer mnrhs ) {
+    ALGLIN_ASSERT( mnrhs > 0,
+                   "alglin::QR::setMaxNrhs, maxNrhs = " << mnrhs );
+    maxNrhs = mnrhs;
+  }
+
   template <typename T>
   void
   QR<T>::allocate( integer NR, integer NC, integer Lwrk ) {
@@ -693,11 +702,11 @@ namespace alglin {
   template <typename T>
   void
   QR<T>::allocate( integer NR, integer NC ) {
-    if ( nRow != NR || nCol != NC ) {
+    if ( nRow != NR || nCol != NC || Lwork < maxNrhs ) {
       valueType tmp; // get optimal allocation
       integer info = geqrf( NR, NC, nullptr, NR, nullptr, &tmp, -1 );
       ALGLIN_ASSERT( info == 0, "QR::factorize call alglin::geqrf return info = " << info );
-      integer L = integer(tmp);
+      integer L = std::max( integer(tmp), maxNrhs );
       if ( L < NR ) L = NR;
       if ( L < NC ) L = NC;
       allocate( NR, NC, L );
@@ -783,6 +792,24 @@ namespace alglin {
    |   \__\_\_| \_\_|
    |
   \*/
+
+  template <typename T>
+  void
+  QRP<T>::allocate( integer NR, integer NC ) {
+    if ( nRow != NR || nCol != NC || Lwork < maxNrhs ) {
+      valueType tmp; // get optimal allocation
+      integer info = geqp3( NR, NC, nullptr, NR, nullptr, nullptr, &tmp, -1 );
+      ALGLIN_ASSERT( info == 0,
+                     "QRP::factorize call alglin::geqp3 return info = " << info );
+      integer L = std::max( integer(tmp), maxNrhs );
+      if ( L < NR ) L = NR;
+      if ( L < NC ) L = NC;
+      QR<T>::allocate( NR, NC, L );
+    }
+    allocIntegers.allocate(size_t(NC));
+    JPVT = allocIntegers(size_t(NC));
+  }
+
   template <typename T>
   void
   QRP<T>::permute( valueType x[] ) const {
@@ -954,14 +981,15 @@ namespace alglin {
   LSS<T>::setMaxNrhs( integer mnrhs ) {
     ALGLIN_ASSERT( mnrhs > 0,
                    "alglin::LSS::setMaxNrhs, maxNrhs = " << mnrhs );
-    maxNrhs = mnrhs;
+    maxNrhs         = mnrhs;
+    maxNrhs_changed = true;
   }
 
   template <typename T>
   void
   LSS<T>::allocate( integer NR, integer NC ) {
 
-    if ( nRow != NR || nCol != NC ) {
+    if ( nRow != NR || nCol != NC || maxNrhs_changed ) {
       nRow = NR;
       nCol = NC;
       valueType tmp;
@@ -988,6 +1016,8 @@ namespace alglin {
       Work     = allocReals( size_t(Lwork) );
       sigma    = allocReals( size_t(minRC) );
       AmatWork = Amat+nRow*nCol;
+
+      maxNrhs_changed = false;
     }
   }
 
@@ -1069,14 +1099,15 @@ namespace alglin {
   LSY<T>::setMaxNrhs( integer mnrhs ) {
     ALGLIN_ASSERT( mnrhs > 0,
                    "alglin::LSY::setMaxNrhs, maxNrhs = " << mnrhs );
-    maxNrhs = mnrhs;
+    maxNrhs         = mnrhs;
+    maxNrhs_changed = true;
   }
 
   template <typename T>
   void
   LSY<T>::allocate( integer NR, integer NC ) {
 
-    if ( nRow != NR || nCol != NC ) {
+    if ( nRow != NR || nCol != NC || maxNrhs_changed ) {
       nRow = NR;
       nCol = NC;
       valueType tmp;
@@ -1100,6 +1131,8 @@ namespace alglin {
       AmatWork = Amat+nRow*nCol;
       allocInts.allocate( size_t(NC) );
       jpvt = allocInts( size_t(NC) );
+
+      maxNrhs_changed = false;
     }
   }
 
