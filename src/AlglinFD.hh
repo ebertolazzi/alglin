@@ -40,11 +40,13 @@ namespace alglin {
   template <typename FUNCTION, typename Number>
   inline
   bool
-  finite_difference_gradient( integer      fd_gradient,
-                              Number const x[],
-                              integer      dim_x,
-                              FUNCTION   * fun,
-                              Number       grad[] ) {
+  finite_difference_gradient(
+    integer      fd_gradient,
+    Number const x[],
+    integer      dim_x,
+    FUNCTION   * fun,
+    Number       grad[]
+  ) {
 
     Number const eps = fd_gradient == 0 ?
                        cbrt(std::numeric_limits<Number>::epsilon()):
@@ -97,12 +99,14 @@ namespace alglin {
   template <typename FUNCTION, typename Number>
   inline
   void
-  finite_difference_check_gradient( Number const   x[],
-                                    integer        dim_x,
-                                    FUNCTION     * fun,
-                                    Number const   grad[],
-                                    Number         epsi,
-                                    ostream_type & stream ) {
+  finite_difference_check_gradient(
+    Number const   x[],
+    integer        dim_x,
+    FUNCTION     * fun,
+    Number const   grad[],
+    Number         epsi,
+    ostream_type & stream
+  ) {
 
     Number const eps = cbrt(std::numeric_limits<Number>::epsilon());
     Number * X = const_cast<Number*>(x);
@@ -160,13 +164,15 @@ namespace alglin {
   */
   template <typename FUNCTION, typename Number>
   bool
-  finite_difference_jacobian( integer      fd_jacobian,
-                              Number const x[],
-                              integer      dim_x,
-                              FUNCTION   * fun,
-                              integer      dim_f,
-                              Number       Jac[],
-                              integer      ldJ ) {
+  finite_difference_jacobian(
+    integer      fd_jacobian,
+    Number const x[],
+    integer      dim_x,
+    FUNCTION   * fun,
+    integer      dim_f,
+    Number       Jac[],
+    integer      ldJ
+  ) {
 
     Number const eps = fd_jacobian == 0 ?
                        cbrt(std::numeric_limits<Number>::epsilon()):
@@ -229,14 +235,16 @@ namespace alglin {
 
   template <typename FUNCTION, typename Number>
   void
-  finite_difference_check_jacobian( Number const   x[],
-                                    integer        dim_x,
-                                    FUNCTION    *  fun,
-                                    integer        dim_f,
-                                    Number const   Jac[],
-                                    integer        ldJ,
-                                    Number         epsi,
-                                    ostream_type & stream  ) {
+  finite_difference_check_jacobian(
+    Number const   x[],
+    integer        dim_x,
+    FUNCTION    *  fun,
+    integer        dim_f,
+    Number const   Jac[],
+    integer        ldJ,
+    Number         epsi,
+    ostream_type & stream
+  ) {
 
     Number const eps = cbrt(std::numeric_limits<Number>::epsilon());
 
@@ -290,11 +298,13 @@ namespace alglin {
   */
   template <typename FUNCTION, typename Number>
   bool
-  finite_difference_hessian( Number const x[],
-                             integer      dim_x,
-                             FUNCTION   * fun,
-                             Number       Hess[],
-                             integer      ldH ) {
+  finite_difference_hessian(
+    Number const x[],
+    integer      dim_x,
+    FUNCTION   * fun,
+    Number       Hess[],
+    integer      ldH
+  ) {
 
     Number const eps = pow(std::numeric_limits<Number>::epsilon(),0.25);
     bool ok = true;
@@ -343,13 +353,15 @@ namespace alglin {
 
   template <typename FUNCTION, typename Number>
   bool
-  finite_difference_check_hessian( Number const   x[],
-                                   integer        dim_x,
-                                   FUNCTION     * fun,
-                                   Number const   Hess[],
-                                   integer        ldH,
-                                   Number         epsi,
-                                   ostream_type & stream ) {
+  finite_difference_check_hessian(
+    Number const   x[],
+    integer        dim_x,
+    FUNCTION     * fun,
+    Number const   Hess[],
+    integer        ldH,
+    Number         epsi,
+    ostream_type & stream
+  ) {
 
     Number const eps = pow(std::numeric_limits<Number>::epsilon(),0.25);
     bool ok = true;

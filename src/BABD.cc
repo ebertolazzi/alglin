@@ -54,11 +54,13 @@ namespace alglin {
 
   static
   void
-  dumpOneMatrix ( ostream_type &    stream,
-                  charConstPointer  name,
-                  valueConstPointer M,
-                  indexType         numRow,
-                  indexType         numCol ) {
+  dumpOneMatrix(
+    ostream_type &    stream,
+    charConstPointer  name,
+    valueConstPointer M,
+    indexType         numRow,
+    indexType         numCol
+  ) {
     stream << "# " << name << " Size: "
            << numRow << " x " << numCol << '\n';
     stream << name << " := <";
@@ -75,7 +77,7 @@ namespace alglin {
   }
 
   void
-  BVNLFD_System::dump_to_Maple ( ostream_type & stream ) const {
+  BVNLFD_System::dump_to_Maple( ostream_type & stream ) const {
 
     stream << "interface( rtablesize = 40 );\n";
 

@@ -80,12 +80,15 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  DiazLU<t_Value>::LU_left_right( integer nrA,
-                                  integer ncA,
-                                  integer ncL,
-                                  integer ncR,
-                                  t_Value * A, integer ldA,
-                                  integer swapR[] ) {
+  DiazLU<t_Value>::LU_left_right(
+    integer nrA,
+    integer ncA,
+    integer ncL,
+    integer ncR,
+    t_Value * A, integer ldA,
+    integer swapR[]
+  ) {
+
     integer ierr;
     if ( 2*NB < nrA ) ierr = getry( nrA, ncA, A, ldA, swapR, NB );
     else              ierr = gty( nrA, ncA, A, ldA, swapR );
@@ -128,13 +131,16 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  DiazLU<t_Value>::LU_top_bottom( integer nrT,
-                                  integer nrA,
-                                  integer ncA,
-                                  t_Value * A, integer ldA,
-                                  integer nrB,
-                                  t_Value * B, integer ldB,
-                                  integer swapC[] ) {
+  DiazLU<t_Value>::LU_top_bottom(
+    integer nrT,
+    integer nrA,
+    integer ncA,
+    t_Value * A, integer ldA,
+    integer nrB,
+    t_Value * B, integer ldB,
+    integer swapC[]
+  ) {
+
     integer ierr;
     if ( 2*NB < ncA ) ierr = getrx( nrA, ncA, A, ldA, swapC, NB );
     else              ierr = gtx( nrA, ncA, A, ldA, swapC );
@@ -439,10 +445,12 @@ namespace alglin {
  
   template <typename t_Value>
   void
-  DiazLU<t_Value>::solve_internal( bool         do_permute,
-                                   integer      nrhs,
-                                   valuePointer in_out,
-                                   integer      ldRhs ) const {
+  DiazLU<t_Value>::solve_internal(
+    bool         do_permute,
+    integer      nrhs,
+    valuePointer in_out,
+    integer      ldRhs
+  ) const {
   
     integer const & n      = this->n;
     integer const & nxnx2  = this->nxnx2;

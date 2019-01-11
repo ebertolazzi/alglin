@@ -134,13 +134,15 @@ namespace alglin {
       \endcode
     */
     void
-    factorize( integer           nblk,
-               integer           n,
-               integer           q,
-               valueConstPointer AdAu,
-               valueConstPointer H0,
-               valueConstPointer HN,
-               valueConstPointer Hq );
+    factorize(
+      integer           nblk,
+      integer           n,
+      integer           q,
+      valueConstPointer AdAu,
+      valueConstPointer H0,
+      valueConstPointer HN,
+      valueConstPointer Hq
+    );
 
     //! solve linear sistem using internal factorized matrix
     void solve( valuePointer in_out ) const;

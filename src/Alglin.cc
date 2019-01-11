@@ -132,11 +132,13 @@ namespace alglin {
 
   //! check if the vector `pv` os size `DIM` contains only regular floats. If not an error is issued
   void
-  checkNaN( doublereal const pv[],
-            char       const v_name[],
-            integer          DIM,
-            integer          line,
-            char       const file[] ) {
+  checkNaN(
+    doublereal const pv[],
+    char       const v_name[],
+    integer          DIM,
+    integer          line,
+    char       const file[]
+  ) {
     for ( integer i = 0; i < DIM; ++i ) {
       if ( isInfinite(pv[i]) ) {
         ALGLIN_ERROR( LINE_LINE_LINE_LINE <<
@@ -155,11 +157,13 @@ namespace alglin {
   }
 
   void
-  checkNaN( real const pv[],
-            char const v_name[],
-            integer    DIM,
-            integer    line,
-            char const file[] ) {
+  checkNaN(
+    real const pv[],
+    char const v_name[],
+    integer    DIM,
+    integer    line,
+    char const file[]
+  ) {
     for ( integer i = 0; i < DIM; ++i ) {
       if ( isInfinite(pv[i]) ) {
         ALGLIN_ERROR( LINE_LINE_LINE_LINE <<
@@ -189,11 +193,13 @@ namespace alglin {
   */
   template <typename REAL>
   integer
-  gtx( integer M,
-       integer N,
-       REAL    A[],
-       integer LDA,
-       integer IPIV[] ) {
+  gtx(
+    integer M,
+    integer N,
+    REAL    A[],
+    integer LDA,
+    integer IPIV[]
+  ) {
     // LU DECOMPOSITION, COLUMN INTERCHANGES
     REAL * Ajj = A;
     for ( int j = 0; j < M; Ajj += LDA+1 ) {
@@ -211,14 +217,15 @@ namespace alglin {
 
   template <typename REAL>
   integer
-  getrx( integer M,      // NUMBER OF ROWS IN A, UNCHANGED
-         integer N,      // NUMBER OF COLUMNS IN A, UNCHANGED
-         REAL    A[],    // A - ARRAY OF DIMENSION (LDA, N), OVERWRITTEN BY FACTORIZATION
-                         // L - UNIT LOVER TRIANGULAR
-                         // U - UPPER TRIANGULAR
-         integer LDA,    // FIRST DIMENSION OF A AS DECLARED IN THE CALLING (SUB)PROGRAM, UNCHANGED
-         integer IPIV[], // ARRAY OF DIMENSION (M) ON EXIT CONTAINS PIVOT INDICES
-         integer MB
+  getrx(
+    integer M,      // NUMBER OF ROWS IN A, UNCHANGED
+    integer N,      // NUMBER OF COLUMNS IN A, UNCHANGED
+    REAL    A[],    // A - ARRAY OF DIMENSION (LDA, N), OVERWRITTEN BY FACTORIZATION
+                    // L - UNIT LOVER TRIANGULAR
+                    // U - UPPER TRIANGULAR
+    integer LDA,    // FIRST DIMENSION OF A AS DECLARED IN THE CALLING (SUB)PROGRAM, UNCHANGED
+    integer IPIV[], // ARRAY OF DIMENSION (M) ON EXIT CONTAINS PIVOT INDICES
+    integer MB
   ) {
     // COMPUTES LU FACTORIZATION OF M-BY-N MATRIX;
     // PARTIAL PIVOTING COLUMN INTERCHANGES
@@ -260,11 +267,13 @@ namespace alglin {
 
   template <typename REAL>
   integer
-  gty( integer M,
-       integer N,
-       REAL    A[],
-       integer LDA,
-       integer IPIV[] ) {
+  gty(
+    integer M,
+    integer N,
+    REAL    A[],
+    integer LDA,
+    integer IPIV[]
+  ) {
     // LU DECOMPOSITION, ROW INTERCHANGES
     REAL * Ajj = A;
     for ( int j = 0; j < N; Ajj += LDA+1 ) {
@@ -282,14 +291,15 @@ namespace alglin {
 
   template <typename REAL>
   integer
-  getry( integer M,      // NUMBER OF ROWS IN A, UNCHANGED
-         integer N,      // NUMBER OF COLUMNS IN A, UNCHANGED
-         REAL    A[],    // A - ARRAY OF DIMENSION (LDA, N), OVERWRITTEN BY FACTORIZATION
-                         // L - UNIT LOVER TRIANGULAR
-                         // U - UPPER TRIANGULAR
-         integer LDA,    // FIRST DIMENSION OF A AS DECLARED IN THE CALLING (SUB)PROGRAM, UNCHANGED
-         integer IPIV[], // ARRAY OF DIMENSION (M) ON EXIT CONTAINS PIVOT INDICES
-         integer NB
+  getry(
+    integer M,      // NUMBER OF ROWS IN A, UNCHANGED
+    integer N,      // NUMBER OF COLUMNS IN A, UNCHANGED
+    REAL    A[],    // A - ARRAY OF DIMENSION (LDA, N), OVERWRITTEN BY FACTORIZATION
+                    // L - UNIT LOVER TRIANGULAR
+                    // U - UPPER TRIANGULAR
+    integer LDA,    // FIRST DIMENSION OF A AS DECLARED IN THE CALLING (SUB)PROGRAM, UNCHANGED
+    integer IPIV[], // ARRAY OF DIMENSION (M) ON EXIT CONTAINS PIVOT INDICES
+    integer NB
   ) {
     // COMPUTES LU FACTORIZATION OF M-BY-N MATRIX;
     // PARTIAL PIVOTING ROW INTERCHANGES
@@ -363,13 +373,15 @@ namespace alglin {
 
   template <typename T>
   void
-  triTikhonov( integer N,
-               T const Amat[],
-               integer ldA,
-               integer nrhs,
-               T       RHS[],
-               integer ldRHS,
-               T       lambda ) {
+  triTikhonov(
+    integer N,
+    T const Amat[],
+    integer ldA,
+    integer nrhs,
+    T       RHS[],
+    integer ldRHS,
+    T       lambda
+  ) {
 
     std::vector<T> Tmat(N*N), line(N), r(nrhs);
     T C, S;
@@ -398,11 +410,13 @@ namespace alglin {
   #if defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
   template <typename T>
   integer
-  getc2_tmpl( integer N,
-              T       A[],
-              integer LDA,
-              integer IPIV[],
-              integer JPIV[] ) {
+  getc2_tmpl(
+    integer N,
+    T       A[],
+    integer LDA,
+    integer IPIV[],
+    integer JPIV[]
+  ) {
     // Set constants to control overflow
     integer INFO = 0;
     T       EPS    = lamch<T>("P");
@@ -448,12 +462,14 @@ namespace alglin {
                                integer    JPIV[] );
   template <typename T>
   T
-  gesc2_tmpl( integer       N,
-              T       const A[],
-              integer       LDA,
-              T             RHS[],
-              integer const IPIV[],
-              integer const JPIV[] ) {
+  gesc2_tmpl(
+    integer       N,
+    T       const A[],
+    integer       LDA,
+    T             RHS[],
+    integer const IPIV[],
+    integer const JPIV[]
+  ) {
     // Set constants to control overflow
     T EPS    = lamch<T>("P");
     T SMLNUM = lamch<T>("S") / EPS;
@@ -506,16 +522,18 @@ namespace alglin {
 
   template <typename T>
   void
-  laqge_tmpl( integer             /* M      */,
-              integer             /* N      */,
-              T                   /* A      */[],
-              integer             /* LDA    */,
-              T const             /* R      */[],
-              T const             /* C      */[],
-              T                   /* ROWCND */,
-              T                   /* COLCND */,
-              T                   /* AMAX   */,
-              EquilibrationType & /* equ    */) {
+  laqge_tmpl(
+    integer             /* M      */,
+    integer             /* N      */,
+    T                   /* A      */[],
+    integer             /* LDA    */,
+    T const             /* R      */[],
+    T const             /* C      */[],
+    T                   /* ROWCND */,
+    T                   /* COLCND */,
+    T                   /* AMAX   */,
+    EquilibrationType & /* equ    */
+  ) {
     ALGLIN_ERROR("NOT YET IMPLEMENTED" );
   }
 

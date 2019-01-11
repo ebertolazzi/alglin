@@ -48,13 +48,15 @@ namespace alglin {
   \*/
   template <typename t_Value>
   void
-  BlockLU<t_Value>::allocateTopBottom( integer _nblock,
-                                       integer _n,
-                                       integer _row0,
-                                       integer _col0,
-                                       integer _rowN,
-                                       integer _colN,
-                                       integer _nb ) {
+  BlockLU<t_Value>::allocateTopBottom(
+    integer _nblock,
+    integer _n,
+    integer _row0,
+    integer _col0,
+    integer _rowN,
+    integer _colN,
+    integer _nb
+  ) {
     F_lda    = _n + _row0 - _col0;
     F_size   = _n*F_lda;
     Work_lda = F_lda + _n;
@@ -567,10 +569,12 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BlockLU<t_Value>::solve_internal( bool         do_permute,
-                                    integer      nrhs,
-                                    valuePointer in_out,
-                                    integer      ldRhs ) const {
+  BlockLU<t_Value>::solve_internal(
+    bool         do_permute,
+    integer      nrhs,
+    valuePointer in_out,
+    integer      ldRhs
+  ) const {
 
     integer const & n      = this->n;
     integer const & nxnx2  = this->nxnx2;

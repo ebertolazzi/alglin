@@ -55,13 +55,15 @@ namespace alglin {
    |  |_|  \__,_|\___|\__\___/|_|  |_/___\___|
   \*/
   void
-  BABD_SuperLU::factorize( integer           _nblock,
-                           integer           _n,
-                           integer           q,
-                           valueConstPointer AdAu,
-                           valueConstPointer H0,
-                           valueConstPointer HN,
-                           valueConstPointer Hq ) {
+  BABD_SuperLU::factorize(
+    integer           _nblock,
+    integer           _n,
+    integer           q,
+    valueConstPointer AdAu,
+    valueConstPointer H0,
+    valueConstPointer HN,
+    valueConstPointer Hq
+  ) {
 
     nblock = _nblock;
     n      = _n;

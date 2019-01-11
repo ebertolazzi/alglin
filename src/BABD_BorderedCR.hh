@@ -154,28 +154,34 @@ namespace alglin {
     BORDERED_Choice      selected;
 
     void
-    buildT( integer           nth,
-            valueConstPointer TOP,
-            valueConstPointer BOTTOM,
-            valuePointer      T,
-            integer *         iperm ) const;
+    buildT(
+      integer           nth,
+      valueConstPointer TOP,
+      valueConstPointer BOTTOM,
+      valuePointer      T,
+      integer *         iperm
+    ) const;
 
     void
-    applyT( integer           nth,
-            valueConstPointer T,
-            integer const *   iperm,
-            valuePointer      TOP,
-            integer           ldTOP,
-            valuePointer      BOTTOM,
-            integer           ldBOTTOM,
-            integer           ncol ) const;
+    applyT(
+      integer           nth,
+      valueConstPointer T,
+      integer const *   iperm,
+      valuePointer      TOP,
+      integer           ldTOP,
+      valuePointer      BOTTOM,
+      integer           ldBOTTOM,
+      integer           ncol
+    ) const;
 
     void
-    applyT( integer           nth,
-            valueConstPointer T,
-            integer const *   iperm,
-            valuePointer      TOP,
-            valuePointer      BOTTOM ) const;
+    applyT(
+      integer           nth,
+      valueConstPointer T,
+      integer const *   iperm,
+      valuePointer      TOP,
+      valuePointer      BOTTOM
+    ) const;
 
     // convert permutation to exchanges
     void
@@ -213,18 +219,22 @@ namespace alglin {
     forward( integer nth, valuePointer x, valuePointer xb ) const;
 
     void
-    forward_n( integer      nth,
-               integer      nrhs,
-               valuePointer rhs,
-               integer      ldRhs ) const;
+    forward_n(
+      integer      nth,
+      integer      nrhs,
+      valuePointer rhs,
+      integer      ldRhs
+    ) const;
 
     void
     forward_reduced( valuePointer x, valuePointer xb ) const;
 
     void
-    forward_n_reduced( integer      nrhs,
-                       valuePointer rhs,
-                       integer      ldRhs ) const;
+    forward_n_reduced(
+      integer      nrhs,
+      valuePointer rhs,
+      integer      ldRhs
+    ) const;
 
     /*
     //   _             _                       _
@@ -240,15 +250,19 @@ namespace alglin {
     backward_reduced( valuePointer x ) const;
 
     void
-    backward_n( integer      nth,
-                integer      nrhs,
-                valuePointer rhs,
-                integer      ldRhs ) const;
+    backward_n(
+      integer      nth,
+      integer      nrhs,
+      valuePointer rhs,
+      integer      ldRhs
+    ) const;
 
     void
-    backward_n_reduced( integer      nrhs,
-                        valuePointer rhs,
-                        integer      ldRhs ) const;
+    backward_n_reduced(
+      integer      nrhs,
+      valuePointer rhs,
+      integer      ldRhs
+    ) const;
 
     void
     load_and_factorize_last();
@@ -264,9 +278,11 @@ namespace alglin {
     solve_last( valuePointer ) const;
 
     void
-    solve_last( integer      nrhs,
-                valuePointer rhs,
-                integer      ldRhs ) const;
+    solve_last(
+      integer      nrhs,
+      valuePointer rhs,
+      integer      ldRhs
+    ) const;
 
     valuePointer H0Nqp;
     valuePointer Bmat, Cmat, Cqmat, Dmat, Emat, Fmat, WorkT, WorkQR;
@@ -354,12 +370,14 @@ namespace alglin {
 
     //! load matrix in the class
     void
-    allocate( integer _nblock,
-              integer _n,
-              integer _qr,
-              integer _qx,
-              integer _nr,
-              integer _nx );
+    allocate(
+      integer _nblock,
+      integer _n,
+      integer _qr,
+      integer _qx,
+      integer _nr,
+      integer _nx
+    );
 
     void
     dup( BorderedCR const & );
@@ -599,16 +617,20 @@ namespace alglin {
     // -------------------------------------------------------------------------
 
     void
-    loadBottom( valueConstPointer H0, integer ld0,
-                valueConstPointer HN, integer ldN,
-                valueConstPointer Hq, integer ldQ,
-                valueConstPointer Hp, integer ldP );
+    loadBottom(
+      valueConstPointer H0, integer ld0,
+      valueConstPointer HN, integer ldN,
+      valueConstPointer Hq, integer ldQ,
+      valueConstPointer Hp, integer ldP
+    );
 
     void
-    loadBottom( MatrixWrapper<valueType> const & H0,
-                MatrixWrapper<valueType> const & HN,
-                MatrixWrapper<valueType> const & Hq,
-                MatrixWrapper<valueType> const & Hp );
+    loadBottom(
+      MatrixWrapper<valueType> const & H0,
+      MatrixWrapper<valueType> const & HN,
+      MatrixWrapper<valueType> const & Hq,
+      MatrixWrapper<valueType> const & Hp
+    );
 
     void
     loadBottom( valueConstPointer _H0Nqp, integer ldH ) {
@@ -790,10 +812,12 @@ namespace alglin {
     sparseValues( valuePointer V ) const;
 
     void
-    sparseLoad( valueConstPointer M_values,
-                integer const     M_row[], integer r_offs,
-                integer const     M_col[], integer c_offs,
-                integer           M_nnz );
+    sparseLoad(
+      valueConstPointer M_values,
+      integer const     M_row[], integer r_offs,
+      integer const     M_col[], integer c_offs,
+      integer           M_nnz
+    );
 
   };
 

@@ -38,12 +38,14 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::allocate( integer _nblock,
-                                 integer _n,
-                                 integer _qr,
-                                 integer _qx,
-                                 integer _nr,
-                                 integer _nx ) {
+  BorderedCR<t_Value>::allocate(
+    integer _nblock,
+    integer _n,
+    integer _qr,
+    integer _qx,
+    integer _nr,
+    integer _nx
+  ) {
 
     if ( nblock == _nblock && n  == _n  &&
          qr     == _qr     && qx == _qx &&
@@ -212,10 +214,13 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::loadBottom( MatrixWrapper<valueType> const & H0,
-                                   MatrixWrapper<valueType> const & HN,
-                                   MatrixWrapper<valueType> const & Hq,
-                                   MatrixWrapper<valueType> const & Hp ) {
+  BorderedCR<t_Value>::loadBottom(
+    MatrixWrapper<valueType> const & H0,
+    MatrixWrapper<valueType> const & HN,
+    MatrixWrapper<valueType> const & Hq,
+    MatrixWrapper<valueType> const & Hp
+  ) {
+
     integer m = n + qr;
 
     ALGLIN_ASSERT( H0.numRows == m && H0.numCols == n,
@@ -416,11 +421,13 @@ namespace alglin {
   \*/
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::buildT( integer           nth,
-                               valueConstPointer TOP,
-                               valueConstPointer BOTTOM,
-                               valuePointer      T,
-                               integer *         iperm ) const {
+  BorderedCR<t_Value>::buildT(
+    integer           nth,
+    valueConstPointer TOP,
+    valueConstPointer BOTTOM,
+    valuePointer      T,
+    integer *         iperm
+  ) const {
     gecopy( n, n, TOP,    n, T,   n_x_2 );
     gecopy( n, n, BOTTOM, n, T+n, n_x_2 );
     integer info = 0;
@@ -461,14 +468,16 @@ namespace alglin {
   \*/
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::applyT( integer           nth,
-                               valueConstPointer T,
-                               integer const *   iperm,
-                               valuePointer      TOP,
-                               integer           ldTOP,
-                               valuePointer      BOTTOM,
-                               integer           ldBOTTOM,
-                               integer           ncol ) const {
+  BorderedCR<t_Value>::applyT(
+    integer           nth,
+    valueConstPointer T,
+    integer const *   iperm,
+    valuePointer      TOP,
+    integer           ldTOP,
+    valuePointer      BOTTOM,
+    integer           ldBOTTOM,
+    integer           ncol
+  ) const {
     valuePointer W = WorkT + LworkT*nth;
     gecopy( n, ncol, TOP,    ldTOP,    W,   n_x_2 );
     gecopy( n, ncol, BOTTOM, ldBOTTOM, W+n, n_x_2 );
@@ -504,11 +513,13 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::applyT( integer           nth,
-                               valueConstPointer T,
-                               integer const *   iperm,
-                               valuePointer      TOP,
-                               valuePointer      BOTTOM ) const {
+  BorderedCR<t_Value>::applyT(
+    integer           nth,
+    valueConstPointer T,
+    integer const *   iperm,
+    valuePointer      TOP,
+    valuePointer      BOTTOM
+  ) const {
     valuePointer W = WorkT + LworkT*nth;
     copy( n, TOP,    1, W,   1 );
     copy( n, BOTTOM, 1, W+n, 1 );
@@ -847,9 +858,11 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::solve_last( integer      nrhs,
-                                   valuePointer x,
-                                   integer      ldX ) const {
+  BorderedCR<t_Value>::solve_last(
+    integer      nrhs,
+    valuePointer x,
+    integer      ldX
+  ) const {
     valuePointer X = x + (nblock-1)*n;
     for ( integer i = 0; i < nrhs; ++i ) swap( n, X+i*ldX, 1, x+i*ldX, 1 );
     integer info = 0;
@@ -940,9 +953,11 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::solve( integer      nrhs,
-                              valuePointer rhs,
-                              integer      ldRhs ) const {
+  BorderedCR<t_Value>::solve(
+    integer      nrhs,
+    valuePointer rhs,
+    integer      ldRhs
+  ) const {
     #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
     if ( usedThread > 1 ) {
       for ( integer nt = 1; nt < usedThread; ++nt )
@@ -986,7 +1001,11 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::forward( integer nth, valuePointer x, valuePointer xb ) const {
+  BorderedCR<t_Value>::forward(
+    integer      nth,
+    valuePointer x,
+    valuePointer xb
+  ) const {
     integer iblock = iBlock[2*nth+0];
     integer eblock = iBlock[2*nth+1];
     integer nblk   = eblock - iblock;
@@ -1020,10 +1039,12 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::forward_n( integer      nth,
-                                  integer      nrhs,
-                                  valuePointer x,
-                                  integer      ldX ) const {
+  BorderedCR<t_Value>::forward_n(
+    integer      nth,
+    integer      nrhs,
+    valuePointer x,
+    integer      ldX
+  ) const {
     valuePointer xb = x + (nblock+1)*n + qr;
     integer iblock = iBlock[2*nth+0];
     integer eblock = iBlock[2*nth+1];
@@ -1096,9 +1117,11 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::forward_n_reduced( integer      nrhs,
-                                          valuePointer x,
-                                          integer      ldX ) const {
+  BorderedCR<t_Value>::forward_n_reduced(
+    integer      nrhs,
+    valuePointer x,
+    integer      ldX
+  ) const {
     valuePointer xb = x + (nblock+1)*n + qr;
     integer nblk = 2*usedThread-1;
     integer k = 1;
@@ -1186,10 +1209,12 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::backward_n( integer      nth,
-                                   integer      nrhs,
-                                   valuePointer x,
-                                   integer      ldX ) const {
+  BorderedCR<t_Value>::backward_n(
+    integer      nth,
+    integer      nrhs,
+    valuePointer x,
+    integer      ldX
+  ) const {
     valuePointer xn = x + (nblock+1)*n + qx;
     integer iblock = iBlock[2*nth+0];
     integer eblock = iBlock[2*nth+1];
@@ -1286,9 +1311,11 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::backward_n_reduced( integer      nrhs,
-                                           valuePointer x,
-                                           integer      ldX ) const {
+  BorderedCR<t_Value>::backward_n_reduced(
+    integer      nrhs,
+    valuePointer x,
+    integer      ldX
+  ) const {
     valuePointer xn = x + (nblock+1)*n + qx;
     integer nblk = 2*usedThread-1;
     integer k = 1;
@@ -1396,9 +1423,11 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::sparsePattern( integer I[],
-                                      integer J[],
-                                      integer offs ) const {
+  BorderedCR<t_Value>::sparsePattern(
+    integer I[],
+    integer J[],
+    integer offs
+  ) const {
     integer kkk = 0;
 
     // bidiagonal
@@ -1506,10 +1535,12 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::sparseLoad( valueConstPointer M_values,
-                                   integer const     M_row[], integer r_offs,
-                                   integer const     M_col[], integer c_offs,
-                                   integer           M_nnz ) {
+  BorderedCR<t_Value>::sparseLoad(
+    valueConstPointer M_values,
+    integer const     M_row[], integer r_offs,
+    integer const     M_col[], integer c_offs,
+    integer           M_nnz
+  ) {
     integer const rH   = n*nblock;
     integer const rC   = rH + n+qr;
     integer const nrow = rC + nr;

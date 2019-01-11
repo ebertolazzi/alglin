@@ -49,20 +49,22 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BlockBidiagonal<t_Value>::allocate( integer _nblock,
-                                      integer _n,
-                                      integer _nb,
-                                      // ----------------------
-                                      integer _numInitialBC,
-                                      integer _numFinalBC,
-                                      integer _numCyclicBC,
-                                      // ----------------------
-                                      integer _numInitialOMEGA,
-                                      integer _numFinalOMEGA,
-                                      integer _numCyclicOMEGA,
-                                      // ----------------------
-                                      integer num_extra_r,
-                                      integer num_extra_i ) {
+  BlockBidiagonal<t_Value>::allocate(
+    integer _nblock,
+    integer _n,
+    integer _nb,
+    // ----------------------
+    integer _numInitialBC,
+    integer _numFinalBC,
+    integer _numCyclicBC,
+    // ----------------------
+    integer _numInitialOMEGA,
+    integer _numFinalOMEGA,
+    integer _numCyclicOMEGA,
+    // ----------------------
+    integer num_extra_r,
+    integer num_extra_i
+  ) {
 
     ALGLIN_ASSERT( _numInitialBC  >= 0 && _numFinalBC      >= 0 &&
                    _numCyclicBC   >= 0 && _numInitialOMEGA >= 0 &&
@@ -340,9 +342,11 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BlockBidiagonal<t_Value>::solve_bordered( integer      nrhs,
-                                            valuePointer xb,
-                                            integer      ldRhs ) const {
+  BlockBidiagonal<t_Value>::solve_bordered(
+    integer      nrhs,
+    valuePointer xb,
+    integer      ldRhs
+  ) const {
     // a' = A^(-1)*a
     this->solve( nrhs, xb, ldRhs );
     if ( nb > 0 ) {
@@ -378,11 +382,13 @@ namespace alglin {
   template <typename T>
   static
   void
-  dumpOneMatrix ( ostream_type & stream,
-                  char const *   name,
-                  T const        M[],
-                  integer        numRow,
-                  integer        numCol ) {
+  dumpOneMatrix(
+    ostream_type & stream,
+    char const *   name,
+    T const        M[],
+    integer        numRow,
+    integer        numCol
+  ) {
     stream << "# " << name
            << " Size: " << numRow << " x " << numCol << '\n'
            << name << " := <";
@@ -422,8 +428,10 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BlockBidiagonal<t_Value>::Mv( valueConstPointer x,
-                                valuePointer      res ) const {
+  BlockBidiagonal<t_Value>::Mv(
+    valueConstPointer x,
+    valuePointer      res
+  ) const {
     zero( neq+nb, res, 1 );
     if ( numCyclicBC == 0 && numCyclicOMEGA == 0 ) {
       integer row0  = numInitialBC;

@@ -103,21 +103,25 @@ namespace alglin {
     integer * swapRC_blks;
 
     void
-    LU_left_right( integer nrA,
-                   integer ncA,
-                   integer ncL,
-                   integer ncR,
-                   t_Value * A, integer ldA,
-                   integer swapR[] );
+    LU_left_right(
+      integer nrA,
+      integer ncA,
+      integer ncL,
+      integer ncR,
+      t_Value * A, integer ldA,
+      integer swapR[]
+    );
 
     void
-    LU_top_bottom( integer nrT,
-                   integer nrA,
-                   integer ncA,
-                   t_Value * A, integer ldA,
-                   integer nrB,
-                   t_Value * B, integer ldB,
-                   integer swapC[] );
+    LU_top_bottom(
+      integer nrT,
+      integer nrA,
+      integer ncA,
+      t_Value * A, integer ldA,
+      integer nrB,
+      t_Value * B, integer ldB,
+      integer swapC[]
+    );
 
     //! solve linear sistem using internal factorized matrix
     void
@@ -125,7 +129,12 @@ namespace alglin {
 
     //! solve linear sistem using internal factorized matrix
     void
-    solve_internal( bool do_permute, integer nrhs, valuePointer in_out, integer ldRhs ) const;
+    solve_internal(
+      bool         do_permute,
+      integer      nrhs,
+      valuePointer in_out,
+      integer      ldRhs
+    ) const;
 
   public:
 
@@ -140,28 +149,32 @@ namespace alglin {
 
     virtual
     void
-    allocate( integer /* nblock */,
-              integer /* n      */,
-              integer /* nb     */,
-              // ----------------------
-              integer /* numInitialBC */,
-              integer /* numFinalBC   */,
-              integer /* numCyclicBC  */,
-              // ----------------------
-              integer /* numInitialOMEGA */,
-              integer /* numFinalOMEGA   */,
-              integer /* numCyclicOMEGA  */ ) ALGLIN_OVERRIDE
+    allocate(
+      integer /* nblock */,
+      integer /* n      */,
+      integer /* nb     */,
+      // ----------------------
+      integer /* numInitialBC */,
+      integer /* numFinalBC   */,
+      integer /* numCyclicBC  */,
+      // ----------------------
+      integer /* numInitialOMEGA */,
+      integer /* numFinalOMEGA   */,
+      integer /* numCyclicOMEGA  */
+    ) ALGLIN_OVERRIDE
     { ALGLIN_ERROR("DiazLU::allocate() not defined!"); }
 
     virtual
     void
-    allocateTopBottom( integer _nblock,
-                       integer _n,
-                       integer _row0,
-                       integer _col0,
-                       integer _rowN,
-                       integer _colN,
-                       integer _nb ) ALGLIN_OVERRIDE {
+    allocateTopBottom(
+      integer _nblock,
+      integer _n,
+      integer _row0,
+      integer _col0,
+      integer _rowN,
+      integer _colN,
+      integer _nb
+    ) ALGLIN_OVERRIDE {
       integer inv = _nblock*_n+(_col0+_colN-2*_n);
       BlockBidiagonal<t_Value>::allocateTopBottom( _nblock, _n,
                                                    _row0, _col0,

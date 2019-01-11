@@ -67,11 +67,13 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  KKT<t_Value>::load_A( valueConstPointer A_values,
-                        integer const *   A_row, integer r_offs,
-                        integer const *   A_col, integer c_offs,
-                        integer           A_nnz,
-                        bool  is_symmetric ) {
+  KKT<t_Value>::load_A(
+    valueConstPointer A_values,
+    integer const *   A_row, integer r_offs,
+    integer const *   A_col, integer c_offs,
+    integer           A_nnz,
+    bool  is_symmetric
+  ) {
     pAsolver = &A_lu;
     A_lu.allocate(n,n);
     if ( is_symmetric )
@@ -83,9 +85,11 @@ namespace alglin {
     
   template <typename t_Value>
   void
-  KKT<t_Value>::load_A( valueConstPointer A,
-                        integer           ldA,
-                        bool transposed ) {
+  KKT<t_Value>::load_A(
+    valueConstPointer A,
+    integer           ldA,
+    bool transposed
+  ) {
     ALGLIN_ASSERT( ldA >= n,
                    "KKT::load_A bad ldA = " << ldA << " must be >= " << n );
     pAsolver = &A_lu;
@@ -102,10 +106,12 @@ namespace alglin {
   // n x m
   template <typename t_Value>
   void
-  KKT<t_Value>::load_B( valueConstPointer B_values,
-                        integer const *   B_row, integer r_offs,
-                        integer const *   B_col, integer c_offs,
-                        integer           B_nnz ) {
+  KKT<t_Value>::load_B(
+    valueConstPointer B_values,
+    integer const *   B_row, integer r_offs,
+    integer const *   B_col, integer c_offs,
+    integer           B_nnz
+  ) {
      gezero( n, m, Zmat, n );
      for ( integer k = 0; k < B_nnz; ++k ) {
        integer i = B_row[k]+r_offs;
@@ -120,9 +126,11 @@ namespace alglin {
   // n x m
   template <typename t_Value>
   void
-  KKT<t_Value>::load_B( valueConstPointer B,
-                        integer           ldB,
-                        bool              transposed ) {
+  KKT<t_Value>::load_B(
+    valueConstPointer B,
+    integer           ldB,
+    bool              transposed
+  ) {
     if ( transposed ) {
       ALGLIN_ASSERT( ldB >= m,
                      "KKT::load_B bad ldB = " << ldB << " must be >= " << m );
@@ -138,10 +146,12 @@ namespace alglin {
   // m x n
   template <typename t_Value>
   void
-  KKT<t_Value>::load_C( valueConstPointer C_values,
-                        integer const *   C_row, integer r_offs,
-                        integer const *   C_col, integer c_offs,
-                        integer           C_nnz ) {
+  KKT<t_Value>::load_C(
+    valueConstPointer C_values,
+    integer const *   C_row, integer r_offs,
+    integer const *   C_col, integer c_offs,
+    integer           C_nnz
+  ) {
     gezero( m, n, Cmat, m );
     for ( integer k = 0; k < C_nnz; ++k ) {
       integer i = C_row[k]+r_offs;
@@ -156,9 +166,11 @@ namespace alglin {
   // m x n
   template <typename t_Value>
   void
-  KKT<t_Value>::load_C( valueConstPointer C,
-                        integer           ldC,
-                        bool              transposed ) {
+  KKT<t_Value>::load_C(
+    valueConstPointer C,
+    integer           ldC,
+    bool              transposed
+  ) {
     if ( transposed ) {
       ALGLIN_ASSERT( ldC >= n,
                      "KKT::load_C bad ldC = " << ldC << " must be >= " << n );
@@ -174,11 +186,13 @@ namespace alglin {
   // m x m
   template <typename t_Value>
   void
-  KKT<t_Value>::load_D( valueConstPointer D_values,
-                        integer const *   D_row, integer r_offs,
-                        integer const *   D_col, integer c_offs,
-                        integer           D_nnz,
-                        bool is_symmetric_D ) {
+  KKT<t_Value>::load_D(
+    valueConstPointer D_values,
+    integer const *   D_row, integer r_offs,
+    integer const *   D_col, integer c_offs,
+    integer           D_nnz,
+    bool is_symmetric_D
+  ) {
      valuePointer Wmat = W_lu.Apointer();
      gezero( m, m, Wmat, m );
      for ( integer k = 0; k < D_nnz; ++k ) {
@@ -196,9 +210,11 @@ namespace alglin {
   // m x m
   template <typename t_Value>
   void
-  KKT<t_Value>::load_D( valueConstPointer D,
-                        integer           ldD,
-                        bool              transposed ) {
+  KKT<t_Value>::load_D(
+    valueConstPointer D,
+    integer           ldD,
+    bool              transposed
+  ) {
     ALGLIN_ASSERT( ldD >= m,
                    "KKT::load_D bad ldD = " << ldD << " must be >= " << m );
     valuePointer Wmat = W_lu.Apointer();
@@ -233,30 +249,32 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  KKT<t_Value>::factorize( integer           _n,
-                           integer           _m,
-                           // -----------------------
-                           valueConstPointer A_values,
-                           integer const *   A_row, integer Ar_offs,
-                           integer const *   A_col, integer Ac_offs,
-                           integer           A_nnz,
-                           bool              A_is_symmetric,
-                           // -----------------------
-                           valueConstPointer B_values,
-                           integer const *   B_row, integer Br_offs,
-                           integer const *   B_col, integer Bc_offs,
-                           integer           B_nnz,
-                           // -----------------------
-                           valueConstPointer C_values,
-                           integer const *   C_row, integer Cr_offs,
-                           integer const *   C_col, integer Cc_offs,
-                           integer           C_nnz,
-                           // -----------------------
-                           valueConstPointer D_values,
-                           integer const *   D_row, integer Dr_offs,
-                           integer const *   D_col, integer Dc_offs,
-                           integer           D_nnz,
-                           bool              D_is_symmetric ) {
+  KKT<t_Value>::factorize(
+    integer           _n,
+    integer           _m,
+    // -----------------------
+    valueConstPointer A_values,
+    integer const *   A_row, integer Ar_offs,
+    integer const *   A_col, integer Ac_offs,
+    integer           A_nnz,
+    bool              A_is_symmetric,
+    // -----------------------
+    valueConstPointer B_values,
+    integer const *   B_row, integer Br_offs,
+    integer const *   B_col, integer Bc_offs,
+    integer           B_nnz,
+    // -----------------------
+    valueConstPointer C_values,
+    integer const *   C_row, integer Cr_offs,
+    integer const *   C_col, integer Cc_offs,
+    integer           C_nnz,
+    // -----------------------
+    valueConstPointer D_values,
+    integer const *   D_row, integer Dr_offs,
+    integer const *   D_col, integer Dc_offs,
+    integer           D_nnz,
+    bool              D_is_symmetric
+  ) {
     allocate( _n, _m );
     load_A( A_values, A_row, Ar_offs, A_col, Ac_offs, A_nnz, A_is_symmetric );
     load_B( B_values, B_row, Br_offs, B_col, Bc_offs, B_nnz );
@@ -267,24 +285,26 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  KKT<t_Value>::factorize( integer           _n,
-                           integer           _m,
-                           // -----------------------
-                           valueConstPointer A_values,
-                           integer           ldA,
-                           bool              A_transposed,
-                           // -----------------------
-                           valueConstPointer B_values,
-                           integer           ldB,
-                           bool              B_transposed,
-                           // -----------------------
-                           valueConstPointer C_values,
-                           integer           ldC,
-                           bool              C_transposed,
-                           // -----------------------
-                           valueConstPointer D_values,
-                           integer           ldD,
-                           bool              D_transposed ) {
+  KKT<t_Value>::factorize(
+    integer           _n,
+    integer           _m,
+    // -----------------------
+    valueConstPointer A_values,
+    integer           ldA,
+    bool              A_transposed,
+    // -----------------------
+    valueConstPointer B_values,
+    integer           ldB,
+    bool              B_transposed,
+    // -----------------------
+    valueConstPointer C_values,
+    integer           ldC,
+    bool              C_transposed,
+    // -----------------------
+    valueConstPointer D_values,
+    integer           ldD,
+    bool              D_transposed
+  ) {
     allocate( _n, _m );
     load_A( A_values, ldA, A_transposed );
     load_B( B_values, ldB, B_transposed );
@@ -295,26 +315,28 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  KKT<t_Value>::factorize( integer           _n,
-                           integer           _m,
-                           // -----------------------
-                           LSS     const *   Asystem,
-                           // -----------------------
-                           valueConstPointer B_values,
-                           integer const *   B_row, integer Br_offs,
-                           integer const *   B_col, integer Bc_offs,
-                           integer           B_nnz,
-                           // -----------------------
-                           valueConstPointer C_values,
-                           integer const *   C_row, integer Cr_offs,
-                           integer const *   C_col, integer Cc_offs,
-                           integer           C_nnz,
-                           // -----------------------
-                           valueConstPointer D_values,
-                           integer const *   D_row, integer Dr_offs,
-                           integer const *   D_col, integer Dc_offs,
-                           integer           D_nnz,
-                           bool              D_is_symmetric ) {
+  KKT<t_Value>::factorize(
+    integer           _n,
+    integer           _m,
+    // -----------------------
+    LSS     const *   Asystem,
+    // -----------------------
+    valueConstPointer B_values,
+    integer const *   B_row, integer Br_offs,
+    integer const *   B_col, integer Bc_offs,
+    integer           B_nnz,
+    // -----------------------
+    valueConstPointer C_values,
+    integer const *   C_row, integer Cr_offs,
+    integer const *   C_col, integer Cc_offs,
+    integer           C_nnz,
+    // -----------------------
+    valueConstPointer D_values,
+    integer const *   D_row, integer Dr_offs,
+    integer const *   D_col, integer Dc_offs,
+    integer           D_nnz,
+    bool              D_is_symmetric
+  ) {
     allocate( _n, _m );
     load_A( Asystem );
     load_B( B_values, B_row, Br_offs, B_col, Bc_offs, B_nnz );
@@ -325,16 +347,18 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  KKT<t_Value>::factorize( integer           _n,
-                           integer           _m,
-                           integer           _nL,
-                           integer           _nU,
-                           // -----------------------
-                           valueConstPointer M_values,
-                           integer const *   M_row, integer r_offs,
-                           integer const *   M_col, integer c_offs,
-                           integer           M_nnz,
-                           bool              M_is_symmetric ) {
+  KKT<t_Value>::factorize(
+    integer           _n,
+    integer           _m,
+    integer           _nL,
+    integer           _nU,
+    // -----------------------
+    valueConstPointer M_values,
+    integer const *   M_row, integer r_offs,
+    integer const *   M_col, integer c_offs,
+    integer           M_nnz,
+    bool              M_is_symmetric
+  ) {
     allocate( _n, _m );
     banded_LU.setup( _n, _n, _nL, _nU );
     banded_LU.zero();
@@ -386,22 +410,24 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  KKT<t_Value>::factorize( integer           _n,
-                           integer           _m,
-                           // -----------------------
-                           LSS const *       Asystem,
-                           // -----------------------
-                           valueConstPointer B_values,
-                           integer           ldB,
-                           bool              B_transposed,
-                           // -----------------------
-                           valueConstPointer C_values,
-                           integer           ldC,
-                           bool              C_transposed,
-                           // -----------------------
-                           valueConstPointer D_values,
-                           integer           ldD,
-                           bool              D_transposed ) {
+  KKT<t_Value>::factorize(
+    integer           _n,
+    integer           _m,
+    // -----------------------
+    LSS const *       Asystem,
+    // -----------------------
+    valueConstPointer B_values,
+    integer           ldB,
+    bool              B_transposed,
+    // -----------------------
+    valueConstPointer C_values,
+    integer           ldC,
+    bool              C_transposed,
+    // -----------------------
+    valueConstPointer D_values,
+    integer           ldD,
+    bool              D_transposed
+  ) {
     allocate( _n, _m );
     load_A( Asystem );
     load_B( B_values, ldB, B_transposed );

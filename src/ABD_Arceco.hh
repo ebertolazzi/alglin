@@ -85,11 +85,13 @@ namespace alglin {
      *  \param pivot        pointer to a pivot array
      */
     void
-    rowElimination( valuePointer block,
-                    integer      numRowsBlock,
-                    integer      numColsBlock,
-                    integer      numRowsPivot,
-                    integer    * pivot );
+    rowElimination(
+      valuePointer block,
+      integer      numRowsBlock,
+      integer      numColsBlock,
+      integer      numRowsPivot,
+      integer    * pivot
+    );
 
     /*!
      *  ColumnElimination performs numColsPivot column elimination on the matrix top-block and bottom-block.
@@ -102,61 +104,75 @@ namespace alglin {
      *  \param pivot              pointer to a pivot array
      */
     void
-    columnElimination( valuePointer topblk,
-                       integer      numRowsTopBlock,
-                       integer      numOverlapCols,
-                       valuePointer botblk,
-                       integer      numRowsBottomBlock,
-                       integer      numColsPivot,
-                       integer *    pivot );
+    columnElimination(
+      valuePointer topblk,
+      integer      numRowsTopBlock,
+      integer      numOverlapCols,
+      valuePointer botblk,
+      integer      numRowsBottomBlock,
+      integer      numColsPivot,
+      integer *    pivot
+    );
 
     //! Performs the forward elimination step in the solution phase of solveByRef
     void
-    forwardElimination( valuePointer block,
-                        integer      numRowsBlock,
-                        integer      numRowsPivot,
-                        integer *    pivot,
-                        valuePointer b ) const;
+    forwardElimination(
+      valuePointer block,
+      integer      numRowsBlock,
+      integer      numRowsPivot,
+      integer *    pivot,
+      valuePointer b
+    ) const;
 
     //! Performs the forward solution step in the solution phase of solveByRef
     void
-    forwardSolution( valuePointer block,
-                     integer      numRowsBlock,
-                     integer      numColsPivot,
-                     integer      numOverlapCols,
-                     valuePointer b ) const;
+    forwardSolution(
+      valuePointer block,
+      integer      numRowsBlock,
+      integer      numColsPivot,
+      integer      numOverlapCols,
+      valuePointer b
+    ) const;
 
     //! Performs the forward modification step in the solution phase of solve
     void
-    forwardModification( valuePointer block,
-                         integer      numRowsBlock,
-                         integer      numColsPivot,
-                         valuePointer b ) const;
+    forwardModification(
+      valuePointer block,
+      integer      numRowsBlock,
+      integer      numColsPivot,
+      valuePointer b
+    ) const;
 
     //! Performs the backward modification step in the solution phase of solve
     void
-    backwardModification( valuePointer block,
-                          integer      numRowsBlock,
-                          integer      numColsBlock,
-                          integer      numRowsPivot,
-                          valuePointer b ) const;
+    backwardModification(
+      valuePointer block,
+      integer      numRowsBlock,
+      integer      numColsBlock,
+      integer      numRowsPivot,
+      valuePointer b
+    ) const;
 
     //! Performs the backward substitution step in the solution phase of solve
     void
-    backwardSolution( valuePointer block,
-                      integer      numRowsBlock,
-                      integer      numColsBlock,
-                      integer      numRowsPivot,
-                      valuePointer b ) const;
+    backwardSolution(
+      valuePointer block,
+      integer      numRowsBlock,
+      integer      numColsBlock,
+      integer      numRowsPivot,
+      valuePointer b
+    ) const;
 
     //! Performs the backward elimination step in the solution phase of solve
     void
-    backwardElimination( valuePointer block,
-                         integer      numRowsBlock,
-                         integer      numColsPivot,
-                         integer      numOverlapCols,
-                         integer *    pivot,
-                         valuePointer b ) const;
+    backwardElimination(
+      valuePointer block,
+      integer      numRowsBlock,
+      integer      numColsPivot,
+      integer      numOverlapCols,
+      integer *    pivot,
+      valuePointer b
+    ) const;
 
     integer
     numRows( integer numBlock ) const
@@ -202,10 +218,12 @@ namespace alglin {
      *         The class will use this space to store the matrix decomposition.
      */
     void
-    loadByRef( integer      numberOfBlocks,
-               integer *    matrixStructure,
-               valuePointer array,
-               integer *    pivot );
+    loadByRef(
+      integer      numberOfBlocks,
+      integer *    matrixStructure,
+      valuePointer array,
+      integer *    pivot
+    );
 
     //! \@param neq the order of the linear system, and n = SUM(matrixStructure[3*k],K=0,numberOfBlocks-1)
     void
@@ -222,17 +240,19 @@ namespace alglin {
 
     //! factorize the matrix
     void
-    factorize( integer           _row0,
-               integer           _col0,
-               valueConstPointer _block0,
-               // ----------------
-               integer           _numBlock,
-               integer           _dimBlock,
-               valueConstPointer _blocks,
-               // ----------------
-               integer           _rowN,
-               integer           _colN,
-               valueConstPointer _blockN );
+    factorize(
+      integer           _row0,
+      integer           _col0,
+      valueConstPointer _block0,
+      // ----------------
+      integer           _numBlock,
+      integer           _dimBlock,
+      valueConstPointer _blocks,
+      // ----------------
+      integer           _rowN,
+      integer           _colN,
+      valueConstPointer _blockN
+    );
 
     /*!
      *  Solve supervises the solution of the linear system

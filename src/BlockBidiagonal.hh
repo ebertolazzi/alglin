@@ -199,31 +199,35 @@ namespace alglin {
 
     //! allocatew and resize the problem
     void
-    allocate( integer _nblock,
-              integer _n,
-              integer _nb,
-              // ----------------------
-              integer _numInitialBC,
-              integer _numFinalBC,
-              integer _numCyclicBC,
-              // ----------------------
-              integer _numInitialOMEGA,
-              integer _numFinalOMEGA,
-              integer _numCyclicOMEGA,
-              // ----------------------
-              integer num_extra_r,
-              integer num_extra_i );
+    allocate(
+      integer _nblock,
+      integer _n,
+      integer _nb,
+      // ----------------------
+      integer _numInitialBC,
+      integer _numFinalBC,
+      integer _numCyclicBC,
+      // ----------------------
+      integer _numInitialOMEGA,
+      integer _numFinalOMEGA,
+      integer _numCyclicOMEGA,
+      // ----------------------
+      integer num_extra_r,
+      integer num_extra_i
+    );
 
     void
-    allocateTopBottom( integer _nblock,
-                       integer _n,
-                       integer _row0,
-                       integer _col0,
-                       integer _rowN,
-                       integer _colN,
-                       integer _nb,
-                       integer num_extra_r,
-                       integer num_extra_i ) {
+    allocateTopBottom(
+      integer _nblock,
+      integer _n,
+      integer _row0,
+      integer _col0,
+      integer _rowN,
+      integer _colN,
+      integer _nb,
+      integer num_extra_r,
+      integer num_extra_i
+    ) {
       allocate( _nblock, _n, _nb,
                 _row0, _rowN, 0,
                 _col0-_n, _colN-_n, 0,
@@ -346,27 +350,31 @@ namespace alglin {
 
     virtual
     void
-    allocate( integer /* nblock */,
-              integer /* n      */,
-              integer /* nb     */,
-              // ----------------------
-              integer /* numInitialBC */,
-              integer /* numFinalBC   */,
-              integer /* numCyclicBC  */,
-              // ----------------------
-              integer /* numInitialOMEGA */,
-              integer /* numFinalOMEGA   */,
-              integer /* numCyclicOMEGA  */ ) ALGLIN_PURE_VIRTUAL;
+    allocate(
+      integer /* nblock */,
+      integer /* n      */,
+      integer /* nb     */,
+      // ----------------------
+      integer /* numInitialBC */,
+      integer /* numFinalBC   */,
+      integer /* numCyclicBC  */,
+      // ----------------------
+      integer /* numInitialOMEGA */,
+      integer /* numFinalOMEGA   */,
+      integer /* numCyclicOMEGA  */
+    ) ALGLIN_PURE_VIRTUAL;
 
     virtual
     void
-    allocateTopBottom( integer /* nblock */,
-                       integer /* n      */,
-                       integer /* row0   */,
-                       integer /* col0   */,
-                       integer /* rowN   */,
-                       integer /* colN   */,
-                       integer /* nb     */ ) ALGLIN_PURE_VIRTUAL;
+    allocateTopBottom(
+      integer /* nblock */,
+      integer /* n      */,
+      integer /* row0   */,
+      integer /* col0   */,
+      integer /* rowN   */,
+      integer /* colN   */,
+      integer /* nb     */
+    ) ALGLIN_PURE_VIRTUAL;
 
     virtual
     void
@@ -378,20 +386,26 @@ namespace alglin {
 
     virtual
     void
-    solve( integer      /* nrhs  */,
-           valuePointer /* rhs   */,
-           integer      /* ldRhs */ ) const ALGLIN_PURE_VIRTUAL;
+    solve(
+      integer      /* nrhs  */,
+      valuePointer /* rhs   */,
+      integer      /* ldRhs */
+    ) const ALGLIN_PURE_VIRTUAL;
 
     void
-    loadBottom( valueConstPointer H0, integer ld0,
-                valueConstPointer HN, integer ldN,
-                valueConstPointer Hq, integer ldQ );
+    loadBottom(
+      valueConstPointer H0, integer ld0,
+      valueConstPointer HN, integer ldN,
+      valueConstPointer Hq, integer ldQ
+    );
 
     // block0 = row0 * col0
     // blockN = rowN * colN
     void
-    loadTopBottom( valueConstPointer block0, integer ld0,
-                   valueConstPointer blockN, integer ldN );
+    loadTopBottom(
+      valueConstPointer block0, integer ld0,
+      valueConstPointer blockN, integer ldN
+    );
 
     void
     selectLastBlockSolver( LASTBLOCK_Choice choice ) {
@@ -439,13 +453,15 @@ namespace alglin {
 
     // All in one
     void
-    factorize( valueConstPointer AdAu,
-               valueConstPointer B,
-               valueConstPointer C,
-               valueConstPointer D,
-               valueConstPointer H0,
-               valueConstPointer HN,
-               valueConstPointer Hq ) {
+    factorize(
+      valueConstPointer AdAu,
+      valueConstPointer B,
+      valueConstPointer C,
+      valueConstPointer D,
+      valueConstPointer H0,
+      valueConstPointer HN,
+      valueConstPointer Hq
+    ) {
       this->loadBlocks( AdAu, n );
       this->loadBottom( H0, n+q, HN, n+q, Hq, n+q );
       if ( nb > 0 ) {
@@ -460,10 +476,12 @@ namespace alglin {
 
     // All in one
     void
-    factorize( valueConstPointer AdAu,
-               valueConstPointer H0,
-               valueConstPointer HN,
-               valueConstPointer Hq ) {
+    factorize(
+      valueConstPointer AdAu,
+      valueConstPointer H0,
+      valueConstPointer HN,
+      valueConstPointer Hq
+    ) {
       ALGLIN_ASSERT( nb == 0, "factorize nb > 0 and no border assigned" );
       this->loadBlocks( AdAu, n );
       this->loadBottom( H0, n+q, HN, n+q, Hq, n+q );

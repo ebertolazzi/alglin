@@ -125,28 +125,32 @@ namespace alglin {
 
     virtual
     void
-    allocate( integer /* nblock */,
-              integer /* n      */,
-              integer /* nb     */,
-              // ----------------------
-              integer /* numInitialBC */,
-              integer /* numFinalBC   */,
-              integer /* numCyclicBC  */,
-              // ----------------------
-              integer /* numInitialOMEGA */,
-              integer /* numFinalOMEGA   */,
-              integer /* numCyclicOMEGA  */ ) ALGLIN_OVERRIDE
+    allocate(
+      integer /* nblock */,
+      integer /* n      */,
+      integer /* nb     */,
+      // ----------------------
+      integer /* numInitialBC */,
+      integer /* numFinalBC   */,
+      integer /* numCyclicBC  */,
+      // ----------------------
+      integer /* numInitialOMEGA */,
+      integer /* numFinalOMEGA   */,
+      integer /* numCyclicOMEGA  */
+    ) ALGLIN_OVERRIDE
     { ALGLIN_ERROR("BlockLU::allocate() not defined!"); }
 
     virtual
     void
-    allocateTopBottom( integer _nblock,
-                       integer _n,
-                       integer _row0,
-                       integer _col0,
-                       integer _rowN,
-                       integer _colN,
-                       integer _nb ) ALGLIN_OVERRIDE;
+    allocateTopBottom(
+      integer _nblock,
+      integer _n,
+      integer _row0,
+      integer _col0,
+      integer _rowN,
+      integer _colN,
+      integer _nb
+    ) ALGLIN_OVERRIDE;
 
     virtual
     void
@@ -161,9 +165,11 @@ namespace alglin {
     //! solve linear sistem using internal factorized matrix
     virtual
     void
-    solve( integer      nrhs,
-           valuePointer in_out,
-           integer      ldRhs ) const ALGLIN_OVERRIDE
+    solve(
+      integer      nrhs,
+      valuePointer in_out,
+      integer      ldRhs
+    ) const ALGLIN_OVERRIDE
     { solve_internal( true, nrhs, in_out, ldRhs ); }
 
     //! solve linear sistem using internal factorized matrix
@@ -173,9 +179,11 @@ namespace alglin {
 
     //! solve linear sistem using internal factorized matrix
     void
-    solve_ABD( integer      nrhs,
-               valuePointer in_out,
-               integer      ldRhs ) const
+    solve_ABD(
+      integer      nrhs,
+      valuePointer in_out,
+      integer      ldRhs
+    ) const
     { solve_internal( false, nrhs, in_out, ldRhs ); }
 
   };

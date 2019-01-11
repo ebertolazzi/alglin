@@ -175,11 +175,13 @@ namespace alglin {
       \param[in] is_symmetric true if matrix is symmetric and only lower or upper parte is passed
     \*/
     void
-    load_A( valueConstPointer A_values,
-            integer const *   A_row, integer r_offs,
-            integer const *   A_col, integer c_offs,
-            integer           A_nnz,
-            bool  is_symmetric = false );
+    load_A(
+      valueConstPointer A_values,
+      integer const *   A_row, integer r_offs,
+      integer const *   A_col, integer c_offs,
+      integer           A_nnz,
+      bool  is_symmetric = false
+    );
     
     /*!
       Load A block as a FORTRAN matrix
@@ -201,10 +203,12 @@ namespace alglin {
       \param[in] B_nnz    number of element of the sparse matrix
     \*/
     void
-    load_B( valueConstPointer B_values,
-            integer const *   B_row, integer r_offs,
-            integer const *   B_col, integer c_offs,
-            integer           B_nnz );
+    load_B(
+      valueConstPointer B_values,
+      integer const *   B_row, integer r_offs,
+      integer const *   B_col, integer c_offs,
+      integer           B_nnz
+    );
     
     /*!
       Load B block as a FORTRAN matrix
@@ -226,10 +230,12 @@ namespace alglin {
       \param[in] C_nnz    number of element of the sparse matrix
     \*/
     void
-    load_C( valueConstPointer C_values,
-            integer const *   C_row, integer r_offs,
-            integer const *   C_col, integer c_offs,
-            integer           C_nnz );
+    load_C(
+      valueConstPointer C_values,
+      integer const *   C_row, integer r_offs,
+      integer const *   C_col, integer c_offs,
+      integer           C_nnz
+    );
     
     /*!
       Load C block as a FORTRAN matrix
@@ -252,11 +258,13 @@ namespace alglin {
       \param[in] is_symmetric true if matrix `D` is symmetric and only lower or upper part is passed
     \*/
     void
-    load_D( valueConstPointer D_values,
-            integer const *   D_row, integer r_offs,
-            integer const *   D_col, integer c_offs,
-            integer           D_nnz,
-            bool is_symmetric = false );
+    load_D(
+      valueConstPointer D_values,
+      integer const *   D_row, integer r_offs,
+      integer const *   D_col, integer c_offs,
+      integer           D_nnz,
+      bool is_symmetric = false
+    );
     
     /*!
       Load D block as a FORTRAN matrix
@@ -305,30 +313,32 @@ namespace alglin {
       \param[in] D_is_symmetric true if matrix `D` is symmetric and only lower or upper part is passed
     */
     void
-    factorize( integer           _n,
-               integer           _m,
-               // -----------------------
-               valueConstPointer A_values,
-               integer const *   A_row, integer Ar_offs,
-               integer const *   A_col, integer Ac_offs,
-               integer           A_nnz,
-               bool              A_is_symmetric,
-               // -----------------------
-               valueConstPointer B_values,
-               integer const *   B_row, integer Br_offs,
-               integer const *   B_col, integer Bc_offs,
-               integer           B_nnz,
-               // -----------------------
-               valueConstPointer C_values,
-               integer const *   C_row, integer Cr_offs,
-               integer const *   C_col, integer Cc_offs,
-               integer           C_nnz,
-               // -----------------------
-               valueConstPointer D_values,
-               integer const *   D_row, integer Dr_offs,
-               integer const *   D_col, integer Dc_offs,
-               integer           D_nnz,
-               bool              D_is_symmetric );
+    factorize(
+      integer           _n,
+      integer           _m,
+      // -----------------------
+      valueConstPointer A_values,
+      integer const *   A_row, integer Ar_offs,
+      integer const *   A_col, integer Ac_offs,
+      integer           A_nnz,
+      bool              A_is_symmetric,
+      // -----------------------
+      valueConstPointer B_values,
+      integer const *   B_row, integer Br_offs,
+      integer const *   B_col, integer Bc_offs,
+      integer           B_nnz,
+      // -----------------------
+      valueConstPointer C_values,
+      integer const *   C_row, integer Cr_offs,
+      integer const *   C_col, integer Cc_offs,
+      integer           C_nnz,
+      // -----------------------
+      valueConstPointer D_values,
+      integer const *   D_row, integer Dr_offs,
+      integer const *   D_col, integer Dc_offs,
+      integer           D_nnz,
+      bool              D_is_symmetric
+    );
 
     //! load matrix in the class
     /*!
@@ -352,24 +362,26 @@ namespace alglin {
       \param D_transposed true if matrix `D` must be loaded transposed
     */
     void
-    factorize( integer           _n,
-               integer           _m,
-               // -----------------------
-               valueConstPointer A_values,
-               integer           ldA,
-               bool              A_transposed,
-               // -----------------------
-               valueConstPointer B_values,
-               integer           ldB,
-               bool              B_transposed,
-               // -----------------------
-               valueConstPointer C_values,
-               integer           ldC,
-               bool              C_transposed,
-               // -----------------------
-               valueConstPointer D_values,
-               integer           ldD,
-               bool              D_transposed );
+    factorize(
+      integer           _n,
+      integer           _m,
+      // -----------------------
+      valueConstPointer A_values,
+      integer           ldA,
+      bool              A_transposed,
+      // -----------------------
+      valueConstPointer B_values,
+      integer           ldB,
+      bool              B_transposed,
+      // -----------------------
+      valueConstPointer C_values,
+      integer           ldC,
+      bool              C_transposed,
+      // -----------------------
+      valueConstPointer D_values,
+      integer           ldD,
+      bool              D_transposed
+    );
 
     //! load matrix in the class
     /*!
@@ -401,26 +413,28 @@ namespace alglin {
       \param[in] D_is_symmetric true if matrix `D` is symmetric and only lower or upper part is passed
     */
     void
-    factorize( integer           _n,
-               integer           _m,
-               // -----------------------
-               LSS     const *   Asystem,
-               // -----------------------
-               valueConstPointer B_values,
-               integer const *   B_row, integer Br_offs,
-               integer const *   B_col, integer Bc_offs,
-               integer           B_nnz,
-               // -----------------------
-               valueConstPointer C_values,
-               integer const *   C_row, integer Cr_offs,
-               integer const *   C_col, integer Cc_offs,
-               integer           C_nnz,
-               // -----------------------
-               valueConstPointer D_values,
-               integer const *   D_row, integer Dr_offs,
-               integer const *   D_col, integer Dc_offs,
-               integer           D_nnz,
-               bool              D_is_symmetric );
+    factorize(
+      integer           _n,
+      integer           _m,
+      // -----------------------
+      LSS     const *   Asystem,
+      // -----------------------
+      valueConstPointer B_values,
+      integer const *   B_row, integer Br_offs,
+      integer const *   B_col, integer Bc_offs,
+      integer           B_nnz,
+      // -----------------------
+      valueConstPointer C_values,
+      integer const *   C_row, integer Cr_offs,
+      integer const *   C_col, integer Cc_offs,
+      integer           C_nnz,
+      // -----------------------
+      valueConstPointer D_values,
+      integer const *   D_row, integer Dr_offs,
+      integer const *   D_col, integer Dc_offs,
+      integer           D_nnz,
+      bool              D_is_symmetric
+    );
 
     //! load matrix in the class
     /*!
@@ -442,22 +456,24 @@ namespace alglin {
       \param D_transposed true if matrix `D` must be loaded transposed
     */
     void
-    factorize( integer           _n,
-               integer           _m,
-               // -----------------------
-               LSS const *       Asystem,
-               // -----------------------
-               valueConstPointer B_values,
-               integer           ldB,
-               bool              B_transposed,
-               // -----------------------
-               valueConstPointer C_values,
-               integer           ldC,
-               bool              C_transposed,
-               // -----------------------
-               valueConstPointer D_values,
-               integer           ldD,
-               bool              D_transposed );
+    factorize(
+      integer           _n,
+      integer           _m,
+      // -----------------------
+      LSS const *       Asystem,
+      // -----------------------
+      valueConstPointer B_values,
+      integer           ldB,
+      bool              B_transposed,
+      // -----------------------
+      valueConstPointer C_values,
+      integer           ldC,
+      bool              C_transposed,
+      // -----------------------
+      valueConstPointer D_values,
+      integer           ldD,
+      bool              D_transposed
+    );
 
     //! load matrix in the class
     /*!
@@ -475,16 +491,18 @@ namespace alglin {
       \param[in] M_is_symmetric true if matrix `A` is symmetric and only lower or upper part is passed
     */
     void
-    factorize( integer           _n,
-               integer           _m,
-               integer           _nL,
-               integer           _nU,
-               // -----------------------
-               valueConstPointer M_values,
-               integer const     M_row[], integer r_offs,
-               integer const     M_col[], integer c_offs,
-               integer           M_nnz,
-               bool              M_is_symmetric );
+    factorize(
+      integer           _n,
+      integer           _m,
+      integer           _nL,
+      integer           _nU,
+      // -----------------------
+      valueConstPointer M_values,
+      integer const     M_row[], integer r_offs,
+      integer const     M_col[], integer c_offs,
+      integer           M_nnz,
+      bool              M_is_symmetric
+    );
 
     // -------------------------------------------------------------------------
     // virtuals redefined

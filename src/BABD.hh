@@ -152,23 +152,29 @@ namespace alglin {
 
     // Bottom BC
     void
-    loadBottom( valueConstPointer H0, integer ld0,
-                valueConstPointer HN, integer ldN,
-                valueConstPointer Hq, integer ldQ )
-    { babd_solver->loadBottom( H0, ld0, HN, ldN, Hq, ldQ ); }
+    loadBottom(
+      valueConstPointer H0, integer ld0,
+      valueConstPointer HN, integer ldN,
+      valueConstPointer Hq, integer ldQ
+    ) {
+      babd_solver->loadBottom( H0, ld0, HN, ldN, Hq, ldQ );
+    }
 
     void
-    loadTopBottom( integer           _row0,
-                   integer           _col0,
-                   valueConstPointer _block0,
-                   integer           _ld0,
-                   // ----------------------------
-                   integer           _rowN,
-                   integer           _colN,
-                   valueConstPointer _blockN,
-                   integer           _ldN )
-    { babd_solver->loadTopBottom( _row0, _col0, _block0, _ld0,
-                                  _rowN, _colN, _blockN, _ldN ); }
+    loadTopBottom(
+      integer           _row0,
+      integer           _col0,
+      valueConstPointer _block0,
+      integer           _ld0,
+      // ----------------------------
+      integer           _rowN,
+      integer           _colN,
+      valueConstPointer _blockN,
+      integer           _ldN
+    ) {
+      babd_solver->loadTopBottom( _row0, _col0, _block0, _ld0,
+                                  _rowN, _colN, _blockN, _ldN );
+    }
 
     void
     selectLastBlockSolver( LASTBLOCK_Choice choice )
@@ -205,17 +211,18 @@ namespace alglin {
     \*/
     void
     loadBC( // ----------------------
-            integer      numInitialBC,
-            integer      numFinalBC,
-            integer      numCyclicBC,
-            // ----------------------
-            integer      numInitialOMEGA,
-            integer      numFinalOMEGA,
-            integer      numCyclicOMEGA,
-            // ----------------------
-            valuePointer H0, integer ld0,
-            valuePointer HN, integer ldN,
-            valuePointer Hq, integer ldq ) {
+      integer      numInitialBC,
+      integer      numFinalBC,
+      integer      numCyclicBC,
+      // ----------------------
+      integer      numInitialOMEGA,
+      integer      numFinalOMEGA,
+      integer      numCyclicOMEGA,
+      // ----------------------
+      valuePointer H0, integer ld0,
+      valuePointer HN, integer ldN,
+      valuePointer Hq, integer ldq
+    ) {
       babd_solver->loadBC( numInitialBC,  numFinalBC,  numCyclicBC,
                            numInitialOMEGA, numFinalOMEGA, numCyclicOMEGA,
                            H0, ld0, HN, ldN, Hq, ldq );
@@ -257,10 +264,13 @@ namespace alglin {
     { babd_solver->solve_bordered( in_out ); }
 
     void
-    solve_bordered( integer      nrhs,
-                    valuePointer rhs,
-                    integer      ldRhs ) const
-    { babd_solver->solve_bordered( nrhs, rhs, ldRhs ); }
+    solve_bordered(
+      integer      nrhs,
+      valuePointer rhs,
+      integer      ldRhs
+    ) const {
+      babd_solver->solve_bordered( nrhs, rhs, ldRhs );
+    }
 
     /*\
      |   ____

@@ -1003,8 +1003,6 @@ namespace alglin {
 
     using QR<T>::setMaxNrhs;
 
-    using QR<T>::nRow;
-    using QR<T>::nCol;
     using QR<T>::Lwork;
     using QR<T>::Work;
     using QR<T>::maxNrhs;
