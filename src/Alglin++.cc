@@ -852,9 +852,9 @@ namespace alglin {
   SVD<T>::allocate( integer NR, integer NC ) {
 
     if ( nRow != NR || nCol != NC ) {
-      nRow = NR;
-      nCol = NC;
-      minRC      = std::min(NR,NC);
+      nRow  = NR;
+      nCol  = NC;
+      minRC = std::min(NR,NC);
       valueType tmp;
       integer info = gesvd( REDUCED, REDUCED,
                             NR, NC,
@@ -948,6 +948,15 @@ namespace alglin {
    |  |_____|____/____/
    |
   \*/
+
+  template <typename T>
+  void
+  LSS<T>::setMaxNrhs( integer mnrhs ) {
+    ALGLIN_ASSERT( mnrhs > 0,
+                   "alglin::LSS::setMaxNrhs, maxNrhs = " << mnrhs );
+    maxNrhs = mnrhs;
+  }
+
   template <typename T>
   void
   LSS<T>::allocate( integer NR, integer NC ) {
@@ -956,14 +965,16 @@ namespace alglin {
       nRow = NR;
       nCol = NC;
       valueType tmp;
-      integer info = gelss( NR, NC, 1, nullptr, NR, nullptr, NR, nullptr,
+      integer info = gelss( NR, NC, maxNrhs,
+                            nullptr, NR, nullptr, NR, nullptr,
                             rcond, rank, &tmp, -1 );
       ALGLIN_ASSERT( info == 0,
                      "alglin::LSS::allocate, in gelss info = " << info );
 
       Lwork = integer(tmp);
       if ( NR != NC ) {
-        info = gelss( NC, NR, 1, nullptr, NC, nullptr, NC, nullptr,
+        info = gelss( NC, NR, maxNrhs,
+                      nullptr, NC, nullptr, NC, nullptr,
                       rcond, rank, &tmp, -1 );
         ALGLIN_ASSERT( info == 0,
                        "alglin::LSS::allocate, in gelss info = " << info );
@@ -1052,6 +1063,15 @@ namespace alglin {
    | |_____|____/ |_|
    |
   \*/
+
+  template <typename T>
+  void
+  LSY<T>::setMaxNrhs( integer mnrhs ) {
+    ALGLIN_ASSERT( mnrhs > 0,
+                   "alglin::LSY::setMaxNrhs, maxNrhs = " << mnrhs );
+    maxNrhs = mnrhs;
+  }
+
   template <typename T>
   void
   LSY<T>::allocate( integer NR, integer NC ) {
@@ -1060,14 +1080,14 @@ namespace alglin {
       nRow = NR;
       nCol = NC;
       valueType tmp;
-      integer info = gelsy( NR, NC, 1, nullptr, NR, nullptr, NR, nullptr,
+      integer info = gelsy( NR, NC, maxNrhs, nullptr, NR, nullptr, NR, nullptr,
                             rcond, rank, &tmp, -1 );
       ALGLIN_ASSERT( info == 0,
                      "alglin::LSY::allocate, in gelss info = " << info );
 
       Lwork = integer(tmp);
       if ( NR != NC ) {
-        info = gelsy( NC, NR, 1, nullptr, NC, nullptr, NC, nullptr,
+        info = gelsy( NC, NR, maxNrhs, nullptr, NC, nullptr, NC, nullptr,
                       rcond, rank, &tmp, -1 );
         ALGLIN_ASSERT( info == 0,
                        "alglin::LSY::allocate, in gelss info = " << info );

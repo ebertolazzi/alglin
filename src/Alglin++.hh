@@ -1286,8 +1286,9 @@ namespace alglin {
     mutable valueType * AmatWork;
     mutable integer     rank;
 
-    integer     Lwork;
-    valueType   rcond;
+    integer   maxNrhs;
+    integer   Lwork;
+    valueType rcond;
 
   public:
 
@@ -1309,9 +1310,13 @@ namespace alglin {
     , sigma(nullptr)
     , AmatWork(nullptr)
     , rank(0)
+    , maxNrhs(1)
     , Lwork(0)
     , rcond(-1)
     {}
+
+    void
+    setMaxNrhs( integer mnrhs );
 
     virtual
     ~LSS() ALGLIN_OVERRIDE
@@ -1409,8 +1414,9 @@ namespace alglin {
     mutable integer   * jpvt;
     mutable integer     rank;
 
-    integer     Lwork;
-    valueType   rcond;
+    integer   maxNrhs;
+    integer   Lwork;
+    valueType rcond;
 
   public:
 
@@ -1432,6 +1438,7 @@ namespace alglin {
     , Work(nullptr)
     , AmatWork(nullptr)
     , rank(0)
+    , maxNrhs(1)
     , Lwork(0)
     , rcond(-1)
     {}
@@ -1439,6 +1446,9 @@ namespace alglin {
     virtual
     ~LSY() ALGLIN_OVERRIDE
     { allocReals.free(); allocInts.free(); }
+
+    void
+    setMaxNrhs( integer mnrhs );
 
     void
     setRcond( valueType r )
