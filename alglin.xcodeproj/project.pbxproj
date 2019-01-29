@@ -61,7 +61,6 @@
 		D98323061D6CCF4C00A83B61 /* test3-Timing.cc in Sources */ = {isa = PBXBuildFile; fileRef = D95EB3AF1D6C5067005772D0 /* test3-Timing.cc */; };
 		D9A06AEC1D93C02E00573D89 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D937DF251CEA75A2006642C6 /* Accelerate.framework */; };
 		D9A06AF31D93C14B00573D89 /* test4-KKT.cc in Sources */ = {isa = PBXBuildFile; fileRef = D9A06AE51D93C02A00573D89 /* test4-KKT.cc */; };
-		D9B281BB2200A42F0056F930 /* test13-BFGS.cc in Sources */ = {isa = PBXBuildFile; fileRef = D9C36015214A6D4900DCD094 /* test13-BFGS.cc */; };
 		D9B281BD2200A42F0056F930 /* libAlglin.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D9BD01C11EE0012F00912006 /* libAlglin.a */; };
 		D9B281BE2200A42F0056F930 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D937DF251CEA75A2006642C6 /* Accelerate.framework */; };
 		D9B281C42200A4460056F930 /* test14-BLOCKTRID.cc in Sources */ = {isa = PBXBuildFile; fileRef = D9B281B82200A4280056F930 /* test14-BLOCKTRID.cc */; };
@@ -1272,7 +1271,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D9B281BB2200A42F0056F930 /* test13-BFGS.cc in Sources */,
 				D9B281C42200A4460056F930 /* test14-BLOCKTRID.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
