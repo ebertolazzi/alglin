@@ -57,9 +57,9 @@ task :build_win, [:year, :bits] => [:download] do |t, args|
     superlu_CMakeLists()
     dir = "vs_#{args.year}_#{args.bits}"
 
-    FileUtils.rm_rf dir
-    FileUtils.mkdir dir
-    FileUtils.cd    dir
+    FileUtils.rm_rf   dir
+    FileUtils.mkdir_p dir
+    FileUtils.cd      dir
 
 
     tmp = " -DBITS=#{args.bits} -DYEAR=#{args.year} " + ' -DCMAKE_INSTALL_PREFIX:PATH=..\libs ..\superlu'
@@ -100,7 +100,7 @@ task :install => [:build] do
   puts "SuperLU copy files to #{prefix}"
   FileUtils.rm_rf   "#{prefix}/include/superlu"
   FileUtils.mkdir_p "#{prefix}/include/superlu"
-  FileUtils.mkdir_p "#{prefix}/lib"
+  FileUtils.mkdir_p "#{prefix}/lib/supelu"
   Dir['lib/include/*'].each do |f|
     FileUtils.cp f, prefix+'/include/superlu/'+File.basename(f)
   end
@@ -117,7 +117,7 @@ task :install_win, [:year, :bits] do |t, args|
 
   include = '..\\..\\lib3rd\\include\\superlu\\'
   lib     = '..\\..\\lib3rd\\lib\\'
-  
+
   FileUtils.mkdir_p include
   FileUtils.mkdir_p lib
 
