@@ -17,8 +17,8 @@ end
 
 desc "install 3rd parties"
 task :install_linux do
+  FileUtils.cd "OpenBlas"
   # use system openblas for unix/linux
-  #FileUtils.cd "OpenBlas"
   #sh "rake install"
   FileUtils.cd "../Eigen3"
   sh "rake install"
