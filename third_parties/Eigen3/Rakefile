@@ -33,3 +33,8 @@ end
 
 task :install_win => [:install] do
 end
+
+desc "clean eigen3"
+task :clean do
+  FileUtils.rm_rf "eigen3"
+end

@@ -6,6 +6,10 @@ task :default => [:install]
 VER     = '0.3.4'
 VER_WIN = '0.2.15'
 
+task :clean do
+  # nothing to do
+end
+
 desc "download OpenBLAS libs"
 task :download do
   filename = "OpenBLAS.tar.gz"
@@ -34,20 +38,19 @@ desc "untar OpenBLAS.tar.gz file"
 task :targz => [:download] do
   tar_gz_archive = "OpenBLAS.tar.gz"
   if File.directory?('eigen3')
-    puts "directory: eigen3 found, file `#{tar_gz_archive}` not processed"    
+    puts "directory: eigen3 found, file `#{tar_gz_archive}` not processed"
   else
     extract_tgz( tar_gz_archive, '.' )
     FileUtils.rm_rf 'OpenBLAS'
-    Dir['*-OpenBLAS-*'].each{ |f| FileUtils.mv f, 'OpenBLAS' }    
+    Dir['*-OpenBLAS-*'].each{ |f| FileUtils.mv f, 'OpenBLAS' }
   end
 end
 
 desc "build OpenBLAS file"
 task :build => [:targz] do
   lib = 'libs/lib/libopenblas'
-  if File.exists?(lib+'.dylib') or
-     File.exists?(lib+'.so') then
-     puts "OpenBLAS already compiled"
+  if File.exists?(lib+'.dylib') or File.exists?(lib+'.so') then
+    puts "OpenBLAS already compiled"
   else
     FileUtils.cd "OpenBLAS"
     sh "make ; make install PREFIX=../libs"
@@ -63,7 +66,7 @@ task :build => [:targz] do
     if File.exists?(lib+'.dylib') then
       l = lib+'.dylib'
       sh "install_name_tool -id @rpath/#{l} #{l}"
-    end 
+    end
 
     if File.exists?(lib+'.so') then
       l = lib+'.so'
@@ -72,7 +75,7 @@ task :build => [:targz] do
       elsif unix_command?("chrpath") then
         sh "chrpath --replace @rpath/#{l} #{l}"
       end
-    end 
+    end
 
     FileUtils.cd "../.."
 
@@ -114,7 +117,7 @@ task :install_win do
   FileUtils.mkdir_p "#{prefix}/lib/x64"
   FileUtils.mkdir_p "#{prefix}/lib/x86_debug"
   FileUtils.mkdir_p "#{prefix}/lib/x64_debug"
-  
+
   # remove _Complex for Visual Studio (not supported)
   #ChangeOnFile( dir64+'include/openblas_config.h','_MSC_VER >= 1800', '1 >= 1800')
   #ChangeOnFile( dir32+'include/openblas_config.h','_MSC_VER >= 1800', '1 >= 1800')

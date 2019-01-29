@@ -24,3 +24,8 @@ task :install_win do
   Dir['win64_release/*.dll'].each{ |f| FileUtils.cp(f,prefix+'/dll/'+File.basename(f)) }
 
 end
+
+desc "clean BLAS/LAPACK libs"
+task :clean do
+  # do nothing
+end

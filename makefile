@@ -208,10 +208,6 @@ src_tests/Simplex-Test1.cc \
 src_tests/Simplex-Test2.cc \
 src_tests/Simplex-Test3.cc \
 src_tests/Simplex-Test4.cc \
-src_tests/SimplexTest1.cc \
-src_tests/SimplexTest2.cc \
-src_tests/SimplexTest3.cc \
-src_tests/SimplexTest4.cc \
 src_tests/test0-FD.cc \
 src_tests/test1-small-factorization.cc \
 src_tests/test2-Threads.cc \
@@ -257,30 +253,28 @@ FRAMEWORK = Alglin
 
 all: config lib $(OBJS_TESTS)
 	mkdir -p bin
-	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test0-FD                  src_tests/test0-FD.o $(LIBS)
-	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test1-small-factorization src_tests/test1-small-factorization.o $(LIBS)
-	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test2-Threads             src_tests/test2-Threads.o $(LIBS)
-	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test3-Timing              src_tests/test3-Timing.o $(LIBS)
-	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test4-KKT                 src_tests/test4-KKT.o $(LIBS)
-	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test5-ABD-Diaz            src_tests/test5-ABD-Diaz.o $(LIBS)
-	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test6-ABD-Block           src_tests/test6-ABD-Block.o $(LIBS)
-	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test7-BorderedCR          src_tests/test7-BorderedCR.o $(LIBS)
-	$(CC)  $(INC) $(DEFS) $(CXXFLAGS) -o bin/test8-Cinterface          src_tests/test8-Cinterface.c $(LIBS) $(LIBSGCC)
-	$(CC)  $(INC) $(DEFS) $(CXXFLAGS) -o bin/test9-Cinterface          src_tests/test9-Cinterface.c $(LIBS) $(LIBSGCC)
+	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test0-FD                  src_tests/test0-FD.o            $(LIBS) $(LIBSGCC)
+	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test1-small-factorization src_tests/test1-small-factorization.o $(LIBS) $(LIBSGCC)
+	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test2-Threads             src_tests/test2-Threads.o       $(LIBS) $(LIBSGCC)
+	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test3-Timing              src_tests/test3-Timing.o        $(LIBS) $(LIBSGCC)
+	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test4-KKT                 src_tests/test4-KKT.o           $(LIBS) $(LIBSGCC)
+	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test5-ABD-Diaz            src_tests/test5-ABD-Diaz.o      $(LIBS) $(LIBSGCC)
+	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test6-ABD-Block           src_tests/test6-ABD-Block.o     $(LIBS) $(LIBSGCC)
+	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test7-BorderedCR          src_tests/test7-BorderedCR.o    $(LIBS) $(LIBSGCC)
+	$(CC)  $(INC) $(DEFS) $(CXXFLAGS) -o bin/test8-Cinterface          src_tests/test8-Cinterface.c    $(LIBS) $(LIBSGCC)
+	$(CC)  $(INC) $(DEFS) $(CXXFLAGS) -o bin/test9-Cinterface          src_tests/test9-Cinterface.c    $(LIBS) $(LIBSGCC)
 	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test12-BandedMatrix       src_tests/test12-BandedMatrix.o $(LIBS) $(LIBSGCC)
-	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test13-BFGS               src_tests/test13-BFGS.o $(LIBS) $(LIBSGCC)
-	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test14-BLOCKTRID          src_tests/test14-BLOCKTRID.o $(LIBS) $(LIBSGCC)
+	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test13-BFGS               src_tests/test13-BFGS.o         $(LIBS) $(LIBSGCC)
+	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test14-BLOCKTRID          src_tests/test14-BLOCKTRID.o    $(LIBS) $(LIBSGCC)
+	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/Simplex-Test1             src_tests/Simplex-Test1.cc      $(LIBS) $(LIBSGCC)
+	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/Simplex-Test2             src_tests/Simplex-Test2.cc      $(LIBS) $(LIBSGCC)
+	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/Simplex-Test3             src_tests/Simplex-Test3.cc      $(LIBS) $(LIBSGCC)
+	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/Simplex-Test4             src_tests/Simplex-Test4.cc      $(LIBS) $(LIBSGCC)
 
 all1: config lib
 	mkdir -p bin
 	$(F90) $(INC) -o bin/test10-FORTRAN src_tests/test10-FORTRAN.f90 $(LIBS) $(LIBSGCC) $(CLIBS)
 	$(F90) $(INC) -o bin/test11-FORTRAN src_tests/test11-FORTRAN.f90 $(LIBS) $(LIBSGCC) $(CLIBS)
-
-all_simplex: config lib
-	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/SimplexTest1 src_tests/SimplexTest1.cc $(LIBS)
-	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/SimplexTest2 src_tests/SimplexTest2.cc $(LIBS)
-	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/SimplexTest3 src_tests/SimplexTest3.cc $(LIBS)
-	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/SimplexTest4 src_tests/SimplexTest4.cc $(LIBS)
 
 lib: config lib/$(LIB_ALGLIN)
 
@@ -344,12 +338,14 @@ run:
 	./bin/test7-BorderedCR
 	./bin/test8-Cinterface
 	./bin/test12-BandedMatrix
+	./bin/test13-BFGS
+	./bin/test14-BLOCKTRID
 
 run_simplex:
-	./bin/SimplexTest1
-	./bin/SimplexTest2
-	./bin/SimplexTest3
-	./bin/SimplexTest4
+	./bin/Simplex-Test1
+	./bin/Simplex-Test2
+	./bin/Simplex-Test3
+	./bin/Simplex-Test4
 
 doc:
 	doxygen

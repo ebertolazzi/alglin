@@ -18,24 +18,36 @@ task :mkl, [:year, :bits] do |t, args|
   sh "'C:/Program Files (x86)/IntelSWTools/compilers_and_libraries/windows/bin/compilervars.bat' -arch #{args.bits} vs#{args.year}shell"
 end
 
+TESTS = [
+	"test0-FD",
+	"test1-small-factorization",
+	"test2-Threads",
+	"test3-Timing",
+	"test4-KKT",
+	"test5-ABD-Diaz",
+	"test6-ABD-Block",
+	"test7-BorderedCR",
+	"test8-Cinterface",
+	"test12-BandedMatrix",
+	"test13-BFGS",
+	"test14-BLOCKTRID",
+	"Simplex-Test1",
+	"Simplex-Test2",
+	"Simplex-Test3",
+  "Simplex-Test4"
+]
+
 desc "run tests"
 task :run do
-  sh "./bin/test0-FD"
-  sh "./bin/test1-small-factorization"
-  sh "./bin/test2-Threads"
-  sh "./bin/test3-Timing"
-  sh "./bin/test4-KKT"
-  sh "./bin/test5-ABD-Diaz"
-  sh "./bin/test6-ABD-Block"
-  sh "./bin/test7-BorderedCR"
-  sh "./bin/test8-Cinterface"
-  sh "./bin/test9-Cinterface"
-  sh "./bin/test12-BandedMatrix"
+  TESTS.each do |cmd| 
+    sh "./bin/#{cmd}"
+  end
 end
 
-task :run_win, [:year, :bits] do |t, args|
-  args.with_defaults( :year => "2017", :bits => "x64" )
-  sh "runtest.bat"
+task :run_win do
+  TESTS.each do |cmd|
+    sh "bin\\Release\\#{cmd}.exe"
+  end
 end
 
 desc "build lib"
@@ -85,7 +97,9 @@ task :build_win, [:year, :bits, :lapack, :thread] do |t, args|
 
   # do not build executable
   #tmp = " -DBITS=#{args.bits} -DYEAR=#{args.year} " + ' -DBUILD_EXECUTABLE=1 -DCMAKE_INSTALL_PREFIX:PATH=..\lib ..'
-  tmp = " -DBITS=#{args.bits} -DYEAR=#{args.year} " + ' -DCMAKE_INSTALL_PREFIX:PATH=..\lib ..'
+  tmp = " -DBITS=#{args.bits} -DYEAR=#{args.year} " +
+        ' -DCMAKE_INSTALL_PREFIX:PATH=..\lib ' +
+        ' -DBUILD_EXECUTABLE:VAR=true ..'
 
   win32_64 = ''
   case args.bits

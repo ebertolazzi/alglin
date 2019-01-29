@@ -70,14 +70,15 @@ SET( EXELISTCPP
   SimplexTest4
   test0-FD
   test1-small-factorization
-  test12-BandedMatrix
-  test13-BFGS
   test2-Threads
   test3-Timing
   test4-KKT
   test5-ABD-Diaz
   test6-ABD-Block
   test7-BorderedCR
+  test12-BandedMatrix
+  test13-BFGS
+  test14-BLOCKTRID
 )
 
 SET(EXELISTC test8-Cinterface test9-Cinterface )

@@ -1,9 +1,9 @@
 require "rake"
 require "./common.rb"
 
-task :default => [:install]
+task :default => [:install_osx]
 
-desc "install 3rd parties"
+desc "install 3rd parties for OSX"
 task :install_osx do
   FileUtils.cd "OpenBlas"
   # no openblas for unix/linux
@@ -15,7 +15,19 @@ task :install_osx do
   FileUtils.cd ".."
 end
 
-desc "install 3rd parties"
+desc "clean 3rd parties for OSX"
+task :clean_osx do
+  FileUtils.cd "OpenBlas"
+  # no openblas for unix/linux
+  # sh "rake clean"
+  FileUtils.cd "../Eigen3"
+  sh "rake clean"
+  FileUtils.cd "../SuperLU"
+  sh "rake clean"
+  FileUtils.cd ".."
+end
+
+desc "install 3rd parties for LINUX"
 task :install_linux do
   FileUtils.cd "OpenBlas"
   # use system openblas for unix/linux
@@ -27,18 +39,45 @@ task :install_linux do
   FileUtils.cd ".."
 end
 
-desc "install 3rd parties"
+desc "clean 3rd parties for LINUX"
+task :clean_linux do
+  FileUtils.cd "OpenBlas"
+  # use system openblas for unix/linux
+  #sh "rake clean"
+  FileUtils.cd "../Eigen3"
+  sh "rake clean"
+  FileUtils.cd "../SuperLU"
+  sh "rake clean"
+  FileUtils.cd ".."
+end
+
+desc "install 3rd parties for WINDOWS"
 task :install_win, [:year, :bits] do |t, args|
   args.with_defaults(:year => "2017", :bits => "x64" )
   FileUtils.cd "OpenBlas"
-  sh "rake install_win"
+  sh "rake install_win[#{args.year},#{args.bits}]"
   FileUtils.cd "../BlasLapack"
-  sh "rake install_win"
+  sh "rake install_win[#{args.year},#{args.bits}]"
   FileUtils.cd "../BlasLapack2"
-  sh "rake install_win"
+  sh "rake install_win[#{args.year},#{args.bits}]"
   FileUtils.cd "../Eigen3"
   sh "rake install_win"
   FileUtils.cd "../SuperLU"
   sh "rake install_win[#{args.year},#{args.bits}]"
+  FileUtils.cd ".."
+end
+
+desc "clean 3rd parties for WINDOWS"
+task :clean_win do |t, args|
+  FileUtils.cd "OpenBlas"
+  sh "rake clean"
+  FileUtils.cd "../BlasLapack"
+  sh "rake clean"
+  FileUtils.cd "../BlasLapack2"
+  sh "rake clean"
+  FileUtils.cd "../Eigen3"
+  sh "rake clean"
+  FileUtils.cd "../SuperLU"
+  sh "rake clean"
   FileUtils.cd ".."
 end

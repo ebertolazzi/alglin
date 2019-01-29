@@ -1880,6 +1880,14 @@ namespace alglin {
 
   template <typename T>
   void
+  BlockTridiagonalSymmetic<T>::zero() { // fill to 0 all the blocks
+    std::fill( D_blocks[0], D_blocks[0]+this->nnz, 0 );
+  }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  template <typename T>
+  void
   BlockTridiagonalSymmetic<T>::setD(
     integer           n,
     valueType const * data,

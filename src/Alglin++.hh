@@ -1966,9 +1966,7 @@ namespace alglin {
     setup( integer nblks, integer const block_size );
 
     void
-    zero() { // fill to 0 all the blocks
-      std::fill( D_blocks[0], D_blocks[0]+this->nnz, 0 );
-    }
+    zero();
 
     valueType const * D( integer n ) const { return D_blocks[n]; }
     valueType const * L( integer n ) const { return L_blocks[n]; }
