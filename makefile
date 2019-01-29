@@ -214,13 +214,15 @@ src_tests/SimplexTest3.cc \
 src_tests/SimplexTest4.cc \
 src_tests/test0-FD.cc \
 src_tests/test1-small-factorization.cc \
-src_tests/test12-BandedMatrix.cc \
 src_tests/test2-Threads.cc \
 src_tests/test3-Timing.cc \
 src_tests/test4-KKT.cc \
 src_tests/test5-ABD-Diaz.cc \
 src_tests/test6-ABD-Block.cc \
-src_tests/test7-BorderedCR.cc
+src_tests/test7-BorderedCR.cc \
+src_tests/test12-BandedMatrix.cc \
+src_tests/test13-BFGS.cc \
+src_tests/test14-BLOCKTRID.cc
 
 OBJS_TESTS = $(SRCS_TESTS:.cc=.o)
 
@@ -266,6 +268,8 @@ all: config lib $(OBJS_TESTS)
 	$(CC)  $(INC) $(DEFS) $(CXXFLAGS) -o bin/test8-Cinterface          src_tests/test8-Cinterface.c $(LIBS) $(LIBSGCC)
 	$(CC)  $(INC) $(DEFS) $(CXXFLAGS) -o bin/test9-Cinterface          src_tests/test9-Cinterface.c $(LIBS) $(LIBSGCC)
 	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test12-BandedMatrix       src_tests/test12-BandedMatrix.o $(LIBS) $(LIBSGCC)
+	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test13-BFGS               src_tests/test13-BFGS.o $(LIBS) $(LIBSGCC)
+	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test14-BLOCKTRID          src_tests/test14-BLOCKTRID.o $(LIBS) $(LIBSGCC)
 
 all1: config lib
 	mkdir -p bin

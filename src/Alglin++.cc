@@ -61,12 +61,14 @@ namespace alglin {
   //                                                   |_|   |_|
   */
 
-  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   template <typename T>
-  MatrixWrapper<T>::MatrixWrapper( valueType * _data,
-                                   integer     nr,
-                                   integer     nc,
-                                   integer     ld )
+  MatrixWrapper<T>::MatrixWrapper(
+    valueType * _data,
+    integer     nr,
+    integer     nc,
+    integer     ld
+  )
   : numRows(nr)
   , numCols(nc)
   , ldData(ld)
@@ -79,6 +81,8 @@ namespace alglin {
                    ") bad dimensions" );
   #endif
   }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   template <typename T>
   void
@@ -100,7 +104,7 @@ namespace alglin {
     #endif
   }
 
-  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   template <typename T>
   void
@@ -111,7 +115,7 @@ namespace alglin {
                    numRows << " x " << numCols );
   }
 
-  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   template <typename T>
   void
@@ -122,7 +126,7 @@ namespace alglin {
                    " mus be contained in " << numRows << " x " << numCols );
   }
 
-  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   template <typename T>
   void
@@ -132,7 +136,7 @@ namespace alglin {
                    "MatrixWrapper::load call alglin::gecopy return info = " << info );
   }
 
-  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   template <typename T>
   void
@@ -145,7 +149,7 @@ namespace alglin {
                    "MatrixWrapper::load call alglin::gecopy return info = " << info );
   }
 
-  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   template <typename T>
   void
@@ -158,7 +162,7 @@ namespace alglin {
       data[iaddr(sp.rows[idx],sp.cols[idx])] = sp.vals[idx];
   }
 
-  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   template <typename T>
   void
@@ -170,7 +174,7 @@ namespace alglin {
       data[iaddr(sp.rows[idx],sp.cols[idx])] = sp.vals[idx];
   }
 
-  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   template <typename T>
   void
@@ -181,7 +185,7 @@ namespace alglin {
            data, ldData );
   }
 
-  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   template <typename T>
   void
@@ -193,7 +197,7 @@ namespace alglin {
       data[iaddr(sp.rows[idx],sp.cols[idx])] += sp.vals[idx];
   }
 
-  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   template <typename T>
   void
@@ -205,34 +209,42 @@ namespace alglin {
       data[iaddr(sp.rows[idx],sp.cols[idx])] += alpha * sp.vals[idx];
   }
 
-  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   template <typename T>
   void
-  MatrixWrapper<T>::load( Sparse const & sp,
-                          integer        i_offs,
-                          integer        j_offs ) {
+  MatrixWrapper<T>::load(
+    Sparse const & sp,
+    integer        i_offs,
+    integer        j_offs
+  ) {
     for ( integer idx = 0; idx < sp.nnz; ++idx )
       data[iaddr(sp.rows[idx]+i_offs,sp.cols[idx]+j_offs)] = sp.vals[idx];
   }
 
-  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   template <typename T>
   void
-  MatrixWrapper<T>::add( Sparse const & sp,
-                         integer        i_offs,
-                         integer        j_offs ) {
+  MatrixWrapper<T>::add(
+    Sparse const & sp,
+    integer        i_offs,
+    integer        j_offs
+  ) {
     for ( integer idx = 0; idx < sp.nnz; ++idx )
       data[iaddr(sp.rows[idx]+i_offs,sp.cols[idx]+j_offs)] += sp.vals[idx];
   }
 
-  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   template <typename T>
   void
-  MatrixWrapper<T>::add( valueType      alpha,
-                         Sparse const & sp,
-                         integer        i_offs,
-                         integer        j_offs ) {
+  MatrixWrapper<T>::add(
+    valueType      alpha,
+    Sparse const & sp,
+    integer        i_offs,
+    integer        j_offs
+  ) {
     for ( integer idx = 0; idx < sp.nnz; ++idx )
       data[iaddr(sp.rows[idx]+i_offs,sp.cols[idx]+j_offs)] += alpha * sp.vals[idx];
   }
@@ -361,12 +373,14 @@ namespace alglin {
 
   template <typename T>
   integer
-  rankEstimate( integer   M,
-                integer   N,
-                T         A[],
-                integer   LDA,
-                T         RCOND,
-                T         SVAL[3] ) {
+  rankEstimate(
+    integer   M,
+    integer   N,
+    T         A[],
+    integer   LDA,
+    T         RCOND,
+    T         SVAL[3]
+  ) {
 
     integer MN = std::min(M, N);
     std::vector<T> Wmin( MN ), Wmax( MN );
@@ -432,11 +446,15 @@ namespace alglin {
   , allocIntegers("allocIntegers")
   {}
 
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   template <typename T>
   LU<T>::~LU() {
     allocReals.free();
     allocIntegers.free();
   }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   template <typename T>
   void
@@ -453,12 +471,16 @@ namespace alglin {
     }
   }
 
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   template <typename T>
   void
   LU<T>::factorize() {
     integer info = getrf( nRow, nCol, Amat, nRow, i_pivot );
     ALGLIN_ASSERT( info == 0, "LU::factorize getrf INFO = " << info );
   }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   template <typename T>
   void
@@ -469,6 +491,8 @@ namespace alglin {
     factorize();
   }
 
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   template <typename T>
   void
   LU<T>::check_ls( char const who[] ) const {
@@ -476,6 +500,8 @@ namespace alglin {
                    "LU<T>::" << who << ", rectangular matrix " <<
                    nRow << " x " << nCol );
   }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   template <typename T>
   void
@@ -487,6 +513,8 @@ namespace alglin {
     ALGLIN_ASSERT( info == 0, "LU::solve getrs INFO = " << info );
   }
 
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   template <typename T>
   void
   LU<T>::t_solve( valueType xb[] ) const {
@@ -496,6 +524,8 @@ namespace alglin {
                           xb, nRow );
     ALGLIN_ASSERT( info == 0, "LU::t_solve getrs INFO = " << info );
   }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   template <typename T>
   void
@@ -507,6 +537,8 @@ namespace alglin {
     ALGLIN_ASSERT( info == 0, "LU::solve getrs INFO = " << info );
   }
 
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   template <typename T>
   void
   LU<T>::t_solve( integer nrhs, valueType B[], integer ldB ) const {
@@ -517,6 +549,8 @@ namespace alglin {
     ALGLIN_ASSERT( info >= 0, "LU::t_solve getrs INFO = " << info );
   }
 
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   template <typename T>
   typename LU<T>::valueType
   LU<T>::cond1( valueType norm1 ) const {
@@ -526,6 +560,8 @@ namespace alglin {
     ALGLIN_ASSERT( info == 0, "LU::cond1, gecon1 return info = " << info );
     return rcond;
   }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   template <typename T>
   typename LU<T>::valueType
@@ -553,11 +589,15 @@ namespace alglin {
   , allocIntegers("LUPQ-allocIntegers")
   {}
 
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   template <typename T>
   LUPQ<T>::~LUPQ() {
     allocReals.free();
     allocIntegers.free();
   }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   template <typename T>
   void
@@ -576,6 +616,8 @@ namespace alglin {
     }
   }
 
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   template <typename T>
   void
   LUPQ<T>::check_ls( char const who[] ) const {
@@ -584,12 +626,16 @@ namespace alglin {
                    nRow << " x " << nCol );
   }
 
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   template <typename T>
   void
   LUPQ<T>::factorize() {
     integer info = getc2( nRow, Amat, nRow, ipiv, jpiv );
     ALGLIN_ASSERT( info == 0, "LUPQ::factorize getrf INFO = " << info );
   }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   template <typename T>
   void
@@ -602,6 +648,8 @@ namespace alglin {
     ALGLIN_ASSERT( info == 0, "LUPQ::factorize gecopy INFO = " << info );
     factorize();
   }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   template <typename T>
   void
@@ -619,6 +667,8 @@ namespace alglin {
     swaps( 1, xb, nRow, 0, nRow-2, jpiv, -1 );
   }
 
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   template <typename T>
   void
   LUPQ<T>::solve( integer nrhs, valueType B[], integer ldB ) const {
@@ -634,6 +684,8 @@ namespace alglin {
     // Apply permutations JPIV to the solution (RHS)
     swaps( nrhs, B, ldB, 0, nRow-2, jpiv, -1 );
   }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   template <typename T>
   void
@@ -651,6 +703,8 @@ namespace alglin {
     swaps( 1, xb, nRow, 0, nRow-2, ipiv, -1 );
 
   }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   template <typename T>
   void
@@ -699,13 +753,16 @@ namespace alglin {
     Tau  = allocReals( size_t(nReflector) );
   }
 
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   template <typename T>
   void
   QR<T>::allocate( integer NR, integer NC ) {
     if ( nRow != NR || nCol != NC || Lwork < maxNrhs ) {
       valueType tmp; // get optimal allocation
       integer info = geqrf( NR, NC, nullptr, NR, nullptr, &tmp, -1 );
-      ALGLIN_ASSERT( info == 0, "QR::factorize call alglin::geqrf return info = " << info );
+      ALGLIN_ASSERT( info == 0,
+                     "QR::factorize call alglin::geqrf return info = " << info );
       integer L = std::max( integer(tmp), maxNrhs );
       if ( L < NR ) L = NR;
       if ( L < NC ) L = NC;
@@ -713,15 +770,19 @@ namespace alglin {
     }
   }
 
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   template <typename T>
   void
-  QR<T>::applyQ( SideMultiply  SIDE,
-                 Transposition TRANS,
-                 integer       nRefl,
-                 integer       NR,
-                 integer       NC,
-                 valueType     C[],
-                 integer       ldC ) const {
+  QR<T>::applyQ(
+    SideMultiply  SIDE,
+    Transposition TRANS,
+    integer       nRefl,
+    integer       NR,
+    integer       NC,
+    valueType     C[],
+    integer       ldC
+  ) const {
     ALGLIN_ASSERT( (SIDE == alglin::LEFT  && NR == nRow) ||
                    (SIDE == alglin::RIGHT && NC == nRow),
                    "QR::applyQ NR = " << NR << " NC = " << NC <<
@@ -738,6 +799,8 @@ namespace alglin {
                    " Lwork = " << Lwork );
   }
 
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   template <typename T>
   void
   QR<T>::getR( valueType R[], integer ldR ) const {
@@ -748,6 +811,8 @@ namespace alglin {
         R[i+j*ldR] = Amat[ i+j*nRow];
   }
 
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   template <typename T>
   void
   QR<T>::solve( valueType xb[] ) const {
@@ -756,6 +821,8 @@ namespace alglin {
     Qt_mul(xb);
     invR_mul(xb);
   }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   template <typename T>
   void
@@ -766,6 +833,8 @@ namespace alglin {
     Q_mul(xb);
   }
 
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   template <typename T>
   void
   QR<T>::solve( integer nrhs, valueType XB[], integer ldXB ) const {
@@ -774,6 +843,8 @@ namespace alglin {
     Qt_mul( nRow, nrhs, XB, ldXB );
     invR_mul( nRow, nrhs, XB, ldXB );
   }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   template <typename T>
   void
@@ -818,6 +889,8 @@ namespace alglin {
     copy( nCol, Work, 1, x, 1 );
   }
 
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   template <typename T>
   void
   QRP<T>::inv_permute( valueType x[] ) const {
@@ -825,6 +898,8 @@ namespace alglin {
     for ( integer i = 0; i < nCol; ++i ) Work[i] = x[JPVT[i]-1];
     copy( nCol, Work, 1, x, 1 );
   }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   template <typename T>
   void
@@ -836,6 +911,8 @@ namespace alglin {
     permute(xb); // da aggiungere!
   }
 
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   template <typename T>
   void
   QRP<T>::t_solve( valueType xb[] ) const {
@@ -846,6 +923,8 @@ namespace alglin {
     Q_mul(xb);
   }
 
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   template <typename T>
   void
   QRP<T>::solve( integer nrhs, valueType XB[], integer ldXB ) const {
@@ -855,6 +934,8 @@ namespace alglin {
     invR_mul( nRow, nrhs, XB, ldXB );
     permute_rows( nRow, nrhs, XB, ldXB ); // da aggiungere!
   }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   template <typename T>
   void
@@ -874,6 +955,7 @@ namespace alglin {
    |  |____/  \_/  |____/
    |
   \*/
+
   template <typename T>
   void
   SVD<T>::allocate( integer NR, integer NC ) {
@@ -891,7 +973,7 @@ namespace alglin {
                             nullptr, minRC,
                             &tmp, -1 );
       ALGLIN_ASSERT( info == 0,
-                     "alglin::SVD::allocate, in gesvd info = " << info );
+                     "SVD::allocate, in gesvd info = " << info );
       Lwork = integer(tmp);
       info = gesdd( REDUCED,
                     NR, NC,
@@ -911,6 +993,8 @@ namespace alglin {
        IWork = allocIntegers( size_t(8*minRC) );
     }
   }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   template <typename T>
   void
@@ -941,6 +1025,8 @@ namespace alglin {
     }
   }
 
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   template <typename T>
   void
   SVD<T>::solve( valueType xb[] ) const {
@@ -953,6 +1039,8 @@ namespace alglin {
     for ( integer i = 0; i < minRC; ++i ) Work[i] /= std::max(Svec[i],smin);
     V_mul( 1.0, Work, 1, 0.0, xb, 1 );
   }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   template <typename T>
   void
@@ -980,7 +1068,7 @@ namespace alglin {
   void
   LSS<T>::setMaxNrhs( integer mnrhs ) {
     ALGLIN_ASSERT( mnrhs > 0,
-                   "alglin::LSS::setMaxNrhs, maxNrhs = " << mnrhs );
+                   "LSS::setMaxNrhs, maxNrhs = " << mnrhs );
     maxNrhs         = mnrhs;
     maxNrhs_changed = true;
   }
@@ -997,7 +1085,7 @@ namespace alglin {
                             nullptr, NR, nullptr, NR, nullptr,
                             rcond, rank, &tmp, -1 );
       ALGLIN_ASSERT( info == 0,
-                     "alglin::LSS::allocate, in gelss info = " << info );
+                     "LSS::allocate, in gelss info = " << info );
 
       Lwork = integer(tmp);
       if ( NR != NC ) {
@@ -1005,7 +1093,7 @@ namespace alglin {
                       nullptr, NC, nullptr, NC, nullptr,
                       rcond, rank, &tmp, -1 );
         ALGLIN_ASSERT( info == 0,
-                       "alglin::LSS::allocate, in gelss info = " << info );
+                       "LSS::allocate, in gelss info = " << info );
         if ( Lwork < integer(tmp) ) Lwork = integer(tmp);
       }
 
@@ -1021,6 +1109,8 @@ namespace alglin {
     }
   }
 
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   template <typename T>
   void
   LSS<T>::solve( valueType xb[] ) const {
@@ -1032,8 +1122,10 @@ namespace alglin {
                           sigma, rcond, rank,
                           Work, Lwork );
     ALGLIN_ASSERT( info == 0,
-                   "alglin::LSS::solve (rhs=1), in gelss info = " << info );
+                   "LSS::solve (rhs=1), in gelss info = " << info );
   }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   template <typename T>
   void
@@ -1047,14 +1139,18 @@ namespace alglin {
                           sigma, rcond, rank,
                           Work, Lwork );
     ALGLIN_ASSERT( info == 0,
-                   "alglin::LSS::t_solve (rhs=1), in gelss info = " << info );
+                   "LSS::t_solve (rhs=1), in gelss info = " << info );
   }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   template <typename T>
   void
-  LSS<T>::solve( integer   nrhs,
-                 valueType B[],
-                 integer   ldB ) const {
+  LSS<T>::solve(
+    integer   nrhs,
+    valueType B[],
+    integer   ldB
+  ) const {
     // save matrix
     copy( nRow*nCol, Amat, 1, AmatWork, 1 );
     integer info = gelss( nRow, nCol, nrhs,
@@ -1063,15 +1159,19 @@ namespace alglin {
                           sigma, rcond, rank,
                           Work, Lwork );
     ALGLIN_ASSERT( info == 0,
-                   "alglin::LSS::solve (rhs=" << nrhs <<
+                   "LSS::solve (rhs=" << nrhs <<
                    "), in gelss info = " << info );
   }
 
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   template <typename T>
   void
-  LSS<T>::t_solve( integer   nrhs,
-                   valueType B[],
-                   integer   ldB ) const {
+  LSS<T>::t_solve(
+    integer   nrhs,
+    valueType B[],
+    integer   ldB
+  ) const {
     // save matrix
     for ( integer i = 0; i < nCol; ++i )
       copy( nRow, Amat+i*nRow, 1, AmatWork+i, nCol );
@@ -1081,7 +1181,7 @@ namespace alglin {
                           sigma, rcond, rank,
                           Work, Lwork );
     ALGLIN_ASSERT( info == 0,
-                   "alglin::LSS::t_solve (rhs=" << nrhs <<
+                   "LSS::t_solve (rhs=" << nrhs <<
                    "), in gelss info = " << info );
   }
 
@@ -1098,10 +1198,12 @@ namespace alglin {
   void
   LSY<T>::setMaxNrhs( integer mnrhs ) {
     ALGLIN_ASSERT( mnrhs > 0,
-                   "alglin::LSY::setMaxNrhs, maxNrhs = " << mnrhs );
+                   "LSY::setMaxNrhs, maxNrhs = " << mnrhs );
     maxNrhs         = mnrhs;
     maxNrhs_changed = true;
   }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   template <typename T>
   void
@@ -1114,14 +1216,14 @@ namespace alglin {
       integer info = gelsy( NR, NC, maxNrhs, nullptr, NR, nullptr, NR, nullptr,
                             rcond, rank, &tmp, -1 );
       ALGLIN_ASSERT( info == 0,
-                     "alglin::LSY::allocate, in gelss info = " << info );
+                     "LSY::allocate, in gelss info = " << info );
 
       Lwork = integer(tmp);
       if ( NR != NC ) {
         info = gelsy( NC, NR, maxNrhs, nullptr, NC, nullptr, NC, nullptr,
                       rcond, rank, &tmp, -1 );
         ALGLIN_ASSERT( info == 0,
-                       "alglin::LSY::allocate, in gelss info = " << info );
+                       "LSY::allocate, in gelss info = " << info );
         if ( Lwork < integer(tmp) ) Lwork = integer(tmp);
       }
 
@@ -1136,6 +1238,8 @@ namespace alglin {
     }
   }
 
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   template <typename T>
   void
   LSY<T>::solve( valueType xb[] ) const {
@@ -1147,8 +1251,10 @@ namespace alglin {
                           rcond, rank,
                           Work, Lwork );
     ALGLIN_ASSERT( info == 0,
-                   "alglin::LSS::solve (rhs=1), in gelss info = " << info );
+                   "LSS::solve (rhs=1), in gelss info = " << info );
   }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   template <typename T>
   void
@@ -1162,14 +1268,18 @@ namespace alglin {
                           rcond, rank,
                           Work, Lwork );
     ALGLIN_ASSERT( info == 0,
-                   "alglin::LSS::t_solve (rhs=1), in gelss info = " << info );
+                   "LSS::t_solve (rhs=1), in gelss info = " << info );
   }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   template <typename T>
   void
-  LSY<T>::solve( integer   nrhs,
-                 valueType B[],
-                 integer   ldB ) const {
+  LSY<T>::solve(
+    integer   nrhs,
+    valueType B[],
+    integer   ldB
+  ) const {
     // save matrix
     copy( nRow*nCol, Amat, 1, AmatWork, 1 );
     integer info = gelsy( nRow, nCol, nrhs,
@@ -1178,15 +1288,19 @@ namespace alglin {
                           rcond, rank,
                           Work, Lwork );
     ALGLIN_ASSERT( info == 0,
-                   "alglin::LSD::solve (rhs=" << nrhs <<
+                   "LSD::solve (rhs=" << nrhs <<
                    "), in gelsd info = " << info );
   }
 
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   template <typename T>
   void
-  LSY<T>::t_solve( integer   nrhs,
-                   valueType B[],
-                   integer   ldB ) const {
+  LSY<T>::t_solve(
+    integer   nrhs,
+    valueType B[],
+    integer   ldB
+  ) const {
     // save matrix
     for ( integer i = 0; i < nCol; ++i )
       copy( nRow, Amat+i*nRow, 1, AmatWork+i, nCol );
@@ -1196,7 +1310,7 @@ namespace alglin {
                           rcond, rank,
                           Work, Lwork );
     ALGLIN_ASSERT( info == 0,
-                   "alglin::LSD::t_solve (rhs=" << nrhs <<
+                   "LSD::t_solve (rhs=" << nrhs <<
                    "), in gelsd info = " << info );
   }
 
@@ -1205,14 +1319,16 @@ namespace alglin {
   template <typename valueType>
   inline
   void
-  tridiag_axpy( integer         N,
-                valueType       alpha,
-                valueType const L[],
-                valueType const D[],
-                valueType const U[],
-                valueType const x[],
-                valueType       beta,
-                valueType       y[] ) {
+  tridiag_axpy(
+    integer         N,
+    valueType       alpha,
+    valueType const L[],
+    valueType const D[],
+    valueType const U[],
+    valueType const x[],
+    valueType       beta,
+    valueType       y[]
+  ) {
     if ( isZero(beta) ) {
       y[0] = alpha*(D[0]*x[0] + U[0] * x[1]);
       for ( integer i = 1; i < N-1; ++i )
@@ -1237,9 +1353,11 @@ namespace alglin {
   \*/
   template <typename T>
   void
-  TridiagonalSPD<T>::factorize( integer         N,
-                               valueType const _L[],
-                               valueType const _D[] ) {
+  TridiagonalSPD<T>::factorize(
+    integer         N,
+    valueType const _L[],
+    valueType const _D[]
+  ) {
     if ( nRC != N ) {
       nRC = N;
       allocReals.allocate(3*N);
@@ -1254,6 +1372,8 @@ namespace alglin {
                    "TridiagonalSPD::factorize, return info = " << info );
   }
 
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   template <typename T>
   T
   TridiagonalSPD<T>::cond1( valueType norm1 ) const {
@@ -1264,6 +1384,8 @@ namespace alglin {
     return rcond;
   }
 
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   template <typename T>
   void
   TridiagonalSPD<T>::solve( valueType xb[] ) const {
@@ -1271,6 +1393,8 @@ namespace alglin {
     ALGLIN_ASSERT( info == 0,
                    "TridiagonalSPD::solve, return info = " << info );
   }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   template <typename T>
   void
@@ -1280,6 +1404,8 @@ namespace alglin {
                    "TridiagonalSPD::solve, return info = " << info );
   }
 
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   template <typename T>
   void
   TridiagonalSPD<T>::solve( integer nrhs, valueType xb[], integer ldXB ) const {
@@ -1288,6 +1414,8 @@ namespace alglin {
                    "TridiagonalSPD::solve, return info = " << info );
   }
 
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   template <typename T>
   void
   TridiagonalSPD<T>::t_solve( integer nrhs, valueType xb[], integer ldXB ) const {
@@ -1295,15 +1423,19 @@ namespace alglin {
     ALGLIN_ASSERT( info == 0, "TridiagonalSPD::solve, return info = " << info );
   }
 
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   template <typename T>
   void
-  TridiagonalSPD<T>::axpy( integer         N,
-                           valueType       alpha,
-                           valueType const _L[],
-                           valueType const _D[],
-                           valueType const x[],
-                           valueType       beta,
-                           valueType       y[] ) const {
+  TridiagonalSPD<T>::axpy(
+    integer         N,
+    valueType       alpha,
+    valueType const _L[],
+    valueType const _D[],
+    valueType const x[],
+    valueType       beta,
+    valueType       y[]
+  ) const {
     tridiag_axpy( N, alpha, _L, _D, _L, x, beta, y );
   }
 
@@ -1318,10 +1450,12 @@ namespace alglin {
   \*/
   template <typename T>
   void
-  TridiagonalLU<T>::factorize( integer         N,
-                               valueType const _L[],
-                               valueType const _D[],
-                               valueType const _U[] ) {
+  TridiagonalLU<T>::factorize(
+    integer         N,
+    valueType const _L[],
+    valueType const _D[],
+    valueType const _U[]
+  ) {
     if ( nRC != N ) {
       nRC = N;
       allocReals.allocate(6*N);
@@ -1342,6 +1476,8 @@ namespace alglin {
                    "TridiagonalLU::factorize, return info = " << info );
   }
 
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   template <typename T>
   T
   TridiagonalLU<T>::cond1( valueType norm1 ) const {
@@ -1351,6 +1487,8 @@ namespace alglin {
                    "TridiagonalLU::cond1, return info = " << info );
     return rcond;
   }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   template <typename T>
   T
@@ -1362,6 +1500,8 @@ namespace alglin {
     return rcond;
   }
 
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   template <typename T>
   void
   TridiagonalLU<T>::solve( valueType xb[] ) const {
@@ -1369,6 +1509,8 @@ namespace alglin {
     ALGLIN_ASSERT( info == 0,
                    "TridiagonalLU::solve, return info = " << info );
   }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   template <typename T>
   void
@@ -1378,6 +1520,8 @@ namespace alglin {
                    "TridiagonalLU::solve, return info = " << info );
   }
 
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   template <typename T>
   void
   TridiagonalLU<T>::solve( integer nrhs, valueType xb[], integer ldXB ) const {
@@ -1385,6 +1529,8 @@ namespace alglin {
     ALGLIN_ASSERT( info == 0,
                    "TridiagonalLU::solve, return info = " << info );
   }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   template <typename T>
   void
@@ -1394,16 +1540,20 @@ namespace alglin {
                    "TridiagonalLU::solve, return info = " << info );
   }
 
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   template <typename T>
   void
-  TridiagonalLU<T>::axpy( integer         N,
-                          valueType       alpha,
-                          valueType const _L[],
-                          valueType const _D[],
-                          valueType const _U[],
-                          valueType const x[],
-                          valueType       beta,
-                          valueType       y[] ) const {
+  TridiagonalLU<T>::axpy(
+    integer         N,
+    valueType       alpha,
+    valueType const _L[],
+    valueType const _D[],
+    valueType const _U[],
+    valueType const x[],
+    valueType       beta,
+    valueType       y[]
+  ) const {
     tridiag_axpy( N, alpha, _L, _D, _U, x, beta, y );
   }
 
@@ -1419,10 +1569,12 @@ namespace alglin {
 
   template <typename T>
   void
-  TridiagonalQR<T>::factorize( integer         N,
-                               valueType const L[],
-                               valueType const D[],
-                               valueType const U[] ) {
+  TridiagonalQR<T>::factorize(
+    integer         N,
+    valueType const L[],
+    valueType const D[],
+    valueType const U[]
+  ) {
     allocReals.allocate(size_t(5*(N-1)));
     nRC = N;
     C   = allocReals(size_t(N-1));
@@ -1465,6 +1617,8 @@ namespace alglin {
     // Q A = R
   }
 
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   template <typename T>
   void
   TridiagonalQR<T>::Rsolve( valueType xb[] ) const {
@@ -1474,6 +1628,8 @@ namespace alglin {
       xb[i] = (xb[i]-BU[i]*xb[i+1]-BU2[i]*xb[i+2])/BD[i];
   }
 
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   template <typename T>
   void
   TridiagonalQR<T>::RsolveTransposed( valueType xb[] ) const {
@@ -1482,6 +1638,8 @@ namespace alglin {
     for ( integer i = 2; i < nRC; ++i )
       xb[i] = (xb[i]-BU[i]*xb[i-1]-BU2[i]*xb[i-2])/BD[i];
   }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   template <typename T>
   void
@@ -1493,6 +1651,8 @@ namespace alglin {
     Rsolve( xb );
   }
 
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   template <typename T>
   void
   TridiagonalQR<T>::t_solve( valueType xb[] ) const {
@@ -1502,6 +1662,8 @@ namespace alglin {
     for ( integer i = nRC-2; i >= 0; --i )
       rot( 1, &xb[i], 1, &xb[i+1], 1, C[i], -S[i] );
   }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   template <typename T>
   void
@@ -1514,6 +1676,8 @@ namespace alglin {
       Rsolve( xb+i*ldXB );
   }
 
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   template <typename T>
   void
   TridiagonalQR<T>::t_solve( integer nrhs, valueType xb[], integer ldXB ) const {
@@ -1524,16 +1688,20 @@ namespace alglin {
       rot( nrhs, &xb[i], ldXB, &xb[i+1], ldXB, C[i], -S[i] );
   }
 
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   template <typename T>
   void
-  TridiagonalQR<T>::axpy( integer         N,
-                          valueType       alpha,
-                          valueType const L[],
-                          valueType const D[],
-                          valueType const U[],
-                          valueType const x[],
-                          valueType       beta,
-                          valueType       y[] ) const {
+  TridiagonalQR<T>::axpy(
+    integer         N,
+    valueType       alpha,
+    valueType const L[],
+    valueType const D[],
+    valueType const U[],
+    valueType const x[],
+    valueType       beta,
+    valueType       y[]
+  ) const {
     tridiag_axpy( N, alpha, L, D, U, x, beta, y );
   }
 
@@ -1561,10 +1729,12 @@ namespace alglin {
 
   template <typename T>
   void
-  TridiagonalQR<T>::lsq( integer nrhs,
-                         T       RHS[],
-                         integer ldRHS,
-                         T       lambda_in) const {
+  TridiagonalQR<T>::lsq(
+    integer nrhs,
+    T       RHS[],
+    integer ldRHS,
+    T       lambda_in
+  ) const {
 
     valueType lambda = normInfA * lambda_in;
     std::vector<T> D(nRC),
@@ -1628,6 +1798,321 @@ namespace alglin {
     }
   }
 
+  //============================================================================
+  /*\
+   |  ___ _         _     _____    _    _ _                         _
+   | | _ ) |___  __| |__ |_   _| _(_)__| (_)__ _ __ _ ___ _ _  __ _| |
+   | | _ \ / _ \/ _| / /   | || '_| / _` | / _` / _` / _ \ ' \/ _` | |
+   | |___/_\___/\__|_\_\   |_||_| |_\__,_|_\__,_\__, \___/_||_\__,_|_|
+   |                                            |___/
+   |  ___                _       _
+   | / __|_  _ _ __  ___| |_ _ _(_)__
+   | \__ \ || | '  \/ -_)  _| '_| / _|
+   | |___/\_, |_|_|_\___|\__|_| |_\__|
+   |      |__/
+  \*/
+
+  template <typename T>
+  void
+  BlockTridiagonalSymmetic<T>::setup(
+    integer       nblks,
+    integer const rBlocks[]
+  ) {
+    integer N = rBlocks[nblks], nrmax = 0;
+    allocIntegers.allocate( N + nblks+1 );
+    allocRpointers.allocate( 2*nblks-1 );
+    allocIpointers.allocate( nblks );
+    this->row_blocks    = allocIntegers( nblks+1 );
+    this->D_blocks      = allocRpointers( nblks );
+    this->L_blocks      = allocRpointers( nblks-1 );
+    this->B_permutation = allocIpointers( nblks );
+    // evalute the memry usage for the L and D blocks
+    integer nr0 = rBlocks[1] - rBlocks[0];
+    nrmax = nr0;
+    this->nnz = nr0*nr0;
+
+    ALGLIN_ASSERT( nr0 >= 0,
+                   "BlockTridiagonalSymmetic::setup, nr0 = " << nr0 );
+
+    for ( integer i = 1; i < nblks; ++i ) {
+      integer nr = rBlocks[i+1] - rBlocks[i];
+      ALGLIN_ASSERT( nr >= 0,
+                     "BlockTridiagonalSymmetic::setup, nr = " << nr );
+      this->nnz += nr*(nr+nr0);
+      if ( nr > nrmax ) nrmax = nr;
+      nr0 = nr;
+    }
+    allocReals.allocate( this->nnz + nrmax * nrmax );
+    nr0 = rBlocks[1] - rBlocks[0];
+    this->D_blocks[0] = allocReals( nr0 * nr0 );
+    B_permutation[0] = allocIntegers( nr0 );
+    for ( integer i = 1; i < nblks; ++i ) {
+      integer nr = rBlocks[i+1] - rBlocks[i];
+      this->D_blocks[i]   = allocReals( nr * nr );
+      this->L_blocks[i-1] = allocReals( nr * nr0 );
+      nr0 = nr;
+      this->B_permutation[i] = allocIntegers( nr );
+    }
+
+    Work = allocReals( nrmax * nrmax );
+
+    this->zero();
+    this->nBlocks = nblks;
+    std::copy( rBlocks, rBlocks+nblks+1, this->row_blocks );
+    factorized = false;
+  }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  template <typename T>
+  void
+  BlockTridiagonalSymmetic<T>::setup( integer nblks, integer const block_size ) {
+    // use a temporary vector
+    std::vector<integer> rBlocks;
+    rBlocks.reserve(nblks+1);
+    integer n = 0;
+    for ( integer k = 0; k <= nblks; ++k, n += block_size )
+       rBlocks.push_back(n);
+    this->setup( nblks, &rBlocks.front() );
+  }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  template <typename T>
+  void
+  BlockTridiagonalSymmetic<T>::setD(
+    integer           n,
+    valueType const * data,
+    integer           ldData
+  ) {
+    integer ierr = gecopy( this->DnumRows(n),
+                           this->DnumCols(n),
+                           data, ldData,
+                           D_blocks[n],
+                           this->DnumRows(n) );
+    ALGLIN_ASSERT( ierr == 0,
+                   "BlockTridiagonalSymmetic::setD, gecopy return ierr = " << ierr );
+  }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  template <typename T>
+  void
+  BlockTridiagonalSymmetic<T>::setL(
+    integer           n,
+    valueType const * data,
+    integer           ldData
+  ) {
+    integer ierr = gecopy( this->LnumRows(n),
+                           this->LnumCols(n),
+                           data, ldData,
+                           L_blocks[n],
+                           this->LnumRows(n) );
+    ALGLIN_ASSERT( ierr == 0,
+                   "BlockTridiagonalSymmetic::setL, gecopy return ierr = " << ierr );
+  }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  template <typename T>
+  void
+  BlockTridiagonalSymmetic<T>::setD(
+    integer           n,
+    valueType const * data,
+    integer           ldData,
+    integer           beginRow,
+    integer           beginCol,
+    integer           nrow,
+    integer           ncol
+  ) {
+    integer ldD  = this->DnumRows(n);
+    integer ierr = gecopy( nrow, ncol, data, ldData,
+                           D_blocks[n]+beginRow+beginCol*ldD,
+                           ldD );
+    ALGLIN_ASSERT( ierr == 0,
+                   "BlockTridiagonalSymmetic::setD (block), gecopy return ierr = " << ierr );
+  }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  template <typename T>
+  void
+  BlockTridiagonalSymmetic<T>::setL(
+    integer           n,
+    valueType const * data,
+    integer           ldData,
+    integer           beginRow,
+    integer           beginCol,
+    integer           nrow,
+    integer           ncol
+  ) {
+    integer ldL  = this->LnumRows(n);
+    integer ierr = gecopy( nrow, ncol, data, ldData,
+                           L_blocks[n]+beginRow+beginCol*ldL,
+                           ldL );
+    ALGLIN_ASSERT( ierr == 0,
+                   "BlockTridiagonalSymmetic::setL (block), gecopy return ierr = " << ierr );
+  }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  template <typename T>
+  void
+  BlockTridiagonalSymmetic<T>::factorize() {
+    ALGLIN_ASSERT( !factorized,
+                   "BlockTridiagonalSymmetic::factorize, already factored" );
+
+    integer info = alglin::getrf( this->DnumRows(0),
+                                  this->DnumCols(0),
+                                  this->D_blocks[0],
+                                  this->DnumRows(0),
+                                  B_permutation[0] );
+
+    ALGLIN_ASSERT( info == 0,
+                   "BlockTridiagonalSymmetic::factorize getrf INFO = " << info );
+
+    for ( integer k=1; k < this->nBlocks; ++k ) {
+      integer nr0 = this->DnumRows(k-1);
+      integer nr1 = this->DnumRows(k);
+      valueType * L0 = this->L_blocks[k-1];
+      valueType * D0 = this->D_blocks[k-1];
+      valueType * D1 = this->D_blocks[k];
+      // Work = L^T nr0 x nr1
+      getranspose( nr1, nr0, L0, nr1, Work, nr0 );
+      // solve
+      info = getrs( TRANSPOSE, nr0, nr1, D0, nr0, B_permutation[k-1], Work, nr0 );
+      ALGLIN_ASSERT( info == 0,
+                     "BlockTridiagonalSymmetic::factorize getrs INFO = " << info );
+
+      // DD{k}   = DD{k} - (LL{k-1}*DD{k-1}) *LL{k-1}.';
+
+      gemm( TRANSPOSE,
+            TRANSPOSE,
+            nr1, nr1, nr0,
+            -1.0, Work, nr0,
+            L0, nr1,
+            1.0, D1, nr1 );
+
+      // Work --> L nr1 x nr0
+      getranspose( nr0, nr1, Work, nr0, L0, nr1 );
+
+      info = getrf( nr1, nr1, D1, nr1, B_permutation[k] );
+
+      ALGLIN_ASSERT( info == 0,
+                     "BlockTridiagonalSymmetic::factorize getrf INFO = " << info );
+
+    }
+    factorized = true;
+  }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  template <typename T>
+  void
+  BlockTridiagonalSymmetic<T>::solve( valueType xb[] ) const {
+    ALGLIN_ASSERT( factorized, "BlockTridiagonalSymmetic::solve, matrix not factored" );
+
+    // RR{k} = RR{k}-LL{k-1}*RR{k-1};
+    integer k = 0;
+    integer nr0 = this->DnumRows(0), nr1;
+    valueType * xkm1 = xb, *xk;
+    while ( ++k < this->nBlocks ) {
+      nr1 = this->DnumRows(k);
+      valueType const * L0 = this->L(k-1);
+      xk = xkm1 + nr0;
+      gemv( NO_TRANSPOSE, nr1, nr0,
+            -1.0, L0, nr1,
+            xkm1, 1,
+            1.0,
+            xk, 1 );
+      xkm1 = xk;
+      nr0  = nr1;
+    }
+    // RR{k} = DD{k}\RR{k};
+    xk = xb;
+    for ( k = 0; k < this->nBlocks; ++k ) {
+      nr1 = this->DnumRows(k);
+      // solve
+      valueType const * D1 = this->D(k);
+      integer info = getrs( NO_TRANSPOSE, nr1, 1, D1, nr1, B_permutation[k], xk, nr1 );
+      ALGLIN_ASSERT( info == 0,
+                     "BlockTridiagonalSymmetic::solve getrs INFO = " << info );
+      xk += nr1;
+    }
+    // RR{k} = RR{k}-LL{k}.'*RR{k+1};
+    nr1 = this->DnumRows(k-1);
+    xk -= nr1;
+    while ( --k > 0 ) {
+      nr0 = this->DnumRows(k-1);
+      valueType const * L0 = this->L(k-1);
+      xkm1 = xk - nr0;
+      gemv( TRANSPOSE, nr1, nr0,
+            -1.0, L0, nr1,
+            xk, 1,
+            1.0,
+            xkm1, 1 );
+      xk  = xkm1;
+      nr1 = nr0;
+    }
+  }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  template <typename T>
+  void
+  BlockTridiagonalSymmetic<T>::solve(
+    integer   nrhs,
+    valueType B[],
+    integer   ldB
+  ) const {
+    ALGLIN_ASSERT( factorized, "BlockTridiagonalSymmetic::solve, matrix not factored" );
+
+    // RR{k} = RR{k}-LL{k-1}*RR{k-1};
+    integer k = 0;
+    integer nr0 = this->DnumRows(0), nr1;
+    valueType * Bkm1 = B, *Bk;
+    while ( ++k < this->nBlocks ) {
+      nr1 = this->DnumRows(k);
+      valueType const * L0 = this->L(k-1);
+      Bk = Bkm1 + nr0;
+      gemm( NO_TRANSPOSE, NO_TRANSPOSE, nr1, nrhs, nr0,
+            -1.0, L0, nr1,
+            Bkm1, ldB,
+            1.0,
+            Bk, ldB );
+      Bkm1 = Bk;
+      nr0  = nr1;
+    }
+    // RR{k} = DD{k}\RR{k};
+    Bk = B;
+    for ( k = 0; k < this->nBlocks; ++k ) {
+      nr1 = this->DnumRows(k);
+      // solve
+      valueType const * D1 = this->D(k);
+      integer info = getrs( NO_TRANSPOSE, nr1, nrhs,
+                            D1, nr1, B_permutation[k],
+                            Bk, ldB );
+      ALGLIN_ASSERT( info == 0,
+                     "BlockTridiagonalSymmetic::solve getrs INFO = " << info );
+      Bk += nr1;
+    }
+    // RR{k} = RR{k}-LL{k}.'*RR{k+1};
+    nr1 = this->DnumRows(k-1);
+    Bk -= nr1;
+    while ( --k > 0 ) {
+      nr0 = this->DnumRows(k-1);
+      valueType const * L0 = this->L(k-1);
+      Bkm1 = Bk - nr0;
+      gemm( TRANSPOSE, NO_TRANSPOSE, nr0, nrhs, nr1, 
+            -1.0, L0, nr1,
+            Bk, ldB,
+            1.0,
+            Bkm1, ldB );
+      Bk  = Bkm1;
+      nr1 = nr0;
+    }
+  }
+
   /*\
    |   ____                  _          _ __  __       _        _
    |  | __ )  __ _ _ __   __| | ___  __| |  \/  | __ _| |_ _ __(_)_  __
@@ -1648,17 +2133,22 @@ namespace alglin {
   , is_factorized(false)
   {}
 
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   template <typename T>
   BandedLU<T>::~BandedLU()
   {}
 
-  //! base class for linear system solver
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   template <typename T>
   void
-  BandedLU<T>::setup( integer _m,
-                      integer _n,
-                      integer _nL,
-                      integer _nU ) {
+  BandedLU<T>::setup(
+    integer _m,
+    integer _n,
+    integer _nL,
+    integer _nU
+  ) {
     m    = _m;
     n    = _n;
     nL   = _nL;
@@ -1672,6 +2162,8 @@ namespace alglin {
     is_factorized = false;
   }
 
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   template <typename T>
   void
   BandedLU<T>::solve( valueType xb[] ) const {
@@ -1680,6 +2172,8 @@ namespace alglin {
     integer info = gbtrs( NO_TRANSPOSE, m, nL, nU, 1, AB, ldAB, ipiv, xb, m );
     ALGLIN_ASSERT( info == 0, "BandedLU::solve, info = " << info );
   }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   template <typename T>
   void
@@ -1690,6 +2184,8 @@ namespace alglin {
     ALGLIN_ASSERT( info == 0, "BandedLU::t_solve, info = " << info );
   }
 
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   template <typename T>
   void
   BandedLU<T>::solve( integer nrhs, valueType B[], integer ldB ) const {
@@ -1699,6 +2195,8 @@ namespace alglin {
     ALGLIN_ASSERT( info == 0, "BandedLU::solve, info = " << info );
   }
 
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   template <typename T>
   void
   BandedLU<T>::t_solve( integer nrhs, valueType B[], integer ldB ) const {
@@ -1707,6 +2205,8 @@ namespace alglin {
     integer info = gbtrs( TRANSPOSE, m, nL, nU, nrhs, AB, ldAB, ipiv, B, ldB );
     ALGLIN_ASSERT( info == 0, "BandedLU::t_solve, info = " << info );
   }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   template <typename T>
   void
@@ -1718,6 +2218,8 @@ namespace alglin {
     is_factorized = true;
   }
 
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   template <typename T>
   void
   BandedLU<T>::zero() {
@@ -1725,6 +2227,8 @@ namespace alglin {
     alglin::zero( nnz, AB, 1 );
     is_factorized = false;
   }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   template <typename T>
   void
@@ -1736,6 +2240,8 @@ namespace alglin {
                    "BandedLU:iaddr_check( " << i << " , " << j <<
                    " ) out of band" );
   }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   template <typename T>
   void
@@ -1781,9 +2287,11 @@ namespace alglin {
   */
   template <typename T>
   void
-  BandedLU<T>::aAxpy( valueType       alpha,
-                      valueType const x[],
-                      valueType       y[] ) const {
+  BandedLU<T>::aAxpy(
+    valueType       alpha,
+    valueType const x[],
+    valueType       y[]
+  ) const {
 
     valueType const * col = AB + nL;
     for ( integer j = 0; j < n; ++j, col += ldAB ) {
@@ -1797,6 +2305,8 @@ namespace alglin {
     }
   }
 
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   template <typename T>
   void
   BandedLU<T>::dump( ostream_type & stream ) const {
@@ -1808,7 +2318,7 @@ namespace alglin {
     }
   }
 
-  // --------------------------------------------------------------
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   template <typename T>
   BandedSPD<T>::BandedSPD()
@@ -1819,16 +2329,21 @@ namespace alglin {
   , is_factorized(false)
   {}
 
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   template <typename T>
   BandedSPD<T>::~BandedSPD()
   {}
 
-  //! base class for linear system solver
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   template <typename T>
   void
-  BandedSPD<T>::setup( ULselect _UPLO,
-                       integer  _N,
-                       integer  _nD ) {
+  BandedSPD<T>::setup(
+    ULselect _UPLO,
+    integer  _N,
+    integer  _nD
+  ) {
     UPLO = _UPLO;
     n    = _N;
     nD   = _nD;
@@ -1838,6 +2353,8 @@ namespace alglin {
     AB   = allocReals( nnz );
     is_factorized = false;
   }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   template <typename T>
   void
@@ -1849,6 +2366,8 @@ namespace alglin {
                    "BandedSPD::solve, info = " << info );
   }
 
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   template <typename T>
   void
   BandedSPD<T>::t_solve( valueType xb[] ) const {
@@ -1858,6 +2377,8 @@ namespace alglin {
     ALGLIN_ASSERT( info == 0,
                    "BandedSPD::t_solve, info = " << info );
   }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   template <typename T>
   void
@@ -1869,6 +2390,8 @@ namespace alglin {
                    "BandedSPD::solve, info = " << info );
   }
 
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   template <typename T>
   void
   BandedSPD<T>::t_solve( integer nrhs, valueType B[], integer ldB ) const {
@@ -1878,6 +2401,8 @@ namespace alglin {
     ALGLIN_ASSERT( info == 0,
                    "BandedSPD::t_solve, info = " << info );
   }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   template <typename T>
   void
@@ -1889,6 +2414,8 @@ namespace alglin {
                    "BandedSPD::factorize, info = " << info );
     is_factorized = true;
   }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   template <typename T>
   void
@@ -1918,6 +2445,8 @@ namespace alglin {
     z = allocReals( size_t(n) );
   }
 
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   template <typename T>
   void
   QN<T>::print( ostream_type & stream ) const
@@ -1933,8 +2462,10 @@ namespace alglin {
 
   template <typename T>
   void
-  BFGS<T>::update( valueType const y[],
-                   valueType const s[] ) {
+  BFGS<T>::update(
+    valueType const y[],
+    valueType const s[]
+  ) {
     valueType sy = dot( n, s, 1, y, 1 );
     if ( sy > 0 ) {
       mult( y, z );
@@ -1954,8 +2485,10 @@ namespace alglin {
 
   template <typename T>
   void
-  DFP<T>::update( valueType const y[],
-                  valueType const s[] ) {
+  DFP<T>::update(
+    valueType const y[],
+    valueType const s[]
+  ) {
     valueType sy = dot( n, s, 1, y, 1 );
     if ( sy > 0 ) {
       mult( y, z );
@@ -2015,6 +2548,9 @@ namespace alglin {
 
   template class TridiagonalQR<real>;
   template class TridiagonalQR<doublereal>;
+
+  template class BlockTridiagonalSymmetic<real>;
+  template class BlockTridiagonalSymmetic<doublereal>;
 
   template class BandedLU<real>;
   template class BandedLU<doublereal>;

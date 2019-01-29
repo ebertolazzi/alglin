@@ -1053,6 +1053,33 @@ namespace alglin {
 #include "Alglin_sparse.hxx"
 #include "Alglin_wrapper.hxx"
 
+namespace alglin {
+
+  inline
+  void
+  getranspose( integer    M,
+               integer    N,
+               real const A[],
+               integer    LDA,
+               real       B[],
+               integer    LDB ) {
+    for ( integer k = 0; k < N; ++k )
+      copy( M, A + k*LDA, 1, B+k, LDB );
+  }
+
+  inline
+  void
+  getranspose( integer          M,
+               integer          N,
+               doublereal const A[],
+               integer          LDA,
+               doublereal       B[],
+               integer          LDB ) {
+    for ( integer k = 0; k < N; ++k )
+      copy( M, A + k*LDA, 1, B+k, LDB );
+  }
+}
+
 #ifdef __GCC__
 #pragma GCC diagnostic pop
 #endif

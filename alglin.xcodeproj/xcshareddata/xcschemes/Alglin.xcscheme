@@ -15,8 +15,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "D9BD01C01EE0012F00912006"
-               BuildableName = "libBABD_Lib.a"
-               BlueprintName = "BABD_Lib"
+               BuildableName = "libAlglin.a"
+               BlueprintName = "Alglin"
                ReferencedContainer = "container:alglin.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -46,8 +46,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "D9BD01C01EE0012F00912006"
-            BuildableName = "libBABD_Lib.a"
-            BlueprintName = "BABD_Lib"
+            BuildableName = "libAlglin.a"
+            BlueprintName = "Alglin"
             ReferencedContainer = "container:alglin.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -64,8 +64,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "D9BD01C01EE0012F00912006"
-            BuildableName = "libBABD_Lib.a"
-            BlueprintName = "BABD_Lib"
+            BuildableName = "libAlglin.a"
+            BlueprintName = "Alglin"
             ReferencedContainer = "container:alglin.xcodeproj">
          </BuildableReference>
       </MacroExpansion>

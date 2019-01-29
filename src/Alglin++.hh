@@ -745,7 +745,7 @@ namespace alglin {
     , nReflector(0)
     , Lwork(0)
     , maxNrhs(1)
-    { allocate(nr,nc); }
+    { this->allocate(nr,nc); }
 
     virtual
     ~QR() ALGLIN_OVERRIDE
@@ -1018,7 +1018,7 @@ namespace alglin {
 
     QRP( integer nr, integer nc )
     : QR<T>(), allocIntegers("QRP-allocIntegers")
-    { allocate(nr,nc); }
+    { this->allocate(nr,nc); }
 
     virtual
     ~QRP() ALGLIN_OVERRIDE
@@ -1080,7 +1080,7 @@ namespace alglin {
       integer         LDA
     ) {
       // calcolo fattorizzazione QR della matrice A
-      allocate( NC, NR );
+      this->allocate( NC, NR );
       for ( integer i = 0; i < NR; ++i )
         copy( NC, A+i, LDA, Amat + i*nRow, 1 );
       factorize();
@@ -1907,6 +1907,136 @@ namespace alglin {
 
   //============================================================================
   /*\
+   |  ___ _         _     _____    _    _ _                         _
+   | | _ ) |___  __| |__ |_   _| _(_)__| (_)__ _ __ _ ___ _ _  __ _| |
+   | | _ \ / _ \/ _| / /   | || '_| / _` | / _` / _` / _ \ ' \/ _` | |
+   | |___/_\___/\__|_\_\   |_||_| |_\__,_|_\__,_\__, \___/_||_\__,_|_|
+   |                                            |___/
+   |  ___                _       _
+   | / __|_  _ _ __  ___| |_ _ _(_)__
+   | \__ \ || | '  \/ -_)  _| '_| / _|
+   | |___/\_, |_|_|_\___|\__|_| |_\__|
+   |      |__/
+  \*/
+
+  template <typename T>
+  class BlockTridiagonalSymmetic : public LinearSystemSolver<T> {
+  public:
+    typedef T valueType;
+
+  private:
+
+    Malloc<valueType>  allocReals;
+    Malloc<integer>    allocIntegers;
+    Malloc<valueType*> allocRpointers;
+    Malloc<integer*>   allocIpointers;
+
+    integer      nBlocks, nnz;
+    valueType ** D_blocks;
+    valueType ** L_blocks;
+    valueType *  Work;
+    integer   ** B_permutation;
+    integer   *  row_blocks;
+    bool         factorized;
+
+  public:
+
+    BlockTridiagonalSymmetic()
+    : allocReals("allocReals")
+    , allocIntegers("allocIntegers")
+    , allocRpointers("allocRpointers")
+    , allocIpointers("allocIpointers")
+    , nBlocks(0)
+    , nnz(0)
+    , factorized(false)
+    {}
+
+    virtual
+    ~BlockTridiagonalSymmetic() ALGLIN_OVERRIDE {
+      allocReals.free();
+      allocIntegers.free();
+      allocRpointers.free();
+      allocIpointers.free();
+    }
+
+    void
+    setup( integer nblks, integer const rBlocks[] );
+
+    void
+    setup( integer nblks, integer const block_size );
+
+    void
+    zero() { // fill to 0 all the blocks
+      std::fill( D_blocks[0], D_blocks[0]+this->nnz, 0 );
+    }
+
+    valueType const * D( integer n ) const { return D_blocks[n]; }
+    valueType const * L( integer n ) const { return L_blocks[n]; }
+
+    integer  numBlocks() const { return nBlocks; }
+
+    integer  DnumRows( integer n ) const { return row_blocks[n+1] - row_blocks[n]; }
+    integer  DnumCols( integer n ) const { return row_blocks[n+1] - row_blocks[n]; }
+
+    integer  LnumRows( integer n ) const { return DnumRows(n+1); }
+    integer  LnumCols( integer n ) const { return DnumCols(n); }
+
+    void setD( integer n, valueType const * data, integer ldData );
+    void setL( integer n, valueType const * data, integer ldData );
+
+    void
+    setD(
+      integer n,
+      valueType const * data, integer ldData,
+      integer beginRow, integer beginCol,
+      integer nrow, integer ncol
+    );
+
+    void
+    setL(
+      integer n,
+      valueType const * data, integer ldData,
+      integer beginRow, integer beginCol,
+      integer nrow, integer ncol
+    );
+
+    void
+    factorize();
+
+    /*\
+     |         _      _               _
+     |  __   _(_)_ __| |_ _   _  __ _| |___
+     |  \ \ / / | '__| __| | | |/ _` | / __|
+     |   \ V /| | |  | |_| |_| | (_| | \__ \
+     |    \_/ |_|_|   \__|\__,_|\__,_|_|___/
+    \*/
+
+    virtual
+    void
+    solve( valueType xb[] ) const ALGLIN_OVERRIDE;
+
+    virtual
+    void
+    t_solve( valueType xb[] ) const ALGLIN_OVERRIDE
+    { this->solve( xb ); }
+
+    virtual
+    void
+    solve( integer   nrhs,
+           valueType xb[],
+           integer   ldXB ) const ALGLIN_OVERRIDE;
+
+    virtual
+    void
+    t_solve( integer   nrhs,
+             valueType xb[],
+             integer   ldXB ) const ALGLIN_OVERRIDE
+    { this->solve( nrhs, xb, ldXB ); }
+
+  };
+
+  //============================================================================
+  /*\
    |   ____                  _          _ _    _   _
    |  | __ )  __ _ _ __   __| | ___  __| | |  | | | |
    |  |  _ \ / _` | '_ \ / _` |/ _ \/ _` | |  | | | |
@@ -1935,10 +2065,10 @@ namespace alglin {
 
     void
     setup(
-      integer M,    // number of rows
-      integer N,    // number of columns
-      integer nL,   // number of lower diagonal
-      integer nU    // number of upper diagonal
+      integer M,  // number of rows
+      integer N,  // number of columns
+      integer nL, // number of lower diagonal
+      integer nU  // number of upper diagonal
     );
 
     integer
@@ -2059,8 +2189,8 @@ namespace alglin {
     setup(
       ULselect UPLO,
       integer  N,    // numbe of rows and columns
-      integer  nD
-    ); // number of upper diagonal
+      integer  nD    // number of upper diagonal
+    );
 
     valueType const &
     operator () ( integer i, integer j ) const
@@ -2378,6 +2508,9 @@ namespace alglin {
 
   extern template class TridiagonalQR<real>;
   extern template class TridiagonalQR<doublereal>;
+
+  extern template class BlockTridiagonalSymmetic<real>;
+  extern template class BlockTridiagonalSymmetic<doublereal>;
 
   extern template class BandedLU<real>;
   extern template class BandedLU<doublereal>;

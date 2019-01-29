@@ -58,7 +58,7 @@ namespace alglin {
     static inline t_Value max( t_Value const * x ) {
       return std::max( x[0], Vec1<t_Value,N-1,STEP>::max(x+STEP) );
     }
-    static inline t_Value mina( t_Value const * x ) {
+    static inline t_Value min( t_Value const * x ) {
       return std::min( x[0], Vec1<t_Value,N-1,STEP>::min(x+STEP) );
     }
     static inline t_Value amax( t_Value const * x ) {
