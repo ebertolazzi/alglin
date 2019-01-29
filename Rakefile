@@ -19,6 +19,10 @@ task :mkl, [:year, :bits] do |t, args|
 end
 
 TESTS = [
+	"Simplex-Test1",
+	"Simplex-Test2",
+	"Simplex-Test3",
+  "Simplex-Test4",
 	"test0-FD",
 	"test1-small-factorization",
 	"test2-Threads",
@@ -30,11 +34,7 @@ TESTS = [
 	"test8-Cinterface",
 	"test12-BandedMatrix",
 	"test13-BFGS",
-	"test14-BLOCKTRID",
-	"Simplex-Test1",
-	"Simplex-Test2",
-	"Simplex-Test3",
-  "Simplex-Test4"
+	"test14-BLOCKTRID"
 ]
 
 desc "run tests"

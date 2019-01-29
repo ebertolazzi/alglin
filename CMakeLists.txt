@@ -64,10 +64,6 @@ SET( EXELISTCPP
   Simplex-Test2
   Simplex-Test3
   Simplex-Test4
-  SimplexTest1
-  SimplexTest2
-  SimplexTest3
-  SimplexTest4
   test0-FD
   test1-small-factorization
   test2-Threads
