@@ -1888,6 +1888,91 @@ namespace alglin {
 
   template <typename T>
   void
+  BlockTridiagonalSymmetic<T>::check( integer, integer ) const {
+    // do nothing
+  }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  template <typename T>
+  void
+  BlockTridiagonalSymmetic<T>::find(
+    integer   ii,
+    integer   jj,
+    integer & iBlock,
+    integer & jBlock,
+    integer & ij,
+    integer & ji
+  ) const {
+    integer const * ib = this->row_blocks;
+    integer const * ie = this->row_blocks+this->nBlocks+1;
+    iBlock = integer(std::upper_bound( ib, ie, ii ) - ib) - 1;
+    jBlock = integer(std::upper_bound( ib, ie, jj ) - ib) - 1;
+
+    ALGLIN_ASSERT( row_blocks[iBlock] <= ii && ii < row_blocks[iBlock+1], "bad iBlock" );
+    ALGLIN_ASSERT( row_blocks[jBlock] <= jj && jj < row_blocks[jBlock+1], "bad iBlock" );
+
+    integer nr = row_blocks[iBlock+1] - row_blocks[iBlock];
+    //integer nc = row_blocks[jBlock+1] - row_blocks[jBlock];
+    integer i  = ii - row_blocks[iBlock];
+    integer j  = jj - row_blocks[jBlock];
+    ij = i+j*nr;
+    ji = j+i*nr;
+    ALGLIN_ASSERT( jBlock == iBlock || jBlock+1 == iBlock,
+                   "BlockTridiagonalSymmetic:find( " << ii << " , " << jj <<
+                   " ) --> ( iBlock = " << iBlock <<
+                   ", jBlock = " << jBlock <<
+                   " ) --> ( i = " << i <<
+                   ", j = " << j <<
+                   " ) out of range" );
+  }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  template <typename T>
+  T const &
+  BlockTridiagonalSymmetic<T>::operator () ( integer ii, integer jj ) const {
+    integer iBlock, jBlock, ij, ji;
+    find( ii, jj, iBlock, jBlock, ij, ji );
+    T const * ptr = iBlock == jBlock ? this->D_blocks[jBlock] : this->L_blocks[jBlock] ;
+    return ptr[ij];
+  }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  template <typename T>
+  T &
+  BlockTridiagonalSymmetic<T>::operator () ( integer ii, integer jj ) {
+    integer iBlock, jBlock, ij, ji;
+    find( ii, jj, iBlock, jBlock, ij, ji );
+    T * ptr = iBlock == jBlock ? this->D_blocks[jBlock] : this->L_blocks[jBlock] ;
+    return ptr[ij];
+  }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  template <typename T>
+  void
+  BlockTridiagonalSymmetic<T>::insert(
+    integer   ii,
+    integer   jj,
+    valueType v,
+    bool      sym
+  ) {
+    integer iBlock, jBlock, ij,ji;
+    find( ii, jj, iBlock, jBlock, ij, ji );
+    if ( iBlock == jBlock ) {
+      this->D_blocks[jBlock][ij] = v;
+      if ( sym ) this->D_blocks[jBlock][ji] = v;
+    } else {
+      this->L_blocks[jBlock][ij] = v;
+    }
+  }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  template <typename T>
+  void
   BlockTridiagonalSymmetic<T>::setD(
     integer         n,
     valueType const data[],
@@ -2275,13 +2360,27 @@ namespace alglin {
 
   template <typename T>
   void
-  BandedLU<T>::iaddr_check( integer i, integer j ) const {
+  BandedLU<T>::check( integer i, integer j ) const {
     ALGLIN_ASSERT( i >= 0 && i < m && j >= 0 && j < n,
-                   "BandedLU:iaddr_check( " << i << " , " << j <<
+                   "BandedLU::check( " << i << " , " << j <<
                    " ) out of range" );
     ALGLIN_ASSERT( j >= i-nL && j <= i+nU,
-                   "BandedLU:iaddr_check( " << i << " , " << j <<
+                   "BandedLU::check( " << i << " , " << j <<
                    " ) out of band" );
+  }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  template <typename T>
+  void
+  BandedLU<T>::insert(
+    integer   i,
+    integer   j,
+    valueType v,
+    bool      sym
+  ) {
+    (*this)(i,j) = v;
+    if ( sym && i != j ) (*this)(j,i) = v;
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -2304,10 +2403,10 @@ namespace alglin {
         AB[iaddr( irow+r, icol+c )] = B[ r + c * ldB ];
     #else
     // must be checked
-    iaddr_check( irow,      icol      );
-    iaddr_check( irow+nr-1, icol+nc-1 );
-    iaddr_check( irow,      icol+nc-1 );
-    iaddr_check( irow+nr-1, icol      );
+    check( irow,      icol      );
+    check( irow+nr-1, icol+nc-1 );
+    check( irow,      icol+nc-1 );
+    check( irow+nr-1, icol      );
 
     // copy by diagonal
     for ( integer r = 0; r < nr; ++r ) {
@@ -2465,6 +2564,20 @@ namespace alglin {
   BandedSPD<T>::zero() {
     alglin::zero( n*ldAB, AB, 1 );
     is_factorized = false;
+  }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  template <typename T>
+  void
+  BandedSPD<T>::insert(
+    integer   i,
+    integer   j,
+    valueType v,
+    bool      sym
+  ) {
+    (*this)(i,j) = v;
+    if ( sym && i != j ) (*this)(j,i) = v;
   }
 
   /*\

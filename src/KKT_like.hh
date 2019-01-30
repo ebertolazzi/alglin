@@ -118,11 +118,13 @@ namespace alglin {
 
     // solver for A block
     LSS const * pAsolver;
-    LU<t_Value>         A_lu;
-    BandedLU<valueType> banded_LU;
+
+    LU<t_Value>                         A_LU;
+    BandedLU<valueType>                 A_banded_LU;
+    BlockTridiagonalSymmetic<valueType> A_strid_LDL;
 
     // sover for D block
-    LU<t_Value> W_lu;
+    LU<t_Value> W_LU;
 
     valuePointer Zmat, Cmat;
 
@@ -147,6 +149,56 @@ namespace alglin {
     //  |  C  |  D  | m
     //  +-----+-----+
     */
+
+    template <typename MATRIX>
+    void
+    load(
+      valueConstPointer M_values,
+      integer const *   M_row, integer r_offs,
+      integer const *   M_col, integer c_offs,
+      integer           M_nnz,
+      bool              M_is_symmetric,
+      MATRIX        &   mat
+    ) {
+      integer mn = m+n;
+
+      mat.zero();
+      gezero( n, m, this->Zmat, n );
+      gezero( m, n, this->Cmat, m );
+      valuePointer Wmat = W_LU.Apointer();
+      gezero( m, m, Wmat, m );
+
+      // load elements
+      for ( integer k = 0; k < M_nnz; ++k ) {
+        t_Value v = M_values[k];
+        integer i = M_row[k]+r_offs;
+        integer j = M_col[k]+c_offs;
+        integer quad = (i < n ? 0 : 1) + (j < n ? 0 : 2);
+        ALGLIN_ASSERT( i >= 0 && i < mn &&  j >= 0 && j < mn,
+                       "Element (" << i << "," << j << ") outside the matrix M");
+        switch ( quad ) {
+        case 0: // A
+          mat.insert(i,j,v,M_is_symmetric);
+          break;
+        case 1: // C
+          i -= n;
+          this->Cmat[ i + m * j ] += v;
+          if ( M_is_symmetric ) this->Zmat[ j + n * i ] += v;
+          break;
+        case 2: // B
+          j -= n;
+          this->Zmat[ i + n * j ] += v;
+          if ( M_is_symmetric ) this->Cmat[ j + m * i ] += v;
+          break;
+        case 3: // D
+          i -= n;
+          j -= n;
+          Wmat[ i + m * j ] += v;
+          if ( M_is_symmetric && i != j ) Wmat[ j + m * i ] += v;
+          break;
+        }
+      }
+    }
 
   public:
 
@@ -496,6 +548,36 @@ namespace alglin {
       integer           _m,
       integer           _nL,
       integer           _nU,
+      // -----------------------
+      valueConstPointer M_values,
+      integer const     M_row[], integer r_offs,
+      integer const     M_col[], integer c_offs,
+      integer           M_nnz,
+      bool              M_is_symmetric
+    );
+
+    //! load matrix in the class
+    /*!
+      \param _n       number of row and column of the first block
+      \param _m       number of rows of block `C` and columns of block `B`
+      \param _nblocks number of blocks for the block tridiagonal matrix `A`
+      \param rBlocks  index of the initial rows for the diagonal block starts
+
+      \param[in] M_values elements `Aij` of the matrix `A`
+      \param[in] M_row    row index of the corresponding element in `A_values`
+      \param[in] M_col    column index of the corresponding element in `A_values`
+      \param[in] M_nnz    number of entries in the vectors `values`, `row` and `col`
+      \param[in] r_offs  offset to be applied, `A_row[j]+Ar_offs` is the index
+      \param[in] c_offs  offset to be applied, `A_col[j]+Ac_offs` is the index
+      \param[in] M_is_symmetric true if matrix `A` is symmetric and only lower or upper part is passed
+    */
+    void
+    factorize(
+      integer           _n,
+      integer           _m,
+      // ---- BLOCK TRIDIAGONAL STRUCTURE ----
+      integer           _nblocks,
+      integer const     rBlocks[],
       // -----------------------
       valueConstPointer M_values,
       integer const     M_row[], integer r_offs,

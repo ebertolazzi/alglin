@@ -23,8 +23,9 @@
 using namespace std;
 
 
-int
-main() {
+static
+void
+test1() {
 
   alglin::BlockTridiagonalSymmetic<alglin::doublereal> BT;
   alglin::integer rBlocks[] = { 0, 2, 5, 7};
@@ -60,6 +61,65 @@ main() {
 
   for ( alglin::integer k = 0; k < rBlocks[3]; ++k )
     cout << "x[ " << k << "] = " << rhs[7+k] << "\n";
+}
+
+static
+void
+test2() {
+
+  alglin::BlockTridiagonalSymmetic<alglin::doublereal> BT;
+  alglin::integer rBlocks[] = { 0, 2, 5, 7};
+  BT.setup( 3, rBlocks );
+
+  alglin::integer ii[] = {
+    1, 2, 1, 2,
+    3, 5, 3, 5,
+    6, 7,
+    3, 4, 4, 5,
+    6, 6, 6, 7, 7, 7
+  };
+
+  alglin::integer jj[] = {
+    1, 1, 2, 2,
+    3, 3, 5, 5,
+    6, 7,
+    1, 1, 2, 2,
+    3, 4, 5, 3, 4, 5
+  };
+
+  alglin::doublereal vals[] = {
+    2, 1, 1, 1,
+    2, 1, 1, 2,
+    2, 1,
+    1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1
+  };
+
+  alglin::doublereal rhs[] = {
+    5, 4, 6, 4, 6, 5, 4,
+    5, 4, 6, 4, 6, 5, 4
+  };
+
+  BT.zero();
+  for ( int k = 0; k < 20; ++k )
+    BT(ii[k]-1,jj[k]-1) += vals[k];
+
+  BT.factorize();
+
+  //BT.solve( rhs );
+  BT.solve( 2, rhs, 7 );
+
+  for ( alglin::integer k = 0; k < rBlocks[3]; ++k )
+    cout << "x[ " << k << "] = " << rhs[7+k] << "\n";
+}
+
+
+int
+main() {
+  cout << "test1\n";
+  test1();
+  cout << "\n\ntest2\n";
+  test2();
 
   cout << "All done!\n";
   return 0;

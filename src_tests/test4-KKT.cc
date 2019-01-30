@@ -401,28 +401,81 @@ void
 test5() {
 
   alglin::KKT<valueType> kkt;
-  integer const N = 72;
-  integer const M = 10;
+  integer const N   = 7;
+  integer const M   = 2;
+  integer const nnz = 22;
 
-  ifstream file("src_tests/SparseSort.txt");
-  ALGLIN_ASSERT( file.good(),
-                 "Failed to open file `SparseSort.txt`");
-  alglin::integer nnz, irow[1000], icol[1000];
-  valueType val[1000];
-  file >> nnz;
-  for ( integer k = 0; k < nnz; ++k )
-    file >> irow[k] >> icol[k] >> val[k];
+  integer ii[] = {
+    1, 2, 3, 8, 2, 4, 9, 3, 5, 6, 7,
+    8, 4, 9, 5, 8, 6, 9, 7, 9, 8, 9
+  };
+
+  integer jj[] = {
+    1, 1, 1, 1, 2, 2, 2, 3, 3, 3, 3,
+    3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 9
+  };
+
+  valueType vals[] = {
+    2, 1, -1, 1, 1, -1, 2, 2, 1, 2, 2,
+    3, 2, 4, 3, 5, 3, 6, 1, 1, 1, 1
+  };
 
   // must be factorized before to call kkt.factorize
-  kkt.factorize( N, M, 7, 7,
-                 val,
-                 irow, -1,
-                 icol, -1,
+  kkt.factorize( N, M, 4, 4,
+                 vals,
+                 ii, -1,
+                 jj, -1,
                  nnz, true );
 
-  //kkt.t_solve( 2, rhs, N+M );
-  //for ( integer i = 0; i < N+M; ++i )
-  //  cout << "x[" << i << "] = " << rhs[i] << '\n';
+  valueType x[]   = { 1, 2, 3, 4, 5, -1, -2, -3, -4, -5 };
+  valueType rhs[] = { -2, -9, -5, -10, 3, -21, 0, 32, 8 };
+
+  //kkt.t_solve( 1, rhs, N+M );
+  kkt.t_solve( rhs );
+  for ( integer i = 0; i < N+M; ++i )
+   cout << "x[" << i << "] = " << rhs[i] << '\n';
+}
+
+static
+void
+test6() {
+
+  alglin::KKT<valueType> kkt;
+  integer const N   = 7;
+  integer const M   = 2;
+  integer const nnz = 22;
+
+  integer ii[] = {
+    1, 2, 3, 8, 2, 4, 9, 3, 5, 6, 7,
+    8, 4, 9, 5, 8, 6, 9, 7, 9, 8, 9
+  };
+
+  integer jj[] = {
+    1, 1, 1, 1, 2, 2, 2, 3, 3, 3, 3,
+    3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 9
+  };
+
+  valueType vals[] = {
+    2, 1, -1, 1, 1, -1, 2, 2, 1, 2, 2,
+    3, 2, 4, 3, 5, 3, 6, 1, 1, 1, 1
+  };
+
+  // must be factorized before to call kkt.factorize
+  integer kblocks[] = { 0, 2, 4, 7 };
+  kkt.factorize( N, M,
+                 3, kblocks,
+                 vals,
+                 ii, -1,
+                 jj, -1,
+                 nnz, true );
+
+  valueType x[]   = { 1, 2, 3, 4, 5, -1, -2, -3, -4, -5 };
+  valueType rhs[] = { -2, -9, -5, -10, 3, -21, 0, 32, 8 };
+
+  //kkt.t_solve( 1, rhs, N+M );
+  kkt.t_solve( rhs );
+  for ( integer i = 0; i < N+M; ++i )
+   cout << "x[" << i << "] = " << rhs[i] << '\n';
 }
 
 int
@@ -439,8 +492,10 @@ main() {
     test3();
     cout << "\n\n\ntest4\n";
     test4();
-    //cout << "\n\n\ntest5\n";
-    //test5();
+    cout << "\n\n\ntest5\n";
+    test5();
+    cout << "\n\n\ntest6\n";
+    test6();
   } catch ( exception const & exc ) {
     cerr << exc.what() << '\n';
   } catch ( ... ) {

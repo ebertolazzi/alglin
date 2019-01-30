@@ -1939,6 +1939,16 @@ namespace alglin {
     integer   *  row_blocks;
     bool         is_factorized;
 
+    void
+    find(
+      integer   ii,
+      integer   jj,
+      integer & iBlock,
+      integer & jBlock,
+      integer & ij,
+      integer & ji
+    ) const ;
+
   public:
 
     BlockTridiagonalSymmetic()
@@ -1967,9 +1977,6 @@ namespace alglin {
 
     void
     zero();
-
-    //valueType const * D( integer n ) const { return D_blocks[n]; }
-    //valueType const * L( integer n ) const { return L_blocks[n]; }
 
     integer  numBlocks() const { return nBlocks; }
 
@@ -2018,6 +2025,18 @@ namespace alglin {
       integer         ncol,
       bool            transposed=false
     );
+
+    void
+    check( integer i, integer j ) const;
+
+    valueType const &
+    operator () ( integer i, integer j ) const;
+
+    valueType &
+    operator () ( integer i, integer j );
+
+    void
+    insert( integer i, integer j, valueType v, bool sym );
 
     void
     factorize();
@@ -2095,7 +2114,7 @@ namespace alglin {
     }
 
     void
-    iaddr_check( integer i, integer j ) const;
+    check( integer i, integer j ) const;
 
     valueType const &
     operator () ( integer i, integer j ) const
@@ -2104,6 +2123,9 @@ namespace alglin {
     valueType &
     operator () ( integer i, integer j )
     { return AB[iaddr(i,j)]; }
+
+    void
+    insert( integer i, integer j, valueType v, bool sym );
 
     void zero();
 
@@ -2216,6 +2238,9 @@ namespace alglin {
     valueType &
     operator () ( integer i, integer j )
     { return AB[i+j*ldAB]; }
+
+    void
+    insert( integer i, integer j, valueType v, bool sym );
 
     void zero();
 
