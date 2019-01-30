@@ -25,9 +25,9 @@
 
 namespace alglin {
 
-  /*
+  /*\
    *  A R C E C O
-   */
+  \*/
 
   /*!
    *
@@ -56,13 +56,11 @@ namespace alglin {
    *  numberOfBlocks is the number of the blocks forming the matrix,
    *  matrixStructure is an array which describes the structure
    *  of the matrix, and array contains the data of the matrix.
-   */
+  \*/
   template <typename t_Value>
   class ArcecoLU {
 
-    typedef t_Value         valueType;
-    typedef t_Value*        valuePointer;
-    typedef t_Value const * valueConstPointer;
+    typedef t_Value valueType;
 
     Malloc<valueType> baseValue;
     Malloc<integer>   baseInteger;
@@ -70,11 +68,11 @@ namespace alglin {
     ArcecoLU(ArcecoLU<t_Value> const &);
     ArcecoLU<t_Value> const &operator = (ArcecoLU<t_Value> const &);
 
-    integer *    matrixStructure; //!< structure of the matrix
-    integer *    pivot_array;     //!< permutation array
-    valuePointer array;           //!< the matrix data
+    integer   * matrixStructure; //!< structure of the matrix
+    integer   * pivot_array;     //!< permutation array
+    valueType * array;           //!< the matrix data
 
-    integer      numberOfBlocks;  //!< total number of blocks of the matrix A
+    integer     numberOfBlocks;  //!< total number of blocks of the matrix A
 
     /*!
      *  RowElimination performs numRowsPivot row elimination on the matrix block.
@@ -86,11 +84,11 @@ namespace alglin {
      */
     void
     rowElimination(
-      valuePointer block,
-      integer      numRowsBlock,
-      integer      numColsBlock,
-      integer      numRowsPivot,
-      integer    * pivot
+      valueType block[],
+      integer   numRowsBlock,
+      integer   numColsBlock,
+      integer   numRowsPivot,
+      integer   pivot[]
     );
 
     /*!
@@ -105,73 +103,73 @@ namespace alglin {
      */
     void
     columnElimination(
-      valuePointer topblk,
-      integer      numRowsTopBlock,
-      integer      numOverlapCols,
-      valuePointer botblk,
-      integer      numRowsBottomBlock,
-      integer      numColsPivot,
-      integer *    pivot
+      valueType topblk[],
+      integer   numRowsTopBlock,
+      integer   numOverlapCols,
+      valueType botblk[],
+      integer   numRowsBottomBlock,
+      integer   numColsPivot,
+      integer   pivot[]
     );
 
     //! Performs the forward elimination step in the solution phase of solveByRef
     void
     forwardElimination(
-      valuePointer block,
-      integer      numRowsBlock,
-      integer      numRowsPivot,
-      integer *    pivot,
-      valuePointer b
+      valueType block[],
+      integer   numRowsBlock,
+      integer   numRowsPivot,
+      integer   pivot[],
+      valueType b[]
     ) const;
 
     //! Performs the forward solution step in the solution phase of solveByRef
     void
     forwardSolution(
-      valuePointer block,
-      integer      numRowsBlock,
-      integer      numColsPivot,
-      integer      numOverlapCols,
-      valuePointer b
+      valueType block[],
+      integer   numRowsBlock,
+      integer   numColsPivot,
+      integer   numOverlapCols,
+      valueType b[]
     ) const;
 
     //! Performs the forward modification step in the solution phase of solve
     void
     forwardModification(
-      valuePointer block,
-      integer      numRowsBlock,
-      integer      numColsPivot,
-      valuePointer b
+      valueType block[],
+      integer   numRowsBlock,
+      integer   numColsPivot,
+      valueType b[]
     ) const;
 
     //! Performs the backward modification step in the solution phase of solve
     void
     backwardModification(
-      valuePointer block,
-      integer      numRowsBlock,
-      integer      numColsBlock,
-      integer      numRowsPivot,
-      valuePointer b
+      valueType block[],
+      integer   numRowsBlock,
+      integer   numColsBlock,
+      integer   numRowsPivot,
+      valueType b[]
     ) const;
 
     //! Performs the backward substitution step in the solution phase of solve
     void
     backwardSolution(
-      valuePointer block,
-      integer      numRowsBlock,
-      integer      numColsBlock,
-      integer      numRowsPivot,
-      valuePointer b
+      valueType block[],
+      integer   numRowsBlock,
+      integer   numColsBlock,
+      integer   numRowsPivot,
+      valueType b[]
     ) const;
 
     //! Performs the backward elimination step in the solution phase of solve
     void
     backwardElimination(
-      valuePointer block,
-      integer      numRowsBlock,
-      integer      numColsPivot,
-      integer      numOverlapCols,
-      integer *    pivot,
-      valuePointer b
+      valueType block[],
+      integer   numRowsBlock,
+      integer   numColsPivot,
+      integer   numOverlapCols,
+      integer   pivot[],
+      valueType b[]
     ) const;
 
     integer
@@ -219,10 +217,10 @@ namespace alglin {
      */
     void
     loadByRef(
-      integer      numberOfBlocks,
-      integer *    matrixStructure,
-      valuePointer array,
-      integer *    pivot
+      integer   numberOfBlocks,
+      integer   matrixStructure[],
+      valueType array[],
+      integer   pivot[]
     );
 
     //! \@param neq the order of the linear system, and n = SUM(matrixStructure[3*k],K=0,numberOfBlocks-1)
@@ -241,17 +239,17 @@ namespace alglin {
     //! factorize the matrix
     void
     factorize(
-      integer           _row0,
-      integer           _col0,
-      valueConstPointer _block0,
+      integer         _row0,
+      integer         _col0,
+      valueType const _block0[],
       // ----------------
-      integer           _numBlock,
-      integer           _dimBlock,
-      valueConstPointer _blocks,
+      integer         _numBlock,
+      integer         _dimBlock,
+      valueType const _blocks[],
       // ----------------
-      integer           _rowN,
-      integer           _colN,
-      valueConstPointer _blockN
+      integer         _rowN,
+      integer         _colN,
+      valueType const _blockN[]
     );
 
     /*!
@@ -265,7 +263,7 @@ namespace alglin {
      *  elimination.
      */
     void
-    solve( valuePointer b ) const;
+    solve( valueType b[] ) const;
 
   };
 

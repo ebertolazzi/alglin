@@ -1887,37 +1887,19 @@ namespace alglin {
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   template <typename T>
-  void
-  BlockTridiagonalSymmetic<T>::check( integer, integer ) const {
-    // do nothing
-  }
-
-  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  template <typename T>
-  void
-  BlockTridiagonalSymmetic<T>::find(
-    integer   ii,
-    integer   jj,
-    integer & iBlock,
-    integer & jBlock,
-    integer & ij,
-    integer & ji
-  ) const {
+  T const &
+  BlockTridiagonalSymmetic<T>::operator () ( integer ii, integer jj ) const {
     integer const * ib = this->row_blocks;
     integer const * ie = this->row_blocks+this->nBlocks+1;
-    iBlock = integer(std::upper_bound( ib, ie, ii ) - ib) - 1;
-    jBlock = integer(std::upper_bound( ib, ie, jj ) - ib) - 1;
+    integer iBlock = integer(std::upper_bound( ib, ie, ii ) - ib) - 1;
+    integer jBlock = integer(std::upper_bound( ib, ie, jj ) - ib) - 1;
 
     ALGLIN_ASSERT( row_blocks[iBlock] <= ii && ii < row_blocks[iBlock+1], "bad iBlock" );
     ALGLIN_ASSERT( row_blocks[jBlock] <= jj && jj < row_blocks[jBlock+1], "bad iBlock" );
 
     integer nr = row_blocks[iBlock+1] - row_blocks[iBlock];
-    //integer nc = row_blocks[jBlock+1] - row_blocks[jBlock];
     integer i  = ii - row_blocks[iBlock];
     integer j  = jj - row_blocks[jBlock];
-    ij = i+j*nr;
-    ji = j+i*nr;
     ALGLIN_ASSERT( jBlock == iBlock || jBlock+1 == iBlock,
                    "BlockTridiagonalSymmetic:find( " << ii << " , " << jj <<
                    " ) --> ( iBlock = " << iBlock <<
@@ -1925,17 +1907,13 @@ namespace alglin {
                    " ) --> ( i = " << i <<
                    ", j = " << j <<
                    " ) out of range" );
-  }
 
-  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  template <typename T>
-  T const &
-  BlockTridiagonalSymmetic<T>::operator () ( integer ii, integer jj ) const {
-    integer iBlock, jBlock, ij, ji;
-    find( ii, jj, iBlock, jBlock, ij, ji );
-    T const * ptr = iBlock == jBlock ? this->D_blocks[jBlock] : this->L_blocks[jBlock] ;
-    return ptr[ij];
+    integer ij = i+j*nr;
+    if ( iBlock == jBlock ) {
+      return this->D_blocks[jBlock][ij];
+    } else {
+      return this->L_blocks[jBlock][ij];
+    }
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1943,10 +1921,31 @@ namespace alglin {
   template <typename T>
   T &
   BlockTridiagonalSymmetic<T>::operator () ( integer ii, integer jj ) {
-    integer iBlock, jBlock, ij, ji;
-    find( ii, jj, iBlock, jBlock, ij, ji );
-    T * ptr = iBlock == jBlock ? this->D_blocks[jBlock] : this->L_blocks[jBlock] ;
-    return ptr[ij];
+    integer const * ib = this->row_blocks;
+    integer const * ie = this->row_blocks+this->nBlocks+1;
+    integer iBlock = integer(std::upper_bound( ib, ie, ii ) - ib) - 1;
+    integer jBlock = integer(std::upper_bound( ib, ie, jj ) - ib) - 1;
+
+    ALGLIN_ASSERT( row_blocks[iBlock] <= ii && ii < row_blocks[iBlock+1], "bad iBlock" );
+    ALGLIN_ASSERT( row_blocks[jBlock] <= jj && jj < row_blocks[jBlock+1], "bad iBlock" );
+
+    integer nr = row_blocks[iBlock+1] - row_blocks[iBlock];
+    integer i  = ii - row_blocks[iBlock];
+    integer j  = jj - row_blocks[jBlock];
+    ALGLIN_ASSERT( jBlock == iBlock || jBlock+1 == iBlock,
+                   "BlockTridiagonalSymmetic:find( " << ii << " , " << jj <<
+                   " ) --> ( iBlock = " << iBlock <<
+                   ", jBlock = " << jBlock <<
+                   " ) --> ( i = " << i <<
+                   ", j = " << j <<
+                   " ) out of range" );
+
+    integer ij = i+j*nr;
+    if ( iBlock == jBlock ) {
+      return this->D_blocks[jBlock][ij];
+    } else {
+      return this->L_blocks[jBlock][ij];
+    }
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1959,13 +1958,26 @@ namespace alglin {
     valueType v,
     bool      sym
   ) {
-    integer iBlock, jBlock, ij,ji;
-    find( ii, jj, iBlock, jBlock, ij, ji );
-    if ( iBlock == jBlock ) {
-      this->D_blocks[jBlock][ij] = v;
-      if ( sym ) this->D_blocks[jBlock][ji] = v;
+    integer const * ib = this->row_blocks;
+    integer const * ie = this->row_blocks+this->nBlocks+1;
+    integer jBlock = integer(std::upper_bound( ib, ie, jj ) - ib) - 1;
+    integer jmin   = row_blocks[jBlock];
+    integer jmax   = row_blocks[jBlock+1];
+    integer j      = jj - jmin;
+    ALGLIN_ASSERT( jmin <= jj && jj < jmax && jmin <= ii,
+                   "bad iBlock ii = " << ii << " jj = " << jj );
+    if ( ii < jmax ) {
+      integer i  = ii - jmin;
+      integer nr = jmax-jmin;
+      valueType * D = this->D_blocks[jBlock];
+      D[i+j*nr] = v;
+      if ( sym ) D[j+i*nr] = v;
     } else {
-      this->L_blocks[jBlock][ij] = v;
+      integer imin = jmax;
+      integer imax = row_blocks[jBlock+2];
+      integer nr   = imax-imin;
+      integer i    = ii - imin;
+      this->L_blocks[jBlock][i+j*nr] = v;
     }
   }
 
@@ -2379,8 +2391,19 @@ namespace alglin {
     valueType v,
     bool      sym
   ) {
+    ALGLIN_ASSERT( i >= 0 && i < m && j >= 0 && j < n,
+                   "BandedLU::insert( " << i << " , " << j <<
+                   " ) out of range" );
+    ALGLIN_ASSERT( i-nL <= j && j <= i+nU,
+                   "BandedLU::insert( " << i << " , " << j <<
+                   " ) out of band" );
     (*this)(i,j) = v;
-    if ( sym && i != j ) (*this)(j,i) = v;
+    if ( sym && i != j ) {
+      ALGLIN_ASSERT( j-nL <= i && i <= j+nU,
+                     "BandedLU::insert( " << i << " , " << j <<
+                     " ) out of band" );
+      (*this)(j,i) = v;
+    }
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

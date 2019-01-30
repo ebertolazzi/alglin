@@ -56,13 +56,13 @@ namespace alglin {
   \*/
   void
   BABD_SuperLU::factorize(
-    integer           _nblock,
-    integer           _n,
-    integer           q,
-    valueConstPointer AdAu,
-    valueConstPointer H0,
-    valueConstPointer HN,
-    valueConstPointer Hq
+    integer         _nblock,
+    integer         _n,
+    integer         q,
+    valueType const AdAu[],
+    valueType const H0[],
+    valueType const HN[],
+    valueType const Hq[]
   ) {
 
     nblock = _nblock;
@@ -94,8 +94,8 @@ namespace alglin {
     integer ee = nblock*n;
     colptr[0] = 0;
     for ( integer k = 0; k <= nblock; ++k ) {
-      valueConstPointer Ad = AdAu + 2*n*n*k;
-      valueConstPointer Au = Ad - n*n;
+      valueType const * Ad = AdAu + 2*n*n*k;
+      valueType const * Au = Ad - n*n;
       integer ii = k*n;
       for ( integer j = 0; j < n; ++j ) {
         if ( k > 0       ) for ( integer i = 0; i < n; ++i ) { rowind[kk] = i+ii-n; values[kk] = Au[i+j*n]; ++kk; }
@@ -203,7 +203,7 @@ namespace alglin {
   \*/
 
   void
-  BABD_SuperLU::solve( valuePointer y ) const {
+  BABD_SuperLU::solve( valueType y[] ) const {
 
     int         info;
     SuperMatrix B;

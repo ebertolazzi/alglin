@@ -62,9 +62,7 @@ namespace alglin {
   class BABD {
   private:
 
-    typedef t_Value         valueType;
-    typedef t_Value*        valuePointer;
-    typedef t_Value const * valueConstPointer;
+    typedef t_Value valueType;
 
     BABD( BABD<t_Value> const & );
     BABD<t_Value> const & operator = ( BABD<t_Value> const & );
@@ -84,19 +82,19 @@ namespace alglin {
 
     // filling bidiagonal part of the matrix
     void
-    loadBlocks( valueConstPointer AdAu, integer ldA )
+    loadBlocks( valueType const AdAu[], integer ldA )
     { babd_solver->loadBlocks( AdAu, ldA ); }
 
     void
-    loadBlock( integer nbl, valueConstPointer AdAu, integer ldA )
+    loadBlock( integer nbl, valueType const AdAu[], integer ldA )
     { babd_solver->loadBlock( nbl, AdAu, ldA ); }
 
     void
-    loadBlockLeft( integer nbl, valueConstPointer Ad, integer ldA )
+    loadBlockLeft( integer nbl, valueType const Ad[], integer ldA )
     { babd_solver->loadBlockLeft( nbl, Ad, ldA ); }
 
     void
-    loadBlockRight( integer nbl, valueConstPointer Au, integer ldA )
+    loadBlockRight( integer nbl, valueType const Au[], integer ldA )
     { babd_solver->loadBlockRight( nbl, Au, ldA ); }
 
     // Border Bottom blocks
@@ -105,23 +103,23 @@ namespace alglin {
     {  babd_solver->setZeroBottomBlocks(); }
 
     void
-    loadBottomBlocks( valueConstPointer C, integer ldC )
+    loadBottomBlocks( valueType const C[], integer ldC )
     {  babd_solver->loadBottomBlocks( C, ldC ); }
 
     void
-    loadBottomBlock( integer nbl, valueConstPointer C, integer ldC )
+    loadBottomBlock( integer nbl, valueType const C[], integer ldC )
     { babd_solver->loadBottomBlock( nbl, C, ldC ); }
 
     void
-    addtoBottomBlock( integer nbl, valueConstPointer C, integer ldC )
+    addtoBottomBlock( integer nbl, valueType const C[], integer ldC )
     { babd_solver->addtoBottomBlock( nbl, C, ldC ); }
 
     void
-    addtoBottomBlock2( integer nbl, valueConstPointer C, integer ldC )
+    addtoBottomBlock2( integer nbl, valueType const C[], integer ldC )
     { babd_solver->addtoBottomBlock2( nbl, C, ldC ); }
 
     void
-    loadBottomLastBlock( valueConstPointer C, integer ldC )
+    loadBottomLastBlock( valueType const C[], integer ldC )
     { babd_solver->loadBottomLastBlock( C, ldC ); }
 
     // Border Right blocks
@@ -130,15 +128,15 @@ namespace alglin {
     { babd_solver->setZeroRightBlocks(); }
 
     void
-    loadRightBlocks( valueConstPointer B, integer ldB )
+    loadRightBlocks( valueType const B[], integer ldB )
     { babd_solver->loadRightBlocks( B, ldB ); }
 
     void
-    loadRightBlock( integer nbl, valueConstPointer B, integer ldB )
+    loadRightBlock( integer nbl, valueType const B[], integer ldB )
     { babd_solver->loadRightBlock( nbl, B, ldB ); }
 
     void
-    loadRightLastBlock( valueConstPointer B, integer ldB )
+    loadRightLastBlock( valueType const B[], integer ldB )
     { babd_solver->loadRightLastBlock( B, ldB ); }
 
     // Border RBblock
@@ -147,30 +145,30 @@ namespace alglin {
     { babd_solver->setZeroRBblock(); }
 
     void
-    loadRBblock( valueConstPointer D, integer ldD )
+    loadRBblock( valueType const D[], integer ldD )
     { babd_solver->loadRBblock( D, ldD ); }
 
     // Bottom BC
     void
     loadBottom(
-      valueConstPointer H0, integer ld0,
-      valueConstPointer HN, integer ldN,
-      valueConstPointer Hq, integer ldQ
+      valueType const H0[], integer ld0,
+      valueType const HN[], integer ldN,
+      valueType const Hq[], integer ldQ
     ) {
       babd_solver->loadBottom( H0, ld0, HN, ldN, Hq, ldQ );
     }
 
     void
     loadTopBottom(
-      integer           _row0,
-      integer           _col0,
-      valueConstPointer _block0,
-      integer           _ld0,
+      integer         _row0,
+      integer         _col0,
+      valueType const _block0[],
+      integer         _ld0,
       // ----------------------------
-      integer           _rowN,
-      integer           _colN,
-      valueConstPointer _blockN,
-      integer           _ldN
+      integer         _rowN,
+      integer         _colN,
+      valueType const _blockN[],
+      integer         _ldN
     ) {
       babd_solver->loadTopBottom( _row0, _col0, _block0, _ld0,
                                   _rowN, _colN, _blockN, _ldN );
@@ -211,17 +209,17 @@ namespace alglin {
     \*/
     void
     loadBC( // ----------------------
-      integer      numInitialBC,
-      integer      numFinalBC,
-      integer      numCyclicBC,
+      integer numInitialBC,
+      integer numFinalBC,
+      integer numCyclicBC,
       // ----------------------
-      integer      numInitialOMEGA,
-      integer      numFinalOMEGA,
-      integer      numCyclicOMEGA,
+      integer numInitialOMEGA,
+      integer numFinalOMEGA,
+      integer numCyclicOMEGA,
       // ----------------------
-      valuePointer H0, integer ld0,
-      valuePointer HN, integer ldN,
-      valuePointer Hq, integer ldq
+      valueType H0[], integer ld0,
+      valueType HN[], integer ldN,
+      valueType Hq[], integer ldq
     ) {
       babd_solver->loadBC( numInitialBC,  numFinalBC,  numCyclicBC,
                            numInitialOMEGA, numFinalOMEGA, numCyclicOMEGA,
@@ -252,22 +250,22 @@ namespace alglin {
     \*/
     //! solve linear sistem using internal factorized matrix
     void
-    solve( valuePointer in_out ) const
+    solve( valueType in_out[] ) const
     { babd_solver->solve( in_out ); }
 
     void
-    solve( integer nrhs, valuePointer in_out, integer ldIO ) const
+    solve( integer nrhs, valueType in_out[], integer ldIO ) const
     { babd_solver->solve( nrhs, in_out, ldIO ); }
 
     void
-    solve_bordered( valuePointer in_out ) const
+    solve_bordered( valueType in_out[] ) const
     { babd_solver->solve_bordered( in_out ); }
 
     void
     solve_bordered(
-      integer      nrhs,
-      valuePointer rhs,
-      integer      ldRhs
+      integer   nrhs,
+      valueType rhs[],
+      integer   ldRhs
     ) const {
       babd_solver->solve_bordered( nrhs, rhs, ldRhs );
     }
@@ -306,7 +304,7 @@ namespace alglin {
     { babd_solver->sparsePattern(I,J); }
 
     void
-    sparseValues( valuePointer vals ) const
+    sparseValues( valueType vals[] ) const
     { babd_solver->sparseValues(vals); }
 
   };

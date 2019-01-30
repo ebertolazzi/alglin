@@ -196,14 +196,14 @@ namespace alglin {
   template <typename t_Value>
   void
   BorderedCR<t_Value>::loadBottom(
-    valueConstPointer H0, integer ld0,
-    valueConstPointer HN, integer ldN,
-    valueConstPointer Hq, integer ldQ,
-    valueConstPointer Hp, integer ldP
+    valueType const H0[], integer ld0,
+    valueType const HN[], integer ldN,
+    valueType const Hq[], integer ldQ,
+    valueType const Hp[], integer ldP
   ) {
     // (n+qr) x ( n + n + qx + nx )
-    integer      m = n + qr;
-    valuePointer H = H0Nqp;
+    integer     m = n + qr;
+    valueType * H = H0Nqp;
     gecopy( m, n,  H0, ld0, H, m ); H += m * n;
     gecopy( m, n,  HN, ldN, H, m ); H += m * n;
     gecopy( m, qx, Hq, ldQ, H, m ); H += m * qx;
@@ -282,7 +282,7 @@ namespace alglin {
                    "addtoB( " << nbl << ", B) bad dimension size(B) = " <<
                    B.numRows << " x " << B.numCols << " expected " <<
                    n << " x " << nx );
-    valuePointer BB = Bmat + nbl*n_x_nx;
+    valueType * BB = Bmat + nbl*n_x_nx;
     geadd( n, nx, 1.0, B.data, B.ldData, 1.0, BB, n, BB, n );
   }
 
@@ -307,7 +307,7 @@ namespace alglin {
                    "addtoC( " << nbl << ", C) bad dimension size(C) = " <<
                    C.numRows << " x " << C.numCols << " expected " <<
                    nr << " x " << n );
-    valuePointer CC = Cmat + nbl*nr_x_n;
+    valueType * CC = Cmat + nbl*nr_x_n;
     geadd( nr, n, 1.0, C.data, C.ldData, 1.0, CC, nr, CC, nr );
   }
 
@@ -320,7 +320,7 @@ namespace alglin {
                    "addtoC( " << nbl << ", C) bad dimension size(C) = " <<
                    C.numRows << " x " << C.numCols << " expected " <<
                    nr << " x " << n_x_2 );
-    valuePointer CC = Cmat + nbl*nr_x_n;
+    valueType * CC = Cmat + nbl*nr_x_n;
     geadd( nr, n_x_2, 1.0, C.data, C.ldData, 1.0, CC, nr, CC, nr );
   }
 
@@ -422,11 +422,11 @@ namespace alglin {
   template <typename t_Value>
   void
   BorderedCR<t_Value>::buildT(
-    integer           nth,
-    valueConstPointer TOP,
-    valueConstPointer BOTTOM,
-    valuePointer      T,
-    integer *         iperm
+    integer         nth,
+    valueType const TOP[],
+    valueType const BOTTOM[],
+    valueType       T[],
+    integer         iperm[]
   ) const {
     gecopy( n, n, TOP,    n, T,   n_x_2 );
     gecopy( n, n, BOTTOM, n, T+n, n_x_2 );
@@ -469,16 +469,16 @@ namespace alglin {
   template <typename t_Value>
   void
   BorderedCR<t_Value>::applyT(
-    integer           nth,
-    valueConstPointer T,
-    integer const *   iperm,
-    valuePointer      TOP,
-    integer           ldTOP,
-    valuePointer      BOTTOM,
-    integer           ldBOTTOM,
-    integer           ncol
+    integer         nth,
+    valueType const T[],
+    integer const   iperm[],
+    valueType       TOP[],
+    integer         ldTOP,
+    valueType       BOTTOM[],
+    integer         ldBOTTOM,
+    integer         ncol
   ) const {
-    valuePointer W = WorkT + LworkT*nth;
+    valueType * W = WorkT + LworkT*nth;
     gecopy( n, ncol, TOP,    ldTOP,    W,   n_x_2 );
     gecopy( n, ncol, BOTTOM, ldBOTTOM, W+n, n_x_2 );
     // Apply row interchanges to the right hand sides.
@@ -514,13 +514,13 @@ namespace alglin {
   template <typename t_Value>
   void
   BorderedCR<t_Value>::applyT(
-    integer           nth,
-    valueConstPointer T,
-    integer const *   iperm,
-    valuePointer      TOP,
-    valuePointer      BOTTOM
+    integer         nth,
+    valueType const T[],
+    integer const   iperm[],
+    valueType       TOP[],
+    valueType       BOTTOM[]
   ) const {
-    valuePointer W = WorkT + LworkT*nth;
+    valueType * W = WorkT + LworkT*nth;
     copy( n, TOP,    1, W,   1 );
     copy( n, BOTTOM, 1, W+n, 1 );
     integer info = 0;
@@ -569,28 +569,28 @@ namespace alglin {
     integer eblock = iBlock[2*nth+1];
     integer nblk   = eblock - iblock;
 
-    valuePointer Bmat0 = Bmat + iblock*n_x_nx;
-    valuePointer Cmat0 = Cmat + iblock*nr_x_n;
-    valuePointer Dmat0 = Dmat + iblock*n_x_n;
-    valuePointer Emat0 = Emat + iblock*n_x_n;
-    valuePointer T0    = Tmat + iblock*Tsize;
-    integer *    P0    = Perm + iblock*n;
+    valueType * Bmat0 = Bmat + iblock*n_x_nx;
+    valueType * Cmat0 = Cmat + iblock*nr_x_n;
+    valueType * Dmat0 = Dmat + iblock*n_x_n;
+    valueType * Emat0 = Emat + iblock*n_x_n;
+    valueType * T0    = Tmat + iblock*Tsize;
+    integer   * P0    = Perm + iblock*n;
 
-    valuePointer Fmat_th = Fmat + nth * nr_x_nx;
+    valueType * Fmat_th = Fmat + nth * nr_x_nx;
 
     integer k = 1;
     while ( k < nblk ) {
 
-      valuePointer Bjp = Bmat0;
-      valuePointer Bj  = Bmat0 + k*n_x_nx;
-      valuePointer Cjp = Cmat0;
-      valuePointer Cj  = Cmat0 + k*nr_x_n;
-      valuePointer Djp = Dmat0;
-      valuePointer Dj  = Dmat0 + k*n_x_n;
-      valuePointer Ejp = Emat0;
-      valuePointer Ej  = Emat0 + k*n_x_n;
-      valuePointer T   = T0    + k*Tsize;
-      integer *    P   = P0    + k*n;
+      valueType * Bjp = Bmat0;
+      valueType * Bj  = Bmat0 + k*n_x_nx;
+      valueType * Cjp = Cmat0;
+      valueType * Cj  = Cmat0 + k*nr_x_n;
+      valueType * Djp = Dmat0;
+      valueType * Dj  = Dmat0 + k*n_x_n;
+      valueType * Ejp = Emat0;
+      valueType * Ej  = Emat0 + k*n_x_n;
+      valueType * T   = T0    + k*Tsize;
+      integer   * P   = P0    + k*n;
 
       // -----------------------------------------------------------------------
       integer k_x_2 = 2*k;
@@ -624,8 +624,8 @@ namespace alglin {
                       Dj,  n,
                  1.0, Cjp, nr );
 
-          integer      jpp = std::min(j+k,eblock);
-          valuePointer Cpp = Cmat + jpp*nr_x_n;
+          integer     jpp = std::min(j+k,eblock);
+          valueType * Cpp = Cmat + jpp*nr_x_n;
 
           gemm( NO_TRANSPOSE, NO_TRANSPOSE,
                 nr, n, n,
@@ -670,12 +670,12 @@ namespace alglin {
       for ( integer jj = k; jj < nblk; jj += 2*k ) {
         integer j  = iBlock[jj];
         integer jp = iBlock[jj-k];
-        valuePointer T   = Tmat + j*Tsize;
-        integer *    P   = Perm + j*n;
-        valuePointer Djp = Dmat + jp*n_x_n;
-        valuePointer Dj  = Dmat + j*n_x_n;
-        valuePointer Ejp = Emat + jp*n_x_n;
-        valuePointer Ej  = Emat + j*n_x_n;
+        valueType * T   = Tmat + j*Tsize;
+        integer   * P   = Perm + j*n;
+        valueType * Djp = Dmat + jp*n_x_n;
+        valueType * Dj  = Dmat + j*n_x_n;
+        valueType * Ejp = Emat + jp*n_x_n;
+        valueType * Ej  = Emat + j*n_x_n;
 
         buildT( 0, Ejp, Dj, T, P );
 
@@ -686,14 +686,14 @@ namespace alglin {
         applyT( 0, T, P, Ejp, n, Ej, n, n );
 
         if ( nx > 0 ) {
-          valuePointer Bj  = Bmat + j*n_x_nx;
-          valuePointer Bjp = Bmat + jp*n_x_nx;
+          valueType * Bj  = Bmat + j*n_x_nx;
+          valueType * Bjp = Bmat + jp*n_x_nx;
           applyT( 0, T, P, Bjp, n, Bj, n, nx );
         }
 
         if ( nr > 0 ) {
-          valuePointer Cj  = Cmat + j*nr_x_n;
-          valuePointer Cjp = Cmat + jp*nr_x_n;
+          valueType * Cj  = Cmat + j*nr_x_n;
+          valueType * Cjp = Cmat + jp*nr_x_n;
           if ( selected == BORDERED_QRP ) {
             integer i = n;
             do {
@@ -710,8 +710,8 @@ namespace alglin {
                       Dj,  n,
                  1.0, Cjp, nr );
 
-          integer      jpp = iBlock[std::min(jj+k,nblk)];
-          valuePointer Cpp = Cmat + jpp*nr_x_n;
+          integer     jpp = iBlock[std::min(jj+k,nblk)];
+          valueType * Cpp = Cmat + jpp*nr_x_n;
 
           gemm( NO_TRANSPOSE, NO_TRANSPOSE,
                 nr, n, n,
@@ -722,8 +722,8 @@ namespace alglin {
         }
 
         if ( nr_x_nx > 0 ) {
-          valuePointer Cj = Cmat + j*nr_x_n;
-          valuePointer Bj = Bmat + j*n_x_nx;
+          valueType * Cj = Cmat + j*nr_x_n;
+          valueType * Bj = Bmat + j*n_x_nx;
           gemm( NO_TRANSPOSE, NO_TRANSPOSE,
                 nr, nx, n,
                 -1.0, Cj,   nr,
@@ -763,11 +763,11 @@ namespace alglin {
     //  | C | C |Cq | F | nr
     //  +---+---+---+---+
     */
-    valuePointer Cnb = Cmat + nblock*nr_x_n;
-    valuePointer W0  = Hmat;
-    valuePointer WN  = W0+n*Nr;
-    valuePointer Wq  = WN+n*Nr;
-    valuePointer Wp  = Wq+qx*Nr;
+    valueType * Cnb = Cmat + nblock*nr_x_n;
+    valueType * W0  = Hmat;
+    valueType * WN  = W0+n*Nr;
+    valueType * Wq  = WN+n*Nr;
+    valueType * Wp  = Wq+qx*Nr;
 
     gecopy( n,  n,  Dmat, n, W0, Nr );
     gecopy( n,  n,  Emat, n, WN, Nr );
@@ -823,8 +823,8 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::solve_last( valuePointer x ) const {
-    valuePointer X = x + (nblock-1)*n;
+  BorderedCR<t_Value>::solve_last( valueType x[] ) const {
+    valueType * X = x + (nblock-1)*n;
     swap( n, X, 1, x, 1 ); // uso x stesso come temporaneo
     integer info = 0;
     switch ( last_selected ) {
@@ -859,11 +859,11 @@ namespace alglin {
   template <typename t_Value>
   void
   BorderedCR<t_Value>::solve_last(
-    integer      nrhs,
-    valuePointer x,
-    integer      ldX
+    integer   nrhs,
+    valueType x[],
+    integer   ldX
   ) const {
-    valuePointer X = x + (nblock-1)*n;
+    valueType * X = x + (nblock-1)*n;
     for ( integer i = 0; i < nrhs; ++i ) swap( n, X+i*ldX, 1, x+i*ldX, 1 );
     integer info = 0;
     switch ( last_selected ) {
@@ -903,8 +903,8 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::solve( valuePointer x ) const {
-    valuePointer xb = x + (nblock+1)*n + qr; // deve essere b!
+  BorderedCR<t_Value>::solve( valueType x[] ) const {
+    valueType * xb = x + (nblock+1)*n + qr; // deve essere b!
     #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
     if ( usedThread > 1 ) {
       if ( nr > 0 ) {
@@ -954,9 +954,9 @@ namespace alglin {
   template <typename t_Value>
   void
   BorderedCR<t_Value>::solve(
-    integer      nrhs,
-    valuePointer rhs,
-    integer      ldRhs
+    integer   nrhs,
+    valueType rhs[],
+    integer   ldRhs
   ) const {
     #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
     if ( usedThread > 1 ) {
@@ -1002,26 +1002,26 @@ namespace alglin {
   template <typename t_Value>
   void
   BorderedCR<t_Value>::forward(
-    integer      nth,
-    valuePointer x,
-    valuePointer xb
+    integer   nth,
+    valueType x[],
+    valueType xb[]
   ) const {
     integer iblock = iBlock[2*nth+0];
     integer eblock = iBlock[2*nth+1];
     integer nblk   = eblock - iblock;
-    valuePointer x0 = x    + iblock*n;
-    valuePointer T0 = Tmat + iblock*Tsize;
-    integer *    P0 = Perm + iblock*n;
-    valuePointer C0 = Cmat + iblock*nr_x_n;
+    valueType * x0 = x    + iblock*n;
+    valueType * T0 = Tmat + iblock*Tsize;
+    integer   * P0 = Perm + iblock*n;
+    valueType * C0 = Cmat + iblock*nr_x_n;
 
     integer k = 1;
     while ( k < nblk ) {
-      valuePointer xj  = x0 + k*n;
-      valuePointer xjp = x0;
-      valuePointer T   = T0 + k*Tsize;
-      integer *    P   = P0 + k*n;
-      valuePointer Cj  = C0 + k*nr_x_n;
-      integer    k_x_2 = 2*k;
+      valueType * xj  = x0 + k*n;
+      valueType * xjp = x0;
+      valueType * T   = T0 + k*Tsize;
+      integer   * P   = P0 + k*n;
+      valueType * Cj  = C0 + k*nr_x_n;
+      integer   k_x_2 = 2*k;
       for ( integer jj = k; jj < nblk; jj += k_x_2 ) {
         applyT( nth, T, P, xjp, xj );
         if ( nr > 0 ) gemv( NO_TRANSPOSE, nr, n, -1.0, Cj, nr, xj, 1, 1.0, xb, 1 ); // solo accumulato
@@ -1040,28 +1040,28 @@ namespace alglin {
   template <typename t_Value>
   void
   BorderedCR<t_Value>::forward_n(
-    integer      nth,
-    integer      nrhs,
-    valuePointer x,
-    integer      ldX
+    integer   nth,
+    integer   nrhs,
+    valueType x[],
+    integer   ldX
   ) const {
-    valuePointer xb = x + (nblock+1)*n + qr;
+    valueType * xb = x + (nblock+1)*n + qr;
     integer iblock = iBlock[2*nth+0];
     integer eblock = iBlock[2*nth+1];
     integer nblk   = eblock - iblock;
-    valuePointer x0 = x    + iblock*n;
-    valuePointer T0 = Tmat + iblock*Tsize;
-    integer *    P0 = Perm + iblock*n;
-    valuePointer C0 = Cmat + iblock*nr_x_n;
+    valueType * x0 = x    + iblock*n;
+    valueType * T0 = Tmat + iblock*Tsize;
+    integer   * P0 = Perm + iblock*n;
+    valueType * C0 = Cmat + iblock*nr_x_n;
 
     integer k = 1;
     while ( k < nblk ) {
-      valuePointer xj  = x0 + k*n;
-      valuePointer xjp = x0;
-      valuePointer T   = T0 + k*Tsize;
-      integer *    P   = P0 + k*n;
-      valuePointer Cj  = C0 + k*nr_x_n;
-      integer    k_x_2 = 2*k;
+      valueType * xj  = x0 + k*n;
+      valueType * xjp = x0;
+      valueType * T   = T0 + k*Tsize;
+      integer   * P   = P0 + k*n;
+      valueType * Cj  = C0 + k*nr_x_n;
+      integer   k_x_2 = 2*k;
 
       for ( integer jj = k; jj < nblk; jj += k_x_2 ) {
         applyT( nth, T, P, xjp, ldX, xj, ldX, nrhs );
@@ -1092,20 +1092,23 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::forward_reduced( valuePointer x, valuePointer xb ) const {
+  BorderedCR<t_Value>::forward_reduced(
+    valueType x[],
+    valueType xb[]
+  ) const {
     integer nblk = 2*usedThread-1;
     integer k = 1;
     while ( k < nblk ) {
       for ( integer jj = k; jj < nblk; jj += 2*k ) {
         integer j  = iBlock[jj];
         integer jp = iBlock[jj-k];
-        valuePointer const T = Tmat + j*Tsize;
-        integer const *    P = Perm + j*n;
-        valuePointer xj  = x + j*n;
-        valuePointer xjp = x + jp*n;
+        valueType const * T   = Tmat + j*Tsize;
+        integer   const * P   = Perm + j*n;
+        valueType       * xj  = x + j*n;
+        valueType       * xjp = x + jp*n;
         applyT( 0, T, P, xjp, xj );
         if ( nr > 0 ) {
-          valuePointer Cj = Cmat + j*nr_x_n;
+          valueType * Cj = Cmat + j*nr_x_n;
           gemv( NO_TRANSPOSE, nr, n, -1.0, Cj, nr, xj, 1, 1.0, xb, 1 );
         }
       }
@@ -1118,24 +1121,24 @@ namespace alglin {
   template <typename t_Value>
   void
   BorderedCR<t_Value>::forward_n_reduced(
-    integer      nrhs,
-    valuePointer x,
-    integer      ldX
+    integer   nrhs,
+    valueType x[],
+    integer   ldX
   ) const {
-    valuePointer xb = x + (nblock+1)*n + qr;
+    valueType * xb = x + (nblock+1)*n + qr;
     integer nblk = 2*usedThread-1;
     integer k = 1;
     while ( k < nblk ) {
       for ( integer jj = k; jj < nblk; jj += 2*k ) {
         integer j  = iBlock[jj];
         integer jp = iBlock[jj-k];
-        valuePointer const T = Tmat + j*Tsize;
-        integer const *    P = Perm + j*n;
-        valuePointer xj  = x + j*n;
-        valuePointer xjp = x + jp*n;
+        valueType const * T   = Tmat + j*Tsize;
+        integer   const * P   = Perm + j*n;
+        valueType       * xj  = x + j*n;
+        valueType       * xjp = x + jp*n;
         applyT( 0, T, P, xjp, ldX, xj, ldX, nrhs );
         if ( nr > 0 ) {
-          valuePointer Cj = Cmat + j*nr_x_n;
+          valueType * Cj = Cmat + j*nr_x_n;
           #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
           spin.lock();
           #endif
@@ -1163,27 +1166,27 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::backward( integer nth, valuePointer x ) const {
-    valuePointer xn = x + (nblock+1)*n + qx;
+  BorderedCR<t_Value>::backward( integer nth, valueType x[] ) const {
+    valueType * xn = x + (nblock+1)*n + qx;
     integer iblock = iBlock[2*nth+0];
     integer eblock = iBlock[2*nth+1];
-    valuePointer x0 = x    + iblock*n;
-    valuePointer B0 = Bmat + iblock*n_x_nx;
-    valuePointer D0 = Dmat + iblock*n_x_n;
-    valuePointer E0 = Emat + iblock*n_x_n;
-    valuePointer T0 = Tmat + iblock*Tsize;
+    valueType * x0 = x    + iblock*n;
+    valueType * B0 = Bmat + iblock*n_x_nx;
+    valueType * D0 = Dmat + iblock*n_x_n;
+    valueType * E0 = Emat + iblock*n_x_n;
+    valueType * T0 = Tmat + iblock*Tsize;
     integer k = kBlock[nth];
     while ( (k/=2) > 0 ) {
-      valuePointer xj = x0 + k*n;
-      valuePointer xp = x0;
-      valuePointer Bj = B0 + k*n_x_nx;
-      valuePointer Dj = D0 + k*n_x_n;
-      valuePointer Ej = E0 + k*n_x_n;
-      valuePointer T  = T0 + k*Tsize;
+      valueType * xj = x0 + k*n;
+      valueType * xp = x0;
+      valueType * Bj = B0 + k*n_x_nx;
+      valueType * Dj = D0 + k*n_x_n;
+      valueType * Ej = E0 + k*n_x_n;
+      valueType * T  = T0 + k*Tsize;
       integer   k_x_2 = 2*k;
       for ( integer j = iblock+k; j < eblock; j += k_x_2 ) {
-        integer      jpp = std::min(j+k,eblock);
-        valuePointer xpp = x + jpp*n;
+        integer     jpp = std::min(j+k,eblock);
+        valueType * xpp = x + jpp*n;
         gemv( NO_TRANSPOSE, n, n, -1.0, Dj, n, xp,  1, 1.0, xj, 1 );
         gemv( NO_TRANSPOSE, n, n, -1.0, Ej, n, xpp, 1, 1.0, xj, 1 );
         if ( nx > 0 ) gemv( NO_TRANSPOSE, n, nx, -1.0, Bj, n, xn, 1, 1.0, xj, 1 );
@@ -1210,31 +1213,31 @@ namespace alglin {
   template <typename t_Value>
   void
   BorderedCR<t_Value>::backward_n(
-    integer      nth,
-    integer      nrhs,
-    valuePointer x,
-    integer      ldX
+    integer   nth,
+    integer   nrhs,
+    valueType x[],
+    integer   ldX
   ) const {
-    valuePointer xn = x + (nblock+1)*n + qx;
+    valueType * xn = x + (nblock+1)*n + qx;
     integer iblock = iBlock[2*nth+0];
     integer eblock = iBlock[2*nth+1];
-    valuePointer x0 = x    + iblock*n;
-    valuePointer B0 = Bmat + iblock*n_x_nx;
-    valuePointer D0 = Dmat + iblock*n_x_n;
-    valuePointer E0 = Emat + iblock*n_x_n;
-    valuePointer T0 = Tmat + iblock*Tsize;
+    valueType * x0 = x    + iblock*n;
+    valueType * B0 = Bmat + iblock*n_x_nx;
+    valueType * D0 = Dmat + iblock*n_x_n;
+    valueType * E0 = Emat + iblock*n_x_n;
+    valueType * T0 = Tmat + iblock*Tsize;
     integer k = kBlock[nth];
     while ( (k/=2) > 0 ) {
-      valuePointer xj = x0 + k*n;
-      valuePointer xp = x0;
-      valuePointer Bj = B0 + k*n_x_nx;
-      valuePointer Dj = D0 + k*n_x_n;
-      valuePointer Ej = E0 + k*n_x_n;
-      valuePointer T  = T0 + k*Tsize;
-      integer   k_x_2 = 2*k;
+      valueType * xj = x0 + k*n;
+      valueType * xp = x0;
+      valueType * Bj = B0 + k*n_x_nx;
+      valueType * Dj = D0 + k*n_x_n;
+      valueType * Ej = E0 + k*n_x_n;
+      valueType * T  = T0 + k*Tsize;
+      integer  k_x_2 = 2*k;
       for ( integer j = iblock+k; j < eblock; j += k_x_2 ) {
-        integer      jpp = std::min(j+k,eblock);
-        valuePointer xpp = x + jpp*n;
+        integer     jpp = std::min(j+k,eblock);
+        valueType * xpp = x + jpp*n;
         gemm( NO_TRANSPOSE, NO_TRANSPOSE,
               n, nrhs, n,
               -1.0, Dj,  n,
@@ -1274,28 +1277,28 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::backward_reduced( valuePointer x ) const {
-    valuePointer xn = x + (nblock+1)*n + qx;
+  BorderedCR<t_Value>::backward_reduced( valueType x[] ) const {
+    valueType * xn = x + (nblock+1)*n + qx;
     integer nblk = 2*usedThread-1;
     integer k = 1;
     while ( k < nblk ) k *= 2;
     while ( (k/=2) > 0 ) {
       for ( integer jj = k; jj < nblk; jj += 2*k ) {
-        integer      j   = iBlock[jj];
-        integer      jp  = iBlock[jj-k];
-        integer      jpp = iBlock[std::min(jj+k,nblk)];
-        valuePointer Dj  = Dmat + j*n_x_n;
-        valuePointer Ej  = Emat + j*n_x_n;
-        valuePointer xj  = x + j*n;
-        valuePointer xp  = x + jp*n;
-        valuePointer xpp = x + jpp*n;
+        integer     j   = iBlock[jj];
+        integer     jp  = iBlock[jj-k];
+        integer     jpp = iBlock[std::min(jj+k,nblk)];
+        valueType * Dj  = Dmat + j*n_x_n;
+        valueType * Ej  = Emat + j*n_x_n;
+        valueType * xj  = x + j*n;
+        valueType * xp  = x + jp*n;
+        valueType * xpp = x + jpp*n;
         gemv( NO_TRANSPOSE, n, n, -1.0, Dj, n, xp,  1, 1.0, xj, 1 );
         gemv( NO_TRANSPOSE, n, n, -1.0, Ej, n, xpp, 1, 1.0, xj, 1 );
         if ( nx > 0 ) {
-          valuePointer Bj = Bmat + j*n_x_nx;
+          valueType * Bj = Bmat + j*n_x_nx;
           gemv( NO_TRANSPOSE, n, nx, -1.0, Bj, n, xn, 1, 1.0, xj, 1 );
         }
-        valuePointer const T = Tmat + j*Tsize;
+        valueType const * T = Tmat + j*Tsize;
         trsv( UPPER, NO_TRANSPOSE, NON_UNIT, n, T, n_x_2, xj, 1 );
         if ( selected == BORDERED_QRP ) {
           integer const * P = Perm + j*n;
@@ -1312,24 +1315,24 @@ namespace alglin {
   template <typename t_Value>
   void
   BorderedCR<t_Value>::backward_n_reduced(
-    integer      nrhs,
-    valuePointer x,
-    integer      ldX
+    integer   nrhs,
+    valueType x[],
+    integer   ldX
   ) const {
-    valuePointer xn = x + (nblock+1)*n + qx;
+    valueType * xn = x + (nblock+1)*n + qx;
     integer nblk = 2*usedThread-1;
     integer k = 1;
     while ( k < nblk ) k *= 2;
     while ( (k/=2) > 0 ) {
       for ( integer jj = k; jj < nblk; jj += 2*k ) {
-        integer      j   = iBlock[jj];
-        integer      jp  = iBlock[jj-k];
-        integer      jpp = iBlock[std::min(jj+k,nblk)];
-        valuePointer Dj  = Dmat + j*n_x_n;
-        valuePointer Ej  = Emat + j*n_x_n;
-        valuePointer xj  = x + j*n;
-        valuePointer xjp = x + jp*n;
-        valuePointer xpp = x + jpp*n;
+        integer     j   = iBlock[jj];
+        integer     jp  = iBlock[jj-k];
+        integer     jpp = iBlock[std::min(jj+k,nblk)];
+        valueType * Dj  = Dmat + j*n_x_n;
+        valueType * Ej  = Emat + j*n_x_n;
+        valueType * xj  = x + j*n;
+        valueType * xjp = x + jp*n;
+        valueType * xpp = x + jpp*n;
         gemm( NO_TRANSPOSE, NO_TRANSPOSE,
               n, nrhs, n,
               -1.0, Dj,  n,
@@ -1341,7 +1344,7 @@ namespace alglin {
                     xpp, ldX,
                1.0, xj,  ldX );
         if ( nx > 0 ) {
-          valuePointer Bj = Bmat + j*n_x_nx;
+          valueType * Bj = Bmat + j*n_x_nx;
           gemm( NO_TRANSPOSE, NO_TRANSPOSE,
                 n, nrhs, nx,
                 -1.0, Bj, n,
@@ -1350,7 +1353,7 @@ namespace alglin {
         }
 
         // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-        valuePointer const T = Tmat + j*Tsize;
+        valueType const * T = Tmat + j*Tsize;
         trsm( LEFT, UPPER, NO_TRANSPOSE, NON_UNIT,
               n, nrhs, 1.0, T, n_x_2, xj, ldX );
         if ( selected == BORDERED_QRP ) {
@@ -1373,7 +1376,7 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::addMv( valueConstPointer x, valuePointer res ) const {
+  BorderedCR<t_Value>::addMv( valueType const x[], valueType res[] ) const {
     // internal blocks block
     t_Value const * D  = Dmat;
     t_Value const * E  = Emat;
@@ -1391,8 +1394,8 @@ namespace alglin {
       yy += n; D += n_x_n; E += n_x_n; B += n_x_nx;
     }
 
-    integer      m = n+qr;
-    valuePointer H = H0Nqp;
+    integer     m = n+qr;
+    valueType * H = H0Nqp;
     gemv( NO_TRANSPOSE, m, n,  1.0, H, m, x,  1, 1.0, yy, 1 ); H += m * n;
     gemv( NO_TRANSPOSE, m, n,  1.0, H, m, xe, 1, 1.0, yy, 1 ); H += m * n;
     gemv( NO_TRANSPOSE, m, qx, 1.0, H, m, xq, 1, 1.0, yy, 1 ); H += m * qx;
@@ -1490,13 +1493,13 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::sparseValues( valuePointer V ) const {
+  BorderedCR<t_Value>::sparseValues( valueType V[] ) const {
     integer kkk = 0;
     for ( integer k = 0; k < nblock; ++k ) {
       //integer ii = offs+k*n;
-      valuePointer D = Dmat + k * n_x_n;
-      valuePointer E = Emat + k * n_x_n;
-      valuePointer B = Bmat + k * n_x_nx;
+      valueType * D = Dmat + k * n_x_n;
+      valueType * E = Emat + k * n_x_n;
+      valueType * B = Bmat + k * n_x_nx;
       for ( integer i = 0; i < n; ++i ) {
         for ( integer j = 0; j < n; ++j ) {
           V[kkk++] = D[i+j*n];
@@ -1505,7 +1508,7 @@ namespace alglin {
         for ( integer j = 0; j < nx; ++j ) V[kkk++] = B[i+j*n];
       }
     }
-    valuePointer H = H0Nqp;
+    valueType * H = H0Nqp;
     for ( integer i = 0; i < n+qr; ++i )
       for ( integer j = 0; j < n; ++j )
         V[kkk++] = H[i+j*(n+qr)];
@@ -1514,7 +1517,7 @@ namespace alglin {
       for ( integer j = 0; j < n+qx+nx; ++j )
         V[kkk++] = H[i+j*(n+qr)];
     for ( integer k = 0; k <= nblock; ++k ) {
-      valuePointer C = Cmat + k * nr_x_n;
+      valueType * C = Cmat + k * nr_x_n;
       for ( integer i = 0; i < nr; ++i )
         for ( integer j = 0; j < n; ++j )
           V[kkk++] = C[i+j*nr];
@@ -1536,10 +1539,10 @@ namespace alglin {
   template <typename t_Value>
   void
   BorderedCR<t_Value>::sparseLoad(
-    valueConstPointer M_values,
-    integer const     M_row[], integer r_offs,
-    integer const     M_col[], integer c_offs,
-    integer           M_nnz
+    valueType const M_values[],
+    integer   const M_row[], integer r_offs,
+    integer   const M_col[], integer c_offs,
+    integer         M_nnz
   ) {
     integer const rH   = n*nblock;
     integer const rC   = rH + n+qr;

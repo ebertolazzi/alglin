@@ -94,10 +94,6 @@ namespace Simplex {
   using std::vector;
 
   typedef alglin::doublereal valueType; //!< double value
-  typedef valueType*         valuePointer; //!< pointer to a double
-  typedef const valueType*   valueConstPointer; //!< pointer to a constant double
-  typedef valueType&         valueReference; //!< reference to a double
-  typedef const valueType&   valueConstReference; //!< reference to a constant double
 
   extern valueType const epsilon; // machine epsilon
   extern valueType const relaxedEpsilon;
@@ -439,8 +435,8 @@ namespace Simplex {
     alglin::Malloc<valueType> baseReals;
     alglin::Malloc<integer>   baseInteger;
 
-    valuePointer d;
-    valuePointer values;
+    valueType * d;
+    valueType * values;
 
     integer n;
     integer m;
@@ -528,11 +524,11 @@ namespace Simplex {
   private:
     integer           n;
     integer           m;
-    valueConstPointer c;
-    valueConstPointer A;
-    valueConstPointer b;
-    valueConstPointer L;
-    valueConstPointer U;
+    valueType const * c;
+    valueType const * A;
+    valueType const * b;
+    valueType const * L;
+    valueType const * U;
     integer           ldA;
 
     valueType b_max_abs;
@@ -586,14 +582,16 @@ namespace Simplex {
 
     SIMPLEX_API_DLL
     void
-    setup( integer           m,
-           integer           n,
-           valueConstPointer A,
-           integer           ldA,
-           valueConstPointer b,
-           valueConstPointer c,
-           valueConstPointer L,
-           valueConstPointer U );
+    setup(
+      integer         m,
+      integer         n,
+      valueType const A[],
+      integer         ldA,
+      valueType const b[],
+      valueType const c[],
+      valueType const L[],
+      valueType const U[]
+    );
 
     SIMPLEX_API_DLL valueType get_b_max_abs() const { return b_max_abs; }
     SIMPLEX_API_DLL valueType get_c_max_abs() const { return c_max_abs; }
@@ -647,10 +645,10 @@ namespace Simplex {
   private:
     integer           n;
     integer           m;
-    valueConstPointer c;
-    valueConstPointer A;
-    valueConstPointer L;
-    valueConstPointer U;
+    valueType const * c;
+    valueType const * A;
+    valueType const * L;
+    valueType const * U;
     integer           ldA;
 
     valueType c_max_abs;
@@ -701,13 +699,15 @@ namespace Simplex {
 
     SIMPLEX_API_DLL
     void
-    setup( integer           m,
-           integer           n,
-           valueConstPointer A,
-           integer           ldA,
-           valueConstPointer c,
-           valueConstPointer L,
-           valueConstPointer U );
+    setup(
+      integer         m,
+      integer         n,
+      valueType const A[],
+      integer         ldA,
+      valueType const c[],
+      valueType const L[],
+      valueType const U[]
+    );
 
     SIMPLEX_API_DLL valueType get_b_max_abs() const { return 0; }
     SIMPLEX_API_DLL valueType get_c_max_abs() const { return c_max_abs; }

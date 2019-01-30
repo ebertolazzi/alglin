@@ -60,19 +60,15 @@ namespace alglin {
   template <typename T>
   class Malloc {
   public:
-    typedef T                valueType;
-    typedef valueType*       valuePointer;
-    typedef const valueType* valueConstPointer;
-    typedef valueType&       valueReference;
-    typedef const valueType& valueConstReference;
+    typedef T valueType;
 
   private:
 
-    std::string  _name;
-    size_t       numTotValues;
-    size_t       numTotReserved;
-    size_t       numAllocated;
-    valuePointer pMalloc;
+    std::string _name;
+    size_t      numTotValues;
+    size_t      numTotReserved;
+    size_t      numAllocated;
+    valueType * pMalloc;
 
     Malloc(Malloc<T> const &); // blocco costruttore di copia
     Malloc<T> const & operator = (Malloc<T> &) const; // blocco copia
@@ -2027,16 +2023,10 @@ namespace alglin {
     );
 
     void
-    check( integer i, integer j ) const;
-
-    valueType const &
-    operator () ( integer i, integer j ) const;
-
-    valueType &
-    operator () ( integer i, integer j );
-
-    void
     insert( integer i, integer j, valueType v, bool sym );
+
+    valueType const & operator () ( integer ii, integer jj ) const;
+    valueType       & operator () ( integer ii, integer jj );
 
     void
     factorize();

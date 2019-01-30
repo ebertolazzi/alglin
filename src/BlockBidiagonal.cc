@@ -126,9 +126,9 @@ namespace alglin {
   template <typename t_Value>
   void
   BlockBidiagonal<t_Value>::loadBottom(
-    valueConstPointer H0, integer ld0,
-    valueConstPointer HN, integer ldN,
-    valueConstPointer Hq, integer ldQ
+    valueType const H0[], integer ld0,
+    valueType const HN[], integer ldN,
+    valueType const Hq[], integer ldQ
   ) {
 
     if ( numCyclicBC == 0 && numCyclicOMEGA == 0 ) {
@@ -204,8 +204,8 @@ namespace alglin {
   template <typename t_Value>
   void
   BlockBidiagonal<t_Value>::loadTopBottom(
-    valueConstPointer block0_in, integer ld0,
-    valueConstPointer blockN_in, integer ldN
+    valueType const block0_in[], integer ld0,
+    valueType const blockN_in[], integer ldN
   ) {
 
     ALGLIN_ASSERT( numCyclicBC == 0 && numCyclicOMEGA == 0,
@@ -302,7 +302,7 @@ namespace alglin {
       // Compute aux matrix
       // Z = A^(-1)*B
       // W = C*Z - D
-      valuePointer Zmat = Bmat;
+      valueType * Zmat = Bmat;
       this->solve( nb, Zmat, neq );
       gemm( NO_TRANSPOSE,
             NO_TRANSPOSE,
@@ -318,7 +318,7 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BlockBidiagonal<t_Value>::solve_bordered( valuePointer xb ) const {
+  BlockBidiagonal<t_Value>::solve_bordered( valueType xb[] ) const {
     // a' = A^(-1)*a
     this->solve( xb );
     if ( nb > 0 ) {
@@ -331,7 +331,7 @@ namespace alglin {
       // y = W^(-1) * b'
       bb_factorization->solve( xb+neq );
       // x = a' - Z*y
-      valuePointer Zmat = this->Bmat;
+      valueType * Zmat = this->Bmat;
       gemv( NO_TRANSPOSE,
             neq, nb,
             -1, Zmat, neq,
@@ -343,9 +343,9 @@ namespace alglin {
   template <typename t_Value>
   void
   BlockBidiagonal<t_Value>::solve_bordered(
-    integer      nrhs,
-    valuePointer xb,
-    integer      ldRhs
+    integer   nrhs,
+    valueType xb[],
+    integer   ldRhs
   ) const {
     // a' = A^(-1)*a
     this->solve( nrhs, xb, ldRhs );
@@ -360,7 +360,7 @@ namespace alglin {
       // y = W^(-1) * b'
       bb_factorization->solve( nrhs, xb+neq, ldRhs );
       // x = a' - Z*y
-      valuePointer Zmat = this->Bmat;
+      valueType * Zmat = this->Bmat;
       gemm( NO_TRANSPOSE,
             NO_TRANSPOSE,
             neq, nrhs, nb,
@@ -410,8 +410,8 @@ namespace alglin {
 
     stream << "interface( rtablesize = 40 );\n";
     for ( integer row = 0; row < nblock; ++row ) {
-      valueConstPointer Ad = DE_blk + 2*row*n*n;
-      valueConstPointer Au = Ad + n*n;
+      valueType const * Ad = DE_blk + 2*row*n*n;
+      valueType const * Au = Ad + n*n;
       dumpOneMatrix( stream, "Ad", Ad, n, n );
       dumpOneMatrix( stream, "Au", Au, n, n );
     }
@@ -429,8 +429,8 @@ namespace alglin {
   template <typename t_Value>
   void
   BlockBidiagonal<t_Value>::Mv(
-    valueConstPointer x,
-    valuePointer      res
+    valueType const x[],
+    valueType       res[]
   ) const {
     zero( neq+nb, res, 1 );
     if ( numCyclicBC == 0 && numCyclicOMEGA == 0 ) {
@@ -439,8 +439,8 @@ namespace alglin {
       integer col00 = numInitialOMEGA;
       integer colNN = numFinalOMEGA;
 
-      valueConstPointer xe   = x+neq-(n+colNN+col00);
-      valuePointer      rese = res+neq-(row0+rowN);
+      valueType const * xe   = x+neq-(n+colNN+col00);
+      valueType       * rese = res+neq-(row0+rowN);
 
       gemv( NO_TRANSPOSE, rowN, n+colNN,
             1.0, blockN, rowN,
@@ -458,8 +458,8 @@ namespace alglin {
             1.0, rese+rowN, 1 );
     } else {
       integer m = n+q;
-      valueConstPointer xe   = x+neq-(n+numInitialOMEGA+numFinalOMEGA+numCyclicOMEGA);
-      valuePointer      rese = res+neq-(numInitialBC+numFinalBC+numCyclicBC);
+      valueType const * xe   = x+neq-(n+numInitialOMEGA+numFinalOMEGA+numCyclicOMEGA);
+      valueType       * rese = res+neq-(numInitialBC+numFinalBC+numCyclicBC);
 
       gemv( NO_TRANSPOSE, m, n,
             1.0, H0Nq, m,
@@ -557,13 +557,13 @@ namespace alglin {
       nnz += (n+q)*(2*n+q);
       stream << nnz << '\n';
 
-      valuePointer H0 = H0Nq;
+      valueType * H0 = H0Nq;
       ii = nblock*n;
       for ( integer i = 0; i < n+q; ++i )
         for ( integer j = 0; j < n; ++j )
           stream << ii+i << '\t' << j << '\t' << H0[i+j*(n+q)] << '\n';
 
-      valuePointer HNq = H0Nq+n*(n+q);
+      valueType * HNq = H0Nq+n*(n+q);
       for ( integer i = 0; i < n+q; ++i )
         for ( integer j = 0; j < n+q; ++j )
           stream << ii+i << '\t' << ii+j << '\t' << HNq[i+j*(n+q)] << '\n';
@@ -572,7 +572,7 @@ namespace alglin {
     // bidiagonal
     for ( integer k = 0; k < nblock; ++k ) {
       ii = k*n;
-      valuePointer DE = DE_blk + k * nxnx2;
+      valueType * DE = DE_blk + k * nxnx2;
       for ( integer i = 0; i < n; ++i )
         for ( integer j = 0; j < nx2; ++j )
           stream << ii+i << '\t' << ii+j << '\t' << DE[i+j*n] << '\n';
@@ -714,7 +714,7 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BlockBidiagonal<t_Value>::sparseValues( valuePointer V ) const {
+  BlockBidiagonal<t_Value>::sparseValues( valueType V[] ) const {
     integer kkk = 0;
 
     // BC
@@ -741,13 +741,13 @@ namespace alglin {
 
     } else {
 
-      valuePointer H0 = H0Nq;
+      valueType * H0 = H0Nq;
       ii = nblock*n;
       for ( integer i = 0; i < n+q; ++i )
         for ( integer j = 0; j < n; ++j )
           V[kkk++] = H0[i+j*(n+q)];
 
-      valuePointer HNq = H0Nq+n*(n+q);
+      valueType * HNq = H0Nq+n*(n+q);
       for ( integer i = 0; i < n+q; ++i )
         for ( integer j = 0; j < n+q; ++j )
           V[kkk++] = HNq[i+j*(n+q)];
@@ -756,7 +756,7 @@ namespace alglin {
     // bidiagonal
     for ( integer k = 0; k < nblock; ++k ) {
       ii = k*n;
-      valuePointer DE = DE_blk + k * nxnx2;
+      valueType * DE = DE_blk + k * nxnx2;
       for ( integer i = 0; i < n; ++i )
         for ( integer j = 0; j < nx2; ++j )
           V[kkk++] = DE[i+j*n];

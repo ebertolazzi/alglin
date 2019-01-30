@@ -18,6 +18,7 @@
 \*--------------------------------------------------------------------------*/
 
 #include "Alglin++.hh"
+#include "KKT_like.hh"
 #include <iostream>
 
 using namespace std;
@@ -114,12 +115,153 @@ test2() {
 }
 
 
+static
+void
+test3() {
+
+  alglin::KKT<alglin::doublereal> BT;
+
+  alglin::integer rBlocks[] = { 0, 2, 4, 7 };
+  alglin::integer ii[] = { 1,2,2,8,9,9,5,5,6,6,7,7,8,8,8,9,9,9,3,4,5,6,7,3,4,8,9,8,9 };
+
+  alglin::integer jj[] = { 1,1,2,8,8,9,3,4,3,4,3,4,5,6,7,5,6,7,3,4,5,6,7,1,2,1,2,3,4 };
+
+  alglin::doublereal vals[] = {2,1,1,1,1,1,1,0,2,0,2,0,5,0,0,0,6,0,2,2,3,3,3,-1,-1,1,2,3,4};
+
+  alglin::doublereal rhs[] = { -2, -9, -5, -10, 3, -21, 0, 28, 7 };
+
+  BT.load_triblock( 7, 2, 3, rBlocks, vals, ii, -1, jj, -1, 29, true );
+  //BT.factorize( 7, 2, 4, 4, vals, ii, -1, jj, -1, 29, true );
+
+  //BT.zero();
+  //for ( int k = 0; k < 29; ++k )
+  //  BT(ii[k]-1,jj[k]-1) += vals[k];
+
+  BT.factorize();
+  BT.solve( rhs );
+
+  for ( alglin::integer k = 0; k < rBlocks[3]; ++k )
+    cout << "x[ " << k << "] = " << rhs[k] << "\n";
+}
+
+
+#ifndef ALGLIN_USE_CXX11
+using namespace std;
+int
+main() {
+  cout << "To test timing you must compile with a C++11 capable compiler\nAll done!\n";
+  return 0;
+}
+#else
+#include "TicToc.hh"
+#endif
+
+#include <random>
+
+static unsigned seed1 = 2;
+static std::mt19937 generator(seed1);
+
+static
+alglin::doublereal
+rand( alglin::doublereal xmin, alglin::doublereal xmax ) {
+  alglin::doublereal random = alglin::doublereal(generator())/generator.max();
+  return xmin + (xmax-xmin)*random;
+}
+
+static
+void
+test4() {
+
+  TicToc tm;
+  tm.reset();
+
+  alglin::KKT<alglin::doublereal> BT1, BT2;
+
+  std::vector<alglin::integer>    ii, jj;
+  std::vector<alglin::doublereal> vals, rhs1, rhs2;
+
+  alglin::integer n      = 100000;
+  alglin::integer bksize = 10;
+  alglin::integer nblk   = n/bksize-4;
+  alglin::integer m      = n - bksize*nblk;
+
+  for ( alglin::integer i=0; i < n; ++i ) {
+    ii.push_back( i );
+    jj.push_back( i );
+    vals.push_back( bksize );
+    rhs1.push_back( i );
+    rhs2.push_back( i );
+    for ( alglin::integer j=-bksize; j < 0; ++j ) {
+      if ( i+j < 0 || i+j >= n ) continue;
+      ii.push_back( i );
+      jj.push_back( i+j );
+      vals.push_back( rand(-1,1) );
+    }
+  }
+
+  tm.tic();
+  BT1.load_banded( n-m, m, bksize, bksize,
+                   &vals.front(),
+                   &ii.front(), 0,
+                   &jj.front(), 0,
+                   vals.size(), true );
+  tm.toc();
+  cout << "LOAD1 = " << tm.elapsedMilliseconds() << " [ms]\n";
+
+  tm.tic();
+  BT2.load_triblock( n-m, m, nblk, bksize,
+                     &vals.front(),
+                     &ii.front(), 0,
+                     &jj.front(), 0,
+                     vals.size(), true );
+
+  tm.toc();
+  cout << "LOAD2 = " << tm.elapsedMilliseconds() << " [ms]\n";
+
+  tm.tic();
+  BT1.factorize();
+  tm.toc();
+  cout << "factorize1 = " << tm.elapsedMilliseconds() << " [ms]\n";
+
+  tm.tic();
+  BT2.factorize();
+  tm.toc();
+  cout << "factorize2 = " << tm.elapsedMilliseconds() << " [ms]\n";
+
+  tm.tic();
+  BT1.solve( &rhs1.front() );
+  tm.toc();
+  cout << "solve1 = " << tm.elapsedMilliseconds() << " [ms]\n";
+
+  tm.tic();
+  BT2.solve( &rhs2.front() );
+  tm.toc();
+  cout << "solve2 = " << tm.elapsedMilliseconds() << " [ms]\n";
+
+  alglin::doublereal accerr = 0;
+  alglin::doublereal maxerr = 0;
+  for ( alglin::integer i=0; i < n; ++i ) {
+    alglin::doublereal err = std::abs( rhs1[i] - rhs2[i] );
+    accerr += err;
+    if ( maxerr < err ) maxerr = err;
+  }
+
+  cout << "||err||_1 = " << accerr << "\n";
+  cout << "||err||_i = " << maxerr << "\n";
+
+}
+
+
 int
 main() {
   cout << "test1\n";
   test1();
   cout << "\n\ntest2\n";
   test2();
+  cout << "\n\ntest3\n";
+  test3();
+  cout << "\n\ntest4\n";
+  test4();
 
   cout << "All done!\n";
   return 0;

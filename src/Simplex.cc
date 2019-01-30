@@ -88,16 +88,16 @@ namespace Simplex {
       }
     }
     // allocate memory
-    baseInteger.allocate( nz+nw+np+n+m );
-    map_z    = baseInteger( nz );
-    map_w    = baseInteger( nw );
-    map_p    = baseInteger( np );
-    map_case = baseInteger( n  );
-    i_row    = baseInteger( m  );
+    baseInteger.allocate( size_t(nz+nw+np+n+m) );
+    map_z    = baseInteger( size_t(nz) );
+    map_w    = baseInteger( size_t(nw) );
+    map_p    = baseInteger( size_t(np) );
+    map_case = baseInteger( size_t(n)  );
+    i_row    = baseInteger( size_t(m)  );
 
-    baseReals.allocate( 2*m );
-    d      = baseReals( m );
-    values = baseReals( m );
+    baseReals.allocate( size_t(2*m) );
+    d      = baseReals( size_t(m) );
+    values = baseReals( size_t(m) );
 
     // fill mapping and vector q
     nz = nw = np = 0;
@@ -177,16 +177,18 @@ namespace Simplex {
    !           +
   \*/
   void
-  AuxProblem::to_primal( valueType const x[],
-                         valueType       xo[],
-                         integer         IBo[] ) const {
+  AuxProblem::to_primal(
+    valueType const x[],
+    valueType       xo[],
+    integer         IBo[]
+  ) const {
     integer ib  = 0;
     integer nzz = 0;
     integer nww = 0;
     integer npp = 0;
-    valueConstPointer z = x;
-    valueConstPointer w = z+nz;
-    valueConstPointer p = w+nw;
+    valueType const * z = x;
+    valueType const * w = z+nz;
+    valueType const * p = w+nw;
     for ( integer i = 0; i < n;  ++i ) {
       integer icase = 0;
       if ( pBase->Upper_is_free(i) ) icase  = 1;
@@ -259,14 +261,16 @@ namespace Simplex {
    |  |___/\__\__,_|_||_\__,_\__,_|_| \__,_| |_| |_| \___/_.__/_\___|_|_|_|
   \*/
   void
-  StandardProblem::setup( integer           _m,
-                          integer           _n,
-                          valueConstPointer _A,
-                          integer           _ldA,
-                          valueConstPointer _b,
-                          valueConstPointer _c,
-                          valueConstPointer _L,
-                          valueConstPointer _U ) {
+  StandardProblem::setup(
+    integer         _m,
+    integer         _n,
+    valueType const _A[],
+    integer         _ldA,
+    valueType const _b[],
+    valueType const _c[],
+    valueType const _L[],
+    valueType const _U[]
+  ) {
     m   = _m;
     n   = _n;
     c   = _c;
@@ -287,8 +291,8 @@ namespace Simplex {
                     "Dimension of x (" << n <<
                     ") must be greater than number of equality constraints (" << m << ")" );
 
-    L_free.resize(n);
-    U_free.resize(n);
+    L_free.resize( size_t(n) );
+    U_free.resize( size_t(n) );
     for ( integer i = 0; i < n; ++i ) {
       L_free[i] = L[i] <= -infinity;
       U_free[i] = U[i] >=  infinity;
@@ -311,13 +315,15 @@ namespace Simplex {
   \*/
 
   void
-  Problem::setup( integer           _m,
-                  integer           _n,
-                  valueConstPointer _A,
-                  integer           _ldA,
-                  valueConstPointer _c,
-                  valueConstPointer _L,
-                  valueConstPointer _U ) {
+  Problem::setup(
+    integer         _m,
+    integer         _n,
+    valueType const _A[],
+    integer         _ldA,
+    valueType const _c[],
+    valueType const _L[],
+    valueType const _U[]
+  ) {
     m   = _m;
     n   = _n;
     c   = _c;

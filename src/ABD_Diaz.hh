@@ -83,13 +83,12 @@ namespace alglin {
                               |        |
                                  colN
   */
+
   template <typename t_Value>
   class DiazLU : public BlockBidiagonal<t_Value> {
   public:
 
-    typedef t_Value         valueType;
-    typedef t_Value*        valuePointer;
-    typedef t_Value const * valueConstPointer;
+    typedef t_Value valueType;
 
   private:
 
@@ -125,15 +124,15 @@ namespace alglin {
 
     //! solve linear sistem using internal factorized matrix
     void
-    solve_internal( bool do_permute, valuePointer in_out ) const;
+    solve_internal( bool do_permute, valueType in_out[] ) const;
 
     //! solve linear sistem using internal factorized matrix
     void
     solve_internal(
-      bool         do_permute,
-      integer      nrhs,
-      valuePointer in_out,
-      integer      ldRhs
+      bool      do_permute,
+      integer   nrhs,
+      valueType in_out[],
+      integer   ldRhs
     ) const;
 
   public:
@@ -190,23 +189,23 @@ namespace alglin {
     //! solve linear sistem using internal factorized matrix
     virtual
     void
-    solve( valuePointer in_out ) const ALGLIN_OVERRIDE
+    solve( valueType in_out[] ) const ALGLIN_OVERRIDE
     { solve_internal( true, in_out ); }
 
     //! solve linear sistem using internal factorized matrix
     virtual
     void
-    solve( integer nrhs, valuePointer in_out, integer ldRhs ) const ALGLIN_OVERRIDE
+    solve( integer nrhs, valueType in_out[], integer ldRhs ) const ALGLIN_OVERRIDE
     { solve_internal( true, nrhs, in_out, ldRhs ); }
 
     //! solve linear sistem using internal factorized matrix
     void
-    solve_ABD( valuePointer in_out ) const
+    solve_ABD( valueType in_out[] ) const
     { solve_internal( false, in_out ); }
 
     //! solve linear sistem using internal factorized matrix
     void
-    solve_ABD( integer nrhs, valuePointer in_out, integer ldRhs ) const
+    solve_ABD( integer nrhs, valueType in_out[], integer ldRhs ) const
     { solve_internal( false, nrhs, in_out, ldRhs ); }
 
   };

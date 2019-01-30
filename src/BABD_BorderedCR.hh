@@ -123,9 +123,7 @@ namespace alglin {
   template <typename t_Value>
   class BorderedCR : public LinearSystemSolver<t_Value> {
   public:
-    typedef t_Value         valueType;
-    typedef t_Value*        valuePointer;
-    typedef t_Value const * valueConstPointer;
+    typedef t_Value valueType;
 
   private:
     BorderedCR(BorderedCR const &);
@@ -155,32 +153,32 @@ namespace alglin {
 
     void
     buildT(
-      integer           nth,
-      valueConstPointer TOP,
-      valueConstPointer BOTTOM,
-      valuePointer      T,
-      integer *         iperm
+      integer         nth,
+      valueType const TOP[],
+      valueType const BOTTOM[],
+      valueType       T[],
+      integer         iperm[]
     ) const;
 
     void
     applyT(
-      integer           nth,
-      valueConstPointer T,
-      integer const *   iperm,
-      valuePointer      TOP,
-      integer           ldTOP,
-      valuePointer      BOTTOM,
-      integer           ldBOTTOM,
-      integer           ncol
+      integer         nth,
+      valueType const T[],
+      integer const   iperm[],
+      valueType       TOP[],
+      integer         ldTOP,
+      valueType       BOTTOM[],
+      integer         ldBOTTOM,
+      integer         ncol
     ) const;
 
     void
     applyT(
-      integer           nth,
-      valueConstPointer T,
-      integer const *   iperm,
-      valuePointer      TOP,
-      valuePointer      BOTTOM
+      integer         nth,
+      valueType const T[],
+      integer const   iperm[],
+      valueType       TOP[],
+      valueType       BOTTOM[]
     ) const;
 
     // convert permutation to exchanges
@@ -216,24 +214,24 @@ namespace alglin {
     */
 
     void
-    forward( integer nth, valuePointer x, valuePointer xb ) const;
+    forward( integer nth, valueType x[], valueType xb[] ) const;
 
     void
     forward_n(
-      integer      nth,
-      integer      nrhs,
-      valuePointer rhs,
-      integer      ldRhs
+      integer   nth,
+      integer   nrhs,
+      valueType rhs[],
+      integer   ldRhs
     ) const;
 
     void
-    forward_reduced( valuePointer x, valuePointer xb ) const;
+    forward_reduced( valueType x[], valueType xb[] ) const;
 
     void
     forward_n_reduced(
-      integer      nrhs,
-      valuePointer rhs,
-      integer      ldRhs
+      integer   nrhs,
+      valueType rhs[],
+      integer   ldRhs
     ) const;
 
     /*
@@ -244,24 +242,24 @@ namespace alglin {
     */
 
     void
-    backward( integer nth, valuePointer x ) const;
+    backward( integer nth, valueType x[] ) const;
 
     void
-    backward_reduced( valuePointer x ) const;
+    backward_reduced( valueType x[] ) const;
 
     void
     backward_n(
-      integer      nth,
-      integer      nrhs,
-      valuePointer rhs,
-      integer      ldRhs
+      integer   nth,
+      integer   nrhs,
+      valueType rhs[],
+      integer   ldRhs
     ) const;
 
     void
     backward_n_reduced(
-      integer      nrhs,
-      valuePointer rhs,
-      integer      ldRhs
+      integer   nrhs,
+      valueType rhs[],
+      integer   ldRhs
     ) const;
 
     void
@@ -275,24 +273,34 @@ namespace alglin {
     */
 
     void
-    solve_last( valuePointer ) const;
+    solve_last( valueType [] ) const;
 
     void
     solve_last(
-      integer      nrhs,
-      valuePointer rhs,
-      integer      ldRhs
+      integer   nrhs,
+      valueType rhs[],
+      integer   ldRhs
     ) const;
 
-    valuePointer H0Nqp;
-    valuePointer Bmat, Cmat, Cqmat, Dmat, Emat, Fmat, WorkT, WorkQR;
+    valueType * H0Nqp;
+    valueType * Bmat;
+    valueType * Cmat;
+    valueType * Cqmat;
+    valueType * Dmat;
+    valueType * Emat;
+    valueType * Fmat;
+    valueType * WorkT;
+    valueType * WorkQR;
 
     // working block
-    valuePointer Tmat, Ttau, Work;
-    integer      *Perm, Lwork, LworkT, LworkQR;
+    valueType * Tmat;
+    valueType * Ttau;
+    valueType * Work;
+    integer   * Perm;
+    integer     Lwork, LworkT, LworkQR;
 
     // last block
-    valuePointer Hmat;
+    valueType * Hmat;
 
     LU<valueType>   last_lu;
     LUPQ<valueType> last_lupq;
@@ -306,8 +314,8 @@ namespace alglin {
 
     // used also with a unique thread
     integer maxThread, usedThread;
-    mutable integer      *perm_thread;
-    mutable valuePointer xb_thread;
+    mutable integer   * perm_thread;
+    mutable valueType * xb_thread;
     #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
     mutable std::thread threads[BORDERED_CYCLIC_REDUCTION_MAX_THREAD];
     mutable SpinLock spin;
@@ -511,15 +519,15 @@ namespace alglin {
 
     // Border Right blocks
     void
-    loadB( integer nbl, valueConstPointer B, integer ldB )
+    loadB( integer nbl, valueType const B[], integer ldB )
     { gecopy( n, nx, B, ldB, Bmat + nbl*n_x_nx, n ); }
 
     void
     loadB( integer nbl, MatrixWrapper<valueType> const & B );
 
     void
-    addtoB( integer nbl, valueConstPointer B, integer ldB ) {
-      valuePointer BB = Bmat + nbl*n_x_nx;
+    addtoB( integer nbl, valueType const B[], integer ldB ) {
+      valueType * BB = Bmat + nbl*n_x_nx;
       geadd( n, nx, 1.0, B, ldB, 1.0, BB, n, BB, n );
     }
 
@@ -528,17 +536,17 @@ namespace alglin {
 
     // Border Bottom blocks
     void
-    loadC( integer nbl, valueConstPointer C, integer ldC )
+    loadC( integer nbl, valueType const C[], integer ldC )
     { gecopy( nr, n, C, ldC, Cmat + nbl*nr_x_n, nr ); }
 
     void
     loadC( integer nbl, MatrixWrapper<valueType> const & C );
 
     void
-    addtoC( integer nbl, valueConstPointer C, integer ldC ) {
+    addtoC( integer nbl, valueType const C[], integer ldC ) {
       ALGLIN_ASSERT( ldC >= nr,
                      "addtoC( " << nbl << ", C, ldC = " << ldC << " bad ldC" );
-      valuePointer CC = Cmat + nbl*nr_x_n;
+      valueType * CC = Cmat + nbl*nr_x_n;
       geadd( nr, n, 1.0, C, ldC, 1.0, CC, nr, CC, nr );
     }
 
@@ -547,10 +555,10 @@ namespace alglin {
 
     // add to block nbl and nbl+1
     void
-    addtoC2( integer nbl, valueConstPointer C, integer ldC ) {
+    addtoC2( integer nbl, valueType const C[], integer ldC ) {
       ALGLIN_ASSERT( ldC >= nr,
                      "addtoC2( " << nbl << ", C, ldC = " << ldC << " bad ldC" );
-      valuePointer CC = Cmat + nbl*nr_x_n;
+      valueType * CC = Cmat + nbl*nr_x_n;
       geadd( nr, n_x_2, 1.0, C, ldC, 1.0, CC, nr, CC, nr );
     }
 
@@ -559,27 +567,27 @@ namespace alglin {
 
     // -------------------------------------------------------------------------
     void
-    loadD( integer nbl, valueConstPointer D, integer ldD )
+    loadD( integer nbl, valueType const D[], integer ldD )
     { gecopy( n, n, D, ldD, Dmat + nbl*n_x_n, n ); }
 
     void
     loadD( integer nbl, MatrixWrapper<valueType> const & D );
 
     void
-    loadE( integer nbl, valueConstPointer E, integer ldE )
+    loadE( integer nbl, valueType const E[], integer ldE )
     { gecopy( n, n, E, ldE, Emat + nbl*n_x_n, n ); }
 
     void
     loadE( integer nbl, MatrixWrapper<valueType> const & E );
 
     void
-    loadDE( integer nbl, valueConstPointer DE, integer ldDE ) {
+    loadDE( integer nbl, valueType const DE[], integer ldDE ) {
       gecopy( n, n, DE, ldDE, Dmat + nbl*n_x_n, n ); DE += n*ldDE;
       gecopy( n, n, DE, ldDE, Emat + nbl*n_x_n, n );
     }
 
     void
-    loadDEB( integer nbl, valueConstPointer DEB, integer ldDEB ) {
+    loadDEB( integer nbl, valueType const DEB[], integer ldDEB ) {
       gecopy( n, n,  DEB, ldDEB, Dmat + nbl*n_x_n,  n  ); DEB += n*ldDEB;
       gecopy( n, n,  DEB, ldDEB, Emat + nbl*n_x_n,  n  ); DEB += n*ldDEB;
       gecopy( n, nx, DEB, ldDEB, Bmat + nbl*n_x_nx, nx );
@@ -587,14 +595,14 @@ namespace alglin {
 
     // -------------------------------------------------------------------------
     void
-    loadF( valueConstPointer F, integer ldF )
+    loadF( valueType const F[], integer ldF )
     { gecopy( nr, nx, F, ldF, Fmat, nr ); }
 
     void
     loadF( MatrixWrapper<valueType> const & F );
 
     void
-    addtoF( valueConstPointer F, integer ldF )
+    addtoF( valueType const F[], integer ldF )
     { gecopy( nr, nx, F, ldF, Fmat, nr ); }
 
     void
@@ -602,14 +610,14 @@ namespace alglin {
 
     // -------------------------------------------------------------------------
     void
-    loadCq( valueConstPointer Cq, integer ldC )
+    loadCq( valueType const Cq[], integer ldC )
     { gecopy( nr, qx, Cq, ldC, Cqmat, nr ); }
 
     void
     loadCq( MatrixWrapper<valueType> const & Cq );
 
     void
-    loadCqF( valueConstPointer CqF, integer ldCF ) {
+    loadCqF( valueType const CqF[], integer ldCF ) {
       gecopy( nr, qx, CqF, ldCF, Cqmat, nr ); CqF += qx*ldCF;
       gecopy( nr, nx, CqF, ldCF, Fmat,  nr );
     }
@@ -618,10 +626,10 @@ namespace alglin {
 
     void
     loadBottom(
-      valueConstPointer H0, integer ld0,
-      valueConstPointer HN, integer ldN,
-      valueConstPointer Hq, integer ldQ,
-      valueConstPointer Hp, integer ldP
+      valueType const H0[], integer ld0,
+      valueType const HN[], integer ldN,
+      valueType const Hq[], integer ldQ,
+      valueType const Hp[], integer ldP
     );
 
     void
@@ -633,7 +641,7 @@ namespace alglin {
     );
 
     void
-    loadBottom( valueConstPointer _H0Nqp, integer ldH ) {
+    loadBottom( valueType const _H0Nqp[], integer ldH ) {
       integer nq = n+qr;
       gecopy( nq, Nc, _H0Nqp, ldH, H0Nqp, nq );
     }
@@ -754,21 +762,21 @@ namespace alglin {
 
     virtual
     void
-    solve( valuePointer x ) const ALGLIN_OVERRIDE;
+    solve( valueType x[] ) const ALGLIN_OVERRIDE;
 
     virtual
     void
-    solve( integer nrhs, valuePointer rhs, integer ldRhs ) const ALGLIN_OVERRIDE;
+    solve( integer nrhs, valueType rhs[], integer ldRhs ) const ALGLIN_OVERRIDE;
 
     virtual
     void
-    t_solve( valuePointer ) const ALGLIN_OVERRIDE {
+    t_solve( valueType [] ) const ALGLIN_OVERRIDE {
       ALGLIN_ERROR( "BorderedCR::t_solve() not defined" );
     }
 
     virtual
     void
-    t_solve( integer, valuePointer, integer ) const ALGLIN_OVERRIDE {
+    t_solve( integer, valueType [], integer ) const ALGLIN_OVERRIDE {
       ALGLIN_ERROR( "BorderedCR::t_solve() not defined" );
     }
 
@@ -781,13 +789,13 @@ namespace alglin {
      |
     \*/
     void
-    Mv( valueConstPointer x, valuePointer res ) const {
+    Mv( valueType const x[], valueType res[] ) const {
       zero( numRows(), res, 1 );
       addMv( x, res );
     }
 
     void
-    addMv( valueConstPointer x, valuePointer res ) const;
+    addMv( valueType const x[], valueType res[] ) const;
 
     /*\
      |  ____
@@ -809,14 +817,14 @@ namespace alglin {
     sparsePattern( integer I[], integer J[], integer offs ) const;
 
     void
-    sparseValues( valuePointer V ) const;
+    sparseValues( valueType V[] ) const;
 
     void
     sparseLoad(
-      valueConstPointer M_values,
-      integer const     M_row[], integer r_offs,
-      integer const     M_col[], integer c_offs,
-      integer           M_nnz
+      valueType const M_values[],
+      integer   const M_row[], integer r_offs,
+      integer   const M_col[], integer c_offs,
+      integer         M_nnz
     );
 
   };

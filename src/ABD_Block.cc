@@ -102,9 +102,6 @@ namespace alglin {
 
     integer const row00     = row0 - col00;
     integer const n_m_row00 = n - row00;
-
-    valuePointer & block0 = this->block0;
-    valuePointer & blockN = this->blockN;
     
     if ( nblock > 0 ) {
 
@@ -116,9 +113,9 @@ namespace alglin {
       //  |     |         |
       //  +-----+---------+
       */
-      t_Value * block00 = block0 + col00*row0;
+      t_Value * block00 = this->block0 + col00*row0;
       if ( col00 > 0 ) {
-        integer info = getrf( row0, col00, block0, row0, swap0 );
+        integer info = getrf( row0, col00, this->block0, row0, swap0 );
         ALGLIN_ASSERT( info == 0,
                        "BlockLU::factorize, first block, getrf INFO = " << info );
         // applico permutazioni
@@ -126,12 +123,12 @@ namespace alglin {
         ALGLIN_ASSERT( info == 0,
                        "BlockLU::factorize, first block, swaps INFO = " << info );
         trsm( LEFT, LOWER, NO_TRANSPOSE, UNIT,
-              col00, n, 1.0, block0, row0, block00, row0 );
+              col00, n, 1.0, this->block0, row0, block00, row0 );
         gemm( NO_TRANSPOSE, NO_TRANSPOSE,
               row00, n, col00,
-              -1.0, block0+col00,  row0,
-                    block00,       row0,
-               1.0, block00+col00, row0 );
+              -1.0, this->block0+col00, row0,
+                    block00,            row0,
+               1.0, block00+col00,      row0 );
       }
 
       /*
@@ -212,11 +209,11 @@ namespace alglin {
 
       for ( integer k = 1; k < nblock; ++k ) {
 
-        valuePointer B = this->DE_blk + nxnx2 * k;
-        valuePointer A = B - nxn;
-        valuePointer C = B + nxn;
-        valuePointer F = F_mat + k*F_size;
-        integer * swps = swapR_blks + k * n;
+        valueType * B    = this->DE_blk + nxnx2 * k;
+        valueType * A    = B - nxn;
+        valueType * C    = B + nxn;
+        valueType * F    = F_mat + k*F_size;
+        integer   * swps = swapR_blks + k * n;
 
         // copy from
         info = gecopy( row00, n, A + n_m_row00, n, Work_mat, Work_lda );
@@ -278,19 +275,19 @@ namespace alglin {
       */
 
       // fattorizzazione ultimo blocco
-      valuePointer B = this->DE_blk + nxnx2 * nblock - nxn;
+      valueType * B = this->DE_blk + nxnx2 * nblock - nxn;
       integer N = row00+rowN;
       this->la_factorization->allocate(N,N);
       this->la_factorization->zero_block(row00,N-n,0,n);
       this->la_factorization->load_block(row00,n,B+n_m_row00,n,0,0);
-      this->la_factorization->load_block(rowN,N,blockN,rowN,row00,0);
+      this->la_factorization->load_block(rowN,N,this->blockN,rowN,row00,0);
       this->la_factorization->factorize();
     } else { // case nblock == 0
       integer N = row0+rowN;
       this->la_factorization->allocate(N,N);
       this->la_factorization->zero_block(N,N,0,0);
-      this->la_factorization->load_block(row0,n+col00,block0,row0,0,0);
-      this->la_factorization->load_block(rowN,n+colNN,blockN,rowN,row0,col00);
+      this->la_factorization->load_block(row0,n+col00,this->block0,row0,0,0);
+      this->la_factorization->load_block(rowN,n+colNN,this->blockN,rowN,row0,col00);
       this->la_factorization->factorize();
     }
   }
@@ -305,7 +302,10 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BlockLU<t_Value>::solve_internal( bool do_permute, valuePointer in_out ) const {
+  BlockLU<t_Value>::solve_internal(
+    bool      do_permute,
+    valueType in_out[]
+  ) const {
 
     integer const & n      = this->n;
     integer const & nxnx2  = this->nxnx2;
@@ -318,15 +318,13 @@ namespace alglin {
     integer const row00     = row0 - col00;
     integer const n_m_row00 = n - row00;
 
-    valueConstPointer const & block0 = this->block0;
-
     // permuto le x
     integer neq = nblock*n+row0+rowN;
     if ( do_permute ) std::rotate( in_out, in_out + neq - row0, in_out + neq );
 
     if ( nblock > 0 ) {
 
-      valuePointer io = in_out;
+      valueType * io = in_out;
       /*
       //             _             _
       //   ___  ___ | |_   _____  | |
@@ -347,11 +345,11 @@ namespace alglin {
         integer info = swaps( 1, io, row0, 0, col00-1, swap0, 1 );
         ALGLIN_ASSERT( info == 0,
                        "BlockLU::solve, first block, swaps INFO = " << info );
-        trsv( LOWER, NO_TRANSPOSE, UNIT, col00, block0, row0, in_out, 1 );
+        trsv( LOWER, NO_TRANSPOSE, UNIT, col00, this->block0, row0, in_out, 1 );
         io += col00;
         gemv( NO_TRANSPOSE,
               row00, col00,
-              -1.0, block0+col00, row0,
+              -1.0, this->block0+col00, row0,
                     in_out, 1,
                1.0, io, 1 );
       }
@@ -369,7 +367,7 @@ namespace alglin {
       //                |            |            |
       //
       */
-      valueConstPointer block00 = block0 + col00*row0;
+      valueType const * block00 = this->block0 + col00*row0;
 
       // apply permutation
       integer info = swaps( 1, io, n, 0, n-1, swapR_blks, 1 );
@@ -409,9 +407,9 @@ namespace alglin {
       integer k = 0;
       while ( ++k < nblock ) {
 
-        valuePointer B = this->DE_blk + nxnx2 * k;
-        valuePointer A = B - nxn;
-        integer * swps = swapR_blks + k * n;
+        valueType * B    = this->DE_blk + nxnx2 * k;
+        valueType * A    = B - nxn;
+        integer   * swps = swapR_blks + k * n;
 
         // apply permutation
         info = swaps( 1, io, n, 0, n-1, swps, 1 );
@@ -472,10 +470,10 @@ namespace alglin {
       */
       while ( --k > 0 ) {
 
-        valuePointer B = this->DE_blk + nxnx2 * k;
-        valuePointer C = B + nxn;
-        valuePointer A = B - nxn;
-        valuePointer F = F_mat + k*F_size;
+        valueType * B = this->DE_blk + nxnx2 * k;
+        valueType * C = B + nxn;
+        valueType * A = B - nxn;
+        valueType * F = F_mat + k*F_size;
       
         // copy from
         info = gecopy( row00, n, A + n_m_row00, n, Work_mat, Work_lda );
@@ -505,8 +503,8 @@ namespace alglin {
 
       }
 
-      valuePointer B = this->DE_blk;
-      valuePointer C = B + nxn;
+      valueType * B = this->DE_blk;
+      valueType * C = B + nxn;
 
       // copy from
       info = gecopy( row00, n, block00 + col00, row0, Work_mat, Work_lda );
@@ -549,7 +547,7 @@ namespace alglin {
               -1.0, block00,  row0,
                     io+col00, 1,
                1.0, io,       1 );
-        trsv( UPPER, NO_TRANSPOSE, NON_UNIT, col00, block0, row0, io, 1 );
+        trsv( UPPER, NO_TRANSPOSE, NON_UNIT, col00, this->block0, row0, io, 1 );
       }
     } else {  // case nblock = 0
       this->la_factorization->solve( in_out );
@@ -570,10 +568,10 @@ namespace alglin {
   template <typename t_Value>
   void
   BlockLU<t_Value>::solve_internal(
-    bool         do_permute,
-    integer      nrhs,
-    valuePointer in_out,
-    integer      ldRhs
+    bool      do_permute,
+    integer   nrhs,
+    valueType in_out[],
+    integer   ldRhs
   ) const {
 
     integer const & n      = this->n;
@@ -587,12 +585,10 @@ namespace alglin {
     integer const row00     = row0 - col00;
     integer const n_m_row00 = n - row00;
 
-    valueConstPointer const & block0 = this->block0;
-
     integer neq = nblock*n+row0+rowN;
 
     // permuto le x
-    valuePointer io = in_out;
+    valueType * io = in_out;
     if ( do_permute ) {
       for ( integer k = 0; k < nrhs; ++k ) {
         std::rotate( io, io + neq - row0, io + neq );
@@ -625,11 +621,11 @@ namespace alglin {
         ALGLIN_ASSERT( info == 0,
                        "BlockLU::solve, first block, swaps INFO = " << info );
         trsm( LEFT, LOWER, NO_TRANSPOSE, UNIT,
-              col00, nrhs, 1.0, block0, row0, in_out, ldRhs );
+              col00, nrhs, 1.0, this->block0, row0, in_out, ldRhs );
         io += col00;
         gemm( NO_TRANSPOSE, NO_TRANSPOSE,
               row00, nrhs, col00,
-              -1.0, block0+col00, row0,
+              -1.0, this->block0+col00, row0,
                     in_out, ldRhs,
                1.0, io, ldRhs );
       }
@@ -647,7 +643,7 @@ namespace alglin {
       //                |            |            |
       //
       */
-      valueConstPointer block00 = block0 + col00*row0;
+      valueType const * block00 = this->block0 + col00*row0;
 
       // apply permutation
       integer info = swaps( nrhs, io, ldRhs, 0, n-1, swapR_blks, 1 );
@@ -688,9 +684,9 @@ namespace alglin {
       integer k = 0;
       while ( ++k < nblock ) {
 
-        valuePointer B = this->DE_blk + nxnx2 * k;
-        valuePointer A = B - nxn;
-        integer * swps = swapR_blks + k * n;
+        valueType * B    = this->DE_blk + nxnx2 * k;
+        valueType * A    = B - nxn;
+        integer   * swps = swapR_blks + k * n;
 
         // apply permutation
         info = swaps( nrhs, io, ldRhs, 0, n-1, swps, 1 );
@@ -752,10 +748,10 @@ namespace alglin {
       */
       while ( --k > 0 ) {
 
-        valuePointer B = this->DE_blk + nxnx2 * k;
-        valuePointer C = B + nxn;
-        valuePointer A = B - nxn;
-        valuePointer F = F_mat + k*F_size;
+        valueType * B = this->DE_blk + nxnx2 * k;
+        valueType * C = B + nxn;
+        valueType * A = B - nxn;
+        valueType * F = F_mat + k*F_size;
       
         // copy from
         info = gecopy( row00, n, A + n_m_row00, n, Work_mat, Work_lda );
@@ -786,8 +782,8 @@ namespace alglin {
 
       }
 
-      valuePointer B = this->DE_blk;
-      valuePointer C = B + nxn;
+      valueType * B = this->DE_blk;
+      valueType * C = B + nxn;
 
       // copy from
       info = gecopy( row00, n, block00 + col00, row0, Work_mat, Work_lda );
@@ -832,7 +828,7 @@ namespace alglin {
                     io+col00, ldRhs,
                1.0, io,       ldRhs );
         trsm( LEFT, UPPER, NO_TRANSPOSE, NON_UNIT,
-              col00, nrhs, 1.0, block0, row0, io, ldRhs );
+              col00, nrhs, 1.0, this->block0, row0, io, ldRhs );
       }
     } else {  // case nblock = 0
       this->la_factorization->solve( nrhs, in_out, ldRhs );

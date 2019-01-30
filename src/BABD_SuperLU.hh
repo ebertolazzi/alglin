@@ -58,9 +58,7 @@ namespace alglin {
   class BABD_SuperLU {
   private:
 
-    typedef double            valueType;
-    typedef valueType *       valuePointer;
-    typedef valueType const * valueConstPointer;
+    typedef double valueType;
 
     Malloc<valueType> baseValue;
     Malloc<int>       baseInteger;
@@ -135,17 +133,17 @@ namespace alglin {
     */
     void
     factorize(
-      integer           nblk,
-      integer           n,
-      integer           q,
-      valueConstPointer AdAu,
-      valueConstPointer H0,
-      valueConstPointer HN,
-      valueConstPointer Hq
+      integer         nblk,
+      integer         n,
+      integer         q,
+      valueType const AdAu[],
+      valueType const H0[],
+      valueType const HN[],
+      valueType const Hq[]
     );
 
     //! solve linear sistem using internal factorized matrix
-    void solve( valuePointer in_out ) const;
+    void solve( valueType in_out[] ) const;
 
     //! get condition number
     void cond( valueType & rcond_1, valueType & rcond_inf ) const;

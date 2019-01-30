@@ -55,11 +55,11 @@ namespace alglin {
   static
   void
   dumpOneMatrix(
-    ostream_type &    stream,
-    charConstPointer  name,
-    valueConstPointer M,
-    indexType         numRow,
-    indexType         numCol
+    ostream_type &  stream,
+    char const      name[],
+    valueType const M[],
+    indexType       numRow,
+    indexType       numCol
   ) {
     stream << "# " << name << " Size: "
            << numRow << " x " << numCol << '\n';
@@ -84,8 +84,8 @@ namespace alglin {
     indexType N       = numNodes-1;
     indexType dim_z_z = 4*dim_x*dim_x;
     for ( indexType row = 0; row < N; ++row ) {
-      valueConstPointer Ad = AdAu_blk + 2*row*dim_z_z;
-      valueConstPointer Au = Ad + dim_z_z;
+      valueType const * Ad = AdAu_blk + 2*row*dim_z_z;
+      valueType const * Au = Ad + dim_z_z;
       dumpOneMatrix( stream, "Ad", Ad, 2*dim_x, 2*dim_x );
       dumpOneMatrix( stream, "Au", Au, 2*dim_x, 2*dim_x );
     }

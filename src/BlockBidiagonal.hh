@@ -76,9 +76,7 @@ namespace alglin {
   class BlockBidiagonal {
   public:
 
-    typedef t_Value         valueType;
-    typedef t_Value *       valuePointer;
-    typedef t_Value const * valueConstPointer;
+    typedef t_Value valueType;
 
   private:
 
@@ -149,11 +147,13 @@ namespace alglin {
     //
     */
 
-    valuePointer DE_blk;
-    valuePointer H0Nq;
-    valuePointer block0;
-    valuePointer blockN;
-    valuePointer Bmat, Cmat, Dmat;
+    valueType * DE_blk;
+    valueType * H0Nq;
+    valueType * block0;
+    valueType * blockN;
+    valueType * Bmat;
+    valueType * Cmat;
+    valueType * Dmat;
 
   private:
 
@@ -236,19 +236,19 @@ namespace alglin {
 
     // filling bidiagonal part of the matrix
     void
-    loadBlocks( valueConstPointer AdAu, integer ldA )
+    loadBlocks( valueType const AdAu[], integer ldA )
     { gecopy( n, nblock * nx2, AdAu, ldA, DE_blk, n ); }
 
     void
-    loadBlock( integer nbl, valueConstPointer AdAu, integer ldA )
+    loadBlock( integer nbl, valueType const AdAu[], integer ldA )
     { gecopy( n, nx2, AdAu, ldA, DE_blk + nbl*nxnx2, n ); }
 
     void
-    loadBlockLeft( integer nbl, valueConstPointer Ad, integer ldA )
+    loadBlockLeft( integer nbl, valueType const Ad[], integer ldA )
     { gecopy( n, n, Ad, ldA, DE_blk + nbl*nxnx2, n ); }
 
     void
-    loadBlockRight( integer nbl, valueConstPointer Au, integer ldA )
+    loadBlockRight( integer nbl, valueType const Au[], integer ldA )
     { gecopy( n, n, Au, ldA, DE_blk + nbl*nxnx2 + nxn, n ); }
 
     // Border Bottom blocks
@@ -257,39 +257,39 @@ namespace alglin {
     { zero( nb*neq, Cmat, 1 ); }
 
     void
-    loadBottomBlocks( valueConstPointer C, integer ldC )
+    loadBottomBlocks( valueType const C[], integer ldC )
     { gecopy( nb, neq, C, ldC, Cmat, nb ); }
 
     void
-    loadBottomBlock( integer nbl, valueConstPointer C, integer ldC ) {
+    loadBottomBlock( integer nbl, valueType const C[], integer ldC ) {
       ALGLIN_ASSERT( ldC >= nb,
                      "loadBottomBlock( " << nbl <<
                      ", C, ldC = " << ldC << " bad ldC" );
-      valuePointer CC = Cmat + nbl*nxnb;
+      valueType * CC = Cmat + nbl*nxnb;
       gecopy( nb, n, C, ldC, CC, nb );
     }
 
     void
-    addtoBottomBlock( integer nbl, valueConstPointer C, integer ldC ) {
+    addtoBottomBlock( integer nbl, valueType const C[], integer ldC ) {
       ALGLIN_ASSERT( ldC >= nb,
                      "addtoBottomBlock( " << nbl <<
                      ", C, ldC = " << ldC << " bad ldC" );
-      valuePointer CC = Cmat + nbl*nxnb;
+      valueType * CC = Cmat + nbl*nxnb;
       geadd( nb, n, 1.0, C, ldC, 1.0, CC, nb, CC, nb );
     }
 
     // add to bottom block nbl and nbl+1
     void
-    addtoBottomBlock2( integer nbl, valueConstPointer C, integer ldC ) {
+    addtoBottomBlock2( integer nbl, valueType const C[], integer ldC ) {
       ALGLIN_ASSERT( ldC >= nb,
                      "addtoBottomBlock2( " << nbl <<
                      ", C, ldC = " << ldC << " bad ldC" );
-      valuePointer CC = Cmat + nbl*nxnb;
+      valueType * CC = Cmat + nbl*nxnb;
       geadd( nb, nx2, 1.0, C, ldC, 1.0, CC, nb, CC, nb );
     }
 
     void
-    loadBottomLastBlock( valueConstPointer C, integer ldC )
+    loadBottomLastBlock( valueType const C[], integer ldC )
     { gecopy( nb, q, C, ldC, Cmat + (nblock+1)*nxnb, nb ); }
 
     // Border Right blocks
@@ -298,15 +298,15 @@ namespace alglin {
     { zero( neq*nb, Bmat, 1 ); }
 
     void
-    loadRightBlocks( valueConstPointer B, integer ldB )
+    loadRightBlocks( valueType const B[], integer ldB )
     { gecopy( neq, nb, B, ldB, Bmat, neq ); }
 
     void
-    loadRightBlock( integer nbl, valueConstPointer B, integer ldB )
+    loadRightBlock( integer nbl, valueType const B[], integer ldB )
     { gecopy( n, nb, B, ldB, Bmat + nbl*n, neq ); }
 
     void
-    loadRightLastBlock( valueConstPointer B, integer ldB )
+    loadRightLastBlock( valueType const B[], integer ldB )
     { gecopy( n+q, nb, B, ldB, Bmat + neq-n-q, neq ); }
 
     // Border RBblock
@@ -315,37 +315,37 @@ namespace alglin {
     { zero( nb*nb, Dmat, 1 ); }
 
     void
-    loadRBblock( valueConstPointer D, integer ldD )
+    loadRBblock( valueType const D[], integer ldD )
     { gecopy( nb, nb, D, ldD, Dmat, nb ); }
 
     // final blocks after cyclic reduction
-    valueConstPointer
+    valueType const *
     getPointer_LR() const
     { return DE_blk; }
 
     void
-    getBlock_LR( valuePointer LR, integer ldA ) const
+    getBlock_LR( valueType LR[], integer ldA ) const
     { gecopy( n, nx2, DE_blk, n, LR, ldA ); }
 
     void
-    getBlock_L( valuePointer L, integer ldA ) const
+    getBlock_L( valueType L[], integer ldA ) const
     { gecopy( n, n, DE_blk, n, L, ldA ); }
 
     void
-    getBlock_R( valuePointer R, integer ldA ) const
+    getBlock_R( valueType R[], integer ldA ) const
     { gecopy( n, n, DE_blk+nxn, n, R, ldA ); }
 
     // BC blocks
     void
-    getBlock_H0( valuePointer H0, integer ld0 ) const
+    getBlock_H0( valueType H0[], integer ld0 ) const
     { gecopy( n+q, n, H0Nq, n+q, H0, ld0 ); }
 
     void
-    getBlock_HN( valuePointer HN, integer ldN ) const
+    getBlock_HN( valueType HN[], integer ldN ) const
     { gecopy( n+q, n, H0Nq+n*(n+q), n+q, HN, ldN ); }
 
     void
-    getBlock_Hq( valuePointer Hq, integer ldQ ) const
+    getBlock_Hq( valueType Hq[], integer ldQ ) const
     { gecopy( n+q, q, H0Nq+nx2*(n+q), n+q, Hq, ldQ ); }
 
     virtual
@@ -382,29 +382,29 @@ namespace alglin {
 
     virtual
     void
-    solve( valuePointer ) const ALGLIN_PURE_VIRTUAL;
+    solve( valueType [] ) const ALGLIN_PURE_VIRTUAL;
 
     virtual
     void
     solve(
       integer      /* nrhs  */,
-      valuePointer /* rhs   */,
+      valueType [] /* rhs   */,
       integer      /* ldRhs */
     ) const ALGLIN_PURE_VIRTUAL;
 
     void
     loadBottom(
-      valueConstPointer H0, integer ld0,
-      valueConstPointer HN, integer ldN,
-      valueConstPointer Hq, integer ldQ
+      valueType const H0[], integer ld0,
+      valueType const HN[], integer ldN,
+      valueType const Hq[], integer ldQ
     );
 
     // block0 = row0 * col0
     // blockN = rowN * colN
     void
     loadTopBottom(
-      valueConstPointer block0, integer ld0,
-      valueConstPointer blockN, integer ldN
+      valueType const block0[], integer ld0,
+      valueType const blockN[], integer ldN
     );
 
     void
@@ -444,23 +444,23 @@ namespace alglin {
     factorize_bordered();
 
     void
-    solve_bordered( valuePointer ) const;
+    solve_bordered( valueType [] ) const;
 
     void
     solve_bordered( integer      /* nrhs  */,
-                    valuePointer /* rhs   */,
+                    valueType [] /* rhs   */,
                     integer      /* ldRhs */ ) const;
 
     // All in one
     void
     factorize(
-      valueConstPointer AdAu,
-      valueConstPointer B,
-      valueConstPointer C,
-      valueConstPointer D,
-      valueConstPointer H0,
-      valueConstPointer HN,
-      valueConstPointer Hq
+      valueType const AdAu[],
+      valueType const B[],
+      valueType const C[],
+      valueType const D[],
+      valueType const H0[],
+      valueType const HN[],
+      valueType const Hq[]
     ) {
       this->loadBlocks( AdAu, n );
       this->loadBottom( H0, n+q, HN, n+q, Hq, n+q );
@@ -477,10 +477,10 @@ namespace alglin {
     // All in one
     void
     factorize(
-      valueConstPointer AdAu,
-      valueConstPointer H0,
-      valueConstPointer HN,
-      valueConstPointer Hq
+      valueType const AdAu[],
+      valueType const H0[],
+      valueType const HN[],
+      valueType const Hq[]
     ) {
       ALGLIN_ASSERT( nb == 0, "factorize nb > 0 and no border assigned" );
       this->loadBlocks( AdAu, n );
@@ -490,7 +490,7 @@ namespace alglin {
 
     // aux function
     void
-    Mv( valueConstPointer x, valuePointer res ) const;
+    Mv( valueType const x[], valueType res[] ) const;
 
     /*\
      |   ____
@@ -522,7 +522,7 @@ namespace alglin {
     sparsePattern( integer I[], integer J[] ) const;
 
     void
-    sparseValues( valuePointer vals ) const;
+    sparseValues( valueType vals[] ) const;
 
   };
 }

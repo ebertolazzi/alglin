@@ -55,8 +55,8 @@ namespace alglin {
     // fill matrix
     integer nm = n+m;
     for ( integer k = 0; k < nblock; ++k ) {
-      valueConstPointer Ad = this->DE_blk + k*nxnx2;
-      valueConstPointer Au = Ad + nxn;
+      valueType const * Ad = this->DE_blk + k*nxnx2;
+      valueType const * Au = Ad + nxn;
       gecopy( n, n, Ad, n, AdH_blk + k*nm*n, nm );
       gecopy( n, n, Au, n, Au_blk  + k*nxn,  n  );
     }
@@ -68,18 +68,18 @@ namespace alglin {
     integer rowFF = (nblock-1)*n;
     integer INFO;
 
-    integer *  ipivk = ipiv_blk;
-    valuePointer AdH = AdH_blk;
-    valuePointer Au  = Au_blk;
-    valuePointer FF  = FF_blk;
+    integer   * ipivk = ipiv_blk;
+    valueType * AdH   = AdH_blk;
+    valueType * Au    = Au_blk;
+    valueType * FF    = FF_blk;
 
     for ( integer k = 0; k < nblock-1; ++k, ipivk += n, AdH += nm*n, Au += n*n, FF += n ) {
 
       INFO = getrf( nm, n, AdH, nm, ipivk ); // LU factorization
       ALGLIN_ASSERT( INFO==0, "BlockLU::factorize(), matrix singolar" );
 
-      valuePointer H  = AdH + n;
-      valuePointer CC = AdH + nm*n + n;
+      valueType * H  = AdH + n;
+      valueType * CC = AdH + nm*n + n;
 
       for ( integer i = 0; i < n; ++i ) {
         integer ip = ipivk[i]-1;
@@ -143,7 +143,7 @@ namespace alglin {
     //
     //  CC* = CC - H (LU)^(-1) Au
     //
-    valuePointer H = AdH + n;
+    valueType * H = AdH + n;
     trsm( LEFT, LOWER, NO_TRANSPOSE, UNIT, n, m, 1, AdH, nm, Au, n );
     gemm( NO_TRANSPOSE, NO_TRANSPOSE, m, m, n, -1, H, nm, Au, n, 1, DD_blk, m );
     
@@ -162,20 +162,20 @@ namespace alglin {
   \*/
   template <typename t_Value>
   void
-  BBlockLU<t_Value>::solve( valuePointer y ) const {
+  BBlockLU<t_Value>::solve( valueType y[] ) const {
 
     integer const & n      = this->n;
     integer const & nblock = this->nblock;
 
     // solve L
-    integer nm    = n+m;
-    integer rowFF = (nblock-1) * n;
-    valuePointer ye = y + nblock * n;
+    integer     nm    = n+m;
+    integer     rowFF = (nblock-1) * n;
+    valueType * ye    = y + nblock * n;
 
     for ( integer k = 0; k < nblock; ++k ) {
-      integer const * ipivk = ipiv_blk + k * n;
-      valueConstPointer AdH = AdH_blk  + k * (nm*n);
-      valuePointer      yk  = y        + k * n;
+      integer   const * ipivk = ipiv_blk + k * n;
+      valueType const * AdH   = AdH_blk  + k * (nm*n);
+      valueType       * yk    = y        + k * n;
 
       // apply permutation
       for ( integer i = 0; i < n; ++i ) {
@@ -200,9 +200,9 @@ namespace alglin {
     integer k = nblock;
     do {
       --k;
-      valueConstPointer AdH = AdH_blk + k*nm*n;
-      valueConstPointer Au  = Au_blk  + k*n*n;
-      valuePointer      yk  = y       + k*n;
+      valueType const * AdH = AdH_blk + k*nm*n;
+      valueType const * Au  = Au_blk  + k*n*n;
+      valueType       * yk  = y       + k*n;
 
       gemv( NO_TRANSPOSE, n, n, -1, Au, n, yk + n, 1, 1, yk, 1 );
       trsv( UPPER, NO_TRANSPOSE, NON_UNIT, n, AdH, nm, yk, 1 );
