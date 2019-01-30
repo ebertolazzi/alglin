@@ -38,6 +38,7 @@ namespace alglin {
    |    \ V /  __/ (__| |
    |     \_/ \___|\___|_|
   \*/
+
   template <typename t_Value, int N, int STEP>
   class Vec1 {
   public:
@@ -74,6 +75,8 @@ namespace alglin {
     }
   };
 
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   template <typename t_Value, int STEP>
   class Vec1<t_Value,1,STEP> {
   public:
@@ -87,6 +90,8 @@ namespace alglin {
     static inline void amax( t_Value const * x, t_Value & am, integer & ipos )
     { am = std::abs(x[0]); ipos = 0; }
   };
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   template <typename t_Value, int STEP>
   class Vec1<t_Value,0,STEP> {
@@ -109,6 +114,7 @@ namespace alglin {
    |    \ V /  __/ (__ / __/
    |     \_/ \___|\___|_____|
   \*/
+
   template <typename t_Value, int N, int STEPA = 1, int STEPB = 1>
   class Vec2 {
   public:
@@ -145,6 +151,8 @@ namespace alglin {
     }
   };
 
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   template <typename t_Value, int STEPA, int STEPB>
   class Vec2<t_Value,0,STEPA,STEPB> {
   public:
@@ -174,11 +182,15 @@ namespace alglin {
     }
   };
 
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   template <typename t_Value, int LDL>
   class LsolveUnit<t_Value,1,LDL> {
   public:
     static inline void eval( t_Value const *, t_Value * ) {}
   };
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   template <typename t_Value, int N, int LDL>
   class Lsolve {
@@ -189,6 +201,8 @@ namespace alglin {
       Lsolve<t_Value,N-1,LDL>::eval(L+LDL+1,x+1);
     }
   };
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   template <typename t_Value, int LDL>
   class Lsolve<t_Value,1,LDL> {
@@ -212,11 +226,15 @@ namespace alglin {
     }
   };
 
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   template <typename t_Value, int LDU>
   class UsolveUnit<t_Value,1,LDU> {
   public:
     static void eval( t_Value const *, t_Value * ) {}
   };
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   template <typename t_Value, int N, int LDU>
   class Usolve {
@@ -227,6 +245,8 @@ namespace alglin {
       Usolve<t_Value,N-1,LDU>::eval(U,x);
     }
   };
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   template <typename t_Value, int LDU>
   class Usolve<t_Value,1,LDU> {
@@ -243,6 +263,7 @@ namespace alglin {
   //  | |  | |\ V /
   //  |_|  |_| \_/
   */
+
   template <typename t_Value, int M, int N, int LDM, int INCX, int INCR>
   class Mv {
   public:
@@ -265,6 +286,8 @@ namespace alglin {
     }
   };
 
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   template <typename t_Value, int N, int LDM, int INCX, int INCR>
   class Mv<t_Value,0,N,LDM,INCX,INCR> {
   public:
@@ -274,6 +297,8 @@ namespace alglin {
     static inline void aMxpby( t_Value, t_Value const *, t_Value const *,
                                t_Value, t_Value * ) { }
   };
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   template <typename t_Value, int M, int LDM, int INCX, int INCR>
   class Mv<t_Value,M,0,LDM,INCX,INCR> {
@@ -297,6 +322,7 @@ namespace alglin {
   //  C -= A*B
   //  C  = a*C + b*A*B
   */
+
   template <typename t_Value, int M, int N, int K, int LDA, int LDB, int LDC>
   class MM {
   public:
@@ -318,6 +344,8 @@ namespace alglin {
         Mv<t_Value,M,K,LDA,1,1>::aMxpby( a, A, B, b, C );
     }
   };
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   template <typename t_Value, int M, int K, int LDA, int LDB, int LDC>
   class MM<t_Value,M,0,K,LDA,LDB,LDC> {
@@ -341,6 +369,7 @@ namespace alglin {
   //  M  = b*M + a*u*v^T
   //
   */
+
   template <typename t_Value, int M, int N, int LDM, int INCX, int INCY>
   class Rank1 {
   public:
@@ -362,6 +391,8 @@ namespace alglin {
       Rank1<t_Value,M,N-1,LDM,INCX,INCY>::auvpbM(x,y+INCY,Mat+LDM);
     }
   };
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   template <typename t_Value, int M, int LDM, int INCX, int INCY>
   class Rank1<t_Value,M,0,LDM,INCX,INCY> {

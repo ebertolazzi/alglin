@@ -181,15 +181,17 @@ namespace alglin {
 
   inline
   void
-  tbmv( ULselect      const & UPLO,
-        Transposition const & TRANS,
-        DiagonalType  const & DIAG,
-        integer             N,
-        integer             K,
-        real          const A[],
-        integer             ldA,
-        real                xb[],
-        integer             incx ) {
+  tbmv(
+    ULselect      const & UPLO,
+    Transposition const & TRANS,
+    DiagonalType  const & DIAG,
+    integer             N,
+    integer             K,
+    real          const A[],
+    integer             ldA,
+    real                xb[],
+    integer             incx
+  ) {
     #if defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
     CBLASNAME(stbmv)( CblasColMajor,
                       uplo_cblas[UPLO],
@@ -208,17 +210,21 @@ namespace alglin {
     #endif
   }
 
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   inline
   void
-  tbmv( ULselect      const & UPLO,
-        Transposition const & TRANS,
-        DiagonalType  const & DIAG,
-        integer             N,
-        integer             K,
-        doublereal    const A[],
-        integer             ldA,
-        doublereal          xb[],
-        integer             incx ) {
+  tbmv(
+    ULselect      const & UPLO,
+    Transposition const & TRANS,
+    DiagonalType  const & DIAG,
+    integer             N,
+    integer             K,
+    doublereal    const A[],
+    integer             ldA,
+    doublereal          xb[],
+    integer             incx
+  ) {
     #if defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
     CBLASNAME(dtbmv)( CblasColMajor,
                       uplo_cblas[UPLO],
@@ -392,15 +398,17 @@ namespace alglin {
 
   inline
   void
-  tbsv( ULselect      const & UPLO,
-        Transposition const & TRANS,
-        DiagonalType  const & DIAG,
-        integer             N,
-        integer             K,
-        real          const A[],
-        integer             ldA,
-        real                xb[],
-        integer             incx ) {
+  tbsv(
+    ULselect      const & UPLO,
+    Transposition const & TRANS,
+    DiagonalType  const & DIAG,
+    integer             N,
+    integer             K,
+    real          const A[],
+    integer             ldA,
+    real                xb[],
+    integer             incx
+  ) {
     #if defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
     CBLASNAME(stbsv)( CblasColMajor,
                       uplo_cblas[UPLO],
@@ -419,17 +427,21 @@ namespace alglin {
     #endif
   }
 
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   inline
   void
-  tbsv( ULselect      const & UPLO,
-        Transposition const & TRANS,
-        DiagonalType  const & DIAG,
-        integer             N,
-        integer             K,
-        doublereal    const A[],
-        integer             ldA,
-        doublereal          xb[],
-        integer             incx ) {
+  tbsv(
+    ULselect      const & UPLO,
+    Transposition const & TRANS,
+    DiagonalType  const & DIAG,
+    integer             N,
+    integer             K,
+    doublereal    const A[],
+    integer             ldA,
+    doublereal          xb[],
+    integer             incx
+  ) {
     #if defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
     CBLASNAME(dtbsv)( CblasColMajor,
                       uplo_cblas[UPLO],
@@ -556,13 +568,15 @@ namespace alglin {
 
   inline
   integer
-  gbtrf( integer M,
-         integer N,
-         integer KL,
-         integer KU,
-         real    AB[],
-         integer ldAB,
-         integer ipiv[]) {
+  gbtrf(
+    integer M,
+    integer N,
+    integer KL,
+    integer KU,
+    real    AB[],
+    integer ldAB,
+    integer ipiv[]
+  ) {
     integer info = 0;
     #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS)
     LAPACK_F77NAME(sgbtrf)( &M, &N, &KL, &KU, AB, &ldAB, ipiv, &info );
@@ -579,15 +593,19 @@ namespace alglin {
     return info;
   }
 
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   inline
   integer
-  gbtrf( integer    M,
-         integer    N,
-         integer    KL,
-         integer    KU,
-         doublereal AB[],
-         integer    ldAB,
-         integer    ipiv[]) {
+  gbtrf(
+    integer    M,
+    integer    N,
+    integer    KL,
+    integer    KU,
+    doublereal AB[],
+    integer    ldAB,
+    integer    ipiv[]
+  ) {
     integer info = 0;
     #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS)
     LAPACK_F77NAME(dgbtrf)( &M, &N, &KL, &KU, AB, &ldAB, ipiv, &info );
@@ -695,16 +713,18 @@ namespace alglin {
 
   inline
   integer
-  gbtrs( Transposition const & TRANS,
-         integer       N,
-         integer       KL,
-         integer       KU,
-         integer       nrhs,
-         real    const AB[],
-         integer       ldAB,
-         integer const ipiv[],
-         real          B[],
-         integer       ldB ) {
+  gbtrs(
+    Transposition const & TRANS,
+    integer       N,
+    integer       KL,
+    integer       KU,
+    integer       nrhs,
+    real    const AB[],
+    integer       ldAB,
+    integer const ipiv[],
+    real          B[],
+    integer       ldB
+  ) {
     integer info = 0;
     #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS)
     LAPACK_F77NAME(sgbtrs)( trans_blas[TRANS],
@@ -733,16 +753,18 @@ namespace alglin {
 
   inline
   integer
-  gbtrs( Transposition const & TRANS,
-         integer          N,
-         integer          KL,
-         integer          KU,
-         integer          nrhs,
-         doublereal const AB[],
-         integer          ldAB,
-         integer    const ipiv[],
-         doublereal       B[],
-         integer          ldB ) {
+  gbtrs(
+    Transposition const & TRANS,
+    integer          N,
+    integer          KL,
+    integer          KU,
+    integer          nrhs,
+    doublereal const AB[],
+    integer          ldAB,
+    integer    const ipiv[],
+    doublereal       B[],
+    integer          ldB
+  ) {
     integer info = 0;
     #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS)
     LAPACK_F77NAME(dgbtrs)( trans_blas[TRANS],
@@ -866,11 +888,13 @@ namespace alglin {
 
   inline
   integer
-  pbtrf( ULselect const & UPLO,
-         integer          N,
-         integer          KD,
-         real             AB[],
-         integer          ldAB ) {
+  pbtrf(
+    ULselect const & UPLO,
+    integer          N,
+    integer          KD,
+    real             AB[],
+    integer          ldAB
+  ) {
     integer info = 0;
     #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS)
     LAPACK_F77NAME(spbtrf)( uplo_blas[UPLO], &N, &KD, AB, &ldAB, &info );
@@ -888,13 +912,17 @@ namespace alglin {
     return info;
   }
 
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   inline
   integer
-  pbtrf( ULselect const & UPLO,
-         integer          N,
-         integer          KD,
-         doublereal       AB[],
-         integer          ldAB ) {
+  pbtrf(
+    ULselect const & UPLO,
+    integer          N,
+    integer          KD,
+    doublereal       AB[],
+    integer          ldAB
+  ) {
     integer info = 0;
     #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS)
     LAPACK_F77NAME(dpbtrf)( uplo_blas[UPLO], &N, &KD, AB, &ldAB, &info );
@@ -995,14 +1023,16 @@ namespace alglin {
 
   inline
   integer
-  pbtrs( ULselect const & UPLO,
-         integer          N,
-         integer          KD,
-         integer          nrhs,
-         real     const   AB[],
-         integer          ldAB,
-         real             B[],
-         integer          ldB ) {
+  pbtrs(
+    ULselect const & UPLO,
+    integer          N,
+    integer          KD,
+    integer          nrhs,
+    real     const   AB[],
+    integer          ldAB,
+    real             B[],
+    integer          ldB
+  ) {
     integer info = 0;
     #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS)
     LAPACK_F77NAME(spbtrs)( uplo_blas[UPLO],
@@ -1024,16 +1054,20 @@ namespace alglin {
     return info;
   }
 
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   inline
   integer
-  pbtrs( ULselect   const & UPLO,
-         integer            N,
-         integer            KD,
-         integer            nrhs,
-         doublereal const   AB[],
-         integer            ldAB,
-         doublereal         B[],
-         integer            ldB ) {
+  pbtrs(
+    ULselect   const & UPLO,
+    integer            N,
+    integer            KD,
+    integer            nrhs,
+    doublereal const   AB[],
+    integer            ldAB,
+    doublereal         B[],
+    integer            ldB
+  ) {
     integer info = 0;
     #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS)
     LAPACK_F77NAME(dpbtrs)( uplo_blas[UPLO],

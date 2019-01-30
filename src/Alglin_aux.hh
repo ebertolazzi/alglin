@@ -80,10 +80,12 @@ namespace alglin {
 
   inline
   integer
-  larnv( integer IDIST,
-         integer ISEED[4],
-         integer N,
-         real    X[] ) {
+  larnv(
+    integer IDIST,
+    integer ISEED[4],
+    integer N,
+    real    X[]
+  ) {
     #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
     LAPACK_F77NAME(slarnv)( &IDIST, ISEED, &N, X ); // return void in openblas
     return 0;
@@ -97,12 +99,16 @@ namespace alglin {
     #endif
   }
 
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   inline
   integer
-  lanrv( integer    IDIST,
-         integer    ISEED[4],
-         integer    N,
-         doublereal X[] ) {
+  lanrv(
+    integer    IDIST,
+    integer    ISEED[4],
+    integer    N,
+    doublereal X[]
+  ) {
     #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
     LAPACK_F77NAME(dlarnv)( &IDIST, ISEED, &N, X ); // return void in openblas
     return 0;
@@ -155,12 +161,14 @@ namespace alglin {
   template <typename T>
   inline
   integer
-  large( integer N,
-         T       A[],
-         integer LDA,
-         integer ISEED[4],
-         T       WORK[],
-         integer LWORK ) {
+  large(
+    integer N,
+    T       A[],
+    integer LDA,
+    integer ISEED[4],
+    T       WORK[],
+    integer LWORK
+  ) {
     ALGLIN_ASSERT( LWORK >= 2*N,
                    "large, LWORK = " << LWORK << " must be >= " << 2*N );
     // Test the input arguments
@@ -279,15 +287,17 @@ namespace alglin {
   template <typename T>
   inline
   integer
-  laror( SideMultiply const & LR,
-         bool                 init,
-         integer              M,
-         integer              N,
-         T                    A[],
-         integer              LDA,
-         integer              ISEED[4],
-         T                    WORK[],
-         integer              LWORK ) {
+  laror(
+    SideMultiply const & LR,
+    bool                 init,
+    integer              M,
+    integer              N,
+    T                    A[],
+    integer              LDA,
+    integer              ISEED[4],
+    T                    WORK[],
+    integer              LWORK
+  ) {
 
     if ( LR == LEFT ) {
       ALGLIN_ASSERT( LWORK >= 2*M + N,
@@ -360,16 +370,18 @@ namespace alglin {
     return 0;
   }
 
-  // ---------------------------------------------------------------------------
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   template <typename t_Value>
   inline
   void
-  print_matrix( ostream_type & stream,
-                integer        nr,
-                integer        nc,
-                t_Value const  A[],
-                integer        ldA ) {
+  print_matrix(
+    ostream_type & stream,
+    integer        nr,
+    integer        nc,
+    t_Value const  A[],
+    integer        ldA
+  ) {
     for ( integer i = 0; i < nr; ++i ) {
       for ( integer j = 0; j < nc; ++j )
         stream << std::setw(14) << A[i+j*ldA] << " ";
@@ -403,21 +415,23 @@ namespace alglin {
   template <typename t_Value>
   inline
   void
-  abd_mv( integer         row0,
-          integer         col0,
-          t_Value const * block0,
-          integer         numBlock,
-          integer         dimBlock,
-          t_Value const * blocks,
-          integer         rowN,
-          integer         colN,
-          t_Value const * blockN,
-          t_Value         alpha,
-          t_Value const * x,
-          integer         incx,
-          t_Value         beta,
-          t_Value *       y,
-          integer         incy ) {
+  abd_mv(
+    integer         row0,
+    integer         col0,
+    t_Value const * block0,
+    integer         numBlock,
+    integer         dimBlock,
+    t_Value const * blocks,
+    integer         rowN,
+    integer         colN,
+    t_Value const * blockN,
+    t_Value         alpha,
+    t_Value const * x,
+    integer         incx,
+    t_Value         beta,
+    t_Value *       y,
+    integer         incy
+  ) {
 
     // first block y = alpha * _block0 * x + beta * y
     gemv( NO_TRANSPOSE, row0, col0,
@@ -446,25 +460,29 @@ namespace alglin {
           beta, yy, incy );
   }
 
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   //! compute r = b-A*x
   template <typename t_Value>
   inline
   void
-  abd_residue( integer         row0,
-               integer         col0,
-               t_Value const * block0,
-               integer         numBlock,
-               integer         dimBlock,
-               t_Value const * blocks,
-               integer         rowN,
-               integer         colN,
-               t_Value const * blockN,
-               t_Value const * b,
-               integer         incb,
-               t_Value const * x,
-               integer         incx,
-               t_Value *       res,
-               integer         incr ) {
+  abd_residue(
+    integer         row0,
+    integer         col0,
+    t_Value const * block0,
+    integer         numBlock,
+    integer         dimBlock,
+    t_Value const * blocks,
+    integer         rowN,
+    integer         colN,
+    t_Value const * blockN,
+    t_Value const * b,
+    integer         incb,
+    t_Value const * x,
+    integer         incx,
+    t_Value *       res,
+    integer         incr
+  ) {
     copy( numBlock*dimBlock+row0+rowN, b, incb, res, incr );
     abd_mv( row0, col0, block0,
             numBlock, dimBlock, blocks,
@@ -472,21 +490,23 @@ namespace alglin {
             t_Value(-1.0), x, incx, t_Value(1.0), res, incr );
   }
 
-  // ---------------------------------------------------------------------------
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   template <typename t_Value>
   inline
   void
-  abd_print( ostream_type &  stream,
-             integer         row0,
-             integer         col0,
-             t_Value const * block0,
-             integer         numBlock,
-             integer         dimBlock,
-             t_Value const * blocks,
-             integer         rowN,
-             integer         colN,
-             t_Value const * blockN ) {
+  abd_print(
+    ostream_type &  stream,
+    integer         row0,
+    integer         col0,
+    t_Value const * block0,
+    integer         numBlock,
+    integer         dimBlock,
+    t_Value const * blocks,
+    integer         rowN,
+    integer         colN,
+    t_Value const * blockN
+  ) {
     integer sizeBlock = 2*dimBlock*dimBlock;
     stream << "Block 0\n";
     for ( integer i = 0; i < row0; ++i ) {
@@ -547,19 +567,21 @@ namespace alglin {
   template <typename t_Value>
   inline
   void
-  babd_mv( integer         nblk,
-           integer         n,
-           integer         q,
-           t_Value const * AdAu,
-           t_Value const * H0,
-           t_Value const * HN,
-           t_Value const * Hq,
-           t_Value         alpha,
-           t_Value const * x,
-           integer         incx,
-           t_Value         beta,
-           t_Value *       y,
-           integer         incy ) {
+  babd_mv(
+    integer         nblk,
+    integer         n,
+    integer         q,
+    t_Value const * AdAu,
+    t_Value const * H0,
+    t_Value const * HN,
+    t_Value const * Hq,
+    t_Value         alpha,
+    t_Value const * x,
+    integer         incx,
+    t_Value         beta,
+    t_Value *       y,
+    integer         incy
+  ) {
 
     // internal blocks block
     t_Value const * xx   = x;
@@ -585,42 +607,46 @@ namespace alglin {
 
   }
 
-  // ---------------------------------------------------------------------------
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   template <typename t_Value>
   inline
   void
-  babd_residue( integer         nblk,
-                integer         n,
-                integer         q,
-                t_Value const * AdAu,
-                t_Value const * H0,
-                t_Value const * HN,
-                t_Value const * Hq,
-                t_Value const * b,
-                integer         incb,
-                t_Value const * x,
-                integer         incx,
-                t_Value *       res,
-                integer         incr ) {
+  babd_residue(
+    integer         nblk,
+    integer         n,
+    integer         q,
+    t_Value const * AdAu,
+    t_Value const * H0,
+    t_Value const * HN,
+    t_Value const * Hq,
+    t_Value const * b,
+    integer         incb,
+    t_Value const * x,
+    integer         incx,
+    t_Value *       res,
+    integer         incr
+  ) {
     copy( nblk*n+n+q, b, incb, res, incr );
     babd_mv( nblk, n, q, AdAu, H0, HN, Hq,
              t_Value(-1.0), x, incx, t_Value(1.0), res, incr );
   }
 
-  // ---------------------------------------------------------------------------
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   template <typename t_Value>
   inline
   void
-  babd_print( ostream_type  & stream,
-              integer         nblk,
-              integer         n,
-              integer         q,
-              t_Value const * AdAu,
-              t_Value const * H0,
-              t_Value const * HN,
-              t_Value const * Hq ) {
+  babd_print(
+    ostream_type  & stream,
+    integer         nblk,
+    integer         n,
+    integer         q,
+    t_Value const * AdAu,
+    t_Value const * H0,
+    t_Value const * HN,
+    t_Value const * Hq
+  ) {
     integer sizeBlock = 2*n*n;
     for ( integer k = 0; k < nblk; ++k ) {
       stream << "Block " << k+1 << '\n';
@@ -668,62 +694,74 @@ namespace alglin {
   */
   template <typename REAL>
   integer
-  getrx( integer M,
-         integer N,
-         REAL    A[],
-         integer LDA,
-         integer IPIV[],
-         integer NB );
+  getrx(
+    integer M,
+    integer N,
+    REAL    A[],
+    integer LDA,
+    integer IPIV[],
+    integer NB
+  );
 
   template <typename REAL>
   integer
-  getry( integer M,
-         integer N,
-         REAL    A[],
-         integer LDA,
-         integer IPIV[],
-         integer NB );
+  getry(
+    integer M,
+    integer N,
+    REAL    A[],
+    integer LDA,
+    integer IPIV[],
+    integer NB
+  );
 
   template <typename REAL>
   integer
-  gtx( integer M,
-       integer N,
-       REAL    A[],
-       integer LDA,
-       integer IPIV[] );
+  gtx(
+    integer M,
+    integer N,
+    REAL    A[],
+    integer LDA,
+    integer IPIV[]
+  );
 
   template <typename REAL>
   integer
-  gty( integer M,
-       integer N,
-       REAL    A[],
-       integer LDA,
-       integer IPIV[] );
+  gty(
+    integer M,
+    integer N,
+    REAL    A[],
+    integer LDA,
+    integer IPIV[]
+  );
 
   // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
   template <typename T>
   integer
-  equilibrate( integer M,
-               integer N,
-               T const A[],
-               integer LDA,
-               T       R[],
-               T       C[],
-               integer maxIter,
-               T       epsi );
+  equilibrate(
+    integer M,
+    integer N,
+    T const A[],
+    integer LDA,
+    T       R[],
+    T       C[],
+    integer maxIter,
+    T       epsi
+  );
 
   // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
   template <typename T>
   void
-  triTikhonov( integer N,
-               T const Tmat[],
-               integer LDT,
-               integer nrhs,
-               T       RHS[],
-               integer ldRHS,
-               T       lambda );
+  triTikhonov(
+    integer N,
+    T const Tmat[],
+    integer LDT,
+    integer nrhs,
+    T       RHS[],
+    integer ldRHS,
+    T       lambda
+  );
 
   inline
   bool
@@ -737,15 +775,17 @@ namespace alglin {
   template <typename T>
   inline
   void
-  outMATRIX( MatrixType const & MT,
-             integer            NR,
-             integer            NC,
-             T const            A[],
-             integer            LDA,
-             ostream_type     & s,
-             integer            prec = 4,
-             integer            rperm[] = nullptr,
-             integer            cperm[] = nullptr ) {
+  outMATRIX(
+    MatrixType const & MT,
+    integer            NR,
+    integer            NC,
+    T const            A[],
+    integer            LDA,
+    ostream_type     & s,
+    integer            prec = 4,
+    integer            rperm[] = nullptr,
+    integer            cperm[] = nullptr
+  ) {
     integer j0 = cperm == nullptr ? 0 : cperm[0]-1;
     for ( integer i = 0; i < NR; ++i ) {
       integer ii = rperm == nullptr ? i : rperm[i]-1;
@@ -768,11 +808,13 @@ namespace alglin {
   template <typename T>
   inline
   void
-  outMAPLE( integer        NR,
-            integer        NC,
-            T const        A[],
-            integer        LDA,
-            ostream_type & s ) {
+  outMAPLE(
+    integer        NR,
+    integer        NC,
+    T const        A[],
+    integer        LDA,
+    ostream_type & s
+  ) {
     s << "<";
     for ( integer j = 0; j < NC; ++j ) {
       s << "<" << std::setprecision(20) << A[j*LDA];

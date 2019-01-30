@@ -1067,6 +1067,8 @@ namespace alglin {
       copy( M, A + k*LDA, 1, B+k, LDB );
   }
 
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   inline
   void
   getranspose( integer          M,

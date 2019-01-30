@@ -89,11 +89,13 @@ namespace alglin {
 
   inline
   void
-  lartg( real   F,
-         real   G,
-         real & C,
-         real & S,
-         real & R )
+  lartg(
+    real   F,
+    real   G,
+    real & C,
+    real & S,
+    real & R
+  )
   #ifdef ALGLIN_USE_ACCELERATE
   { CLAPACKNAME(slartg)( &F, &G, &C, &S, &R ); }
   #elif defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS) ||  defined(ALGLIN_USE_ATLAS)
@@ -106,11 +108,13 @@ namespace alglin {
 
   inline
   void
-  lartg( doublereal   F,
-         doublereal   G,
-         doublereal & C,
-         doublereal & S,
-         doublereal & R )
+  lartg(
+    doublereal   F,
+    doublereal   G,
+    doublereal & C,
+    doublereal & S,
+    doublereal & R
+  )
   #ifdef ALGLIN_USE_ACCELERATE
   { CLAPACKNAME(dlartg)( &F, &G, &C, &S, &R ); }
   #elif defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS) ||  defined(ALGLIN_USE_ATLAS)
@@ -365,18 +369,20 @@ namespace alglin {
 
   inline
   integer
-  ormqr( SideMultiply  const & SIDE,
-         Transposition const & TRANS,
-         integer               M,
-         integer               N,
-         integer               K,
-         real const            A[],
-         integer               LDA,
-         real const            TAU[],
-         real                  C[],
-         integer               LDC,
-         real                  WORK[],
-         integer               LWORK )
+  ormqr(
+    SideMultiply  const & SIDE,
+    Transposition const & TRANS,
+    integer               M,
+    integer               N,
+    integer               K,
+    real const            A[],
+    integer               LDA,
+    real const            TAU[],
+    real                  C[],
+    integer               LDC,
+    real                  WORK[],
+    integer               LWORK
+  )
   { integer info = 0;
     #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS)
     LAPACK_F77NAME(sormqr)( side_blas[SIDE], trans_blas[TRANS],
@@ -405,18 +411,20 @@ namespace alglin {
 
   inline
   integer
-  ormqr( SideMultiply  const & SIDE,
-         Transposition const & TRANS,
-         integer               M,
-         integer               N,
-         integer               K,
-         doublereal const      A[],
-         integer               LDA,
-         doublereal const      TAU[],
-         doublereal            C[],
-         integer               LDC,
-         doublereal            WORK[],
-         integer               LWORK )
+  ormqr(
+    SideMultiply  const & SIDE,
+    Transposition const & TRANS,
+    integer               M,
+    integer               N,
+    integer               K,
+    doublereal const      A[],
+    integer               LDA,
+    doublereal const      TAU[],
+    doublereal            C[],
+    integer               LDC,
+    doublereal            WORK[],
+    integer               LWORK
+  )
   { integer info = 0;
     #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS)
     LAPACK_F77NAME(dormqr)( side_blas[SIDE], trans_blas[TRANS],
@@ -533,18 +541,20 @@ namespace alglin {
 
   inline
   integer
-  ormqr( SideMultiply  const & SIDE,
-         Transposition const & TRANS,
-         integer               M,
-         integer               N,
-         integer               K,
-         real                  A[],
-         integer               LDA,
-         real                  TAU[],
-         real                  C[],
-         integer               LDC,
-         real                  WORK[],
-         integer               LWORK )
+  ormqr(
+    SideMultiply  const & SIDE,
+    Transposition const & TRANS,
+    integer               M,
+    integer               N,
+    integer               K,
+    real                  A[],
+    integer               LDA,
+    real                  TAU[],
+    real                  C[],
+    integer               LDC,
+    real                  WORK[],
+    integer               LWORK
+  )
   { integer info = 0;
     #ifdef ALGLIN_USE_ACCELERATE
     CLAPACKNAME(sormqr)( const_cast<character*>(side_blas[SIDE]),
@@ -575,20 +585,24 @@ namespace alglin {
     return info;
   }
 
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   inline
   integer
-  ormqr( SideMultiply  const & SIDE,
-         Transposition const & TRANS,
-         integer               M,
-         integer               N,
-         integer               K,
-         doublereal            A[],
-         integer               LDA,
-         doublereal            TAU[],
-         doublereal            C[],
-         integer               LDC,
-         doublereal            WORK[],
-         integer               LWORK )
+  ormqr(
+    SideMultiply  const & SIDE,
+    Transposition const & TRANS,
+    integer               M,
+    integer               N,
+    integer               K,
+    doublereal            A[],
+    integer               LDA,
+    doublereal            TAU[],
+    doublereal            C[],
+    integer               LDC,
+    doublereal            WORK[],
+    integer               LWORK
+  )
   { integer info = 0;
     #ifdef ALGLIN_USE_ACCELERATE
     CLAPACKNAME(dormqr)( const_cast<character*>(side_blas[SIDE]),
@@ -734,15 +748,17 @@ namespace alglin {
 
   inline
   void
-  larft( DirectionType & DIRECT, // direct_blas[DIRECT]
-         StorageType   & STOREV, // store_blas[STOREV]
-         integer         N,
-         integer         K,
-         real            V[],
-         integer         LDV,
-         real            TAU[],
-         real            T[],
-         integer         LDT )
+  larft(
+    DirectionType & DIRECT, // direct_blas[DIRECT]
+    StorageType   & STOREV, // store_blas[STOREV]
+    integer         N,
+    integer         K,
+    real            V[],
+    integer         LDV,
+    real            TAU[],
+    real            T[],
+    integer         LDT
+  )
   #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
   { LAPACK_F77NAME(slarft)( direct_blas[DIRECT], store_blas[STOREV],
                             &N, &K, V, &LDV, TAU, T, &LDT ); }
@@ -757,17 +773,21 @@ namespace alglin {
   #error "Alglin undefined mapping!"
   #endif
 
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   inline
   void
-  larft( DirectionType & DIRECT, // direct_blas[DIRECT]
-         StorageType   & STOREV, // store_blas[STOREV]
-         integer         N,
-         integer         K,
-         doublereal      V[],
-         integer         LDV,
-         doublereal      TAU[],
-         doublereal      T[],
-         integer         LDT )
+  larft(
+    DirectionType & DIRECT, // direct_blas[DIRECT]
+    StorageType   & STOREV, // store_blas[STOREV]
+    integer         N,
+    integer         K,
+    doublereal      V[],
+    integer         LDV,
+    doublereal      TAU[],
+    doublereal      T[],
+    integer         LDT
+  )
   #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
   { LAPACK_F77NAME(dlarft)( direct_blas[DIRECT], store_blas[STOREV],
                             &N, &K, V, &LDV, TAU, T, &LDT ); }
@@ -846,11 +866,13 @@ namespace alglin {
 
   inline
   void
-  larfg( integer N,
-         real  & ALPHA,
-         real    X[],
-         integer INCX,
-         real    TAU[] )
+  larfg(
+    integer N,
+    real  & ALPHA,
+    real    X[],
+    integer INCX,
+    real    TAU[]
+  )
   #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
   { LAPACK_F77NAME(slarfg)( &N, &ALPHA, X, &INCX, TAU ); }
   #elif defined(ALGLIN_USE_MKL)
@@ -861,13 +883,17 @@ namespace alglin {
   #error "Alglin undefined mapping!"
   #endif
 
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   inline
   void
-  larfg( integer      N,
-         doublereal & ALPHA,
-         doublereal   X[],
-         integer      INCX,
-         doublereal   TAU[] )
+  larfg(
+    integer      N,
+    doublereal & ALPHA,
+    doublereal   X[],
+    integer      INCX,
+    doublereal   TAU[]
+  )
   #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
   { LAPACK_F77NAME(dlarfg)( &N, &ALPHA, X, &INCX, TAU ); }
   #elif defined(ALGLIN_USE_MKL)
@@ -980,21 +1006,23 @@ namespace alglin {
 
   inline
   void
-  larfb( SideMultiply  const & SIDE,
-         Transposition const & TRANS,
-         DirectionType const & DIRECT,
-         StorageType   const & STOREV,
-         integer               M,
-         integer               N,
-         integer               K,
-         real          const   V[],
-         integer               LDV,
-         real          const   T[],
-         integer               LDT,
-         real                  C[],
-         integer               LDC,
-         real                  WORK[],
-         integer               LDWORK )
+  larfb(
+    SideMultiply  const & SIDE,
+    Transposition const & TRANS,
+    DirectionType const & DIRECT,
+    StorageType   const & STOREV,
+    integer               M,
+    integer               N,
+    integer               K,
+    real          const   V[],
+    integer               LDV,
+    real          const   T[],
+    integer               LDT,
+    real                  C[],
+    integer               LDC,
+    real                  WORK[],
+    integer               LDWORK
+  )
   #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
   { LAPACK_F77NAME(slarfb)( side_blas[SIDE],
                             trans_blas[TRANS],
@@ -1024,21 +1052,23 @@ namespace alglin {
 
   inline
   void
-  larfb( SideMultiply  const & SIDE,
-         Transposition const & TRANS,
-         DirectionType const & DIRECT,
-         StorageType   const & STOREV,
-         integer               M,
-         integer               N,
-         integer               K,
-         doublereal    const   V[],
-         integer               LDV,
-         doublereal    const   T[],
-         integer               LDT,
-         doublereal            C[],
-         integer               LDC,
-         doublereal            WORK[],
-         integer               LDWORK )
+  larfb(
+    SideMultiply  const & SIDE,
+    Transposition const & TRANS,
+    DirectionType const & DIRECT,
+    StorageType   const & STOREV,
+    integer               M,
+    integer               N,
+    integer               K,
+    doublereal    const   V[],
+    integer               LDV,
+    doublereal    const   T[],
+    integer               LDT,
+    doublereal            C[],
+    integer               LDC,
+    doublereal            WORK[],
+    integer               LDWORK
+  )
   #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
   { LAPACK_F77NAME(dlarfb)(side_blas[SIDE],
                            trans_blas[TRANS],
@@ -1169,13 +1199,15 @@ namespace alglin {
 
   inline
   integer
-  geqrf( integer M,
-         integer N,
-         real    A[],
-         integer LDA,
-         real    TAU[],
-         real    WORK[],
-         integer LWORK )
+  geqrf(
+    integer M,
+    integer N,
+    real    A[],
+    integer LDA,
+    real    TAU[],
+    real    WORK[],
+    integer LWORK
+  )
   { integer info = 0;
     #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
     LAPACK_F77NAME(sgeqrf)( &M, &N, A, &LDA, TAU, WORK, &LWORK, &info );
@@ -1194,13 +1226,15 @@ namespace alglin {
 
   inline
   integer
-  geqrf( integer    M,
-         integer    N,
-         doublereal A[],
-         integer    LDA,
-         doublereal TAU[],
-         doublereal WORK[],
-         integer    LWORK )
+  geqrf(
+    integer    M,
+    integer    N,
+    doublereal A[],
+    integer    LDA,
+    doublereal TAU[],
+    doublereal WORK[],
+    integer    LWORK
+  )
   { integer info = 0;
     #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
     LAPACK_F77NAME(dgeqrf)( &M, &N, A, &LDA, TAU, WORK, &LWORK, &info );
@@ -1292,13 +1326,15 @@ namespace alglin {
 
   inline
   integer
-  geqr2( integer M,
-         integer N,
-         real    A[],
-         integer LDA,
-         real    TAU[],
-         real    WORK[] )
-  { integer info = 0;
+  geqr2(
+    integer M,
+    integer N,
+    real    A[],
+    integer LDA,
+    real    TAU[],
+    real    WORK[]
+  ) {
+    integer info = 0;
     #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
     LAPACK_F77NAME(sgeqr2)( &M, &N, A, &LDA, TAU, WORK, &info );
     #elif defined(ALGLIN_USE_MKL)
@@ -1313,13 +1349,15 @@ namespace alglin {
 
   inline
   integer
-  geqr2( integer    M,
-         integer    N,
-         doublereal A[],
-         integer    LDA,
-         doublereal TAU[],
-         doublereal WORK[] )
-  { integer info = 0;
+  geqr2(
+    integer    M,
+    integer    N,
+    doublereal A[],
+    integer    LDA,
+    doublereal TAU[],
+    doublereal WORK[]
+  ) {
+    integer info = 0;
     #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
     LAPACK_F77NAME(dgeqr2)( &M, &N, A, &LDA, TAU, WORK, &info );
     #elif defined(ALGLIN_USE_MKL)
@@ -1446,15 +1484,17 @@ namespace alglin {
 
   inline
   integer
-  geqp3( integer M,
-         integer N,
-         real    A[],
-         integer LDA,
-         integer JPVT[],
-         real    TAU[],
-         real    WORK[],
-         integer LWORK )
-  { integer info = 0;
+  geqp3(
+    integer M,
+    integer N,
+    real    A[],
+    integer LDA,
+    integer JPVT[],
+    real    TAU[],
+    real    WORK[],
+    integer LWORK
+  ) {
+    integer info = 0;
     #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS)
     LAPACK_F77NAME(sgeqp3)( &M, &N, A, &LDA, JPVT, TAU, WORK, &LWORK, &info );
     #elif defined(ALGLIN_USE_ATLAS)
@@ -1470,17 +1510,21 @@ namespace alglin {
     return info;
   }
 
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   inline
   integer
-  geqp3( integer    M,
-         integer    N,
-         doublereal A[],
-         integer    LDA,
-         integer    JPVT[],
-         doublereal TAU[],
-         doublereal WORK[],
-         integer    LWORK )
-  { integer info = 0;
+  geqp3(
+    integer    M,
+    integer    N,
+    doublereal A[],
+    integer    LDA,
+    integer    JPVT[],
+    doublereal TAU[],
+    doublereal WORK[],
+    integer    LWORK
+  ) {
+    integer info = 0;
     #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS)
     LAPACK_F77NAME(dgeqp3)( &M, &N, A, &LDA, JPVT, TAU, WORK, &LWORK, &info );
     #elif defined(ALGLIN_USE_ATLAS)
@@ -1622,14 +1666,16 @@ namespace alglin {
 
   inline
   integer
-  tzrzf( integer M,
-         integer N,
-         real    A[],
-         integer LDA,
-         real    TAU[],
-         real    WORK[],
-         integer LWORK )
-  { integer info = 0;
+  tzrzf(
+    integer M,
+    integer N,
+    real    A[],
+    integer LDA,
+    real    TAU[],
+    real    WORK[],
+    integer LWORK
+  ) {
+    integer info = 0;
     #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
     LAPACK_F77NAME(stzrzf)( &M, &N, A, &LDA, TAU, WORK, &LWORK, &info );
     #elif defined(ALGLIN_USE_MKL)
@@ -1642,16 +1688,20 @@ namespace alglin {
     return info;
   }
 
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   inline
   integer
-  tzrzf( integer    M,
-         integer    N,
-         doublereal A[],
-         integer    LDA,
-         doublereal TAU[],
-         doublereal WORK[],
-         integer    LWORK )
-  { integer info = 0;
+  tzrzf(
+    integer    M,
+    integer    N,
+    doublereal A[],
+    integer    LDA,
+    doublereal TAU[],
+    doublereal WORK[],
+    integer    LWORK
+  ) {
+    integer info = 0;
     #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
     LAPACK_F77NAME(dtzrzf)( &M, &N, A, &LDA, TAU, WORK, &LWORK, &info );
     #elif defined(ALGLIN_USE_MKL)
@@ -1809,20 +1859,22 @@ namespace alglin {
 
   inline
   integer
-  ormrz( SideMultiply  const & SIDE,
-         Transposition const & TRANS,
-         integer               M,
-         integer               N,
-         integer               K,
-         integer               L,
-         real const            A[],
-         integer               LDA,
-         real const            TAU[],
-         real                  C[],
-         integer               LDC,
-         real                  WORK[],
-         integer               LWORK )
-  { integer info = 0;
+  ormrz(
+    SideMultiply  const & SIDE,
+    Transposition const & TRANS,
+    integer               M,
+    integer               N,
+    integer               K,
+    integer               L,
+    real const            A[],
+    integer               LDA,
+    real const            TAU[],
+    real                  C[],
+    integer               LDC,
+    real                  WORK[],
+    integer               LWORK
+  ) {
+    integer info = 0;
     #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
     LAPACK_F77NAME(sormrz)( side_blas[SIDE],
                             trans_blas[TRANS],
@@ -1845,22 +1897,26 @@ namespace alglin {
     return info;
   }
 
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   inline
   integer
-  ormrz( SideMultiply  const & SIDE,
-         Transposition const & TRANS,
-         integer               M,
-         integer               N,
-         integer               K,
-         integer               L,
-         doublereal const      A[],
-         integer               LDA,
-         doublereal const      TAU[],
-         doublereal            C[],
-         integer               LDC,
-         doublereal            WORK[],
-         integer               LWORK )
-  { integer info = 0;
+  ormrz(
+    SideMultiply  const & SIDE,
+    Transposition const & TRANS,
+    integer               M,
+    integer               N,
+    integer               K,
+    integer               L,
+    doublereal const      A[],
+    integer               LDA,
+    doublereal const      TAU[],
+    doublereal            C[],
+    integer               LDC,
+    doublereal            WORK[],
+    integer               LWORK
+  ) {
+    integer info = 0;
     #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
     LAPACK_F77NAME(dormrz)( side_blas[SIDE],
                             trans_blas[TRANS],

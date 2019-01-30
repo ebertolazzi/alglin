@@ -118,6 +118,8 @@ namespace alglin {
     }
   };
 
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   class Barrier {
     int to_be_done, usedThread;
     std::mutex              mtx;

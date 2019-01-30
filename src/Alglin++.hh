@@ -1937,7 +1937,7 @@ namespace alglin {
     valueType *  Work;
     integer   ** B_permutation;
     integer   *  row_blocks;
-    bool         factorized;
+    bool         is_factorized;
 
   public:
 
@@ -1948,7 +1948,7 @@ namespace alglin {
     , allocIpointers("allocIpointers")
     , nBlocks(0)
     , nnz(0)
-    , factorized(false)
+    , is_factorized(false)
     {}
 
     virtual
@@ -1968,8 +1968,8 @@ namespace alglin {
     void
     zero();
 
-    valueType const * D( integer n ) const { return D_blocks[n]; }
-    valueType const * L( integer n ) const { return L_blocks[n]; }
+    //valueType const * D( integer n ) const { return D_blocks[n]; }
+    //valueType const * L( integer n ) const { return L_blocks[n]; }
 
     integer  numBlocks() const { return nBlocks; }
 
@@ -1979,23 +1979,44 @@ namespace alglin {
     integer  LnumRows( integer n ) const { return DnumRows(n+1); }
     integer  LnumCols( integer n ) const { return DnumCols(n); }
 
-    void setD( integer n, valueType const * data, integer ldData );
-    void setL( integer n, valueType const * data, integer ldData );
-
     void
     setD(
-      integer n,
-      valueType const * data, integer ldData,
-      integer beginRow, integer beginCol,
-      integer nrow, integer ncol
+      integer         n,
+      valueType const data[],
+      integer         ldData,
+      bool            transposed=false
     );
 
     void
     setL(
-      integer n,
-      valueType const * data, integer ldData,
-      integer beginRow, integer beginCol,
-      integer nrow, integer ncol
+      integer         n,
+      valueType const data[],
+      integer         ldData,
+      bool            transposed=false
+    );
+
+    void
+    setD(
+      integer         n,
+      valueType const data[],
+      integer         ldData,
+      integer         beginRow,
+      integer         beginCol,
+      integer         nrow,
+      integer         ncol,
+      bool            transposed=false
+    );
+
+    void
+    setL(
+      integer         n,
+      valueType const data[],
+      integer         ldData,
+      integer         beginRow,
+      integer         beginCol,
+      integer         nrow,
+      integer         ncol,
+      bool            transposed=false
     );
 
     void
@@ -2015,8 +2036,7 @@ namespace alglin {
 
     virtual
     void
-    t_solve( valueType xb[] ) const ALGLIN_OVERRIDE
-    { this->solve( xb ); }
+    t_solve( valueType xb[] ) const ALGLIN_OVERRIDE;
 
     virtual
     void
@@ -2028,8 +2048,7 @@ namespace alglin {
     void
     t_solve( integer   nrhs,
              valueType xb[],
-             integer   ldXB ) const ALGLIN_OVERRIDE
-    { this->solve( nrhs, xb, ldXB ); }
+             integer   ldXB ) const ALGLIN_OVERRIDE;
 
   };
 

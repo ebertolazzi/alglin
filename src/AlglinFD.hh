@@ -96,6 +96,8 @@ namespace alglin {
     return ok;
   }
 
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   template <typename FUNCTION, typename Number>
   inline
   void
@@ -144,7 +146,7 @@ namespace alglin {
       stream << "failed finite difference in `finite_difference_check_gradient`\n";
   }
 
-  // ---------------------------------------------------------------------------
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   template <typename Number>
   inline
@@ -233,6 +235,8 @@ namespace alglin {
     return ok;
   }
 
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   template <typename FUNCTION, typename Number>
   void
   finite_difference_check_jacobian(
@@ -296,6 +300,7 @@ namespace alglin {
   //  |  _  |  __/\__ \__ \ | (_| | | | |
   //  |_| |_|\___||___/___/_|\__,_|_| |_|
   */
+
   template <typename FUNCTION, typename Number>
   bool
   finite_difference_hessian(
@@ -350,6 +355,7 @@ namespace alglin {
     return ok;
   }
 
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   template <typename FUNCTION, typename Number>
   bool

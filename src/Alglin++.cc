@@ -1859,7 +1859,7 @@ namespace alglin {
     this->zero();
     this->nBlocks = nblks;
     std::copy( rBlocks, rBlocks+nblks+1, this->row_blocks );
-    factorized = false;
+    is_factorized = false;
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1889,17 +1889,19 @@ namespace alglin {
   template <typename T>
   void
   BlockTridiagonalSymmetic<T>::setD(
-    integer           n,
-    valueType const * data,
-    integer           ldData
+    integer         n,
+    valueType const data[],
+    integer         ldData,
+    bool            transposed
   ) {
-    integer ierr = gecopy( this->DnumRows(n),
-                           this->DnumCols(n),
-                           data, ldData,
-                           D_blocks[n],
-                           this->DnumRows(n) );
-    ALGLIN_ASSERT( ierr == 0,
-                   "BlockTridiagonalSymmetic::setD, gecopy return ierr = " << ierr );
+    integer nr = this->DnumRows(n);
+    if ( transposed ) {
+      getranspose( nr, nr, data, ldData, this->D_blocks[n], nr );
+    } else {
+      integer ierr = gecopy( nr, nr, data, ldData, this->D_blocks[n], nr );
+      ALGLIN_ASSERT( ierr == 0,
+                     "BlockTridiagonalSymmetic::setD, gecopy return ierr = " << ierr );
+    }
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1907,17 +1909,20 @@ namespace alglin {
   template <typename T>
   void
   BlockTridiagonalSymmetic<T>::setL(
-    integer           n,
-    valueType const * data,
-    integer           ldData
+    integer         n,
+    valueType const data[],
+    integer         ldData,
+    bool            transposed
   ) {
-    integer ierr = gecopy( this->LnumRows(n),
-                           this->LnumCols(n),
-                           data, ldData,
-                           L_blocks[n],
-                           this->LnumRows(n) );
-    ALGLIN_ASSERT( ierr == 0,
-                   "BlockTridiagonalSymmetic::setL, gecopy return ierr = " << ierr );
+    integer nr = this->LnumRows(n);
+    integer nc = this->LnumCols(n);
+    if ( transposed ) {
+      getranspose( nr, nc, data, ldData, this->L_blocks[n], nr );
+    } else {
+      integer ierr = gecopy( nr, nc, data, ldData, this->L_blocks[n], nr );
+      ALGLIN_ASSERT( ierr == 0,
+                     "BlockTridiagonalSymmetic::setL, gecopy return ierr = " << ierr );
+    }
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1931,14 +1936,19 @@ namespace alglin {
     integer           beginRow,
     integer           beginCol,
     integer           nrow,
-    integer           ncol
+    integer           ncol,
+    bool              transposed
   ) {
-    integer ldD  = this->DnumRows(n);
-    integer ierr = gecopy( nrow, ncol, data, ldData,
-                           D_blocks[n]+beginRow+beginCol*ldD,
-                           ldD );
-    ALGLIN_ASSERT( ierr == 0,
-                   "BlockTridiagonalSymmetic::setD (block), gecopy return ierr = " << ierr );
+    integer ldD = this->DnumRows(n);
+    valueType * D = D_blocks[n]+beginRow+beginCol*ldD;
+
+    if ( transposed ) {
+      getranspose( nrow, ncol, data, ldData, D, ldD );
+    } else {
+      integer ierr = gecopy( nrow, ncol, data, ldData, D, ldD );
+      ALGLIN_ASSERT( ierr == 0,
+                     "BlockTridiagonalSymmetic::setD (block), gecopy return ierr = " << ierr );
+    }
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1952,14 +1962,18 @@ namespace alglin {
     integer           beginRow,
     integer           beginCol,
     integer           nrow,
-    integer           ncol
+    integer           ncol,
+    bool              transposed
   ) {
-    integer ldL  = this->LnumRows(n);
-    integer ierr = gecopy( nrow, ncol, data, ldData,
-                           L_blocks[n]+beginRow+beginCol*ldL,
-                           ldL );
-    ALGLIN_ASSERT( ierr == 0,
-                   "BlockTridiagonalSymmetic::setL (block), gecopy return ierr = " << ierr );
+    integer ldL = this->LnumRows(n);
+    valueType * L = L_blocks[n]+beginRow+beginCol*ldL;
+    if ( transposed ) {
+      getranspose( nrow, ncol, data, ldData, L, ldL );
+    } else {
+      integer ierr = gecopy( nrow, ncol, data, ldData, L, ldL );
+      ALGLIN_ASSERT( ierr == 0,
+                     "BlockTridiagonalSymmetic::setL (block), gecopy return ierr = " << ierr );
+    }
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1967,7 +1981,7 @@ namespace alglin {
   template <typename T>
   void
   BlockTridiagonalSymmetic<T>::factorize() {
-    ALGLIN_ASSERT( !factorized,
+    ALGLIN_ASSERT( !is_factorized,
                    "BlockTridiagonalSymmetic::factorize, already factored" );
 
     integer info = alglin::getrf( this->DnumRows(0),
@@ -2010,7 +2024,7 @@ namespace alglin {
                      "BlockTridiagonalSymmetic::factorize getrf INFO = " << info );
 
     }
-    factorized = true;
+    is_factorized = true;
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -2018,7 +2032,8 @@ namespace alglin {
   template <typename T>
   void
   BlockTridiagonalSymmetic<T>::solve( valueType xb[] ) const {
-    ALGLIN_ASSERT( factorized, "BlockTridiagonalSymmetic::solve, matrix not factored" );
+    ALGLIN_ASSERT( is_factorized,
+                   "BlockTridiagonalSymmetic::solve, matrix not factored" );
 
     // RR{k} = RR{k}-LL{k-1}*RR{k-1};
     integer k = 0;
@@ -2026,7 +2041,7 @@ namespace alglin {
     valueType * xkm1 = xb, *xk;
     while ( ++k < this->nBlocks ) {
       nr1 = this->DnumRows(k);
-      valueType const * L0 = this->L(k-1);
+      valueType const * L0 = this->L_blocks[k-1];
       xk = xkm1 + nr0;
       gemv( NO_TRANSPOSE, nr1, nr0,
             -1.0, L0, nr1,
@@ -2041,7 +2056,7 @@ namespace alglin {
     for ( k = 0; k < this->nBlocks; ++k ) {
       nr1 = this->DnumRows(k);
       // solve
-      valueType const * D1 = this->D(k);
+      valueType const * D1 = this->D_blocks[k];
       integer info = getrs( NO_TRANSPOSE, nr1, 1, D1, nr1, B_permutation[k], xk, nr1 );
       ALGLIN_ASSERT( info == 0,
                      "BlockTridiagonalSymmetic::solve getrs INFO = " << info );
@@ -2052,7 +2067,7 @@ namespace alglin {
     xk -= nr1;
     while ( --k > 0 ) {
       nr0 = this->DnumRows(k-1);
-      valueType const * L0 = this->L(k-1);
+      valueType const * L0 = this->L_blocks[k-1];
       xkm1 = xk - nr0;
       gemv( TRANSPOSE, nr1, nr0,
             -1.0, L0, nr1,
@@ -2073,7 +2088,8 @@ namespace alglin {
     valueType B[],
     integer   ldB
   ) const {
-    ALGLIN_ASSERT( factorized, "BlockTridiagonalSymmetic::solve, matrix not factored" );
+    ALGLIN_ASSERT( is_factorized,
+                   "BlockTridiagonalSymmetic::solve, matrix not factored" );
 
     // RR{k} = RR{k}-LL{k-1}*RR{k-1};
     integer k = 0;
@@ -2081,7 +2097,7 @@ namespace alglin {
     valueType * Bkm1 = B, *Bk;
     while ( ++k < this->nBlocks ) {
       nr1 = this->DnumRows(k);
-      valueType const * L0 = this->L(k-1);
+      valueType const * L0 = this->L_blocks[k-1];
       Bk = Bkm1 + nr0;
       gemm( NO_TRANSPOSE, NO_TRANSPOSE, nr1, nrhs, nr0,
             -1.0, L0, nr1,
@@ -2096,7 +2112,7 @@ namespace alglin {
     for ( k = 0; k < this->nBlocks; ++k ) {
       nr1 = this->DnumRows(k);
       // solve
-      valueType const * D1 = this->D(k);
+      valueType const * D1 = this->D_blocks[k];
       integer info = getrs( NO_TRANSPOSE, nr1, nrhs,
                             D1, nr1, B_permutation[k],
                             Bk, ldB );
@@ -2109,7 +2125,7 @@ namespace alglin {
     Bk -= nr1;
     while ( --k > 0 ) {
       nr0 = this->DnumRows(k-1);
-      valueType const * L0 = this->L(k-1);
+      valueType const * L0 = this->L_blocks[k-1];
       Bkm1 = Bk - nr0;
       gemm( TRANSPOSE, NO_TRANSPOSE, nr0, nrhs, nr1, 
             -1.0, L0, nr1,
@@ -2119,6 +2135,25 @@ namespace alglin {
       Bk  = Bkm1;
       nr1 = nr0;
     }
+  }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  template <typename T>
+  void
+  BlockTridiagonalSymmetic<T>::t_solve( valueType xb[] ) const
+  { BlockTridiagonalSymmetic<T>::solve( xb ); }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  template <typename T>
+  void
+  BlockTridiagonalSymmetic<T>::t_solve(
+    integer   nrhs,
+    valueType xb[],
+    integer   ldXB
+  ) const {
+    BlockTridiagonalSymmetic<T>::solve( nrhs, xb, ldXB );
   }
 
   /*\
