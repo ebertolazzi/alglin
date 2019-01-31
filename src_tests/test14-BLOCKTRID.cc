@@ -181,7 +181,7 @@ test4() {
   std::vector<alglin::doublereal> vals, rhs1, rhs2;
 
   alglin::integer n      = 100000;
-  alglin::integer bksize = 10;
+  alglin::integer bksize = 50;
   alglin::integer nblk   = n/bksize-4;
   alglin::integer m      = n - bksize*nblk;
 
