@@ -144,16 +144,8 @@ test3() {
     cout << "x[ " << k << "] = " << rhs[k] << "\n";
 }
 
-
-#ifndef ALGLIN_USE_CXX11
-using namespace std;
-int
-main() {
-  cout << "To test timing you must compile with a C++11 capable compiler\nAll done!\n";
-  return 0;
-}
-#else
-#include "TicToc.hh"
+#ifdef ALGLIN_USE_CXX11
+  #include "TicToc.hh"
 #endif
 
 #include <random>
@@ -168,6 +160,7 @@ rand( alglin::doublereal xmin, alglin::doublereal xmax ) {
   return xmin + (xmax-xmin)*random;
 }
 
+#ifdef ALGLIN_USE_CXX11
 static
 void
 test4() {
@@ -250,7 +243,7 @@ test4() {
   cout << "||err||_i = " << maxerr << "\n";
 
 }
-
+#endif
 
 int
 main() {
@@ -260,9 +253,10 @@ main() {
   test2();
   cout << "\n\ntest3\n";
   test3();
+  #ifdef ALGLIN_USE_CXX11
   cout << "\n\ntest4\n";
   test4();
-
+  #endif
   cout << "All done!\n";
   return 0;
 }
