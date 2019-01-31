@@ -70,32 +70,14 @@ $(info $(USED_LIB))
 
 # check if the OS string contains 'Linux'
 ifneq (,$(findstring Linux, $(OS)))
-  WARN = -Wall
-  CC   = gcc
-  CXX  = g++
+  WARN   = -Wall
+  CC     = gcc
+  CXX    = g++ -std=c++11 -pthread
+  THREAD = ALGLIN_USE_THREAD
   #
   # activate C++11 for g++ >= 4.9
   #
   VERSION  = $(shell $(CC) -dumpversion)
-ifneq (,$(findstring 4.9, $(VERSION)))
-  CXX += -std=c++11 -pthread
-  THREAD = ALGLIN_USE_THREAD
-else
-ifneq (,$(findstring 5., $(VERSION)))
-  CXX += -std=c++11 -pthread
-  THREAD = ALGLIN_USE_THREAD
-else
-ifneq (,$(findstring 6., $(VERSION)))
-  CXX += -std=c++11 -pthread
-  THREAD = ALGLIN_USE_THREAD
-else
-  THREAD = ALGLIN_DO_NOT_USE_CXX11
-endif
-endif
-endif
-  #
-  #
-  #
   CC     += $(WARN)
   CXX    += $(WARN)
   AR      = ar rcs
