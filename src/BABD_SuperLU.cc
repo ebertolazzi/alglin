@@ -19,7 +19,7 @@
 
 #include "AlglinConfig.hh"
 
-#ifdef __GCC__
+#if defined(__GCC__) || defined(__GNUC__) 
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 #endif
 #ifdef __clang__

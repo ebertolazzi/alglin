@@ -71,7 +71,7 @@
   #define SIMPLEX_ASSERT(COND,MSG) if ( !(COND) ) SIMPLEX_ERROR(MSG);
 #endif
 
-#ifdef __GCC__
+#if defined(__GCC__) || defined(__GNUC__) 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wc++98-compat"
 #pragma GCC diagnostic ignored "-Wsign-conversion"
@@ -838,7 +838,7 @@ namespace Simplex {
 
 }
 
-#ifdef __GCC__
+#if defined(__GCC__) || defined(__GNUC__) 
 #pragma GCC diagnostic pop
 #endif
 #ifdef __clang__

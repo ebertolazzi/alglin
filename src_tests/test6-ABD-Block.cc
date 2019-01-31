@@ -24,7 +24,7 @@
 #include "Alglin_aux.hh"
 #include "ABD_Block.hh"
 
-#ifdef __GCC__
+#if defined(__GCC__) || defined(__GNUC__) 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 #pragma GCC diagnostic ignored "-Wc99-extensions"

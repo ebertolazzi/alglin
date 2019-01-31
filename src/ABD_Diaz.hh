@@ -214,7 +214,7 @@ namespace alglin {
 
   #ifdef ALGLIN_USE_CXX11
 
-  #ifdef __GCC__
+  #if defined(__GCC__) || defined(__GNUC__) 
   #pragma GCC diagnostic push
   #pragma GCC diagnostic ignored "-Wc++98-compat-pedantic"
   #pragma GCC diagnostic ignored "-Wweak-template-vtables"
@@ -228,7 +228,7 @@ namespace alglin {
   extern template class DiazLU<float>;
   extern template class DiazLU<double>;
 
-  #ifdef __GCC__
+  #if defined(__GCC__) || defined(__GNUC__) 
   #pragma GCC diagnostic pop
   #endif
   #ifdef __clang__

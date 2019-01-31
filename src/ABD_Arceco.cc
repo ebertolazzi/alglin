@@ -17,7 +17,7 @@
  |                                                                          |
 \*--------------------------------------------------------------------------*/
 
-#ifdef __GCC__
+#if defined(__GCC__) || defined(__GNUC__) 
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 #endif
 #ifdef __clang__
@@ -568,7 +568,7 @@ namespace alglin {
     }
   }
 
-  #ifdef __GCC__
+  #if defined(__GCC__) || defined(__GNUC__) 
   #pragma GCC diagnostic ignored "-Wpadded"
   #endif
   #ifdef __clang__

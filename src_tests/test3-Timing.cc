@@ -25,7 +25,7 @@
 #include "Alglin++.hh"
 #include "Alglin_tmpl.hh"
 
-#ifdef __GCC__
+#if defined(__GCC__) || defined(__GNUC__) 
 #pragma GCC diagnostic ignored "-Wc++98-compat"
 #pragma GCC diagnostic ignored "-Wc++98-compat-pedantic"
 #pragma GCC diagnostic ignored "-Wsign-conversion"
@@ -72,7 +72,7 @@ main() {
 #else
 #include "TicToc.hh"
 
-#ifdef __GCC__
+#if defined(__GCC__) || defined(__GNUC__) 
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 #pragma GCC diagnostic ignored "-Wc99-extensions"
 #pragma GCC diagnostic ignored "-Wzero-as-null-pointer-constant"

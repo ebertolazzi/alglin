@@ -24,7 +24,7 @@
 #include "Alglin++.hh"
 #include <vector>
 
-#ifdef __GCC__
+#if defined(__GCC__) || defined(__GNUC__) 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpadded"
 #pragma GCC diagnostic ignored "-Wc++98-compat"
@@ -664,7 +664,7 @@ namespace alglin {
   #endif
 }
 
-#ifdef __GCC__
+#if defined(__GCC__) || defined(__GNUC__) 
 #pragma GCC diagnostic pop
 #endif
 #ifdef __clang__

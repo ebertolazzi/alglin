@@ -262,7 +262,7 @@
 #elif defined(ALGLIN_USE_OPENBLAS)
   // workaround for OPENBLAS on OSX
   #ifdef ALGLIN_OS_OSX
-    #ifdef __GCC__
+    #if defined(__GCC__) || defined(__GNUC__) 
       #pragma GCC diagnostic ignored "-Wreserved-id-macro"
     #endif
     #ifdef __clang__
@@ -344,7 +344,7 @@
     if ( !(COND) ) ALGLIN_ERROR( "in alglin::" << MSG )
 #endif
 
-#ifdef __GCC__
+#if defined(__GCC__) || defined(__GNUC__) 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wundefined-func-template"
 #pragma GCC diagnostic ignored "-Wpartial-availability"
@@ -365,53 +365,72 @@ namespace alglin {
 
   typedef std::basic_ostream<char> ostream_type;
 
-  typedef enum { NO_TRANSPOSE        = 0,
-                 TRANSPOSE           = 1,
-                 CONJUGATE_TRANSPOSE = 2 } Transposition;
+  typedef enum {
+    NO_TRANSPOSE        = 0,
+    TRANSPOSE           = 1,
+    CONJUGATE_TRANSPOSE = 2
+  } Transposition;
 
-  typedef enum { UPPER = 0,
-                 LOWER = 1 } ULselect;
+  typedef enum {
+    UPPER = 0,
+    LOWER = 1
+  } ULselect;
 
-  typedef enum { UNIT     = 0,
-                 NON_UNIT = 1 } DiagonalType;
+  typedef enum {
+    UNIT     = 0,
+    NON_UNIT = 1
+  } DiagonalType;
 
-  typedef enum { LEFT  = 0,
-                 RIGHT = 1 } SideMultiply;
+  typedef enum {
+    LEFT  = 0,
+    RIGHT = 1
+  } SideMultiply;
 
-  typedef enum { NO_BALANCE        = 0, // 'N'
-                 PERMUTE_ONLY      = 1, // 'P'
-                 SCALE_ONLY        = 2, // 'S'
-                 PERMUTE_AND_SCALE = 3  // 'B'
-               } BalanceType;
+  typedef enum {
+    NO_BALANCE        = 0, // 'N'
+    PERMUTE_ONLY      = 1, // 'P'
+    SCALE_ONLY        = 2, // 'S'
+    PERMUTE_AND_SCALE = 3  // 'B'
+  } BalanceType;
 
-  typedef enum { ALL     = 0, // 'A'
-                 REDUCED = 1, // 'S'
-                 INPLACE = 2, // 'O'
-                 NO_JOB  = 3  // 'N'
-               } JobType;
+  typedef enum {
+    ALL     = 0, // 'A'
+    REDUCED = 1, // 'S'
+    INPLACE = 2, // 'O'
+    NO_JOB  = 3  // 'N'
+  } JobType;
 
-  typedef enum { NONE                         = 0, // 'N'
-                 EIGENVALUES_ONLY             = 1, // 'E'
-                 EIGENVECTORS_ONLY            = 2, // 'V'
-                 EIGENVALUES_AND_EIGENVECTORS = 3  // 'B'
-               } SenseType;
+  typedef enum {
+    NONE                         = 0, // 'N'
+    EIGENVALUES_ONLY             = 1, // 'E'
+    EIGENVECTORS_ONLY            = 2, // 'V'
+    EIGENVALUES_AND_EIGENVECTORS = 3  // 'B'
+  } SenseType;
 
-  typedef enum { FORWARD  = 0,
-                 BACKWARD = 1 } DirectionType;
+  typedef enum {
+    FORWARD  = 0,
+    BACKWARD = 1
+  } DirectionType;
 
-  typedef enum { COLUMNWISE = 0,
-                 ROWWISE    = 1 } StorageType;
+  typedef enum {
+    COLUMNWISE = 0,
+    ROWWISE    = 1
+  } StorageType;
 
-  typedef enum { FULL_MATRIX             = 0,
-                 LOWER_TRIANGULAR_MATRIX = 1,
-                 UPPER_TRIANGULAR_MATRIX = 2,
-                 HESSENBERG_MATRIX       = 3,
-                 BANDED_MATRIX           = 4 } MatrixType;
+  typedef enum {
+    FULL_MATRIX             = 0,
+    LOWER_TRIANGULAR_MATRIX = 1,
+    UPPER_TRIANGULAR_MATRIX = 2,
+    HESSENBERG_MATRIX       = 3,
+    BANDED_MATRIX           = 4
+  } MatrixType;
 
-  typedef enum { NO_EQUILIBRATE      = 0,
-                 EQUILIBRATE_ROWS    = 1,
-                 EQUILIBRATE_COLUMNS = 2,
-                 EQUILIBRATE_BOTH    = 3 } EquilibrationType;
+  typedef enum {
+    NO_EQUILIBRATE      = 0,
+    EQUILIBRATE_ROWS    = 1,
+    EQUILIBRATE_COLUMNS = 2,
+    EQUILIBRATE_BOTH    = 3
+  } EquilibrationType;
 
   #if defined(ALGLIN_USE_ACCELERATE)
     typedef __CLPK_integer    integer;
@@ -850,13 +869,15 @@ namespace alglin {
 
   inline
   integer
-  ilaenv( integer         ISPEC,
-          character const NAME[],
-          character const OPTS[],
-          integer         N1,
-          integer         N2,
-          integer         N3,
-          integer         N4 ) {
+  ilaenv(
+    integer         ISPEC,
+    character const NAME[],
+    character const OPTS[],
+    integer         N1,
+    integer         N2,
+    integer         N3,
+    integer         N4
+  ) {
     #ifdef ALGLIN_USE_ACCELERATE
     return CLAPACKNAME(ilaenv)( &ISPEC,
                                 const_cast<character*>(NAME),
@@ -978,15 +999,17 @@ namespace alglin {
 
   inline
   void
-  laic1( integer    JOB,
-         integer    J,
-         real const X[],
-         real       SEST,
-         real const W[],
-         real       GAMMA,
-         real     & SESTPR,
-         real     & S,
-         real     & C )
+  laic1(
+    integer    JOB,
+    integer    J,
+    real const X[],
+    real       SEST,
+    real const W[],
+    real       GAMMA,
+    real     & SESTPR,
+    real     & S,
+    real     & C
+  )
   #if defined(ALGLIN_USE_ACCELERATE)
   { CLAPACKNAME(slaic1)( &JOB, &J,
                          const_cast<real*>(X), &SEST,
@@ -1011,15 +1034,17 @@ namespace alglin {
 
   inline
   void
-  laic1( integer          JOB,
-         integer          J,
-         doublereal const X[],
-         doublereal       SEST,
-         doublereal const W[],
-         doublereal       GAMMA,
-         doublereal     & SESTPR,
-         doublereal     & S,
-         doublereal     & C )
+  laic1(
+    integer          JOB,
+    integer          J,
+    doublereal const X[],
+    doublereal       SEST,
+    doublereal const W[],
+    doublereal       GAMMA,
+    doublereal     & SESTPR,
+    doublereal     & S,
+    doublereal     & C
+  )
   #if defined(ALGLIN_USE_ACCELERATE)
   { CLAPACKNAME(dlaic1)( &JOB, &J,
                          const_cast<doublereal*>(X), &SEST,
@@ -1057,12 +1082,14 @@ namespace alglin {
 
   inline
   void
-  getranspose( integer    M,
-               integer    N,
-               real const A[],
-               integer    LDA,
-               real       B[],
-               integer    LDB ) {
+  getranspose(
+    integer    M,
+    integer    N,
+    real const A[],
+    integer    LDA,
+    real       B[],
+    integer    LDB
+  ) {
     for ( integer k = 0; k < N; ++k )
       copy( M, A + k*LDA, 1, B+k, LDB );
   }
@@ -1071,18 +1098,20 @@ namespace alglin {
 
   inline
   void
-  getranspose( integer          M,
-               integer          N,
-               doublereal const A[],
-               integer          LDA,
-               doublereal       B[],
-               integer          LDB ) {
+  getranspose(
+    integer          M,
+    integer          N,
+    doublereal const A[],
+    integer          LDA,
+    doublereal       B[],
+    integer          LDB
+  ) {
     for ( integer k = 0; k < N; ++k )
       copy( M, A + k*LDA, 1, B+k, LDB );
   }
 }
 
-#ifdef __GCC__
+#if defined(__GCC__) || defined(__GNUC__)
 #pragma GCC diagnostic pop
 #endif
 #ifdef __clang__

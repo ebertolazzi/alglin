@@ -271,7 +271,7 @@ namespace alglin {
 
   #ifdef ALGLIN_USE_CXX11
 
-  #ifdef __GCC__
+  #if defined(__GCC__) || defined(__GNUC__) 
   #pragma GCC diagnostic push
   #pragma GCC diagnostic ignored "-Wc++98-compat-pedantic"
   #endif
@@ -283,7 +283,7 @@ namespace alglin {
   extern template class ArcecoLU<float>;
   extern template class ArcecoLU<double>;
 
-  #ifdef __GCC__
+  #if defined(__GCC__) || defined(__GNUC__) 
   #pragma GCC diagnostic pop
   #endif
   #ifdef __clang__
