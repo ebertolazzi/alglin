@@ -27,19 +27,16 @@
 #include "AlglinConfig.hh"
 
 // Eigen3
-#if defined(__GCC__) || defined(__GNUC__) 
+#ifdef __GNUC__ 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wall"
 #pragma GCC diagnostic ignored "-Wold-style-cast"
-#pragma GCC diagnostic ignored "-Wdocumentation"
 #pragma GCC diagnostic ignored "-Wsign-conversion"
-#pragma GCC diagnostic ignored "-Wc99-extensions"
 #pragma GCC diagnostic ignored "-Wundef"
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 #pragma GCC diagnostic ignored "-Wunknown-pragmas"
 #pragma GCC diagnostic ignored "-Wconversion"
 #pragma GCC diagnostic ignored "-Wswitch-enum"
-#pragma GCC diagnostic ignored "-Wreserved-id-macro"
 #pragma GCC diagnostic ignored "-Wpadded"
 #endif
 #ifdef __clang__
@@ -80,7 +77,7 @@
 #undef dgemv_
 #undef xerbla_
 
-#if defined(__GCC__) || defined(__GNUC__) 
+#ifdef __GNUC__ 
 #pragma GCC diagnostic pop
 #endif
 #ifdef __clang__

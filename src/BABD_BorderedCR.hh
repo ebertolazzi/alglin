@@ -33,10 +33,9 @@
   #include "Alglin_threads.hh"
 #endif
 
-#if defined(__GCC__) || defined(__GNUC__) 
+#ifdef __GNUC__ 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpadded"
-#pragma GCC diagnostic ignored "-Wc++98-compat"
 #endif
 #ifdef __clang__
 #pragma clang diagnostic push
@@ -833,11 +832,6 @@ namespace alglin {
 
   #ifdef ALGLIN_USE_CXX11
 
-  #if defined(__GCC__) || defined(__GNUC__) 
-  #pragma GCC diagnostic push
-  #pragma GCC diagnostic ignored "-Wc++98-compat-pedantic"
-  #pragma GCC diagnostic ignored "-Wweak-template-vtables"
-  #endif
   #ifdef __clang__
   #pragma clang diagnostic push
   #pragma clang diagnostic ignored "-Wc++98-compat-pedantic"
@@ -847,9 +841,6 @@ namespace alglin {
   extern template class BorderedCR<float>;
   extern template class BorderedCR<double>;
 
-  #if defined(__GCC__) || defined(__GNUC__) 
-  #pragma GCC diagnostic pop
-  #endif
   #ifdef __clang__
   #pragma clang diagnostic pop
   #endif

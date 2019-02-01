@@ -262,9 +262,6 @@
 #elif defined(ALGLIN_USE_OPENBLAS)
   // workaround for OPENBLAS on OSX
   #ifdef ALGLIN_OS_OSX
-    #if defined(__GCC__) || defined(__GNUC__) 
-      #pragma GCC diagnostic ignored "-Wreserved-id-macro"
-    #endif
     #ifdef __clang__
       #pragma clang diagnostic ignored "-Wreserved-id-macro"
     #endif
@@ -344,13 +341,6 @@
     if ( !(COND) ) ALGLIN_ERROR( "in alglin::" << MSG )
 #endif
 
-#if defined(__GCC__) || defined(__GNUC__) 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wundefined-func-template"
-#pragma GCC diagnostic ignored "-Wpartial-availability"
-#pragma GCC diagnostic ignored "-Wc++98-compat"
-#pragma GCC diagnostic ignored "-Wc++98-compat-pedantic"
-#endif
 #ifdef __clang__
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundefined-func-template"
@@ -1111,9 +1101,6 @@ namespace alglin {
   }
 }
 
-#if defined(__GCC__) || defined(__GNUC__)
-#pragma GCC diagnostic pop
-#endif
 #ifdef __clang__
 #pragma clang diagnostic pop
 #endif

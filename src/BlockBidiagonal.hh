@@ -23,10 +23,9 @@
 #include "Alglin.hh"
 #include "Alglin++.hh"
 
-#if defined(__GCC__) || defined(__GNUC__) 
+#ifdef __GNUC__ 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpadded"
-#pragma GCC diagnostic ignored "-Wc++98-compat"
 #endif
 #ifdef __clang__
 #pragma clang diagnostic push

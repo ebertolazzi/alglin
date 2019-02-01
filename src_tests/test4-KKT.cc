@@ -27,11 +27,10 @@
 #include "TicToc.hh"
 #include "KKT_like.hh"
 
-#if defined(__GCC__) || defined(__GNUC__) 
+#ifdef __GNUC__ 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wsign-conversion"
-#pragma GCC diagnostic ignored "-Wc99-extensions"
-#pragma GCC diagnostic ignored "-Wglobal-constructors"
+#pragma GCC diagnostic ignored "-Wunused-variable"
 #endif
 #ifdef __clang__
 #pragma clang diagnostic push

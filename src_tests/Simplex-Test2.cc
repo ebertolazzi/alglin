@@ -34,11 +34,9 @@
 #include <vector>
 #include <iostream>
 
-#if defined(__GCC__) || defined(__GNUC__) 
+#ifdef __GNUC__ 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wsign-conversion"
-#pragma GCC diagnostic ignored "-Wc99-extensions"
-#pragma GCC diagnostic ignored "-Wglobal-constructors"
 #endif
 #ifdef __clang__
 #pragma clang diagnostic push

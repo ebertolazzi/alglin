@@ -19,9 +19,6 @@
 
 #include "BlockBidiagonal.hh"
 
-#if defined(__GCC__) || defined(__GNUC__) 
-#pragma GCC diagnostic ignored "-Wweak-template-vtables"
-#endif
 #ifdef __clang__
 #pragma clang diagnostic ignored "-Wweak-template-vtables"
 #endif

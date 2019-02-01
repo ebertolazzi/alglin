@@ -24,11 +24,9 @@
 #include "Alglin_aux.hh"
 #include "TicToc.hh"
 
-#if defined(__GCC__) || defined(__GNUC__) 
+#ifdef __GNUC__ 
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wc++98-compat"
 #pragma GCC diagnostic ignored "-Wsign-conversion"
-#pragma GCC diagnostic ignored "-Wglobal-constructors"
 #endif
 #ifdef __clang__
 #pragma clang diagnostic push

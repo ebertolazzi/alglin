@@ -196,11 +196,6 @@ namespace alglin {
 
   #ifdef ALGLIN_USE_CXX11
 
-  #if defined(__GCC__) || defined(__GNUC__) 
-  #pragma GCC diagnostic push
-  #pragma GCC diagnostic ignored "-Wc++98-compat-pedantic"
-  #pragma GCC diagnostic ignored "-Wweak-template-vtables"
-  #endif
   #ifdef __clang__
   #pragma clang diagnostic push
   #pragma clang diagnostic ignored "-Wc++98-compat-pedantic"
@@ -210,9 +205,6 @@ namespace alglin {
   extern template class BBlockLU<float>;
   extern template class BBlockLU<double>;
 
-  #if defined(__GCC__) || defined(__GNUC__) 
-  #pragma GCC diagnostic pop
-  #endif
   #ifdef __clang__
   #pragma clang diagnostic pop
   #endif

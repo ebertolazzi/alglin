@@ -25,7 +25,7 @@
 #include "Alglin++.hh"
 #include "AlglinSuperLU.hh"
 
-#if defined(__GCC__) || defined(__GNUC__) 
+#ifdef __GNUC__ 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpadded"
 #endif
@@ -150,7 +150,7 @@ namespace alglin {
   };
 }
 
-#if defined(__GCC__) || defined(__GNUC__) 
+#ifdef __GNUC__ 
 #pragma GCC diagnostic pop
 #endif
 #ifdef __clang__
