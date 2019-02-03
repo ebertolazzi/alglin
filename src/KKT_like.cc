@@ -87,7 +87,7 @@ namespace alglin {
       A_LU.load_sparse_sym( A_nnz, A_values, A_row, r_offs, A_col, c_offs );
     else
       A_LU.load_sparse( A_nnz, A_values, A_row, r_offs, A_col, c_offs );
-    A_LU.factorize();
+    A_LU.factorize( "KKT::load_A" );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -109,7 +109,7 @@ namespace alglin {
     } else {
       A_LU.load_block(n,n,A,ldA);
     }
-    A_LU.factorize();
+    A_LU.factorize( "KKT::load_A" );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -267,7 +267,7 @@ namespace alglin {
           Zmat, n,
           -1,
           Wmat, m );
-    W_LU.factorize();
+    W_LU.factorize( "KKT<::factorize<W>" );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -423,7 +423,7 @@ namespace alglin {
       A_banded_LU
     );
     pAsolver = &A_banded_LU;
-    A_banded_LU.factorize();
+    A_banded_LU.factorize( "KKT::load_banded" );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -450,7 +450,7 @@ namespace alglin {
       A_strid_LDL
     );
     pAsolver = &A_strid_LDL;
-    A_strid_LDL.factorize();
+    A_strid_LDL.factorize( "KKT::load_triblock" );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -477,7 +477,7 @@ namespace alglin {
       A_strid_LDL
     );
     pAsolver = &A_strid_LDL;
-    A_strid_LDL.factorize();
+    A_strid_LDL.factorize( "KKT::load_triblock" );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

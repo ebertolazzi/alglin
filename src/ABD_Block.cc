@@ -280,14 +280,14 @@ namespace alglin {
       this->la_factorization->zero_block(row00,N-n,0,n);
       this->la_factorization->load_block(row00,n,B+n_m_row00,n,0,0);
       this->la_factorization->load_block(rowN,N,this->blockN,rowN,row00,0);
-      this->la_factorization->factorize();
+      this->la_factorization->factorize( "BlockLU::factorize" );
     } else { // case nblock == 0
       integer N = row0+rowN;
       this->la_factorization->allocate(N,N);
       this->la_factorization->zero_block(N,N,0,0);
       this->la_factorization->load_block(row0,n+col00,this->block0,row0,0,0);
       this->la_factorization->load_block(rowN,n+colNN,this->blockN,rowN,row0,col00);
-      this->la_factorization->factorize();
+      this->la_factorization->factorize( "BlockLU::factorize[nblock=0]" );
     }
   }
 

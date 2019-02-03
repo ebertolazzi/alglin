@@ -55,7 +55,7 @@ test1() {
   BT.setL( 0, L0, 3 );
   BT.setL( 1, L1, 2 );
 
-  BT.factorize();
+  BT.factorize( "BT" );
 
   //BT.solve( rhs );
   BT.solve( 2, rhs, 7 );
@@ -105,7 +105,7 @@ test2() {
   for ( int k = 0; k < 20; ++k )
     BT(ii[k]-1,jj[k]-1) += vals[k];
 
-  BT.factorize();
+  BT.factorize( "BT" );
 
   //BT.solve( rhs );
   BT.solve( 2, rhs, 7 );
@@ -193,20 +193,24 @@ test4() {
   }
 
   tm.tic();
-  BT1.load_banded( n-m, m, bksize, bksize,
-                   &vals.front(),
-                   &ii.front(), 0,
-                   &jj.front(), 0,
-                   vals.size(), true );
+  BT1.load_banded(
+    n-m, m, bksize, bksize,
+    &vals.front(),
+    &ii.front(), 0,
+    &jj.front(), 0,
+    vals.size(), true
+  );
   tm.toc();
   cout << "LOAD1 = " << tm.elapsedMilliseconds() << " [ms]\n";
 
   tm.tic();
-  BT2.load_triblock( n-m, m, nblk, bksize,
-                     &vals.front(),
-                     &ii.front(), 0,
-                     &jj.front(), 0,
-                     vals.size(), true );
+  BT2.load_triblock(
+    n-m, m, nblk, bksize,
+    &vals.front(),
+    &ii.front(), 0,
+    &jj.front(), 0,
+    vals.size(), true
+  );
 
   tm.toc();
   cout << "LOAD2 = " << tm.elapsedMilliseconds() << " [ms]\n";

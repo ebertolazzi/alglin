@@ -57,7 +57,7 @@ main() {
     rhs[i+3] += L2[i]; BLU(i+3,i) = L2[i];
   }
 
-  BLU.factorize();
+  BLU.factorize("BLU");
   BLU.solve(rhs);
 
   for ( int i = 0; i < N; ++i )

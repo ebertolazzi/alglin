@@ -24,3 +24,4 @@ third_parties/Eigen3/eigen3
 third_parties/SuperLU/lib
 build
 AlglinSuperLU.hh
+.vscode

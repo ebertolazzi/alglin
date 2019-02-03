@@ -279,7 +279,7 @@ namespace alglin {
     }
 
     // fattorizzazione ultimo blocco
-    this->la_factorization->factorize();
+    this->la_factorization->factorize( "BlockBidiagonal::last_block_factorize" );
   }
 
   /*\
@@ -309,7 +309,10 @@ namespace alglin {
             Zmat, neq,
             -1,
             Dmat, nb );
-      bb_factorization->factorize( nb, nb, Dmat, nb );
+      bb_factorization->factorize(
+        "BlockBidiagonal::factorize_bordered",
+        nb, nb, Dmat, nb
+      );
     }
   }
 

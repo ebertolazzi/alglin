@@ -25,13 +25,12 @@
 #include "Alglin++.hh"
 #include "Alglin_tmpl.hh"
 
-#ifdef __GNUC__ 
+#ifdef __GNUC__
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 #pragma GCC diagnostic ignored "-Wold-style-cast"
 #pragma GCC diagnostic ignored "-Wmissing-noreturn"
 #pragma GCC diagnostic ignored "-Wfloat-equal"
 #pragma GCC diagnostic ignored "-Wdeprecated"
-#pragma GCC diagnostic ignored "-Wint-in-bool-context"
 #endif
 #ifdef __clang__
 #pragma clang diagnostic ignored "-Wc++98-compat"
@@ -64,7 +63,7 @@ main() {
 #else
 #include "TicToc.hh"
 
-#ifdef __GNUC__ 
+#ifdef __GNUC__
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 #pragma GCC diagnostic ignored "-Wzero-as-null-pointer-constant"
 #pragma GCC diagnostic ignored "-Wshadow"
@@ -121,14 +120,14 @@ testN() {
   valueType * M1 = baseValue(N*N);
   valueType * M2 = baseValue(N*N);
   valueType * M3 = baseValue(N*N);
-  
+
   matN_t m1, m2, m3;
   dmat_t dm1, dm2, dm3;
-  
+
   dm1.resize(N,N);
   dm2.resize(N,N);
   dm3.resize(N,N);
-  
+
   for ( int i = 0; i < N; ++i ) {
     for ( int j = 0; j < N; ++j ) {
       m1(i,j) = dm1(i,j) = M1[i+j*N] = rand(-1,1);

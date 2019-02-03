@@ -59,8 +59,8 @@ test1() {
   alglin::print_matrix( cout, M, N, A, M );
 
   cout << "Do QR factorization of A^T\n";
-  qr.t_factorize( M, N, A, LDA );
-  
+  qr.t_factorize( "qr", M, N, A, LDA );
+
   valueType R[M*M];
   qr.getR( R, M );
   cout << "R=\n";
@@ -107,8 +107,8 @@ test2() {
   alglin::print_matrix( cout, M, N, A, M );
 
   cout << "Do QR factorization of A^T\n";
-  qr.t_factorize( M, N, A, LDA );
-  
+  qr.t_factorize( "qr", M, N, A, LDA );
+
   valueType R[M*M];
   qr.getR( R, M );
   cout << "R=\n";
@@ -156,8 +156,8 @@ test3() {
   alglin::print_matrix( cout, M, N, A, M );
 
   cout << "Do QR factorization of A^T\n";
-  qr.t_factorize( M, N, A, LDA );
-  
+  qr.t_factorize( "qr", M, N, A, LDA );
+
   valueType R[M*M];
   qr.getR( R, M );
   cout << "R=\n";
@@ -188,7 +188,7 @@ test3() {
 
 #define TEST4(NAME,F) \
   cout << "\n\nDo " << NAME << " factorization of A\n"; \
-  F.factorize( M, M, A, LDA ); \
+  F.factorize( NAME, M, M, A, LDA ); \
   \
   cout << NAME << " solution of A x = b"; \
   alglin::copy( M, rhs, 1, x, 1 ); \
@@ -247,7 +247,7 @@ test4() {
 
 #define TEST5(NAME,F) \
   cout << "\n\nDo " << NAME << " factorization of A\n"; \
-  F.factorize( M, M, A, LDA ); \
+  F.factorize( NAME, M, M, A, LDA ); \
   \
   cout << NAME << " solution of A x = b"; \
   alglin::copy( M, rhs, 1, x, 1 ); \
@@ -326,7 +326,7 @@ test6() {
   cout << "\n\n\nTest6:\n\nInitial A\n";
 
   cout << "\n\nDo (trid) LU  factorization of A\n";
-  lu.factorize( N, L, D, U );
+  lu.factorize( "lu", N, L, D, U );
 
   cout << "(trid) LU solution of A x = b\n";
   alglin::copy( N, rhs, 1, x, 1 );
@@ -343,7 +343,7 @@ test6() {
 
 
   cout << "\n\nDo (trid) QR  factorization of A\n";
-  qr.factorize( N, L, D, U );
+  qr.factorize( "qr", N, L, D, U );
 
   cout << "(trid) QR solution of A x = b\n";
   alglin::copy( N, rhs, 1, x, 1 );
@@ -385,7 +385,7 @@ test7() {
   alglin::print_matrix( cout, M, M, A, M );
 
   cout << "\n\nDo QRP factorization of A\n";
-  qrp.factorize( M, M, A, LDA );
+  qrp.factorize( "qrp", M, M, A, LDA );
 
   cout << "QRP solution of A x = b";
   alglin::copy( M, rhs, 1, x, 1 );
@@ -405,8 +405,8 @@ test7() {
   qrp.allocate( M, M );
   qrp.load_block( 2, 5, A,   LDA, 0, 0 );
   qrp.load_block( 3, 5, A+2, LDA, 2, 0 );
-  qrp.factorize();
-  
+  qrp.factorize( "qrp" );
+
   cout << "QRP solution of A x = b";
   alglin::copy( M, rhs, 1, x, 1 );
   alglin::copy( M, rhs, 1, b, 1 );

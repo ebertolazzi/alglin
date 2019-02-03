@@ -275,7 +275,9 @@ namespace alglin {
 
     // fattorizzazione ultimo blocco
     valueType * D0 = this->blockN + row00 * rowN;
-    this->la_factorization->factorize(rowN,rowN,D0,rowN);
+    this->la_factorization->factorize(
+      "DiazLU::factorize", rowN, rowN, D0, rowN
+    );
   }
 
   /*\

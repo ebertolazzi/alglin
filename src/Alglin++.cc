@@ -73,10 +73,12 @@ namespace alglin {
   , data(_data)
   {
   #ifndef ALGLIN_NO_DEBUG
-    ALGLIN_ASSERT( nr >= 0 && nc >= 0 && ldData >= nr,
-                   "MatrixWrapper( data, nr=" << nr <<
-                   ", nc=" << nc << ", ld=" << ld <<
-                   ") bad dimensions" );
+    ALGLIN_ASSERT(
+      nr >= 0 && nc >= 0 && ldData >= nr,
+      "MatrixWrapper( data, nr=" << nr <<
+      ", nc=" << nc << ", ld=" << ld <<
+      ") bad dimensions"
+    );
   #endif
   }
 
@@ -95,10 +97,12 @@ namespace alglin {
     numCols = nc;
     ldData  = ld;
     #ifndef ALGLIN_NO_DEBUG
-    ALGLIN_ASSERT( nr >= 0 && nc >= 0 && ldData >= nr,
-                   "MatrixWrapper( data, nr=" << nr <<
-                   ", nc=" << nc << ", ld=" << ld <<
-                   ") bad dimensions" );
+    ALGLIN_ASSERT(
+      nr >= 0 && nc >= 0 && ldData >= nr,
+      "MatrixWrapper( data, nr=" << nr <<
+      ", nc=" << nc << ", ld=" << ld <<
+      ") bad dimensions"
+    );
     #endif
   }
 
@@ -107,10 +111,12 @@ namespace alglin {
   template <typename T>
   void
   MatrixWrapper<T>::check( MatW const & A ) const {
-    ALGLIN_ASSERT( A.numRows == numRows && A.numCols == numCols,
-                   "MatrixWrapper::check(A) size(A) = " <<
-                   A.numRows << " x " << A.numRows << " expected " <<
-                   numRows << " x " << numCols );
+    ALGLIN_ASSERT(
+      A.numRows == numRows && A.numCols == numCols,
+      "MatrixWrapper::check(A) size(A) = " <<
+      A.numRows << " x " << A.numRows << " expected " <<
+      numRows << " x " << numCols
+    );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -118,10 +124,12 @@ namespace alglin {
   template <typename T>
   void
   MatrixWrapper<T>::check( Sparse const & sp ) const {
-    ALGLIN_ASSERT( sp.numRows <= numRows && sp.numCols <= numCols,
-                   "MatrixWrapper::check(sp) size(sp) = " <<
-                   sp.numRows << " x " << sp.numRows <<
-                   " mus be contained in " << numRows << " x " << numCols );
+    ALGLIN_ASSERT(
+      sp.numRows <= numRows && sp.numCols <= numCols,
+      "MatrixWrapper::check(sp) size(sp) = " <<
+      sp.numRows << " x " << sp.numRows <<
+      " mus be contained in " << numRows << " x " << numCols
+    );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -130,8 +138,10 @@ namespace alglin {
   void
   MatrixWrapper<T>::load( valueType const data_in[], integer ldData_in ) {
     integer info = gecopy( numRows, numCols, data_in, ldData_in, data, ldData );
-    ALGLIN_ASSERT( info == 0,
-                   "MatrixWrapper::load call alglin::gecopy return info = " << info );
+    ALGLIN_ASSERT(
+      info == 0,
+      "MatrixWrapper::load call alglin::gecopy return info = " << info
+    );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -177,10 +187,12 @@ namespace alglin {
   template <typename T>
   void
   MatrixWrapper<T>::add( valueType const data_in[], integer ldData_in ) {
-    geadd( numRows, numCols,
-           1.0, data_in, ldData_in,
-           1.0, data, ldData,
-           data, ldData );
+    geadd(
+      numRows, numCols,
+      1.0, data_in, ldData_in,
+      1.0, data, ldData,
+      data, ldData
+    );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -473,20 +485,32 @@ namespace alglin {
 
   template <typename T>
   void
-  LU<T>::factorize() {
+  LU<T>::factorize( char const who[] ) {
     integer info = getrf( nRow, nCol, Amat, nRow, i_pivot );
-    ALGLIN_ASSERT( info == 0, "LU::factorize getrf INFO = " << info );
+    ALGLIN_ASSERT(
+      info == 0,
+      "LU::factorize[" << who << "] getrf INFO = " << info
+    );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   template <typename T>
   void
-  LU<T>::factorize( integer NR, integer NC, valueType const A[], integer LDA ) {
+  LU<T>::factorize(
+    char const      who[],
+    integer         NR,
+    integer         NC,
+    valueType const A[],
+    integer LDA
+  ) {
     allocate( NR, NC );
     integer info = gecopy( nRow, nCol, A, LDA, Amat, nRow );
-    ALGLIN_ASSERT( info == 0, "LU::factorize gecopy INFO = " << info );
-    factorize();
+    ALGLIN_ASSERT(
+      info == 0,
+      "LU::factorize[" << who << "] gecopy INFO = " << info
+    );
+    factorize( who );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -619,32 +643,48 @@ namespace alglin {
   template <typename T>
   void
   LUPQ<T>::check_ls( char const who[] ) const {
-    ALGLIN_ASSERT( nRow == nCol,
-                   "LUPQ<T>::" << who << ", rectangular matrix " <<
-                   nRow << " x " << nCol );
+    ALGLIN_ASSERT(
+      nRow == nCol,
+      "LUPQ<T>::" << who << ", rectangular matrix " <<
+      nRow << " x " << nCol );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   template <typename T>
   void
-  LUPQ<T>::factorize() {
+  LUPQ<T>::factorize( char const who[] ) {
     integer info = getc2( nRow, Amat, nRow, ipiv, jpiv );
-    ALGLIN_ASSERT( info == 0, "LUPQ::factorize getrf INFO = " << info );
+    ALGLIN_ASSERT(
+      info == 0,
+      "LUPQ::factorize[" << who << "] getrf INFO = " << info
+    );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   template <typename T>
   void
-  LUPQ<T>::factorize( integer NR, integer NC, valueType const A[], integer LDA ) {
-    ALGLIN_ASSERT( NR == NC,
-                   "LUPQ<T>::factorize, cannot factorize rectangular matrix " <<
-                   NR << " x " << NC );
+  LUPQ<T>::factorize(
+    char const      who[],
+    integer         NR,
+    integer         NC,
+    valueType const A[],
+    integer         LDA
+  ) {
+    ALGLIN_ASSERT(
+      NR == NC,
+      "LUPQ<T>::factorize[" << who << 
+      "], cannot factorize rectangular matrix " <<
+      NR << " x " << NC
+    );
     allocate( NR, NC );
     integer info = gecopy( nRow, nCol, A, LDA, Amat, nRow );
-    ALGLIN_ASSERT( info == 0, "LUPQ::factorize gecopy INFO = " << info );
-    factorize();
+    ALGLIN_ASSERT(
+      info == 0,
+      "LUPQ::factorize[" << who << "] gecopy INFO = " << info
+    );
+    factorize( who );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -759,8 +799,10 @@ namespace alglin {
     if ( nRow != NR || nCol != NC || Lwork < maxNrhs ) {
       valueType tmp; // get optimal allocation
       integer info = geqrf( NR, NC, nullptr, NR, nullptr, &tmp, -1 );
-      ALGLIN_ASSERT( info == 0,
-                     "QR::factorize call alglin::geqrf return info = " << info );
+      ALGLIN_ASSERT(
+        info == 0,
+        "QR::allocate call alglin::geqrf return info = " << info
+      );
       integer L = std::max( integer(tmp), maxNrhs );
       if ( L < NR ) L = NR;
       if ( L < NC ) L = NC;
@@ -868,8 +910,10 @@ namespace alglin {
     if ( nRow != NR || nCol != NC || Lwork < maxNrhs ) {
       valueType tmp; // get optimal allocation
       integer info = geqp3( NR, NC, nullptr, NR, nullptr, nullptr, &tmp, -1 );
-      ALGLIN_ASSERT( info == 0,
-                     "QRP::factorize call alglin::geqp3 return info = " << info );
+      ALGLIN_ASSERT(
+        info == 0,
+        "QRP::allocate call alglin::geqp3 return info = " << info
+      );
       integer L = std::max( integer(tmp), maxNrhs );
       if ( L < NR ) L = NR;
       if ( L < NC ) L = NC;
@@ -996,7 +1040,7 @@ namespace alglin {
 
   template <typename T>
   void
-  SVD<T>::factorize() {
+  SVD<T>::factorize( char const who[] ) {
     integer info;
     switch ( svd_used ) {
     case USE_GESVD:
@@ -1007,8 +1051,11 @@ namespace alglin {
                     Umat, nRow,
                     VTmat, minRC,
                     Work, Lwork );
-      ALGLIN_ASSERT( info == 0,
-                     "SVD::factorize call alglin::gesvd return info = " << info );
+      ALGLIN_ASSERT(
+        info == 0,
+        "SVD::factorize[" << who << 
+        "] call alglin::gesvd return info = " << info
+      );
       break;
     case USE_GESDD:
       info = gesdd( REDUCED,
@@ -1017,8 +1064,11 @@ namespace alglin {
                     Umat, nRow,
                     VTmat, minRC,
                     Work, Lwork, IWork );
-      ALGLIN_ASSERT( info == 0,
-                     "SVD::factorize call alglin::gesdd return info = " << info );
+      ALGLIN_ASSERT(
+        info == 0,
+        "SVD::factorize[" << who << 
+        "] call alglin::gesdd return info = " << info
+      );
       break;
     }
   }
@@ -1352,6 +1402,7 @@ namespace alglin {
   template <typename T>
   void
   TridiagonalSPD<T>::factorize(
+    char const      who[],
     integer         N,
     valueType const _L[],
     valueType const _D[]
@@ -1366,8 +1417,11 @@ namespace alglin {
     copy( N, _L, 1, L, 1 );
     copy( N, _D, 1, D, 1 );
     integer info = pttrf( N, L, D );
-    ALGLIN_ASSERT( info == 0,
-                   "TridiagonalSPD::factorize, return info = " << info );
+    ALGLIN_ASSERT(
+      info == 0,
+      "TridiagonalSPD::factorize[" << who << 
+      "], return info = " << info
+    );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1377,8 +1431,10 @@ namespace alglin {
   TridiagonalSPD<T>::cond1( valueType norm1 ) const {
     valueType rcond;
     integer info = ptcon1( nRC, D, L, norm1, rcond, WORK );
-    ALGLIN_ASSERT( info == 0,
-                   "TridiagonalSPD::cond1, return info = " << info );
+    ALGLIN_ASSERT(
+      info == 0,
+      "TridiagonalSPD::cond1, return info = " << info
+    );
     return rcond;
   }
 
@@ -1388,8 +1444,10 @@ namespace alglin {
   void
   TridiagonalSPD<T>::solve( valueType xb[] ) const {
     integer info = pttrs( nRC, 1, D, L, xb, nRC );
-    ALGLIN_ASSERT( info == 0,
-                   "TridiagonalSPD::solve, return info = " << info );
+    ALGLIN_ASSERT(
+      info == 0,
+      "TridiagonalSPD::solve, return info = " << info
+    );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1398,8 +1456,10 @@ namespace alglin {
   void
   TridiagonalSPD<T>::t_solve( valueType xb[] ) const {
     integer info = pttrs( nRC, 1, D, L, xb, nRC );
-    ALGLIN_ASSERT( info == 0,
-                   "TridiagonalSPD::solve, return info = " << info );
+    ALGLIN_ASSERT(
+      info == 0,
+      "TridiagonalSPD::solve, return info = " << info
+    );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1408,8 +1468,10 @@ namespace alglin {
   void
   TridiagonalSPD<T>::solve( integer nrhs, valueType xb[], integer ldXB ) const {
     integer info = pttrs( nRC, nrhs, D, L, xb, ldXB );
-    ALGLIN_ASSERT( info == 0,
-                   "TridiagonalSPD::solve, return info = " << info );
+    ALGLIN_ASSERT(
+      info == 0,
+      "TridiagonalSPD::solve, return info = " << info
+    );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1418,7 +1480,10 @@ namespace alglin {
   void
   TridiagonalSPD<T>::t_solve( integer nrhs, valueType xb[], integer ldXB ) const {
     integer info = pttrs( nRC, nrhs, D, L, xb, ldXB );
-    ALGLIN_ASSERT( info == 0, "TridiagonalSPD::solve, return info = " << info );
+    ALGLIN_ASSERT(
+      info == 0, 
+      "TridiagonalSPD::solve, return info = " << info
+    );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1449,6 +1514,7 @@ namespace alglin {
   template <typename T>
   void
   TridiagonalLU<T>::factorize(
+    char const      who[],
     integer         N,
     valueType const _L[],
     valueType const _D[],
@@ -1470,8 +1536,11 @@ namespace alglin {
     copy( N, _D, 1, D, 1 );
     copy( N, _U, 1, U, 1 );
     integer info = gttrf( N, L, D, U, U2, IPIV );
-    ALGLIN_ASSERT( info == 0,
-                   "TridiagonalLU::factorize, return info = " << info );
+    ALGLIN_ASSERT(
+      info == 0,
+      "TridiagonalLU::factorize[" << who << 
+      "], return info = " << info
+    );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1481,8 +1550,10 @@ namespace alglin {
   TridiagonalLU<T>::cond1( valueType norm1 ) const {
     valueType rcond;
     integer info = gtcon1( nRC, L, D, U, U2, IPIV, norm1, rcond, WORK, IWORK );
-    ALGLIN_ASSERT( info == 0,
-                   "TridiagonalLU::cond1, return info = " << info );
+    ALGLIN_ASSERT(
+      info == 0,
+      "TridiagonalLU::cond1, return info = " << info
+    );
     return rcond;
   }
 
@@ -1493,8 +1564,10 @@ namespace alglin {
   TridiagonalLU<T>::condInf( valueType normInf ) const {
     valueType rcond;
     integer info = gtconInf( nRC, L, D, U, U2, IPIV, normInf, rcond, WORK, IWORK );
-    ALGLIN_ASSERT( info == 0,
-                   "TridiagonalLU::cond1, return info = " << info );
+    ALGLIN_ASSERT(
+      info == 0,
+      "TridiagonalLU::cond1, return info = " << info
+    );
     return rcond;
   }
 
@@ -1504,8 +1577,10 @@ namespace alglin {
   void
   TridiagonalLU<T>::solve( valueType xb[] ) const {
     integer info = gttrs( NO_TRANSPOSE, nRC, 1, L, D, U, U2, IPIV, xb, nRC );
-    ALGLIN_ASSERT( info == 0,
-                   "TridiagonalLU::solve, return info = " << info );
+    ALGLIN_ASSERT(
+      info == 0,
+      "TridiagonalLU::solve, return info = " << info
+    );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1514,8 +1589,10 @@ namespace alglin {
   void
   TridiagonalLU<T>::t_solve( valueType xb[] ) const {
     integer info = gttrs( TRANSPOSE, nRC, 1, L, D, U, U2, IPIV, xb, nRC );
-    ALGLIN_ASSERT( info == 0,
-                   "TridiagonalLU::solve, return info = " << info );
+    ALGLIN_ASSERT(
+      info == 0,
+      "TridiagonalLU::solve, return info = " << info
+    );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1524,8 +1601,10 @@ namespace alglin {
   void
   TridiagonalLU<T>::solve( integer nrhs, valueType xb[], integer ldXB ) const {
     integer info = gttrs( NO_TRANSPOSE, nRC, nrhs, L, D, U, U2, IPIV, xb, ldXB );
-    ALGLIN_ASSERT( info == 0,
-                   "TridiagonalLU::solve, return info = " << info );
+    ALGLIN_ASSERT(
+      info == 0,
+      "TridiagonalLU::solve, return info = " << info
+    );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1534,8 +1613,10 @@ namespace alglin {
   void
   TridiagonalLU<T>::t_solve( integer nrhs, valueType xb[], integer ldXB ) const {
     integer info = gttrs( TRANSPOSE, nRC, nrhs, L, D, U, U2, IPIV, xb, ldXB );
-    ALGLIN_ASSERT( info == 0,
-                   "TridiagonalLU::solve, return info = " << info );
+    ALGLIN_ASSERT(
+      info == 0,
+      "TridiagonalLU::solve, return info = " << info
+    );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1568,6 +1649,7 @@ namespace alglin {
   template <typename T>
   void
   TridiagonalQR<T>::factorize(
+    char const      /* who */[],
     integer         N,
     valueType const L[],
     valueType const D[],
@@ -1870,7 +1952,7 @@ namespace alglin {
     rBlocks.reserve(nblks+1);
     integer n = 0;
     for ( integer k = 0; k <= nblks; ++k, n += block_size )
-       rBlocks.push_back(n);
+      rBlocks.push_back(n);
     this->setup( nblks, &rBlocks.front() );
   }
 
@@ -2075,18 +2157,24 @@ namespace alglin {
 
   template <typename T>
   void
-  BlockTridiagonalSymmetic<T>::factorize() {
-    ALGLIN_ASSERT( !is_factorized,
-                   "BlockTridiagonalSymmetic::factorize, already factored" );
+  BlockTridiagonalSymmetic<T>::factorize( char const who[] ) {
+    ALGLIN_ASSERT(
+      !is_factorized,
+      "BlockTridiagonalSymmetic::factorize[" << who << 
+      "], already factored"
+    );
 
-    integer info = alglin::getrf( this->DnumRows(0),
-                                  this->DnumCols(0),
-                                  this->D_blocks[0],
-                                  this->DnumRows(0),
-                                  B_permutation[0] );
+    integer info = alglin::getrf(
+      this->DnumRows(0), this->DnumCols(0),
+      this->D_blocks[0], this->DnumRows(0),
+      B_permutation[0]
+    );
 
-    ALGLIN_ASSERT( info == 0,
-                   "BlockTridiagonalSymmetic::factorize getrf INFO = " << info );
+    ALGLIN_ASSERT(
+      info == 0,
+      "BlockTridiagonalSymmetic::factorize[" << who << 
+      "] getrf INFO = " << info
+    );
 
     for ( integer k=1; k < this->nBlocks; ++k ) {
       integer nr0 = this->DnumRows(k-1);
@@ -2098,8 +2186,11 @@ namespace alglin {
       getranspose( nr1, nr0, L0, nr1, Work, nr0 );
       // solve
       info = getrs( TRANSPOSE, nr0, nr1, D0, nr0, B_permutation[k-1], Work, nr0 );
-      ALGLIN_ASSERT( info == 0,
-                     "BlockTridiagonalSymmetic::factorize getrs INFO = " << info );
+      ALGLIN_ASSERT(
+        info == 0,
+        "BlockTridiagonalSymmetic::factorize[" << who << 
+        "] getrs INFO = " << info
+      );
 
       // DD{k}   = DD{k} - (LL{k-1}*DD{k-1}) *LL{k-1}.';
 
@@ -2115,8 +2206,11 @@ namespace alglin {
 
       info = getrf( nr1, nr1, D1, nr1, B_permutation[k] );
 
-      ALGLIN_ASSERT( info == 0,
-                     "BlockTridiagonalSymmetic::factorize getrf INFO = " << info );
+      ALGLIN_ASSERT(
+        info == 0,
+        "BlockTridiagonalSymmetic::factorize[" << who << 
+        "] getrf INFO = " << info
+      );
 
     }
     is_factorized = true;
@@ -2127,8 +2221,10 @@ namespace alglin {
   template <typename T>
   void
   BlockTridiagonalSymmetic<T>::solve( valueType xb[] ) const {
-    ALGLIN_ASSERT( is_factorized,
-                   "BlockTridiagonalSymmetic::solve, matrix not factored" );
+    ALGLIN_ASSERT(
+      is_factorized,
+      "BlockTridiagonalSymmetic::solve, matrix not factored"
+    );
 
     // RR{k} = RR{k}-LL{k-1}*RR{k-1};
     integer k = 0;
@@ -2348,11 +2444,20 @@ namespace alglin {
 
   template <typename T>
   void
-  BandedLU<T>::factorize() {
-    ALGLIN_ASSERT( !is_factorized, "BandedLU::solve, matrix yet factorized" );
-    ALGLIN_ASSERT( m == n, "BandedLU::solve, matrix must be square" );
+  BandedLU<T>::factorize( char const      who[] ) {
+    ALGLIN_ASSERT(
+      !is_factorized,
+      "BandedLU::factorize[" << who << "], matrix yet factorized"
+    );
+    ALGLIN_ASSERT(
+      m == n,
+      "BandedLU::factorize[" << who << "], matrix must be square"
+    );
     integer info = gbtrf( m, n, nL, nU, AB, ldAB, ipiv );
-    ALGLIN_ASSERT( info == 0, "BandedLU::factorize, info = " << info );
+    ALGLIN_ASSERT(
+      info == 0,
+      "BandedLU::factorize[" << who << "], info = " << info
+    );
     is_factorized = true;
   }
 
@@ -2408,15 +2513,19 @@ namespace alglin {
 
   template <typename T>
   void
-  BandedLU<T>::load_block( integer         nr,
-                           integer         nc,
-                           valueType const B[],
-                           integer         ldB,
-                           integer         irow,
-                           integer         icol ) {
+  BandedLU<T>::load_block(
+    integer         nr,
+    integer         nc,
+    valueType const B[],
+    integer         ldB,
+    integer         irow,
+    integer         icol
+  ) {
 
-    ALGLIN_ASSERT( !is_factorized,
-                   "BandedLU::load_block, matrix is factorized" );
+    ALGLIN_ASSERT(
+      !is_factorized,
+      "BandedLU::load_block, matrix is factorized"
+    );
 
     #if 1
     for ( integer r = 0; r < nr; ++r )
@@ -2569,12 +2678,16 @@ namespace alglin {
 
   template <typename T>
   void
-  BandedSPD<T>::factorize() {
-    ALGLIN_ASSERT( !is_factorized,
-                   "BandedSPD::solve, matrix yet factorized" );
+  BandedSPD<T>::factorize( char const who[] ) {
+    ALGLIN_ASSERT(
+      !is_factorized,
+      "BandedSPD::factorize[" << who << "], matrix yet factorized"
+    );
     integer info = pbtrf( UPLO, n, nD, AB, ldAB );
-    ALGLIN_ASSERT( info == 0,
-                   "BandedSPD::factorize, info = " << info );
+    ALGLIN_ASSERT(
+      info == 0,
+      "BandedSPD::factorize[" << who << "], info = " << info
+    );
     is_factorized = true;
   }
 

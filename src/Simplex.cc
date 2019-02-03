@@ -477,7 +477,7 @@ namespace Simplex {
         integer nnz = problem->load_A_column( j, values, i_row );
         lu.load_sparse_column( nnz, values, i_row, j );
       }
-      lu.factorize();
+      lu.factorize( "StandardSolver::solve<lu>" );
       problem->load_b( x );
       lu.t_solve( x );
       // check solution
@@ -562,7 +562,7 @@ namespace Simplex {
       // 1.  QR decomposition of AB (without pivoting)
       // 2.  compute dual variable Y from  AB' * Y = CB  <=>  R' * Z = CB, Z = Q' * Y
       // 2B. compute Y = Q * Z
-      qr.factorize();
+      qr.factorize( "StandardSolver::solve<qr>" );
       integer rank = qr.rankEstimate(relaxedEpsilon);
       SIMPLEX_ASSERT( rank == m,
                       "Error in Simplex: Basis Matrix Singular, rank = " <<

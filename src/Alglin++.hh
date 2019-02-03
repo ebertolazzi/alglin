@@ -38,21 +38,21 @@
 #endif
 
 /*\
- |    ____            _       _             __
- |   / ___| _     _  (_)_ __ | |_ ___ _ __ / _| __ _  ___ ___
- |  | |   _| |_ _| |_| | '_ \| __/ _ \ '__| |_ / _` |/ __/ _ \
- |  | |__|_   _|_   _| | | | | ||  __/ |  |  _| (_| | (_|  __/
- |   \____||_|   |_| |_|_| |_|\__\___|_|  |_|  \__,_|\___\___|
+:|:    ____            _       _             __
+:|:   / ___| _     _  (_)_ __ | |_ ___ _ __ / _| __ _  ___ ___
+:|:  | |   _| |_ _| |_| | '_ \| __/ _ \ '__| |_ / _` |/ __/ _ \
+:|:  | |__|_   _|_   _| | | | | ||  __/ |  |  _| (_| | (_|  __/
+:|:   \____||_|   |_| |_|_| |_|\__\___|_|  |_|  \__,_|\___\___|
 \*/
 
 namespace alglin {
 
   /*\
-   |   __  __       _ _
-   |  |  \/  | __ _| | | ___   ___
-   |  | |\/| |/ _` | | |/ _ \ / __|
-   |  | |  | | (_| | | | (_) | (__
-   |  |_|  |_|\__,_|_|_|\___/ \___|
+  :|:   __  __       _ _
+  :|:  |  \/  | __ _| | | ___   ___
+  :|:  | |\/| |/ _` | | |/ _ \ / __|
+  :|:  | |  | | (_| | | | (_) | (__
+  :|:  |_|  |_|\__,_|_|_|\___/ \___|
   \*/
 
   //! Allocate memory
@@ -151,12 +151,14 @@ namespace alglin {
 
   template <typename T>
   integer
-  rankEstimate( integer M,
-                integer N,
-                T       A[],
-                integer LDA,
-                T       RCOND,
-                T       SVAL[3] );
+  rankEstimate(
+    integer M,
+    integer N,
+    T       A[],
+    integer LDA,
+    T       RCOND,
+    T       SVAL[3]
+  );
 
   //! base class for linear system solver
   template <typename T>
@@ -173,11 +175,11 @@ namespace alglin {
     {}
 
     /*\
-     |         _      _               _
-     |  __   _(_)_ __| |_ _   _  __ _| |___
-     |  \ \ / / | '__| __| | | |/ _` | / __|
-     |   \ V /| | |  | |_| |_| | (_| | \__ \
-     |    \_/ |_|_|   \__|\__,_|\__,_|_|___/
+    :|:         _      _               _
+    :|:  __   _(_)_ __| |_ _   _  __ _| |___
+    :|:  \ \ / / | '__| __| | | |/ _` | / __|
+    :|:   \ V /| | |  | |_| |_| | (_| | \__ \
+    :|:    \_/ |_|_|   \__|\__,_|\__,_|_|___/
     \*/
 
     virtual
@@ -213,11 +215,11 @@ namespace alglin {
   };
 
   /*\
-   |   _____          _             _          _   _
-   |  |  ___|_ _  ___| |_ ___  _ __(_)______ _| |_(_) ___  _ __
-   |  | |_ / _` |/ __| __/ _ \| '__| |_  / _` | __| |/ _ \| '_ \
-   |  |  _| (_| | (__| || (_) | |  | |/ / (_| | |_| | (_) | | | |
-   |  |_|  \__,_|\___|\__\___/|_|  |_/___\__,_|\__|_|\___/|_| |_|
+  :|:   _____          _             _          _   _
+  :|:  |  ___|_ _  ___| |_ ___  _ __(_)______ _| |_(_) ___  _ __
+  :|:  | |_ / _` |/ __| __/ _ \| '__| |_  / _` | __| |/ _ \| '_ \
+  :|:  |  _| (_| | (__| || (_) | |  | |/ / (_| | |_| | (_) | | | |
+  :|:  |_|  \__,_|\___|\__\___/|_|  |_/___\__,_|\__|_|\___/|_| |_|
   \*/
 
   template <typename T>
@@ -251,13 +253,13 @@ namespace alglin {
     valueType const * Apointer() const { return Amat; }
 
     /*!
-     |  Zeroes a rectangular block of the stored matrix
-     |  staring at `(irow,icol)` position
-     |
-     |  \param[in] nr    number of rows of the block to be zeroed
-     |  \param[in] nc    number of columns of the block to be zeroed
-     |  \param[in] irow  starting row
-     |  \param[in] icol  stating column
+    :|:  Zeroes a rectangular block of the stored matrix
+    :|:  staring at `(irow,icol)` position
+    :|:
+    :|:  \param[in] nr    number of rows of the block to be zeroed
+    :|:  \param[in] nc    number of columns of the block to be zeroed
+    :|:  \param[in] irow  starting row
+    :|:  \param[in] icol  stating column
     \*/
     void
     zero_block(
@@ -270,31 +272,35 @@ namespace alglin {
     }
 
     /*!
-     |  Copy a matrix to a rectangular block of the stored matrix
-     |  staring at `(irow,icol)` position
-     |
-     |  \param[in] B     matrix wrapper of the input matrix `B`
+    :|:  Copy a matrix to a rectangular block of the stored matrix
+    :|:  staring at `(irow,icol)` position
+    :|:
+    :|:  \param[in] B     matrix wrapper of the input matrix `B`
     \*/
     void
     load( MatrixWrapper<T> const & B ) {
       allocate( B.numRows, B.numCols );
-      integer info = gecopy( B.numRows, B.numCols,
-                             B.data, B.ldData,
-                             Amat, nRow );
-      ALGLIN_ASSERT( info == 0,
-                     "block_load call alglin::gecopy return info = " << info );
+      integer info = gecopy(
+        B.numRows, B.numCols,
+        B.data, B.ldData,
+        Amat, nRow
+      );
+      ALGLIN_ASSERT(
+        info == 0,
+        "block_load call alglin::gecopy return info = " << info
+      );
     }
 
     /*!
-     |  Copy a matrix to a rectangular block of the stored matrix
-     |  staring at `(irow,icol)` position
-     |
-     |  \param[in] nr    number of rows of the block to be zeroed
-     |  \param[in] nc    number of columns of the block to be zeroed
-     |  \param[in] B     pointer to memory storing the input matrix `B`
-     |  \param[in] ldB   leading dimension of the matrix `B`
-     |  \param[in] irow  starting row
-     |  \param[in] icol  stating column
+    :|:  Copy a matrix to a rectangular block of the stored matrix
+    :|:  staring at `(irow,icol)` position
+    :|:
+    :|:  \param[in] nr    number of rows of the block to be zeroed
+    :|:  \param[in] nc    number of columns of the block to be zeroed
+    :|:  \param[in] B     pointer to memory storing the input matrix `B`
+    :|:  \param[in] ldB   leading dimension of the matrix `B`
+    :|:  \param[in] irow  starting row
+    :|:  \param[in] icol  stating column
     \*/
     void
     load_block(
@@ -305,39 +311,43 @@ namespace alglin {
       integer         irow = 0,
       integer         icol = 0
     ) {
-      integer info = gecopy( nr, nc,
-                             B, ldB,
-                             Amat + irow + icol * nRow, nRow );
-      ALGLIN_ASSERT( info == 0,
-                     "block_load call alglin::gecopy return info = " << info );
+      integer info = gecopy(
+        nr, nc,
+        B, ldB,
+        Amat + irow + icol * nRow, nRow
+      );
+      ALGLIN_ASSERT(
+        info == 0,
+        "block_load call alglin::gecopy return info = " << info
+      );
     }
 
     /*!
-     |  Copy vector `column` to the `icol`th column of the internal stored matrix
-     |  \param[in] column the column vector
-     |  \param[in] icol   the column to be changed
+    :|:  Copy vector `column` to the `icol`th column of the internal stored matrix
+    :|:  \param[in] column the column vector
+    :|:  \param[in] icol   the column to be changed
     \*/
     void
     load_column( valueType const column[], integer icol )
     { copy( nRow, column, 1, Amat + icol * nRow, 1 ); }
 
     /*!
-     |  Copy vector `row` to the `irow`th row of the internal stored matrix
-     |  \param[in] row  the row vector
-     |  \param[in] irow the row to be changed
+    :|:  Copy vector `row` to the `irow`th row of the internal stored matrix
+    :|:  \param[in] row  the row vector
+    :|:  \param[in] irow the row to be changed
     \*/
     void
     load_row( valueType const row[], integer irow )
     { copy( nRow, row, 1, Amat + irow, nRow ); }
 
     /*!
-     |  Copy vector element of a sparse vector to a column of
-     |  the internal stored matrix
-     |  \param[in] nnz    number of nonzeros of the columns
-     |  \param[in] values the values of the sparse vector
-     |  \param[in] row    index position of the values of the sparse vector
-     |  \param[in] icol   the column to be changed
-     |  \param[in] offs   offset for the index, 0 for C based vector -1 for FORTRAN based vector
+    :|:  Copy vector element of a sparse vector to a column of
+    :|:  the internal stored matrix
+    :|:  \param[in] nnz    number of nonzeros of the columns
+    :|:  \param[in] values the values of the sparse vector
+    :|:  \param[in] row    index position of the values of the sparse vector
+    :|:  \param[in] icol   the column to be changed
+    :|:  \param[in] offs   offset for the index, 0 for C based vector -1 for FORTRAN based vector
     \*/
     void
     load_sparse_column(
@@ -353,13 +363,13 @@ namespace alglin {
     }
 
     /*!
-     |  Copy vector element of a sparse vector to a row of the
-     |  internal stored matrix
-     |  \param[in] nnz    number of nonzeros of the columns
-     |  \param[in] values the values of the sparse vector
-     |  \param[in] col    index position of the values of the sparse vector
-     |  \param[in] irow   the column to be changed
-     |  \param[in] offs   offset for the index, 0 for C based vector -1 for FORTRAN based vector
+    :|:  Copy vector element of a sparse vector to a row of the
+    :|:  internal stored matrix
+    :|:  \param[in] nnz    number of nonzeros of the columns
+    :|:  \param[in] values the values of the sparse vector
+    :|:  \param[in] col    index position of the values of the sparse vector
+    :|:  \param[in] irow   the column to be changed
+    :|:  \param[in] offs   offset for the index, 0 for C based vector -1 for FORTRAN based vector
     \*/
     void
     load_sparse_row(
@@ -375,11 +385,11 @@ namespace alglin {
     }
 
     /*!
-     |  Copy a sparse matrix into the internal stored matrix
-     |  \param[in] nnz    number of nonzeros of the columns
-     |  \param[in] values the values of the sparse vector
-     |  \param[in] row    index row position of the values of the sparse vector
-     |  \param[in] col    index column position of the values of the sparse vector
+    :|:  Copy a sparse matrix into the internal stored matrix
+    :|:  \param[in] nnz    number of nonzeros of the columns
+    :|:  \param[in] values the values of the sparse vector
+    :|:  \param[in] row    index row position of the values of the sparse vector
+    :|:  \param[in] col    index column position of the values of the sparse vector
     \*/
     void
     load_sparse(
@@ -394,13 +404,13 @@ namespace alglin {
     }
 
     /*!
-     |  Copy a sparse matrix into the internal stored matrix
-     |  \param[in] nnz    number of nonzeros of the columns
-     |  \param[in] values the values of the sparse vector
-     |  \param[in] row    index row position of the values of the sparse vector
-     |  \param[in] r_offs offset for the index, 0 for C based vector -1 for FORTRAN based vector
-     |  \param[in] col    index column position of the values of the sparse vector
-     |  \param[in] c_offs offset for the index, 0 for C based vector -1 for FORTRAN based vector
+    :|:  Copy a sparse matrix into the internal stored matrix
+    :|:  \param[in] nnz    number of nonzeros of the columns
+    :|:  \param[in] values the values of the sparse vector
+    :|:  \param[in] row    index row position of the values of the sparse vector
+    :|:  \param[in] r_offs offset for the index, 0 for C based vector -1 for FORTRAN based vector
+    :|:  \param[in] col    index column position of the values of the sparse vector
+    :|:  \param[in] c_offs offset for the index, 0 for C based vector -1 for FORTRAN based vector
     \*/
     void
     load_sparse(
@@ -415,14 +425,14 @@ namespace alglin {
     }
 
     /*!
-     |  Copy a sparse matrix into the internal stored matrix.
-     |  The matrix is assumed symmetric and only the lower or upper
-     |  part is passed.
-     |
-     |  \param[in] nnz    number of nonzeros of the columns
-     |  \param[in] values the values of the sparse vector
-     |  \param[in] row    index row position of the values of the sparse vector
-     |  \param[in] col    index column position of the values of the sparse vector
+    :|:  Copy a sparse matrix into the internal stored matrix.
+    :|:  The matrix is assumed symmetric and only the lower or upper
+    :|:  part is passed.
+    :|:
+    :|:  \param[in] nnz    number of nonzeros of the columns
+    :|:  \param[in] values the values of the sparse vector
+    :|:  \param[in] row    index row position of the values of the sparse vector
+    :|:  \param[in] col    index column position of the values of the sparse vector
     \*/
     void
     load_sparse_sym(
@@ -441,16 +451,16 @@ namespace alglin {
     }
 
     /*!
-     |  Copy a sparse matrix into the internal stored matrix.
-     |  The matrix is assumed symmetric and only the lower or upper
-     |  part is passed.
-     |
-     |  \param[in] nnz    number of nonzeros of the columns
-     |  \param[in] values the values of the sparse vector
-     |  \param[in] row    index row position of the values of the sparse vector
-     |  \param[in] r_offs offset for the index, 0 for C based vector -1 for FORTRAN based vector
-     |  \param[in] col    index column position of the values of the sparse vector
-     |  \param[in] c_offs offset for the index, 0 for C based vector -1 for FORTRAN based vector
+    :|:  Copy a sparse matrix into the internal stored matrix.
+    :|:  The matrix is assumed symmetric and only the lower or upper
+    :|:  part is passed.
+    :|:
+    :|:  \param[in] nnz    number of nonzeros of the columns
+    :|:  \param[in] values the values of the sparse vector
+    :|:  \param[in] row    index row position of the values of the sparse vector
+    :|:  \param[in] r_offs offset for the index, 0 for C based vector -1 for FORTRAN based vector
+    :|:  \param[in] col    index column position of the values of the sparse vector
+    :|:  \param[in] c_offs offset for the index, 0 for C based vector -1 for FORTRAN based vector
     \*/
     void
     load_sparse_sym(
@@ -474,11 +484,11 @@ namespace alglin {
     }
 
     /*\
-     |         _      _               _
-     |  __   _(_)_ __| |_ _   _  __ _| |___
-     |  \ \ / / | '__| __| | | |/ _` | / __|
-     |   \ V /| | |  | |_| |_| | (_| | \__ \
-     |    \_/ |_|_|   \__|\__,_|\__,_|_|___/
+    :|:         _      _               _
+    :|:  __   _(_)_ __| |_ _   _  __ _| |___
+    :|:  \ \ / / | '__| __| | | |/ _` | / __|
+    :|:   \ V /| | |  | |_| |_| | (_| | \__ \
+    :|:    \_/ |_|_|   \__|\__,_|\__,_|_|___/
     \*/
 
     virtual
@@ -487,11 +497,12 @@ namespace alglin {
 
     virtual
     void
-    factorize() ALGLIN_PURE_VIRTUAL;
+    factorize( char const who[] ) ALGLIN_PURE_VIRTUAL;
 
     virtual
     void
     factorize(
+      char const      who[],
       integer         NR,
       integer         NC,
       valueType const A[],
@@ -499,18 +510,18 @@ namespace alglin {
     ) ALGLIN_PURE_VIRTUAL;
 
     void
-    factorize( MatrixWrapper<valueType> const & M )
-    { factorize( M.numRows, M.numCols, M.data,  M.ldData ); }
+    factorize( char const who[], MatrixWrapper<valueType> const & M )
+    { factorize( who, M.numRows, M.numCols, M.data,  M.ldData ); }
 
   };
 
   //============================================================================
   /*\
-   |   _    _   _
-   |  | |  | | | |
-   |  | |  | | | |
-   |  | |__| |_| |
-   |  |_____\___/
+  :|:   _    _   _
+  :|:  | |  | | | |
+  :|:  | |  | | | |
+  :|:  | |__| |_| |
+  :|:  |_____\___/
   \*/
 
   template <typename T>
@@ -548,11 +559,11 @@ namespace alglin {
     valueType condInf( valueType normInf ) const;
 
     /*\
-     |         _      _               _
-     |  __   _(_)_ __| |_ _   _  __ _| |___
-     |  \ \ / / | '__| __| | | |/ _` | / __|
-     |   \ V /| | |  | |_| |_| | (_| | \__ \
-     |    \_/ |_|_|   \__|\__,_|\__,_|_|___/
+    :|:         _      _               _
+    :|:  __   _(_)_ __| |_ _   _  __ _| |___
+    :|:  \ \ / / | '__| __| | | |/ _` | / __|
+    :|:   \ V /| | |  | |_| |_| | (_| | \__ \
+    :|:    \_/ |_|_|   \__|\__,_|\__,_|_|___/
     \*/
 
     virtual
@@ -561,11 +572,12 @@ namespace alglin {
 
     virtual
     void
-    factorize() ALGLIN_OVERRIDE;
+    factorize( char const who[] ) ALGLIN_OVERRIDE;
 
     virtual
     void
     factorize(
+      char const      who[],
       integer         NR,
       integer         NC,
       valueType const A[],
@@ -600,11 +612,11 @@ namespace alglin {
 
   //============================================================================
   /*\
-   |   _    _   _ ____   ___
-   |  | |  | | | |  _ \ / _ \
-   |  | |  | | | | |_) | | | |
-   |  | |__| |_| |  __/| |_| |
-   |  |_____\___/|_|    \__\_\
+  :|:   _    _   _ ____   ___
+  :|:  | |  | | | |  _ \ / _ \
+  :|:  | |  | | | | |_) | | | |
+  :|:  | |__| |_| |  __/| |_| |
+  :|:  |_____\___/|_|    \__\_\
   \*/
   template <typename T>
   class LUPQ : public Factorization<T> {
@@ -637,11 +649,11 @@ namespace alglin {
     virtual ~LUPQ() ALGLIN_OVERRIDE;
 
     /*\
-     |         _      _               _
-     |  __   _(_)_ __| |_ _   _  __ _| |___
-     |  \ \ / / | '__| __| | | |/ _` | / __|
-     |   \ V /| | |  | |_| |_| | (_| | \__ \
-     |    \_/ |_|_|   \__|\__,_|\__,_|_|___/
+    :|:         _      _               _
+    :|:  __   _(_)_ __| |_ _   _  __ _| |___
+    :|:  \ \ / / | '__| __| | | |/ _` | / __|
+    :|:   \ V /| | |  | |_| |_| | (_| | \__ \
+    :|:    \_/ |_|_|   \__|\__,_|\__,_|_|___/
     \*/
 
     virtual
@@ -650,11 +662,12 @@ namespace alglin {
 
     virtual
     void
-    factorize() ALGLIN_OVERRIDE;
+    factorize( char const who[] ) ALGLIN_OVERRIDE;
 
     virtual
     void
     factorize(
+      char const      who[],
       integer         NR,
       integer         NC,
       valueType const A[],
@@ -689,11 +702,11 @@ namespace alglin {
 
   //============================================================================
   /*\
-   |    ___  ____
-   |   / _ \|  _ \
-   |  | | | | |_) |
-   |  | |_| |  _ <
-   |   \__\_\_| \_\
+  :|:    ___  ____
+  :|:   / _ \|  _ \
+  :|:  | | | | |_) |
+  :|:  | |_| |  _ <
+  :|:   \__\_\_| \_\
   \*/
 
   template <typename T>
@@ -753,11 +766,11 @@ namespace alglin {
     allocate( integer nr, integer nc, integer Lwrk );
 
     /*\
-     |  overwrites the general real M-by-N matrix C with
-     |
-     |                  SIDE = 'L'     SIDE = 'R'
-     |  TRANS = 'N':      Q * C          C * Q
-     |  TRANS = 'T':      Q**T * C       C * Q**T
+    :|:  overwrites the general real M-by-N matrix C with
+    :|:
+    :|:  SIDE = 'L'     SIDE = 'R'
+    :|:  TRANS = 'N':      Q * C          C * Q
+    :|:  TRANS = 'T':      Q**T * C       C * Q**T
     \*/
     void
     applyQ(
@@ -876,6 +889,7 @@ namespace alglin {
     \*/
     void
     t_factorize(
+      char const      who[],
       integer         NR,
       integer         NC,
       valueType const A[],
@@ -884,15 +898,15 @@ namespace alglin {
       allocate( NC, NR );
       for ( integer i = 0; i < NR; ++i )
         copy( NC, A+i, LDA, Amat + i*nRow, 1 );
-      factorize();
+      factorize( who );
     }
 
     /*\
-     |         _      _               _
-     |  __   _(_)_ __| |_ _   _  __ _| |___
-     |  \ \ / / | '__| __| | | |/ _` | / __|
-     |   \ V /| | |  | |_| |_| | (_| | \__ \
-     |    \_/ |_|_|   \__|\__,_|\__,_|_|___/
+    :|:         _      _               _
+    :|:  __   _(_)_ __| |_ _   _  __ _| |___
+    :|:  \ \ / / | '__| __| | | |/ _` | / __|
+    :|:   \ V /| | |  | |_| |_| | (_| | \__ \
+    :|:    \_/ |_|_|   \__|\__,_|\__,_|_|___/
     \*/
 
     virtual
@@ -901,24 +915,28 @@ namespace alglin {
 
     virtual
     void
-    factorize() ALGLIN_OVERRIDE {
-      integer info = geqrf( nRow, nCol,
-                            Amat, nRow,
-                            Tau, Work, Lwork );
-      ALGLIN_ASSERT( info == 0,
-                     "QR::factorize call alglin::geqrf return info = " << info );
+    factorize( char const who[] ) ALGLIN_OVERRIDE {
+      integer info = geqrf(
+        nRow, nCol, Amat, nRow, Tau, Work, Lwork
+      );
+      ALGLIN_ASSERT(
+        info == 0,
+        "QR::factorize[" << who << 
+        "] call alglin::geqrf return info = " << info
+      );
     }
 
     /*!
-     |  Do QR factorization of a rectangular matrix
-     |  \param NR  number of rows of the matrix
-     |  \param NC  number of columns of the matrix
-     |  \param A   pointer to the matrix
-     |  \param LDA Leading dimension of the matrix
+    :|:  Do QR factorization of a rectangular matrix
+    :|:  \param NR  number of rows of the matrix
+    :|:  \param NC  number of columns of the matrix
+    :|:  \param A   pointer to the matrix
+    :|:  \param LDA Leading dimension of the matrix
     \*/
     virtual
     void
     factorize(
+      char const      who[],
       integer         NR,
       integer         NC,
       valueType const A[],
@@ -926,15 +944,18 @@ namespace alglin {
     ) ALGLIN_OVERRIDE {
       allocate( NR, NC );
       integer info = gecopy( NR, NC, A, LDA, Amat, nRow );
-      ALGLIN_ASSERT( info == 0,
-                     "QR::factorize call alglin::gecopy return info = " << info );
-      factorize();
+      ALGLIN_ASSERT(
+        info == 0,
+        "QR::factorize[" << who << 
+        "] call alglin::gecopy return info = " << info
+      );
+      factorize( who );
     }
 
     /*!
-     |  In case of QR factorization of a square matrix solve the
-     |  linear system \f$ QR x = b \f$
-     |  \param xb on input the rhs of linear system on output the solution
+    :|:  In case of QR factorization of a square matrix solve the
+    :|:  linear system \f$ QR x = b \f$
+    :|:  \param xb on input the rhs of linear system on output the solution
     \*/
     virtual
     void
@@ -1033,9 +1054,11 @@ namespace alglin {
       valueType C[],
       integer   ldC
     ) const {
-      ALGLIN_ASSERT( nr == nRow,
-                     "QRP::permute_rows, bad number of row, expected " <<
-                     nRow << " find " << nr );
+      ALGLIN_ASSERT(
+        nr == nRow,
+        "QRP::permute_rows, bad number of row, expected " <<
+        nRow << " find " << nr
+      );
       for ( integer j = 0; j < nc; ++j ) permute( C + ldC*j );
     }
 
@@ -1046,9 +1069,11 @@ namespace alglin {
       valueType C[],
       integer   ldC
     ) const {
-      ALGLIN_ASSERT( nr == nRow,
-                     "QRP::permute_rows, bad number of row, expected " <<
-                     nRow << " find " << nr );
+      ALGLIN_ASSERT(
+        nr == nRow,
+        "QRP::permute_rows, bad number of row, expected " <<
+        nRow << " find " << nr
+      );
       for ( integer j = 0; j < nc; ++j ) inv_permute( C + ldC*j );
     }
 
@@ -1061,14 +1086,15 @@ namespace alglin {
     }
 
     /*!
-     |  Do QR factorization with column pivoting of the transpose of a rectangular matrix
-     |  \param NR  number of rows of the matrix
-     |  \param NC  number of columns of the matrix
-     |  \param A   pointer to the matrix
-     |  \param LDA Leading dimension of the matrix
+    :|:  Do QR factorization with column pivoting of the transpose of a rectangular matrix
+    :|:  \param NR  number of rows of the matrix
+    :|:  \param NC  number of columns of the matrix
+    :|:  \param A   pointer to the matrix
+    :|:  \param LDA Leading dimension of the matrix
     \*/
     void
     t_factorize(
+      char const      who[],
       integer         NR,
       integer         NC,
       valueType const A[],
@@ -1078,15 +1104,15 @@ namespace alglin {
       this->allocate( NC, NR );
       for ( integer i = 0; i < NR; ++i )
         copy( NC, A+i, LDA, Amat + i*nRow, 1 );
-      factorize();
+      factorize( who );
     }
 
     /*\
-     |         _      _               _
-     |  __   _(_)_ __| |_ _   _  __ _| |___
-     |  \ \ / / | '__| __| | | |/ _` | / __|
-     |   \ V /| | |  | |_| |_| | (_| | \__ \
-     |    \_/ |_|_|   \__|\__,_|\__,_|_|___/
+    :|:         _      _               _
+    :|:  __   _(_)_ __| |_ _   _  __ _| |___
+    :|:  \ \ / / | '__| __| | | |/ _` | / __|
+    :|:   \ V /| | |  | |_| |_| | (_| | \__ \
+    :|:    \_/ |_|_|   \__|\__,_|\__,_|_|___/
     \*/
 
     virtual
@@ -1095,27 +1121,29 @@ namespace alglin {
 
     virtual
     void
-    factorize() ALGLIN_OVERRIDE {
+    factorize( char const who[] ) ALGLIN_OVERRIDE {
       std::fill( JPVT, JPVT + nCol, 0 );
-      integer info = geqp3( nRow, nCol,
-                            Amat, nRow,
-                            JPVT,
-                            Tau,
-                            Work, Lwork );
-      ALGLIN_ASSERT( info == 0,
-                     "QRP::factorize call alglin::geqrf return info = " << info );
+      integer info = geqp3(
+        nRow, nCol, Amat, nRow, JPVT, Tau, Work, Lwork
+      );
+      ALGLIN_ASSERT(
+        info == 0,
+        "QRP::factorize[" << who << 
+        "] call alglin::geqrf return info = " << info
+      );
     }
 
     /*!
-     |  Do QR factorization with column pivoting of a rectangular matrix
-     |  \param NR  number of rows of the matrix
-     |  \param NC  number of columns of the matrix
-     |  \param A   pointer to the matrix
-     |  \param LDA Leading dimension of the matrix
+    :|:  Do QR factorization with column pivoting of a rectangular matrix
+    :|:  \param NR  number of rows of the matrix
+    :|:  \param NC  number of columns of the matrix
+    :|:  \param A   pointer to the matrix
+    :|:  \param LDA Leading dimension of the matrix
     \*/
     virtual
     void
     factorize(
+      char const      who[],
       integer         NR,
       integer         NC,
       valueType const A[],
@@ -1124,24 +1152,27 @@ namespace alglin {
       // calcolo fattorizzazione QR della matrice A
       allocate( NC, NR );
       integer info = gecopy( NR, NC, A, LDA, Amat, nRow );
-      ALGLIN_ASSERT( info == 0,
-                     "QR::factorize call alglin::gecopy return info = " << info );
-      factorize();
+      ALGLIN_ASSERT(
+        info == 0,
+        "QR::factorize[" << who << 
+        "] call alglin::gecopy return info = " << info
+      );
+      factorize( who );
     }
 
     /*!
-     |  In case of QR factorization of a square matrix solve the
-     |  linear system \f$ QR x = b \f$
-     |  \param xb on input the rhs of linear system on output the solution
+    :|:  In case of QR factorization of a square matrix solve the
+    :|:  linear system \f$ QR x = b \f$
+    :|:  \param xb on input the rhs of linear system on output the solution
     \*/
     virtual
     void
     solve( valueType xb[] ) const ALGLIN_OVERRIDE;
 
     /*!
-     |  In case of QR factorization of a square matrix solve the
-     |  linear system \f$ (QR)^T x = b \f$
-     |  \param xb on input the rhs of linear system on output the solution
+    :|:  In case of QR factorization of a square matrix solve the
+    :|:  linear system \f$ (QR)^T x = b \f$
+    :|:  \param xb on input the rhs of linear system on output the solution
     \*/
     virtual
     void
@@ -1166,11 +1197,11 @@ namespace alglin {
 
   //============================================================================
   /*\
-   |   ______     ______
-   |  / ___\ \   / /  _ \
-   |  \___ \\ \ / /| | | |
-   |   ___) |\ V / | |_| |
-   |  |____/  \_/  |____/
+  :|:   ______     ______
+  :|:  / ___\ \   / /  _ \
+  :|:  \___ \\ \ / /| | | |
+  :|:   ___) |\ V / | |_| |
+  :|:  |____/  \_/  |____/
   \*/
   template <typename T>
   class SVD : public Factorization<T> {
@@ -1230,8 +1261,14 @@ namespace alglin {
 
     //! y <- alpha * U * x + beta * y
     void
-    U_mul( valueType alpha, valueType const x[], integer incx,
-           valueType beta,  valueType       y[], integer incy ) const {
+    U_mul(
+      valueType       alpha,
+      valueType const x[],
+      integer         incx,
+      valueType       beta,
+      valueType       y[],
+      integer incy
+    ) const {
       gemv( NO_TRANSPOSE,
             nRow, minRC,
             alpha, Umat, nRow,
@@ -1241,8 +1278,14 @@ namespace alglin {
 
     //! y <- alpha * U' * x + beta * y
     void
-    Ut_mul( valueType alpha, valueType const x[], integer incx,
-            valueType beta,  valueType       y[], integer incy ) const {
+    Ut_mul(
+      valueType       alpha,
+      valueType const x[],
+      integer         incx,
+      valueType       beta,
+      valueType       y[],
+      integer         incy
+    ) const {
       gemv( TRANSPOSE,
             nRow, minRC,
             alpha, Umat, nRow,
@@ -1252,8 +1295,14 @@ namespace alglin {
 
     //! y <- alpha * V * x + beta * y
     void
-    V_mul( valueType alpha, valueType const x[], integer incx,
-           valueType beta,  valueType       y[], integer incy ) const {
+    V_mul(
+      valueType       alpha,
+      valueType const x[],
+      integer         incx,
+      valueType       beta,
+      valueType       y[],
+      integer         incy
+    ) const {
       gemv( TRANSPOSE,
             minRC, nCol,
             alpha, VTmat, nRow,
@@ -1263,8 +1312,14 @@ namespace alglin {
 
     //! y <- alpha * V' * x + beta * y
     void
-    Vt_mul( valueType alpha, valueType const x[], integer incx,
-            valueType beta,  valueType       y[], integer incy ) const {
+    Vt_mul(
+      valueType       alpha,
+      valueType const x[],
+      integer         incx,
+      valueType       beta,
+      valueType       y[],
+      integer         incy
+    ) const {
       gemv( NO_TRANSPOSE,
             minRC, nCol,
             alpha, VTmat, nRow,
@@ -1273,11 +1328,11 @@ namespace alglin {
     }
 
     /*\
-     |         _      _               _
-     |  __   _(_)_ __| |_ _   _  __ _| |___
-     |  \ \ / / | '__| __| | | |/ _` | / __|
-     |   \ V /| | |  | |_| |_| | (_| | \__ \
-     |    \_/ |_|_|   \__|\__,_|\__,_|_|___/
+    :|:         _      _               _
+    :|:  __   _(_)_ __| |_ _   _  __ _| |___
+    :|:  \ \ / / | '__| __| | | |/ _` | / __|
+    :|:   \ V /| | |  | |_| |_| | (_| | \__ \
+    :|:    \_/ |_|_|   \__|\__,_|\__,_|_|___/
     \*/
 
     virtual
@@ -1286,29 +1341,32 @@ namespace alglin {
 
     virtual
     void
-    factorize() ALGLIN_OVERRIDE;
+    factorize( char const who[] ) ALGLIN_OVERRIDE;
 
     /*!
-     |  Do SVD factorization of a rectangular matrix
-     |  \param NR  number of rows of the matrix
-     |  \param NC  number of columns of the matrix
-     |  \param A   pointer to the matrix
-     |  \param LDA Leading dimension of the matrix
+    :|:  Do SVD factorization of a rectangular matrix
+    :|:  \param NR  number of rows of the matrix
+    :|:  \param NC  number of columns of the matrix
+    :|:  \param A   pointer to the matrix
+    :|:  \param LDA Leading dimension of the matrix
     \*/
     virtual
     void
     factorize(
+      char const      who[],
       integer         NR,
       integer         NC,
       valueType const A[],
       integer         LDA
     ) ALGLIN_OVERRIDE {
       allocate( NR, NC );
-      integer info = gecopy( nRow, nCol,
-                             A, LDA, Amat, nRow );
-      ALGLIN_ASSERT( info == 0,
-                     "SVD::factorize call alglin::gecopy return info = " << info );
-      factorize();
+      integer info = gecopy( nRow, nCol, A, LDA, Amat, nRow );
+      ALGLIN_ASSERT(
+        info == 0,
+        "SVD::factorize[" << who << 
+        "] call alglin::gecopy return info = " << info
+      );
+      factorize( who );
     }
 
     virtual
@@ -1323,12 +1381,11 @@ namespace alglin {
 
   //============================================================================
   /*\
-   |   _     ____ ____
-   |  | |   / ___/ ___|
-   |  | |   \___ \___ \
-   |  | |___ ___) |__) |
-   |  |_____|____/____/
-   |
+  :|:   _     ____ ____
+  :|:  | |   / ___/ ___|
+  :|:  | |   \___ \___ \
+  :|:  | |___ ___) |__) |
+  :|:  |_____|____/____/
   \*/
 
   template <typename T>
@@ -1396,11 +1453,11 @@ namespace alglin {
     { return sigma[i]; }
 
     /*\
-     |         _      _               _
-     |  __   _(_)_ __| |_ _   _  __ _| |___
-     |  \ \ / / | '__| __| | | |/ _` | / __|
-     |   \ V /| | |  | |_| |_| | (_| | \__ \
-     |    \_/ |_|_|   \__|\__,_|\__,_|_|___/
+    :|:         _      _               _
+    :|:  __   _(_)_ __| |_ _   _  __ _| |___
+    :|:  \ \ / / | '__| __| | | |/ _` | / __|
+    :|:   \ V /| | |  | |_| |_| | (_| | \__ \
+    :|:    \_/ |_|_|   \__|\__,_|\__,_|_|___/
     \*/
 
     virtual
@@ -1409,20 +1466,21 @@ namespace alglin {
 
     virtual
     void
-    factorize() ALGLIN_OVERRIDE {
+    factorize( char const [] ) ALGLIN_OVERRIDE {
       // nothing to do
     }
 
     /*!
-     |  Do SVD factorization of a rectangular matrix
-     |  \param NR  number of rows of the matrix
-     |  \param NC  number of columns of the matrix
-     |  \param A   pointer to the matrix
-     |  \param LDA Leading dimension of the matrix
+    :|:  Do SVD factorization of a rectangular matrix
+    :|:  \param NR  number of rows of the matrix
+    :|:  \param NC  number of columns of the matrix
+    :|:  \param A   pointer to the matrix
+    :|:  \param LDA Leading dimension of the matrix
     \*/
     virtual
     void
     factorize(
+      char const      who[],
       integer         NR,
       integer         NC,
       valueType const A[],
@@ -1430,9 +1488,12 @@ namespace alglin {
     ) ALGLIN_OVERRIDE {
       allocate( NR, NC );
       integer info = gecopy( nRow, nCol, A, LDA, Amat, nRow );
-      ALGLIN_ASSERT( info == 0,
-                     "LSS::factorize call alglin::gecopy return info = " << info );
-      factorize();
+      ALGLIN_ASSERT(
+        info == 0,
+        "LSS::factorize[" << who << 
+        "] call alglin::gecopy return info = " << info
+      );
+      factorize( who );
     }
 
     virtual
@@ -1455,12 +1516,11 @@ namespace alglin {
 
   //============================================================================
   /*\
-   |  _     ______   __
-   | | |   / ___\ \ / /
-   | | |   \___ \\ V /
-   | | |___ ___) || |
-   | |_____|____/ |_|
-   |
+  :|:  _     ______   __
+  :|: | |   / ___\ \ / /
+  :|: | |   \___ \\ V /
+  :|: | |___ ___) || |
+  :|: |_____|____/ |_|
   \*/
   template <typename T>
   class LSY : public Factorization<T> {
@@ -1524,11 +1584,11 @@ namespace alglin {
     { return rank; }
 
     /*\
-     |         _      _               _
-     |  __   _(_)_ __| |_ _   _  __ _| |___
-     |  \ \ / / | '__| __| | | |/ _` | / __|
-     |   \ V /| | |  | |_| |_| | (_| | \__ \
-     |    \_/ |_|_|   \__|\__,_|\__,_|_|___/
+    :|:         _      _               _
+    :|:  __   _(_)_ __| |_ _   _  __ _| |___
+    :|:  \ \ / / | '__| __| | | |/ _` | / __|
+    :|:   \ V /| | |  | |_| |_| | (_| | \__ \
+    :|:    \_/ |_|_|   \__|\__,_|\__,_|_|___/
     \*/
 
     virtual
@@ -1537,20 +1597,21 @@ namespace alglin {
 
     virtual
     void
-    factorize() ALGLIN_OVERRIDE {
+    factorize( char const [] ) ALGLIN_OVERRIDE {
       // nothing to do
     }
 
     /*!
-     |  Do SVD factorization of a rectangular matrix
-     |  \param NR  number of rows of the matrix
-     |  \param NC  number of columns of the matrix
-     |  \param A   pointer to the matrix
-     |  \param LDA Leading dimension of the matrix
+    :|:  Do SVD factorization of a rectangular matrix
+    :|:  \param NR  number of rows of the matrix
+    :|:  \param NC  number of columns of the matrix
+    :|:  \param A   pointer to the matrix
+    :|:  \param LDA Leading dimension of the matrix
     \*/
     virtual
     void
     factorize(
+      char const      who[],
       integer         NR,
       integer         NC,
       valueType const A[],
@@ -1558,9 +1619,12 @@ namespace alglin {
     ) ALGLIN_OVERRIDE {
       allocate( NR, NC );
       integer info = gecopy( nRow, nCol, A, LDA, Amat, nRow );
-      ALGLIN_ASSERT( info == 0,
-                     "LSY::factorize call alglin::gecopy return info = " << info );
-      factorize();
+      ALGLIN_ASSERT(
+        info == 0,
+        "LSY::factorize[" << who << 
+        "] call alglin::gecopy return info = " << info
+      );
+      factorize( who );
     }
 
     virtual
@@ -1583,12 +1647,12 @@ namespace alglin {
 
   //============================================================================
   /*\
-   |   _____     _     _ _                               _ ____  ____  ____
-   |  |_   _| __(_) __| (_) __ _  __ _  ___  _ __   __ _| / ___||  _ \|  _ \
-   |    | || '__| |/ _` | |/ _` |/ _` |/ _ \| '_ \ / _` | \___ \| |_) | | | |
-   |    | || |  | | (_| | | (_| | (_| | (_) | | | | (_| | |___) |  __/| |_| |
-   |    |_||_|  |_|\__,_|_|\__,_|\__, |\___/|_| |_|\__,_|_|____/|_|   |____/
-   |                             |___/
+  :|:   _____     _     _ _                               _ ____  ____  ____
+  :|:  |_   _| __(_) __| (_) __ _  __ _  ___  _ __   __ _| / ___||  _ \|  _ \
+  :|:    | || '__| |/ _` | |/ _` |/ _` |/ _ \| '_ \ / _` | \___ \| |_) | | | |
+  :|:    | || |  | | (_| | | (_| | (_| | (_) | | | | (_| | |___) |  __/| |_| |
+  :|:    |_||_|  |_|\__,_|_|\__,_|\__, |\___/|_| |_|\__,_|_|____/|_|   |____/
+  :|:                             |___/
   \*/
 
   template <typename T>
@@ -1620,17 +1684,18 @@ namespace alglin {
 
     void
     factorize(
+      char const      who[],
       integer         N,
       valueType const _L[],
       valueType const _D[]
     );
 
     /*\
-     |         _      _               _
-     |  __   _(_)_ __| |_ _   _  __ _| |___
-     |  \ \ / / | '__| __| | | |/ _` | / __|
-     |   \ V /| | |  | |_| |_| | (_| | \__ \
-     |    \_/ |_|_|   \__|\__,_|\__,_|_|___/
+    :|:         _      _               _
+    :|:  __   _(_)_ __| |_ _   _  __ _| |___
+    :|:  \ \ / / | '__| __| | | |/ _` | / __|
+    :|:   \ V /| | |  | |_| |_| | (_| | \__ \
+    :|:    \_/ |_|_|   \__|\__,_|\__,_|_|___/
     \*/
 
     virtual
@@ -1658,12 +1723,12 @@ namespace alglin {
     ) const ALGLIN_OVERRIDE;
 
     /*\
-     |     _
-     |    / \  _   ___  __
-     |   / _ \| | | \ \/ /
-     |  / ___ \ |_| |>  <
-     | /_/   \_\__,_/_/\_\
-     |
+    :|:     _
+    :|:    / \  _   ___  __
+    :|:   / _ \| | | \ \/ /
+    :|:  / ___ \ |_| |>  <
+    :|: /_/   \_\__,_/_/\_\
+    :|:
     \*/
 
     void
@@ -1681,12 +1746,12 @@ namespace alglin {
 
   //============================================================================
   /*\
-   |   _____     _     _ _                               _ _    _   _
-   |  |_   _| __(_) __| (_) __ _  __ _  ___  _ __   __ _| | |  | | | |
-   |    | || '__| |/ _` | |/ _` |/ _` |/ _ \| '_ \ / _` | | |  | | | |
-   |    | || |  | | (_| | | (_| | (_| | (_) | | | | (_| | | |__| |_| |
-   |    |_||_|  |_|\__,_|_|\__,_|\__, |\___/|_| |_|\__,_|_|_____\___/
-   |                             |___/
+  :|:   _____     _     _ _                               _ _    _   _
+  :|:  |_   _| __(_) __| (_) __ _  __ _  ___  _ __   __ _| | |  | | | |
+  :|:    | || '__| |/ _` | |/ _` |/ _` |/ _ \| '_ \ / _` | | |  | | | |
+  :|:    | || |  | | (_| | | (_| | (_| | (_) | | | | (_| | | |__| |_| |
+  :|:    |_||_|  |_|\__,_|_|\__,_|\__, |\___/|_| |_|\__,_|_|_____\___/
+  :|:                             |___/
   \*/
 
   template <typename T>
@@ -1728,6 +1793,7 @@ namespace alglin {
 
     void
     factorize(
+      char const      who[],
       integer         N,
       valueType const _L[],
       valueType const _D[],
@@ -1735,11 +1801,11 @@ namespace alglin {
     );
 
     /*\
-     |         _      _               _
-     |  __   _(_)_ __| |_ _   _  __ _| |___
-     |  \ \ / / | '__| __| | | |/ _` | / __|
-     |   \ V /| | |  | |_| |_| | (_| | \__ \
-     |    \_/ |_|_|   \__|\__,_|\__,_|_|___/
+    :|:         _      _               _
+    :|:  __   _(_)_ __| |_ _   _  __ _| |___
+    :|:  \ \ / / | '__| __| | | |/ _` | / __|
+    :|:   \ V /| | |  | |_| |_| | (_| | \__ \
+    :|:    \_/ |_|_|   \__|\__,_|\__,_|_|___/
     \*/
 
     virtual
@@ -1767,12 +1833,12 @@ namespace alglin {
     ) const ALGLIN_OVERRIDE;
 
     /*\
-     |     _
-     |    / \  _   ___  __
-     |   / _ \| | | \ \/ /
-     |  / ___ \ |_| |>  <
-     | /_/   \_\__,_/_/\_\
-     |
+    :|:     _
+    :|:    / \  _   ___  __
+    :|:   / _ \| | | \ \/ /
+    :|:  / ___ \ |_| |>  <
+    :|: /_/   \_\__,_/_/\_\
+    :|:
     \*/
 
     void
@@ -1791,12 +1857,12 @@ namespace alglin {
 
   //============================================================================
   /*\
-   |   _____     _     _ _                               _  ___  ____
-   |  |_   _| __(_) __| (_) __ _  __ _  ___  _ __   __ _| |/ _ \|  _ \
-   |    | || '__| |/ _` | |/ _` |/ _` |/ _ \| '_ \ / _` | | | | | |_) |
-   |    | || |  | | (_| | | (_| | (_| | (_) | | | | (_| | | |_| |  _ <
-   |    |_||_|  |_|\__,_|_|\__,_|\__, |\___/|_| |_|\__,_|_|\__\_\_| \_\
-   |                             |___/
+  :|:   _____     _     _ _                               _  ___  ____
+  :|:  |_   _| __(_) __| (_) __ _  __ _  ___  _ __   __ _| |/ _ \|  _ \
+  :|:    | || '__| |/ _` | |/ _` |/ _` |/ _ \| '_ \ / _` | | | | | |_) |
+  :|:    | || |  | | (_| | | (_| | (_| | (_) | | | | (_| | | |_| |  _ <
+  :|:    |_||_|  |_|\__,_|_|\__,_|\__, |\___/|_| |_|\__,_|_|\__\_\_| \_\
+  :|:                             |___/
   \*/
   template <typename T>
   class TridiagonalQR : public LinearSystemSolver<T> {
@@ -1833,6 +1899,7 @@ namespace alglin {
 
     void
     factorize(
+      char const      who[],
       integer         N,
       valueType const L[],
       valueType const D[],
@@ -1840,17 +1907,19 @@ namespace alglin {
     );
 
     void
-    lsq( integer nrhs,
-         T       RHS[],
-         integer ldRHS,
-         T       lambda ) const;
+    lsq(
+      integer nrhs,
+      T       RHS[],
+      integer ldRHS,
+      T       lambda
+    ) const;
 
     /*\
-     |         _      _               _
-     |  __   _(_)_ __| |_ _   _  __ _| |___
-     |  \ \ / / | '__| __| | | |/ _` | / __|
-     |   \ V /| | |  | |_| |_| | (_| | \__ \
-     |    \_/ |_|_|   \__|\__,_|\__,_|_|___/
+    :|:         _      _               _
+    :|:  __   _(_)_ __| |_ _   _  __ _| |___
+    :|:  \ \ / / | '__| __| | | |/ _` | / __|
+    :|:   \ V /| | |  | |_| |_| | (_| | \__ \
+    :|:    \_/ |_|_|   \__|\__,_|\__,_|_|___/
     \*/
 
     virtual
@@ -1878,12 +1947,12 @@ namespace alglin {
     ) const ALGLIN_OVERRIDE;
 
     /*\
-     |     _
-     |    / \  _   ___  __
-     |   / _ \| | | \ \/ /
-     |  / ___ \ |_| |>  <
-     | /_/   \_\__,_/_/\_\
-     |
+    :|:     _
+    :|:    / \  _   ___  __
+    :|:   / _ \| | | \ \/ /
+    :|:  / ___ \ |_| |>  <
+    :|: /_/   \_\__,_/_/\_\
+    :|:
     \*/
 
     void
@@ -1902,16 +1971,16 @@ namespace alglin {
 
   //============================================================================
   /*\
-   |  ___ _         _     _____    _    _ _                         _
-   | | _ ) |___  __| |__ |_   _| _(_)__| (_)__ _ __ _ ___ _ _  __ _| |
-   | | _ \ / _ \/ _| / /   | || '_| / _` | / _` / _` / _ \ ' \/ _` | |
-   | |___/_\___/\__|_\_\   |_||_| |_\__,_|_\__,_\__, \___/_||_\__,_|_|
-   |                                            |___/
-   |  ___                _       _
-   | / __|_  _ _ __  ___| |_ _ _(_)__
-   | \__ \ || | '  \/ -_)  _| '_| / _|
-   | |___/\_, |_|_|_\___|\__|_| |_\__|
-   |      |__/
+  :|:  ___ _         _     _____    _    _ _                         _
+  :|: | _ ) |___  __| |__ |_   _| _(_)__| (_)__ _ __ _ ___ _ _  __ _| |
+  :|: | _ \ / _ \/ _| / /   | || '_| / _` | / _` / _` / _ \ ' \/ _` | |
+  :|: |___/_\___/\__|_\_\   |_||_| |_\__,_|_\__,_\__, \___/_||_\__,_|_|
+  :|:                                            |___/
+  :|:  ___                _       _
+  :|: / __|_  _ _ __  ___| |_ _ _(_)__
+  :|: \__ \ || | '  \/ -_)  _| '_| / _|
+  :|: |___/\_, |_|_|_\___|\__|_| |_\__|
+  :|:      |__/
   \*/
 
   template <typename T>
@@ -2028,14 +2097,14 @@ namespace alglin {
     valueType       & operator () ( integer ii, integer jj );
 
     void
-    factorize();
+    factorize( char const who[] );
 
     /*\
-     |         _      _               _
-     |  __   _(_)_ __| |_ _   _  __ _| |___
-     |  \ \ / / | '__| __| | | |/ _` | / __|
-     |   \ V /| | |  | |_| |_| | (_| | \__ \
-     |    \_/ |_|_|   \__|\__,_|\__,_|_|___/
+    :|:         _      _               _
+    :|:  __   _(_)_ __| |_ _   _  __ _| |___
+    :|:  \ \ / / | '__| __| | | |/ _` | / __|
+    :|:   \ V /| | |  | |_| |_| | (_| | \__ \
+    :|:    \_/ |_|_|   \__|\__,_|\__,_|_|___/
     \*/
 
     virtual
@@ -2048,25 +2117,29 @@ namespace alglin {
 
     virtual
     void
-    solve( integer   nrhs,
-           valueType xb[],
-           integer   ldXB ) const ALGLIN_OVERRIDE;
+    solve(
+      integer   nrhs,
+      valueType xb[],
+      integer   ldXB
+    ) const ALGLIN_OVERRIDE;
 
     virtual
     void
-    t_solve( integer   nrhs,
-             valueType xb[],
-             integer   ldXB ) const ALGLIN_OVERRIDE;
+    t_solve(
+      integer   nrhs,
+      valueType xb[],
+      integer   ldXB
+    ) const ALGLIN_OVERRIDE;
 
   };
 
   //============================================================================
   /*\
-   |   ____                  _          _ _    _   _
-   |  | __ )  __ _ _ __   __| | ___  __| | |  | | | |
-   |  |  _ \ / _` | '_ \ / _` |/ _ \/ _` | |  | | | |
-   |  | |_) | (_| | | | | (_| |  __/ (_| | |__| |_| |
-   |  |____/ \__,_|_| |_|\__,_|\___|\__,_|_____\___/
+  :|:   ____                  _          _ _    _   _
+  :|:  | __ )  __ _ _ __   __| | ___  __| | |  | | | |
+  :|:  |  _ \ / _` | '_ \ / _` |/ _ \/ _` | |  | | | |
+  :|:  | |_) | (_| | | | | (_| |  __/ (_| | |__| |_| |
+  :|:  |____/ \__,_|_| |_|\__,_|\___|\__,_|_____\___/
   \*/
   //! base class for linear systema solver
   template <typename T>
@@ -2129,14 +2202,14 @@ namespace alglin {
     );
 
     // do internal factorization, to be executed (only once) before to call solve or t_solve
-    void factorize();
+    void factorize( char const who[] );
 
     /*\
-     |         _      _               _
-     |  __   _(_)_ __| |_ _   _  __ _| |___
-     |  \ \ / / | '__| __| | | |/ _` | / __|
-     |   \ V /| | |  | |_| |_| | (_| | \__ \
-     |    \_/ |_|_|   \__|\__,_|\__,_|_|___/
+    :|:         _      _               _
+    :|:  __   _(_)_ __| |_ _   _  __ _| |___
+    :|:  \ \ / / | '__| __| | | |/ _` | / __|
+    :|:   \ V /| | |  | |_| |_| | (_| | \__ \
+    :|:    \_/ |_|_|   \__|\__,_|\__,_|_|___/
     \*/
 
     virtual
@@ -2164,12 +2237,12 @@ namespace alglin {
     ) const ALGLIN_OVERRIDE;
 
     /*\
-     |     _
-     |    / \  _   ___  __
-     |   / _ \| | | \ \/ /
-     |  / ___ \ |_| |>  <
-     | /_/   \_\__,_/_/\_\
-     |
+    :|:     _
+    :|:    / \  _   ___  __
+    :|:   / _ \| | | \ \/ /
+    :|:  / ___ \ |_| |>  <
+    :|: /_/   \_\__,_/_/\_\
+    :|:
     \*/
 
     // y <- beta*y + alpha*A*x
@@ -2187,11 +2260,11 @@ namespace alglin {
 
   //============================================================================
   /*\
-   |   ____                  _          _ ____  ____  ____
-   |  | __ )  __ _ _ __   __| | ___  __| / ___||  _ \|  _ \
-   |  |  _ \ / _` | '_ \ / _` |/ _ \/ _` \___ \| |_) | | | |
-   |  | |_) | (_| | | | | (_| |  __/ (_| |___) |  __/| |_| |
-   |  |____/ \__,_|_| |_|\__,_|\___|\__,_|____/|_|   |____/
+  :|:   ____                  _          _ ____  ____  ____
+  :|:  | __ )  __ _ _ __   __| | ___  __| / ___||  _ \|  _ \
+  :|:  |  _ \ / _` | '_ \ / _` |/ _ \/ _` \___ \| |_) | | | |
+  :|:  | |_) | (_| | | | | (_| |  __/ (_| |___) |  __/| |_| |
+  :|:  |____/ \__,_|_| |_|\__,_|\___|\__,_|____/|_|   |____/
   \*/
   //! base class for linear systema solver
   template <typename T>
@@ -2234,14 +2307,14 @@ namespace alglin {
     void zero();
 
     // do internal fatcorization, to be executed (only once) before to call solve or t_solve
-    void factorize();
+    void factorize( char const who[] );
 
     /*\
-     |         _      _               _
-     |  __   _(_)_ __| |_ _   _  __ _| |___
-     |  \ \ / / | '__| __| | | |/ _` | / __|
-     |   \ V /| | |  | |_| |_| | (_| | \__ \
-     |    \_/ |_|_|   \__|\__,_|\__,_|_|___/
+    :|:         _      _               _
+    :|:  __   _(_)_ __| |_ _   _  __ _| |___
+    :|:  \ \ / / | '__| __| | | |/ _` | / __|
+    :|:   \ V /| | |  | |_| |_| | (_| | \__ \
+    :|:    \_/ |_|_|   \__|\__,_|\__,_|_|___/
     \*/
 
     virtual
@@ -2269,12 +2342,12 @@ namespace alglin {
     ) const ALGLIN_OVERRIDE;
 
     /*\
-     |     _
-     |    / \  _   ___  __
-     |   / _ \| | | \ \/ /
-     |  / ___ \ |_| |>  <
-     | /_/   \_\__,_/_/\_\
-     |
+    :|:     _
+    :|:    / \  _   ___  __
+    :|:   / _ \| | | \ \/ /
+    :|:  / ___ \ |_| |>  <
+    :|: /_/   \_\__,_/_/\_\
+    :|:
     \*/
 
     /* not yet available
@@ -2291,11 +2364,11 @@ namespace alglin {
   };
 
   /*\
-   |    ___                  _ _   _               _
-   |   / _ \ _   _  __ _ ___(_) \ | | _____      _| |_ ___  _ __
-   |  | | | | | | |/ _` / __| |  \| |/ _ \ \ /\ / / __/ _ \| '_ \
-   |  | |_| | |_| | (_| \__ \ | |\  |  __/\ V  V /| || (_) | | | |
-   |   \__\_\\__,_|\__,_|___/_|_| \_|\___| \_/\_/  \__\___/|_| |_|
+  :|:    ___                  _ _   _               _
+  :|:   / _ \ _   _  __ _ ___(_) \ | | _____      _| |_ ___  _ __
+  :|:  | | | | | | |/ _` / __| |  \| |/ _ \ \ /\ / / __/ _ \| '_ \
+  :|:  | |_| | |_| | (_| \__ \ | |\  |  __/\ V  V /| || (_) | | | |
+  :|:   \__\_\\__,_|\__,_|___/_|_| \_|\___| \_/\_/  \__\___/|_| |_|
   \*/
 
   template <typename T>
@@ -2398,11 +2471,11 @@ namespace alglin {
     print( ostream_type & stream ) const;
 
     /*\
-     |         _      _               _
-     |  __   _(_)_ __| |_ _   _  __ _| |___
-     |  \ \ / / | '__| __| | | |/ _` | / __|
-     |   \ V /| | |  | |_| |_| | (_| | \__ \
-     |    \_/ |_|_|   \__|\__,_|\__,_|_|___/
+    :|:         _      _               _
+    :|:  __   _(_)_ __| |_ _   _  __ _| |___
+    :|:  \ \ / / | '__| __| | | |/ _` | / __|
+    :|:   \ V /| | |  | |_| |_| | (_| | \__ \
+    :|:    \_/ |_|_|   \__|\__,_|\__,_|_|___/
     \*/
 
     virtual
@@ -2415,11 +2488,11 @@ namespace alglin {
   };
 
   /*\
-   |  ____  _____ ____ ____
-   | | __ )|  ___/ ___/ ___|
-   | |  _ \| |_ | |  _\___ \
-   | | |_) |  _|| |_| |___) |
-   | |____/|_|   \____|____/
+  :|:  ____  _____ ____ ____
+  :|: | __ )|  ___/ ___/ ___|
+  :|: |  _ \| |_ | |  _\___ \
+  :|: | |_) |  _|| |_| |___) |
+  :|: |____/|_|   \____|____/
   \*/
 
   template <typename T>
@@ -2440,11 +2513,11 @@ namespace alglin {
     BFGS() {}
 
     /*\
-     |         _      _               _
-     |  __   _(_)_ __| |_ _   _  __ _| |___
-     |  \ \ / / | '__| __| | | |/ _` | / __|
-     |   \ V /| | |  | |_| |_| | (_| | \__ \
-     |    \_/ |_|_|   \__|\__,_|\__,_|_|___/
+    :|:         _      _               _
+    :|:  __   _(_)_ __| |_ _   _  __ _| |___
+    :|:  \ \ / / | '__| __| | | |/ _` | / __|
+    :|:   \ V /| | |  | |_| |_| | (_| | \__ \
+    :|:    \_/ |_|_|   \__|\__,_|\__,_|_|___/
     \*/
 
     virtual
@@ -2457,11 +2530,11 @@ namespace alglin {
   };
 
   /*\
-   |   ____  _____ ____
-   |  |  _ \|  ___|  _ \
-   |  | | | | |_  | |_) |
-   |  | |_| |  _| |  __/
-   |  |____/|_|   |_|
+  :|:   ____  _____ ____
+  :|:  |  _ \|  ___|  _ \
+  :|:  | | | | |_  | |_) |
+  :|:  | |_| |  _| |  __/
+  :|:  |____/|_|   |_|
   \*/
 
   template <typename T>
@@ -2482,11 +2555,11 @@ namespace alglin {
     DFP() {}
 
     /*\
-     |         _      _               _
-     |  __   _(_)_ __| |_ _   _  __ _| |___
-     |  \ \ / / | '__| __| | | |/ _` | / __|
-     |   \ V /| | |  | |_| |_| | (_| | \__ \
-     |    \_/ |_|_|   \__|\__,_|\__,_|_|___/
+    :|:         _      _               _
+    :|:  __   _(_)_ __| |_ _   _  __ _| |___
+    :|:  \ \ / / | '__| __| | | |/ _` | / __|
+    :|:   \ V /| | |  | |_| |_| | (_| | \__ \
+    :|:    \_/ |_|_|   \__|\__,_|\__,_|_|___/
     \*/
 
     virtual

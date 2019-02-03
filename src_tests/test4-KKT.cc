@@ -27,7 +27,7 @@
 #include "TicToc.hh"
 #include "KKT_like.hh"
 
-#ifdef __GNUC__ 
+#ifdef __GNUC__
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 #pragma GCC diagnostic ignored "-Wunused-variable"
@@ -60,7 +60,7 @@ test0() {
   valueType B[] = { 0, 0 };
   valueType C[] = { 0, 0 };
   valueType D[] = { 2 };
-  
+
   // 1 0 0 -> 1
   // 0 1 0 -> 2
   // 0 0 2 -> 6
@@ -118,7 +118,7 @@ test1() {
   valueType B[] = { 1, -1 };
   valueType C[] = { -1, 1 };
   valueType D[] = { 2 };
-  
+
   //  1 -2  1 -> 0
   //  3  1 -1 -> 2
   // -1  1  2 -> 7
@@ -132,26 +132,26 @@ test1() {
   valueType x[N+M] = { 1, 2, 3 };
   valueType rhs[N+M];
 
-  alglin::gemv(alglin::NO_TRANSPOSE,
-               N, N, 1.0, A, N,
-               x, 1,
-               0,
-               rhs, 1 );
-  alglin::gemv(alglin::NO_TRANSPOSE,
-               N, M, 1.0, B, N,
-               x+N, 1,
-               1,
-               rhs, 1 );
-  alglin::gemv(alglin::NO_TRANSPOSE,
-               M, N, 1.0, C, M,
-               x, 1,
-               0,
-               rhs+N, 1 );
-  alglin::gemv(alglin::NO_TRANSPOSE,
-               M, M, 1.0, D, M,
-               x+N, 1,
-               1,
-               rhs+N, 1 );
+  alglin::gemv( alglin::NO_TRANSPOSE,
+                N, N, 1.0, A, N,
+                x, 1,
+                0,
+                rhs, 1 );
+  alglin::gemv( alglin::NO_TRANSPOSE,
+                N, M, 1.0, B, N,
+                x+N, 1,
+                1,
+                rhs, 1 );
+  alglin::gemv( alglin::NO_TRANSPOSE,
+                M, N, 1.0, C, M,
+                x, 1,
+                0,
+                rhs+N, 1 );
+  alglin::gemv( alglin::NO_TRANSPOSE,
+                M, M, 1.0, D, M,
+                x+N, 1,
+                1,
+                rhs+N, 1 );
   for ( integer i = 0; i < N+M; ++i )
     cout << "rhs[" << i << "] = " << rhs[i] << '\n';
   kkt.solve( rhs );
@@ -190,7 +190,7 @@ test2() {
     1,      4,
     -1,      1
   };
-  
+
   kkt.load( N, M,
             A, N, false,
             B, N, false,
@@ -200,26 +200,26 @@ test2() {
   valueType x[] = { 1, 2, 3, 4, 5, 1, 2, 3, 4, 5 };
   valueType rhs[2*(N+M)];
 
-  alglin::gemv(alglin::NO_TRANSPOSE,
-               N, N, 1.0, A, N,
-               x, 1,
-               0,
-               rhs, 1 );
-  alglin::gemv(alglin::NO_TRANSPOSE,
-               N, M, 1.0, B, N,
-               x+N, 1,
-               1,
-               rhs, 1 );
-  alglin::gemv(alglin::NO_TRANSPOSE,
-               M, N, 1.0, C, M,
-               x, 1,
-               0,
-               rhs+N, 1 );
-  alglin::gemv(alglin::NO_TRANSPOSE,
-               M, M, 1.0, D, M,
-               x+N, 1,
-               1,
-               rhs+N, 1 );
+  alglin::gemv( alglin::NO_TRANSPOSE,
+                N, N, 1.0, A, N,
+                x, 1,
+                0,
+                rhs, 1 );
+  alglin::gemv( alglin::NO_TRANSPOSE,
+                N, M, 1.0, B, N,
+                x+N, 1,
+                1,
+                rhs, 1 );
+  alglin::gemv( alglin::NO_TRANSPOSE,
+                M, N, 1.0, C, M,
+                x, 1,
+                0,
+                rhs+N, 1 );
+  alglin::gemv( alglin::NO_TRANSPOSE,
+                M, M, 1.0, D, M,
+                x+N, 1,
+                1,
+                rhs+N, 1 );
   std::copy( rhs, rhs + N+M, rhs+N+M );
   for ( integer i = 0; i < N+M; ++i )
     cout << "rhs[" << i << "] = " << rhs[i] << '\n';
@@ -260,7 +260,7 @@ test3() {
     1,      4,
     -1,      1
   };
-  
+
   kkt.load( N, M,
             A, N, false,
             B, N, false,
@@ -270,28 +270,28 @@ test3() {
   valueType x[] = { 1, 2, 3, 4, 5, 1, 2, 3, 4, 5 };
   valueType rhs[2*(N+M)];
 
-  alglin::gemv(alglin::TRANSPOSE,
-               N, N, 1.0, A, N,
-               x, 1,
-               0,
-               rhs, 1 );
-  alglin::gemv(alglin::TRANSPOSE,
-               M, N, 1.0, C, M,
-               x+N, 1,
-               1,
-               rhs, 1 );
+  alglin::gemv( alglin::TRANSPOSE,
+                N, N, 1.0, A, N,
+                x, 1,
+                0,
+                rhs, 1 );
+  alglin::gemv( alglin::TRANSPOSE,
+                M, N, 1.0, C, M,
+                x+N, 1,
+                1,
+                rhs, 1 );
 
-  alglin::gemv(alglin::TRANSPOSE,
-               M, M, 1.0, D, M,
-               x+N, 1,
-               0,
-               rhs+N, 1 );
+  alglin::gemv( alglin::TRANSPOSE,
+                M, M, 1.0, D, M,
+                x+N, 1,
+                0,
+                rhs+N, 1 );
 
-  alglin::gemv(alglin::TRANSPOSE,
-               N, M, 1.0, B, N,
-               x, 1,
-               1,
-               rhs+N, 1 );
+  alglin::gemv( alglin::TRANSPOSE,
+                N, M, 1.0, B, N,
+                x, 1,
+                1,
+                rhs+N, 1 );
 
   std::copy( rhs, rhs+N+M, rhs+N+M );
 
@@ -364,23 +364,23 @@ test4() {
   for ( integer i = 0; i < N+M; ++i ) rhs[i] = 0;
   bLU.aAxpy( 1.0, x, rhs );
 
-  alglin::gemv(alglin::TRANSPOSE,
-               M, N, 1.0, C, M,
-               x+N, 1,
-               1,
-               rhs, 1 );
+  alglin::gemv( alglin::TRANSPOSE,
+                M, N, 1.0, C, M,
+                x+N, 1,
+                1,
+                rhs, 1 );
 
-  alglin::gemv(alglin::TRANSPOSE,
-               M, M, 1.0, D, M,
-               x+N, 1,
-               0,
-               rhs+N, 1 );
+  alglin::gemv( alglin::TRANSPOSE,
+                M, M, 1.0, D, M,
+                x+N, 1,
+                0,
+                rhs+N, 1 );
 
-  alglin::gemv(alglin::TRANSPOSE,
-               N, M, 1.0, B, N,
-               x, 1,
-               1,
-               rhs+N, 1 );
+  alglin::gemv( alglin::TRANSPOSE,
+                N, M, 1.0, B, N,
+                x, 1,
+                1,
+                rhs+N, 1 );
 
   std::copy( rhs, rhs+N+M, rhs+N+M );
 
@@ -388,7 +388,7 @@ test4() {
     cout << "rhs[" << i << "] = " << rhs[i] << '\n';
 
   // must be factorized before to call kkt.factorize
-  bLU.factorize();
+  bLU.factorize( "bLU" );
   kkt.load( N, M,
             &bLU,
             B, N, false,
@@ -438,7 +438,7 @@ test5() {
   //kkt.t_solve( 1, rhs, N+M );
   kkt.t_solve( rhs );
   for ( integer i = 0; i < N+M; ++i )
-   cout << "x[" << i << "] = " << rhs[i] << '\n';
+    cout << "x[" << i << "] = " << rhs[i] << '\n';
 }
 
 static
@@ -481,7 +481,7 @@ test6() {
   //kkt.t_solve( 1, rhs, N+M );
   kkt.t_solve( rhs );
   for ( integer i = 0; i < N+M; ++i )
-   cout << "x[" << i << "] = " << rhs[i] << '\n';
+    cout << "x[" << i << "] = " << rhs[i] << '\n';
 }
 
 int

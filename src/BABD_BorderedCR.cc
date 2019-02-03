@@ -783,30 +783,53 @@ namespace alglin {
     integer info = 0;
     switch ( last_selected ) {
     case BORDERED_LAST_LU:
-      last_lu.factorize( Nr, Nc, Hmat, Nr );
+      last_lu.factorize(
+        "BorderedCR::load_and_factorize_last",
+        Nr, Nc, Hmat, Nr
+      );
       break;
     case BORDERED_LAST_LUPQ:
-      last_lupq.factorize( Nr, Nc, Hmat, Nr );
+      last_lupq.factorize(
+        "BorderedCR::load_and_factorize_last",
+        Nr, Nc, Hmat, Nr
+      );
       break;
     case BORDERED_LAST_QR:
-      last_qr.factorize( Nr, Nc, Hmat, Nr );
+      last_qr.factorize(
+        "BorderedCR::load_and_factorize_last",
+        Nr, Nc, Hmat, Nr
+      );
       break;
     case BORDERED_LAST_QRP:
-      last_qrp.factorize( Nr, Nc, Hmat, Nr );
+      last_qrp.factorize(
+        "BorderedCR::load_and_factorize_last",
+        Nr, Nc, Hmat, Nr
+      );
       break;
     case BORDERED_LAST_SVD:
-      last_svd.factorize( Nr, Nc, Hmat, Nr );
+      last_svd.factorize(
+        "BorderedCR::load_and_factorize_last",
+        Nr, Nc, Hmat, Nr
+      );
       break;
     case BORDERED_LAST_LSS:
-      last_lss.factorize( Nr, Nc, Hmat, Nr );
+      last_lss.factorize(
+        "BorderedCR::load_and_factorize_last",
+        Nr, Nc, Hmat, Nr
+      );
       break;
     case BORDERED_LAST_LSY:
-      last_lsy.factorize( Nr, Nc, Hmat, Nr );
+      last_lsy.factorize(
+        "BorderedCR::load_and_factorize_last",
+        Nr, Nc, Hmat, Nr
+      );
       break;
     }
-    ALGLIN_ASSERT( info == 0,
-                   "BorderedCR::factorize_last INFO = " << info <<
-                   " Nr = " << Nr << " Nc = " << Nc );
+    ALGLIN_ASSERT(
+      info == 0,
+      "BorderedCR::factorize_last INFO = " << info <<
+      " Nr = " << Nr << " Nc = " << Nc
+    );
   }
 
   /*\
