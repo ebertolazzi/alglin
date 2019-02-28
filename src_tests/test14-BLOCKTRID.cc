@@ -144,10 +144,7 @@ test3() {
     cout << "x[ " << k << "] = " << rhs[k] << "\n";
 }
 
-#ifdef ALGLIN_USE_CXX11
-  #include "TicToc.hh"
-#endif
-
+#include "TicToc.hh"
 #include <random>
 
 static unsigned seed1 = 2;
@@ -160,13 +157,11 @@ rand( alglin::doublereal xmin, alglin::doublereal xmax ) {
   return xmin + (xmax-xmin)*random;
 }
 
-#ifdef ALGLIN_USE_CXX11
 static
 void
 test4() {
 
   TicToc tm;
-  tm.reset();
 
   alglin::KKT<alglin::doublereal> BT1, BT2;
 
@@ -201,7 +196,7 @@ test4() {
     vals.size(), true
   );
   tm.toc();
-  cout << "LOAD1 = " << tm.elapsedMilliseconds() << " [ms]\n";
+  cout << "LOAD1 = " << tm.elapsed_ms() << " [ms]\n";
 
   tm.tic();
   BT2.load_triblock(
@@ -213,27 +208,27 @@ test4() {
   );
 
   tm.toc();
-  cout << "LOAD2 = " << tm.elapsedMilliseconds() << " [ms]\n";
+  cout << "LOAD2 = " << tm.elapsed_ms() << " [ms]\n";
 
   tm.tic();
   BT1.factorize();
   tm.toc();
-  cout << "factorize1 = " << tm.elapsedMilliseconds() << " [ms]\n";
+  cout << "factorize1 = " << tm.elapsed_ms() << " [ms]\n";
 
   tm.tic();
   BT2.factorize();
   tm.toc();
-  cout << "factorize2 = " << tm.elapsedMilliseconds() << " [ms]\n";
+  cout << "factorize2 = " << tm.elapsed_ms() << " [ms]\n";
 
   tm.tic();
   BT1.solve( &rhs1.front() );
   tm.toc();
-  cout << "solve1 = " << tm.elapsedMilliseconds() << " [ms]\n";
+  cout << "solve1 = " << tm.elapsed_ms() << " [ms]\n";
 
   tm.tic();
   BT2.solve( &rhs2.front() );
   tm.toc();
-  cout << "solve2 = " << tm.elapsedMilliseconds() << " [ms]\n";
+  cout << "solve2 = " << tm.elapsed_ms() << " [ms]\n";
 
   alglin::doublereal accerr = 0;
   alglin::doublereal maxerr = 0;
@@ -247,7 +242,6 @@ test4() {
   cout << "||err||_i = " << maxerr << "\n";
 
 }
-#endif
 
 int
 main() {
@@ -257,10 +251,8 @@ main() {
   test2();
   cout << "\n\ntest3\n";
   test3();
-  #ifdef ALGLIN_USE_CXX11
   cout << "\n\ntest4\n";
   test4();
-  #endif
   cout << "All done!\n";
   return 0;
 }

@@ -37,7 +37,6 @@
 
 typedef double valueType;
 
-#ifdef ALGLIN_USE_CXX11
 #include "TicToc.hh"
 #include <random>
 static unsigned seed1 = 2;
@@ -52,17 +51,6 @@ rand( valueType xmin, valueType xmax ) {
 }
 #define TIC tm.tic()
 #define TOC tm.toc()
-#else
-#include <cstdlib>
-static
-valueType
-rand( valueType xmin, valueType xmax ) {
-  valueType random = (rand() % 10000)/10000.0;
-  return xmin + (xmax-xmin)*random;
-}
-#define TIC
-#define TOC
-#endif
 
 using namespace std;
 
@@ -111,10 +99,7 @@ main() {
     LU.allocateTopBottom( numBlock, dim, row0, dim+col00, rowN, dim+colNN, NB );
 
     // carico matrice
-    #ifdef ALGLIN_USE_CXX11
     TicToc tm;
-    tm.reset();
-    #endif
 
     for ( int test = 0; test < 3; ++test ) {
       cout << "\n\n\ntest N." << test << " NB = " << NB << " kind = " << kind[test] << "\n";
@@ -176,21 +161,13 @@ main() {
       TIC;
       LU.factorize_bordered();
       TOC;
-      #ifdef ALGLIN_USE_CXX11
-      cout << "(Block " << kind[test] << ") Factorize = " << tm.elapsedMilliseconds() << " [ms]\n";
-      #else
-      cout << "(Block " << kind[test] << ") Factorize\n";
-      #endif
-      
+      cout << "(Block " << kind[test] << ") Factorize = " << tm.elapsed_ms() << " [ms]\n";
+
       std::copy( rhs, rhs+N+NB, x );
       TIC;
       LU.solve_bordered( x );
       TOC;
-      #ifdef ALGLIN_USE_CXX11
-      cout << "(Block " << kind[test] << ") Solve = " << tm.elapsedMilliseconds() << " [ms]\n";
-      #else
-      cout << "(Block " << kind[test] << ") Solve\n";
-      #endif
+      cout << "(Block " << kind[test] << ") Solve = " << tm.elapsed_ms() << " [ms]\n";
 
       alglin::axpy( N+NB, -1.0, x, 1, xref, 1 );
       valueType err = alglin::absmax( N+NB, xref, 1 );
@@ -201,11 +178,7 @@ main() {
       TIC;
       LU.solve_bordered( 1, x, N+NB );
       TOC;
-      #ifdef ALGLIN_USE_CXX11
-      cout << "(Block " << kind[test] << ") Solve = " << tm.elapsedMilliseconds() << " [ms]\n";
-      #else
-      cout << "(Block " << kind[test] << ") Solve\n";
-      #endif
+      cout << "(Block " << kind[test] << ") Solve = " << tm.elapsed_ms() << " [ms]\n";
 
       alglin::axpy( N+NB, -1.0, x, 1, xref1, 1 );
       err = alglin::absmax( N+NB, xref1, 1 );

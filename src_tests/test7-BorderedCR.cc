@@ -156,11 +156,10 @@ main() {
   */
 
   TicToc tm;
-  tm.reset();
   tm.tic();
   BCR.factorize();
   tm.toc();
-  cout << "\nFactorize = " << tm.elapsedMilliseconds() << " [ms]\n\n";
+  cout << "\nFactorize = " << tm.elapsed_ms() << " [ms]\n\n";
 
   std::copy( rhs, rhs+N, x );
   std::copy( rhs, rhs+N, x+N );
@@ -188,7 +187,7 @@ main() {
   BCR.solve( x ); ++ns;
   #endif
   tm.toc();
-  cout << "\nSolve = " << tm.elapsedMilliseconds()/ns << " [ms]\n\n";
+  cout << "\nSolve = " << tm.elapsed_ms()/ns << " [ms]\n\n";
 
   alglin::copy( N, xref, 1, xref1, 1 );
   alglin::axpy( N, -1.0, x, 1, xref1, 1 );
@@ -226,7 +225,7 @@ main() {
   BCR.solve( 2, x, N ); ++ns;
   #endif
   tm.toc();
-  cout << "\nSolve2 = " << tm.elapsedMilliseconds()/ns << " [ms]\n\n";
+  cout << "\nSolve2 = " << tm.elapsed_ms()/ns << " [ms]\n\n";
 
   /*
   file.open("sol.txt");

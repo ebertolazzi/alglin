@@ -50,17 +50,6 @@
 #pragma clang diagnostic ignored "-Wextra-semi"
 #endif
 
-#ifndef ALGLIN_USE_CXX11
-
-using namespace std;
-
-int
-main() {
-  cout << "To test timing you must compile with a C++11 capable compiler\nAll done!\n";
-  return 0;
-}
-
-#else
 #include "TicToc.hh"
 
 #ifdef __GNUC__
@@ -137,7 +126,6 @@ testN() {
   }
 
   TicToc tm;
-  tm.reset();
 
   // ===========================================================================
 
@@ -151,7 +139,7 @@ testN() {
     copy( N*N, M3, 1, M2, 1);
   }
   tm.toc();
-  cout << "MULT = " << tm.elapsedMilliseconds() << " [ms] (lapack)\n";
+  cout << "MULT = " << tm.elapsed_ms() << " [ms] (lapack)\n";
 
   // ===========================================================================
 
@@ -161,7 +149,7 @@ testN() {
     dm2 = dm3;
   }
   tm.toc();
-  cout << "MULT = " << tm.elapsedMilliseconds() << " [ms] (eigen dynamic)\n";
+  cout << "MULT = " << tm.elapsed_ms() << " [ms] (eigen dynamic)\n";
 
   // ===========================================================================
 
@@ -174,7 +162,7 @@ testN() {
     mm2 = mm3;
   }
   tm.toc();
-  cout << "MULT = " << tm.elapsedMilliseconds() << " [ms] (eigen map dynamic)\n";
+  cout << "MULT = " << tm.elapsed_ms() << " [ms] (eigen map dynamic)\n";
 
   // ===========================================================================
 
@@ -184,7 +172,7 @@ testN() {
     m2 = m3;
   }
   tm.toc();
-  cout << "MULT = " << tm.elapsedMilliseconds() << " [ms] (eigen fixed)\n";
+  cout << "MULT = " << tm.elapsed_ms() << " [ms] (eigen fixed)\n";
 
   // ===========================================================================
 
@@ -197,7 +185,7 @@ testN() {
     mm2 = mm3;
   }
   tm.toc();
-  cout << "MULT = " << tm.elapsedMilliseconds() << " [ms] (eigen fixed map)\n";
+  cout << "MULT = " << tm.elapsed_ms() << " [ms] (eigen fixed map)\n";
 
   // ===========================================================================
 
@@ -208,7 +196,7 @@ testN() {
     //Vec2<valueType,N*N,1,1>::copy(M3,M2);
   }
   tm.toc();
-  cout << "MULT = " << tm.elapsedMilliseconds() << " [ms] (hand unrolled)\n";
+  cout << "MULT = " << tm.elapsed_ms() << " [ms] (hand unrolled)\n";
 
   // ===========================================================================
 
@@ -232,6 +220,3 @@ main() {
 
   return 0;
 }
-
-#endif
-

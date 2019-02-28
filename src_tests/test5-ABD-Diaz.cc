@@ -100,7 +100,6 @@ main() {
 
     // carico matrice
     TicToc tm;
-    tm.reset();
 
     for ( int test = 0; test < 3; ++test ) {
       cout << "\n\n\ntest N." << test << " NB = " << NB << "\n";
@@ -163,13 +162,13 @@ main() {
       tm.tic();
       LU.factorize_bordered();
       tm.toc();
-      cout << "(Diaz " << kind[test] << ") Factorize = " << tm.elapsedMilliseconds() << " [ms]\n";
+      cout << "(Diaz " << kind[test] << ") Factorize = " << tm.elapsed_ms() << " [ms]\n";
 
       std::copy( rhs, rhs+N+NB, x );
       tm.tic();
       LU.solve_bordered( x );
       tm.toc();
-      cout << "(Diaz " << kind[test] << ") Solve = " << tm.elapsedMilliseconds() << " [ms]\n";
+      cout << "(Diaz " << kind[test] << ") Solve = " << tm.elapsed_ms() << " [ms]\n";
 
       alglin::axpy( N+NB, -1.0, x, 1, xref, 1 );
       valueType err = alglin::absmax( N+NB, xref, 1 );
@@ -181,7 +180,7 @@ main() {
       tm.tic();
       LU.solve_bordered( 1, x, N+NB );
       tm.toc();
-      cout << "(Diaz " << kind[test] << ") Solve = " << tm.elapsedMilliseconds() << " [ms]\n";
+      cout << "(Diaz " << kind[test] << ") Solve = " << tm.elapsed_ms() << " [ms]\n";
 
       alglin::axpy( N+NB, -1.0, x, 1, xref1, 1 );
       err = alglin::absmax( N+NB, xref1, 1 );
