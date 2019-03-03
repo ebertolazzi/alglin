@@ -72,7 +72,7 @@ test( int nth ) {
   cout << "Thread N." << nth << " ms = " << ms << "\n";
   mtx.unlock();
 
-  tictoc.sleep_for_milliseconds( ms );
+  sleep_for_milliseconds( ms );
 
   mtx.lock();
   cout << "Thread N." << nth << " done_and_wait\n";
@@ -86,7 +86,7 @@ test( int nth ) {
   cout << "Thread N." << nth << " second part ms = " << ms << "\n";
   mtx.unlock();
 
-  tictoc.sleep_for_milliseconds( ms );
+  sleep_for_milliseconds( ms );
 
   mtx.lock();
   cout << "Thread N." << nth << " done second part\n";

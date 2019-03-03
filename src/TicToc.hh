@@ -60,7 +60,19 @@
     real_type
     elapsed_ms() const
     { return elapsed_time; }
+
   };
+
+  inline
+  void
+  sleep_for_seconds( unsigned s )
+  { Sleep(DWORD(s)*1000); }
+
+  inline
+  void
+  sleep_for_milliseconds( unsigned ms )
+  { Sleep(DWORD(ms)); }
+
 #else
 
   #ifdef ALGLIN_USE_CXX11
@@ -123,8 +135,12 @@
     void
     sleep_for_milliseconds( unsigned ms )
     { std::this_thread::sleep_for(std::chrono::milliseconds(ms)); }
+
   #else
+
     #include <sys/time.h>
+    #include <unistd.h>
+
     inline
     bool
     getTime( long & sec, long & usec ) {
@@ -175,6 +191,21 @@
       elapsed_ms() const
       { return elapsed_time; }
     };
+
+    inline
+    void
+    sleep_for_seconds( unsigned s ) {
+      useconds_t us = s; us *= 1000000;
+      usleep(us);
+    }
+
+    inline
+    void
+    sleep_for_milliseconds( unsigned ms ) {
+      useconds_t us = s; us *= 1000;
+      usleep(us);
+    }
+
   #endif
 
 #endif
