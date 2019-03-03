@@ -28,8 +28,8 @@
   class TicToc {
 
     typedef double real_type;
-    LARGE_INTEGER frequency;        // ticks per second
-    LARGE_INTEGER t1, t2;           // ticks
+    LARGE_INTEGER frequency; // ticks per second
+    LARGE_INTEGER t1, t2;    // ticks
     real_type elapsed_time;
 
     TicToc( TicToc const & );
@@ -202,7 +202,7 @@
     inline
     void
     sleep_for_milliseconds( unsigned ms ) {
-      useconds_t us = s; us *= 1000;
+      useconds_t us = ms; us *= 1000;
       usleep(us);
     }
 
