@@ -94,7 +94,7 @@
 
 #ifdef ALGLIN_USE_THREAD
   #ifndef ALGLIN_USE_CXX11
-    #error "Alglin libray compiled without c++11 support, cannot use thread"
+    #error "Alglin libray compiled with c++11 support, cannot use c++ < c++11"
   #endif
   #define CYCLIC_REDUCTION_USE_THREAD
   #define CYCLIC_REDUCTION_USE_FIXED_SIZE

@@ -297,9 +297,10 @@ install: lib/$(LIB_ALGLIN)
 
 install_as_framework: lib/$(LIB_ALGLIN)
 	$(MKDIR) $(PREFIX)/include/$(FRAMEWORK)
+	$(MKDIR) $(PREFIX)/lib
 	cp -f -P src/*.h*          $(PREFIX)/include/$(FRAMEWORK)
 	cp -rf lib3rd/include/*    $(PREFIX)/include/$(FRAMEWORK)
-	cp -f -P lib/$(LIB_ALGLIN) $(PREFIX)/lib
+	cp -f -P lib/$(LIB_ALGLIN) $(PREFIX)/lib/$(LIB_ALGLIN)
 
 config:
 	rm -f src/AlglinConfig.hh
