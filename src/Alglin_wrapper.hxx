@@ -155,6 +155,49 @@ namespace alglin {
   };
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  // c = beta*c + alpha*A*v
+  template <typename T>
+  inline
+  void
+  gemv( T                        alpha,
+        Transposition    const & TRANSA,
+        MatrixWrapper<T> const & A,
+        T const                  v[],
+        integer                  incv,
+        T                        beta,
+        T                        c[],
+        integer                  incc ) {
+    alglin::gemv( TRANSA,
+                  A.numRows, A.numCols,
+                  alpha,
+                  A.data, A.ldData,
+                  v, incv,
+                  beta,
+                  c, incc );
+  }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  // c = beta*c + alpha*A*v
+  template <typename T>
+  inline
+  void
+  gemv( T                        alpha,
+        MatrixWrapper<T> const & A,
+        T const                  v[],
+        integer                  incv,
+        T                        beta,
+        T                        c[],
+        integer                  incc ) {
+    alglin::gemv( NO_TRANSPOSE,
+                  A.numRows, A.numCols,
+                  alpha,
+                  A.data, A.ldData,
+                  v, incv,
+                  beta,
+                  c, incc );
+  }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   // C = beta*C + alpha*A*B
   template <typename T>
   inline
@@ -262,49 +305,93 @@ namespace alglin {
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  // c = beta*c + alpha*A*v
+  // x = A * x or x = A^T * x
   template <typename T>
   inline
   void
-  gemv( T                        alpha,
+  trmv( ULselect         const & UPLO,
+        Transposition    const & TRANS,
+        DiagonalType     const & DIAG,
         MatrixWrapper<T> const & A,
-        T const                  v[],
-        integer                  incv,
-        T                        beta,
-        T                        c[],
-        integer                  incc ) {
-    alglin::gemv( NO_TRANSPOSE,
-                  A.numRows, A.numCols,
-                  alpha,
-                  A.data, A.ldData,
-                  v, incv,
-                  beta,
-                  c, incc );
+        T                        x[],
+        integer                  incx ) {
+    ALGLIN_ASSERT( A.numRows == A.numCols,
+                   "trmv, matrix is " << A.numRows << " x " <<
+                   A.numRows << " expected square" );
+    alglin::trmv( UPLO, TRANS, DIAG,
+                  A.numRows, A.data, A.ldData,
+                  x, incx );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  // c = beta*c + alpha*A*v
+  // x = A * x or x = A^T * x
   template <typename T>
   inline
   void
-  gemv( T                        alpha,
-        Transposition    const & TRANSA,
+  trmv( char const               where[],
+        ULselect         const & UPLO,
+        Transposition    const & TRANS,
+        DiagonalType     const & DIAG,
         MatrixWrapper<T> const & A,
-        T const                  v,
-        integer                  incv,
-        T                        beta,
-        T                        c,
-        integer                  incc ) {
-    alglin::gemv( TRANSA,
-                  A.numRows, A.numCols,
-                  alpha,
-                  A.data, A.ldData,
-                  v, incv,
-                  beta,
-                  c, incc );
+        T                        x[],
+        integer                  incx ) {
+    ALGLIN_ASSERT( A.numRows == A.numCols,
+                   "trmv at `" << where << "` matrix is " <<
+                   A.numRows << " x " << A.numRows <<
+                   " expected square" );
+    alglin::trmv( UPLO, TRANS, DIAG,
+                  A.numRows, A.data, A.ldData,
+                  x, incx );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  // x = A^(-1) * x or x = A^(-T) * x
+  template <typename T>
+  inline
+  void
+  trsv( ULselect         const & UPLO,
+        Transposition    const & TRANS,
+        DiagonalType     const & DIAG,
+        MatrixWrapper<T> const & A,
+        T                        x[],
+        integer                  incx ) {
+    ALGLIN_ASSERT( A.numRows == A.numCols,
+                   "trsv, matrix is " << A.numRows << " x " <<
+                   A.numRows << " expected square" );
+    alglin::trsv( UPLO, TRANS, DIAG,
+                  A.numRows, A.data, A.ldData,
+                  x, incx );
+  }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  // x = A^(-1) * x or x = A^(-T) * x
+  template <typename T>
+  inline
+  void
+  trsv( char const               where[],
+        ULselect         const & UPLO,
+        Transposition    const & TRANS,
+        DiagonalType     const & DIAG,
+        MatrixWrapper<T> const & A,
+        T                        x[],
+        integer                  incx ) {
+    ALGLIN_ASSERT( A.numRows == A.numCols,
+                   "trsv at `" << where << "` matrix is " <<
+                   A.numRows << " x " << A.numRows <<
+                   " expected square" );
+    alglin::trsv( UPLO, TRANS, DIAG,
+                  A.numRows, A.data, A.ldData,
+                  x, incx );
+  }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
 
   template <typename T>
   inline

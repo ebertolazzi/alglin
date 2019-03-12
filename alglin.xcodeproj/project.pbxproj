@@ -1659,7 +1659,7 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_CXX_LANGUAGE_STANDARD = "c++98";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_ARC = YES;
@@ -1721,15 +1721,15 @@
 					/opt/intel/mkl/include/,
 					"$(SOURCE_ROOT)/lib3rd/include",
 				);
-				LIBRARY_SEARCH_PATHS = /usr/local/lib;
+				LIBRARY_SEARCH_PATHS = (
+					/usr/local/lib,
+					"$(SOURCE_ROOT)/lib3rd/lib",
+				);
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = "-pthread";
 				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
-				OTHER_LDFLAGS = (
-					"-L$(SOURCE_ROOT)/lib3rd/lib/superlu",
-					"-lsuperlu",
-				);
+				OTHER_LDFLAGS = "-lsuperlu";
 				OTHER_LIBTOOLFLAGS = "";
 				SDKROOT = macosx;
 				USER_HEADER_SEARCH_PATHS = "/usr/local/include /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/Headers/";
@@ -1748,7 +1748,7 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_CXX_LANGUAGE_STANDARD = "c++98";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_ARC = YES;
@@ -1808,14 +1808,14 @@
 					/opt/intel/mkl/include/,
 					"$(SOURCE_ROOT)/lib3rd/include",
 				);
-				LIBRARY_SEARCH_PATHS = /usr/local/lib;
+				LIBRARY_SEARCH_PATHS = (
+					/usr/local/lib,
+					"$(SOURCE_ROOT)/lib3rd/lib",
+				);
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_CFLAGS = "-pthread";
 				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
-				OTHER_LDFLAGS = (
-					"-L$(SOURCE_ROOT)/lib3rd/lib/superlu",
-					"-lsuperlu",
-				);
+				OTHER_LDFLAGS = "-lsuperlu";
 				OTHER_LIBTOOLFLAGS = "";
 				SDKROOT = macosx;
 				USER_HEADER_SEARCH_PATHS = "/usr/local/include /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/Headers/";
