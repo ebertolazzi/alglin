@@ -86,6 +86,7 @@ namespace alglin {
         ok = (*fun)( X, value1 ) && isRegular(value1);
         if ( ok ) grad[i] = (value0-value1)/h;
         break;
+
       default:
         ALGLIN_ERROR( "finite_difference_gradient::fd_gradient = " <<
                       fd_gradient << " must be in {-1, 0, 1}" );
@@ -134,11 +135,12 @@ namespace alglin {
         Number scale = std::max(eps,std::max(std::abs(gradi),std::abs(grad[i])));
         Number err   = std::abs(gradi-grad[i]);
         if ( err > epsi*std::max(Number(1),scale) ) {
-          stream << "grad[" << std::setw(3) << i << "] = "
-                 << std::setw(14) << grad[i] << " [A] --- "
-                 << std::setw(14) << gradi   << " [FD]  err = "
-                 << std::setw(14) << err << "  err (%) = "
-                 << 100*err/scale << '\n';
+          stream
+            << "grad[" << std::setw(3) << i << "] = "
+            << std::setw(14) << grad[i] << " [A] --- "
+            << std::setw(14) << gradi   << " [FD]  err = "
+            << std::setw(14) << err << "  err (%) = "
+            << 100*err/scale << '\n';
         }
       }
     }
@@ -224,6 +226,7 @@ namespace alglin {
           for ( integer i = 0; i < dim_f; ++i )
             pjac[j] = (g0[i]-g1[i])/h;
         break;
+
       default:
         ALGLIN_ERROR( "finite_difference_jacobian::fd_gradient = " <<
                       fd_jacobian << " must be in {-1, 0, 1}" );
@@ -277,12 +280,13 @@ namespace alglin {
         Number scale = std::max(eps,std::max(std::abs(d),std::abs(pjac[i])));
         Number err   = std::abs(d-pjac[i]);
         if ( err > epsi*std::max(Number(1),scale) ) {
-          stream << "jac[" << std::setw(3) << i << ", "
-                 << std::setw(3) << j << "] = "
-                 << std::setw(14) << pjac[i] << " [A] --- "
-                 << std::setw(14) << d << " [FD]  err = "
-                 << std::setw(14) << err << "  err (%) = "
-                 << 100*err/scale << '\n';
+          stream
+            << "jac[" << std::setw(3) << i << ", "
+            << std::setw(3)  << j       << "] = "
+            << std::setw(14) << pjac[i] << " [A] --- "
+            << std::setw(14) << d       << " [FD]  err = "
+            << std::setw(14) << err     << "  err (%) = "
+            << 100*err/scale << '\n';
         }
       }
 

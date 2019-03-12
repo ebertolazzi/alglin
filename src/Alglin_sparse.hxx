@@ -40,7 +40,6 @@ namespace alglin {
     integer     numRows; //!< Number of rows
     integer     numCols; //!< Number of columns
     integer     nnz;     //!< Total number of nonzeros
-    integer     __dummy;
     valueType * vals;    //!< pointer to the values of the sparse matrix
     integer   * rows;    //!< pointer to the rows index
     integer   * cols;    //!< pointer to the columns index

@@ -592,18 +592,22 @@ namespace alglin {
   foundNaN( real const pv[], integer DIM );
 
   void
-  checkNaN( doublereal const pv[],
-            char       const v_name[],
-            integer          DIM,
-            integer          line,
-            char       const file[] );
+  checkNaN(
+    doublereal const pv[],
+    char       const v_name[],
+    integer          DIM,
+    integer          line,
+    char       const file[]
+  );
 
   void
-  checkNaN( real const pv[],
-            char const v_name[],
-            integer    DIM,
-            integer    line,
-            char const file[] );
+  checkNaN(
+    real const pv[],
+    char const v_name[],
+    integer    DIM,
+    integer    line,
+    char const file[]
+  );
 
   //============================================================================
 
@@ -750,15 +754,17 @@ namespace alglin {
   #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_ATLAS) || defined(ALGLIN_USE_OPENBLAS)
   extern "C" {
     integer
-    LAPACK_F77NAME(ilaenv)( integer   const * ISPEC,
-                            character const   NAME[],
-                            character const   OPTS[],
-                            integer         * N1,
-                            integer         * N2,
-                            integer         * N3,
-                            integer         * N4,
-                            size_t          * len_NAME,
-                            size_t          * len_OPTS );
+    LAPACK_F77NAME(ilaenv)(
+      integer   const * ISPEC,
+      character const   NAME[],
+      character const   OPTS[],
+      integer         * N1,
+      integer         * N2,
+      integer         * N3,
+      integer         * N4,
+      size_t          * len_NAME,
+      size_t          * len_OPTS
+    );
   }
   #endif
 
@@ -901,26 +907,30 @@ namespace alglin {
   extern "C" {
 
     void
-    LAPACK_F77NAME(slaic1)( integer const * JOB,
-                            integer const * J,
-                            real    const   X[],
-                            real    const * SEST,
-                            real    const   W[],
-                            real    const * GAMMA,
-                            real          * SESTPR,
-                            real          * S,
-                            real          * C );
+    LAPACK_F77NAME(slaic1)(
+      integer const * JOB,
+      integer const * J,
+      real    const   X[],
+      real    const * SEST,
+      real    const   W[],
+      real    const * GAMMA,
+      real          * SESTPR,
+      real          * S,
+      real          * C
+    );
 
     void
-    LAPACK_F77NAME(dlaic1)( integer    const * JOB,
-                            integer    const * J,
-                            doublereal const   X[],
-                            doublereal const * SEST,
-                            doublereal const   W[],
-                            doublereal const * GAMMA,
-                            doublereal       * SESTPR,
-                            doublereal       * S,
-                            doublereal       * C );
+    LAPACK_F77NAME(dlaic1)(
+      integer    const * JOB,
+      integer    const * J,
+      doublereal const   X[],
+      doublereal const * SEST,
+      doublereal const   W[],
+      doublereal const * GAMMA,
+      doublereal       * SESTPR,
+      doublereal       * S,
+      doublereal       * C
+    );
   }
   #endif
 

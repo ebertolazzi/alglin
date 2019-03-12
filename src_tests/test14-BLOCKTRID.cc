@@ -232,7 +232,7 @@ test4() {
 
   alglin::doublereal accerr = 0;
   alglin::doublereal maxerr = 0;
-  for ( alglin::integer i=0; i < n; ++i ) {
+  for ( size_t i=0; i < size_t(n); ++i ) {
     alglin::doublereal err = std::abs( rhs1[i] - rhs2[i] );
     accerr += err;
     if ( maxerr < err ) maxerr = err;
