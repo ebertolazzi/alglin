@@ -35,6 +35,30 @@
 
 namespace alglin {
 
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  template <typename T>
+  Matrix<T>::Matrix()
+  : MatrixWrapper<T>()
+  , mem("Matrix")
+  {}
+
+  template <typename T>
+  Matrix<T>::Matrix( integer nr, integer nc )
+  : MatrixWrapper<T>( nullptr, nr, nc, nr )
+  , mem("Matrix")
+  {
+    mem.allocate( size_t(nr*nc) ) ;
+    this->data = mem( size_t(nr*nc) );
+  }
+
+  template <typename T>
+  void
+  Matrix<T>::setup( integer nr, integer nc ) {
+    mem.allocate( size_t(nr*nc) ) ;
+    this->MatrixWrapper<T>::setup( mem( size_t(nr*nc) ), nr, nc, nr ) ;
+  }
+
   /*
   //   ____                             ____ ____ ___   ___  ____
   //  / ___| _ __   __ _ _ __ ___  ___ / ___/ ___/ _ \ / _ \|  _ \
@@ -2808,6 +2832,9 @@ namespace alglin {
 
   template class MatrixWrapper<real>;
   template class MatrixWrapper<doublereal>;
+
+  template class Matrix<real>;
+  template class Matrix<doublereal>;
 
   template class LU<real>;
   template class LU<doublereal>;

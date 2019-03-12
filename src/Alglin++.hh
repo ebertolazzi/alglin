@@ -147,6 +147,24 @@ namespace alglin {
     }
   };
 
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  template <typename T>
+  class Matrix : public MatrixWrapper<T> {
+    alglin::Malloc<T> mem;
+  public:
+    Matrix();
+    Matrix( integer nr, integer nc );
+    void setup( integer nr, integer nc );
+  };
+
+  // explicit instantiation declaration to suppress warnings
+
+  #ifdef ALGLIN_USE_CXX11
+  extern template class Matrix<real>;
+  extern template class Matrix<doublereal>;
+  #endif
+
   // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
   template <typename T>

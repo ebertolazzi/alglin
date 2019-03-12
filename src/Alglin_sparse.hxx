@@ -18,7 +18,7 @@
 \*--------------------------------------------------------------------------*/
 
 ///
-/// file: alglin_sparse.hxx
+/// file: Alglin_sparse.hxx
 ///
 
 namespace alglin {

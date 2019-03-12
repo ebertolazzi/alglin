@@ -18,7 +18,7 @@
 \*--------------------------------------------------------------------------*/
 
 ///
-/// file: alglin_general_qr.hxx
+/// file: Alglin_general_qr.hxx
 ///
 
 namespace alglin {

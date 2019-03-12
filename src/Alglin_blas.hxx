@@ -18,7 +18,7 @@
 \*--------------------------------------------------------------------------*/
 
 ///
-/// file: alglin_blas.hxx
+/// file: Alglin_blas.hxx
 ///
 
 namespace alglin {

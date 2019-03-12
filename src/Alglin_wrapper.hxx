@@ -18,7 +18,7 @@
 \*--------------------------------------------------------------------------*/
 
 ///
-/// file: alglin_wrapper.hxx
+/// file: Alglin_wrapper.hxx
 ///
 
 namespace alglin {
@@ -385,19 +385,112 @@ namespace alglin {
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  /*\
+   *     B := alpha*op( A )*B,   or   B := alpha*B*op( A ),
+   *     op( A ) = A   or   op( A ) = A**T.
+  \*/
+  template <typename T>
+  inline
+  void
+  trmm( SideMultiply     const & SIDE,
+        ULselect         const & UPLO,
+        Transposition    const & TRANS,
+        DiagonalType     const & DIAG,
+        T                        alpha,
+        MatrixWrapper<T> const & A,
+        MatrixWrapper<T>       & B ) {
+    ALGLIN_ASSERT( A.numRows == A.numCols,
+                   "trmm, matrix is " << A.numRows << " x " <<
+                   A.numRows << " expected square" );
+    alglin::trmm( SIDE, UPLO, TRANS, DIAG,
+                  B.numRows, B.numCols, alpha,
+                  A.data, A.ldData,
+                  B.data, B.ldData );
+  }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  /*\
+   *     B := alpha*op( A )*B,   or   B := alpha*B*op( A ),
+   *     op( A ) = A   or   op( A ) = A**T.
+  \*/
+  template <typename T>
+  inline
+  void
+  trmm( char const               where[],
+        SideMultiply     const & SIDE,
+        ULselect         const & UPLO,
+        Transposition    const & TRANS,
+        DiagonalType     const & DIAG,
+        T                        alpha,
+        MatrixWrapper<T> const & A,
+        MatrixWrapper<T>       & B ) {
+    ALGLIN_ASSERT( A.numRows == A.numCols,
+                   "trmm, at `" << where <<
+                   "` matrix is " << A.numRows << " x " <<
+                   A.numRows << " expected square" );
+    alglin::trmm( SIDE, UPLO, TRANS, DIAG,
+                  B.numRows, B.numCols, alpha,
+                  A.data, A.ldData,
+                  B.data, B.ldData );
+  }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  /*\
+   *     B := alpha*op( A^(-1) )*B,   or   B := alpha*B*op( A^(-1) ),
+   *     op( A ) = A   or   op( A ) = A**T.
+  \*/
+  template <typename T>
+  inline
+  void
+  trsm( SideMultiply     const & SIDE,
+        ULselect         const & UPLO,
+        Transposition    const & TRANS,
+        DiagonalType     const & DIAG,
+        T                        alpha,
+        MatrixWrapper<T> const & A,
+        MatrixWrapper<T>       & B ) {
+    ALGLIN_ASSERT( A.numRows == A.numCols,
+                   "trsm, matrix is " << A.numRows << " x " <<
+                   A.numRows << " expected square" );
+    alglin::trsm( SIDE, UPLO, TRANS, DIAG,
+                  B.numRows, B.numCols, alpha,
+                  A.data, A.ldData,
+                  B.data, B.ldData );
+  }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  /*\
+   *     B := alpha*op( A )*B,   or   B := alpha*B*op( A ),
+   *     op( A ) = A   or   op( A ) = A**T.
+  \*/
+  template <typename T>
+  inline
+  void
+  trsm( char const               where[],
+        SideMultiply     const & SIDE,
+        ULselect         const & UPLO,
+        Transposition    const & TRANS,
+        DiagonalType     const & DIAG,
+        T                        alpha,
+        MatrixWrapper<T> const & A,
+        MatrixWrapper<T>       & B ) {
+    ALGLIN_ASSERT( A.numRows == A.numCols,
+                   "trmm, at `" << where <<
+                   "` matrix is " << A.numRows << " x " <<
+                   A.numRows << " expected square" );
+    alglin::trsm( SIDE, UPLO, TRANS, DIAG,
+                  B.numRows, B.numCols, alpha,
+                  A.data, A.ldData,
+                  B.data, B.ldData );
+  }
 
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   template <typename T>
   inline
   T
   normInf( MatrixWrapper<T> const & A ) {
-    return normInf( A.numRows, A.numCols, A.data, A.ldData );
+    return alglin::normInf( A.numRows, A.numCols, A.data, A.ldData );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -406,7 +499,7 @@ namespace alglin {
   inline
   T
   norm1( MatrixWrapper<T> const & A ) {
-    return norm1( A.numRows, A.numCols, A.data, A.ldData );
+    return alglin::norm1( A.numRows, A.numCols, A.data, A.ldData );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -415,7 +508,7 @@ namespace alglin {
   inline
   T
   normF( MatrixWrapper<T> const & A ) {
-    return normF( A.numRows, A.numCols, A.data, A.ldData );
+    return alglin::normF( A.numRows, A.numCols, A.data, A.ldData );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -424,7 +517,7 @@ namespace alglin {
   inline
   T
   maxabs( MatrixWrapper<T> const & A ) {
-    return maxabs( A.numRows, A.numCols, A.data, A.ldData );
+    return alglin::maxabs( A.numRows, A.numCols, A.data, A.ldData );
   }
 
   // explicit instantiation declaration to suppress warnings
@@ -435,5 +528,3 @@ namespace alglin {
   #endif
 
 }
-
-
