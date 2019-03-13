@@ -337,7 +337,7 @@ namespace alglin {
       );
       ALGLIN_ASSERT(
         info == 0,
-        "block_load call alglin::gecopy return info = " << info
+        "load_block call alglin::gecopy return info = " << info
       );
     }
 
@@ -348,7 +348,7 @@ namespace alglin {
     \*/
     void
     load_column( valueType const column[], integer icol )
-    { copy( nRow, column, 1, Amat + icol * nRow, 1 ); }
+    { copy( this->nRow, column, 1, this->Amat + icol * this->nRow, 1 ); }
 
     /*!
     :|:  Copy vector `row` to the `irow`th row of the internal stored matrix
@@ -357,7 +357,7 @@ namespace alglin {
     \*/
     void
     load_row( valueType const row[], integer irow )
-    { copy( nRow, row, 1, Amat + irow, nRow ); }
+    { copy( this->nCol, row, 1, this->Amat + irow, this->nRow ); }
 
     /*!
     :|:  Copy vector element of a sparse vector to a column of

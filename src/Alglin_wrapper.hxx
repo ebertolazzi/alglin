@@ -144,6 +144,25 @@ namespace alglin {
     void zero() { gezero( numRows, numCols, data, ldData ); }
 
     /*!
+    :|:  Zeroes a rectangular block of the stored matrix
+    :|:  staring at `(irow,icol)` position
+    :|:
+    :|:  \param[in] nr    number of rows of the block to be zeroed
+    :|:  \param[in] nc    number of columns of the block to be zeroed
+    :|:  \param[in] irow  starting row
+    :|:  \param[in] icol  stating column
+    \*/
+    void
+    zero_block(
+      integer nr,
+      integer nc,
+      integer irow,
+      integer icol
+    ) {
+      gezero( nr, nc, data + irow + icol * ldData, ldData );
+    }
+
+    /*!
     :|: Initialize the matrix as an identity matrix
     \*/
     void id( valueType dg ) { geid( numRows, numCols, data, ldData, dg ); }
@@ -165,6 +184,55 @@ namespace alglin {
     :|:
     \*/
     void load( MatW const & A );
+
+    /*!
+    :|:  Copy a matrix to a rectangular block of the stored matrix
+    :|:  staring at `(irow,icol)` position
+    :|:
+    :|:  \param[in] nr    number of rows of the block to be zeroed
+    :|:  \param[in] nc    number of columns of the block to be zeroed
+    :|:  \param[in] B     pointer to memory storing the input matrix `B`
+    :|:  \param[in] ldB   leading dimension of the matrix `B`
+    :|:  \param[in] irow  starting row
+    :|:  \param[in] icol  stating column
+    \*/
+    void
+    load_block(
+      integer         nr,
+      integer         nc,
+      valueType const B[],
+      integer         ldB,
+      integer         irow = 0,
+      integer         icol = 0
+    ) {
+      integer info = gecopy(
+        nr, nc,
+        B, ldB,
+        this->data + irow + icol * this->ldData, this->ldData
+      );
+      ALGLIN_ASSERT(
+        info == 0,
+        "load_block call alglin::gecopy return info = " << info
+      );
+    }
+
+    /*!
+    :|:  Copy vector `column` to the `icol`th column of the internal stored matrix
+    :|:  \param[in] column the column vector
+    :|:  \param[in] icol   the column to be changed
+    \*/
+    void
+    load_column( valueType const column[], integer icol )
+    { copy( this->numRows, column, 1, this->data + icol * this->ldData, 1 ); }
+
+    /*!
+    :|:  Copy vector `row` to the `irow`th row of the internal stored matrix
+    :|:  \param[in] row  the row vector
+    :|:  \param[in] irow the row to be changed
+    \*/
+    void
+    load_row( valueType const row[], integer irow )
+    { copy( this->numCols, row, 1, this->data + irow, this->ldData ); }
 
     /*!
     :|: Initialize matrix to 0 and next copy sparse matrix
