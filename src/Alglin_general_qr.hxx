@@ -34,17 +34,22 @@ namespace alglin {
   #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS) ||  defined(ALGLIN_USE_ATLAS)
   extern "C" {
     void
-    LAPACK_F77NAME(slartg)( real * F,
-                            real * G,
-                            real * C,
-                            real * S,
-                            real * R );
+    LAPACK_F77NAME(slartg)(
+      real * F,
+      real * G,
+      real * C,
+      real * S,
+      real * R
+    );
+
     void
-    LAPACK_F77NAME(dlartg)( doublereal * F,
-                            doublereal * G,
-                            doublereal * C,
-                            doublereal * S,
-                            doublereal * R );
+    LAPACK_F77NAME(dlartg)(
+      doublereal * F,
+      doublereal * G,
+      doublereal * C,
+      doublereal * S,
+      doublereal * R
+    );
   }
   #endif
 
@@ -166,22 +171,30 @@ namespace alglin {
   #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
   extern "C" {
     real
-    LAPACK_F77NAME(slapy2)( real const * X,
-                            real const * Y );
+    LAPACK_F77NAME(slapy2)(
+      real const * X,
+      real const * Y
+    );
 
     doublereal
-    LAPACK_F77NAME(dlapy2)( doublereal const * X,
-                            doublereal const * Y );
+    LAPACK_F77NAME(dlapy2)(
+      doublereal const * X,
+      doublereal const * Y
+    );
 
     real
-    LAPACK_F77NAME(slapy3)( real const * X,
-                            real const * Y,
-                            real const * Z );
+    LAPACK_F77NAME(slapy3)(
+      real const * X,
+      real const * Y,
+      real const * Z
+    );
 
     doublereal
-    LAPACK_F77NAME(dlapy3)( doublereal const * X,
-                            doublereal const * Y,
-                            doublereal const * Z );
+    LAPACK_F77NAME(dlapy3)(
+      doublereal const * X,
+      doublereal const * Y,
+      doublereal const * Z
+    );
   }
   #endif
 
@@ -250,36 +263,39 @@ namespace alglin {
   // use standard Lapack routine
   extern "C" {
 
-   void
-   LAPACK_F77NAME(sormqr)( character const * SIDE,
-                           character const * TRANS,
-                           integer   const * M,
-                           integer   const * N,
-                           integer   const * K,
-                           real      const   A[],
-                           integer   const * LDA,
-                           real      const   TAU[],
-                           real              C[],
-                           integer   const * LDC,
-                           real              WORK[],
-                           integer   const * LWORK,
-                           integer         * INFO );
+    void
+    LAPACK_F77NAME(sormqr)(
+      character const * SIDE,
+      character const * TRANS,
+      integer   const * M,
+      integer   const * N,
+      integer   const * K,
+      real      const   A[],
+      integer   const * LDA,
+      real      const   TAU[],
+      real              C[],
+      integer   const * LDC,
+      real              WORK[],
+      integer   const * LWORK,
+      integer         * INFO
+    );
 
-   void
-   LAPACK_F77NAME(dormqr)( character  const * SIDE,
-                           character  const * TRANS,
-                           integer    const * M,
-                           integer    const * N,
-                           integer    const * K,
-                           doublereal const   A[],
-                           integer    const * LDA,
-                           doublereal const   TAU[],
-                           doublereal         C[],
-                           integer    const * LDC,
-                           doublereal         WORK[],
-                           integer    const * LWORK,
-                           integer          * INFO );
-  }
+    void
+    LAPACK_F77NAME(dormqr)(
+      character  const * SIDE,
+      character  const * TRANS,
+      integer    const * M,
+      integer    const * N,
+      integer    const * K,
+      doublereal const   A[],
+      integer    const * LDA,
+      doublereal const   TAU[],
+      doublereal         C[],
+      integer    const * LDC,
+      doublereal         WORK[],
+      integer    const * LWORK,
+      integer          * INFO );
+    }
   #endif
 
   /*\
@@ -645,26 +661,30 @@ namespace alglin {
   extern "C" {
 
     void
-    LAPACK_F77NAME(slarft)( character const   DIRECT[],
-                            character const   STOREV[],
-                            integer   const * N,
-                            integer   const * K,
-                            real              V[],
-                            integer   const * LDV,
-                            real      const   TAU[],
-                            real              T[],
-                            integer   const * LDT );
+    LAPACK_F77NAME(slarft)(
+      character const   DIRECT[],
+      character const   STOREV[],
+      integer   const * N,
+      integer   const * K,
+      real              V[],
+      integer   const * LDV,
+      real      const   TAU[],
+      real              T[],
+      integer   const * LDT
+    );
 
     void
-    LAPACK_F77NAME(dlarft)( character  const   DIRECT[],
-                            character  const   STOREV[],
-                            integer    const * N,
-                            integer    const * K,
-                            doublereal         V[],
-                            integer    const * LDV,
-                            doublereal const   TAU[],
-                            doublereal         T[],
-                            integer    const * LDT );
+    LAPACK_F77NAME(dlarft)(
+      character  const   DIRECT[],
+      character  const   STOREV[],
+      integer    const * N,
+      integer    const * K,
+      doublereal         V[],
+      integer    const * LDV,
+      doublereal const   TAU[],
+      doublereal         T[],
+      integer    const * LDT
+    );
   }
   #endif
 
@@ -815,18 +835,22 @@ namespace alglin {
   extern "C" {
 
     void
-    LAPACK_F77NAME(slarfg)( integer const * N,
-                            real          * ALPHA,
-                            real            X[],
-                            integer const * INCX,
-                            real            TAU[] );
+    LAPACK_F77NAME(slarfg)(
+      integer const * N,
+      real          * ALPHA,
+      real            X[],
+      integer const * INCX,
+      real            TAU[]
+    );
 
     void
-    LAPACK_F77NAME(dlarfg)( integer const * N,
-                            doublereal    * ALPHA,
-                            doublereal      X[],
-                            integer const * INCX,
-                            doublereal      TAU[] );
+    LAPACK_F77NAME(dlarfg)(
+      integer const * N,
+      doublereal    * ALPHA,
+      doublereal      X[],
+      integer const * INCX,
+      doublereal      TAU[]
+    );
   }
   #endif
 
@@ -917,38 +941,42 @@ namespace alglin {
   extern "C" {
 
     void
-    LAPACK_F77NAME(slarfb)( character const   SIDE[],
-                            character const   TRANS[],
-                            character const   DIRECT[],
-                            character const   STOREV[],
-                            integer   const * M,
-                            integer   const * N,
-                            integer   const * K,
-                            real      const   V[],
-                            integer   const * LDV,
-                            real      const   T[],
-                            integer   const * LDT,
-                            real              C[],
-                            integer   const * LDC,
-                            real              WORK[],
-                            integer   const * LDWORK );
+    LAPACK_F77NAME(slarfb)(
+      character const   SIDE[],
+      character const   TRANS[],
+      character const   DIRECT[],
+      character const   STOREV[],
+      integer   const * M,
+      integer   const * N,
+      integer   const * K,
+      real      const   V[],
+      integer   const * LDV,
+      real      const   T[],
+      integer   const * LDT,
+      real              C[],
+      integer   const * LDC,
+      real              WORK[],
+      integer   const * LDWORK
+    );
 
     void
-    LAPACK_F77NAME(dlarfb)( character  const   SIDE[],
-                            character  const   TRANS[],
-                            character  const   DIRECT[],
-                            character  const   STOREV[],
-                            integer    const * M,
-                            integer    const * N,
-                            integer    const * K,
-                            doublereal const   V[],
-                            integer    const * LDV,
-                            doublereal const   T[],
-                            integer    const * LDT,
-                            doublereal         C[],
-                            integer    const * LDC,
-                            doublereal         WORK[],
-                            integer    const * LDWORK );
+    LAPACK_F77NAME(dlarfb)(
+      character  const   SIDE[],
+      character  const   TRANS[],
+      character  const   DIRECT[],
+      character  const   STOREV[],
+      integer    const * M,
+      integer    const * N,
+      integer    const * K,
+      doublereal const   V[],
+      integer    const * LDV,
+      doublereal const   T[],
+      integer    const * LDT,
+      doublereal         C[],
+      integer    const * LDC,
+      doublereal         WORK[],
+      integer    const * LDWORK
+    );
   }
   #endif
 
@@ -1109,24 +1137,28 @@ namespace alglin {
   extern "C" {
 
     void
-    LAPACK_F77NAME(sgeqrf)( integer const * M,
-                            integer const * N,
-                            real            A[],
-                            integer const * LDA,
-                            real            TAU[],
-                            real            WORK[],
-                            integer const * LWORK,
-                            integer       * INFO );
+    LAPACK_F77NAME(sgeqrf)(
+      integer const * M,
+      integer const * N,
+      real            A[],
+      integer const * LDA,
+      real            TAU[],
+      real            WORK[],
+      integer const * LWORK,
+      integer       * INFO
+    );
 
     void
-    LAPACK_F77NAME(dgeqrf)( integer    const * M,
-                            integer    const * N,
-                            doublereal         A[],
-                            integer    const * LDA,
-                            doublereal         TAU[],
-                            doublereal         WORK[],
-                            integer    const * LWORK,
-                            integer          * INFO );
+    LAPACK_F77NAME(dgeqrf)(
+      integer    const * M,
+      integer    const * N,
+      doublereal         A[],
+      integer    const * LDA,
+      doublereal         TAU[],
+      doublereal         WORK[],
+      integer    const * LWORK,
+      integer          * INFO
+    );
   }
   #endif
 
@@ -1264,22 +1296,26 @@ namespace alglin {
   extern "C" {
 
     void
-    LAPACK_F77NAME(sgeqr2)( integer const * M,
-                            integer const * N,
-                            real            A[],
-                            integer const * LDA,
-                            real            TAU[],
-                            real            WORK[],
-                            integer       * INFO );
+    LAPACK_F77NAME(sgeqr2)(
+      integer const * M,
+      integer const * N,
+      real            A[],
+      integer const * LDA,
+      real            TAU[],
+      real            WORK[],
+      integer       * INFO
+    );
 
     void
-    LAPACK_F77NAME(dgeqr2)( integer    const * M,
-                            integer    const * N,
-                            doublereal         A[],
-                            integer    const * LDA,
-                            doublereal         TAU[],
-                            doublereal         WORK[],
-                            integer          * INFO );
+    LAPACK_F77NAME(dgeqr2)(
+      integer    const * M,
+      integer    const * N,
+      doublereal         A[],
+      integer    const * LDA,
+      doublereal         TAU[],
+      doublereal         WORK[],
+      integer          * INFO
+    );
   }
   #endif
 
@@ -1726,36 +1762,40 @@ namespace alglin {
   extern "C" {
 
     void
-    LAPACK_F77NAME(sormrz)( character const * SIDE,
-                            character const * TRANS,
-                            integer   const * M,
-                            integer   const * N,
-                            integer   const * K,
-                            integer   const * L,
-                            real      const   A[],
-                            integer   const * LDA,
-                            real      const   TAU[],
-                            real              C[],
-                            integer   const * LDC,
-                            real              WORK[],
-                            integer   const * LWORK,
-                            integer         * INFO  );
+    LAPACK_F77NAME(sormrz)(
+      character const * SIDE,
+      character const * TRANS,
+      integer   const * M,
+      integer   const * N,
+      integer   const * K,
+      integer   const * L,
+      real      const   A[],
+      integer   const * LDA,
+      real      const   TAU[],
+      real              C[],
+      integer   const * LDC,
+      real              WORK[],
+      integer   const * LWORK,
+      integer         * INFO
+    );
 
     void
-    LAPACK_F77NAME(dormrz)( character  const * SIDE,
-                            character  const * TRANS,
-                            integer    const * M,
-                            integer    const * N,
-                            integer    const * K,
-                            integer    const * L,
-                            doublereal const   A[],
-                            integer    const * LDA,
-                            doublereal const   TAU[],
-                            doublereal         C[],
-                            integer    const * LDC,
-                            doublereal         WORK[],
-                            integer    const * LWORK,
-                            integer          * INFO );
+    LAPACK_F77NAME(dormrz)(
+      character  const * SIDE,
+      character  const * TRANS,
+      integer    const * M,
+      integer    const * N,
+      integer    const * K,
+      integer    const * L,
+      doublereal const   A[],
+      integer    const * LDA,
+      doublereal const   TAU[],
+      doublereal         C[],
+      integer    const * LDC,
+      doublereal         WORK[],
+      integer    const * LWORK,
+      integer          * INFO
+    );
 
   }
   #endif

@@ -21,6 +21,8 @@
 /// file: Alglin_sparse.hxx
 ///
 
+#include <vector>
+
 namespace alglin {
 
   template <typename T>
@@ -34,6 +36,21 @@ namespace alglin {
      *        Protected Constructor of the class SparseMatrixBase.
     \*/
     SparseMatrixBase() {}
+
+    void
+    y_manage(
+      valueType       beta,
+      integer         DimY,
+      valueType       y[],
+      integer         incY
+    ) const {
+      if ( isZero(beta) ) {
+        for ( integer i = 0; i < DimY; ++i ) y[i*incY] = 0;
+      } else if ( !isZero(beta-1) ) {
+        for ( integer i = 0; i < DimY; ++i ) y[i*incY] *= beta;
+      }
+    }
+
   public:
 
     /*!
@@ -110,9 +127,35 @@ namespace alglin {
 
     /*!
      * \brief gemv:
-     *        Calls the blas-Routine (\f$y = \beta y + \alpha \mathrm{op}(A) x + y\f$).
+     *        Calls the blas-Routine (\f$y = \beta y + \alpha A x + y\f$).
      *
-     * \param[in]     TransposedA   True if the matrix A is transposed.
+     * \param[in]     alpha         Scalar \f$\alpha \f$.
+     * \param[in]     DimX          Dimension of the vector x.
+     * \param[in]     x             Vector x.
+     * \param[in]     incX          Stride of vector x.
+     * \param[in]     DimY          Dimension of the vector y.
+     * \param[in]     beta          Scalar \f$\beta \f$.
+     * \param[in,out] y             In-/Output vector y.
+     * \param[in]     incY          Stride of vector y.
+     *
+    \*/
+    virtual
+    void
+    gemv(
+      valueType       alpha,
+      integer         DimX,
+      valueType const x[],
+      integer         incX,
+      valueType       beta,
+      integer         DimY,
+      valueType       y[],
+      integer         incY
+    ) const ALGLIN_PURE_VIRTUAL;
+
+    /*!
+     * \brief gemv:
+     *        Calls the blas-Routine (\f$y = \beta y + \alpha A^T x + y\f$).
+     *
      * \param[in]     alpha         Scalar \f$\alpha \f$.
      * \param[in]     DimX          Dimension of the vector x.
      * \param[in]     x             Vector x.
@@ -126,8 +169,7 @@ namespace alglin {
 
     virtual
     void
-    gemv(
-      bool            TransposedA,
+    gemv_Transposed(
       valueType       alpha,
       integer         DimX,
       valueType const x[],
@@ -137,6 +179,34 @@ namespace alglin {
       valueType       y[],
       integer         incY
     ) const ALGLIN_PURE_VIRTUAL;
+
+    /*!
+     * \brief gemv:
+     *        Calls the blas-Routine (\f$y = \beta y + \alpha (A+A^T-\textrm{diag}(A)) x + y\f$).
+     *
+     * \param[in]     alpha         Scalar \f$\alpha \f$.
+     * \param[in]     DimX          Dimension of the vector x.
+     * \param[in]     x             Vector x.
+     * \param[in]     incX          Stride of vector x.
+     * \param[in]     DimY          Dimension of the vector y.
+     * \param[in]     beta          Scalar \f$\beta \f$.
+     * \param[in,out] y             In-/Output vector y.
+     * \param[in]     incY          Stride of vector y.
+     *
+    \*/
+    virtual
+    void
+    gemv_Symmetric(
+      valueType       alpha,
+      integer         DimX,
+      valueType const x[],
+      integer         incX,
+      valueType       beta,
+      integer         DimY,
+      valueType       y[],
+      integer         incY
+    ) const ALGLIN_PURE_VIRTUAL;
+
   };
 
   /*
@@ -153,15 +223,33 @@ namespace alglin {
   class SparseCCOOR : public SparseMatrixBase<T> {
   public:
     typedef typename SparseMatrixBase<T>::valueType valueType;
-  private:
-    integer     nRows; //!< Number of rows
-    integer     nCols; //!< Number of columns
-    integer     nnz;   //!< Total number of nonzeros
-    valueType * vals;  //!< pointer to the values of the sparse matrix
-    integer   * rows;  //!< pointer to the rows index
-    integer   * cols;  //!< pointer to the columns index
+  protected:
+    integer                nRows; //!< Number of rows
+    integer                nCols; //!< Number of columns
+    integer                nnz;   //!< Total number of nonzeros
+    std::vector<valueType> vals;  //!< the values of the sparse matrix
+    std::vector<integer>   rows;  //!< the rows index
+    std::vector<integer>   cols;  //!< the columns index
+
+    bool fortran_indexing;
 
   public:
+
+    SparseCCOOR()
+    : nRows(0)
+    , nCols(0)
+    , nnz(0)
+    , fortran_indexing(false)
+    {}
+
+    virtual
+    ~SparseCCOOR() ALGLIN_OVERRIDE
+    {}
+
+    virtual
+    bool
+    FORTRAN_indexing() const ALGLIN_OVERRIDE
+    { return fortran_indexing; }
 
     virtual
     integer
@@ -185,15 +273,14 @@ namespace alglin {
       integer   const * & pCols,
       valueType const * & pValues
     ) const ALGLIN_OVERRIDE {
-      pRows   = this->rows;
-      pCols   = this->cols;
-      pValues = this->vals;
+      pRows   = &this->rows.front();
+      pCols   = &this->cols.front();
+      pValues = &this->vals.front();
     }
 
     virtual
     void
     gemv(
-      bool            TransposedA,
       valueType       alpha,
       integer         DimX,
       valueType const x[],
@@ -203,6 +290,66 @@ namespace alglin {
       valueType       y[],
       integer         incY
     ) const ALGLIN_OVERRIDE;
+
+    virtual
+    void
+    gemv_Transposed(
+      valueType       alpha,
+      integer         DimX,
+      valueType const x[],
+      integer         incX,
+      valueType       beta,
+      integer         DimY,
+      valueType       y[],
+      integer         incY
+    ) const ALGLIN_OVERRIDE;
+
+    virtual
+    void
+    gemv_Symmetric(
+      valueType       alpha,
+      integer         DimX,
+      valueType const x[],
+      integer         incX,
+      valueType       beta,
+      integer         DimY,
+      valueType       y[],
+      integer         incY
+    ) const ALGLIN_OVERRIDE;
+
+    /*\
+    :|:           _    _ _ _   _               _             _   _            _
+    :|:   __ _ __| |__| (_) |_(_)___ _ _  __ _| |  _ __  ___| |_| |_  ___  __| |___
+    :|:  / _` / _` / _` | |  _| / _ \ ' \/ _` | | | '  \/ -_)  _| ' \/ _ \/ _` (_-<
+    :|:  \__,_\__,_\__,_|_|\__|_\___/_||_\__,_|_| |_|_|_\___|\__|_||_\___/\__,_/__/
+    \*/
+
+    void clear();
+
+    void
+    init(
+      integer N,
+      integer M,
+      integer reserve_nnz,
+      bool    fi = false
+    );
+
+    void
+    setup_full( integer N, integer M, bool fi = false );
+
+    void
+    reserve( integer reserve_nnz );
+
+    void
+    push_value( integer row, integer col, valueType val );
+
+    void
+    push_matrix(
+      integer                             row_offs,
+      integer                             col_offs,
+      SparseMatrixBase<valueType> const & Matrix,
+      bool                                transpose = false
+    );
 
     bool foundNaN() const;
   };
@@ -215,5 +362,3 @@ namespace alglin {
   #endif
 
 }
-
-

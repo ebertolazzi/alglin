@@ -72,12 +72,11 @@ namespace alglin {
   template <typename T>
   bool
   SparseCCOOR<T>::foundNaN() const
-  { return alglin::foundNaN( vals, nnz ); }
+  { return alglin::foundNaN( &this->vals.front(), this->nnz ); }
 
   template <typename T>
   void
   SparseCCOOR<T>::gemv(
-    bool            TransposedA,
     valueType       alpha,
     integer         DimX,
     valueType const x[],
@@ -87,35 +86,183 @@ namespace alglin {
     valueType       y[],
     integer         incY
   ) const {
-    integer const * pi;
-    integer const * pj;
-    if ( TransposedA ) {
+    ALGLIN_ASSERT(
+      DimX == this->nCols && DimY == this->nRows,
+      "SparseCCOOR::gemv, bad dimensions, dimX = " << DimX <<
+      ", dimY = " << DimY << " matrix is " << this->nRows <<
+      " x " << this->nCols
+    );
+    this->y_manage( beta, DimY, y, incY );
+    integer offs = this->fortran_indexing ? -1 : 0;
+    for ( integer idx = 0; idx < this->nnz; ++idx ) {
+      integer i = this->rows[idx] + offs;
+      integer j = this->cols[idx] + offs;
+      y[ i * incY ] += alpha * this->vals[idx] * x[ j * incX ];
+    }
+  }
+
+  template <typename T>
+  void
+  SparseCCOOR<T>::gemv_Transposed(
+    valueType       alpha,
+    integer         DimX,
+    valueType const x[],
+    integer         incX,
+    valueType       beta,
+    integer         DimY,
+    valueType       y[],
+    integer         incY
+  ) const {
+    ALGLIN_ASSERT(
+      DimY == this->nCols && DimX == this->nRows,
+      "SparseCCOOR::gemv_Transposed, bad dimensions, dimX = " << DimX <<
+      ", dimY = " << DimY << " matrix is " << this->nRows <<
+      " x " << this->nCols
+    );
+    this->y_manage( beta, DimY, y, incY );
+    integer offs = this->fortran_indexing ? -1 : 0;
+    for ( integer idx = 0; idx < this->nnz; ++idx ) {
+      integer j = this->rows[idx] + offs;
+      integer i = this->cols[idx] + offs;
+      y[ i * incY ] += alpha * this->vals[idx] * x[ j * incX ];
+    }
+  }
+
+  template <typename T>
+  void
+  SparseCCOOR<T>::gemv_Symmetric(
+    valueType       alpha,
+    integer         DimX,
+    valueType const x[],
+    integer         incX,
+    valueType       beta,
+    integer         DimY,
+    valueType       y[],
+    integer         incY
+  ) const {
+    ALGLIN_ASSERT(
+      DimY == this->nCols && DimX == this->nRows && DimX == DimY,
+      "SparseCCOOR::gemv_Symmetric, bad dimensions, dimX = " << DimX <<
+      ", dimY = " << DimY << " matrix is " << this->nRows <<
+      " x " << this->nCols
+    );
+    this->y_manage( beta, DimY, y, incY );
+    integer offs = this->fortran_indexing ? -1 : 0;
+    for ( integer idx = 0; idx < this->nnz; ++idx ) {
+      integer   i   = this->rows[idx] + offs;
+      integer   j   = this->cols[idx] + offs;
+      valueType tmp = alpha * this->vals[idx];
+      if ( i == j ) {
+        y[ i * incY ] += tmp * x[ j * incX ];
+      } else {
+        y[ i * incY ] += tmp * x[ j * incX ];
+        y[ j * incY ] += tmp * x[ i * incX ];
+      }
+    }
+  }
+
+  /*\
+  :|:           _    _ _ _   _               _             _   _            _
+  :|:   __ _ __| |__| (_) |_(_)___ _ _  __ _| |  _ __  ___| |_| |_  ___  __| |___
+  :|:  / _` / _` / _` | |  _| / _ \ ' \/ _` | | | '  \/ -_)  _| ' \/ _ \/ _` (_-<
+  :|:  \__,_\__,_\__,_|_|\__|_\___/_||_\__,_|_| |_|_|_\___|\__|_||_\___/\__,_/__/
+  \*/
+
+  template <typename T>
+  void
+  SparseCCOOR<T>::clear() {
+    this->nRows = 0;
+    this->nCols = 0;
+    this->nnz   = 0;
+    this->vals.clear();
+    this->rows.clear();
+    this->cols.clear();
+  }
+
+  template <typename T>
+  void
+  SparseCCOOR<T>::init(
+    integer N,
+    integer M,
+    integer reserve_nnz,
+    bool    fi
+  ) {
+    this->fortran_indexing = fi;
+    this->nRows            = N;
+    this->nCols            = M;
+    this->nnz              = 0;
+    this->vals.reserve(reserve_nnz);
+    this->rows.reserve(reserve_nnz);
+    this->cols.reserve(reserve_nnz);
+  }
+
+  template <typename T>
+  void
+  SparseCCOOR<T>::setup_full( integer N, integer M, bool fi ) {
+    this->fortran_indexing = fi;
+    this->nRows            = N;
+    this->nCols            = M;
+    this->nnz              = N*M;
+    this->vals.resize( size_t(this->nnz) );
+    this->cols.clear(); cols.reserve( size_t(this->nnz) );
+    this->rows.clear(); rows.reserve( size_t(this->nnz) );
+    integer offs = fi ? 1 : 0;
+    for ( integer i = 0; i < N; ++i ) {
+      for ( integer j = 0; j < M; ++j ) {
+        this->rows.push_back( i+offs );
+        this->cols.push_back( j+offs );
+      }
+    }
+  }
+
+  template <typename T>
+  void
+  SparseCCOOR<T>::reserve( integer reserve_nnz ) {
+    this->vals.reserve(reserve_nnz);
+    this->rows.reserve(reserve_nnz);
+    this->cols.reserve(reserve_nnz);
+  }
+
+  template <typename T>
+  void
+  SparseCCOOR<T>::push_value( integer row, integer col, valueType val ) {
+    if ( this->fortran_indexing ) {
       ALGLIN_ASSERT(
-        DimX == this->nRows && DimY == this->nCols,
-        "SparseCCOOR::gemv (transposed), bad dimensions, dimX = " << DimX <<
-        ", dimY = " << DimY << " matrix is " << this->nRows <<
-        " x " << this->nCols
+        row > 0 && row <= this->nRows && col > 0 && col <= this->nCols,
+        "SparseCCOOR::push_value( " << row << ", " << col << ") out of bound"
       );
-      pi = this->rows;
-      pj = this->cols;
     } else {
       ALGLIN_ASSERT(
-        DimX == this->nCols && DimY == this->nRows,
-        "SparseCCOOR::gemv, bad dimensions, dimX = " << DimX <<
-        ", dimY = " << DimY << " matrix is " << this->nRows <<
-        " x " << this->nCols
+        row >= 0 && row < this->nRows && col >= 0 && col < this->nCols,
+        "SparseCCOOR::push_value( " << row << ", " << col << ") out of bound"
       );
-      pi = this->rows;
-      pj = this->cols;
     }
-    valueType const * pv = this->vals;
-    if ( isZero(beta) ) {
-      for ( integer i = 0; i < DimY; ++i ) y[i*incY] = 0;
-    } else if ( !isZero(beta-1) ) {
-      for ( integer i = 0; i < DimY; ++i ) y[i*incY] *= beta;
+    this->vals.push_back(val);
+    this->rows.push_back(row);
+    this->cols.push_back(col);
+    ++this->nnz;
+  }
+
+  template <typename T>
+  void
+  SparseCCOOR<T>::push_matrix(
+    integer                             row_offs,
+    integer                             col_offs,
+    SparseMatrixBase<valueType> const & Matrix,
+    bool                                transpose
+  ) {
+    integer const * rowsM;
+    integer const * colsM;
+    T       const * valsM;
+    Matrix.get_data( rowsM, colsM, valsM );
+    if ( transpose ) std::swap( rowsM, colsM );
+    if ( Matrix.FORTRAN_indexing() ) { --row_offs; --col_offs; }
+    if ( this->fortran_indexing )    { ++row_offs; ++col_offs; }
+    for ( integer index = 0; index < Matrix.get_nnz(); ++index ) {
+      integer i = row_offs + rowsM[index];
+      integer j = col_offs + colsM[index];
+      this->push_value( i, j, valsM[index] );
     }
-    for ( integer idx = 0; idx < this->nnz; ++idx, ++pi, ++pj, ++pv )
-      y[ (*pi) * incY ] += alpha * (*pv) * x[ (*pj) * incX ];
   }
 
   /*
