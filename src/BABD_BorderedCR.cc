@@ -220,42 +220,42 @@ namespace alglin {
 
     integer m = n + qr;
 
-    ALGLIN_ASSERT( H0.numRows == m && H0.numCols == n,
+    ALGLIN_ASSERT( H0.numRows() == m && H0.numCols() == n,
                    "loadBottom, bad dimension size(H0) = " <<
-                   H0.numRows << " x " << H0.numCols << " expected " <<
+                   H0.numRows() << " x " << H0.numCols() << " expected " <<
                    m << " x " << n );
 
-    ALGLIN_ASSERT( HN.numRows == m && HN.numCols == n,
+    ALGLIN_ASSERT( HN.numRows() == m && HN.numCols() == n,
                    "loadBottom, bad dimension size(HN) = " <<
-                   HN.numRows << " x " << HN.numCols << " expected " <<
+                   HN.numRows() << " x " << HN.numCols() << " expected " <<
                    m << " x " << n );
 
-    ALGLIN_ASSERT( Hq.numRows == m && Hq.numCols == qx,
+    ALGLIN_ASSERT( Hq.numRows() == m && Hq.numCols() == qx,
                    "loadBottom, bad dimension size(Hq) = " <<
-                   Hq.numRows << " x " << Hq.numCols << " expected " <<
+                   Hq.numRows() << " x " << Hq.numCols() << " expected " <<
                    m << " x " << qx );
 
-    ALGLIN_ASSERT( Hp.numRows == m && Hp.numCols == nx,
+    ALGLIN_ASSERT( Hp.numRows() == m && Hp.numCols() == nx,
                    "loadBottom, bad dimension size(Hp) = " <<
-                   Hp.numRows << " x " << Hp.numCols << " expected " <<
+                   Hp.numRows() << " x " << Hp.numCols() << " expected " <<
                    m << " x " << nx );
 
-    loadBottom( H0.data,  H0.ldData,
-                HN.data,  HN.ldData,
-                Hq.data,  Hq.ldData,
-                Hp.data,  Hp.ldData );
+    loadBottom( H0.get_data(), H0.lDim(),
+                HN.get_data(), HN.lDim(),
+                Hq.get_data(), Hq.lDim(),
+                Hp.get_data(), Hp.lDim() );
   }
 
   template <typename t_Value>
   void
   BorderedCR<t_Value>::loadBottom( MatrixWrapper<valueType> const & H ) {
     integer m = n + qr;
-    ALGLIN_ASSERT( H.numRows == m && H.numCols == Nc,
+    ALGLIN_ASSERT( H.numRows() == m && H.numCols() == Nc,
                    "loadBottom, bad dimension size(H) = " <<
-                   H.numRows << " x " << H.numCols << " expected " <<
+                   H.numRows() << " x " << H.numCols() << " expected " <<
                    m << " x " << Nc );
 
-    loadBottom( H.data, H.ldData );
+    loadBottom( H.get_data(), H.lDim() );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -263,11 +263,11 @@ namespace alglin {
   template <typename t_Value>
   void
   BorderedCR<t_Value>::loadB( integer nbl, MatrixWrapper<valueType> const & B ) {
-    ALGLIN_ASSERT( B.numRows == n && B.numCols == nx,
+    ALGLIN_ASSERT( B.numRows() == n && B.numCols() == nx,
                    "loadB( " << nbl << ", B) bad dimension size(B) = " <<
-                   B.numRows << " x " << B.numCols << " expected " <<
+                   B.numRows() << " x " << B.numCols() << " expected " <<
                    n << " x " << nx );
-    gecopy( n, nx, B.data, B.ldData, Bmat + nbl*n_x_nx, n );
+    gecopy( n, nx, B.get_data(), B.lDim(), Bmat + nbl*n_x_nx, n );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -275,12 +275,12 @@ namespace alglin {
   template <typename t_Value>
   void
   BorderedCR<t_Value>::addtoB( integer nbl, MatrixWrapper<valueType> const & B ) {
-    ALGLIN_ASSERT( B.numRows == n && B.numCols == nx,
+    ALGLIN_ASSERT( B.numRows() == n && B.numCols() == nx,
                    "addtoB( " << nbl << ", B) bad dimension size(B) = " <<
-                   B.numRows << " x " << B.numCols << " expected " <<
+                   B.numRows() << " x " << B.numCols() << " expected " <<
                    n << " x " << nx );
     valueType * BB = Bmat + nbl*n_x_nx;
-    geadd( n, nx, 1.0, B.data, B.ldData, 1.0, BB, n, BB, n );
+    geadd( n, nx, 1.0, B.get_data(), B.lDim(), 1.0, BB, n, BB, n );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -288,11 +288,11 @@ namespace alglin {
   template <typename t_Value>
   void
   BorderedCR<t_Value>::loadC( integer nbl, MatrixWrapper<valueType> const & C ) {
-    ALGLIN_ASSERT( C.numRows == nr && C.numCols == n,
+    ALGLIN_ASSERT( C.numRows() == nr && C.numCols() == n,
                    "loadC( " << nbl << ", C) bad dimension size(C) = " <<
-                   C.numRows << " x " << C.numCols << " expected " <<
+                   C.numRows() << " x " << C.numCols() << " expected " <<
                    nr << " x " << n );
-    gecopy( nr, n, C.data, C.ldData, Cmat + nbl*nr_x_n, nr );
+    gecopy( nr, n, C.get_data(), C.lDim(), Cmat + nbl*nr_x_n, nr );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -300,12 +300,12 @@ namespace alglin {
   template <typename t_Value>
   void
   BorderedCR<t_Value>::addtoC( integer nbl, MatrixWrapper<valueType> const & C ) {
-    ALGLIN_ASSERT( C.numRows == nr && C.numCols == n,
+    ALGLIN_ASSERT( C.numRows() == nr && C.numCols() == n,
                    "addtoC( " << nbl << ", C) bad dimension size(C) = " <<
-                   C.numRows << " x " << C.numCols << " expected " <<
+                   C.numRows() << " x " << C.numCols() << " expected " <<
                    nr << " x " << n );
     valueType * CC = Cmat + nbl*nr_x_n;
-    geadd( nr, n, 1.0, C.data, C.ldData, 1.0, CC, nr, CC, nr );
+    geadd( nr, n, 1.0, C.get_data(), C.lDim(), 1.0, CC, nr, CC, nr );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -313,12 +313,12 @@ namespace alglin {
   template <typename t_Value>
   void
   BorderedCR<t_Value>::addtoC2( integer nbl, MatrixWrapper<valueType> const & C ) {
-    ALGLIN_ASSERT( C.numRows == nr && C.numCols == n_x_2,
+    ALGLIN_ASSERT( C.numRows() == nr && C.numCols() == n_x_2,
                    "addtoC( " << nbl << ", C) bad dimension size(C) = " <<
-                   C.numRows << " x " << C.numCols << " expected " <<
+                   C.numRows() << " x " << C.numCols() << " expected " <<
                    nr << " x " << n_x_2 );
     valueType * CC = Cmat + nbl*nr_x_n;
-    geadd( nr, n_x_2, 1.0, C.data, C.ldData, 1.0, CC, nr, CC, nr );
+    geadd( nr, n_x_2, 1.0, C.get_data(), C.lDim(), 1.0, CC, nr, CC, nr );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -326,11 +326,11 @@ namespace alglin {
   template <typename t_Value>
   void
   BorderedCR<t_Value>::loadD( integer nbl, MatrixWrapper<valueType> const & D ) {
-    ALGLIN_ASSERT( D.numRows == n && D.numCols == n,
+    ALGLIN_ASSERT( D.numRows() == n && D.numCols() == n,
                    "loadD( " << nbl << ", D) bad dimension size(D) = " <<
-                   D.numRows << " x " << D.numCols << " expected " <<
+                   D.numRows() << " x " << D.numCols() << " expected " <<
                    n << " x " << n );
-    gecopy( n, n, D.data, D.ldData, Dmat + nbl*n_x_n, n );
+    gecopy( n, n, D.get_data(), D.lDim(), Dmat + nbl*n_x_n, n );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -338,11 +338,11 @@ namespace alglin {
   template <typename t_Value>
   void
   BorderedCR<t_Value>::loadE( integer nbl, MatrixWrapper<valueType> const & E ) {
-    ALGLIN_ASSERT( E.numRows == n && E.numCols == n,
+    ALGLIN_ASSERT( E.numRows() == n && E.numCols() == n,
                    "loadE( " << nbl << ", E) bad dimension size(E) = " <<
-                   E.numRows << " x " << E.numCols << " expected " <<
+                   E.numRows() << " x " << E.numCols() << " expected " <<
                    n << " x " << n );
-    gecopy( n, n, E.data, E.ldData, Emat + nbl*n_x_n, n );
+    gecopy( n, n, E.get_data(), E.lDim(), Emat + nbl*n_x_n, n );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -350,11 +350,11 @@ namespace alglin {
   template <typename t_Value>
   void
   BorderedCR<t_Value>::loadF( MatrixWrapper<valueType> const & F ) {
-    ALGLIN_ASSERT( F.numRows == nr && F.numCols == nx,
+    ALGLIN_ASSERT( F.numRows() == nr && F.numCols() == nx,
                    "loadF(F) bad dimension size(F) = " <<
-                   F.numRows << " x " << F.numCols << " expected " <<
+                   F.numRows() << " x " << F.numCols() << " expected " <<
                    nr << " x " << nx );
-    gecopy( nr, nx, F.data, F.ldData, Fmat, nr );
+    gecopy( nr, nx, F.get_data(), F.lDim(), Fmat, nr );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -362,11 +362,11 @@ namespace alglin {
   template <typename t_Value>
   void
   BorderedCR<t_Value>::addtoF( MatrixWrapper<valueType> const & F ) {
-    ALGLIN_ASSERT( F.numRows == nr && F.numCols == nx,
+    ALGLIN_ASSERT( F.numRows() == nr && F.numCols() == nx,
                    "addtoF(F) bad dimension size(F) = " <<
-                   F.numRows << " x " << F.numCols << " expected " <<
+                   F.numRows() << " x " << F.numCols() << " expected " <<
                    nr << " x " << nx );
-    geadd( nr, nx, 1.0, F.data, F.ldData, 1.0, Fmat, nr, Fmat, nr );
+    geadd( nr, nx, 1.0, F.get_data(), F.lDim(), 1.0, Fmat, nr, Fmat, nr );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -374,11 +374,11 @@ namespace alglin {
   template <typename t_Value>
   void
   BorderedCR<t_Value>::loadCq( MatrixWrapper<valueType> const & Cq ) {
-    ALGLIN_ASSERT( Cq.numRows == nr && Cq.numCols == qx,
+    ALGLIN_ASSERT( Cq.numRows() == nr && Cq.numCols() == qx,
                    "loadCq(Cq) bad dimension size(Cq) = " <<
-                   Cq.numRows << " x " << Cq.numCols << " expected " <<
+                   Cq.numRows() << " x " << Cq.numCols() << " expected " <<
                    nr << " x " << qx );
-    gecopy( nr, qx, Cq.data, Cq.ldData, Cqmat, nr );
+    gecopy( nr, qx, Cq.get_data(), Cq.lDim(), Cqmat, nr );
   }
 
   /*\

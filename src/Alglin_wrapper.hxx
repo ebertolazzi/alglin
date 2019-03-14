@@ -35,24 +35,32 @@ namespace alglin {
   //! Sparse Matrix Structure
   template <typename T>
   class MatrixWrapper {
-    typedef T                valueType;
-    typedef MatrixWrapper<T> MatW;
-    typedef SparseCCOOR<T>   Sparse;
+
+    typedef T                   valueType;
+    typedef MatrixWrapper<T>    MatW;
+    typedef SparseMatrixBase<T> Sparse;
+
+  protected:
+
+    integer     nRows; //!< Number of rows
+    integer     nCols; //!< Number of columns
+    integer     ldData;  //!< Leadind dimension
+    valueType * data;
 
     #if defined(DEBUG) || defined(_DEBUG)
     integer
     iaddr( integer i,  integer j ) const {
       ALGLIN_ASSERT(
-        i >= 0 && i < numRows && j >= 0 && j < numCols,
+        i >= 0 && i < this->nRows && j >= 0 && j < this->nCols,
         "iaddr(" << i << ", " << j << ") out of range [0," <<
-        numRows << ") x [0," << numCols << ")"
+        this->nRows << ") x [0," << this->nCols << ")"
       );
-      return i + j*ldData;
+      return i + j*this->ldData;
     }
     #else
     integer
     iaddr( integer i,  integer j ) const
-    { return i + j*ldData; }
+    { return i + j*this->ldData; }
     #endif
 
     void
@@ -63,20 +71,14 @@ namespace alglin {
 
   public:
 
-    // public access to data, use with caution
-    integer     numRows; //!< Number of rows
-    integer     numCols; //!< Number of columns
-    integer     ldData;  //!< Leadind dimension
-    valueType * data;
-
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     /*!
     :|: build an empy wrapper
     \*/
     explicit
     MatrixWrapper( )
-    : numRows(0)
-    , numCols(0)
+    : nRows(0)
+    , nCols(0)
     , ldData(0)
     , data(nullptr)
     {
@@ -98,6 +100,13 @@ namespace alglin {
       integer     nc,
       integer     ld
     );
+
+    integer numRows() const { return this->nRows;}  //!< Number of rows
+    integer numCols() const { return this->nCols;}  //!< Number of columns
+    integer lDim()    const { return this->ldData;} //!< Leading dimension
+
+    valueType const * get_data() const { return this->data; }
+    valueType       * get_data()       { return this->data; }
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     /*!
@@ -141,7 +150,10 @@ namespace alglin {
     /*!
     :|: Fill the matrix with zeros
     \*/
-    void zero() { gezero( numRows, numCols, data, ldData ); }
+    void
+    zero() {
+      gezero( this->nRows, this->nCols, this->data, this->ldData );
+    }
 
     /*!
     :|:  Zeroes a rectangular block of the stored matrix
@@ -159,13 +171,16 @@ namespace alglin {
       integer irow,
       integer icol
     ) {
-      gezero( nr, nc, data + irow + icol * ldData, ldData );
+      gezero( nr, nc, this->data + irow + icol * this->ldData, this->ldData );
     }
 
     /*!
     :|: Initialize the matrix as an identity matrix
     \*/
-    void id( valueType dg ) { geid( numRows, numCols, data, ldData, dg ); }
+    void
+    id( valueType dg ) {
+      geid( this->nRows, this->nCols, this->data, this->ldData, dg );
+    }
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     /*!
@@ -223,7 +238,7 @@ namespace alglin {
     \*/
     void
     load_column( valueType const column[], integer icol )
-    { copy( this->numRows, column, 1, this->data + icol * this->ldData, 1 ); }
+    { copy( this->nRows, column, 1, this->data + icol * this->ldData, 1 ); }
 
     /*!
     :|:  Copy vector `row` to the `irow`th row of the internal stored matrix
@@ -232,7 +247,7 @@ namespace alglin {
     \*/
     void
     load_row( valueType const row[], integer irow )
-    { copy( this->numCols, row, 1, this->data + irow, this->ldData ); }
+    { copy( this->nCols, row, 1, this->data + irow, this->ldData ); }
 
     /*!
     :|: Initialize matrix to 0 and next copy sparse matrix
@@ -355,15 +370,17 @@ namespace alglin {
     ) {
       #if defined(DEBUG) || defined(_DEBUG)
       ALGLIN_ASSERT(
-        i_offs >= 0 && i_offs+nrow <= numRows &&
-        j_offs >= 0 && j_offs+ncol <= numCols,
+        i_offs >= 0 && i_offs+nrow <= this->nRows &&
+        j_offs >= 0 && j_offs+ncol <= this->nCols,
         "block(i_offs=" << i_offs << ", j_offs=" << j_offs <<
         ", nrow=" << nrow << ", ncol=" << ncol <<
         ") will be out of range [0," <<
-        numRows << ") x [0," << numCols << ")"
+        this->nRows << ") x [0," << this->nCols << ")"
       );
       #endif
-      to.setup( data+iaddr(i_offs,j_offs), nrow, ncol, ldData );
+      to.setup(
+        this->data+this->iaddr(i_offs,j_offs), nrow, ncol, this->ldData
+      );
     }
 
   };

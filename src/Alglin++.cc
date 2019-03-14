@@ -74,6 +74,50 @@ namespace alglin {
   SparseCCOOR<T>::foundNaN() const
   { return alglin::foundNaN( vals, nnz ); }
 
+  template <typename T>
+  void
+  SparseCCOOR<T>::gemv(
+    bool            TransposedA,
+    valueType       alpha,
+    integer         DimX,
+    valueType const x[],
+    integer         incX,
+    integer         DimY,
+    valueType       beta,
+    valueType       y[],
+    integer         incY
+  ) const {
+    integer const * pi;
+    integer const * pj;
+    if ( TransposedA ) {
+      ALGLIN_ASSERT(
+        DimX == this->nRows && DimY == this->nCols,
+        "SparseCCOOR::gemv (transposed), bad dimensions, dimX = " << DimX <<
+        ", dimY = " << DimY << " matrix is " << this->nRows <<
+        " x " << this->nCols
+      );
+      pi = this->rows;
+      pj = this->cols;
+    } else {
+      ALGLIN_ASSERT(
+        DimX == this->nCols && DimY == this->nRows,
+        "SparseCCOOR::gemv, bad dimensions, dimX = " << DimX <<
+        ", dimY = " << DimY << " matrix is " << this->nRows <<
+        " x " << this->nCols
+      );
+      pi = this->rows;
+      pj = this->cols;
+    }
+    valueType const * pv = this->vals;
+    if ( isZero(beta) ) {
+      std::fill( y, y+DimY, 0 );
+    } else if ( !isZero(beta-1) ) {
+      for ( integer i = 0; i < DimY; ++i ) y[i] *= beta;
+    }
+    for ( integer idx = 0; idx < this->nnz; ++idx, ++pi, ++pj, ++pv )
+      y[ (*pi) * incY ] += alpha * (*pv) * x[ (*pj) * incX ];
+  }
+
   /*
   //   __  __       _        _     __        __
   //  |  \/  | __ _| |_ _ __(_)_  _\ \      / / __ __ _ _ __  _ __   ___ _ __
@@ -91,14 +135,14 @@ namespace alglin {
     integer     nc,
     integer     ld
   )
-  : numRows(nr)
-  , numCols(nc)
+  : nRows(nr)
+  , nCols(nc)
   , ldData(ld)
   , data(_data)
   {
   #ifndef ALGLIN_NO_DEBUG
     ALGLIN_ASSERT(
-      nr >= 0 && nc >= 0 && ldData >= nr,
+      nr >= 0 && nc >= 0 && this->ldData >= nr,
       "MatrixWrapper( data, nr=" << nr <<
       ", nc=" << nc << ", ld=" << ld <<
       ") bad dimensions"
@@ -116,13 +160,13 @@ namespace alglin {
     integer     nc,
     integer     ld
   ) {
-    data    = _data;
-    numRows = nr;
-    numCols = nc;
-    ldData  = ld;
+    this->data   = _data;
+    this->nRows  = nr;
+    this->nCols  = nc;
+    this->ldData = ld;
     #ifndef ALGLIN_NO_DEBUG
     ALGLIN_ASSERT(
-      nr >= 0 && nc >= 0 && ldData >= nr,
+      nr >= 0 && nc >= 0 && this->ldData >= nr,
       "MatrixWrapper( data, nr=" << nr <<
       ", nc=" << nc << ", ld=" << ld <<
       ") bad dimensions"
@@ -136,10 +180,10 @@ namespace alglin {
   void
   MatrixWrapper<T>::check( MatW const & A ) const {
     ALGLIN_ASSERT(
-      A.numRows == numRows && A.numCols == numCols,
+      A.numRows() == this->nRows && A.numCols() == this->nCols,
       "MatrixWrapper::check(A) size(A) = " <<
-      A.numRows << " x " << A.numRows << " expected " <<
-      numRows << " x " << numCols
+      A.numRows() << " x " << A.numRows() << " expected " <<
+      this->nRows << " x " << this->nCols
     );
   }
 
@@ -149,10 +193,10 @@ namespace alglin {
   void
   MatrixWrapper<T>::check( Sparse const & sp ) const {
     ALGLIN_ASSERT(
-      sp.numRows <= numRows && sp.numCols <= numCols,
+      sp.get_number_of_rows() <= this->nRows && sp.get_number_of_cols() <= this->nCols,
       "MatrixWrapper::check(sp) size(sp) = " <<
-      sp.numRows << " x " << sp.numRows <<
-      " mus be contained in " << numRows << " x " << numCols
+      sp.get_number_of_rows() << " x " << sp.get_number_of_cols() <<
+      " mus be contained in " << this->nRows << " x " << this->nCols
     );
   }
 
@@ -161,7 +205,9 @@ namespace alglin {
   template <typename T>
   void
   MatrixWrapper<T>::load( valueType const data_in[], integer ldData_in ) {
-    integer info = gecopy( numRows, numCols, data_in, ldData_in, data, ldData );
+    integer info = gecopy(
+      this->nRows, this->nCols, data_in, ldData_in, this->data, this->ldData
+    );
     ALGLIN_ASSERT(
       info == 0,
       "MatrixWrapper::load call alglin::gecopy return info = " << info
@@ -176,9 +222,14 @@ namespace alglin {
     #ifndef ALGLIN_NO_DEBUG
     check(A);
     #endif
-    integer info = gecopy( A.numRows, A.numCols, A.data, A.ldData, data, ldData );
-    ALGLIN_ASSERT( info == 0,
-                   "MatrixWrapper::load call alglin::gecopy return info = " << info );
+    integer info = gecopy(
+      A.numRows(), A.numCols(), A.get_data(), A.lDim(),
+      this->data, this->ldData
+    );
+    ALGLIN_ASSERT(
+      info == 0,
+      "MatrixWrapper::load call alglin::gecopy return info = " << info
+    );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -190,8 +241,12 @@ namespace alglin {
     check(sp);
     #endif
     zero();
-    for ( integer idx = 0; idx < sp.nnz; ++idx )
-      data[iaddr(sp.rows[idx],sp.cols[idx])] = sp.vals[idx];
+    integer   const * pRows;
+    integer   const * pCols;
+    valueType const * pValues;
+    sp.get_data( pRows, pCols, pValues );
+    for ( integer idx = 0; idx < sp.get_nnz(); ++idx )
+      this->data[ this->iaddr(pRows[idx],pCols[idx]) ] = pValues[idx];
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -202,8 +257,12 @@ namespace alglin {
     #ifndef ALGLIN_NO_DEBUG
     check(sp);
     #endif
-    for ( integer idx = 0; idx < sp.nnz; ++idx )
-      data[iaddr(sp.rows[idx],sp.cols[idx])] = sp.vals[idx];
+    integer   const * pRows;
+    integer   const * pCols;
+    valueType const * pValues;
+    sp.get_data( pRows, pCols, pValues );
+    for ( integer idx = 0; idx < sp.get_nnz(); ++idx )
+      this->data[ this->iaddr(pRows[idx],pCols[idx]) ] = pValues[idx];
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -212,10 +271,10 @@ namespace alglin {
   void
   MatrixWrapper<T>::add( valueType const data_in[], integer ldData_in ) {
     geadd(
-      numRows, numCols,
+      this->nRows, this->nCols,
       1.0, data_in, ldData_in,
-      1.0, data, ldData,
-      data, ldData
+      1.0, this->data, this->ldData,
+      this->data, this->ldData
     );
   }
 
@@ -227,8 +286,13 @@ namespace alglin {
     #ifndef ALGLIN_NO_DEBUG
     check(sp);
     #endif
-    for ( integer idx = 0; idx < sp.nnz; ++idx )
-      data[iaddr(sp.rows[idx],sp.cols[idx])] += sp.vals[idx];
+    integer   const * pRows;
+    integer   const * pCols;
+    valueType const * pValues;
+    sp.get_data( pRows, pCols, pValues );
+    for ( integer idx = 0; idx < sp.get_nnz(); ++idx )
+      this->data[ this->iaddr(pRows[idx],pCols[idx]) ]
+        += pValues[idx];
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -239,8 +303,13 @@ namespace alglin {
     #ifndef ALGLIN_NO_DEBUG
     check(sp);
     #endif
-    for ( integer idx = 0; idx < sp.nnz; ++idx )
-      data[iaddr(sp.rows[idx],sp.cols[idx])] += alpha * sp.vals[idx];
+    integer   const * pRows;
+    integer   const * pCols;
+    valueType const * pValues;
+    sp.get_data( pRows, pCols, pValues );
+    for ( integer idx = 0; idx < sp.get_nnz(); ++idx )
+      this->data[ this->iaddr(pRows[idx],pCols[idx]) ]
+        += alpha * pValues[idx];
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -252,8 +321,13 @@ namespace alglin {
     integer        i_offs,
     integer        j_offs
   ) {
-    for ( integer idx = 0; idx < sp.nnz; ++idx )
-      data[iaddr(sp.rows[idx]+i_offs,sp.cols[idx]+j_offs)] = sp.vals[idx];
+    integer   const * pRows;
+    integer   const * pCols;
+    valueType const * pValues;
+    sp.get_data( pRows, pCols, pValues );
+    for ( integer idx = 0; idx < sp.get_nnz(); ++idx )
+      this->data[ this->iaddr(pRows[idx]+i_offs,pCols[idx]+j_offs) ]
+        = pValues[idx];
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -265,8 +339,13 @@ namespace alglin {
     integer        i_offs,
     integer        j_offs
   ) {
-    for ( integer idx = 0; idx < sp.nnz; ++idx )
-      data[iaddr(sp.rows[idx]+i_offs,sp.cols[idx]+j_offs)] += sp.vals[idx];
+    integer   const * pRows;
+    integer   const * pCols;
+    valueType const * pValues;
+    sp.get_data( pRows, pCols, pValues );
+    for ( integer idx = 0; idx < sp.get_nnz(); ++idx )
+      this->data[ this->iaddr(pRows[idx]+i_offs,pCols[idx]+j_offs) ]
+        += pValues[idx];
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -279,8 +358,13 @@ namespace alglin {
     integer        i_offs,
     integer        j_offs
   ) {
-    for ( integer idx = 0; idx < sp.nnz; ++idx )
-      data[iaddr(sp.rows[idx]+i_offs,sp.cols[idx]+j_offs)] += alpha * sp.vals[idx];
+    integer   const * pRows;
+    integer   const * pCols;
+    valueType const * pValues;
+    sp.get_data( pRows, pCols, pValues );
+    for ( integer idx = 0; idx < sp.get_nnz(); ++idx )
+      this->data[ this->iaddr(pRows[idx]+i_offs,pCols[idx]+j_offs) ]
+        += alpha * pValues[idx];
   }
 
   /*\
