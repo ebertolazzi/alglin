@@ -82,8 +82,8 @@ namespace alglin {
     integer         DimX,
     valueType const x[],
     integer         incX,
-    integer         DimY,
     valueType       beta,
+    integer         DimY,
     valueType       y[],
     integer         incY
   ) const {
