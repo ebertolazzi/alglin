@@ -110,9 +110,9 @@ namespace alglin {
     }
     valueType const * pv = this->vals;
     if ( isZero(beta) ) {
-      std::fill( y, y+DimY, 0 );
+      for ( integer i = 0; i < DimY; ++i ) y[i*incY] = 0;
     } else if ( !isZero(beta-1) ) {
-      for ( integer i = 0; i < DimY; ++i ) y[i] *= beta;
+      for ( integer i = 0; i < DimY; ++i ) y[i*incY] *= beta;
     }
     for ( integer idx = 0; idx < this->nnz; ++idx, ++pi, ++pj, ++pv )
       y[ (*pi) * incY ] += alpha * (*pv) * x[ (*pj) * incX ];
