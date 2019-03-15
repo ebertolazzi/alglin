@@ -159,11 +159,22 @@ namespace alglin {
     void setup( integer nr, integer nc );
   };
 
+  template <typename T>
+  class DiagMatrix : public DiagMatrixWrapper<T> {
+    Malloc<T> mem_data;
+  public:
+    DiagMatrix();
+    DiagMatrix( integer _dim );
+    void setup( integer _dim );
+  };
+
   // explicit instantiation declaration to suppress warnings
 
   #ifdef ALGLIN_USE_CXX11
   extern template class Matrix<real>;
   extern template class Matrix<doublereal>;
+  extern template class DiagMatrix<real>;
+  extern template class DiagMatrix<doublereal>;
   #endif
 
   // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *

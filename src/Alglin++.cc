@@ -59,6 +59,30 @@ namespace alglin {
     this->MatrixWrapper<T>::setup( mem( size_t(nr*nc) ), nr, nc, nr ) ;
   }
 
+  template <typename T>
+  DiagMatrix<T>::DiagMatrix()
+  : DiagMatrixWrapper<T>()
+  , mem_data("DiagMatrix")
+  {}
+
+  template <typename T>
+  DiagMatrix<T>::DiagMatrix( integer _dim )
+  : DiagMatrixWrapper<T>( nullptr, _dim )
+  , mem_data("DiagMatrix")
+  {
+    mem_data.allocate( size_t(this->dim) );
+    this->data = mem_data( size_t(this->dim) );
+  }
+
+  template <typename T>
+  void
+  DiagMatrix<T>::setup( integer _dim ) {
+    this->dim = _dim;
+    mem_data.allocate( size_t(this->dim) );
+    this->dim  = _dim;
+    this->data = mem_data( size_t(this->dim) );
+  }
+
   /*
   //   ____                             ____ ____ ___   ___  ____
   //  / ___| _ __   __ _ _ __ ___  ___ / ___/ ___/ _ \ / _ \|  _ \
