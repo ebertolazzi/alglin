@@ -155,15 +155,17 @@ namespace alglin {
     alglin::Malloc<T> mem;
   public:
     Matrix();
+    Matrix( Matrix<T> const & );
     Matrix( integer nr, integer nc );
     void setup( integer nr, integer nc );
   };
 
   template <typename T>
   class DiagMatrix : public DiagMatrixWrapper<T> {
-    Malloc<T> mem_data;
+    Malloc<T> mem;
   public:
     DiagMatrix();
+    DiagMatrix( DiagMatrix const &);
     DiagMatrix( integer _dim );
     void setup( integer _dim );
   };

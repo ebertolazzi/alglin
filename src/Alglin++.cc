@@ -44,6 +44,18 @@ namespace alglin {
   {}
 
   template <typename T>
+  Matrix<T>::Matrix( Matrix<T> const & M )
+  : MatrixWrapper<T>( nullptr, M.nRows, M.nCols, M.nRows )
+  , mem("Matrix")
+  {
+    size_t sz = M.nRows*M.nCols;
+    mem.allocate( sz ) ;
+    this->data = mem( sz );
+    gecopy( M.nRows,  M.nCols, M.data, M.ldData,
+            this->data, this->ldData );
+  }
+
+  template <typename T>
   Matrix<T>::Matrix( integer nr, integer nc )
   : MatrixWrapper<T>( nullptr, nr, nc, nr )
   , mem("Matrix")
@@ -62,25 +74,35 @@ namespace alglin {
   template <typename T>
   DiagMatrix<T>::DiagMatrix()
   : DiagMatrixWrapper<T>()
-  , mem_data("DiagMatrix")
+  , mem("DiagMatrix")
   {}
+
+  template <typename T>
+  DiagMatrix<T>::DiagMatrix( DiagMatrix<T> const & D )
+  : MatrixWrapper<T>( nullptr, D.dim )
+  , mem("DiagMatrix")
+  {
+    mem.allocate( size_t(D.dim) ) ;
+    this->data = mem( size_t(D.dim) );
+    std::copy_n( D.data, D.dim, this->data );
+  }
 
   template <typename T>
   DiagMatrix<T>::DiagMatrix( integer _dim )
   : DiagMatrixWrapper<T>( nullptr, _dim )
-  , mem_data("DiagMatrix")
+  , mem("DiagMatrix")
   {
-    mem_data.allocate( size_t(this->dim) );
-    this->data = mem_data( size_t(this->dim) );
+    mem.allocate( size_t(this->dim) );
+    this->data = mem( size_t(this->dim) );
   }
 
   template <typename T>
   void
   DiagMatrix<T>::setup( integer _dim ) {
     this->dim = _dim;
-    mem_data.allocate( size_t(this->dim) );
+    mem.allocate( size_t(this->dim) );
     this->dim  = _dim;
-    this->data = mem_data( size_t(this->dim) );
+    this->data = mem( size_t(this->dim) );
   }
 
   /*

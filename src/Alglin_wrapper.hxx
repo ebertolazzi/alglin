@@ -23,6 +23,90 @@
 
 namespace alglin {
 
+  /*\
+  :|:   ___  _           __  __      _       _    __      __
+  :|:  |   \(_)__ _ __ _|  \/  |__ _| |_ _ _(_)_ _\ \    / / _ __ _ _ __ _ __  ___ _ _
+  :|:  | |) | / _` / _` | |\/| / _` |  _| '_| \ \ /\ \/\/ / '_/ _` | '_ \ '_ \/ -_) '_|
+  :|:  |___/|_\__,_\__, |_|  |_\__,_|\__|_| |_/_\_\ \_/\_/|_| \__,_| .__/ .__/\___|_|
+  :|:              |___/                                           |_|  |_|
+  \*/
+  template <typename T>
+  class DiagMatrixWrapper {
+
+  public:
+    typedef T                    valueType;
+    typedef DiagMatrixWrapper<T> DMatW;
+
+  private:
+    integer     dim;
+    valueType * data;
+  public:
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    /*!
+    :|: build an empy wrapper
+    \*/
+    explicit
+    DiagMatrixWrapper( )
+    : dim(0)
+    , data(nullptr)
+    {}
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    /*!
+    :|: Map a piece of memory into a matrix object
+    :|:
+    :|: \param _data  pointer of the memory to be mapped as a matrix
+    :|: \param _dim   number of elements on the diagonal of the mapped matrix
+    \*/
+    explicit
+    DiagMatrixWrapper( valueType * _data, integer _dim ) {
+      this->data = _data;
+      this->dim  = _dim;
+    }
+
+    integer getDim()   const { return this->dim;}  //!< Number of elements
+    integer numElems() const { return this->dim;}  //!< Number of elements
+
+    valueType const * get_data() const { return this->data; }
+    valueType       * get_data()       { return this->data; }
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    /*!
+    :|: Map a piece of memory into a matrix object
+    :|:
+    :|: \param _data pointer of the memory to be mapped as a matrix
+    :|: \param _dim  dimension the mapped diagonal matrix
+    \*/
+    void
+    setup( valueType * _data, integer _dim ) {
+      this->data = _data;
+      this->dim  = _dim;
+    }
+
+    valueType const &
+    operator [] ( integer i ) const
+    { return this->data[i]; }
+
+    valueType &
+    operator [] ( integer i )
+    { return this->data[i]; }
+
+    DMatW const & operator = (valueType v) {
+      std::fill( this->data, this->data+this->dim, v );
+      return *this;
+    }
+
+    DMatW & operator = ( DMatW const & COPY ) {
+      ALGLIN_ASSERT(
+        this->dim == COPY.dim,
+        "DiagMatrixWrapper operator = bad matrix dimensions"
+      );
+      std::copy( COPY.data, COPY.data+COPY.dim, this->data );
+      return *this;
+    }
+  };
+
   /*
   //   __  __       _        _     __        __
   //  |  \/  | __ _| |_ _ __(_)_  _\ \      / / __ __ _ _ __  _ __   ___ _ __
@@ -35,9 +119,10 @@ namespace alglin {
   template <typename T>
   class MatrixWrapper {
 
-    typedef T                   valueType;
-    typedef MatrixWrapper<T>    MatW;
-    typedef SparseMatrixBase<T> Sparse;
+    typedef T                    valueType;
+    typedef MatrixWrapper<T>     MatW;
+    typedef DiagMatrixWrapper<T> DiagW;
+    typedef SparseMatrixBase<T>  Sparse;
 
   protected:
 
@@ -100,10 +185,10 @@ namespace alglin {
       integer     ld
     );
 
-    integer numRows()  const { return this->nRows;}  //!< Number of rows
-    integer numCols()  const { return this->nCols;}  //!< Number of columns
-    integer lDim()     const { return this->ldData;} //!< Leading dimension
-    integer numElems() const { return this->nRows*this->nCols;}  //!< Number of elements
+    integer numRows()  const { return this->nRows; }  //!< Number of rows
+    integer numCols()  const { return this->nCols; }  //!< Number of columns
+    integer lDim()     const { return this->ldData; } //!< Leading dimension
+    integer numElems() const { return this->nRows*this->nCols; }  //!< Number of elements
 
     valueType const * get_data() const { return this->data; }
     valueType       * get_data()       { return this->data; }
@@ -134,7 +219,7 @@ namespace alglin {
     \*/
     valueType const &
     operator () ( integer i,  integer j ) const
-    { return data[iaddr(i,j)]; }
+    { return this->data[this->iaddr(i,j)]; }
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     /*!
@@ -145,7 +230,7 @@ namespace alglin {
     \*/
     valueType &
     operator () ( integer i,  integer j )
-    { return data[iaddr(i,j)]; }
+    { return this->data[this->iaddr(i,j)]; }
 
     /*!
     :|: Fill the matrix with zeros
@@ -171,7 +256,7 @@ namespace alglin {
       integer irow,
       integer icol
     ) {
-      gezero( nr, nc, this->data + irow + icol * this->ldData, this->ldData );
+      gezero( nr, nc, this->data + this->iaddr(irow,icol), this->ldData );
     }
 
     /*!
@@ -204,6 +289,44 @@ namespace alglin {
     :|:  Copy a matrix to a rectangular block of the stored matrix
     :|:  staring at `(irow,icol)` position
     :|:
+    :|:  \param[in] B     reference to the matrix of the object B
+    :|:  \param[in] irow  starting row
+    :|:  \param[in] icol  stating column
+    \*/
+    void
+    load_block(
+      MatW const & B,
+      integer      irow = 0,
+      integer      icol = 0
+    ) {
+      this->load_block(
+        B.nRows, B.nCols, B.data, B.ldData, irow, icol
+      );
+    }
+
+    /*!
+    :|:  Copy a matrix to a rectangular block of the stored matrix
+    :|:  staring at `(irow,icol)` position
+    :|:
+    :|:  \param[in] B     reference to the matrix of the object B
+    :|:  \param[in] irow  starting row
+    :|:  \param[in] icol  stating column
+    \*/
+    void
+    load_block_transposed(
+      MatW const & B,
+      integer      irow = 0,
+      integer      icol = 0
+    ) {
+      this->load_block_transposed(
+        B.nRows, B.nCols, B.data, B.ldData, irow, icol
+      );
+    }
+
+    /*!
+    :|:  Copy a matrix to a rectangular block of the stored matrix
+    :|:  staring at `(irow,icol)` position
+    :|:
     :|:  \param[in] nr    number of rows of the block to be zeroed
     :|:  \param[in] nc    number of columns of the block to be zeroed
     :|:  \param[in] B     pointer to memory storing the input matrix `B`
@@ -220,15 +343,102 @@ namespace alglin {
       integer         irow = 0,
       integer         icol = 0
     ) {
+      ALGLIN_ASSERT(
+        irow + nr <= this->nRows &&
+        icol + nc <= this->nCols &&
+        irow >= 0 && icol >= 0,
+        "load_block( nr = " << nr << " nc = " << nc <<
+        ",..., irow = " << irow << ", icol = " << icol <<
+        ") bad parameters"
+      );
       integer info = gecopy(
         nr, nc,
         B, ldB,
-        this->data + irow + icol * this->ldData, this->ldData
+        this->data + this->iaddr(irow,icol), this->ldData
       );
       ALGLIN_ASSERT(
         info == 0,
         "load_block call alglin::gecopy return info = " << info
       );
+    }
+
+    /*!
+    :|:  Copy a matrix to a rectangular block of the stored matrix
+    :|:  staring at `(irow,icol)` position
+    :|:
+    :|:  \param[in] nr    number of rows of the block to be zeroed
+    :|:  \param[in] nc    number of columns of the block to be zeroed
+    :|:  \param[in] B     pointer to memory storing the input matrix `B`
+    :|:  \param[in] ldB   leading dimension of the matrix `B`
+    :|:  \param[in] irow  starting row
+    :|:  \param[in] icol  stating column
+    \*/
+    void
+    load_block_transposed(
+      integer         nr,
+      integer         nc,
+      valueType const B[],
+      integer         ldB,
+      integer         irow = 0,
+      integer         icol = 0
+    ) {
+      ALGLIN_ASSERT(
+        irow + nc <= this->nRows &&
+        icol + nr <= this->nCols &&
+        irow >= 0 && icol >= 0,
+        "load_block_transpose( nr = " << nr << " nc = " << nc <<
+        ",..., irow = " << irow << ", icol = " << icol <<
+        ") bad parameters"
+      );
+      valueType const * pd = B;
+      valueType       * pp = this->data + this->iaddr(irow,icol);
+      for ( integer i = 0; i < nc; ++i, pd += ldB, ++pp )
+        alglin::copy( nr, pd, 1, pp, this->ldData );
+    }
+
+    /*!
+    :|:  Copy a matrix to a rectangular block of the stored matrix
+    :|:  staring at `(irow,icol)` position
+    :|:
+    :|:  \param[in] n     number of element of the diagonal
+    :|:  \param[in] D     pointer to memory storing the diagonal
+    :|:  \param[in] irow  starting row
+    :|:  \param[in] icol  stating column
+    \*/
+    void
+    load_diagonal_block(
+      integer         n,
+      valueType const D[],
+      integer         irow = 0,
+      integer         icol = 0
+    ) {
+      ALGLIN_ASSERT(
+        irow + n <= this->nRows &&
+        icol + n <= this->nCols &&
+        irow >= 0 && icol >= 0,
+        "load_diagonal_block( n = " << n <<
+        ",..., irow = " << irow << ", icol = " << icol <<
+        ") bad parameters"
+      );
+      for ( integer i = 0; i < n; ++i )
+        this->data[this->iaddr(irow+i,icol+i)] = D[i];
+    }
+
+    /*!
+    :|:  Copy a matrix to a rectangular block of the stored matrix
+    :|:  staring at `(irow,icol)` position
+    :|:
+    :|:  \param[in] D     reference to the matrix of the object D
+    :|:  \param[in] irow  starting row
+    :|:  \param[in] icol  stating column
+    \*/
+    void
+    load_block(
+      DiagW const & D,
+      integer       irow = 0,
+      integer       icol = 0
+    ) {
+      this->load_diagonal_block( D.getDim(), D.get_data(), irow, icol );
     }
 
     /*!
@@ -383,90 +593,6 @@ namespace alglin {
       );
     }
 
-  };
-
-  /*\
-  :|:   ___  _           __  __      _       _    __      __
-  :|:  |   \(_)__ _ __ _|  \/  |__ _| |_ _ _(_)_ _\ \    / / _ __ _ _ __ _ __  ___ _ _
-  :|:  | |) | / _` / _` | |\/| / _` |  _| '_| \ \ /\ \/\/ / '_/ _` | '_ \ '_ \/ -_) '_|
-  :|:  |___/|_\__,_\__, |_|  |_\__,_|\__|_| |_/_\_\ \_/\_/|_| \__,_| .__/ .__/\___|_|
-  :|:              |___/                                           |_|  |_|
-  \*/
-  template <typename T>
-  class DiagMatrixWrapper {
-
-  public:
-    typedef T                    valueType;
-    typedef DiagMatrixWrapper<T> DMatW;
-
-  private:
-    integer     dim;
-    valueType * data;
-  public:
-
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    /*!
-    :|: build an empy wrapper
-    \*/
-    explicit
-    DiagMatrixWrapper( )
-    : dim(0)
-    , data(nullptr)
-    {}
-
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    /*!
-    :|: Map a piece of memory into a matrix object
-    :|:
-    :|: \param _data  pointer of the memory to be mapped as a matrix
-    :|: \param _dim   number of elements on the diagonal of the mapped matrix
-    \*/
-    explicit
-    DiagMatrixWrapper( valueType * _data, integer _dim ) {
-      this->data = _data;
-      this->dim  = _dim;
-    }
-
-    integer getDim()   const { return this->dim;}  //!< Number of elements
-    integer numElems() const { return this->dim;}  //!< Number of elements
-
-    valueType const * get_data() const { return this->data; }
-    valueType       * get_data()       { return this->data; }
-
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    /*!
-    :|: Map a piece of memory into a matrix object
-    :|:
-    :|: \param _data pointer of the memory to be mapped as a matrix
-    :|: \param _dim  dimension the mapped diagonal matrix
-    \*/
-    void
-    setup( valueType * _data, integer _dim ) {
-      this->data = _data;
-      this->dim  = _dim;
-    }
-
-    valueType const &
-    operator [] ( integer i ) const
-    { return this->data[i]; }
-
-    valueType &
-    operator [] ( integer i )
-    { return this->data[i]; }
-
-    DMatW const & operator = (valueType v) {
-      std::fill( this->data, this->data+this->dim, v );
-      return *this;
-    }
-
-    DMatW & operator = ( DMatW const & COPY ) {
-      ALGLIN_ASSERT(
-        this->dim == COPY.dim,
-        "DiagMatrixWrapper operator = bad matrix dimensions"
-      );
-      std::copy( COPY.data, COPY.data+COPY.dim, this->data );
-      return *this;
-    }
   };
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
