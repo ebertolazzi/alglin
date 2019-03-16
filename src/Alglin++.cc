@@ -51,14 +51,14 @@ namespace alglin {
   {}
 
   template <typename T>
-  Matrix<T>::Matrix( Matrix<T> const & M )
-  : MatrixWrapper<T>( nullptr, M.nRows, M.nCols, M.nRows )
+  Matrix<T>::Matrix( Matrix<T> const & rhs )
+  : MatrixWrapper<T>( nullptr, rhs.nRows, rhs.nCols, rhs.nRows )
   , mem("Matrix")
   {
-    size_t sz = M.nRows*M.nCols;
+    size_t sz = rhs.nRows*rhs.nCols;
     mem.allocate( sz ) ;
     this->data = mem( sz );
-    gecopy( M.nRows,  M.nCols, M.data, M.ldData,
+    gecopy( rhs.nRows,  rhs.nCols, rhs.data, rhs.ldData,
             this->data, this->ldData );
   }
 
@@ -76,6 +76,32 @@ namespace alglin {
   Matrix<T>::setup( integer nr, integer nc ) {
     mem.allocate( size_t(nr*nc) ) ;
     this->MatrixWrapper<T>::setup( mem( size_t(nr*nc) ), nr, nc, nr ) ;
+  }
+
+  template <typename T>
+  void
+  Matrix<T>::scale_by( T sc ) {
+    if ( this->ldData == this->nRows ) {
+      scal( this->nRows*this->nCols, sc, this->data, 1 );
+    } else {
+      T * p = this->data;
+      for ( integer i = 0; i < this->nCols; ++i, p += this->ldData )
+        scal( this->nRows, sc, p, 1 );
+    }
+  }
+
+  template <typename T>
+  Matrix<T> const &
+  Matrix<T>::operator = ( Matrix<T> const & rhs ) {
+    size_t sz = rhs.nRows*rhs.nCols;
+    mem.allocate( sz ) ;
+    this->data   = mem( sz );
+    this->nRows  = rhs.nRows;
+    this->nCols  = rhs.nCols;
+    this->ldData = rhs.nRows;
+    gecopy( rhs.nRows,  rhs.nCols, rhs.data, rhs.ldData,
+            this->data, this->ldData );
+    return *this;
   }
 
   /*\
@@ -119,6 +145,15 @@ namespace alglin {
     mem.allocate( size_t(this->dim) );
     this->dim  = _dim;
     this->data = mem( size_t(this->dim) );
+  }
+
+  template <typename T>
+  DiagMatrix<T> const &
+  DiagMatrix<T>::operator = ( DiagMatrix<T> const & rhs ) {
+    mem.allocate( size_t(rhs.dim) ) ;
+    this->dim  = rhs.dim;
+    this->data = mem( size_t(rhs.dim) );
+    std::copy_n( rhs.data, rhs.dim, this->data );
   }
 
   /*\
@@ -449,7 +484,7 @@ namespace alglin {
     #ifndef ALGLIN_NO_DEBUG
     check(sp);
     #endif
-    zero();
+    this->zero_fill();
     integer   const * pRows;
     integer   const * pCols;
     valueType const * pValues;
@@ -472,6 +507,19 @@ namespace alglin {
     sp.get_data( pRows, pCols, pValues );
     for ( integer idx = 0; idx < sp.get_nnz(); ++idx )
       this->data[ this->iaddr(pRows[idx],pCols[idx]) ] = pValues[idx];
+  }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  template <typename T>
+  void
+  MatrixWrapper<T>::add( valueType alpha, valueType const data_in[], integer ldData_in ) {
+    geadd(
+      this->nRows, this->nCols,
+      alpha, data_in, ldData_in,
+      1.0, this->data, this->ldData,
+      this->data, this->ldData
+    );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -236,7 +236,7 @@ namespace alglin {
     :|: Fill the matrix with zeros
     \*/
     void
-    fill_zero() {
+    zero_fill() {
       gezero( this->nRows, this->nCols, this->data, this->ldData );
     }
 
@@ -495,6 +495,16 @@ namespace alglin {
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     /*!
+    :|: Add a block of memory to the matrix scaled by alpha
+    :|:
+    :|: \param alpha  scaling factor
+    :|: \param data   pointer of memory with data to be copied
+    :|: \param ldData leading dimension of the memory to be copied
+    :|:
+    \*/
+    void add( valueType alpha, valueType const data[], integer ldData );
+
+    /*!
     :|: Add a block of memory to the matrix
     :|:
     :|: \param data   pointer of memory with data to be copied
@@ -502,6 +512,30 @@ namespace alglin {
     :|:
     \*/
     void add( valueType const data[], integer ldData );
+
+    // R <- R + alpha * A
+    /*!
+    :|:
+    :|: \param A first mapped matrix
+    :|:
+    \*/
+    void
+    add( valueType alpha, MatW const & A ) {
+      #if defined(DEBUG) || defined(_DEBUG)
+      ALGLIN_ASSERT( nRows == A.nRows && nCols == A.nCols,
+                     "add(..) incompatible dimensions" );
+      #endif
+      this->add( alpha, A.data, A.ldData );
+    }
+
+    void
+    add( MatW const & A ) {
+      #if defined(DEBUG) || defined(_DEBUG)
+      ALGLIN_ASSERT( nRows == A.nRows && nCols == A.nCols,
+                     "add(..) incompatible dimensions");
+      #endif
+      this->add( A.data, A.ldData );
+    }
 
     /*!
     :|: Add sparse matrix to the object

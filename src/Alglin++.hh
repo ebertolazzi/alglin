@@ -150,24 +150,49 @@ namespace alglin {
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+  /*\
+  :|:   __  __       _        _
+  :|:  |  \/  | __ _| |_ _ __(_)_  __
+  :|:  | |\/| |/ _` | __| '__| \ \/ /
+  :|:  | |  | | (_| | |_| |  | |>  <
+  :|:  |_|  |_|\__,_|\__|_|  |_/_/\_\
+  \*/
+
   template <typename T>
   class Matrix : public MatrixWrapper<T> {
     alglin::Malloc<T> mem;
   public:
     Matrix();
-    Matrix( Matrix<T> const & );
+    Matrix( Matrix<T> const & M );
     Matrix( integer nr, integer nc );
     void setup( integer nr, integer nc );
+    void scale_by( T );
+    Matrix<T> const & operator = ( Matrix<T> const & rhs );
   };
 
+  /*\
+  :|:   ____  _             __  __       _        _
+  :|:  |  _ \(_) __ _  __ _|  \/  | __ _| |_ _ __(_)_  __
+  :|:  | | | | |/ _` |/ _` | |\/| |/ _` | __| '__| \ \/ /
+  :|:  | |_| | | (_| | (_| | |  | | (_| | |_| |  | |>  <
+  :|:  |____/|_|\__,_|\__, |_|  |_|\__,_|\__|_|  |_/_/\_\
+  :|:                 |___/
+  \*/
   template <typename T>
   class DiagMatrix : public DiagMatrixWrapper<T> {
     Malloc<T> mem;
   public:
     DiagMatrix();
-    DiagMatrix( DiagMatrix const &);
+    DiagMatrix( DiagMatrix const & D );
+
     DiagMatrix( integer _dim );
     void setup( integer _dim );
+
+    void
+    scale_by( T sc )
+    { scal( this->dim, sc, this->data, 1 ); }
+
+    DiagMatrix<T> const & operator = ( DiagMatrix<T> const & rhs );
   };
 
   // explicit instantiation declaration to suppress warnings

@@ -34,27 +34,34 @@ namespace alglin {
   #ifdef ALGLIN_USE_LAPACK
   extern "C" {
     void
-    BLASFUNC(scopy)( integer const * N,
-                     real    const   X[],
-                     integer const * INCX,
-                     real            Y[],
-                     integer const * INCY );
+    BLASFUNC(scopy)(
+      integer const * N,
+      real    const   X[],
+      integer const * INCX,
+      real            Y[],
+      integer const * INCY
+    );
+
     void
-    BLASFUNC(dcopy)( integer    const * N,
-                     doublereal const   X[],
-                     integer    const * INCX,
-                     doublereal         Y[],
-                     integer    const * INCY );
+    BLASFUNC(dcopy)(
+      integer    const * N,
+      doublereal const   X[],
+      integer    const * INCX,
+      doublereal         Y[],
+      integer    const * INCY
+    );
   }
   #endif
 
   inline
   void
-  copy( integer    N,
-        real const X[],
-        integer    INCX,
-        real       Y[],
-        integer    INCY )
+  copy(
+    integer    N,
+    real const X[],
+    integer    INCX,
+    real       Y[],
+    integer    INCY
+  )
   #if defined(ALGLIN_USE_MKL)
   { scopy( &N, X, &INCX, Y, &INCY ); }
   #elif defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
@@ -65,11 +72,13 @@ namespace alglin {
 
   inline
   void
-  copy( integer          N,
-        doublereal const X[],
-        integer          INCX,
-        doublereal       Y[],
-        integer          INCY )
+  copy(
+    integer          N,
+    doublereal const X[],
+    integer          INCX,
+    doublereal       Y[],
+    integer          INCY
+  )
   #if defined(ALGLIN_USE_MKL)
   { dcopy( &N, X, &INCX, Y, &INCY ); }
   #elif defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
@@ -80,18 +89,22 @@ namespace alglin {
 
   inline
   void
-  fill( integer N,
-        real    Y[],
-        integer INCY,
-        real    V )
+  fill(
+    integer N,
+    real    Y[],
+    integer INCY,
+    real    V
+  )
   { copy( N, &V, 0, Y, INCY ); }
 
   inline
   void
-  fill( integer    N,
-        doublereal Y[],
-        integer    INCY,
-        doublereal V )
+  fill(
+    integer    N,
+    doublereal Y[],
+    integer    INCY,
+    doublereal V
+  )
   { copy( N, &V, 0, Y, INCY ); }
 
   /*
@@ -104,43 +117,55 @@ namespace alglin {
   #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_ATLAS) 
   extern "C" {
     void
-    BLASFUNC(sswap)( integer const * N,
-                     real            X[],
-                     integer const * INCX,
-                     real            Y[],
-                     integer const * INCY );
+    BLASFUNC(sswap)(
+      integer const * N,
+      real            X[],
+      integer const * INCX,
+      real            Y[],
+      integer const * INCY
+    );
+
     void
     BLASFUNC(dswap)( integer const * N,
-                     doublereal      X[],
-                     integer const * INCX,
-                     doublereal      Y[],
-                     integer const * INCY );
+      doublereal      X[],
+      integer const * INCX,
+      doublereal      Y[],
+      integer const * INCY
+    );
+
     void
-    BLASFUNC(slaswp)( integer const * NCOL,
-                      real            A[],
-                      integer const * LDA,
-                      integer const * K1,
-                      integer const * K2,
-                      integer const   IPIV[],
-                      integer const * INC );
+    BLASFUNC(slaswp)(
+      integer const * NCOL,
+      real            A[],
+      integer const * LDA,
+      integer const * K1,
+      integer const * K2,
+      integer const   IPIV[],
+      integer const * INC
+    );
+
     void
-    BLASFUNC(dlaswp)( integer const * NCOL,
-                      doublereal      A[],
-                      integer const * LDA,
-                      integer const * K1,
-                      integer const * K2,
-                      integer const   IPIV[],
-                      integer const * INC );
+    BLASFUNC(dlaswp)(
+      integer const * NCOL,
+      doublereal      A[],
+      integer const * LDA,
+      integer const * K1,
+      integer const * K2,
+      integer const   IPIV[],
+      integer const * INC
+    );
   }
   #endif
 
   inline
   void
-  swap( integer N,
-        real    X[],
-        integer INCX,
-        real    Y[],
-        integer INCY )
+  swap(
+    integer N,
+    real    X[],
+    integer INCX,
+    real    Y[],
+    integer INCY
+  )
   #if defined(ALGLIN_USE_MKL)
   { sswap( &N, X, &INCX, Y, &INCY ); }
   #elif defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
@@ -151,11 +176,13 @@ namespace alglin {
 
   inline
   void
-  swap( integer    N,
-        doublereal X[],
-        integer    INCX,
-        doublereal Y[],
-        integer    INCY )
+  swap(
+    integer    N,
+    doublereal X[],
+    integer    INCX,
+    doublereal Y[],
+    integer    INCY
+  )
   #if defined(ALGLIN_USE_MKL)
   { dswap( &N, X, &INCX, Y, &INCY ); }
   #elif defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
@@ -205,13 +232,15 @@ namespace alglin {
 
   inline
   integer
-  swaps( integer       NCOL,
-         real          A[],
-         integer       LDA,
-         integer       I1,
-         integer       I2,
-         integer const IPIV[],
-         integer       INC ) {
+  swaps(
+    integer       NCOL,
+    real          A[],
+    integer       LDA,
+    integer       I1,
+    integer       I2,
+    integer const IPIV[],
+    integer       INC
+  ) {
     integer info(0);
     #if defined(ALGLIN_USE_MKL)
       integer K1 = I1+1;
@@ -241,13 +270,15 @@ namespace alglin {
 
   inline
   integer
-  swaps( integer       NCOL,
-         doublereal    A[],
-         integer       LDA,
-         integer       I1,
-         integer       I2,
-         integer const IPIV[],
-         integer       INC ) {
+  swaps(
+    integer       NCOL,
+    doublereal    A[],
+    integer       LDA,
+    integer       I1,
+    integer       I2,
+    integer const IPIV[],
+    integer       INC
+  ) {
     integer info(0);
     #if defined(ALGLIN_USE_MKL)
       integer K1 = I1+1;
@@ -285,34 +316,47 @@ namespace alglin {
   #ifdef ALGLIN_USE_LAPACK
   extern "C" {
     void
-    BLASFUNC(sscal)( integer const * N,
-                     real    const * S,
-                     real            X[],
-                     integer const * INCX );
+    BLASFUNC(sscal)(
+      integer const * N,
+      real    const * S,
+      real            X[],
+      integer const * INCX
+    );
+
     void
-    BLASFUNC(dscal)( integer    const * N,
-                     doublereal const * S,
-                     doublereal         X[],
-                     integer    const * INCX );
+    BLASFUNC(dscal)(
+      integer    const * N,
+      doublereal const * S,
+      doublereal         X[],
+      integer    const * INCX
+    );
+
     void
-    BLASFUNC(srscl)( integer const * N,
-                     real    const * SA,
-                     real          * SX,
-                     integer const * INCX );
+    BLASFUNC(srscl)(
+      integer const * N,
+      real    const * SA,
+      real          * SX,
+      integer const * INCX
+    );
+
     void
-    BLASFUNC(drscl)( integer    const * N,
-                     doublereal const * SA,
-                     doublereal       * SX,
-                     integer    const * INCX );
+    BLASFUNC(drscl)(
+      integer    const * N,
+      doublereal const * SA,
+      doublereal       * SX,
+      integer    const * INCX
+    );
   }
   #endif
 
   inline
   void
-  scal( integer N,
-        real    S,
-        real    X[],
-        integer INCX )
+  scal(
+    integer N,
+    real    S,
+    real    X[],
+    integer INCX
+  )
   #if defined(ALGLIN_USE_MKL)
   { sscal( &N, &S, X, &INCX ); }
   #elif defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
@@ -323,10 +367,12 @@ namespace alglin {
 
   inline
   void
-  scal( integer    N,
-        doublereal S,
-        doublereal X[],
-        integer    INCX )
+  scal(
+    integer    N,
+    doublereal S,
+    doublereal X[],
+    integer    INCX
+  )
   #if defined(ALGLIN_USE_MKL)
   { dscal( &N, &S, X, &INCX ); }
   #elif defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
@@ -337,10 +383,12 @@ namespace alglin {
 
   inline
   void
-  rscal( integer N,
-         real    S,
-         real    X[],
-         integer INCX )
+  rscal(
+    integer N,
+    real    S,
+    real    X[],
+    integer INCX
+  )
   #if defined(ALGLIN_USE_MKL)
   { srscl( &N, &S, X, &INCX ); }
   #elif defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
@@ -353,10 +401,12 @@ namespace alglin {
 
   inline
   void
-  rscal( integer    N,
-         doublereal S,
-         doublereal X[],
-         integer    INCX )
+  rscal(
+    integer    N,
+    doublereal S,
+    doublereal X[],
+    integer    INCX
+  )
   #if defined(ALGLIN_USE_MKL)
   { drscl( &N, &S, X, &INCX ); }
   #elif defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
@@ -377,29 +427,37 @@ namespace alglin {
   #ifdef ALGLIN_USE_LAPACK
   extern "C" {
     void
-    BLASFUNC(saxpy)( integer const * N,
-                     real    const * A,
-                     real    const   X[],
-                     integer const * INCX,
-                     real            Y[],
-                     integer const * INCY );
+    BLASFUNC(saxpy)(
+      integer const * N,
+      real    const * A,
+      real    const   X[],
+      integer const * INCX,
+      real            Y[],
+      integer const * INCY
+    );
+
     void
-    BLASFUNC(daxpy)( integer    const * N,
-                     doublereal const * A,
-                     doublereal const   X[],
-                     integer    const * INCX,
-                     doublereal         Y[],
-                     integer    const * INCY );
+    BLASFUNC(daxpy)(
+      integer    const * N,
+      doublereal const * A,
+      doublereal const   X[],
+      integer    const * INCX,
+      doublereal         Y[],
+      integer    const * INCY
+    );
   }
   #endif
+
   inline
   void
-  axpy( integer    N,
-        real       A,
-        real const X[],
-        integer    INCX,
-        real       Y[],
-        integer    INCY )
+  axpy(
+    integer    N,
+    real       A,
+    real const X[],
+    integer    INCX,
+    real       Y[],
+    integer    INCY
+  )
   #if defined(ALGLIN_USE_MKL)
   { saxpy( &N, &A, X, &INCX, Y, &INCY ); }
   #elif defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
@@ -410,12 +468,14 @@ namespace alglin {
 
   inline
   void
-  axpy( integer          N,
-        doublereal       A,
-        doublereal const X[],
-        integer          INCX,
-        doublereal       Y[],
-        integer          INCY )
+  axpy(
+    integer          N,
+    doublereal       A,
+    doublereal const X[],
+    integer          INCX,
+    doublereal       Y[],
+    integer          INCY
+  )
   #if defined(ALGLIN_USE_MKL)
   { daxpy( &N, &A, X, &INCX, Y, &INCY ); }
   #elif defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
@@ -432,9 +492,11 @@ namespace alglin {
   */
   inline
   void
-  zero( integer N,
-        real    X[],
-        integer INCX )
+  zero(
+    integer N,
+    real    X[],
+    integer INCX
+  )
   #if defined(ALGLIN_USE_MKL)
   { real z = 0; integer iz = 0; scopy( &N, &z, &iz, X, &INCX ); }
   #elif defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
@@ -445,9 +507,11 @@ namespace alglin {
 
   inline
   void
-  zero( integer    N,
-        doublereal X[],
-        integer    INCX )
+  zero(
+    integer    N,
+    doublereal X[],
+    integer    INCX
+  )
   #if defined(ALGLIN_USE_MKL)
   { doublereal z = 0; integer iz = 0; dcopy( &N, &z, &iz, X, &INCX ); }
   #elif defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
@@ -466,33 +530,40 @@ namespace alglin {
   #ifdef ALGLIN_USE_LAPACK
   extern "C" {
     void
-    BLASFUNC(srot)( integer const * N,
-                    real            DX[],
-                    integer const * INCX,
-                    real            DY[],
-                    integer const * INCY,
-                    real    const * C,
-                    real    const * S );
+    BLASFUNC(srot)(
+      integer const * N,
+      real            DX[],
+      integer const * INCX,
+      real            DY[],
+      integer const * INCY,
+      real    const * C,
+      real    const * S
+    );
+
     void
-    BLASFUNC(drot)( integer    const * N,
-                    doublereal         DX[],
-                    integer    const * INCX,
-                    doublereal         DY[],
-                    integer    const * INCY,
-                    doublereal const * C,
-                    doublereal const * S );
+    BLASFUNC(drot)(
+      integer    const * N,
+      doublereal         DX[],
+      integer    const * INCX,
+      doublereal         DY[],
+      integer    const * INCY,
+      doublereal const * C,
+      doublereal const * S
+    );
   }
   #endif
 
   inline
   void
-  rot( integer N,
-       real    DX[],
-       integer INCX,
-       real    DY[],
-       integer INCY,
-       real    C,
-       real    S )
+  rot(
+    integer N,
+    real    DX[],
+    integer INCX,
+    real    DY[],
+    integer INCY,
+    real    C,
+    real    S
+  )
   #if defined(ALGLIN_USE_MKL)
   { srot( &N, DX, &INCX, DY, &INCY, &C, &S ); }
   #elif defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
@@ -503,13 +574,15 @@ namespace alglin {
 
   inline
   void
-  rot( integer    N,
-       doublereal DX[],
-       integer    INCX,
-       doublereal DY[],
-       integer    INCY,
-       doublereal C,
-       doublereal S )
+  rot(
+    integer    N,
+    doublereal DX[],
+    integer    INCX,
+    doublereal DY[],
+    integer    INCY,
+    doublereal C,
+    doublereal S
+  )
   #if defined(ALGLIN_USE_MKL)
   { drot( &N, DX, &INCX, DY, &INCY, &C, &S ); }
   #elif defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
@@ -542,24 +615,31 @@ namespace alglin {
   #ifdef ALGLIN_USE_LAPACK
   extern "C" {
     void
-    BLASFUNC(srotg)( real * DX,
-                     real * DY,
-                     real * C,
-                     real * S );
+    BLASFUNC(srotg)(
+      real * DX,
+      real * DY,
+      real * C,
+      real * S
+    );
+
     void
-    BLASFUNC(drotg)( doublereal * DX,
-                     doublereal * DY,
-                     doublereal * C,
-                     doublereal * S );
+    BLASFUNC(drotg)(
+      doublereal * DX,
+      doublereal * DY,
+      doublereal * C,
+      doublereal * S
+    );
   }
   #endif
 
   inline
   void
-  rotg( real & DX,
-        real & DY,
-        real & C,
-        real & S )
+  rotg(
+    real & DX,
+    real & DY,
+    real & C,
+    real & S
+  )
   #if defined(ALGLIN_USE_MKL)
   { srotg( &DX, &DY, &C, &S ); }
   #elif defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
@@ -570,10 +650,12 @@ namespace alglin {
 
   inline
   void
-  rotg( doublereal & DX,
-        doublereal & DY,
-        doublereal & C,
-        doublereal & S )
+  rotg(
+    doublereal & DX,
+    doublereal & DY,
+    doublereal & C,
+    doublereal & S
+  )
   #if defined(ALGLIN_USE_MKL)
   { drotg( &DX, &DY, &C, &S ); }
   #elif defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
@@ -599,22 +681,28 @@ namespace alglin {
   #ifdef ALGLIN_USE_LAPACK
   extern "C" {
     real
-    BLASFUNC(snrm2)( integer const * N,
-                     real    const   X[],
-                     integer const * INCX );
+    BLASFUNC(snrm2)(
+      integer const * N,
+      real    const   X[],
+      integer const * INCX
+    );
 
     doublereal
-    BLASFUNC(dnrm2)( integer    const * N,
-                     doublereal const   X[],
-                     integer    const * INCX );
+    BLASFUNC(dnrm2)(
+      integer    const * N,
+      doublereal const   X[],
+      integer    const * INCX
+    );
   }
   #endif
 
   inline
   real
-  nrm2( integer    N,
-        real const X[],
-        integer    INCX )
+  nrm2(
+    integer    N,
+    real const X[],
+    integer    INCX
+  )
   #if defined(ALGLIN_USE_MKL)
   { return snrm2( &N, X, &INCX ); }
   #elif defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
@@ -625,9 +713,11 @@ namespace alglin {
 
   inline
   doublereal
-  nrm2( integer          N,
-        doublereal const X[],
-        integer          INCX )
+  nrm2(
+    integer          N,
+    doublereal const X[],
+    integer          INCX
+  )
   #if defined(ALGLIN_USE_MKL)
   { return dnrm2( &N, X, &INCX ); }
   #elif defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
@@ -651,22 +741,28 @@ namespace alglin {
   #ifdef ALGLIN_USE_LAPACK
   extern "C" {
     real
-    BLASFUNC(sasum)( integer const * N,
-                     real    const   X[],
-                     integer const * INCX );
+    BLASFUNC(sasum)(
+      integer const * N,
+      real    const   X[],
+      integer const * INCX
+    );
 
     doublereal
-    BLASFUNC(dasum)( integer    const * N,
-                     doublereal const   X[],
-                     integer    const * INCX );
+    BLASFUNC(dasum)(
+      integer    const * N,
+      doublereal const   X[],
+      integer    const * INCX
+    );
   }
   #endif
 
   inline
   real
-  asum( integer    N,
-        real const X[],
-        integer    INCX)
+  asum(
+    integer    N,
+    real const X[],
+    integer    INCX
+  )
   #if defined(ALGLIN_USE_MKL)
   { return sasum( &N, X, &INCX ); }
   #elif defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
@@ -677,9 +773,11 @@ namespace alglin {
 
   inline
   doublereal
-  asum( integer          N,
-        doublereal const X[],
-        integer          INCX)
+  asum(
+    integer          N,
+    doublereal const X[],
+    integer          INCX
+  )
   #if defined(ALGLIN_USE_MKL)
   { return dasum( &N, X, &INCX ); }
   #elif defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
@@ -703,22 +801,28 @@ namespace alglin {
   #ifdef ALGLIN_USE_LAPACK
   extern "C" {
     integer
-    BLASFUNC(isamax)( integer const * N,
-                      real    const   X[],
-                      integer const * INCX );
+    BLASFUNC(isamax)(
+      integer const * N,
+      real    const   X[],
+      integer const * INCX
+    );
 
     integer
-    BLASFUNC(idamax)( integer    const * N,
-                      doublereal const   X[],
-                      integer    const * INCX );
+    BLASFUNC(idamax)(
+      integer    const * N,
+      doublereal const   X[],
+      integer    const * INCX
+    );
   }
   #endif
 
   inline
   integer
-  iamax( integer    N,
-         real const X[],
-         integer    INCX )
+  iamax(
+    integer    N,
+    real const X[],
+    integer    INCX
+  )
   #if defined(ALGLIN_USE_MKL)
   { return isamax( &N, X, &INCX )-1; }
   #elif defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
@@ -729,9 +833,11 @@ namespace alglin {
 
   inline
   integer
-  iamax( integer          N,
-         doublereal const X[],
-         integer          INCX )
+  iamax(
+    integer          N,
+    doublereal const X[],
+    integer          INCX
+  )
   #if defined(ALGLIN_USE_MKL)
   { return idamax( &N, X, &INCX )-1; }
   #elif defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
@@ -742,16 +848,20 @@ namespace alglin {
 
   inline
   real
-  absmax( integer    N,
-          real const X[],
-          integer    INCX )
+  absmax(
+    integer    N,
+    real const X[],
+    integer    INCX
+  )
   { real tmp = X[iamax(N,X,INCX)]; return tmp > 0 ? tmp : -tmp; }
 
   inline
   doublereal
-  absmax( integer          N,
-          doublereal const X[],
-          integer          INCX )
+  absmax(
+    integer          N,
+    doublereal const X[],
+    integer          INCX
+  )
   { doublereal tmp = X[iamax(N,X,INCX)]; return tmp > 0 ? tmp : -tmp; }
 
   /*
@@ -771,28 +881,34 @@ namespace alglin {
   #ifdef ALGLIN_USE_LAPACK
   extern "C" {
     real
-    BLASFUNC(sdot)( integer const * N,
-                    real    const   SX[],
-                    integer const * INCX,
-                    real    const   SY[],
-                    integer const * INCY );
+    BLASFUNC(sdot)(
+      integer const * N,
+      real    const   SX[],
+      integer const * INCX,
+      real    const   SY[],
+      integer const * INCY
+    );
 
     doublereal
-    BLASFUNC(ddot)( integer    const * N,
-                    doublereal const   SX[],
-                    integer    const * INCX,
-                    doublereal const   SY[],
-                    integer    const * INCY );
+    BLASFUNC(ddot)(
+      integer    const * N,
+      doublereal const   SX[],
+      integer    const * INCX,
+      doublereal const   SY[],
+      integer    const * INCY
+    );
   }
   #endif
 
   inline
   real
-  dot( integer    N,
-       real const SX[],
-       integer    INCX,
-       real const SY[],
-       integer    INCY )
+  dot(
+    integer    N,
+    real const SX[],
+    integer    INCX,
+    real const SY[],
+    integer    INCY
+  )
   #if defined(ALGLIN_USE_MKL)
   { return sdot( &N, SX, &INCX, SY, &INCY ); }
   #elif defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
@@ -804,11 +920,13 @@ namespace alglin {
 
   inline
   doublereal
-  dot( integer          N,
-       doublereal const SX[],
-       integer          INCX,
-       doublereal const SY[],
-       integer          INCY )
+  dot(
+    integer          N,
+    doublereal const SX[],
+    integer          INCX,
+    doublereal const SY[],
+    integer          INCY
+  )
   #if defined(ALGLIN_USE_MKL)
   { return ddot( &N, SX, &INCX, SY, &INCY ); }
   #elif defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
