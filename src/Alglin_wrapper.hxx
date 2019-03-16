@@ -236,8 +236,16 @@ namespace alglin {
     :|: Fill the matrix with zeros
     \*/
     void
-    zero() {
+    fill_zero() {
       gezero( this->nRows, this->nCols, this->data, this->ldData );
+    }
+
+    /*!
+    :|: Fill the matrix with zeros
+    \*/
+    void
+    fill( valueType val ) {
+      gefill( this->nRows, this->nCols, this->data, this->ldData, val );
     }
 
     /*!
@@ -531,7 +539,13 @@ namespace alglin {
     :|: \param j_offs offset added to to the column indices
     :|:
     \*/
-    void add( valueType alpha, Sparse const & sp, integer i_offs, integer j_offs );
+    void
+    add(
+      valueType      alpha,
+      Sparse const & sp,
+      integer        i_offs,
+      integer        j_offs
+    );
 
     // alpha*A + beta*B -> C
     /*!
@@ -561,7 +575,7 @@ namespace alglin {
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     /*!
-    :|: Extract a block
+    :|: make a view of a block
     :|:
     :|: \param i_offs initial row of the block to be extracted
     :|: \param j_offs initial column of the block to be extracted
@@ -571,7 +585,7 @@ namespace alglin {
     :|:
     \*/
     void
-    block(
+    view_block(
       integer i_offs,
       integer j_offs,
       integer nrow,
@@ -582,15 +596,95 @@ namespace alglin {
       ALGLIN_ASSERT(
         i_offs >= 0 && i_offs+nrow <= this->nRows &&
         j_offs >= 0 && j_offs+ncol <= this->nCols,
-        "block(i_offs=" << i_offs << ", j_offs=" << j_offs <<
+        "view_block(i_offs=" << i_offs << ", j_offs=" << j_offs <<
         ", nrow=" << nrow << ", ncol=" << ncol <<
         ") will be out of range [0," <<
         this->nRows << ") x [0," << this->nCols << ")"
       );
       #endif
       to.setup(
-        this->data+this->iaddr(i_offs,j_offs), nrow, ncol, this->ldData
+        this->data+this->iaddr(i_offs,j_offs),
+        nrow, ncol, this->ldData
       );
+    }
+
+    /*!
+    :|: Extract a matrix in transposed form
+    :|:
+    :|: \param out mapped matrix which store the result
+    :|:
+    \*/
+    void
+    get_transposed( MatW & out ) {
+      #if defined(DEBUG) || defined(_DEBUG)
+      ALGLIN_ASSERT(
+        this->nRows == out.nCols && this->nCols == out.nRows,
+        "get_transposed(...) incompatible matrices"
+      );
+      #endif
+      valueType const * pc = this->data;
+      for ( integer i = 0; i < this->nCols; ++i, pc += this->ldData )
+        alglin::copy( this->nRows, pc, 1, out.data + i, out.ldData );
+    }
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    /*!
+    :|: Extract a block
+    :|:
+    :|: \param i_offs initial row of the block to be extracted
+    :|: \param j_offs initial column of the block to be extracted
+    :|: \param to     mapped matrix which store the result
+    :|:
+    \*/
+    void
+    get_block(
+      MatW &  to,
+      integer i_offs,
+      integer j_offs
+    ) {
+      #if defined(DEBUG) || defined(_DEBUG)
+      ALGLIN_ASSERT(
+        i_offs >= 0 && i_offs+to.nRows <= this->nRows &&
+        j_offs >= 0 && j_offs+to.nCols <= this->nCols,
+        "get_block(i_offs=" << i_offs << ", j_offs=" << j_offs <<
+        ", ..) will be out of range [0," <<
+        this->nRows << ") x [0," << this->nCols << ")"
+      );
+      #endif
+      alglin::gecopy(
+        to.nRows, to.nCols,
+        this->data+this->iaddr(i_offs,j_offs), this->ldData,
+        to.data, to.ldData
+      );
+    }
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    /*!
+    :|: Extract a block
+    :|:
+    :|: \param i_offs initial row of the block to be extracted
+    :|: \param j_offs initial column of the block to be extracted
+    :|: \param to     mapped matrix which store the result
+    :|:
+    \*/
+    void
+    get_block_transposed(
+      MatW &  to,
+      integer i_offs,
+      integer j_offs
+    ) {
+      #if defined(DEBUG) || defined(_DEBUG)
+      ALGLIN_ASSERT(
+        i_offs >= 0 && i_offs+to.nCols <= this->nRows &&
+        j_offs >= 0 && j_offs+to.nRows <= this->nCols,
+        "get_block_transposed(i_offs=" << i_offs << ", j_offs=" << j_offs <<
+        ", ..) will be out of range [0," <<
+        this->nRows << ") x [0," << this->nCols << ")"
+      );
+      #endif
+      valueType const * pc = this->data+this->iaddr(i_offs,j_offs);
+      for ( integer i = 0; i < this->nCols; ++i, pc += this->ldData )
+        alglin::copy( this->nRows, pc, 1, to.data + i, to.ldData );
     }
 
   };
