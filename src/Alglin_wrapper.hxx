@@ -627,7 +627,7 @@ namespace alglin {
       MatW const & B,
       MatW       & C
     ) {
-      geadd( C.numRows, C.numCols,
+      geadd( C.nRows, C.nCols,
              alpha, A.data, A.ldData,
              beta,  B.data, B.ldData,
              C.data, C.ldData );
@@ -946,7 +946,7 @@ namespace alglin {
     alglin::gemm(
       TRANSA,
       TRANSB,
-      C.numRows, C.numCols, Ac,
+      C.numRows(), C.numCols(), Ac,
       alpha,
       A.get_data(), A.lDim(),
       B.get_data(), B.lDim(),
@@ -1309,7 +1309,7 @@ namespace alglin {
   inline
   T
   normInf( MatrixWrapper<T> const & A ) {
-    return alglin::normInf( A.numRows, A.numCols, A.data, A.ldData );
+    return alglin::normInf( A.numRows(), A.numCols(), A.get_data(), A.lDim() );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

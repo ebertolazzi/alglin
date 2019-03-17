@@ -263,11 +263,11 @@ namespace alglin {
 
     void
     solve( MatrixWrapper<valueType>  & M )
-    { solve( M.numCols, M.data,  M.ldData ); }
+    { solve( M.numCols(), M.get_data(),  M.lDim() ); }
 
     void
     t_solve( MatrixWrapper<valueType>  & M )
-    { t_solve( M.numCols, M.data,  M.ldData ); }
+    { t_solve( M.numCols(), M.get_data(),  M.lDim() ); }
 
   };
 
@@ -336,10 +336,10 @@ namespace alglin {
     \*/
     void
     load( MatrixWrapper<T> const & B ) {
-      allocate( B.numRows, B.numCols );
+      allocate( B.numRows(), B.numCols() );
       integer info = gecopy(
-        B.numRows, B.numCols,
-        B.data, B.ldData,
+        B.numRows(), B.numCols(),
+        B.get_data(), B.lDim(),
         Amat, nRow
       );
       ALGLIN_ASSERT(
@@ -568,7 +568,7 @@ namespace alglin {
 
     void
     factorize( char const who[], MatrixWrapper<valueType> const & M )
-    { factorize( who, M.numRows, M.numCols, M.data,  M.ldData ); }
+    { factorize( who, M.numRows(), M.numCols(), M.get_data(), M.lDim() ); }
 
   };
 
