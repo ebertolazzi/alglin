@@ -244,6 +244,13 @@ namespace alglin {
     , fortran_indexing(false)
     {}
 
+    SparseCCOOR(
+      integer N,
+      integer M,
+      integer reserve_nnz,
+      bool    fi
+    );
+
     virtual
     ~SparseCCOOR() ALGLIN_OVERRIDE
     {}
@@ -337,7 +344,23 @@ namespace alglin {
     );
 
     void
-    setup_full( integer N, integer M, bool fi = false );
+    transpose()
+    { rows.swap(cols); }
+
+    void to_FORTRAN_indexing();
+    void to_C_indexing();
+
+    void
+    setup_as_full_row_major( integer N, integer M, bool fi = false );
+
+    void
+    setup_as_full_column_major( integer N, integer M, bool fi = false );
+
+    void
+    fill( valueType const V[], integer M );
+
+    void
+    fill( std::vector<valueType> const & V );
 
     void
     reserve( integer reserve_nnz );

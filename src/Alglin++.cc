@@ -266,6 +266,23 @@ namespace alglin {
   \*/
 
   template <typename T>
+  SparseCCOOR<T>::SparseCCOOR(
+    integer N,
+    integer M,
+    integer reserve_nnz,
+    bool    fi
+  )
+  : nRows(N)
+  , nCols(M)
+  , nnz(reserve_nnz)
+  , fortran_indexing(fi)
+  {
+    this->vals.clear(); this->vals.reserve(reserve_nnz);
+    this->rows.clear(); this->rows.reserve(reserve_nnz);
+    this->cols.clear(); this->cols.reserve(reserve_nnz);
+  }
+
+  template <typename T>
   void
   SparseCCOOR<T>::clear() {
     this->nRows = 0;
@@ -288,14 +305,33 @@ namespace alglin {
     this->nRows            = N;
     this->nCols            = M;
     this->nnz              = 0;
-    this->vals.reserve(reserve_nnz);
-    this->rows.reserve(reserve_nnz);
-    this->cols.reserve(reserve_nnz);
+    this->vals.clear(); this->vals.reserve(reserve_nnz);
+    this->rows.clear(); this->rows.reserve(reserve_nnz);
+    this->cols.clear(); this->cols.reserve(reserve_nnz);
   }
 
   template <typename T>
   void
-  SparseCCOOR<T>::setup_full( integer N, integer M, bool fi ) {
+  SparseCCOOR<T>::setup_as_full_column_major( integer N, integer M, bool fi ) {
+    this->fortran_indexing = fi;
+    this->nRows            = N;
+    this->nCols            = M;
+    this->nnz              = N*M;
+    this->vals.resize( size_t(this->nnz) );
+    this->cols.clear(); cols.reserve( size_t(this->nnz) );
+    this->rows.clear(); rows.reserve( size_t(this->nnz) );
+    integer offs = fi ? 1 : 0;
+    for ( integer j = 0; j < M; ++j ) {
+      for ( integer i = 0; i < N; ++i ) {
+        this->rows.push_back( i+offs );
+        this->cols.push_back( j+offs );
+      }
+    }
+  }
+
+  template <typename T>
+  void
+  SparseCCOOR<T>::setup_as_full_row_major( integer N, integer M, bool fi ) {
     this->fortran_indexing = fi;
     this->nRows            = N;
     this->nCols            = M;
@@ -314,6 +350,27 @@ namespace alglin {
 
   template <typename T>
   void
+  SparseCCOOR<T>::fill( valueType const V[], integer M ) {
+    ALGLIN_ASSERT(
+      M == this->nnz,
+      "SparseCCOOR::fill(...) bad size input vector"
+    );
+    for ( integer i = 0; i < this->nnz; ++i )
+      this->vals[i] = V[i];
+  }
+
+  template <typename T>
+  void
+  SparseCCOOR<T>::fill( std::vector<valueType> const & V ) {
+    ALGLIN_ASSERT(
+      V.size() == this->vals.size(),
+      "SparseCCOOR::fill(...) bad size input vector"
+    );
+    std::copy( V.begin(), V.end(), this->vals.begin() );
+  }
+
+  template <typename T>
+  void
   SparseCCOOR<T>::reserve( integer reserve_nnz ) {
     this->vals.reserve(reserve_nnz);
     this->rows.reserve(reserve_nnz);
@@ -322,7 +379,33 @@ namespace alglin {
 
   template <typename T>
   void
-  SparseCCOOR<T>::push_value_C( integer row, integer col, valueType val ) {
+  SparseCCOOR<T>::to_FORTRAN_indexing() {
+    if ( !this->fortran_indexing ) {
+      std::vector<integer>::iterator iv;
+      for ( iv = rows.begin(); iv != rows.end(); ++iv ) ++(*iv);
+      for ( iv = cols.begin(); iv != cols.end(); ++iv ) ++(*iv);
+      this->fortran_indexing = true;
+    }
+  }
+
+  template <typename T>
+  void
+  SparseCCOOR<T>::to_C_indexing() {
+    if ( this->fortran_indexing ) {
+      std::vector<integer>::iterator iv;
+      for ( iv = rows.begin(); iv != rows.end(); ++iv ) --(*iv);
+      for ( iv = cols.begin(); iv != cols.end(); ++iv ) --(*iv);
+      this->fortran_indexing = false;
+    }
+  }
+
+  template <typename T>
+  void
+  SparseCCOOR<T>::push_value_C(
+    integer   row,
+    integer   col,
+    valueType val
+  ) {
     ALGLIN_ASSERT(
       row >= 0 && row < this->nRows && col >= 0 && col < this->nCols,
       "SparseCCOOR::push_value_C( " << row << ", " << col << ") out of bound"
@@ -336,7 +419,11 @@ namespace alglin {
 
   template <typename T>
   void
-  SparseCCOOR<T>::push_value_F( integer row, integer col, valueType val ) {
+  SparseCCOOR<T>::push_value_F(
+    integer   row,
+    integer   col,
+    valueType val
+  ) {
     ALGLIN_ASSERT(
       row > 0 && row <= this->nRows && col > 0 && col <= this->nCols,
       "SparseCCOOR::push_value_F( " << row << ", " << col << ") out of bound"
