@@ -218,11 +218,14 @@ namespace alglin {
   //        |_|
   */
 
+  template <typename T> class MatrixWrapper;
+
   //! Sparse Matrix Structure
   template <typename T>
   class SparseCCOOR : public SparseMatrixBase<T> {
   public:
     typedef SparseMatrixBase<T>        Sparse;
+    typedef MatrixWrapper<T>           MatW;
     typedef typename Sparse::valueType valueType;
 
   protected:
@@ -258,7 +261,7 @@ namespace alglin {
     virtual
     bool
     FORTRAN_indexing() const ALGLIN_OVERRIDE
-    { return fortran_indexing; }
+    { return this->fortran_indexing; }
 
     virtual
     integer
@@ -285,6 +288,52 @@ namespace alglin {
       pRows   = &this->rows.front();
       pCols   = &this->cols.front();
       pValues = &this->vals.front();
+    }
+
+    template <typename i_type, typename r_type>
+    void
+    export_data(
+      integer NNZ,
+      i_type  i[],
+      i_type  j[],
+      r_type  val[],
+      bool    fi
+    ) {
+      ALGLIN_ASSERT(
+        NNZ == this->rows.size() &&
+        NNZ == this->cols.size() &&
+        NNZ == this->vals.size(),
+        "export_data, bad dimension"
+      );
+      integer offs = 0;
+      if ( fi ) ++offs;
+      if ( this->fortran_indexing ) --offs;
+      for ( integer index = 0; index < NNZ; ++index ) {
+        i[index]   = i_type(this->rows[index]+offs);
+        j[index]   = i_type(this->cols[index]+offs);
+        val[index] = r_type(this->vals[index]);
+      }
+    }
+
+    template <typename i_type, typename r_type>
+    void
+    export_data(
+      std::vector<i_type> & i,
+      std::vector<i_type> & j,
+      std::vector<r_type> & v,
+      bool                  fi
+    ) {
+      integer offs = 0;
+      if ( fi ) ++offs;
+      if ( this->fortran_indexing ) --offs;
+      i.clear(); i.reserve( this->nnz );
+      j.clear(); j.reserve( this->nnz );
+      v.clear(); v.reserve( this->nnz );
+      for ( integer index = 0; index < this->nnz; ++index ) {
+        i.push_back( i_type(this->rows[index]+offs) );
+        j.push_back( i_type(this->cols[index]+offs) );
+        v.push_back( r_type(this->vals[index]) );
+      }
     }
 
     virtual
@@ -344,8 +393,10 @@ namespace alglin {
     );
 
     void
-    transpose()
-    { rows.swap(cols); }
+    transpose() {
+      this->rows.swap(this->cols);
+      std::swap( this->nRows, this->nCols);
+    }
 
     void to_FORTRAN_indexing();
     void to_C_indexing();
@@ -386,6 +437,15 @@ namespace alglin {
       Sparse const & Matrix,
       bool           transpose = false
     );
+
+    void
+    get_matrix( MatW & M ) const;
+
+    void
+    get_matrix_symmetric( MatW & M ) const;
+
+    void
+    get_matrix_transposed( MatW & M ) const;
 
     bool foundNaN() const;
   };

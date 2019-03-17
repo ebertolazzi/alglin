@@ -720,6 +720,44 @@ namespace alglin {
         += alpha * pValues[idx];
   }
 
+  template <typename T>
+  void
+  SparseCCOOR<T>::get_matrix( MatW & M ) const {
+    M.zero_fill();
+    for ( integer index = 0; index < this->nnz; ++index ) {
+      integer i = this->rows[index];
+      integer j = this->cols[index];
+      if ( fortran_indexing ) { --i; --j; }
+      M(i,j) = this->vals[index];
+    }
+  }
+
+  template <typename T>
+  void
+  SparseCCOOR<T>::get_matrix_symmetric( MatW & M ) const {
+    M.zero_fill();
+    for ( integer index = 0; index < this->nnz; ++index ) {
+      integer i = this->rows[index];
+      integer j = this->cols[index];
+      if ( fortran_indexing ) { --i; --j; }
+      T v = this->vals[index];
+      M(i,j) = v;
+      if ( i != j ) M(j,i) = v;
+    }
+  }
+
+  template <typename T>
+  void
+  SparseCCOOR<T>::get_matrix_transposed( MatW & M ) const {
+    M.zero_fill();
+    for ( integer index = 0; index < this->nnz; ++index ) {
+      integer i = this->rows[index];
+      integer j = this->cols[index];
+      if ( fortran_indexing ) { --i; --j; }
+      M(j,i) = this->vals[index];
+    }
+  }
+
   /*\
    *
    *   RELEASE 3.0, WGS COPYRIGHT 1997.
