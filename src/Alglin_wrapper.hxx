@@ -475,6 +475,14 @@ namespace alglin {
     \*/
     void load0( Sparse const & sp );
 
+    void
+    load0(
+      integer   const rows[],
+      integer   const cols[],
+      valueType const vals[],
+      integer         nnz
+    );
+
     /*!
     :|: Copy sparse matrix into the object
     :|:
@@ -482,6 +490,14 @@ namespace alglin {
     :|:
     \*/
     void load( Sparse const & sp );
+
+    void
+    load(
+      integer   const rows[],
+      integer   const cols[],
+      valueType const vals[],
+      integer         nnz
+    );
 
     /*!
     :|: Copy sparse matrix into the object
@@ -492,6 +508,16 @@ namespace alglin {
     :|:
     \*/
     void load( Sparse const & sp, integer i_offs, integer j_offs );
+
+    void
+    load(
+      integer         i_offs,
+      integer         j_offs,
+      integer   const rows[],
+      integer   const cols[],
+      valueType const vals[],
+      integer         nnz
+    );
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     /*!
@@ -752,9 +778,9 @@ namespace alglin {
     integer                  incc
   ) {
     alglin::gemv( TRANSA,
-                  A.numRows, A.numCols,
+                  A.numRows(), A.numCols(),
                   alpha,
-                  A.data, A.ldData,
+                  A.get_data(), A.lDim(),
                   v, incv,
                   beta,
                   c, incc );
@@ -787,9 +813,9 @@ namespace alglin {
     integer                  incc
   ) {
     alglin::gemv( NO_TRANSPOSE,
-                  A.numRows, A.numCols,
+                  A.numRows(), A.numCols(),
                   alpha,
-                  A.data, A.ldData,
+                  A.get_data(), A.lDim(),
                   v, incv,
                   beta,
                   c, incc );
@@ -820,23 +846,23 @@ namespace alglin {
     MatrixWrapper<T>       & C
   ) {
     ALGLIN_ASSERT(
-      A.numCols == B.numRows &&
-      A.numRows == C.numRows &&
-      B.numCols == C.numCols,
+      A.numCols() == B.numRows() &&
+      A.numRows() == C.numRows() &&
+      B.numCols() == C.numCols(),
       "gemm, at `" << where << "' inconsistent dimensions: " <<
-      "\nA = " << A.numRows << " x " << A.numCols <<
-      "\nB = " << B.numRows << " x " << B.numCols <<
-      "\nC = " << C.numRows << " x " << C.numCols
+      "\nA = " << A.numRows() << " x " << A.numCols() <<
+      "\nB = " << B.numRows() << " x " << B.numCols() <<
+      "\nC = " << C.numRows() << " x " << C.numCols()
     );
     alglin::gemm(
       NO_TRANSPOSE,
       NO_TRANSPOSE,
-      A.numRows, B.numCols, A.numCols,
+      A.numRows(), B.numCols(), A.numCols(),
       alpha,
-      A.data, A.ldData,
-      B.data, B.ldData,
+      A.get_data(), A.lDim(),
+      B.get_data(), B.lDim(),
       beta,
-      C.data, C.ldData
+      C.get_data(), C.lDim()
     );
   }
 
@@ -865,12 +891,12 @@ namespace alglin {
     alglin::gemm(
       NO_TRANSPOSE,
       NO_TRANSPOSE,
-      A.numRows, B.numCols, A.numCols,
+      A.numRows(), B.numCols(), A.numCols(),
       alpha,
-      A.data, A.ldData,
-      B.data, B.ldData,
+      A.get_data(), A.lDim(),
+      B.get_data(), B.lDim(),
       beta,
-      C.data, C.ldData
+      C.get_data(), C.lDim()
     );
   }
 
@@ -903,17 +929,17 @@ namespace alglin {
     MatrixWrapper<T>       & C
   ) {
 
-    integer Ar = TRANSA == NO_TRANSPOSE ? A.numRows : A.numCols;
-    integer Ac = TRANSA == NO_TRANSPOSE ? A.numCols : A.numRows;
-    integer Br = TRANSB == NO_TRANSPOSE ? B.numRows : B.numCols;
-    integer Bc = TRANSB == NO_TRANSPOSE ? B.numCols : B.numRows;
+    integer Ar = TRANSA == NO_TRANSPOSE ? A.numRows() : A.numCols();
+    integer Ac = TRANSA == NO_TRANSPOSE ? A.numCols() : A.numRows();
+    integer Br = TRANSB == NO_TRANSPOSE ? B.numRows() : B.numCols();
+    integer Bc = TRANSB == NO_TRANSPOSE ? B.numCols() : B.numRows();
 
     ALGLIN_ASSERT(
-      C.numRows == Ar && C.numCols == Bc && Ac == Br,
+      C.numRows() == Ar && C.numCols() == Bc && Ac == Br,
       "gemm, at `" << where << "' inconsistent dimensions: " <<
-      "\nA = " << A.numRows << " x " << A.numCols <<
-      "\nB = " << B.numRows << " x " << B.numCols <<
-      "\nC = " << C.numRows << " x " << C.numCols <<
+      "\nA = " << A.numRows() << " x " << A.numCols() <<
+      "\nB = " << B.numRows() << " x " << B.numCols() <<
+      "\nC = " << C.numRows() << " x " << C.numCols() <<
       "\nA " << (NO_TRANSPOSE?"NO":"") << " transposed" <<
       "\nB " << (NO_TRANSPOSE?"NO":"") << " transposed"
     );
@@ -922,10 +948,10 @@ namespace alglin {
       TRANSB,
       C.numRows, C.numCols, Ac,
       alpha,
-      A.data, A.ldData,
-      B.data, B.ldData,
+      A.get_data(), A.lDim(),
+      B.get_data(), B.lDim(),
       beta,
-      C.data, C.ldData
+      C.get_data(), C.lDim()
     );
   }
 
@@ -955,16 +981,16 @@ namespace alglin {
     T                        beta,
     MatrixWrapper<T>       & C
   ) {
-    integer Ac = TRANSA == NO_TRANSPOSE ? A.numCols : A.numRows;
+    integer Ac = TRANSA == NO_TRANSPOSE ? A.numCols() : A.numRows();
     alglin::gemm(
       TRANSA,
       TRANSB,
-      C.numRows, C.numCols, Ac,
+      C.numRows(), C.numCols(), Ac,
       alpha,
-      A.data, A.ldData,
-      B.data, B.ldData,
+      A.get_data(), A.lDim(),
+      B.get_data(), B.lDim(),
       beta,
-      C.data, C.ldData
+      C.get_data(), C.lDim()
     );
   }
 
@@ -992,12 +1018,12 @@ namespace alglin {
     integer                  incx
   ) {
     ALGLIN_ASSERT(
-      A.numRows == A.numCols,
-      "trmv, matrix is " << A.numRows << " x " <<
-      A.numRows << " expected square"
+      A.numRows() == A.numCols(),
+      "trmv, matrix is " << A.numRows() << " x " <<
+      A.numRows() << " expected square"
     );
     alglin::trmv(
-      UPLO, TRANS, DIAG, A.numRows, A.data, A.ldData, x, incx
+      UPLO, TRANS, DIAG, A.numRows(), A.get_data(), A.lDim(), x, incx
     );
   }
 
@@ -1028,12 +1054,12 @@ namespace alglin {
     integer                  incx
   ) {
     ALGLIN_ASSERT(
-      A.numRows == A.numCols,
+      A.numRows() == A.numCols(),
       "trmv at `" << where << "` matrix is " <<
-      A.numRows << " x " << A.numRows << " expected square"
+      A.numRows() << " x " << A.numRows() << " expected square"
     );
     alglin::trmv(
-      UPLO, TRANS, DIAG, A.numRows, A.data, A.ldData, x, incx
+      UPLO, TRANS, DIAG, A.numRows(), A.get_data(), A.lDim(), x, incx
     );
   }
 
@@ -1062,12 +1088,12 @@ namespace alglin {
     integer                  incx
   ) {
     ALGLIN_ASSERT(
-      A.numRows == A.numCols,
-      "trsv, matrix is " << A.numRows << " x " <<
-      A.numRows << " expected square"
+      A.numRows() == A.numCols(),
+      "trsv, matrix is " << A.numRows() << " x " <<
+      A.numRows() << " expected square"
     );
     alglin::trsv(
-      UPLO, TRANS, DIAG, A.numRows, A.data, A.ldData, x, incx
+      UPLO, TRANS, DIAG, A.numRows(), A.get_data(), A.lDim(), x, incx
     );
   }
 
@@ -1098,12 +1124,12 @@ namespace alglin {
     integer                  incx
   ) {
     ALGLIN_ASSERT(
-      A.numRows == A.numCols,
+      A.numRows() == A.numCols(),
       "trsv at `" << where << "` matrix is " <<
-      A.numRows << " x " << A.numRows << " expected square"
+      A.numRows() << " x " << A.numRows() << " expected square"
     );
     alglin::trsv(
-      UPLO, TRANS, DIAG, A.numRows, A.data, A.ldData, x, incx
+      UPLO, TRANS, DIAG, A.numRows(), A.get_data(), A.lDim(), x, incx
     );
   }
 
@@ -1136,15 +1162,15 @@ namespace alglin {
     MatrixWrapper<T>       & B
   ) {
     ALGLIN_ASSERT(
-      A.numRows == A.numCols,
-      "trmm, matrix is " << A.numRows << " x " <<
-      A.numRows << " expected square"
+      A.numRows() == A.numCols(),
+      "trmm, matrix is " << A.numRows() << " x " <<
+      A.numRows() << " expected square"
     );
     alglin::trmm(
       SIDE, UPLO, TRANS, DIAG,
-      B.numRows, B.numCols, alpha,
-      A.data, A.ldData,
-      B.data, B.ldData
+      B.numRows(), B.numCols(), alpha,
+      A.get_data(), A.lDim(),
+      B.get_data(), B.lDim()
     );
   }
 
@@ -1179,16 +1205,16 @@ namespace alglin {
     MatrixWrapper<T>       & B
   ) {
     ALGLIN_ASSERT(
-      A.numRows == A.numCols,
+      A.numRows() == A.numCols(),
       "trmm, at `" << where <<
-      "` matrix is " << A.numRows << " x " <<
-      A.numRows << " expected square"
+      "` matrix is " << A.numRows() << " x " <<
+      A.numRows() << " expected square"
     );
     alglin::trmm(
       SIDE, UPLO, TRANS, DIAG,
-      B.numRows, B.numCols, alpha,
-      A.data, A.ldData,
-      B.data, B.ldData
+      B.numRows(), B.numCols(), alpha,
+      A.get_data(), A.lDim(),
+      B.get_data(), B.lDim()
     );
   }
 
@@ -1221,15 +1247,15 @@ namespace alglin {
     MatrixWrapper<T>       & B
   ) {
     ALGLIN_ASSERT(
-      A.numRows == A.numCols,
-      "trsm, matrix is " << A.numRows << " x " <<
-      A.numRows << " expected square"
+      A.numRows() == A.numCols(),
+      "trsm, matrix is " << A.numRows() << " x " <<
+      A.numRows() << " expected square"
     );
     alglin::trsm(
       SIDE, UPLO, TRANS, DIAG,
-      B.numRows, B.numCols, alpha,
-      A.data, A.ldData,
-      B.data, B.ldData
+      B.numRows(), B.numCols(), alpha,
+      A.get_data(), A.lDim(),
+      B.get_data(), B.lDim()
     );
   }
 
@@ -1264,16 +1290,16 @@ namespace alglin {
     MatrixWrapper<T>       & B
   ) {
     ALGLIN_ASSERT(
-      A.numRows == A.numCols,
+      A.numRows() == A.numCols(),
       "trmm, at `" << where <<
-      "` matrix is " << A.numRows << " x " <<
-      A.numRows << " expected square"
+      "` matrix is " << A.numRows() << " x " <<
+      A.numRows() << " expected square"
     );
     alglin::trsm(
       SIDE, UPLO, TRANS, DIAG,
-      B.numRows, B.numCols, alpha,
-      A.data, A.ldData,
-      B.data, B.ldData
+      B.numRows(), B.numCols(), alpha,
+      A.get_data(), A.lDim(),
+      B.get_data(), B.lDim()
     );
   }
 
@@ -1292,7 +1318,7 @@ namespace alglin {
   inline
   T
   norm1( MatrixWrapper<T> const & A ) {
-    return alglin::norm1( A.numRows, A.numCols, A.data, A.ldData );
+    return alglin::norm1( A.numRows(), A.numCols(), A.get_data(), A.lDim() );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1301,7 +1327,7 @@ namespace alglin {
   inline
   T
   normF( MatrixWrapper<T> const & A ) {
-    return alglin::normF( A.numRows, A.numCols, A.data, A.ldData );
+    return alglin::normF( A.numRows(), A.numCols(), A.get_data(), A.lDim() );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1310,7 +1336,7 @@ namespace alglin {
   inline
   T
   maxabs( MatrixWrapper<T> const & A ) {
-    return alglin::maxabs( A.numRows, A.numCols, A.data, A.ldData );
+    return alglin::maxabs( A.numRows(), A.numCols(), A.get_data(), A.lDim() );
   }
 
   // explicit instantiation declaration to suppress warnings

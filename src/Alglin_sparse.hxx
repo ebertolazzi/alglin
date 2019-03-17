@@ -395,7 +395,7 @@ namespace alglin {
     void
     transpose() {
       this->rows.swap(this->cols);
-      std::swap( this->nRows, this->nCols);
+      std::swap( this->nRows, this->nCols );
     }
 
     void to_FORTRAN_indexing();

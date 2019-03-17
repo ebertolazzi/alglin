@@ -593,6 +593,21 @@ namespace alglin {
 
   template <typename T>
   void
+  MatrixWrapper<T>::load0(
+    integer   const rows[],
+    integer   const cols[],
+    valueType const vals[],
+    integer         nnz
+  ) {
+    this->zero_fill();
+    for ( integer idx = 0; idx < nnz; ++idx )
+      this->data[ this->iaddr(rows[idx],cols[idx]) ] = vals[idx];
+  }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  template <typename T>
+  void
   MatrixWrapper<T>::load( Sparse const & sp ) {
     #ifndef ALGLIN_NO_DEBUG
     check(sp);
@@ -603,6 +618,20 @@ namespace alglin {
     sp.get_data( pRows, pCols, pValues );
     for ( integer idx = 0; idx < sp.get_nnz(); ++idx )
       this->data[ this->iaddr(pRows[idx],pCols[idx]) ] = pValues[idx];
+  }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  template <typename T>
+  void
+  MatrixWrapper<T>::load(
+    integer   const rows[],
+    integer   const cols[],
+    valueType const vals[],
+    integer         nnz
+  ) {
+    for ( integer idx = 0; idx < nnz; ++idx )
+      this->data[ this->iaddr(rows[idx],cols[idx]) ] = vals[idx];
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
