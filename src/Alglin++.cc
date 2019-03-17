@@ -322,18 +322,26 @@ namespace alglin {
 
   template <typename T>
   void
-  SparseCCOOR<T>::push_value( integer row, integer col, valueType val ) {
-    if ( this->fortran_indexing ) {
-      ALGLIN_ASSERT(
-        row > 0 && row <= this->nRows && col > 0 && col <= this->nCols,
-        "SparseCCOOR::push_value( " << row << ", " << col << ") out of bound"
-      );
-    } else {
-      ALGLIN_ASSERT(
-        row >= 0 && row < this->nRows && col >= 0 && col < this->nCols,
-        "SparseCCOOR::push_value( " << row << ", " << col << ") out of bound"
-      );
-    }
+  SparseCCOOR<T>::push_value_C( integer row, integer col, valueType val ) {
+    ALGLIN_ASSERT(
+      row >= 0 && row < this->nRows && col >= 0 && col < this->nCols,
+      "SparseCCOOR::push_value_C( " << row << ", " << col << ") out of bound"
+    );
+    if ( this->fortran_indexing ) { ++row; ++col; }
+    this->vals.push_back(val);
+    this->rows.push_back(row);
+    this->cols.push_back(col);
+    ++this->nnz;
+  }
+
+  template <typename T>
+  void
+  SparseCCOOR<T>::push_value_F( integer row, integer col, valueType val ) {
+    ALGLIN_ASSERT(
+      row > 0 && row <= this->nRows && col > 0 && col <= this->nCols,
+      "SparseCCOOR::push_value_F( " << row << ", " << col << ") out of bound"
+    );
+    if ( !this->fortran_indexing ) { --row; --col; }
     this->vals.push_back(val);
     this->rows.push_back(row);
     this->cols.push_back(col);
@@ -343,10 +351,10 @@ namespace alglin {
   template <typename T>
   void
   SparseCCOOR<T>::push_matrix(
-    integer                             row_offs,
-    integer                             col_offs,
-    SparseMatrixBase<valueType> const & Matrix,
-    bool                                transpose
+    integer        row_offs,
+    integer        col_offs,
+    Sparse const & Matrix,
+    bool           transpose
   ) {
     integer const * rowsM;
     integer const * colsM;
@@ -356,9 +364,10 @@ namespace alglin {
     if ( Matrix.FORTRAN_indexing() ) { --row_offs; --col_offs; }
     if ( this->fortran_indexing )    { ++row_offs; ++col_offs; }
     for ( integer index = 0; index < Matrix.get_nnz(); ++index ) {
-      integer i = row_offs + rowsM[index];
-      integer j = col_offs + colsM[index];
-      this->push_value( i, j, valsM[index] );
+      this->rows.push_back( row_offs + rowsM[index] );
+      this->cols.push_back( col_offs + colsM[index] );
+      this->vals.push_back( valsM[index] );
+      ++this->nnz;
     }
   }
 

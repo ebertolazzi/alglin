@@ -222,7 +222,9 @@ namespace alglin {
   template <typename T>
   class SparseCCOOR : public SparseMatrixBase<T> {
   public:
-    typedef typename SparseMatrixBase<T>::valueType valueType;
+    typedef SparseMatrixBase<T>        Sparse;
+    typedef typename Sparse::valueType valueType;
+
   protected:
     integer                nRows; //!< Number of rows
     integer                nCols; //!< Number of columns
@@ -341,14 +343,25 @@ namespace alglin {
     reserve( integer reserve_nnz );
 
     void
-    push_value( integer row, integer col, valueType val );
+    push_value_C(
+      integer   row,
+      integer   col,
+      valueType val
+    );
+
+    void
+    push_value_F(
+      integer   row,
+      integer   col,
+      valueType val
+    );
 
     void
     push_matrix(
-      integer                             row_offs,
-      integer                             col_offs,
-      SparseMatrixBase<valueType> const & Matrix,
-      bool                                transpose = false
+      integer        row_offs,
+      integer        col_offs,
+      Sparse const & Matrix,
+      bool           transpose = false
     );
 
     bool foundNaN() const;
