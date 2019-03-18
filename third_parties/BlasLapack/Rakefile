@@ -5,25 +5,9 @@ task :default => [:unzip]
 
 desc "download Lapack libs"
 task :download do
-  [
-    'LAPACK_Debug_x86.zip',
-    'LAPACK_Release_x86.zip',
-    'LAPACK_Debug_x64.zip',
-    'LAPACK_Release_x64.zip'
-  ].each do |filename|
-    url_download( "http://cs2.swfu.edu.cn/~zyl/lapack/#{filename}", filename )
-  end
 end
 
 task :unzip => [:download] do
-  [
-    'LAPACK_Debug_x86.zip',
-    'LAPACK_Release_x86.zip',
-    'LAPACK_Debug_x64.zip',
-    'LAPACK_Release_x64.zip'
-  ].each do |filename|
-    extract_zip( filename, 'dll' )
-  end
 end
 
 task :install_win => [:unzip] do
@@ -34,6 +18,4 @@ task :install_win => [:unzip] do
 end
 
 task :clean do
-  Dir['*/*.dll'].each{ |f| FileUtils.rm_f f }
-  Dir['*/*.lib'].each{ |f| FileUtils.rm_f f }
 end
