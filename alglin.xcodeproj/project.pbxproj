@@ -407,6 +407,8 @@
 		D90F9F26211250CE009E9CA2 /* Alglin_sparse.hxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Alglin_sparse.hxx; sourceTree = "<group>"; };
 		D90FCB6C1E12DB5F00F9EF68 /* test7-BorderedCR */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "test7-BorderedCR"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D90FCB6D1E12DBB800F9EF68 /* test7-BorderedCR.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "test7-BorderedCR.cc"; sourceTree = "<group>"; };
+		D91913C52242C17D002C20BB /* Alglin_wrapper.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Alglin_wrapper.cxx; sourceTree = "<group>"; };
+		D91913C72242C2ED002C20BB /* Alglin_sparse.cxx */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Alglin_sparse.cxx; sourceTree = "<group>"; };
 		D924A0061E40A294007C4694 /* Simplex-Test1 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "Simplex-Test1"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D924A0161E40A29E007C4694 /* Simplex-Test2 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "Simplex-Test2"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D924A0261E40A2A0007C4694 /* Simplex-Test3 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "Simplex-Test3"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -727,7 +729,9 @@
 				D9EF86442109FD6F00F1293E /* Alglin_general.hxx */,
 				D9C36008214A5E9400DCD094 /* Alglin_symmetric.hxx */,
 				D90F9F26211250CE009E9CA2 /* Alglin_sparse.hxx */,
+				D91913C72242C2ED002C20BB /* Alglin_sparse.cxx */,
 				D9400E7A21386A8900C5AF8A /* Alglin_wrapper.hxx */,
+				D91913C52242C17D002C20BB /* Alglin_wrapper.cxx */,
 				D9EF86452109FD6F00F1293E /* AlglinSuperLU.hh */,
 				D9EF865D2109FD6F00F1293E /* Alglin++.hh */,
 				D9EF86502109FD6F00F1293E /* Alglin++.cc */,
