@@ -743,8 +743,8 @@ namespace alglin {
       );
       #endif
       valueType const * pc = this->data+this->iaddr(i_offs,j_offs);
-      for ( integer i = 0; i < this->nCols; ++i, pc += this->ldData )
-        alglin::copy( this->nRows, pc, 1, to.data + i, to.ldData );
+      for ( integer i = 0; i < to.nCols; ++i, pc += this->ldData )
+        alglin::copy( to.nRows, pc, 1, to.data + i, to.ldData );
     }
 
   };
