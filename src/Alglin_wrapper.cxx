@@ -79,6 +79,20 @@ namespace alglin {
 
   template <typename T>
   void
+  MatrixWrapper<T>::scale_by( T sc ) {
+    if ( this->ldData == this->nRows ) {
+      scal( this->nRows*this->nCols, sc, this->data, 1 );
+    } else {
+      T * p = this->data;
+      for ( integer i = 0; i < this->nCols; ++i, p += this->ldData )
+        scal( this->nRows, sc, p, 1 );
+    }
+  }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  template <typename T>
+  void
   MatrixWrapper<T>::check( MatW const & A ) const {
     ALGLIN_ASSERT(
       A.numRows() == this->nRows && A.numCols() == this->nCols,
@@ -351,18 +365,6 @@ namespace alglin {
   Matrix<T>::setup( integer nr, integer nc ) {
     mem.allocate( size_t(nr*nc) ) ;
     this->MatrixWrapper<T>::setup( mem( size_t(nr*nc) ), nr, nc, nr ) ;
-  }
-
-  template <typename T>
-  void
-  Matrix<T>::scale_by( T sc ) {
-    if ( this->ldData == this->nRows ) {
-      scal( this->nRows*this->nCols, sc, this->data, 1 );
-    } else {
-      T * p = this->data;
-      for ( integer i = 0; i < this->nCols; ++i, p += this->ldData )
-        scal( this->nRows, sc, p, 1 );
-    }
   }
 
   template <typename T>

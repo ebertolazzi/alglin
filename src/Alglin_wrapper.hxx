@@ -185,6 +185,25 @@ namespace alglin {
       integer     ld
     );
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    explicit
+    MatrixWrapper( MatrixWrapper<T> const & M )
+    : nRows(M.nRows)
+    , nCols(M.nCols)
+    , ldData(M.ldData)
+    , data(M.data)
+    {
+    }
+
+    MatrixWrapper<T> const &
+    operator = ( MatrixWrapper<T> const & rhs ) {
+      this->nRows  = rhs.nRows;
+      this->nCols  = rhs.nCols;
+      this->ldData = rhs.ldData;
+      this->data   = rhs.data;
+      return *this;
+    }
+
     integer numRows()  const { return this->nRows; }  //!< Number of rows
     integer numCols()  const { return this->nCols; }  //!< Number of columns
     integer lDim()     const { return this->ldData; } //!< Leading dimension
@@ -247,6 +266,9 @@ namespace alglin {
     fill( valueType val ) {
       gefill( this->nRows, this->nCols, this->data, this->ldData, val );
     }
+
+    void
+    scale_by( valueType sc );
 
     /*!
     :|: Zeroes a rectangular block of the stored matrix
