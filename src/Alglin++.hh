@@ -2627,6 +2627,140 @@ namespace alglin {
     ) ALGLIN_OVERRIDE;
   };
 
+  /*\
+  :|:   _____ _                            _
+  :|:  | ____(_) __ _  ___ _ ____   ____ _| |_   _  ___  ___
+  :|:  |  _| | |/ _` |/ _ \ '_ \ \ / / _` | | | | |/ _ \/ __|
+  :|:  | |___| | (_| |  __/ | | \ V / (_| | | |_| |  __/\__ \
+  :|:  |_____|_|\__, |\___|_| |_|\_/ \__,_|_|\__,_|\___||___/
+  :|:           |___/
+  \*/
+
+  //! Sparse Matrix Structure
+  template <typename T>
+  class Eigenvalues {
+
+    typedef T                valueType;
+    typedef MatrixWrapper<T> MatW;
+    typedef SparseCCOOR<T>   Sparse;
+
+    Malloc<valueType> mem_real;
+
+    integer     N, Lwork;
+    valueType * Re;
+    valueType * Im;
+    valueType * Work;
+    valueType * A_saved;
+
+    void allocate( integer N );
+    void compute( );
+
+  public:
+
+    Eigenvalues();
+    Eigenvalues( integer NRC, valueType const data[], integer ldData );
+    Eigenvalues( MatW const & M );
+    Eigenvalues( integer         NRC,
+                 integer         nnz,
+                 valueType const values[],
+                 integer   const row[],
+                 integer   const col[] );
+
+    void setup( integer NRC, valueType const data[], integer ldData );
+    void setup( MatW const & M );
+
+    void
+    setup(
+      integer         NRC,
+      integer         nnz,
+      valueType const values[],
+      integer   const row[],
+      integer   const col[]
+    );
+
+    void getEigenvalue( integer n, valueType & re, valueType & im ) const;
+    void getEigenvalue( integer n, std::complex<valueType> & eig ) const;
+
+    void getEigenvalues( std::vector<valueType> & re, std::vector<valueType> & im ) const;
+    void getEigenvalues( std::vector<std::complex<valueType> > & eigs ) const;
+
+  };
+
+  //! Sparse Matrix Structure
+  template <typename T>
+  class GeneralizedEigenvalues {
+
+    typedef T                valueType;
+    typedef MatrixWrapper<T> MatW;
+    typedef SparseCCOOR<T>   Sparse;
+
+    Malloc<valueType> mem_real;
+
+    integer     N, Lwork;
+    valueType * alphaRe;
+    valueType * alphaIm;
+    valueType * beta;
+    valueType * Work;
+    valueType * A_saved;
+    valueType * B_saved;
+
+    void allocate( integer N );
+    void compute( );
+
+  public:
+
+    GeneralizedEigenvalues();
+
+    GeneralizedEigenvalues(
+      integer NRC,
+      valueType const A[], integer ldA,
+      valueType const B[], integer ldB
+    );
+
+    GeneralizedEigenvalues( MatW const & A, MatW const & B );
+
+    GeneralizedEigenvalues(
+      integer         NRC,
+      integer         A_nnz,
+      valueType const A_values[],
+      integer   const A_row[],
+      integer   const A_col[],
+      integer         B_nnz,
+      valueType const B_values[],
+      integer   const B_row[],
+      integer   const B_col[]
+    );
+
+    void
+    setup(
+      integer NRC,
+      valueType const A[], integer ldA,
+      valueType const B[], integer ldB
+    );
+
+    void setup( MatW const & A, MatW const & B );
+
+    void
+    setup(
+      integer         NRC,
+      integer         A_nnz,
+      valueType const A_values[],
+      integer   const A_row[],
+      integer   const A_col[],
+      integer         B_nnz,
+      valueType const B_values[],
+      integer   const B_row[],
+      integer   const B_col[]
+    );
+
+    void getEigenvalue( integer n, valueType & re, valueType & im ) const;
+    void getEigenvalue( integer n, std::complex<valueType> & eig ) const;
+
+    void getEigenvalues( std::vector<valueType> & re, std::vector<valueType> & im ) const;
+    void getEigenvalues( std::vector<std::complex<valueType> > & eigs ) const;
+
+  };
+
   // explicit instantiation declaration to suppress warnings
 
   #ifdef ALGLIN_USE_CXX11
@@ -2683,6 +2817,12 @@ namespace alglin {
 
   extern template class DFP<real>;
   extern template class DFP<doublereal>;
+
+  extern template class Eigenvalues<real>;
+  extern template class Eigenvalues<doublereal>;
+
+  extern template class GeneralizedEigenvalues<real>;
+  extern template class GeneralizedEigenvalues<doublereal>;
 
   #endif
 

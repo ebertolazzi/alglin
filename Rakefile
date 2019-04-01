@@ -34,7 +34,8 @@ TESTS = [
 	"test8-Cinterface",
 	"test12-BandedMatrix",
 	"test13-BFGS",
-	"test14-BLOCKTRID"
+	"test14-BLOCKTRID",
+	"test15-EIGS"
 ]
 
 desc "run tests"

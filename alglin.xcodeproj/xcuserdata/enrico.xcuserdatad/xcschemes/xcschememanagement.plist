@@ -7,32 +7,32 @@
 		<key>Alglin.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>17</integer>
+			<integer>18</integer>
 		</dict>
-		<key>CompileAll.xcscheme</key>
+		<key>CompileAll.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>18</integer>
+			<integer>19</integer>
 		</dict>
 		<key>Simplex-Test1.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>13</integer>
+			<integer>14</integer>
 		</dict>
 		<key>Simplex-Test2.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>14</integer>
+			<integer>15</integer>
 		</dict>
 		<key>Simplex-Test3.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>15</integer>
+			<integer>16</integer>
 		</dict>
 		<key>Simplex-Test4.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>16</integer>
+			<integer>17</integer>
 		</dict>
 		<key>test0-FD.xcscheme_^#shared#^_</key>
 		<dict>
@@ -58,6 +58,11 @@
 		<dict>
 			<key>orderHint</key>
 			<integer>12</integer>
+		</dict>
+		<key>test15-EIGS.xcscheme_^#shared#^_</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>13</integer>
 		</dict>
 		<key>test2-Threads.xcscheme_^#shared#^_</key>
 		<dict>
@@ -218,6 +223,11 @@
 			<true/>
 		</dict>
 		<key>D9B281B92200A42F0056F930</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>D9B71F572253760400A2FDB0</key>
 		<dict>
 			<key>primary</key>
 			<true/>

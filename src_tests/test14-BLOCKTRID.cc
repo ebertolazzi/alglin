@@ -193,7 +193,7 @@ test4() {
     &vals.front(),
     &ii.front(), 0,
     &jj.front(), 0,
-    vals.size(), true
+    alglin::integer(vals.size()), true
   );
   tm.toc();
   cout << "LOAD1 = " << tm.elapsed_ms() << " [ms]\n";
@@ -204,7 +204,7 @@ test4() {
     &vals.front(),
     &ii.front(), 0,
     &jj.front(), 0,
-    vals.size(), true
+    alglin::integer(vals.size()), true
   );
 
   tm.toc();

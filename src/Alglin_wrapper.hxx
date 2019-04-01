@@ -21,6 +21,10 @@
 /// file: Alglin_wrapper.hxx
 ///
 
+#ifdef __clang__
+#pragma clang diagnostic ignored "-Wpadded"
+#endif
+
 namespace alglin {
 
   /*\

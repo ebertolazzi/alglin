@@ -200,7 +200,8 @@ src_tests/test6-ABD-Block.cc \
 src_tests/test7-BorderedCR.cc \
 src_tests/test12-BandedMatrix.cc \
 src_tests/test13-BFGS.cc \
-src_tests/test14-BLOCKTRID.cc
+src_tests/test14-BLOCKTRID.cc \
+src_tests/test15-EIGS.cc
 
 OBJS_TESTS = $(SRCS_TESTS:.cc=.o)
 
@@ -248,6 +249,7 @@ all: config lib $(OBJS_TESTS)
 	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test12-BandedMatrix       src_tests/test12-BandedMatrix.o $(LIBS) $(LIBSGCC)
 	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test13-BFGS               src_tests/test13-BFGS.o         $(LIBS) $(LIBSGCC)
 	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test14-BLOCKTRID          src_tests/test14-BLOCKTRID.o    $(LIBS) $(LIBSGCC)
+	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test15-EIGS               src_tests/test15-EIGS.o         $(LIBS) $(LIBSGCC)
 	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/Simplex-Test1             src_tests/Simplex-Test1.cc      $(LIBS) $(LIBSGCC)
 	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/Simplex-Test2             src_tests/Simplex-Test2.cc      $(LIBS) $(LIBSGCC)
 	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/Simplex-Test3             src_tests/Simplex-Test3.cc      $(LIBS) $(LIBSGCC)
@@ -323,6 +325,7 @@ run:
 	./bin/test12-BandedMatrix
 	./bin/test13-BFGS
 	./bin/test14-BLOCKTRID
+	./bin/test15-EIGS
 
 run_simplex:
 	./bin/Simplex-Test1

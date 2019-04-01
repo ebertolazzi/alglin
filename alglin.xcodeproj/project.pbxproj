@@ -64,6 +64,9 @@
 		D9B281BD2200A42F0056F930 /* libAlglin.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D9BD01C11EE0012F00912006 /* libAlglin.a */; };
 		D9B281BE2200A42F0056F930 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D937DF251CEA75A2006642C6 /* Accelerate.framework */; };
 		D9B281C42200A4460056F930 /* test14-BLOCKTRID.cc in Sources */ = {isa = PBXBuildFile; fileRef = D9B281B82200A4280056F930 /* test14-BLOCKTRID.cc */; };
+		D9B71F5B2253760400A2FDB0 /* libAlglin.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D9BD01C11EE0012F00912006 /* libAlglin.a */; };
+		D9B71F5C2253760400A2FDB0 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D937DF251CEA75A2006642C6 /* Accelerate.framework */; };
+		D9B71F632253764500A2FDB0 /* test15-EIGS.cc in Sources */ = {isa = PBXBuildFile; fileRef = D9B71F622253764500A2FDB0 /* test15-EIGS.cc */; };
 		D9B8185A1D8B42C100082BB3 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D937DF251CEA75A2006642C6 /* Accelerate.framework */; };
 		D9BD01E61EE0021700912006 /* libAlglin.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D9BD01C11EE0012F00912006 /* libAlglin.a */; };
 		D9BD01E71EE0021C00912006 /* libAlglin.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D9BD01C11EE0012F00912006 /* libAlglin.a */; };
@@ -356,6 +359,15 @@
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 		};
+		D9B71F5D2253760400A2FDB0 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
 		D9B8185B1D8B42C100082BB3 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -434,6 +446,8 @@
 		D9A06AF11D93C02E00573D89 /* test4-KKT */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "test4-KKT"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D9B281B82200A4280056F930 /* test14-BLOCKTRID.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "test14-BLOCKTRID.cc"; sourceTree = "<group>"; };
 		D9B281C32200A42F0056F930 /* test14-BLOCKTRIG */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "test14-BLOCKTRIG"; sourceTree = BUILT_PRODUCTS_DIR; };
+		D9B71F612253760400A2FDB0 /* test15-EIGS */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "test15-EIGS"; sourceTree = BUILT_PRODUCTS_DIR; };
+		D9B71F622253764500A2FDB0 /* test15-EIGS.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "test15-EIGS.cc"; sourceTree = "<group>"; };
 		D9B8185F1D8B42C100082BB3 /* test1-small-factorization */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "test1-small-factorization"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D9BD01C11EE0012F00912006 /* libAlglin.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libAlglin.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		D9C36008214A5E9400DCD094 /* Alglin_symmetric.hxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Alglin_symmetric.hxx; sourceTree = "<group>"; };
@@ -597,6 +611,15 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		D9B71F5A2253760400A2FDB0 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D9B71F5B2253760400A2FDB0 /* libAlglin.a in Frameworks */,
+				D9B71F5C2253760400A2FDB0 /* Accelerate.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		D9B818591D8B42C100082BB3 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -668,6 +691,7 @@
 				D9D927D51F4D7CAC0080C232 /* test12-BandedMatrix.cc */,
 				D9C36015214A6D4900DCD094 /* test13-BFGS.cc */,
 				D9B281B82200A4280056F930 /* test14-BLOCKTRID.cc */,
+				D9B71F622253764500A2FDB0 /* test15-EIGS.cc */,
 				D95EB3AC1D6C5067005772D0 /* LU_test.hxx */,
 				D924A0371E40A2C7007C4694 /* Simplex-Test1.cc */,
 				D924A0381E40A2C7007C4694 /* Simplex-Test2.cc */,
@@ -709,6 +733,7 @@
 				D9D927D41F4D7C8A0080C232 /* test12-BandedMatrix */,
 				D9C36014214A6D0300DCD094 /* test13-BFGS */,
 				D9B281C32200A42F0056F930 /* test14-BLOCKTRIG */,
+				D9B71F612253760400A2FDB0 /* test15-EIGS */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1019,6 +1044,23 @@
 			productReference = D9B281C32200A42F0056F930 /* test14-BLOCKTRIG */;
 			productType = "com.apple.product-type.tool";
 		};
+		D9B71F572253760400A2FDB0 /* test15-EIGS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D9B71F5E2253760400A2FDB0 /* Build configuration list for PBXNativeTarget "test15-EIGS" */;
+			buildPhases = (
+				D9B71F582253760400A2FDB0 /* Sources */,
+				D9B71F5A2253760400A2FDB0 /* Frameworks */,
+				D9B71F5D2253760400A2FDB0 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "test15-EIGS";
+			productName = CyclicReduction_test;
+			productReference = D9B71F612253760400A2FDB0 /* test15-EIGS */;
+			productType = "com.apple.product-type.tool";
+		};
 		D9B8184B1D8B42C100082BB3 /* test1-small-factorization */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = D9B8185C1D8B42C100082BB3 /* Build configuration list for PBXNativeTarget "test1-small-factorization" */;
@@ -1149,10 +1191,11 @@
 			};
 			buildConfigurationList = D96BFE6E1CD01B4B00AB31CD /* Build configuration list for PBXProject "alglin" */;
 			compatibilityVersion = "Xcode 8.0";
-			developmentRegion = English;
+			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
+				Base,
 			);
 			mainGroup = D96BFE6A1CD01B4B00AB31CD;
 			productRefGroup = D96BFE741CD01B4B00AB31CD /* Products */;
@@ -1173,6 +1216,7 @@
 				D9D927CA1F4D7C8A0080C232 /* test12-BandedMatrix */,
 				D9C3600A214A6D0300DCD094 /* test13-BFGS */,
 				D9B281B92200A42F0056F930 /* test14-BLOCKTRIG */,
+				D9B71F572253760400A2FDB0 /* test15-EIGS */,
 				D9249FF71E40A294007C4694 /* Simplex-Test1 */,
 				D924A0071E40A29E007C4694 /* Simplex-Test2 */,
 				D924A0171E40A2A0007C4694 /* Simplex-Test3 */,
@@ -1276,6 +1320,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				D9B281C42200A4460056F930 /* test14-BLOCKTRID.cc in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D9B71F582253760400A2FDB0 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D9B71F632253764500A2FDB0 /* test15-EIGS.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1886,6 +1938,32 @@
 			};
 			name = Release;
 		};
+		D9B71F5F2253760400A2FDB0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVES = YES;
+				DEVELOPMENT_TEAM = S8X788ZA8Y;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		D9B71F602253760400A2FDB0 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVES = YES;
+				DEVELOPMENT_TEAM = S8X788ZA8Y;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 		D9B8185D1D8B42C100082BB3 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -2164,6 +2242,15 @@
 			buildConfigurations = (
 				D9B281C12200A42F0056F930 /* Debug */,
 				D9B281C22200A42F0056F930 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D9B71F5E2253760400A2FDB0 /* Build configuration list for PBXNativeTarget "test15-EIGS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D9B71F5F2253760400A2FDB0 /* Debug */,
+				D9B71F602253760400A2FDB0 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
