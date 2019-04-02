@@ -25,6 +25,7 @@
 #define ALGLINPP_HH
 
 #include "Alglin.hh"
+#include <complex>
 
 #ifdef __GNUC__ 
 #pragma GCC diagnostic push
