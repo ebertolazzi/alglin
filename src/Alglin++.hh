@@ -2640,11 +2640,13 @@ namespace alglin {
   //! Sparse Matrix Structure
   template <typename T>
   class Eigenvalues {
-
+  public:
     typedef T                valueType;
+    typedef std::complex<T>  complexType;
     typedef MatrixWrapper<T> MatW;
     typedef SparseCCOOR<T>   Sparse;
 
+  private:
     Malloc<valueType> mem_real;
 
     integer     N, Lwork;
@@ -2680,21 +2682,88 @@ namespace alglin {
     );
 
     void getEigenvalue( integer n, valueType & re, valueType & im ) const;
-    void getEigenvalue( integer n, std::complex<valueType> & eig ) const;
+    void getEigenvalue( integer n, complexType & eig ) const;
 
     void getEigenvalues( std::vector<valueType> & re, std::vector<valueType> & im ) const;
-    void getEigenvalues( std::vector<std::complex<valueType> > & eigs ) const;
+    void getEigenvalues( std::vector<complexType> & eigs ) const;
 
   };
 
-  //! Sparse Matrix Structure
-  template <typename T>
-  class GeneralizedEigenvalues {
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+  template <typename T>
+  class Eigenvectors {
+  public:
     typedef T                valueType;
+    typedef std::complex<T>  complexType;
     typedef MatrixWrapper<T> MatW;
     typedef SparseCCOOR<T>   Sparse;
 
+  private:
+    Malloc<valueType> mem_real;
+
+    integer     N, Lwork;
+    valueType * Re;
+    valueType * Im;
+    valueType * A_saved;
+    valueType * VL;
+    valueType * VR;
+    valueType * Work;
+
+    void allocate( integer N );
+    void compute( );
+
+  public:
+
+    Eigenvectors();
+
+    Eigenvectors( integer NRC, valueType const A[], integer ldA );
+
+    Eigenvectors( MatW const & A );
+
+    Eigenvectors(
+      integer         NRC,
+      integer         A_nnz,
+      valueType const A_values[],
+      integer   const A_row[],
+      integer   const A_col[]
+    );
+
+    void
+    setup( integer NRC, valueType const A[], integer ldA );
+
+    void setup( MatW const & A );
+
+    void
+    setup(
+      integer         NRC,
+      integer         A_nnz,
+      valueType const A_values[],
+      integer   const A_row[],
+      integer   const A_col[]
+    );
+
+    void getEigenvalue( integer n, valueType & re, valueType & im ) const;
+    void getEigenvalue( integer n, complexType & eig ) const;
+
+    void getEigenvalues( std::vector<valueType> & re, std::vector<valueType> & im ) const;
+    void getEigenvalues( std::vector<complexType> & eigs ) const;
+
+    void getLeftEigenvector( std::vector<std::vector<complexType> > & vecs ) const;
+    void getRightEigenvector( std::vector<std::vector<complexType> > & vecs ) const;
+  };
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  template <typename T>
+  class GeneralizedEigenvalues {
+  public:
+    typedef T                valueType;
+    typedef std::complex<T>  complexType;
+    typedef MatrixWrapper<T> MatW;
+    typedef SparseCCOOR<T>   Sparse;
+
+  private:
     Malloc<valueType> mem_real;
 
     integer     N, Lwork;
@@ -2755,10 +2824,224 @@ namespace alglin {
     );
 
     void getEigenvalue( integer n, valueType & re, valueType & im ) const;
-    void getEigenvalue( integer n, std::complex<valueType> & eig ) const;
+    void getEigenvalue( integer n, complexType & eig ) const;
 
     void getEigenvalues( std::vector<valueType> & re, std::vector<valueType> & im ) const;
-    void getEigenvalues( std::vector<std::complex<valueType> > & eigs ) const;
+    void getEigenvalues( std::vector<complexType> & eigs ) const;
+
+  };
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  template <typename T>
+  class GeneralizedEigenvectors {
+  public:
+    typedef T                valueType;
+    typedef std::complex<T>  complexType;
+    typedef MatrixWrapper<T> MatW;
+    typedef SparseCCOOR<T>   Sparse;
+
+  private:
+    Malloc<valueType> mem_real;
+    Malloc<integer>   mem_int;
+
+    integer     N, Lwork, ilo, ihi;
+    valueType   abnorm, bbnorm;
+    valueType * alphaRe;
+    valueType * alphaIm;
+    valueType * beta;
+    valueType * A_saved;
+    valueType * B_saved;
+    valueType * VL;
+    valueType * VR;
+    valueType * lscale;
+    valueType * rscale;
+    valueType * rconde;
+    valueType * rcondv;
+    valueType * Work;
+    integer   * iWork;
+    integer   * bWork;
+
+    void allocate( integer N );
+    void compute( );
+
+  public:
+
+    GeneralizedEigenvectors();
+
+    GeneralizedEigenvectors(
+      integer NRC,
+      valueType const A[], integer ldA,
+      valueType const B[], integer ldB
+    );
+
+    GeneralizedEigenvectors( MatW const & A, MatW const & B );
+
+    GeneralizedEigenvectors(
+      integer         NRC,
+      integer         A_nnz,
+      valueType const A_values[],
+      integer   const A_row[],
+      integer   const A_col[],
+      integer         B_nnz,
+      valueType const B_values[],
+      integer   const B_row[],
+      integer   const B_col[]
+    );
+
+    void
+    setup(
+      integer NRC,
+      valueType const A[], integer ldA,
+      valueType const B[], integer ldB
+    );
+
+    void setup( MatW const & A, MatW const & B );
+
+    void
+    setup(
+      integer         NRC,
+      integer         A_nnz,
+      valueType const A_values[],
+      integer   const A_row[],
+      integer   const A_col[],
+      integer         B_nnz,
+      valueType const B_values[],
+      integer   const B_row[],
+      integer   const B_col[]
+    );
+
+    void getEigenvalue( integer n, valueType & re, valueType & im ) const;
+    void getEigenvalue( integer n, complexType & eig ) const;
+
+    void getEigenvalues( std::vector<valueType> & re, std::vector<valueType> & im ) const;
+    void getEigenvalues( std::vector<complexType> & eigs ) const;
+
+    void getLeftEigenvector( std::vector<std::vector<complexType> > & vecs ) const;
+    void getRightEigenvector( std::vector<std::vector<complexType> > & vecs ) const;
+
+    valueType balancedAnorm1() const { return this->abnorm; }
+    valueType balancedBnorm1() const { return this->bbnorm; }
+    valueType const * getLscale() const { return this->lscale; }
+    valueType const * getRscale() const { return this->rscale; }
+    valueType const * RcondEigenvalues()  const { return this->rconde; }
+    valueType const * RcondEigenvectors() const { return this->rcondv; }
+  };
+
+  /*\
+  :|:
+  :|:    ____                           _ _             _ ______     ______
+  :|:   / ___| ___ _ __   ___ _ __ __ _| (_)_______  __| / ___\ \   / /  _ \
+  :|:  | |  _ / _ \ '_ \ / _ \ '__/ _` | | |_  / _ \/ _` \___ \\ \ / /| | | |
+  :|:  | |_| |  __/ | | |  __/ | | (_| | | |/ /  __/ (_| |___) |\ V / | |_| |
+  :|:   \____|\___|_| |_|\___|_|  \__,_|_|_/___\___|\__,_|____/  \_/  |____/
+  :|:
+  \*/
+
+  template <typename T>
+  class GeneralizedSVD {
+
+    typedef T                valueType;
+    typedef MatrixWrapper<T> MatW;
+    typedef SparseCCOOR<T>   Sparse;
+
+    Malloc<valueType> mem_real;
+    Malloc<integer>   mem_int;
+
+    integer     M, N, P, K, L, Lwork;
+    valueType * Work;
+    integer   * IWork;
+    valueType * alpha_saved;
+    valueType * beta_saved;
+    valueType * A_saved;
+    valueType * B_saved;
+    valueType * U_saved;
+    valueType * V_saved;
+    valueType * Q_saved;
+
+    MatrixWrapper<T>     U, V, Q, R;
+    DiagMatrixWrapper<T> Dalpha, Dbeta;
+
+    void allocate( integer N, integer M, integer P );
+    void compute( );
+
+    // R is stored in A(1:K+L,N-K-L+1:N) on exit.
+    valueType &
+    A( integer i, integer j )
+    { return this->A_saved[i+j*this->M]; }
+
+    valueType &
+    B( integer i, integer j )
+    { return this->B_saved[i+j*this->P]; }
+
+  public:
+
+    GeneralizedSVD();
+
+    GeneralizedSVD(
+      integer         m,
+      integer         n,
+      integer         p,
+      valueType const A[], integer ldA,
+      valueType const B[], integer ldB
+    );
+
+    GeneralizedSVD( MatW const & A, MatW const & B );
+
+    GeneralizedSVD(
+      integer         m,
+      integer         n,
+      integer         p,
+      integer         A_nnz,
+      valueType const A_values[],
+      integer   const A_row[],
+      integer   const A_col[],
+      integer         B_nnz,
+      valueType const B_values[],
+      integer   const B_row[],
+      integer   const B_col[]
+    );
+
+    void
+    setup(
+      integer         m,
+      integer         n,
+      integer         p,
+      valueType const A[], integer ldA,
+      valueType const B[], integer ldB
+    );
+
+    void setup( MatW const & A, MatW const & B );
+
+    void
+    setup(
+      integer         m,
+      integer         n,
+      integer         p,
+      integer         A_nnz,
+      valueType const A_values[],
+      integer   const A_row[],
+      integer   const A_col[],
+      integer         B_nnz,
+      valueType const B_values[],
+      integer   const B_row[],
+      integer   const B_col[]
+    );
+
+    MatrixWrapper<T> const & getU() const { return this->U; }
+    MatrixWrapper<T> const & getV() const { return this->V; }
+    MatrixWrapper<T> const & getQ() const { return this->Q; }
+    MatrixWrapper<T> const & getR() const { return this->R; }
+    DiagMatrixWrapper<T> const & getC() const { return this->Dalpha; }
+    DiagMatrixWrapper<T> const & gerS() const { return this->Dbeta; }
+
+    valueType const & alpha( integer i ) const { return alpha_saved[i]; }
+    valueType const & beta( integer i ) const { return beta_saved[i]; }
+
+    valueType const * getAlpha() const { return alpha_saved; }
+    valueType const * getBeta()  const { return beta_saved; }
+
+    void info( ostream_type & stream, valueType eps = 0 ) const;
 
   };
 
@@ -2822,8 +3105,17 @@ namespace alglin {
   extern template class Eigenvalues<real>;
   extern template class Eigenvalues<doublereal>;
 
+  extern template class Eigenvectors<real>;
+  extern template class Eigenvectors<doublereal>;
+
   extern template class GeneralizedEigenvalues<real>;
   extern template class GeneralizedEigenvalues<doublereal>;
+
+  extern template class GeneralizedEigenvectors<real>;
+  extern template class GeneralizedEigenvectors<doublereal>;
+
+  extern template class GeneralizedSVD<real>;
+  extern template class GeneralizedSVD<doublereal>;
 
   #endif
 

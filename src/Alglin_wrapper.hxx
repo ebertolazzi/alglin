@@ -109,7 +109,31 @@ namespace alglin {
       std::copy( COPY.data, COPY.data+COPY.dim, this->data );
       return *this;
     }
+
+    void
+    print( ostream_type & stream ) const {
+      for ( integer i = 0; i < this->dim; ++i ) {
+        for ( integer j = 0; j < this->dim; ++j ) {
+          stream << std::setw(14);
+          if ( i != j ) stream << '.';
+          else          stream << this->data[i];
+          stream << ' ';
+        }
+        stream << '\n';
+      }
+    }
+
   };
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  template <typename T>
+  inline
+  ostream_type &
+  operator << ( ostream_type & stream, DiagMatrixWrapper<T> const & A ) {
+    A.print( stream );
+    return stream;
+  }
 
   /*
   //   __  __       _        _     __        __
@@ -773,7 +797,38 @@ namespace alglin {
         alglin::copy( to.nRows, pc, 1, to.data + i, to.ldData );
     }
 
+    void
+    print( ostream_type & stream ) const {
+      for ( integer i = 0; i < this->nRows; ++i ) {
+        for ( integer j = 0; j < this->nCols; ++j )
+          stream << std::setw(14) << (*this)(i,j) << ' ';
+        stream << '\n';
+      }
+    }
+
+    void
+    print0( ostream_type & stream, valueType eps ) const {
+      for ( integer i = 0; i < this->nRows; ++i ) {
+        for ( integer j = 0; j < this->nCols; ++j ) {
+          valueType aij = (*this)(i,j);
+          stream << std::setw(14);
+          if ( std::abs( aij ) < eps ) stream << '.';
+          else                         stream << aij;
+          stream << ' ';
+        }
+        stream << '\n';
+      }
+    }
   };
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  template <typename T>
+  inline
+  ostream_type &
+  operator << ( ostream_type & stream, MatrixWrapper<T> const & A ) {
+    A.print(stream);
+    return stream;
+  }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   // c = beta*c + alpha*A*v
@@ -914,6 +969,15 @@ namespace alglin {
     T                        beta,
     MatrixWrapper<T>       & C
   ) {
+    ALGLIN_ASSERT(
+      A.numCols() == B.numRows() &&
+      A.numRows() == C.numRows() &&
+      B.numCols() == C.numCols(),
+      "gemm, inconsistent dimensions: " <<
+      "\nA = " << A.numRows() << " x " << A.numCols() <<
+      "\nB = " << B.numRows() << " x " << B.numCols() <<
+      "\nC = " << C.numRows() << " x " << C.numCols()
+    );
     alglin::gemm(
       NO_TRANSPOSE,
       NO_TRANSPOSE,
@@ -954,12 +1018,10 @@ namespace alglin {
     T                        beta,
     MatrixWrapper<T>       & C
   ) {
-
     integer Ar = TRANSA == NO_TRANSPOSE ? A.numRows() : A.numCols();
     integer Ac = TRANSA == NO_TRANSPOSE ? A.numCols() : A.numRows();
     integer Br = TRANSB == NO_TRANSPOSE ? B.numRows() : B.numCols();
     integer Bc = TRANSB == NO_TRANSPOSE ? B.numCols() : B.numRows();
-
     ALGLIN_ASSERT(
       C.numRows() == Ar && C.numCols() == Bc && Ac == Br,
       "gemm, at `" << where << "' inconsistent dimensions: " <<
@@ -1007,7 +1069,19 @@ namespace alglin {
     T                        beta,
     MatrixWrapper<T>       & C
   ) {
+    integer Ar = TRANSA == NO_TRANSPOSE ? A.numRows() : A.numCols();
     integer Ac = TRANSA == NO_TRANSPOSE ? A.numCols() : A.numRows();
+    integer Br = TRANSB == NO_TRANSPOSE ? B.numRows() : B.numCols();
+    integer Bc = TRANSB == NO_TRANSPOSE ? B.numCols() : B.numRows();
+    ALGLIN_ASSERT(
+      C.numRows() == Ar && C.numCols() == Bc && Ac == Br,
+      "gemm, inconsistent dimensions: " <<
+      "\nA = " << A.numRows() << " x " << A.numCols() <<
+      "\nB = " << B.numRows() << " x " << B.numCols() <<
+      "\nC = " << C.numRows() << " x " << C.numCols() <<
+      "\nA " << (NO_TRANSPOSE?"NO":"") << " transposed" <<
+      "\nB " << (NO_TRANSPOSE?"NO":"") << " transposed"
+    );
     alglin::gemm(
       TRANSA,
       TRANSB,

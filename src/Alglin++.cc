@@ -2758,6 +2758,260 @@ namespace alglin {
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   template <typename T>
+  Eigenvectors<T>::Eigenvectors()
+  : mem_real("Eigenvectors::mem_real")
+  , N(0)
+  , Re(nullptr)
+  , Im(nullptr)
+  , A_saved(nullptr)
+  , VL(nullptr)
+  , VR(nullptr)
+  , Work(nullptr)
+  {}
+
+  template <typename T>
+  void
+  Eigenvectors<T>::allocate( integer Nin ) {
+    this->N = Nin;
+    // calcolo memoria ottimale
+    integer doLwork    = -1;
+    T       Lworkdummy = 1;
+    integer info = geev(
+      true, true,
+      this->N,
+      nullptr, this->N,
+      nullptr, nullptr,
+      this->VL, this->N,
+      this->VR, this->N,
+      &Lworkdummy, doLwork
+    );
+    ALGLIN_ASSERT(
+      info == 0,
+      "Eigenvectors::allocate, call geev return info = " << info
+    );
+    this->Lwork = integer(Lworkdummy);
+    this->mem_real.allocate( size_t( this->Lwork + (2+3*this->N) * this->N) ) ;
+    this->Re      = this->mem_real( size_t(this->N) );
+    this->Im      = this->mem_real( size_t(this->N) );
+    this->A_saved = this->mem_real( size_t(this->N*this->N) );
+    this->VL      = this->mem_real( size_t(this->N*this->N) );
+    this->VR      = this->mem_real( size_t(this->N*this->N) );
+    this->Work    = this->mem_real( size_t(this->Lwork) );
+  }
+
+  template <typename T>
+  void
+  Eigenvectors<T>::compute( ) {
+    integer info = geev(
+      this->VL != nullptr,
+      this->VR != nullptr,
+      this->N,
+      this->A_saved, this->N,
+      this->Re,      this->Im,
+      this->VL,      this->N,
+      this->VR,      this->N,
+      this->Work,    this->Lwork
+    );
+    ALGLIN_ASSERT(
+      info == 0,
+      "GeneralizedEigenvectors::compute, call ggevx return info = " << info
+    );
+  }
+
+  template <typename T>
+  Eigenvectors<T>::Eigenvectors(
+    integer         NRC,
+    valueType const A_data[],
+    integer         ldA
+  )
+  : mem_real("Eigenvectors::mem_real")
+  , N(0)
+  , Re(nullptr)
+  , Im(nullptr)
+  , A_saved(nullptr)
+  , VL(nullptr)
+  , VR(nullptr)
+  , Work(nullptr)
+  {
+    this->setup( NRC, A_data, ldA );
+  }
+
+  template <typename T>
+  Eigenvectors<T>::Eigenvectors( MatW const & A )
+  : mem_real("Eigenvectors::mem_real")
+  , N(0)
+  , Re(nullptr)
+  , Im(nullptr)
+  , A_saved(nullptr)
+  , VL(nullptr)
+  , VR(nullptr)
+  , Work(nullptr)
+  {
+    this->setup( A );
+  }
+
+  template <typename T>
+  Eigenvectors<T>::Eigenvectors(
+    integer         NRC,
+    integer         A_nnz,
+    valueType const A_values[],
+    integer   const A_row[],
+    integer   const A_col[]
+  )
+  : mem_real("Eigenvectors::mem_real")
+  , N(0)
+  , Re(nullptr)
+  , Im(nullptr)
+  , A_saved(nullptr)
+  , VL(nullptr)
+  , VR(nullptr)
+  , Work(nullptr)
+  {
+    this->setup( NRC, A_nnz, A_values, A_row, A_col );
+  }
+
+  template <typename T>
+  void
+  Eigenvectors<T>::setup(
+    integer         NRC,
+    valueType const A_data[],
+    integer         ldA
+  ) {
+    this->allocate( NRC );
+    integer info = gecopy( NRC, NRC, A_data, ldA, A_saved, NRC );
+    ALGLIN_ASSERT(
+      info == 0,
+      "Eigenvectors::setup, call gecopy return info = " << info
+    );
+    this->compute();
+  }
+
+  template <typename T>
+  void
+  Eigenvectors<T>::setup( MatW const & A ) {
+    this->allocate( A.numRows() );
+    integer info = gecopy( this->N, this->N, A.get_data(), A.lDim(),  this->A_saved, this->N );
+    ALGLIN_ASSERT(
+      info == 0,
+      "Eigenvectors::setup, call gecopy return info = " << info
+    );
+    this->compute();
+  }
+
+  template <typename T>
+  void
+  Eigenvectors<T>::setup(
+    integer         NRC,
+    integer         A_nnz,
+    valueType const A_values[],
+    integer   const A_row[],
+    integer   const A_col[]
+  ) {
+    this->allocate( NRC );
+    std::fill(  this->A_saved, this->A_saved + NRC*NRC, 0 );
+    for ( integer i = 0; i < A_nnz; ++i )
+      this->A_saved[A_row[i]+A_col[i]*NRC] += A_values[i];
+    this->compute();
+  }
+
+  template <typename T>
+  void
+  Eigenvectors<T>::getEigenvalue(
+    integer n, valueType & re, valueType & im
+  ) const {
+    re = Re[n];
+    im = Im[n];
+  }
+
+  template <typename T>
+  void
+  Eigenvectors<T>::getEigenvalue(
+    integer n, std::complex<valueType> & eig
+  ) const {
+    eig = std::complex<valueType>(Re[n],Im[n]);
+  }
+
+  template <typename T>
+  void
+  Eigenvectors<T>::getEigenvalues(
+    std::vector<valueType> & re,
+    std::vector<valueType> & im
+  ) const {
+    re.clear(); re.reserve( this->N );
+    im.clear(); im.reserve( this->N );
+    for ( int i = 0;i < this->N; ++i ) {
+      re.push_back( Re[i] );
+      im.push_back( Im[i] );
+    }
+  }
+
+  template <typename T>
+  void
+  Eigenvectors<T>::getEigenvalues(
+    std::vector<std::complex<valueType> > & eigs
+  ) const {
+    eigs.clear(); eigs.reserve( this->N );
+    for ( int i = 0;i < this->N; ++i )
+      eigs.push_back( std::complex<valueType>(Re[i],Im[i]) );
+  }
+
+  template <typename T>
+  void
+  Eigenvectors<T>::getLeftEigenvector(
+    std::vector<std::vector<complexType> > & vecs
+  ) const {
+    vecs.resize( size_t(this->N) );
+    for ( integer n = 0; n < this->N; ++n ) {
+      std::vector<complexType> & v = vecs[n];
+      v.clear(); v.reserve( this->N );
+      T const * vr = this->VL + n * this->N;
+      if ( Im[n] > 0 ) {
+        std::vector<complexType> & v1 = vecs[++n];
+        v1.clear(); v1.reserve( this->N );
+        T const * vi = vr + this->N;
+        for ( integer j = 0; j < this->N; ++j ) {
+          // salvo vettore "gia" coniugato
+          v.push_back( complexType( vr[j], -vi[j] ) );
+          v1.push_back( complexType( vr[j], vi[j] ) );
+        }
+      } else {
+        for ( integer j = 0; j < this->N; ++j )
+          v.push_back( complexType( vr[j], 0 ) );
+      }
+    }
+  }
+
+  template <typename T>
+  void
+  Eigenvectors<T>::getRightEigenvector(
+    std::vector<std::vector<complexType> > & vecs
+  ) const {
+    vecs.resize( size_t(this->N) );
+    for ( integer n = 0; n < this->N; ++n ) {
+      std::vector<complexType> & v = vecs[n];
+      v.clear(); v.reserve( this->N );
+      T const * vr = this->VR + n * this->N;
+      if ( Im[n] > 0 ) {
+        std::vector<complexType> & v1 = vecs[++n];
+        v1.clear(); v1.reserve( this->N );
+        T const * vi = vr + this->N;
+        for ( integer j = 0; j < this->N; ++j ) {
+          v.push_back( complexType( vr[j], vi[j] ) );
+          v1.push_back( complexType( vr[j], -vi[j] ) );
+        }
+      } else {
+        for ( integer j = 0; j < this->N; ++j )
+          v.push_back( complexType( vr[j], 0 ) );
+      }
+    }
+  }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  template <typename T>
   GeneralizedEigenvalues<T>::GeneralizedEigenvalues()
   : mem_real("GeneralizedEigenvalues::mem_real")
   , N(0)
@@ -2974,6 +3228,616 @@ namespace alglin {
       eigs.push_back( std::complex<valueType>(alphaRe[i],alphaIm[i])/beta[i] );
   }
 
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  template <typename T>
+  GeneralizedEigenvectors<T>::GeneralizedEigenvectors()
+  : mem_real("GeneralizedEigenvectors::mem_real")
+  , mem_int("GeneralizedEigenvectors::mem_int")
+  , N(0)
+  , alphaRe(nullptr)
+  , alphaIm(nullptr)
+  , beta(nullptr)
+  , A_saved(nullptr)
+  , B_saved(nullptr)
+  , VL(nullptr)
+  , VR(nullptr)
+  , lscale(nullptr)
+  , rscale(nullptr)
+  , rconde(nullptr)
+  , rcondv(nullptr)
+  , Work(nullptr)
+  , iWork(nullptr)
+  , bWork(nullptr)
+  {}
+
+  template <typename T>
+  void
+  GeneralizedEigenvectors<T>::allocate( integer Nin ) {
+    this->N = Nin;
+    // calcolo memoria ottimale
+    integer doLwork    = -1;
+    T       Lworkdummy = 1;
+    integer info = ggevx(
+      alglin::PERMUTE_AND_SCALE,
+      false, false,
+      alglin::EIGENVALUES_AND_EIGENVECTORS,
+      this->N, nullptr, this->N, nullptr, this->N,
+      nullptr, nullptr, nullptr, this->VL, this->N, this->VR, this->N,
+      ilo, ihi,
+      nullptr, nullptr,
+      abnorm,  bbnorm,
+      nullptr, nullptr,
+      &Lworkdummy, doLwork,
+      nullptr, nullptr
+    );
+    ALGLIN_ASSERT(
+      info == 0,
+      "GeneralizedEigenvectors::allocate, call geev return info = " << info
+    );
+    this->Lwork = integer(Lworkdummy);
+    this->mem_real.allocate( size_t( this->Lwork + (7+4*this->N) * this->N) ) ;
+    this->mem_int.allocate( size_t( 2*this->N + 6 ) ) ;
+    this->alphaRe = this->mem_real( size_t(this->N) );
+    this->alphaIm = this->mem_real( size_t(this->N) );
+    this->beta    = this->mem_real( size_t(this->N) );
+    this->A_saved = this->mem_real( size_t(this->N*this->N) );
+    this->B_saved = this->mem_real( size_t(this->N*this->N) );
+    this->VL      = this->mem_real( size_t(this->N*this->N) );
+    this->VR      = this->mem_real( size_t(this->N*this->N) );
+    this->lscale  = this->mem_real( size_t(this->N) );
+    this->rscale  = this->mem_real( size_t(this->N) );
+    this->rconde  = this->mem_real( size_t(this->N) );
+    this->rcondv  = this->mem_real( size_t(this->N) );
+    this->Work    = this->mem_real( size_t(this->Lwork) );
+    this->iWork   = this->mem_int( size_t(this->N+6) );
+    this->bWork   = this->mem_int( size_t(this->N) );
+  }
+
+  template <typename T>
+  void
+  GeneralizedEigenvectors<T>::compute( ) {
+    integer info = ggevx(
+      alglin::PERMUTE_ONLY, // "B", // ATTENZIONE LA SCALATURA NON FUNZIONA
+      this->VL != nullptr,
+      this->VR != nullptr,
+      alglin::EIGENVALUES_AND_EIGENVECTORS,
+      this->N,
+      this->A_saved, this->N,
+      this->B_saved, this->N,
+      this->alphaRe, this->alphaIm, this->beta,
+      this->VL, this->N,
+      this->VR, this->N,
+      ilo, ihi,
+      this->lscale, this->rscale,
+      abnorm,       bbnorm,
+      this->rconde, this->rcondv,
+      this->Work,   this->Lwork,
+      this->iWork,  this->bWork
+    );
+    ALGLIN_ASSERT(
+      info == 0,
+      "GeneralizedEigenvectors::compute, call ggevx return info = " << info
+    );
+  }
+
+  template <typename T>
+  GeneralizedEigenvectors<T>::GeneralizedEigenvectors(
+    integer         NRC,
+    valueType const A_data[],
+    integer         ldA,
+    valueType const B_data[],
+    integer         ldB
+  )
+  : mem_real("GeneralizedEigenvectors::mem_real")
+  , mem_int("GeneralizedEigenvectors::mem_int")
+  , N(0)
+  , alphaRe(nullptr)
+  , alphaIm(nullptr)
+  , beta(nullptr)
+  , A_saved(nullptr)
+  , B_saved(nullptr)
+  , VL(nullptr)
+  , VR(nullptr)
+  , lscale(nullptr)
+  , rscale(nullptr)
+  , rconde(nullptr)
+  , rcondv(nullptr)
+  , Work(nullptr)
+  , iWork(nullptr)
+  , bWork(nullptr)
+  {
+    this->setup( NRC, A_data, ldA, B_data, ldB );
+  }
+
+  template <typename T>
+  GeneralizedEigenvectors<T>::GeneralizedEigenvectors(
+    MatW const & A, MatW const & B
+  )
+  : mem_real("GeneralizedEigenvectors::mem_real")
+  , mem_int("GeneralizedEigenvectors::mem_int")
+  , N(0)
+  , alphaRe(nullptr)
+  , alphaIm(nullptr)
+  , beta(nullptr)
+  , A_saved(nullptr)
+  , B_saved(nullptr)
+  , VL(nullptr)
+  , VR(nullptr)
+  , lscale(nullptr)
+  , rscale(nullptr)
+  , rconde(nullptr)
+  , rcondv(nullptr)
+  , Work(nullptr)
+  , iWork(nullptr)
+  , bWork(nullptr)
+  {
+    this->setup( A, B );
+  }
+
+  template <typename T>
+  GeneralizedEigenvectors<T>::GeneralizedEigenvectors(
+    integer         NRC,
+    integer         A_nnz,
+    valueType const A_values[],
+    integer   const A_row[],
+    integer   const A_col[],
+    integer         B_nnz,
+    valueType const B_values[],
+    integer   const B_row[],
+    integer   const B_col[]
+  )
+  : mem_real("GeneralizedEigenvectors::mem_real")
+  , mem_int("GeneralizedEigenvectors::mem_int")
+  , N(0)
+  , alphaRe(nullptr)
+  , alphaIm(nullptr)
+  , beta(nullptr)
+  , A_saved(nullptr)
+  , B_saved(nullptr)
+  , VL(nullptr)
+  , VR(nullptr)
+  , lscale(nullptr)
+  , rscale(nullptr)
+  , rconde(nullptr)
+  , rcondv(nullptr)
+  , Work(nullptr)
+  , iWork(nullptr)
+  , bWork(nullptr)
+  {
+    this->setup(
+      NRC,
+      A_nnz, A_values, A_row, A_col,
+      B_nnz, B_values, B_row, B_col
+    );
+  }
+
+  template <typename T>
+  void
+  GeneralizedEigenvectors<T>::setup(
+    integer         NRC,
+    valueType const A_data[],
+    integer         ldA,
+    valueType const B_data[],
+    integer         ldB
+  ) {
+    this->allocate( NRC );
+    integer info1 = gecopy( NRC, NRC, A_data, ldA, A_saved, NRC );
+    integer info2 = gecopy( NRC, NRC, B_data, ldB, B_saved, NRC );
+    ALGLIN_ASSERT(
+      info1 == 0 && info2 == 0,
+      "GeneralizedEigenvectors::setup, call gecopy return info1 = " << info1 <<
+      ", info2 = " << info2
+    );
+    this->compute();
+  }
+
+  template <typename T>
+  void
+  GeneralizedEigenvectors<T>::setup( MatW const & A, MatW const & B ) {
+    this->allocate( A.numRows() );
+    integer info1 = gecopy( this->N, this->N, A.get_data(), A.lDim(),  this->A_saved, this->N );
+    integer info2 = gecopy( this->N, this->N, B.get_data(), B.lDim(),  this->B_saved, this->N );
+    ALGLIN_ASSERT(
+      info1 == 0 && info2 == 0,
+      "GeneralizedEigenvectors::setup, call gecopy return info1 = " << info1 <<
+      ", info2 = " << info2
+    );
+    this->compute();
+  }
+
+  template <typename T>
+  void
+  GeneralizedEigenvectors<T>::setup(
+    integer         NRC,
+    integer         A_nnz,
+    valueType const A_values[],
+    integer   const A_row[],
+    integer   const A_col[],
+    integer         B_nnz,
+    valueType const B_values[],
+    integer   const B_row[],
+    integer   const B_col[]
+  ) {
+    this->allocate( NRC );
+    std::fill(  this->A_saved, this->A_saved + NRC*NRC, 0 );
+    std::fill(  this->B_saved, this->B_saved + NRC*NRC, 0 );
+    for ( integer i = 0; i < A_nnz; ++i )
+      this->A_saved[A_row[i]+A_col[i]*NRC] += A_values[i];
+    for ( integer i = 0; i < B_nnz; ++i )
+      this->B_saved[B_row[i]+B_col[i]*NRC] += B_values[i];
+    this->compute();
+  }
+
+  template <typename T>
+  void
+  GeneralizedEigenvectors<T>::getEigenvalue(
+    integer n, valueType & re, valueType & im
+  ) const {
+    re = alphaRe[n]/beta[n];
+    im = alphaIm[n]/beta[n];
+  }
+
+  template <typename T>
+  void
+  GeneralizedEigenvectors<T>::getEigenvalue(
+    integer n, std::complex<valueType> & eig
+  ) const {
+    eig = std::complex<valueType>(alphaRe[n],alphaIm[n])/beta[n];
+  }
+
+  template <typename T>
+  void
+  GeneralizedEigenvectors<T>::getEigenvalues(
+    std::vector<valueType> & re,
+    std::vector<valueType> & im
+  ) const {
+    re.clear(); re.reserve( this->N );
+    im.clear(); im.reserve( this->N );
+    for ( int i = 0;i < this->N; ++i ) {
+      re.push_back( alphaRe[i]/beta[i] );
+      im.push_back( alphaIm[i]/beta[i] );
+    }
+  }
+
+  template <typename T>
+  void
+  GeneralizedEigenvectors<T>::getEigenvalues(
+    std::vector<std::complex<valueType> > & eigs
+  ) const {
+    eigs.clear(); eigs.reserve( this->N );
+    for ( int i = 0;i < this->N; ++i )
+      eigs.push_back( std::complex<valueType>(alphaRe[i],alphaIm[i])/beta[i] );
+  }
+
+  template <typename T>
+  void
+  GeneralizedEigenvectors<T>::getLeftEigenvector(
+    std::vector<std::vector<complexType> > & vecs
+  ) const {
+    vecs.resize( size_t(this->N) );
+    for ( integer n = 0; n < this->N; ++n ) {
+      std::vector<complexType> & v = vecs[n];
+      v.clear(); v.reserve( this->N );
+      T const * vr = this->VL + n * this->N;
+      if ( alphaIm[n] > 0 ) {
+        std::vector<complexType> & v1 = vecs[++n];
+        v1.clear(); v1.reserve( this->N );
+        T const * vi = vr + this->N;
+        for ( integer j = 0; j < this->N; ++j ) {
+          // salvo vettore "gia" coniugato
+          v.push_back( complexType( vr[j], -vi[j] ) );
+          v1.push_back( complexType( vr[j], vi[j] ) );
+        }
+      } else {
+        for ( integer j = 0; j < this->N; ++j )
+          v.push_back( complexType( vr[j], 0 ) );
+      }
+    }
+  }
+
+  template <typename T>
+  void
+  GeneralizedEigenvectors<T>::getRightEigenvector(
+    std::vector<std::vector<complexType> > & vecs
+  ) const {
+    vecs.resize( size_t(this->N) );
+    for ( integer n = 0; n < this->N; ++n ) {
+      std::vector<complexType> & v = vecs[n];
+      v.clear(); v.reserve( this->N );
+      T const * vr = this->VR + n * this->N;
+      if ( alphaIm[n] > 0 ) {
+        std::vector<complexType> & v1 = vecs[++n];
+        v1.clear(); v1.reserve( this->N );
+        T const * vi = vr + this->N;
+        for ( integer j = 0; j < this->N; ++j ) {
+          v.push_back( complexType( vr[j], vi[j] ) );
+          v1.push_back( complexType( vr[j], -vi[j] ) );
+        }
+      } else {
+        for ( integer j = 0; j < this->N; ++j )
+          v.push_back( complexType( vr[j], 0 ) );
+      }
+    }
+  }
+
+  /*\
+  :|:
+  :|:    ____                           _ _             _ ______     ______
+  :|:   / ___| ___ _ __   ___ _ __ __ _| (_)_______  __| / ___\ \   / /  _ \
+  :|:  | |  _ / _ \ '_ \ / _ \ '__/ _` | | |_  / _ \/ _` \___ \\ \ / /| | | |
+  :|:  | |_| |  __/ | | |  __/ | | (_| | | |/ /  __/ (_| |___) |\ V / | |_| |
+  :|:   \____|\___|_| |_|\___|_|  \__,_|_|_/___\___|\__,_|____/  \_/  |____/
+  :|:
+  \*/
+
+  template <typename T>
+  GeneralizedSVD<T>::GeneralizedSVD()
+  : mem_real("GeneralizedSVD(real)")
+  , mem_int("GeneralizedSVD(int)")
+  , M(0)
+  , N(0)
+  , P(0)
+  , K(0)
+  , L(0)
+  , Lwork(0)
+  , Work(nullptr)
+  , IWork(nullptr)
+  , alpha_saved(nullptr)
+  , beta_saved(nullptr)
+  , A_saved(nullptr)
+  , B_saved(nullptr)
+  , U_saved(nullptr)
+  , V_saved(nullptr)
+  , Q_saved(nullptr)
+  {}
+
+  template <typename T>
+  GeneralizedSVD<T>::GeneralizedSVD(
+    integer         m,
+    integer         n,
+    integer         p,
+    valueType const A[], integer ldA_in,
+    valueType const B[], integer ldB_in
+  )
+  : mem_real("GeneralizedSVD(real)")
+  , mem_int("GeneralizedSVD(int)")
+  , M(0)
+  , N(0)
+  , P(0)
+  , K(0)
+  , L(0)
+  , Lwork(0)
+  , Work(nullptr)
+  , IWork(nullptr)
+  , alpha_saved(nullptr)
+  , beta_saved(nullptr)
+  , A_saved(nullptr)
+  , B_saved(nullptr)
+  , U_saved(nullptr)
+  , V_saved(nullptr)
+  , Q_saved(nullptr)
+  { this->setup( m, n, p, A, ldA_in, B, ldB_in ); }
+
+  template <typename T>
+  GeneralizedSVD<T>::GeneralizedSVD( MatW const & A, MatW const & B )
+  : mem_real("GeneralizedSVD(real)")
+  , mem_int("GeneralizedSVD(int)")
+  , M(0)
+  , N(0)
+  , P(0)
+  , K(0)
+  , L(0)
+  , Lwork(0)
+  , Work(nullptr)
+  , IWork(nullptr)
+  , alpha_saved(nullptr)
+  , beta_saved(nullptr)
+  , A_saved(nullptr)
+  , B_saved(nullptr)
+  , U_saved(nullptr)
+  , V_saved(nullptr)
+  , Q_saved(nullptr)
+  { this->setup( A, B ); }
+
+  template <typename T>
+  GeneralizedSVD<T>::GeneralizedSVD(
+    integer         m,
+    integer         n,
+    integer         p,
+    integer         A_nnz,
+    valueType const A_values[],
+    integer   const A_row[],
+    integer   const A_col[],
+    integer         B_nnz,
+    valueType const B_values[],
+    integer   const B_row[],
+    integer   const B_col[]
+  )
+  : mem_real("GeneralizedSVD(real)")
+  , mem_int("GeneralizedSVD(int)")
+  , M(0)
+  , N(0)
+  , P(0)
+  , K(0)
+  , L(0)
+  , Lwork(0)
+  , Work(nullptr)
+  , IWork(nullptr)
+  , alpha_saved(nullptr)
+  , beta_saved(nullptr)
+  , A_saved(nullptr)
+  , B_saved(nullptr)
+  , U_saved(nullptr)
+  , V_saved(nullptr)
+  , Q_saved(nullptr)
+  { this->setup(
+      m, n, p,
+      A_nnz, A_values, A_row, A_col,
+      B_nnz, B_values, B_row, B_col
+    );
+  }
+
+  template <typename T>
+  void
+  GeneralizedSVD<T>::allocate( integer m, integer n, integer p ) {
+    integer k, l;
+    real    wL;
+    integer info = ggsvd(
+      true, true, true, m, n, p, k, l,
+      nullptr, m,
+      nullptr, p,
+      nullptr,
+      nullptr,
+      nullptr, m,
+      nullptr, p,
+      nullptr, n,
+      &wL,
+      -1,
+      nullptr
+    );
+    ALGLIN_ASSERT(
+      info == 0,
+      "GeneralizedSVD<T>::allocate(m=" << m << ",n" << n << ",p=" << p <<
+      ") failed, info = " << info
+    );
+    this->M     = m;
+    this->N     = n;
+    this->P     = p;
+    this->Lwork = integer(wL);
+
+    this->mem_int.allocate( n );
+    this->IWork = mem_int( n );
+
+    this->mem_real.allocate( Lwork + (m+p+2)*n + m*m + p*p + n*n );
+    this->Work        = mem_real( Lwork );
+    this->alpha_saved = mem_real( n );
+    this->beta_saved  = mem_real( n );
+    this->A_saved     = mem_real( m*n );
+    this->B_saved     = mem_real( p*n );
+    this->U_saved     = mem_real( m*m );
+    this->V_saved     = mem_real( p*p );
+    this->Q_saved     = mem_real( n*n );
+
+    this->U.setup( this->U_saved, m, m, m );
+    this->V.setup( this->V_saved, p, p, p );
+    this->Q.setup( this->Q_saved, n, n, n );
+    this->Dbeta.setup( this->beta_saved, n );
+    this->Dalpha.setup( this->alpha_saved, n );
+  }
+
+  template <typename T>
+  void
+  GeneralizedSVD<T>::compute() {
+    integer info = ggsvd(
+      true, true, true,
+      this->M, this->N, this->P, this->K, this->L,
+      this->A_saved, this->M,
+      this->B_saved, this->P,
+      this->alpha_saved,
+      this->beta_saved,
+      this->U_saved, this->M,
+      this->V_saved, this->P,
+      this->Q_saved, this->N,
+      Work,
+      Lwork,
+      IWork
+    );
+    ALGLIN_ASSERT(
+      info == 0,
+      "GeneralizedSVD<T>::compute() failed, info = " << info
+    );
+    // R is stored in A(1:K+L,N-K-L+1:N) on exit.
+    this->R.setup( this->A_saved + this->M * ( this->N-this->K-this->L ),
+                   this->N, this->K+this->L, this->M );
+  }
+
+  template <typename T>
+  void
+  GeneralizedSVD<T>::setup(
+    integer         m,
+    integer         n,
+    integer         p,
+    valueType const A[], integer ldA,
+    valueType const B[], integer ldB
+  ) {
+    this->allocate( m, n, p );
+    integer info = gecopy( m, n, A, ldA, A_saved, m );
+    ALGLIN_ASSERT(
+      info == 0,
+      "GeneralizedSVD<T>::setup(...) failed to copy A, info = " << info
+    );
+    info = gecopy( p, n, B, ldB, B_saved, p );
+    ALGLIN_ASSERT(
+      info == 0,
+      "GeneralizedSVD<T>::setup(...) failed to copy B, info = " << info
+    );
+    compute();
+  }
+
+  template <typename T>
+  void
+  GeneralizedSVD<T>::setup( MatW const & A, MatW const & B ) {
+    integer m = A.numRows();
+    integer n = A.numCols();
+    integer p = B.numRows();
+    ALGLIN_ASSERT(
+      n == B.numCols(),
+      "GeneralizedSVD<T>::setup( A, B ) incompatible matrices\n" <<
+      "A is " << A.numRows() << " x " << A.numCols() << "\n"
+      "B is " << B.numRows() << " x " << B.numCols()
+    );
+    this->setup( m, n, p, A.get_data(), A.lDim(), B.get_data(), B.lDim() );
+  }
+
+  template <typename T>
+  void
+  GeneralizedSVD<T>::setup(
+    integer         m,
+    integer         n,
+    integer         p,
+    integer         A_nnz,
+    valueType const A_values[],
+    integer   const A_row[],
+    integer   const A_col[],
+    integer         B_nnz,
+    valueType const B_values[],
+    integer   const B_row[],
+    integer   const B_col[]
+  ) {
+    this->allocate( m, n, p );
+    zero( this->N*this->M, this->A_saved, 1 );
+    zero( this->P*this->M, this->B_saved, 1 );
+    for ( integer k = 0; k < A_nnz; ++k ) A(A_row[k],A_col[k]) = A_values[k];
+    for ( integer k = 0; k < B_nnz; ++k ) B(B_row[k],B_col[k]) = B_values[k];
+    compute();
+  }
+
+  template <typename T>
+  void
+  GeneralizedSVD<T>::info( ostream_type & stream, valueType eps ) const {
+    stream
+      << "A = " << this->M << " x " << this->N << '\n'
+      << "B = " << this->P << " x " << this->N << '\n';
+    for ( integer i = 0; i < this->N; ++i ) {
+      T a =  this->alpha_saved[i];
+      T b =  this->beta_saved[i];
+      stream
+        << "alpha[" << i << "]=" << std::setw(14) << a
+        << ", beta[" << i << "]=" << std::setw(14) << b
+        << ", alpha^2+beta^2 = " << a*a+b*b << '\n';
+    }
+    stream << "U\n"; this->U.print0( stream, eps );
+    stream << "V\n"; this->V.print0( stream, eps );
+    stream << "Q\n"; this->Q.print0( stream, eps );
+    stream << "R\n"; this->R.print0( stream, eps );
+    stream << "C\n"; this->Dalpha.print( stream );
+    stream << "S\n"; this->Dbeta.print( stream );
+    stream << '\n';
+  }
 
   template integer rankEstimate( integer   M,
                                  integer   N,
@@ -3040,8 +3904,17 @@ namespace alglin {
   template class Eigenvalues<real>;
   template class Eigenvalues<doublereal>;
 
+  template class Eigenvectors<real>;
+  template class Eigenvectors<doublereal>;
+
   template class GeneralizedEigenvalues<real>;
   template class GeneralizedEigenvalues<doublereal>;
+
+  template class GeneralizedEigenvectors<real>;
+  template class GeneralizedEigenvectors<doublereal>;
+
+  template class GeneralizedSVD<real>;
+  template class GeneralizedSVD<doublereal>;
 
 } // end namespace alglin
 
