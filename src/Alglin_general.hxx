@@ -5271,7 +5271,61 @@ namespace alglin {
   #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
   // use standard Lapack routine
   extern "C" {
+    #ifdef ALGLIN_OS_WINDOWS
+    void
+    LAPACK_F77NAME(sggsvd)(
+      character const JOBU[],
+      character const JOBV[],
+      character const JOBQ[],
+      integer   const * m,
+      integer   const * n,
+      integer   const * p,
+      integer         * k,
+      integer         * l,
+      real              A[],
+      integer   const * ldA,
+      real              B[],
+      integer   const * ldB,
+      real              alpha[],
+      real              beta[],
+      real              U[],
+      integer   const * ldU,
+      real              V[],
+      integer   const * ldV,
+      real              Q[],
+      integer   const * ldQ,
+      real            * work,
+      integer         * iwork,
+      integer         * info
+    );
 
+    void
+    LAPACK_F77NAME(dggsvd)(
+      character const JOBU[],
+      character const JOBV[],
+      character const JOBQ[],
+      integer   const * m,
+      integer   const * n,
+      integer   const * p,
+      integer         * k,
+      integer         * l,
+      doublereal        A[],
+      integer   const * ldA,
+      doublereal        B[],
+      integer   const * ldB,
+      doublereal        alpha[],
+      doublereal        beta[],
+      doublereal        U[],
+      integer   const * ldU,
+      doublereal        V[],
+      integer   const * ldV,
+      doublereal        Q[],
+      integer   const * ldQ,
+      doublereal      * work,
+      integer         * iwork,
+      integer         * info
+    );
+    #else
     void
     LAPACK_F77NAME(sggsvd3)(
       character const JOBU[],
@@ -5312,7 +5366,7 @@ namespace alglin {
       integer         * l,
       doublereal        A[],
       integer   const * ldA,
-      real              B[],
+      doublereal        B[],
       integer   const * ldB,
       doublereal        alpha[],
       doublereal        beta[],
@@ -5327,6 +5381,7 @@ namespace alglin {
       integer         * iwork,
       integer         * info
     );
+    #endif
   }
   #endif
 
@@ -5358,7 +5413,31 @@ namespace alglin {
     integer   iwork[]
   ) {
     integer info = 0;
-    #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
+    #if defined(ALGLIN_OS_WINDOWS)
+    integer lw = std::max(3*n,std::max(m,p))+n;
+    if ( lwork < 0 ) {
+      work[0] = real(lw);
+    } else {
+      ALGLIN_ASSERT(
+        lwork >= lw, "ggsvd, lwork = " << lwork << " must be >= " << lw
+      );
+      LAPACK_F77NAME(sggsvd)(
+        const_cast<character*>( JOBU ? "U" : "N"),
+        const_cast<character*>( JOBV ? "V" : "N"),
+        const_cast<character*>( JOBQ ? "Q" : "N"),
+        &m, &n, &p, &k, &l,
+        A, &ldA,
+        B, &ldB,
+        alpha, beta,
+        U, &ldU,
+        V, &ldV,
+        Q, &ldQ,
+        work,
+        iwork,
+        &info
+      );
+    }
+    #elif defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
     LAPACK_F77NAME(sggsvd3)(
       ( JOBU ? "U" : "N"),
       ( JOBV ? "V" : "N"),
@@ -5448,7 +5527,31 @@ namespace alglin {
     integer    iwork[]
   ) {
     integer info = 0;
-    #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
+    #if defined(ALGLIN_OS_WINDOWS)
+    integer lw = std::max(3*n,std::max(m,p))+n;
+    if ( lwork < 0 ) {
+      work[0] = doublereal(lw);
+    } else {
+      ALGLIN_ASSERT(
+        lwork >= lw, "ggsvd, lwork = " << lwork << " must be >= " << lw
+      );
+      LAPACK_F77NAME(dggsvd)(
+        const_cast<character*>( JOBU ? "U" : "N"),
+        const_cast<character*>( JOBV ? "V" : "N"),
+        const_cast<character*>( JOBQ ? "Q" : "N"),
+        &m, &n, &p, &k, &l,
+        A, &ldA,
+        B, &ldB,
+        alpha, beta,
+        U, &ldU,
+        V, &ldV,
+        Q, &ldQ,
+        work,
+        iwork,
+        &info
+      );
+    }
+    #elif defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
     LAPACK_F77NAME(dggsvd3)(
       ( JOBU ? "U" : "N"),
       ( JOBV ? "V" : "N"),
