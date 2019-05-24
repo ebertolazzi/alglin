@@ -66,8 +66,10 @@
 #define xerbla_ xerbla_BUGGED
 
 #ifdef ALGLIN_USE_SYSTEM_SUPERLU
+  #include <superlu/slu_sdefs.h>
   #include <superlu/slu_ddefs.h>
 #else
+  #include "superlu/slu_sdefs.h"
   #include "superlu/slu_ddefs.h"
 #endif
 

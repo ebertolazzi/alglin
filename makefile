@@ -137,7 +137,7 @@ ifneq (,$(findstring Darwin, $(OS)))
   CC     += $(WARN)
   CXX    += $(WARN)
   AR      = libtool -static -o
-  LIBSGCC = -lstdc++ -lm
+  LIBSGCC = -lsuperlu -lstdc++ -lm
 
 ifneq (,$(findstring ALGLIN_USE_LAPACK,$(USED_LIB)))
   override LIBS += -llapack -lblas
@@ -337,5 +337,5 @@ doc:
 	doxygen
 
 clean:
-	rm -rf lib/libAlglin.* src/*.o  src_tests/*.o
+	rm -rf lib/libAlglin.* src/*.o src_tests/*.o
 	rm -rf bin

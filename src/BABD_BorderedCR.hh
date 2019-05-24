@@ -22,6 +22,7 @@
 
 #include "Alglin.hh"
 #include "Alglin++.hh"
+#include "AlglinSuperLU.hh"
 
 #include <iostream>
 
@@ -46,9 +47,10 @@
 namespace alglin {
 
   typedef enum {
-    BORDERED_LU  = 0,
-    BORDERED_QR  = 1,
-    BORDERED_QRP = 2
+    BORDERED_LU      = 0,
+    BORDERED_QR      = 1,
+    BORDERED_QRP     = 3,
+    BORDERED_SUPERLU = 4
   } BORDERED_Choice;
 
   typedef enum {
@@ -133,6 +135,9 @@ namespace alglin {
     Malloc<valueType> baseValue;
     Malloc<integer>   baseInteger;
 
+    Malloc<valueType> superluValue;
+    Malloc<int>       superluInteger;
+
     integer nblock; //!< total number of blocks
     integer n;      //!< size of square blocks
     integer qr, qx; //!< extra BC
@@ -146,6 +151,21 @@ namespace alglin {
     integer nr_x_nx;
     integer Nr, Nc;
     integer Tsize;
+
+    // for SuperLU =====================
+    int * slu_perm_r; // row permutations from partial pivoting
+    int * slu_perm_c; // column permutation vector
+    int * slu_etree;
+
+    superlu_options_t     slu_options;
+    mutable SuperLUStat_t slu_stats;
+    mutable SuperMatrix   slu_A, slu_AC, slu_L, slu_U; // messo mutable per zittire warning
+
+    #if defined(SUPERLU_MAJOR_VERSION) && SUPERLU_MAJOR_VERSION >= 5
+    mutable GlobalLU_t    slu_glu;
+    #endif
+
+    // for SuperLU ===================== END
 
     BORDERED_LAST_Choice last_selected;
     BORDERED_Choice      selected;
@@ -163,7 +183,7 @@ namespace alglin {
     applyT(
       integer         nth,
       valueType const T[],
-      integer const   iperm[],
+      integer   const iperm[],
       valueType       TOP[],
       integer         ldTOP,
       valueType       BOTTOM[],
@@ -175,7 +195,7 @@ namespace alglin {
     applyT(
       integer         nth,
       valueType const T[],
-      integer const   iperm[],
+      integer   const iperm[],
       valueType       TOP[],
       valueType       BOTTOM[]
     ) const;
@@ -331,6 +351,8 @@ namespace alglin {
     #endif
     : baseValue("BorderedCR_values")
     , baseInteger("BorderedCR_integers")
+    , superluValue("BorderedCR_superluValue")
+    , superluInteger("BorderedCR_superluInteger")
     , nblock(0)
     , n(0)
     , qr(0)
@@ -364,9 +386,11 @@ namespace alglin {
     #endif
     {
       #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
-      ALGLIN_ASSERT( nth > 0 && nth <= BORDERED_CYCLIC_REDUCTION_MAX_THREAD,
-                     "Bad number of thread specification [" << nth << "]\n"
-                     "must be a number > 0 and <= " << BORDERED_CYCLIC_REDUCTION_MAX_THREAD );
+      ALGLIN_ASSERT(
+        nth > 0 && nth <= BORDERED_CYCLIC_REDUCTION_MAX_THREAD,
+        "Bad number of thread specification [" << nth << "]\n"
+        "must be a number > 0 and <= " << BORDERED_CYCLIC_REDUCTION_MAX_THREAD
+      );
       maxThread = nth;
       #endif
     }
@@ -394,26 +418,28 @@ namespace alglin {
      | @{
     \*/
 
-    void select_LU()  { selected = BORDERED_LU; }
-    void select_QR()  { selected = BORDERED_QR; }
-    void select_QRP() { selected = BORDERED_QRP; }
+    void select_LU()      { selected = BORDERED_LU; }
+    void select_QR()      { selected = BORDERED_QR; }
+    void select_QRP()     { selected = BORDERED_QRP; }
+    void select_SUPERLU() { selected = BORDERED_SUPERLU; }
 
-    void select_last_LU()   { last_selected = BORDERED_LAST_LU;  }
+    void select_last_LU()   { last_selected = BORDERED_LAST_LU;   }
     void select_last_LUPQ() { last_selected = BORDERED_LAST_LUPQ; }
-    void select_last_QR()   { last_selected = BORDERED_LAST_QR;  }
-    void select_last_QRP()  { last_selected = BORDERED_LAST_QRP; }
-    void select_last_SVD()  { last_selected = BORDERED_LAST_SVD; }
-    void select_last_LSS()  { last_selected = BORDERED_LAST_LSS; }
-    void select_last_LSY()  { last_selected = BORDERED_LAST_LSY; }
+    void select_last_QR()   { last_selected = BORDERED_LAST_QR;   }
+    void select_last_QRP()  { last_selected = BORDERED_LAST_QRP;  }
+    void select_last_SVD()  { last_selected = BORDERED_LAST_SVD;  }
+    void select_last_LSS()  { last_selected = BORDERED_LAST_LSS;  }
+    void select_last_LSY()  { last_selected = BORDERED_LAST_LSY;  }
 
     static
     std::string
     choice_to_string( BORDERED_Choice c ) {
       std::string res = "none";
       switch ( c ) {
-      case BORDERED_LU:  res = "CyclicReduction+LU";  break;
-      case BORDERED_QR:  res = "CyclicReduction+QR";  break;
-      case BORDERED_QRP: res = "CyclicReduction+QRP"; break;
+      case BORDERED_LU:      res = "CyclicReduction+LU";         break;
+      case BORDERED_QR:      res = "CyclicReduction+QR";         break;
+      case BORDERED_QRP:     res = "CyclicReduction+QRP";        break;
+      case BORDERED_SUPERLU: res = "SuperLU(LastBlock ignored)"; break;
       }
       return res;
     }
@@ -749,7 +775,17 @@ namespace alglin {
     \*/
 
     void
-    factorize();
+    factorize() {
+      if ( selected == BORDERED_SUPERLU ) {
+        factorize_SuperLU();
+      } else {
+        factorize_CR();
+      }
+    }
+
+    void factorize_SuperLU();
+    void factorize_CR();
+
 
     /*\
      |         _      _               _
@@ -761,11 +797,29 @@ namespace alglin {
 
     virtual
     void
-    solve( valueType x[] ) const ALGLIN_OVERRIDE;
+    solve( valueType x[] ) const ALGLIN_OVERRIDE {
+      if ( selected == BORDERED_SUPERLU ) {
+        solve_SuperLU( x );
+      } else {
+        solve_CR( x );
+      }
+    }
+
+    void solve_SuperLU( valueType x[] ) const;
+    void solve_CR( valueType x[] ) const;
 
     virtual
     void
-    solve( integer nrhs, valueType rhs[], integer ldRhs ) const ALGLIN_OVERRIDE;
+    solve( integer nrhs, valueType rhs[], integer ldRhs ) const ALGLIN_OVERRIDE {
+      if ( selected == BORDERED_SUPERLU ) {
+        solve_SuperLU( nrhs, rhs, ldRhs );
+      } else {
+        solve_CR( nrhs, rhs, ldRhs );
+      }
+    }
+
+    void solve_SuperLU( integer nrhs, valueType rhs[], integer ldRhs ) const;
+    void solve_CR( integer nrhs, valueType rhs[], integer ldRhs ) const;
 
     virtual
     void
