@@ -63,6 +63,7 @@ main() {
 
   alglin::integer n      = NSIZE;
   alglin::integer nblock = 200000;
+  //salglin::integer nblock = 200;
   alglin::integer qx     = 4;// 4+1;
   alglin::integer qr     = 4;// 4;
   alglin::integer nx     = 1;// 2-1;
@@ -84,9 +85,10 @@ main() {
   valueType * rhs   = baseValue(size_t(2*N));
   valueType * resid = baseValue(size_t(N));
 
-  BCR.select_LU();
+  //BCR.select_LU();
   //BCR.select_QR();
   //BCR.select_QRP();
+  BCR.select_SUPERLU();
 
   //BCR.select_last_LU();
   //BCR.select_last_LUPQ();
