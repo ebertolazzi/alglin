@@ -5414,9 +5414,8 @@ namespace alglin {
   ) {
     integer info = 0;
     #if defined(ALGLIN_OS_WINDOWS)
-    integer lw = std::max(3*n,std::max(m,p))+n;
     if ( lwork < 0 ) {
-      work[0] = real(lw);
+      work[0] = real(n);
     } else {
       ALGLIN_ASSERT(
         lwork >= lw, "ggsvd, lwork = " << lwork << " must be >= " << lw
@@ -5472,7 +5471,7 @@ namespace alglin {
     #elif defined(ALGLIN_USE_ACCELERATE)
     integer lw = std::max(3*n,std::max(m,p))+n;
     if ( lwork < 0 ) {
-      work[0] = lw;
+      work[0] = real(lw);
     } else {
       ALGLIN_ASSERT(
         lwork >= lw, "ggsvd, lwork = " << lwork << " must be >= " << lw
@@ -5528,9 +5527,8 @@ namespace alglin {
   ) {
     integer info = 0;
     #if defined(ALGLIN_OS_WINDOWS)
-    integer lw = std::max(3*n,std::max(m,p))+n;
     if ( lwork < 0 ) {
-      work[0] = doublereal(lw);
+      work[0] = doublereal(n);
     } else {
       ALGLIN_ASSERT(
         lwork >= lw, "ggsvd, lwork = " << lwork << " must be >= " << lw
@@ -5586,7 +5584,7 @@ namespace alglin {
     #elif defined(ALGLIN_USE_ACCELERATE)
     integer lw = std::max(3*n,std::max(m,p))+n;
     if ( lwork < 0 ) {
-      work[0] = lw;
+      work[0] = doublereal(lw);
     } else {
       ALGLIN_ASSERT(
         lwork >= lw, "ggsvd, lwork = " << lwork << " must be >= " << lw
