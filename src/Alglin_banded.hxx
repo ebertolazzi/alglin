@@ -156,26 +156,32 @@ namespace alglin {
 
   #if defined(ALGLIN_USE_LAPACK)
   extern "C" {
+
     void
-    BLASFUNC(stbmv)( char    const * UPLO,
-                     char    const * TRANS,
-                     char    const * DIAG,
-                     integer const * N,
-                     integer const * K,
-                     real    const   A[],
-                     integer const * LDA,
-                     real            X[],
-                     integer const * INCXU );
+    BLASFUNC(stbmv)(
+      char    const * UPLO,
+      char    const * TRANS,
+      char    const * DIAG,
+      integer const * N,
+      integer const * K,
+      real    const   A[],
+      integer const * LDA,
+      real            X[],
+      integer const * INCXU
+    );
+
     void
-    BLASFUNC(dtbmv)( char       const * UPLO,
-                     char       const * TRANS,
-                     char       const * DIAG,
-                     integer    const * N,
-                     integer    const * K,
-                     doublereal const   A[],
-                     integer    const * LDA,
-                     doublereal         X[],
-                     integer    const * INCXU );
+    BLASFUNC(dtbmv)(
+      char       const * UPLO,
+      char       const * TRANS,
+      char       const * DIAG,
+      integer    const * N,
+      integer    const * K,
+      doublereal const   A[],
+      integer    const * LDA,
+      doublereal         X[],
+      integer    const * INCXU
+    );
   }
   #endif
 
@@ -193,20 +199,26 @@ namespace alglin {
     integer             incx
   ) {
     #if defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
-    CBLASNAME(stbmv)( CblasColMajor,
-                      uplo_cblas[UPLO],
-                      trans_cblas[TRANS],
-                      diag_cblas[DIAG],
-                      N, K, A, ldA, xb, incx );
+    CBLASNAME(stbmv)(
+      CblasColMajor,
+      uplo_cblas[UPLO],
+      trans_cblas[TRANS],
+      diag_cblas[DIAG],
+      N, K, A, ldA, xb, incx
+    );
     #elif defined(ALGLIN_USE_MKL)
-    stbmv( uplo_blas[UPLO], trans_blas[TRANS], diag_blas[DIAG],
-           &N, &K, A, &ldA, xb, &incx );
+    stbmv(
+      uplo_blas[UPLO], trans_blas[TRANS], diag_blas[DIAG],
+      &N, &K, A, &ldA, xb, &incx
+    );
     #else
-    BLASFUNC(stbmv)( const_cast<character*>(uplo_blas[UPLO]),
-                     const_cast<character*>(trans_blas[TRANS]),
-                     const_cast<character*>(diag_blas[DIAG]),
-                     &N, &K,
-                     const_cast<real*>(A), &ldA, xb, &incx );
+    BLASFUNC(stbmv)(
+      const_cast<character*>(uplo_blas[UPLO]),
+      const_cast<character*>(trans_blas[TRANS]),
+      const_cast<character*>(diag_blas[DIAG]),
+      &N, &K,
+      const_cast<real*>(A), &ldA, xb, &incx
+    );
     #endif
   }
 
@@ -226,20 +238,26 @@ namespace alglin {
     integer             incx
   ) {
     #if defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
-    CBLASNAME(dtbmv)( CblasColMajor,
-                      uplo_cblas[UPLO],
-                      trans_cblas[TRANS],
-                      diag_cblas[DIAG],
-                      N, K, A, ldA, xb, incx );
+    CBLASNAME(dtbmv)(
+      CblasColMajor,
+      uplo_cblas[UPLO],
+      trans_cblas[TRANS],
+      diag_cblas[DIAG],
+      N, K, A, ldA, xb, incx
+    );
     #elif defined(ALGLIN_USE_MKL)
-    dtbmv( uplo_blas[UPLO], trans_blas[TRANS], diag_blas[DIAG],
-           &N, &K, A, &ldA, xb, &incx );
+    dtbmv(
+      uplo_blas[UPLO], trans_blas[TRANS], diag_blas[DIAG],
+      &N, &K, A, &ldA, xb, &incx
+    );
     #else
-    BLASFUNC(dtbmv)( const_cast<character*>(uplo_blas[UPLO]),
-                     const_cast<character*>(trans_blas[TRANS]),
-                     const_cast<character*>(diag_blas[DIAG]),
-                     &N, &K,
-                     const_cast<doublereal*>(A), &ldA, xb, &incx );
+    BLASFUNC(dtbmv)(
+      const_cast<character*>(uplo_blas[UPLO]),
+      const_cast<character*>(trans_blas[TRANS]),
+      const_cast<character*>(diag_blas[DIAG]),
+      &N, &K,
+      const_cast<doublereal*>(A), &ldA, xb, &incx
+    );
     #endif
   }
 
@@ -373,26 +391,32 @@ namespace alglin {
   \*/
   #ifdef ALGLIN_USE_LAPACK
   extern "C" {
+
     void
-    BLASFUNC(stbsv)( char    const * UPLO,
-                     char    const * TRANS,
-                     char    const * DIAG,
-                     integer const * N,
-                     integer const * K,
-                     real    const   A[],
-                     integer const * LDA,
-                     real            X[],
-                     integer const * INCXU );
+    BLASFUNC(stbsv)(
+      char    const * UPLO,
+      char    const * TRANS,
+      char    const * DIAG,
+      integer const * N,
+      integer const * K,
+      real    const   A[],
+      integer const * LDA,
+      real            X[],
+      integer const * INCXU
+    );
+
     void
-    BLASFUNC(dtbsv)( char       const * UPLO,
-                     char       const * TRANS,
-                     char       const * DIAG,
-                     integer    const * N,
-                     integer    const * K,
-                     doublereal const   A[],
-                     integer    const * LDA,
-                     doublereal         X[],
-                     integer    const * INCXU );
+    BLASFUNC(dtbsv)(
+      char       const * UPLO,
+      char       const * TRANS,
+      char       const * DIAG,
+      integer    const * N,
+      integer    const * K,
+      doublereal const   A[],
+      integer    const * LDA,
+      doublereal         X[],
+      integer    const * INCXU
+    );
   }
   #endif
 
@@ -410,20 +434,26 @@ namespace alglin {
     integer             incx
   ) {
     #if defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
-    CBLASNAME(stbsv)( CblasColMajor,
-                      uplo_cblas[UPLO],
-                      trans_cblas[TRANS],
-                      diag_cblas[DIAG],
-                      N, K, A, ldA, xb, incx );
+    CBLASNAME(stbsv)(
+      CblasColMajor,
+      uplo_cblas[UPLO],
+      trans_cblas[TRANS],
+      diag_cblas[DIAG],
+      N, K, A, ldA, xb, incx
+    );
     #elif defined(ALGLIN_USE_MKL)
-    stbsv( uplo_blas[UPLO], trans_blas[TRANS], diag_blas[DIAG],
-           &N, &K, A, &ldA, xb, &incx );
+    stbsv(
+      uplo_blas[UPLO], trans_blas[TRANS], diag_blas[DIAG],
+      &N, &K, A, &ldA, xb, &incx
+    );
     #else
-    BLASFUNC(stbsv)( const_cast<character*>(uplo_blas[UPLO]),
-                     const_cast<character*>(trans_blas[TRANS]),
-                     const_cast<character*>(diag_blas[DIAG]),
-                     &N, &K,
-                     const_cast<real*>(A), &ldA, xb, &incx );
+    BLASFUNC(stbsv)(
+      const_cast<character*>(uplo_blas[UPLO]),
+      const_cast<character*>(trans_blas[TRANS]),
+      const_cast<character*>(diag_blas[DIAG]),
+      &N, &K,
+      const_cast<real*>(A), &ldA, xb, &incx
+    );
     #endif
   }
 
@@ -443,20 +473,26 @@ namespace alglin {
     integer             incx
   ) {
     #if defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
-    CBLASNAME(dtbsv)( CblasColMajor,
-                      uplo_cblas[UPLO],
-                      trans_cblas[TRANS],
-                      diag_cblas[DIAG],
-                      N, K, A, ldA, xb, incx );
+    CBLASNAME(dtbsv)(
+      CblasColMajor,
+      uplo_cblas[UPLO],
+      trans_cblas[TRANS],
+      diag_cblas[DIAG],
+      N, K, A, ldA, xb, incx
+    );
     #elif defined(ALGLIN_USE_MKL)
-    dtbsv( uplo_blas[UPLO], trans_blas[TRANS], diag_blas[DIAG],
-           &N, &K, A, &ldA, xb, &incx );
+    dtbsv(
+      uplo_blas[UPLO], trans_blas[TRANS], diag_blas[DIAG],
+      &N, &K, A, &ldA, xb, &incx
+    );
     #else
-    BLASFUNC(dtbsv)( const_cast<character*>(uplo_blas[UPLO]),
-                     const_cast<character*>(trans_blas[TRANS]),
-                     const_cast<character*>(diag_blas[DIAG]),
-                     &N, &K,
-                     const_cast<doublereal*>(A), &ldA, xb, &incx );
+    BLASFUNC(dtbsv)(
+      const_cast<character*>(uplo_blas[UPLO]),
+      const_cast<character*>(trans_blas[TRANS]),
+      const_cast<character*>(diag_blas[DIAG]),
+      &N, &K,
+      const_cast<doublereal*>(A), &ldA, xb, &incx
+    );
     #endif
   }
 
@@ -545,24 +581,30 @@ namespace alglin {
 
   #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
   extern "C" {
+
     void
-    LAPACK_F77NAME(sgbtrf)( integer const * M,
-                            integer const * N,
-                            integer const * KL,
-                            integer const * KU,
-                            real            AB[],
-                            integer const * ldAB,
-                            integer         ipiv[],
-                            integer       * info );
+    LAPACK_F77NAME(sgbtrf)(
+      integer const * M,
+      integer const * N,
+      integer const * KL,
+      integer const * KU,
+      real            AB[],
+      integer const * ldAB,
+      integer         ipiv[],
+      integer       * info
+    );
+
     void
-    LAPACK_F77NAME(dgbtrf)( integer const * M,
-                            integer const * N,
-                            integer const * KL,
-                            integer const * KU,
-                            doublereal      AB[],
-                            integer const * ldAB,
-                            integer         ipiv[],
-                            integer       * info );
+    LAPACK_F77NAME(dgbtrf)(
+      integer const * M,
+      integer const * N,
+      integer const * KL,
+      integer const * KU,
+      doublereal      AB[],
+      integer const * ldAB,
+      integer         ipiv[],
+      integer       * info
+    );
   }
   #endif
 
@@ -684,30 +726,36 @@ namespace alglin {
 
   #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
   extern "C" {
+
     void
-    LAPACK_F77NAME(sgbtrs)( character const * TRANS,
-                            integer   const * N,
-                            integer   const * KL,
-                            integer   const * KU,
-                            integer   const * nrhs,
-                            real      const   AB[],
-                            integer   const * ldAB,
-                            integer   const   ipiv[],
-                            real              B[],
-                            integer   const * ldB,
-                            integer         * info );
+    LAPACK_F77NAME(sgbtrs)(
+      character const * TRANS,
+      integer   const * N,
+      integer   const * KL,
+      integer   const * KU,
+      integer   const * nrhs,
+      real      const   AB[],
+      integer   const * ldAB,
+      integer   const   ipiv[],
+      real              B[],
+      integer   const * ldB,
+      integer         * info
+    );
+
     void
-    LAPACK_F77NAME(dgbtrs)( character  const * TRANS,
-                            integer    const * N,
-                            integer    const * KL,
-                            integer    const * KU,
-                            integer    const * nrhs,
-                            doublereal const   AB[],
-                            integer    const * ldAB,
-                            integer    const   ipiv[],
-                            doublereal         B[],
-                            integer    const * ldB,
-                            integer          * info );
+    LAPACK_F77NAME(dgbtrs)(
+      character  const * TRANS,
+      integer    const * N,
+      integer    const * KL,
+      integer    const * KU,
+      integer    const * nrhs,
+      doublereal const   AB[],
+      integer    const * ldAB,
+      integer    const   ipiv[],
+      doublereal         B[],
+      integer    const * ldB,
+      integer          * info
+    );
   }
   #endif
 
@@ -727,24 +775,32 @@ namespace alglin {
   ) {
     integer info = 0;
     #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS)
-    LAPACK_F77NAME(sgbtrs)( trans_blas[TRANS],
-                            &N, &KL, &KU, &nrhs,
-                            AB, &ldAB, ipiv, B, &ldB, &info );
+    LAPACK_F77NAME(sgbtrs)(
+      trans_blas[TRANS],
+      &N, &KL, &KU, &nrhs,
+      AB, &ldAB, ipiv, B, &ldB, &info
+    );
     #elif defined(ALGLIN_USE_ATLAS)
     //@@ USE LAPACK ROUTINE @@
-    LAPACK_F77NAME(sgbtrs)( trans_blas[TRANS],
-                            &N, &KL, &KU, &nrhs,
-                            AB, &ldAB, ipiv, B, &ldB, &info );
+    LAPACK_F77NAME(sgbtrs)(
+      trans_blas[TRANS],
+      &N, &KL, &KU, &nrhs,
+      AB, &ldAB, ipiv, B, &ldB, &info
+    );
     #elif defined(ALGLIN_USE_MKL)
-    sgbtrs( trans_blas[TRANS],
-            &N, &KL, &KU, &nrhs,
-            AB, &ldAB, ipiv, B, &ldB, &info );
+    sgbtrs(
+      trans_blas[TRANS],
+      &N, &KL, &KU, &nrhs,
+      AB, &ldAB, ipiv, B, &ldB, &info
+    );
     #elif defined(ALGLIN_USE_ACCELERATE)
-    CLAPACKNAME(sgbtrs)( const_cast<char*>(trans_blas[TRANS]),
-                         &N, &KL, &KU, &nrhs,
-                         const_cast<real*>(AB), &ldAB,
-                         const_cast<integer*>(ipiv),
-                         const_cast<real*>(B), &ldB, &info );
+    CLAPACKNAME(sgbtrs)(
+      const_cast<char*>(trans_blas[TRANS]),
+      &N, &KL, &KU, &nrhs,
+      const_cast<real*>(AB), &ldAB,
+      const_cast<integer*>(ipiv),
+      const_cast<real*>(B), &ldB, &info
+    );
     #else
     #error "Alglin undefined mapping!"
     #endif
@@ -767,23 +823,31 @@ namespace alglin {
   ) {
     integer info = 0;
     #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS)
-    LAPACK_F77NAME(dgbtrs)( trans_blas[TRANS],
-                            &N, &KL, &KU, &nrhs,
-                            AB, &ldAB, ipiv, B, &ldB, &info );
+    LAPACK_F77NAME(dgbtrs)(
+      trans_blas[TRANS],
+      &N, &KL, &KU, &nrhs,
+      AB, &ldAB, ipiv, B, &ldB, &info
+    );
     #elif defined(ALGLIN_USE_ATLAS)
     //@@ USE LAPACK ROUTINE @@
-    LAPACK_F77NAME(dgbtrs)( trans_blas[TRANS],
-                            &N, &KL, &KU, &nrhs,
-                            AB, &ldAB, ipiv, B, &ldB, &info );
+    LAPACK_F77NAME(dgbtrs)(
+      trans_blas[TRANS],
+      &N, &KL, &KU, &nrhs,
+      AB, &ldAB, ipiv, B, &ldB, &info
+    );
     #elif defined(ALGLIN_USE_MKL)
-    dgbtrs( trans_blas[TRANS],
-            &N, &KL, &KU, &nrhs, AB, &ldAB, ipiv, B, &ldB, &info );
+    dgbtrs(
+      trans_blas[TRANS],
+      &N, &KL, &KU, &nrhs, AB, &ldAB, ipiv, B, &ldB, &info
+    );
     #elif defined(ALGLIN_USE_ACCELERATE)
-    CLAPACKNAME(dgbtrs)( const_cast<char*>(trans_blas[TRANS]),
-                         &N, &KL, &KU, &nrhs,
-                         const_cast<doublereal*>(AB), &ldAB,
-                         const_cast<integer*>(ipiv),
-                         const_cast<doublereal*>(B), &ldB, &info );
+    CLAPACKNAME(dgbtrs)(
+      const_cast<char*>(trans_blas[TRANS]),
+      &N, &KL, &KU, &nrhs,
+      const_cast<doublereal*>(AB), &ldAB,
+      const_cast<integer*>(ipiv),
+      const_cast<doublereal*>(B), &ldB, &info
+    );
     #else
     #error "Alglin undefined mapping!"
     #endif
@@ -869,20 +933,26 @@ namespace alglin {
 
   #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
   extern "C" {
+
     void
-    LAPACK_F77NAME(spbtrf)( character const * UPLO,
-                            integer   const * N,
-                            integer   const * KD,
-                            real              AB[],
-                            integer   const * ldAB,
-                            integer         * info );
+    LAPACK_F77NAME(spbtrf)(
+      character const * UPLO,
+      integer   const * N,
+      integer   const * KD,
+      real              AB[],
+      integer   const * ldAB,
+      integer         * info
+    );
+
     void
-    LAPACK_F77NAME(dpbtrf)( character const * UPLO,
-                            integer   const * N,
-                            integer   const * KD,
-                            doublereal        AB[],
-                            integer   const * ldAB,
-                            integer         * info );
+    LAPACK_F77NAME(dpbtrf)(
+      character const * UPLO,
+      integer   const * N,
+      integer   const * KD,
+      doublereal        AB[],
+      integer   const * ldAB,
+      integer         * info
+    );
   }
   #endif
 
@@ -904,8 +974,10 @@ namespace alglin {
     #elif defined(ALGLIN_USE_MKL)
     spbtrf( uplo_blas[UPLO], &N, &KD, AB, &ldAB, &info );
     #elif defined(ALGLIN_USE_ACCELERATE)
-    CLAPACKNAME(spbtrf)( const_cast<character*>(uplo_blas[UPLO]),
-                         &N, &KD, AB, &ldAB, &info );
+    CLAPACKNAME(spbtrf)(
+      const_cast<character*>(uplo_blas[UPLO]),
+      &N, &KD, AB, &ldAB, &info
+    );
     #else
     #error "Alglin undefined mapping!"
     #endif
@@ -932,8 +1004,10 @@ namespace alglin {
     #elif defined(ALGLIN_USE_MKL)
     dpbtrf( uplo_blas[UPLO], &N, &KD, AB, &ldAB, &info );
     #elif defined(ALGLIN_USE_ACCELERATE)
-    CLAPACKNAME(dpbtrf)( const_cast<character*>(uplo_blas[UPLO]),
-                         &N, &KD, AB, &ldAB, &info );
+    CLAPACKNAME(dpbtrf)(
+      const_cast<character*>(uplo_blas[UPLO]),
+      &N, &KD, AB, &ldAB, &info
+    );
     #else
     #error "Alglin undefined mapping!"
     #endif
@@ -998,26 +1072,32 @@ namespace alglin {
 
   #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
   extern "C" {
+
     void
-    LAPACK_F77NAME(spbtrs)( character const * UPLO,
-                            integer   const * N,
-                            integer   const * KD,
-                            integer   const * nrhs,
-                            real      const   AB[],
-                            integer   const * ldAB,
-                            real              B[],
-                            integer   const * ldB,
-                            integer         * info );
+    LAPACK_F77NAME(spbtrs)(
+      character const * UPLO,
+      integer   const * N,
+      integer   const * KD,
+      integer   const * nrhs,
+      real      const   AB[],
+      integer   const * ldAB,
+      real              B[],
+      integer   const * ldB,
+      integer         * info
+    );
+
     void
-    LAPACK_F77NAME(dpbtrs)( character  const * UPLO,
-                            integer    const * N,
-                            integer    const * KD,
-                            integer    const * nrhs,
-                            doublereal const   AB[],
-                            integer    const * ldAB,
-                            doublereal         B[],
-                            integer    const * ldB,
-                            integer          * info );
+    LAPACK_F77NAME(dpbtrs)(
+      character  const * UPLO,
+      integer    const * N,
+      integer    const * KD,
+      integer    const * nrhs,
+      doublereal const   AB[],
+      integer    const * ldAB,
+      doublereal         B[],
+      integer    const * ldB,
+      integer          * info
+    );
   }
   #endif
 
@@ -1035,19 +1115,25 @@ namespace alglin {
   ) {
     integer info = 0;
     #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS)
-    LAPACK_F77NAME(spbtrs)( uplo_blas[UPLO],
-                            &N, &KD, &nrhs, AB, &ldAB, B, &ldB, &info );
+    LAPACK_F77NAME(spbtrs)(
+      uplo_blas[UPLO],
+      &N, &KD, &nrhs, AB, &ldAB, B, &ldB, &info
+    );
     #elif defined(ALGLIN_USE_ATLAS)
     //@@ USE LAPACK ROUTINE @@
-    LAPACK_F77NAME(spbtrs)( uplo_blas[UPLO],
-                            &N, &KD, &nrhs, AB, &ldAB, B, &ldB, &info );
+    LAPACK_F77NAME(spbtrs)(
+      uplo_blas[UPLO],
+      &N, &KD, &nrhs, AB, &ldAB, B, &ldB, &info
+    );
     #elif defined(ALGLIN_USE_MKL)
     spbtrs( uplo_blas[UPLO], &N, &KD, &nrhs, AB, &ldAB, B, &ldB, &info );
     #elif defined(ALGLIN_USE_ACCELERATE)
-    CLAPACKNAME(spbtrs)( const_cast<character*>(uplo_blas[UPLO]),
-                         &N, &KD, &nrhs,
-                         const_cast<real*>(AB), &ldAB,
-                         const_cast<real*>(B), &ldB, &info );
+    CLAPACKNAME(spbtrs)(
+      const_cast<character*>(uplo_blas[UPLO]),
+      &N, &KD, &nrhs,
+      const_cast<real*>(AB), &ldAB,
+      const_cast<real*>(B), &ldB, &info
+    );
     #else
     #error "Alglin undefined mapping!"
     #endif
@@ -1070,19 +1156,25 @@ namespace alglin {
   ) {
     integer info = 0;
     #if defined(ALGLIN_USE_LAPACK) || defined(ALGLIN_USE_OPENBLAS)
-    LAPACK_F77NAME(dpbtrs)( uplo_blas[UPLO],
-                            &N, &KD, &nrhs, AB, &ldAB, B, &ldB, &info );
+    LAPACK_F77NAME(dpbtrs)(
+      uplo_blas[UPLO],
+      &N, &KD, &nrhs, AB, &ldAB, B, &ldB, &info
+    );
     #elif defined(ALGLIN_USE_ATLAS)
     //@@ USE LAPACK ROUTINE @@
-    LAPACK_F77NAME(dpbtrs)( uplo_blas[UPLO],
-                            &N, &KD, &nrhs, AB, &ldAB, B, &ldB, &info );
+    LAPACK_F77NAME(dpbtrs)(
+      uplo_blas[UPLO],
+      &N, &KD, &nrhs, AB, &ldAB, B, &ldB, &info
+    );
     #elif defined(ALGLIN_USE_MKL)
     dpbtrs( uplo_blas[UPLO], &N, &KD, &nrhs, AB, &ldAB, B, &ldB, &info );
     #elif defined(ALGLIN_USE_ACCELERATE)
-    CLAPACKNAME(dpbtrs)( const_cast<character*>(uplo_blas[UPLO]),
-                         &N, &KD, &nrhs,
-                         const_cast<doublereal*>(AB), &ldAB,
-                         const_cast<doublereal*>(B), &ldB, &info );
+    CLAPACKNAME(dpbtrs)(
+      const_cast<character*>(uplo_blas[UPLO]),
+      &N, &KD, &nrhs,
+      const_cast<doublereal*>(AB), &ldAB,
+      const_cast<doublereal*>(B), &ldB, &info
+    );
     #else
     #error "Alglin undefined mapping!"
     #endif

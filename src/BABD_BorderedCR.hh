@@ -569,8 +569,10 @@ namespace alglin {
 
     void
     addtoC( integer nbl, valueType const C[], integer ldC ) {
-      ALGLIN_ASSERT( ldC >= nr,
-                     "addtoC( " << nbl << ", C, ldC = " << ldC << " bad ldC" );
+      ALGLIN_ASSERT(
+        ldC >= nr,
+        "addtoC( " << nbl << ", C, ldC = " << ldC << " bad ldC"
+      );
       valueType * CC = Cmat + nbl*nr_x_n;
       geadd( nr, n, 1.0, C, ldC, 1.0, CC, nr, CC, nr );
     }
@@ -581,8 +583,10 @@ namespace alglin {
     // add to block nbl and nbl+1
     void
     addtoC2( integer nbl, valueType const C[], integer ldC ) {
-      ALGLIN_ASSERT( ldC >= nr,
-                     "addtoC2( " << nbl << ", C, ldC = " << ldC << " bad ldC" );
+      ALGLIN_ASSERT(
+        ldC >= nr,
+        "addtoC2( " << nbl << ", C, ldC = " << ldC << " bad ldC"
+      );
       valueType * CC = Cmat + nbl*nr_x_n;
       geadd( nr, n_x_2, 1.0, C, ldC, 1.0, CC, nr, CC, nr );
     }

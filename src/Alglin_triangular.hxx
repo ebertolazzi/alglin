@@ -115,78 +115,102 @@ namespace alglin {
   \*/
   #if defined(ALGLIN_USE_LAPACK)
   extern "C" {
+
     void
-    BLASFUNC(strmv)( character const   UPLO[],
-                     character const   TRANS[],
-                     character const   DIAG[],
-                     integer   const * N,
-                     real      const   A[],
-                     integer   const * LDA,
-                     real              X[],
-                     integer   const * INCX );
+    BLASFUNC(strmv)(
+      character const   UPLO[],
+      character const   TRANS[],
+      character const   DIAG[],
+      integer   const * N,
+      real      const   A[],
+      integer   const * LDA,
+      real              X[],
+      integer   const * INCX
+    );
+
     void
-    BLASFUNC(dtrmv)( character  const   UPLO[],
-                     character  const   TRANS[],
-                     character  const   DIAG[],
-                     integer    const * N,
-                     doublereal const   A[],
-                     integer    const * LDA,
-                     doublereal         X[],
-                     integer    const * INCX );
+    BLASFUNC(dtrmv)(
+      character  const   UPLO[],
+      character  const   TRANS[],
+      character  const   DIAG[],
+      integer    const * N,
+      doublereal const   A[],
+      integer    const * LDA,
+      doublereal         X[],
+      integer    const * INCX
+    );
   }
   #endif
 
   inline
   void
-  trmv( ULselect      const & UPLO,
-        Transposition const & TRANS,
-        DiagonalType  const & DIAG,
-        integer               N,
-        real          const   A[],
-        integer               LDA,
-        real                  X[],
-        integer               INCX )
+  trmv(
+    ULselect      const & UPLO,
+    Transposition const & TRANS,
+    DiagonalType  const & DIAG,
+    integer               N,
+    real          const   A[],
+    integer               LDA,
+    real                  X[],
+    integer               INCX
+  ) {
   #if defined(ALGLIN_USE_MKL)
-  { strmv( uplo_blas[UPLO], trans_blas[TRANS], diag_blas[DIAG],
-           &N, A, &LDA, X, &INCX ); }
+    strmv(
+      uplo_blas[UPLO], trans_blas[TRANS], diag_blas[DIAG],
+      &N, A, &LDA, X, &INCX
+    );
   #elif defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
-  { CBLASNAME(strmv)( CblasColMajor,
-                      uplo_cblas[UPLO],
-                      trans_cblas[TRANS],
-                      diag_cblas[DIAG],
-                      N, A, LDA, X, INCX ); }
+    CBLASNAME(strmv)(
+      CblasColMajor,
+      uplo_cblas[UPLO],
+      trans_cblas[TRANS],
+      diag_cblas[DIAG],
+      N, A, LDA, X, INCX
+    );
   #else
-  { BLASFUNC(strmv)( const_cast<character*>(uplo_blas[UPLO]),
-                     const_cast<character*>(trans_blas[TRANS]),
-                     const_cast<character*>(diag_blas[DIAG]),
-                     &N, const_cast<real*>(A), &LDA, X, &INCX ); }
+    BLASFUNC(strmv)(
+      const_cast<character*>(uplo_blas[UPLO]),
+      const_cast<character*>(trans_blas[TRANS]),
+      const_cast<character*>(diag_blas[DIAG]),
+      &N, const_cast<real*>(A), &LDA, X, &INCX
+    );
   #endif
+  }
 
   inline
   void
-  trmv( ULselect      const & UPLO,
-        Transposition const & TRANS,
-        DiagonalType  const & DIAG,
-        integer               N,
-        doublereal    const   A[],
-        integer               LDA,
-        doublereal            X[],
-        integer               INCX )
+  trmv(
+    ULselect      const & UPLO,
+    Transposition const & TRANS,
+    DiagonalType  const & DIAG,
+    integer               N,
+    doublereal    const   A[],
+    integer               LDA,
+    doublereal            X[],
+    integer               INCX
+  ) {
   #if defined(ALGLIN_USE_MKL)
-  { dtrmv( uplo_blas[UPLO], trans_blas[TRANS], diag_blas[DIAG],
-           &N, A, &LDA, X, &INCX ); }
+    dtrmv(
+      uplo_blas[UPLO], trans_blas[TRANS], diag_blas[DIAG],
+      &N, A, &LDA, X, &INCX
+    );
   #elif defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
-  { CBLASNAME(dtrmv)( CblasColMajor,
-                      uplo_cblas[UPLO],
-                      trans_cblas[TRANS],
-                      diag_cblas[DIAG],
-                      N, A, LDA, X, INCX ); }
+    CBLASNAME(dtrmv)(
+      CblasColMajor,
+      uplo_cblas[UPLO],
+      trans_cblas[TRANS],
+      diag_cblas[DIAG],
+      N, A, LDA, X, INCX
+    );
   #else
-  { BLASFUNC(dtrmv)( const_cast<character*>(uplo_blas[UPLO]),
-                     const_cast<character*>(trans_blas[TRANS]),
-                     const_cast<character*>(diag_blas[DIAG]),
-                     &N, const_cast<doublereal*>(A), &LDA, X, &INCX ); }
+    BLASFUNC(dtrmv)(
+      const_cast<character*>(uplo_blas[UPLO]),
+      const_cast<character*>(trans_blas[TRANS]),
+      const_cast<character*>(diag_blas[DIAG]),
+      &N, const_cast<doublereal*>(A), &LDA, X, &INCX
+    );
   #endif
+  }
 
   /*
   //   _
@@ -280,78 +304,102 @@ namespace alglin {
   \*/
   #if defined(ALGLIN_USE_LAPACK)
   extern "C" {
+
     void
-    BLASFUNC(strsv)( character const   UPLO[],
-                     character const   TRANS[],
-                     character const   DIAG[],
-                     integer   const * N,
-                     real      const   A[],
-                     integer   const * LDA,
-                     real              X[],
-                     integer   const * INCX );
+    BLASFUNC(strsv)(
+      character const   UPLO[],
+      character const   TRANS[],
+      character const   DIAG[],
+      integer   const * N,
+      real      const   A[],
+      integer   const * LDA,
+      real              X[],
+      integer   const * INCX
+    );
+
     void
-    BLASFUNC(dtrsv)( character  const   UPLO[],
-                     character  const   TRANS[],
-                     character  const   DIAG[],
-                     integer    const * N,
-                     doublereal const   A[],
-                     integer    const * LDA,
-                     doublereal         X[],
-                     integer    const * INCX );
+    BLASFUNC(dtrsv)(
+      character  const   UPLO[],
+      character  const   TRANS[],
+      character  const   DIAG[],
+      integer    const * N,
+      doublereal const   A[],
+      integer    const * LDA,
+      doublereal         X[],
+      integer    const * INCX
+    );
   }
   #endif
 
   inline
   void
-  trsv( ULselect      const & UPLO,
-        Transposition const & TRANS,
-        DiagonalType  const & DIAG,
-        integer               N,
-        real          const   A[],
-        integer               LDA,
-        real                  X[],
-        integer               INCX )
+  trsv(
+    ULselect      const & UPLO,
+    Transposition const & TRANS,
+    DiagonalType  const & DIAG,
+    integer               N,
+    real          const   A[],
+    integer               LDA,
+    real                  X[],
+    integer               INCX
+  ) {
   #if defined(ALGLIN_USE_MKL)
-  { strsv( uplo_blas[UPLO], trans_blas[TRANS], diag_blas[DIAG],
-           &N, A, &LDA, X, &INCX ); }
+    strsv(
+      uplo_blas[UPLO], trans_blas[TRANS], diag_blas[DIAG],
+      &N, A, &LDA, X, &INCX
+    );
   #elif defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
-  { CBLASNAME(strsv)( CblasColMajor,
-                      uplo_cblas[UPLO],
-                      trans_cblas[TRANS],
-                      diag_cblas[DIAG],
-                      N, A, LDA, X, INCX ); }
+    CBLASNAME(strsv)(
+      CblasColMajor,
+      uplo_cblas[UPLO],
+      trans_cblas[TRANS],
+      diag_cblas[DIAG],
+      N, A, LDA, X, INCX
+    );
   #else
-  { BLASFUNC(strsv)( const_cast<character*>(uplo_blas[UPLO]),
-                     const_cast<character*>(trans_blas[TRANS]),
-                     const_cast<character*>(diag_blas[DIAG]),
-                     &N, const_cast<real*>(A), &LDA, X, &INCX ); }
+    BLASFUNC(strsv)(
+      const_cast<character*>(uplo_blas[UPLO]),
+      const_cast<character*>(trans_blas[TRANS]),
+      const_cast<character*>(diag_blas[DIAG]),
+      &N, const_cast<real*>(A), &LDA, X, &INCX
+    );
   #endif
+  }
 
   inline
   void
-  trsv( ULselect      const & UPLO,
-        Transposition const & TRANS,
-        DiagonalType  const & DIAG,
-        integer               N,
-        doublereal    const   A[],
-        integer               LDA,
-        doublereal            X[],
-        integer               INCX )
+  trsv(
+    ULselect      const & UPLO,
+    Transposition const & TRANS,
+    DiagonalType  const & DIAG,
+    integer               N,
+    doublereal    const   A[],
+    integer               LDA,
+    doublereal            X[],
+    integer               INCX
+  ) {
   #if defined(ALGLIN_USE_MKL)
-  { dtrsv( uplo_blas[UPLO], trans_blas[TRANS], diag_blas[DIAG],
-           &N, A, &LDA, X, &INCX ); }
+    dtrsv(
+      uplo_blas[UPLO], trans_blas[TRANS], diag_blas[DIAG],
+      &N, A, &LDA, X, &INCX
+    );
   #elif defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
-  { CBLASNAME(dtrsv)( CblasColMajor,
-                      uplo_cblas[UPLO],
-                      trans_cblas[TRANS],
-                      diag_cblas[DIAG],
-                      N, A, LDA, X, INCX ); }
+    CBLASNAME(dtrsv)(
+      CblasColMajor,
+      uplo_cblas[UPLO],
+      trans_cblas[TRANS],
+      diag_cblas[DIAG],
+      N, A, LDA, X, INCX
+    );
   #else
-  { BLASFUNC(dtrsv)( const_cast<character*>(uplo_blas[UPLO]),
-                     const_cast<character*>(trans_blas[TRANS]),
-                     const_cast<character*>(diag_blas[DIAG]),
-                     &N, const_cast<doublereal*>(A), &LDA, X, &INCX ); }
+    BLASFUNC(dtrsv)(
+      const_cast<character*>(uplo_blas[UPLO]),
+      const_cast<character*>(trans_blas[TRANS]),
+      const_cast<character*>(diag_blas[DIAG]),
+      &N, const_cast<doublereal*>(A), &LDA, X, &INCX
+    );
   #endif
+  }
 
   /*
   //   _
@@ -468,98 +516,122 @@ namespace alglin {
   \*/
   #if defined(ALGLIN_USE_LAPACK)
   extern "C" {
+
     void
-    BLASFUNC(strmm) ( character const   SIDE[],     // "L" or "R"
-                      character const   UPLO[],     // "U" or "L"
-                      character const   TRANSA[],   // "N", "T", "C"
-                      character const   DIAG[],     // "N", "U"
-                      integer   const * M,
-                      integer   const * N,
-                      real      const * ALPHA,
-                      real      const   A[],
-                      integer   const * LDA,
-                      real              B[],
-                      integer   const * LDB );
+    BLASFUNC(strmm) (
+      character const   SIDE[],     // "L" or "R"
+      character const   UPLO[],     // "U" or "L"
+      character const   TRANSA[],   // "N", "T", "C"
+      character const   DIAG[],     // "N", "U"
+      integer   const * M,
+      integer   const * N,
+      real      const * ALPHA,
+      real      const   A[],
+      integer   const * LDA,
+      real              B[],
+      integer   const * LDB
+    );
+
     void
-    BLASFUNC(dtrmm) ( character  const   SIDE[],     // "L" or "R"
-                      character  const   UPLO[],     // "U" or "L"
-                      character  const   TRANSA[],   // "N", "T", "C"
-                      character  const   DIAG[],     // "N", "U"
-                      integer    const * M,
-                      integer    const * N,
-                      doublereal const * ALPHA,
-                      doublereal const   A[],
-                      integer    const * LDA,
-                      doublereal         B[],
-                      integer    const * LDB );
+    BLASFUNC(dtrmm) (
+      character  const   SIDE[],     // "L" or "R"
+      character  const   UPLO[],     // "U" or "L"
+      character  const   TRANSA[],   // "N", "T", "C"
+      character  const   DIAG[],     // "N", "U"
+      integer    const * M,
+      integer    const * N,
+      doublereal const * ALPHA,
+      doublereal const   A[],
+      integer    const * LDA,
+      doublereal         B[],
+      integer    const * LDB
+    );
   }
   #endif
 
   inline
   void
-  trmm( SideMultiply  const & SIDE,
-        ULselect      const & UPLO,
-        Transposition const & TRANSA,
-        DiagonalType  const & DIAG,
-        integer               M,
-        integer               N,
-        real                  alpha,
-        real          const   A[],
-        integer               LDA,
-        real                  B[],
-        integer               LDB )
+  trmm(
+    SideMultiply  const & SIDE,
+    ULselect      const & UPLO,
+    Transposition const & TRANSA,
+    DiagonalType  const & DIAG,
+    integer               M,
+    integer               N,
+    real                  alpha,
+    real          const   A[],
+    integer               LDA,
+    real                  B[],
+    integer               LDB
+  ) {
   #if defined(ALGLIN_USE_MKL)
-  { strmm( side_blas[SIDE], uplo_blas[UPLO],
-           trans_blas[TRANSA], diag_blas[DIAG],
-           &M, &N, &alpha, A, &LDA, B, &LDB ); }
+    strmm(
+      side_blas[SIDE], uplo_blas[UPLO],
+      trans_blas[TRANSA], diag_blas[DIAG],
+      &M, &N, &alpha, A, &LDA, B, &LDB
+    );
   #elif defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
-  { CBLASNAME(strmm) ( CblasColMajor,
-                       side_cblas[SIDE],
-                       uplo_cblas[UPLO],
-                       trans_cblas[TRANSA],
-                       diag_cblas[DIAG],
-                       M, N, alpha, A, LDA, B, LDB ); }
+    CBLASNAME(strmm) (
+      CblasColMajor,
+      side_cblas[SIDE],
+      uplo_cblas[UPLO],
+      trans_cblas[TRANSA],
+      diag_cblas[DIAG],
+      M, N, alpha, A, LDA, B, LDB
+    );
   #else
-  { BLASFUNC(strmm)( const_cast<character*>(side_blas[SIDE]),
-                     const_cast<character*>(uplo_blas[UPLO]),
-                     const_cast<character*>(trans_blas[TRANSA]),
-                     const_cast<character*>(diag_blas[DIAG]),
-                     &M, &N, &alpha,
-                     const_cast<real*>(A), &LDA, B, &LDB ); }
+    BLASFUNC(strmm)(
+      const_cast<character*>(side_blas[SIDE]),
+      const_cast<character*>(uplo_blas[UPLO]),
+      const_cast<character*>(trans_blas[TRANSA]),
+      const_cast<character*>(diag_blas[DIAG]),
+      &M, &N, &alpha,
+      const_cast<real*>(A), &LDA, B, &LDB
+    );
   #endif
+  }
 
   inline
   void
-  trmm( SideMultiply  const & SIDE,
-        ULselect      const & UPLO,
-        Transposition const & TRANSA,
-        DiagonalType  const & DIAG,
-        integer               M,
-        integer               N,
-        doublereal            alpha,
-        doublereal    const   A[],
-        integer               LDA,
-        doublereal            B[],
-        integer               LDB )
+  trmm(
+    SideMultiply  const & SIDE,
+    ULselect      const & UPLO,
+    Transposition const & TRANSA,
+    DiagonalType  const & DIAG,
+    integer               M,
+    integer               N,
+    doublereal            alpha,
+    doublereal    const   A[],
+    integer               LDA,
+    doublereal            B[],
+    integer               LDB
+  ) {
   #if defined(ALGLIN_USE_MKL)
-  { dtrmm( side_blas[SIDE], uplo_blas[UPLO],
-           trans_blas[TRANSA], diag_blas[DIAG],
-           &M, &N, &alpha, A, &LDA, B, &LDB ); }
+    dtrmm(
+      side_blas[SIDE], uplo_blas[UPLO],
+      trans_blas[TRANSA], diag_blas[DIAG],
+      &M, &N, &alpha, A, &LDA, B, &LDB
+    );
   #elif defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
-  { CBLASNAME(dtrmm) ( CblasColMajor,
-                       side_cblas[SIDE],
-                       uplo_cblas[UPLO],
-                       trans_cblas[TRANSA],
-                       diag_cblas[DIAG],
-                       M, N, alpha, A, LDA, B, LDB );  }
+    CBLASNAME(dtrmm) (
+      CblasColMajor,
+      side_cblas[SIDE],
+      uplo_cblas[UPLO],
+      trans_cblas[TRANSA],
+      diag_cblas[DIAG],
+      M, N, alpha, A, LDA, B, LDB
+    );
   #else
-  { BLASFUNC(dtrmm)( const_cast<character*>(side_blas[SIDE]),
-                     const_cast<character*>(uplo_blas[UPLO]),
-                     const_cast<character*>(trans_blas[TRANSA]),
-                     const_cast<character*>(diag_blas[DIAG]),
-                     &M, &N, &alpha,
-                     const_cast<doublereal*>(A), &LDA, B, &LDB ); }
+    BLASFUNC(dtrmm)(
+      const_cast<character*>(side_blas[SIDE]),
+      const_cast<character*>(uplo_blas[UPLO]),
+      const_cast<character*>(trans_blas[TRANSA]),
+      const_cast<character*>(diag_blas[DIAG]),
+      &M, &N, &alpha,
+      const_cast<doublereal*>(A), &LDA, B, &LDB
+    );
   #endif
+  }
 
   /*
   //   _
@@ -678,97 +750,120 @@ namespace alglin {
   \*/
   #if defined(ALGLIN_USE_LAPACK)
   extern "C" {
+
     void
-    BLASFUNC(strsm)( character const   SIDE[],
-                     character const   UPLO[],
-                     character const   TRANSA[],
-                     character const   DIAG[],
-                     integer   const * M,
-                     integer   const * N,
-                     real      const * alpha,
-                     real      const   A[],
-                     integer   const * LDA,
-                     real              B[],
-                     integer   const * LDB );
+    BLASFUNC(strsm)(
+      character const   SIDE[],
+      character const   UPLO[],
+      character const   TRANSA[],
+      character const   DIAG[],
+      integer   const * M,
+      integer   const * N,
+      real      const * alpha,
+      real      const   A[],
+      integer   const * LDA,
+      real              B[],
+      integer   const * LDB
+    );
+
     void
-    BLASFUNC(dtrsm)( character  const   SIDE[],
-                     character  const   UPLO[],
-                     character  const   TRANSA[],
-                     character  const   DIAG[],
-                     integer    const * M,
-                     integer    const * N,
-                     doublereal const * alpha,
-                     doublereal const   A[],
-                     integer    const * LDA,
-                     doublereal         B[],
-                     integer    const * LDB );
+    BLASFUNC(dtrsm)(
+      character  const   SIDE[],
+      character  const   UPLO[],
+      character  const   TRANSA[],
+      character  const   DIAG[],
+      integer    const * M,
+      integer    const * N,
+      doublereal const * alpha,
+      doublereal const   A[],
+      integer    const * LDA,
+      doublereal         B[],
+      integer    const * LDB
+    );
   }
   #endif
 
   inline
   void
-  trsm( SideMultiply  const & SIDE,
-        ULselect      const & UPLO,
-        Transposition const & TRANS,
-        DiagonalType  const & DIAG,
-        integer               M,
-        integer               N,
-        real                  alpha,
-        real          const   A[],
-        integer               LDA,
-        real                  B[],
-        integer               LDB )
+  trsm(
+    SideMultiply  const & SIDE,
+    ULselect      const & UPLO,
+    Transposition const & TRANS,
+    DiagonalType  const & DIAG,
+    integer               M,
+    integer               N,
+    real                  alpha,
+    real          const   A[],
+    integer               LDA,
+    real                  B[],
+    integer               LDB
+  ) {
   #if defined(ALGLIN_USE_MKL)
-  { strsm( side_blas[SIDE], uplo_blas[UPLO],
-           trans_blas[TRANS], diag_blas[DIAG],
-           &M, &N, &alpha, A, &LDA, B, &LDB ); }
+    strsm(
+      side_blas[SIDE], uplo_blas[UPLO],
+      trans_blas[TRANS], diag_blas[DIAG],
+      &M, &N, &alpha, A, &LDA, B, &LDB
+    );
   #elif defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
-  { CBLASNAME(strsm)( CblasColMajor,
-                      side_cblas[SIDE],
-                      uplo_cblas[UPLO],
-                      trans_cblas[TRANS],
-                      diag_cblas[DIAG],
-                      M, N, alpha, A, LDA, B, LDB ); }
+    CBLASNAME(strsm)(
+      CblasColMajor,
+      side_cblas[SIDE],
+      uplo_cblas[UPLO],
+      trans_cblas[TRANS],
+      diag_cblas[DIAG],
+      M, N, alpha, A, LDA, B, LDB
+    );
   #else
-  { BLASFUNC(strsm)( const_cast<character*>(side_blas[SIDE]),
-                     const_cast<character*>(uplo_blas[UPLO]),
-                     const_cast<character*>(trans_blas[TRANS]),
-                     const_cast<character*>(diag_blas[DIAG]),
-                     &M, &N, &alpha,
-                     const_cast<real*>(A), &LDA, B, &LDB ); }
+    BLASFUNC(strsm)(
+      const_cast<character*>(side_blas[SIDE]),
+      const_cast<character*>(uplo_blas[UPLO]),
+      const_cast<character*>(trans_blas[TRANS]),
+      const_cast<character*>(diag_blas[DIAG]),
+      &M, &N, &alpha,
+      const_cast<real*>(A), &LDA, B, &LDB
+    );
   #endif
+  }
 
   inline
   void
-  trsm( SideMultiply  const & SIDE,
-        ULselect      const & UPLO,
-        Transposition const & TRANS,
-        DiagonalType  const & DIAG,
-        integer               M,
-        integer               N,
-        doublereal            alpha,
-        doublereal    const   A[],
-        integer               LDA,
-        doublereal            B[],
-        integer               LDB )
+  trsm(
+    SideMultiply  const & SIDE,
+    ULselect      const & UPLO,
+    Transposition const & TRANS,
+    DiagonalType  const & DIAG,
+    integer               M,
+    integer               N,
+    doublereal            alpha,
+    doublereal    const   A[],
+    integer               LDA,
+    doublereal            B[],
+    integer               LDB
+  ) {
   #if defined(ALGLIN_USE_MKL)
-  { dtrsm( side_blas[SIDE], uplo_blas[UPLO],
-           trans_blas[TRANS], diag_blas[DIAG],
-           &M, &N, &alpha, A, &LDA, B, &LDB ); }
+    dtrsm(
+      side_blas[SIDE], uplo_blas[UPLO],
+      trans_blas[TRANS], diag_blas[DIAG],
+      &M, &N, &alpha, A, &LDA, B, &LDB
+    );
   #elif defined(ALGLIN_USE_ACCELERATE) || defined(ALGLIN_USE_ATLAS)
-  { CBLASNAME(dtrsm)( CblasColMajor,
-                      side_cblas[SIDE],
-                      uplo_cblas[UPLO],
-                      trans_cblas[TRANS],
-                      diag_cblas[DIAG],
-                      M, N, alpha, A, LDA, B, LDB ); }
+    CBLASNAME(dtrsm)(
+      CblasColMajor,
+      side_cblas[SIDE],
+      uplo_cblas[UPLO],
+      trans_cblas[TRANS],
+      diag_cblas[DIAG],
+      M, N, alpha, A, LDA, B, LDB
+    );
   #else
-  { BLASFUNC(dtrsm)( const_cast<character*>(side_blas[SIDE]),
-                     const_cast<character*>(uplo_blas[UPLO]),
-                     const_cast<character*>(trans_blas[TRANS]),
-                     const_cast<character*>(diag_blas[DIAG]),
-                     &M, &N, &alpha,
-                     const_cast<doublereal*>(A), &LDA, B, &LDB ); }
+    BLASFUNC(dtrsm)(
+      const_cast<character*>(side_blas[SIDE]),
+      const_cast<character*>(uplo_blas[UPLO]),
+      const_cast<character*>(trans_blas[TRANS]),
+      const_cast<character*>(diag_blas[DIAG]),
+      &M, &N, &alpha,
+      const_cast<doublereal*>(A), &LDA, B, &LDB
+    );
   #endif
-
+  }
 }

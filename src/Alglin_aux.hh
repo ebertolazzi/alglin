@@ -65,16 +65,20 @@ namespace alglin {
   extern "C" {
 
     integer
-    LAPACK_F77NAME(slarnv)( integer * IDIST,
-                            integer * ISEED,
-                            integer * N,
-                            real      X[] );
+    LAPACK_F77NAME(slarnv)(
+      integer * IDIST,
+      integer * ISEED,
+      integer * N,
+      real      X[]
+    );
 
     integer
-    LAPACK_F77NAME(dlarnv)( integer  * IDIST,
-                            integer  * ISEED,
-                            integer  * N,
-                            doublereal X[] );
+    LAPACK_F77NAME(dlarnv)(
+      integer  * IDIST,
+      integer  * ISEED,
+      integer  * N,
+      doublereal X[]
+    );
   }
   #endif
 
@@ -169,8 +173,10 @@ namespace alglin {
     T       WORK[],
     integer LWORK
   ) {
-    ALGLIN_ASSERT( LWORK >= 2*N,
-                   "large, LWORK = " << LWORK << " must be >= " << 2*N );
+    ALGLIN_ASSERT(
+      LWORK >= 2*N,
+      "large, LWORK = " << LWORK << " must be >= " << 2*N
+    );
     // Test the input arguments
     if ( N < 0 ) return -1;
     if ( LDA < max_index( 1, N ) ) return -3;
@@ -300,11 +306,15 @@ namespace alglin {
   ) {
 
     if ( LR == LEFT ) {
-      ALGLIN_ASSERT( LWORK >= 2*M + N,
-                     "laror, LWORK = " << LWORK << " must be >= " << 2*M + N );
+      ALGLIN_ASSERT(
+        LWORK >= 2*M + N,
+        "laror, LWORK = " << LWORK << " must be >= " << 2*M + N
+      );
     } else if ( LR == RIGHT ) {
-      ALGLIN_ASSERT( LWORK >= 2*N + M,
-                     "laror, LWORK = " << LWORK << " must be >= " << 2*N + M );
+      ALGLIN_ASSERT(
+        LWORK >= 2*N + M,
+        "laror, LWORK = " << LWORK << " must be >= " << 2*N + M
+      );
     } else {
       return -1;
     }
@@ -319,8 +329,10 @@ namespace alglin {
     // Initialize A to the identity matrix if desired
     if ( init ) geid( M, N, A, LDA );
 
-    ALGLIN_ASSERT( LWORK >= 2*N,
-                   "large, LWORK = " << LWORK << " must be >= " << 2*N );
+    ALGLIN_ASSERT(
+      LWORK >= 2*N,
+      "large, LWORK = " << LWORK << " must be >= " << 2*N
+    );
     // Test the input arguments
     if ( N < 0 ) return -1;
     if ( LDA < max_index( 1, N ) ) return -3;
@@ -434,30 +446,36 @@ namespace alglin {
   ) {
 
     // first block y = alpha * _block0 * x + beta * y
-    gemv( NO_TRANSPOSE, row0, col0,
-          alpha, block0, row0,
-          x, incx,
-          beta, y, incy );
+    gemv(
+      NO_TRANSPOSE, row0, col0,
+      alpha, block0, row0,
+      x, incx,
+      beta, y, incy
+    );
 
     // internal blocks block
     t_Value const * xx   = x+(col0-dimBlock)*incx;
     t_Value *       yy   = y+row0*incy;
     t_Value const * blks = blocks;
     for ( integer i = 0; i < numBlock; ++i ) {
-      gemv( NO_TRANSPOSE, dimBlock, 2*dimBlock,
-            alpha, blks, dimBlock,
-            xx, incx,
-            beta, yy, incy );
+      gemv(
+        NO_TRANSPOSE, dimBlock, 2*dimBlock,
+        alpha, blks, dimBlock,
+        xx, incx,
+        beta, yy, incy
+      );
       xx   += dimBlock*incx;
       yy   += dimBlock*incy;
       blks += 2*dimBlock*dimBlock;
     }
 
     // last block
-    gemv( NO_TRANSPOSE, rowN, colN,
-          alpha, blockN, rowN,
-          xx, incx,
-          beta, yy, incy );
+    gemv(
+      NO_TRANSPOSE, rowN, colN,
+      alpha, blockN, rowN,
+      xx, incx,
+      beta, yy, incy
+    );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -484,10 +502,12 @@ namespace alglin {
     integer         incr
   ) {
     copy( numBlock*dimBlock+row0+rowN, b, incb, res, incr );
-    abd_mv( row0, col0, block0,
-            numBlock, dimBlock, blocks,
-            rowN, colN, blockN,
-            t_Value(-1.0), x, incx, t_Value(1.0), res, incr );
+    abd_mv(
+      row0, col0, block0,
+      numBlock, dimBlock, blocks,
+      rowN, colN, blockN,
+      t_Value(-1.0), x, incx, t_Value(1.0), res, incr
+    );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -588,10 +608,12 @@ namespace alglin {
     t_Value *       yy   = y;
     t_Value const * blks = AdAu;
     for ( integer i = 0; i < nblk; ++i ) {
-      gemv( NO_TRANSPOSE, n, 2*n,
-            alpha, blks, n,
-            xx, incx,
-            beta, yy, incy );
+      gemv(
+        NO_TRANSPOSE, n, 2*n,
+        alpha, blks, n,
+        xx, incx,
+        beta, yy, incy
+      );
       xx   += n*incx;
       yy   += n*incy;
       blks += 2*n*n;
@@ -628,8 +650,10 @@ namespace alglin {
     integer         incr
   ) {
     copy( nblk*n+n+q, b, incb, res, incr );
-    babd_mv( nblk, n, q, AdAu, H0, HN, Hq,
-             t_Value(-1.0), x, incx, t_Value(1.0), res, incr );
+    babd_mv(
+      nblk, n, q, AdAu, H0, HN, Hq,
+      t_Value(-1.0), x, incx, t_Value(1.0), res, incr
+    );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
