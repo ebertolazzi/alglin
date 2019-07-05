@@ -1507,12 +1507,12 @@ namespace alglin {
   ) const {
     integer kkk = 0;
 
-    // bidiagonal
+    // D, E, B
     integer je = nblock*n;
     integer jq = je+n;
-    integer jb = offs+jq+qx;
+    integer jb = jq+qx;
     for ( integer k = 0; k < nblock; ++k ) {
-      integer ii = offs+k*n;
+      integer ii = k*n;
       for ( integer i = 0; i < n; ++i ) {
         integer iii = ii+i;
         for ( integer j = 0; j < n; ++j ) {
@@ -1524,33 +1524,41 @@ namespace alglin {
         }
       }
     }
-    integer ie = offs+nblock*n;
+
+    // H0
+    integer ie = nblock*n;
     for ( integer i = 0; i < n+qr; ++i ) {
       for ( integer j = 0; j < n; ++j ) {
-        I[kkk] = ie+i; J[kkk] = offs+j; ++kkk;// H[i+j*(n+qr)]
+        I[kkk] = ie+i; J[kkk] = j; ++kkk; // H[i+j*(n+qr)]
       }
     }
 
+    // HNp
     for ( integer i = 0; i < n+qr; ++i ) {
       for ( integer j = 0; j < n+qx+nx; ++j ) {
-        I[kkk] = ie+i; J[kkk] = offs+je+j; ++kkk; // H[i+j*(n+qr)]
+        I[kkk] = ie+i; J[kkk] = je+j; ++kkk; // H[i+j*(n+qr)]
       }
     }
 
+    // C
     ie += n+qr;
     for ( integer k = 0; k <= nblock; ++k ) {
-      integer ii = offs+k*n;
+      integer ii = k*n;
       for ( integer i = 0; i < nr; ++i ) {
         for ( integer j = 0; j < n; ++j ) {
           I[kkk] = ie+i; J[kkk] = ii+j; ++kkk; // C[i+j*nr]
         }
       }
     }
+
+    // F
     for ( integer i = 0; i < nr; ++i ) {
       for ( integer j = 0; j < nx; ++j ) {
         I[kkk] = ie+i; J[kkk] = jb+j; ++kkk; // Fmat[i+j*nr]
       }
     }
+
+    // Cq
     jb -= qx;
     for ( integer i = 0; i < nr; ++i ) {
       for ( integer j = 0; j < qx; ++j ) {
@@ -1563,6 +1571,13 @@ namespace alglin {
       "BorderedCR::sparsePattern( V ), inserted " << kkk <<
       " values, expected " << sparseNnz()
     );
+
+    if ( offs != 0 ) {
+      for ( integer kkk = 0; kkk < sparseNnz(); ++kkk ) {
+        I[kkk] += offs;
+        J[kkk] += offs;
+      }
+    }
   }
 
   // ---------------------------------------------------------------------------
@@ -1570,6 +1585,7 @@ namespace alglin {
   template <typename t_Value>
   void
   BorderedCR<t_Value>::sparseValues( valueType V[] ) const {
+    // D, E, B
     integer kkk = 0;
     for ( integer k = 0; k < nblock; ++k ) {
       //integer ii = offs+k*n;
@@ -1584,23 +1600,33 @@ namespace alglin {
         for ( integer j = 0; j < nx; ++j ) V[kkk++] = B[i+j*n];
       }
     }
+
+    // H0
     valueType * H = H0Nqp;
     for ( integer i = 0; i < n+qr; ++i )
       for ( integer j = 0; j < n; ++j )
         V[kkk++] = H[i+j*(n+qr)];
     H += n*(n+qr);
+
+    // HNp
     for ( integer i = 0; i < n+qr; ++i )
       for ( integer j = 0; j < n+qx+nx; ++j )
         V[kkk++] = H[i+j*(n+qr)];
+
+    // C
     for ( integer k = 0; k <= nblock; ++k ) {
       valueType * C = Cmat + k * nr_x_n;
       for ( integer i = 0; i < nr; ++i )
         for ( integer j = 0; j < n; ++j )
           V[kkk++] = C[i+j*nr];
     }
+
+    // F
     for ( integer i = 0; i < nr; ++i )
       for ( integer j = 0; j < nx; ++j )
         V[kkk++] = Fmat[i+j*nr];
+
+    // Cq
     for ( integer i = 0; i < nr; ++i )
       for ( integer j = 0; j < qx; ++j )
         V[kkk++] = Cqmat[i+j*nr];

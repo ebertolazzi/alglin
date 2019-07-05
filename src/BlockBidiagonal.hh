@@ -227,10 +227,12 @@ namespace alglin {
       integer num_extra_r,
       integer num_extra_i
     ) {
-      allocate( _nblock, _n, _nb,
-                _row0, _rowN, 0,
-                _col0-_n, _colN-_n, 0,
-                num_extra_r, num_extra_i );
+      allocate(
+        _nblock, _n, _nb,
+        _row0, _rowN, 0,
+        _col0-_n, _colN-_n, 0,
+        num_extra_r, num_extra_i
+      );
     }
 
     // filling bidiagonal part of the matrix
@@ -261,18 +263,20 @@ namespace alglin {
 
     void
     loadBottomBlock( integer nbl, valueType const C[], integer ldC ) {
-      ALGLIN_ASSERT( ldC >= nb,
-                     "loadBottomBlock( " << nbl <<
-                     ", C, ldC = " << ldC << " bad ldC" );
+      ALGLIN_ASSERT(
+        ldC >= nb,
+        "loadBottomBlock( " << nbl << ", C, ldC = " << ldC << " bad ldC"
+      );
       valueType * CC = Cmat + nbl*nxnb;
       gecopy( nb, n, C, ldC, CC, nb );
     }
 
     void
     addtoBottomBlock( integer nbl, valueType const C[], integer ldC ) {
-      ALGLIN_ASSERT( ldC >= nb,
-                     "addtoBottomBlock( " << nbl <<
-                     ", C, ldC = " << ldC << " bad ldC" );
+      ALGLIN_ASSERT(
+        ldC >= nb,
+        "addtoBottomBlock( " << nbl << ", C, ldC = " << ldC << " bad ldC"
+      );
       valueType * CC = Cmat + nbl*nxnb;
       geadd( nb, n, 1.0, C, ldC, 1.0, CC, nb, CC, nb );
     }
@@ -280,9 +284,10 @@ namespace alglin {
     // add to bottom block nbl and nbl+1
     void
     addtoBottomBlock2( integer nbl, valueType const C[], integer ldC ) {
-      ALGLIN_ASSERT( ldC >= nb,
-                     "addtoBottomBlock2( " << nbl <<
-                     ", C, ldC = " << ldC << " bad ldC" );
+      ALGLIN_ASSERT(
+        ldC >= nb,
+        "addtoBottomBlock2( " << nbl << ", C, ldC = " << ldC << " bad ldC"
+      );
       valueType * CC = Cmat + nbl*nxnb;
       geadd( nb, nx2, 1.0, C, ldC, 1.0, CC, nb, CC, nb );
     }
@@ -446,9 +451,11 @@ namespace alglin {
     solve_bordered( valueType [] ) const;
 
     void
-    solve_bordered( integer      /* nrhs  */,
-                    valueType [] /* rhs   */,
-                    integer      /* ldRhs */ ) const;
+    solve_bordered(
+      integer      /* nrhs  */,
+      valueType [] /* rhs   */,
+      integer      /* ldRhs */
+    ) const;
 
     // All in one
     void

@@ -279,15 +279,21 @@ namespace Simplex {
     ldA = _ldA;
 
     // some check
-    SIMPLEX_ASSERT( m >= 0 && n > 0,
-                    "Bad problem dimensions, m = " << m << " n = " << n );
+    SIMPLEX_ASSERT(
+      m >= 0 && n > 0,
+      "Bad problem dimensions, m = " << m << " n = " << n
+    );
 
-    SIMPLEX_ASSERT( ldA >= m,
-                    "Bad leading dimension of matrix A, ldA = " << ldA << " A is " << m << " x " << n );
+    SIMPLEX_ASSERT(
+      ldA >= m,
+      "Bad leading dimension of matrix A, ldA = " << ldA << " A is " << m << " x " << n
+    );
 
-    SIMPLEX_ASSERT( n >= m,
-                    "Dimension of x (" << n <<
-                    ") must be greater than number of equality constraints (" << m << ")" );
+    SIMPLEX_ASSERT(
+      n >= m,
+      "Dimension of x (" << n <<
+      ") must be greater than number of equality constraints (" << m << ")"
+    );
 
     L_free.resize( size_t(n) );
     U_free.resize( size_t(n) );
@@ -295,8 +301,10 @@ namespace Simplex {
       L_free[i] = L[i] <= -infinity;
       U_free[i] = U[i] >=  infinity;
       if ( !( L_free[i] || U_free[i]) ) {
-        SIMPLEX_ASSERT( L[i] <= U[i],
-                       "L[i] = " << L[i] << " must be less or equal to U[i] = " << U[i] );
+        SIMPLEX_ASSERT(
+          L[i] <= U[i],
+          "L[i] = " << L[i] << " must be less or equal to U[i] = " << U[i]
+        );
       }
     }
 
@@ -331,11 +339,15 @@ namespace Simplex {
     ldA = _ldA;
 
     // some check
-    SIMPLEX_ASSERT( m >= 0 && n > 0,
-                    "Bad problem dimensions, m = " << m << " n = " << n );
+    SIMPLEX_ASSERT(
+      m >= 0 && n > 0,
+      "Bad problem dimensions, m = " << m << " n = " << n
+    );
 
-    SIMPLEX_ASSERT( ldA >= m,
-                    "Bad leading dimension of matrix A, ldA = " << ldA << " A is " << m << " x " << n );
+    SIMPLEX_ASSERT(
+      ldA >= m,
+      "Bad leading dimension of matrix A, ldA = " << ldA << " A is " << m << " x " << n
+    );
 
     L_free.resize(n);
     U_free.resize(n);
@@ -343,8 +355,10 @@ namespace Simplex {
       L_free[i] = L[i] <= -infinity;
       U_free[i] = U[i] >=  infinity;
       if ( !( L_free[i] || U_free[i]) ) {
-        SIMPLEX_ASSERT( L[i] <= U[i],
-                       "L[i] = " << L[i] << " must be less or equal to U[i] = " << U[i] );
+        SIMPLEX_ASSERT(
+          L[i] <= U[i],
+          "L[i] = " << L[i] << " must be less or equal to U[i] = " << U[i]
+        );
       }
     }
 
@@ -370,14 +384,17 @@ namespace Simplex {
   static
   inline
   void
-  writeIter( ostream_type * pStream,
-             integer        iter,
-             integer const  IB[],
-             integer        m ) {
-    (*pStream) << "\n====================================================\n"
-               << "                    TABLEAU  " << iter
-               << "\n====================================================\n"
-               << "Basis index set :";
+  writeIter(
+    ostream_type * pStream,
+    integer        iter,
+    integer const  IB[],
+    integer        m
+  ) {
+    (*pStream)
+      << "\n====================================================\n"
+      << "                    TABLEAU  " << iter
+      << "\n====================================================\n"
+      << "Basis index set :";
     for ( integer i = 0; i < m; ++i ) (*pStream) << " " << IB[i];
     (*pStream) << "\n";
   }
@@ -413,10 +430,12 @@ namespace Simplex {
   #endif
 
   void
-  StandardSolver::solve( StandardProblemBase * _problem,
-                         valueType x[],
-                         integer   IB[],
-                         valueType eps ) {
+  StandardSolver::solve(
+    StandardProblemBase * _problem,
+    valueType x[],
+    integer   IB[],
+    valueType eps
+  ) {
 
     problem = _problem;
 
@@ -455,11 +474,15 @@ namespace Simplex {
 
     // build non bases index set IN
     std::sort( IB, IB+m );
-    SIMPLEX_ASSERT( IB[0] >= 0 && IB[m-1] < n,
-                    "Error in Simplex: Wrong Basis index set" );
+    SIMPLEX_ASSERT(
+      IB[0] >= 0 && IB[m-1] < n,
+      "Error in Simplex: Wrong Basis index set"
+    );
     for ( integer i = 1; i < m; ++i ) {
-      SIMPLEX_ASSERT( IB[i-1] != IB[i],
-                      "Error in Simplex: Duplicated index in basis index set" );
+      SIMPLEX_ASSERT(
+        IB[i-1] != IB[i],
+        "Error in Simplex: Duplicated index in basis index set"
+      );
     }
 
     integer ib = 0;
@@ -485,10 +508,12 @@ namespace Simplex {
         bool ok = true;
         if ( U_bounded(i) ) ok = x[i] <= U(i)+eps;
         if ( L_bounded(i) ) ok = ok && x[i] >= L(i)-eps;
-        SIMPLEX_ASSERT( ok,
-                        "Error in Simplex: Infeasible solution x[" << i <<
-                        "] = " << x[i] << " not in [" <<
-                        Lstring(i) << "," << Ustring(i) << "]" );
+        SIMPLEX_ASSERT(
+          ok,
+          "Error in Simplex: Infeasible solution x[" << i <<
+          "] = " << x[i] << " not in [" <<
+          Lstring(i) << "," << Ustring(i) << "]"
+        );
       }
     }
 
@@ -501,10 +526,12 @@ namespace Simplex {
       bool ok = true;
       if ( U_bounded(ibi) ) ok = x[ibi] <= U(ibi)+eps;
       if ( L_bounded(ibi) ) ok = ok && x[ibi] >= L(ibi)-eps;
-      SIMPLEX_ASSERT( ok,
-                      "Error in Simplex: Infeasible starting point, violating basis variable x[" << ibi <<
-                      "] = " << x[ibi] << " not in [" <<
-                      Lstring(ibi) << ", " << Lstring(ibi) << "]" );
+      SIMPLEX_ASSERT(
+        ok,
+        "Error in Simplex: Infeasible starting point, violating basis variable x[" << ibi <<
+        "] = " << x[ibi] << " not in [" <<
+        Lstring(ibi) << ", " << Lstring(ibi) << "]"
+      );
     }
 
     // check non basis
@@ -518,9 +545,12 @@ namespace Simplex {
         x[ini] = L(ini);
         ok     = true;
       }
-      SIMPLEX_ASSERT( ok, "Error in Simplex: Infeasible starting point, violating non basis variable x[" << ini <<
-                          "] = " << x[ini] << " not equal to " <<
-                          Lstring(ini) << " or " << Ustring(ini) );
+      SIMPLEX_ASSERT(
+        ok,
+        "Error in Simplex: Infeasible starting point, violating non basis variable x[" << ini <<
+        "] = " << x[ini] << " not equal to " <<
+        Lstring(ini) << " or " << Ustring(ini)
+      );
     }
 
     // check residual
@@ -532,9 +562,11 @@ namespace Simplex {
     problem->subtract_Ax( x, y );
     for ( integer i = 0; i < m; ++i ) {
       valueType error = std::abs(y[i]);
-      SIMPLEX_ASSERT( error < eps*scale_residual,
-                      "Error in Simplex: Infeasible starting point, violating " << i <<
-                      "th equality constraint, error = " << y[i] );
+      SIMPLEX_ASSERT(
+        error < eps*scale_residual,
+        "Error in Simplex: Infeasible starting point, violating " << i <<
+        "th equality constraint, error = " << y[i]
+      );
     }
     /*
     //  _
@@ -564,9 +596,10 @@ namespace Simplex {
       // 2B. compute Y = Q * Z
       qr.factorize( "StandardSolver::solve<qr>" );
       integer rank = qr.rankEstimate(relaxedEpsilon);
-      SIMPLEX_ASSERT( rank == m,
-                      "Error in Simplex: Basis Matrix Singular, rank = " <<
-                      rank << " should be " << m );
+      SIMPLEX_ASSERT(
+        rank == m,
+        "Error in Simplex: Basis Matrix Singular, rank = " << rank << " should be " << m
+      );
       qr.t_solve( y );
       // 3. compute pivot column gamma
       integer   inmin      = n;
@@ -629,10 +662,12 @@ namespace Simplex {
             } else if ( alglin::isZero(x[ini]-U(ini)) ) {
               D[ini] = -ceta[i];
             } else {
-              SIMPLEX_ERROR( "Something wrong in Simplex, " <<
-                         " x[" << ini << "] = " << x[ini] << " != L[" << ini << "] = " << L(ini) << " and " <<
-                         " x[" << ini << "] = " << x[ini] << " != U[" << ini << "] = " << U(ini) <<
-                         " for non basis variable");
+              SIMPLEX_ERROR(
+                "Something wrong in Simplex, " <<
+                " x[" << ini << "] = " << x[ini] << " != L[" << ini << "] = " << L(ini) << " and " <<
+                " x[" << ini << "] = " << x[ini] << " != U[" << ini << "] = " << U(ini) <<
+                " for non basis variable"
+              );
             }
           }
           //writeIter( pStream, iter, IB, m );
@@ -646,13 +681,14 @@ namespace Simplex {
             << std::setw(14) << "Dual"
             << '\n';
           for ( integer i = 0; i < n; ++i )
-            (*pStream) << std::setw(4)  << (B[i]?"B":"N")
-                       << std::setw(4)  << i
-                       << std::setw(14) << Lstring(i)
-                       << std::setw(14) << x[i]
-                       << std::setw(14) << Ustring(i)
-                       << std::setw(14) << D[i]
-                       << (B[i]?" Ax=b\n":"\n");
+            (*pStream)
+              << std::setw(4)  << (B[i]?"B":"N")
+              << std::setw(4)  << i
+              << std::setw(14) << Lstring(i)
+              << std::setw(14) << x[i]
+              << std::setw(14) << Ustring(i)
+              << std::setw(14) << D[i]
+              << (B[i]?" Ax=b\n":"\n");
           (*pStream) << "\nObjective c'x = " << alglin::dot( n, x, 1, c, 1 ) << "\n";
           if ( !unique ) (*pStream) << "\nThe solution is NOT unique\n\n";
         }
@@ -726,8 +762,10 @@ namespace Simplex {
       if ( TQ < infinity && TQ <= beta_min ) {
         if      ( ceta[Q] > eps  ) x[INq] = U(INq);
         else if ( ceta[Q] < -eps ) x[INq] = L(INq);
-        SIMPLEX_ASSERT( ceta[Q] <= eps || ceta[Q] >= -eps,
-                        "Warning in Simplex: Could not find a new pivot row in iteration " << iter );
+        SIMPLEX_ASSERT(
+          ceta[Q] <= eps || ceta[Q] >= -eps,
+          "Warning in Simplex: Could not find a new pivot row in iteration " << iter
+        );
       } else if ( beta_min < infinity && beta_min < TQ ) {
         if ( ceta[Q] > 0 ) {
           if      ( gamma[P] < 0 ) x[IBp] = U(IBp);

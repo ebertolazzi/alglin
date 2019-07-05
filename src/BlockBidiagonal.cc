@@ -63,25 +63,29 @@ namespace alglin {
     integer num_extra_i
   ) {
 
-    ALGLIN_ASSERT( _numInitialBC  >= 0 && _numFinalBC      >= 0 &&
-                   _numCyclicBC   >= 0 && _numInitialOMEGA >= 0 &&
-                   _numFinalOMEGA >= 0 && _numCyclicOMEGA  >= 0,
-                   "Bad BC specification:" <<
-                   "\nnumInitialBC    = " << _numInitialBC <<
-                   "\nnumFinalBC      = " << _numFinalBC <<
-                   "\nnumCyclicBC     = " << _numCyclicBC <<
-                   "\nnumInitialOMEGA = " << _numInitialOMEGA <<
-                   "\nnumFinalOMEGA   = " << _numFinalOMEGA <<
-                   "\nnumCyclicOMEGA  = " << _numCyclicOMEGA );
+    ALGLIN_ASSERT(
+      _numInitialBC  >= 0 && _numFinalBC      >= 0 &&
+      _numCyclicBC   >= 0 && _numInitialOMEGA >= 0 &&
+      _numFinalOMEGA >= 0 && _numCyclicOMEGA  >= 0,
+      "Bad BC specification:" <<
+      "\nnumInitialBC    = " << _numInitialBC <<
+      "\nnumFinalBC      = " << _numFinalBC <<
+      "\nnumCyclicBC     = " << _numCyclicBC <<
+      "\nnumInitialOMEGA = " << _numInitialOMEGA <<
+      "\nnumFinalOMEGA   = " << _numFinalOMEGA <<
+      "\nnumCyclicOMEGA  = " << _numCyclicOMEGA
+    );
 
     q = _numInitialOMEGA + _numFinalOMEGA + _numCyclicOMEGA;
 
-    ALGLIN_ASSERT( _numInitialBC + _numFinalBC + _numCyclicBC == _n+q,
-                   "Bad BC specification:" <<
-                   "\nnumInitialBC    = " << _numInitialBC <<
-                   "\nnumFinalBC      = " << _numFinalBC   <<
-                   "\nnumCyclicBC     = " << _numCyclicBC  <<
-                   "\nnumInitialOMEGA + numFinalOMEGA + numCyclicOMEGA must be = " << _n+q );
+    ALGLIN_ASSERT(
+      _numInitialBC + _numFinalBC + _numCyclicBC == _n+q,
+      "Bad BC specification:" <<
+      "\nnumInitialBC    = " << _numInitialBC <<
+      "\nnumFinalBC      = " << _numFinalBC   <<
+      "\nnumCyclicBC     = " << _numCyclicBC  <<
+      "\nnumInitialOMEGA + numFinalOMEGA + numCyclicOMEGA must be = " << _n+q
+    );
 
     numInitialBC    = _numInitialBC;
     numFinalBC      = _numFinalBC;
@@ -205,10 +209,11 @@ namespace alglin {
     valueType const blockN_in[], integer ldN
   ) {
 
-    ALGLIN_ASSERT( numCyclicBC == 0 && numCyclicOMEGA == 0,
-                   "in loadTopBottom numCyclicBC = " << numCyclicBC <<
-                   " and numCyclicOMEGA = " << numCyclicOMEGA <<
-                   " must be both zero!" );
+    ALGLIN_ASSERT(
+      numCyclicBC == 0 && numCyclicOMEGA == 0,
+      "in loadTopBottom numCyclicBC = " << numCyclicBC <<
+      " and numCyclicOMEGA = " << numCyclicOMEGA << " must be both zero!"
+    );
 
     integer row0 = numInitialBC;
     integer rowN = numFinalBC;
@@ -301,14 +306,16 @@ namespace alglin {
       // W = C*Z - D
       valueType * Zmat = Bmat;
       this->solve( nb, Zmat, neq );
-      gemm( NO_TRANSPOSE,
-            NO_TRANSPOSE,
-            nb, nb, neq,
-            1,
-            Cmat, nb,
-            Zmat, neq,
-            -1,
-            Dmat, nb );
+      gemm(
+        NO_TRANSPOSE,
+        NO_TRANSPOSE,
+        nb, nb, neq,
+        1,
+        Cmat, nb,
+        Zmat, neq,
+        -1,
+        Dmat, nb
+      );
       bb_factorization->factorize(
         "BlockBidiagonal::factorize_bordered",
         nb, nb, Dmat, nb
@@ -323,20 +330,24 @@ namespace alglin {
     this->solve( xb );
     if ( nb > 0 ) {
       // b' = C*a' - b
-      gemv( NO_TRANSPOSE,
-            nb, neq,
-            1, Cmat, nb,
-            xb, 1,
-            -1, xb+neq, 1 );
+      gemv(
+        NO_TRANSPOSE,
+        nb, neq,
+        1, Cmat, nb,
+        xb, 1,
+        -1, xb+neq, 1
+      );
       // y = W^(-1) * b'
       bb_factorization->solve( xb+neq );
       // x = a' - Z*y
       valueType * Zmat = this->Bmat;
-      gemv( NO_TRANSPOSE,
-            neq, nb,
-            -1, Zmat, neq,
-            xb+neq, 1,
-            1, xb, 1 );
+      gemv(
+        NO_TRANSPOSE,
+        neq, nb,
+        -1, Zmat, neq,
+        xb+neq, 1,
+        1, xb, 1
+      );
     }
   }
 
@@ -351,22 +362,26 @@ namespace alglin {
     this->solve( nrhs, xb, ldRhs );
     if ( nb > 0 ) {
       // b' = C*a' - b
-      gemm( NO_TRANSPOSE,
-            NO_TRANSPOSE,
-            nb, nrhs, neq,
-            1, Cmat, nb,
-            xb, ldRhs,
-            -1, xb+neq, ldRhs );
+      gemm(
+        NO_TRANSPOSE,
+        NO_TRANSPOSE,
+        nb, nrhs, neq,
+        1, Cmat, nb,
+        xb, ldRhs,
+        -1, xb+neq, ldRhs
+      );
       // y = W^(-1) * b'
       bb_factorization->solve( nrhs, xb+neq, ldRhs );
       // x = a' - Z*y
       valueType * Zmat = this->Bmat;
-      gemm( NO_TRANSPOSE,
-            NO_TRANSPOSE,
-            neq, nrhs, nb,
-            -1, Zmat, neq,
-            xb+neq, ldRhs,
-            1, xb, ldRhs );
+      gemm(
+        NO_TRANSPOSE,
+        NO_TRANSPOSE,
+        neq, nrhs, nb,
+        -1, Zmat, neq,
+        xb+neq, ldRhs,
+        1, xb, ldRhs
+      );
     }
   }
 
@@ -389,9 +404,10 @@ namespace alglin {
     integer        numRow,
     integer        numCol
   ) {
-    stream << "# " << name
-           << " Size: " << numRow << " x " << numCol << '\n'
-           << name << " := <";
+    stream
+      << "# " << name
+      << " Size: " << numRow << " x " << numCol << '\n'
+      << name << " := <";
     for ( integer nc = 0; nc < numCol; ++nc ) {
       stream << '<';
       for ( integer nr = 0; nr < numRow; ++nr ) {
@@ -442,39 +458,51 @@ namespace alglin {
       valueType const * xe   = x+neq-(n+colNN+col00);
       valueType       * rese = res+neq-(row0+rowN);
 
-      gemv( NO_TRANSPOSE, rowN, n+colNN,
-            1.0, blockN, rowN,
-            xe, 1,
-            1.0, rese, 1 );
+      gemv(
+        NO_TRANSPOSE, rowN, n+colNN,
+        1.0, blockN, rowN,
+        xe, 1,
+        1.0, rese, 1
+      );
 
-      gemv( NO_TRANSPOSE, row0, n,
-            1.0, block0+col00*row0, row0,
-            x, 1,
-            1.0, rese+rowN, 1 );
+      gemv(
+        NO_TRANSPOSE, row0, n,
+        1.0, block0+col00*row0, row0,
+        x, 1,
+        1.0, rese+rowN, 1
+      );
 
-      gemv( NO_TRANSPOSE, row0, col00,
-            1.0, block0, row0,
-            xe+n+colNN, 1,
-            1.0, rese+rowN, 1 );
+      gemv(
+        NO_TRANSPOSE, row0, col00,
+        1.0, block0, row0,
+        xe+n+colNN, 1,
+        1.0, rese+rowN, 1
+      );
     } else {
       integer m = n+q;
       valueType const * xe   = x+neq-(n+numInitialOMEGA+numFinalOMEGA+numCyclicOMEGA);
       valueType       * rese = res+neq-(numInitialBC+numFinalBC+numCyclicBC);
 
-      gemv( NO_TRANSPOSE, m, n,
-            1.0, H0Nq, m,
-            x, 1,
-            1.0, rese, 1 );
+      gemv(
+        NO_TRANSPOSE, m, n,
+        1.0, H0Nq, m,
+        x, 1,
+        1.0, rese, 1
+      );
 
-      gemv( NO_TRANSPOSE, m, n,
-            1.0, H0Nq+m*n, m,
-            xe, 1,
-            1.0, rese, 1 );
+      gemv(
+        NO_TRANSPOSE, m, n,
+        1.0, H0Nq+m*n, m,
+        xe, 1,
+        1.0, rese, 1
+      );
 
-      gemv( NO_TRANSPOSE, m, q,
-            1.0, H0Nq+m*nx2, m,
-            xe+n, 1,
-            1.0, rese, 1 );
+      gemv(
+        NO_TRANSPOSE, m, q,
+        1.0, H0Nq+m*nx2, m,
+        xe+n, 1,
+        1.0, rese, 1
+      );
     }
 
     // internal blocks block
@@ -482,27 +510,35 @@ namespace alglin {
     t_Value *       yy = res;
     t_Value const * DE = DE_blk;
     for ( integer i = 0; i < nblock; ++i ) {
-      gemv( NO_TRANSPOSE, n, nx2,
-            1.0, DE, n,
-            xx, 1,
-            1.0, yy, 1 );
+      gemv(
+        NO_TRANSPOSE, n, nx2,
+        1.0, DE, n,
+        xx, 1,
+        1.0, yy, 1
+      );
       xx += n;
       yy += n;
       DE += nxnx2;
     }
     if ( nb > 0 ) {
-      gemv( NO_TRANSPOSE, neq, nb,
-            1.0, Bmat, neq,
-            x+neq, 1,
-            1.0, res, 1 );
-      gemv( NO_TRANSPOSE, nb, neq,
-            1.0, Cmat, nb,
-            x, 1,
-            1.0, res+neq, 1 );
-      gemv( NO_TRANSPOSE, nb, nb,
-            1.0, Dmat, nb,
-            x+neq, 1,
-            1.0, res+neq, 1 );
+      gemv(
+        NO_TRANSPOSE, neq, nb,
+        1.0, Bmat, neq,
+        x+neq, 1,
+        1.0, res, 1
+      );
+      gemv(
+        NO_TRANSPOSE, nb, neq,
+        1.0, Cmat, nb,
+        x, 1,
+        1.0, res+neq, 1
+      );
+      gemv(
+        NO_TRANSPOSE, nb, nb,
+        1.0, Dmat, nb,
+        x+neq, 1,
+        1.0, res+neq, 1
+      );
     }
   }
 
@@ -536,21 +572,24 @@ namespace alglin {
       ii = nblock*n;
       for ( integer i = 0; i < rowN; ++i )
         for ( integer j = 0; j < n+colNN; ++j )
-          stream << ii+i << '\t'
-                 << ii+j << '\t'
-                 << blockN[i+j*rowN] << '\n';
+          stream
+            << ii+i << '\t'
+            << ii+j << '\t'
+            << blockN[i+j*rowN] << '\n';
 
       for ( integer i = 0; i < row0; ++i )
         for ( integer j = 0; j < n; ++j )
-          stream << ii+rowN+i << '\t'
-                 << j         << '\t'
-                 << block0[i+(j+col00)*row0] << '\n';
+          stream
+            << ii+rowN+i << '\t'
+            << j         << '\t'
+            << block0[i+(j+col00)*row0] << '\n';
 
       for ( integer i = 0; i < row0; ++i )
         for ( integer j = 0; j < col00; ++j )
-          stream << ii+rowN+i    << '\t'
-                 << ii+n+colNN+j << '\t'
-                 << block0[i+j*row0] << '\n';
+          stream
+            << ii+rowN+i    << '\t'
+            << ii+n+colNN+j << '\t'
+            << block0[i+j*row0] << '\n';
 
     } else {
 
@@ -582,8 +621,9 @@ namespace alglin {
     ii = n*(nblock+1)+q;
     for ( integer i = 0; i < nb; ++i )
       for ( integer j = 0; j < ii; ++j )
-        stream << ii+i << '\t' << j << '\t' << Cmat[i+j*nb] << '\n'
-               << j << '\t' << ii+i << '\t' << Bmat[j+i*ii] << '\n';
+        stream
+          << ii+i << '\t' << j << '\t' << Cmat[i+j*nb] << '\n'
+          << j << '\t' << ii+i << '\t' << Bmat[j+i*ii] << '\n';
 
     for ( integer i = 0; i < nb; ++i )
       for ( integer j = 0; j < nb; ++j )
@@ -707,9 +747,11 @@ namespace alglin {
       }
     }
 
-    ALGLIN_ASSERT( kkk == sparseNnz(),
-                   "BlockBidiagonal::sparsePattern( V ), inserted " << kkk <<
-                   " values, expected " << sparseNnz() );
+    ALGLIN_ASSERT(
+      kkk == sparseNnz(),
+      "BlockBidiagonal::sparsePattern( V ), inserted " << kkk <<
+      " values, expected " << sparseNnz()
+    );
   }
 
   template <typename t_Value>
@@ -775,9 +817,11 @@ namespace alglin {
       for ( integer j = 0; j < nb; ++j )
         V[kkk++] = Dmat[i+j*nb];
 
-    ALGLIN_ASSERT( kkk == sparseNnz(),
-                   "BlockBidiagonal::sparseValues( V ), inserted " << kkk <<
-                   " values, expected " << sparseNnz() );
+    ALGLIN_ASSERT(
+      kkk == sparseNnz(),
+      "BlockBidiagonal::sparseValues( V ), inserted " << kkk <<
+      " values, expected " << sparseNnz()
+    );
 
   }
 

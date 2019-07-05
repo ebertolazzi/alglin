@@ -49,16 +49,18 @@ namespace alglin {
 
   extern "C"
   int
-  ABD_factorize( ABD_intType        mat_id,
-                 ABD_intType        row0,
-                 ABD_intType        col0,
-                 ABD_realType const TOP[], ABD_intType ldTOP,
-                 ABD_intType        nblock,
-                 ABD_intType        n,
-                 ABD_realType const DE[], ABD_intType ldDE,
-                 ABD_intType        rowN,
-                 ABD_intType        colN,
-                 ABD_realType const BOTTOM[], ABD_intType ldBOTTOM ) {
+  ABD_factorize(
+    ABD_intType        mat_id,
+    ABD_intType        row0,
+    ABD_intType        col0,
+    ABD_realType const TOP[], ABD_intType ldTOP,
+    ABD_intType        nblock,
+    ABD_intType        n,
+    ABD_realType const DE[], ABD_intType ldDE,
+    ABD_intType        rowN,
+    ABD_intType        colN,
+    ABD_realType const BOTTOM[], ABD_intType ldBOTTOM
+  ) {
     try {
       DiazLU<ABD_realType> & lu = abd_database[mat_id]; // find or create
       lu.allocateTopBottom( nblock, n, row0, col0, rowN, colN, 0 );
@@ -101,10 +103,12 @@ namespace alglin {
 
   extern "C"
   int
-  ABD_solve_nrhs( ABD_intType  mat_id,
-                  ABD_intType  nrhs,
-                  ABD_realType rhs_sol[],
-                  ABD_intType  ldRhs )  {
+  ABD_solve_nrhs(
+    ABD_intType  mat_id,
+    ABD_intType  nrhs,
+    ABD_realType rhs_sol[],
+    ABD_intType  ldRhs
+  )  {
     try {
       std::map<ABD_intType,DiazLU<ABD_realType> >::const_iterator it = abd_database.find(mat_id);
       if ( it == abd_database.end() ) {
@@ -140,9 +144,7 @@ namespace alglin {
   void
   ABD_get_last_error_f90( char res[], long len ) {
     #ifdef ALGLIN_OS_WINDOWS
-    errno_t e = strncpy_s( res, len,
-                           abd_last_error.c_str(),
-                           abd_last_error.length() );
+    errno_t e = strncpy_s( res, len, abd_last_error.c_str(), abd_last_error.length() );
     #else
     strncpy( res, abd_last_error.c_str(), size_t(len) );
     #endif
@@ -162,17 +164,19 @@ namespace alglin {
 
   extern "C"
   int
-  BABD_factorize( BABD_intType        mat_id,
-                  BABD_intType        mat_fact,
-                  BABD_intType        last_block_fact,
-                  BABD_intType        nblock,
-                  BABD_intType        n,
-                  BABD_intType        qr,
-                  BABD_intType        qx,
-                  BABD_realType const DE[], BABD_intType ldDE,
-                  BABD_realType const H0[], BABD_intType ldH0,
-                  BABD_realType const HN[], BABD_intType ldHN,
-                  BABD_realType const Hq[], BABD_intType ldHq ) {
+  BABD_factorize(
+    BABD_intType        mat_id,
+    BABD_intType        mat_fact,
+    BABD_intType        last_block_fact,
+    BABD_intType        nblock,
+    BABD_intType        n,
+    BABD_intType        qr,
+    BABD_intType        qx,
+    BABD_realType const DE[], BABD_intType ldDE,
+    BABD_realType const H0[], BABD_intType ldH0,
+    BABD_realType const HN[], BABD_intType ldHN,
+    BABD_realType const Hq[], BABD_intType ldHq
+  ) {
     try {
       BorderedCR<BABD_realType> & lu = babd_database[mat_id]; // find or create
       lu.allocate( nblock, n, qr, qx, 0, 0 );
@@ -209,22 +213,24 @@ namespace alglin {
 
   extern "C"
   int
-  BABD_factorize_bordered( BABD_intType        mat_id,
-                           BABD_intType        mat_fact,
-                           BABD_intType        last_block_fact,
-                           BABD_intType        nblock,
-                           BABD_intType        n,
-                           BABD_intType        qr,
-                           BABD_intType        nr,
-                           BABD_intType        qx,
-                           BABD_intType        nx,
-                           BABD_realType const DE[], BABD_intType ldDE,  // n x (2*n*nblock)
-                           BABD_realType const H0[], BABD_intType ldH0,  // (n+qr) x n
-                           BABD_realType const HN[], BABD_intType ldHN,  // (n+qr) x n
-                           BABD_realType const Hq[], BABD_intType ldHq,  // (n+qr) x qx
-                           BABD_realType const B[],  BABD_intType ldB,   // (n*(nblock+1)+qr) x nx
-                           BABD_realType const C[],  BABD_intType ldC,   // nr x (n*(nblock+1)+qx)
-                           BABD_realType const D[],  BABD_intType ldD ) { // nr x nx
+  BABD_factorize_bordered(
+    BABD_intType        mat_id,
+    BABD_intType        mat_fact,
+    BABD_intType        last_block_fact,
+    BABD_intType        nblock,
+    BABD_intType        n,
+    BABD_intType        qr,
+    BABD_intType        nr,
+    BABD_intType        qx,
+    BABD_intType        nx,
+    BABD_realType const DE[], BABD_intType ldDE,  // n x (2*n*nblock)
+    BABD_realType const H0[], BABD_intType ldH0,  // (n+qr) x n
+    BABD_realType const HN[], BABD_intType ldHN,  // (n+qr) x n
+    BABD_realType const Hq[], BABD_intType ldHq,  // (n+qr) x qx
+    BABD_realType const B[],  BABD_intType ldB,   // (n*(nblock+1)+qr) x nx
+    BABD_realType const C[],  BABD_intType ldC,   // nr x (n*(nblock+1)+qx)
+    BABD_realType const D[],  BABD_intType ldD    // nr x nx
+  ) {
     try {
       BorderedCR<BABD_realType> & lu = babd_database[mat_id]; // find or create
       lu.allocate( nblock, n, qr, qx, nr, nx );
@@ -289,10 +295,12 @@ namespace alglin {
 
   extern "C"
   int
-  BABD_solve_nrhs( BABD_intType  mat_id,
-                   BABD_intType  nrhs,
-                   BABD_realType rhs_sol[],
-                   BABD_intType  ldRhs ) {
+  BABD_solve_nrhs(
+    BABD_intType  mat_id,
+    BABD_intType  nrhs,
+    BABD_realType rhs_sol[],
+    BABD_intType  ldRhs
+  ) {
     try {
       std::map<BABD_intType,BorderedCR<BABD_realType> >::const_iterator it = babd_database.find(mat_id);
       if ( it == babd_database.end() ) {
@@ -329,9 +337,7 @@ namespace alglin {
   void
   BABD_get_last_error_f90( char res[], long len ) {
     #ifdef ALGLIN_OS_WINDOWS
-    errno_t e = strncpy_s( res, len,
-                           babd_last_error.c_str(),
-                           babd_last_error.length() );
+    errno_t e = strncpy_s( res, len, babd_last_error.c_str(), babd_last_error.length() );
     #else
     strncpy( res, babd_last_error.c_str(), size_t(len) );
     #endif

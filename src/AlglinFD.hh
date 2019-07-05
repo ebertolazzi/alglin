@@ -269,10 +269,11 @@ namespace alglin {
 
       X[j] = temp+h; // modify the vector only at j position
       ok = (*fun)( X, g1 ) && isRegular(g1,dim_f);
-      if ( !ok ) break;
+      if ( !ok ) { X[j] = temp; break; }
 
       X[j] = temp-h; // modify the vector only at j position
       ok = (*fun)( X, g0 ) && isRegular(g0,dim_f);
+      X[j] = temp; // modify the vector only at i position
 
       for ( integer i = 0; i < dim_f && ok; ++i ) {
         ok = isRegular(pjac,dim_f);
@@ -290,7 +291,6 @@ namespace alglin {
         }
       }
 
-      X[j] = temp; // modify the vector only at i position
       pjac += ldJ;
     }
     if ( !ok )

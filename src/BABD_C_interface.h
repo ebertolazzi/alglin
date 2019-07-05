@@ -86,16 +86,18 @@ typedef double ABD_realType;
  */
 
 int
-ABD_factorize( ABD_intType        mat_id,
-               ABD_intType        row0,
-               ABD_intType        col0,
-               ABD_realType const TOP[], ABD_intType ldTOP,
-               ABD_intType        nblock,
-               ABD_intType        n,
-               ABD_realType const DE[], ABD_intType ldDE,
-               ABD_intType        rowN,
-               ABD_intType        colN,
-               ABD_realType const BOTTOM[], ABD_intType ldBOTTOM );
+ABD_factorize(
+  ABD_intType        mat_id,
+  ABD_intType        row0,
+  ABD_intType        col0,
+  ABD_realType const TOP[], ABD_intType ldTOP,
+  ABD_intType        nblock,
+  ABD_intType        n,
+  ABD_realType const DE[], ABD_intType ldDE,
+  ABD_intType        rowN,
+  ABD_intType        colN,
+  ABD_realType const BOTTOM[], ABD_intType ldBOTTOM
+);
 
 /*!
  *  solve linear ABD system using factorization of `ABD_factorize` call
@@ -122,10 +124,12 @@ ABD_solve( ABD_intType mat_id, ABD_realType rhs_sol[] );
  */
 
 int
-ABD_solve_nrhs( ABD_intType  mat_id,
-                ABD_intType  nrhs,
-                ABD_realType rhs_sol[],
-                ABD_intType  ldRhs );
+ABD_solve_nrhs(
+  ABD_intType  mat_id,
+  ABD_intType  nrhs,
+  ABD_realType rhs_sol[],
+  ABD_intType  ldRhs
+);
 
 /*!
  *  destroy (and free mempry) of a factorization of ABD matrix.
@@ -216,17 +220,20 @@ typedef double BABD_realType;
 \*/
 
 int
-BABD_factorize( BABD_intType        mat_id,
-                BABD_intType        mat_fact,
-                BABD_intType        last_block_fact,
-                BABD_intType        nblock,
-                BABD_intType        n,
-                BABD_intType        qr,
-                BABD_intType        qx,
-                BABD_realType const DE[], BABD_intType ldDE,
-                BABD_realType const H0[], BABD_intType ldH0,
-                BABD_realType const HN[], BABD_intType ldHN,
-                BABD_realType const Hq[], BABD_intType ldHq );
+BABD_factorize(
+  BABD_intType        mat_id,
+  BABD_intType        mat_fact,
+  BABD_intType        last_block_fact,
+  BABD_intType        nblock,
+  BABD_intType        n,
+  BABD_intType        qr,
+  BABD_intType        qx,
+  BABD_realType const DE[], BABD_intType ldDE,
+  BABD_realType const H0[], BABD_intType ldH0,
+  BABD_realType const HN[], BABD_intType ldHN,
+  BABD_realType const Hq[], BABD_intType ldHq
+);
+
 /*!
  *  Perform factorization of BABD matrix defined by blocks H, D and E.
  *  Matrix can be bordered.
@@ -295,22 +302,24 @@ BABD_factorize( BABD_intType        mat_id,
 \*/
 
 int
-BABD_factorize_bordered( BABD_intType        mat_id,
-                         BABD_intType        mat_fact,
-                         BABD_intType        last_block_fact,
-                         BABD_intType        nblock,
-                         BABD_intType        n,
-                         BABD_intType        qr,
-                         BABD_intType        nr,
-                         BABD_intType        qx,
-                         BABD_intType        nx,
-                         BABD_realType const DE[], BABD_intType ldDE,  /* n x (2*n*nblock) */
-                         BABD_realType const H0[], BABD_intType ldH0,  /* (n+qr) x n */
-                         BABD_realType const HN[], BABD_intType ldHN,  /* (n+qr) x n */
-                         BABD_realType const Hq[], BABD_intType ldHq,  /* (n+qr) x qx */
-                         BABD_realType const B[],  BABD_intType ldB,   /* (n*(nblock+1)+qr) x nx */
-                         BABD_realType const C[],  BABD_intType ldC,   /* nr x (n*(nblock+1)+qx) */
-                         BABD_realType const D[],  BABD_intType ldD ); /* nr x nx */
+BABD_factorize_bordered(
+  BABD_intType        mat_id,
+  BABD_intType        mat_fact,
+  BABD_intType        last_block_fact,
+  BABD_intType        nblock,
+  BABD_intType        n,
+  BABD_intType        qr,
+  BABD_intType        nr,
+  BABD_intType        qx,
+  BABD_intType        nx,
+  BABD_realType const DE[], BABD_intType ldDE,  /* n x (2*n*nblock) */
+  BABD_realType const H0[], BABD_intType ldH0,  /* (n+qr) x n */
+  BABD_realType const HN[], BABD_intType ldHN,  /* (n+qr) x n */
+  BABD_realType const Hq[], BABD_intType ldHq,  /* (n+qr) x qx */
+  BABD_realType const B[],  BABD_intType ldB,   /* (n*(nblock+1)+qr) x nx */
+  BABD_realType const C[],  BABD_intType ldC,   /* nr x (n*(nblock+1)+qx) */
+  BABD_realType const D[],  BABD_intType ldD    /* nr x nx */
+);
 
 /*!
  *  solve linear ABD system using factorization of `ABD_factorize` call
@@ -336,10 +345,12 @@ BABD_solve( BABD_intType mat_id, BABD_realType rhs_sol[] );
  */
 
 int
-BABD_solve_nrhs( BABD_intType  mat_id,
-                 BABD_intType  nrhs,
-                 BABD_realType rhs_sol[],
-                 BABD_intType  ldRhs );
+BABD_solve_nrhs(
+  BABD_intType  mat_id,
+  BABD_intType  nrhs,
+  BABD_realType rhs_sol[],
+  BABD_intType  ldRhs
+);
 
 /*!
  *  destroy (and free mempry) of a factorization of ABD matrix.

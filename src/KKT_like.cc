@@ -50,8 +50,10 @@ namespace alglin {
   template <typename t_Value>
   void
   KKT<t_Value>::allocate( integer _n, integer _m ) {
-    ALGLIN_ASSERT( _n > 0 && _m > 0,
-                   "KKT::allocate( " << _n << "," << _m << ")  bad dimension" );
+    ALGLIN_ASSERT(
+      _n > 0 && _m > 0,
+      "KKT::allocate( " << _n << "," << _m << ")  bad dimension"
+    );
     if ( n != _n || m != _m ) {
       n = _n;
       m = _m;
@@ -99,8 +101,10 @@ namespace alglin {
     integer         ldA,
     bool            transposed
   ) {
-    ALGLIN_ASSERT( ldA >= n,
-                   "KKT::load_A bad ldA = " << ldA << " must be >= " << n );
+    ALGLIN_ASSERT(
+      ldA >= n,
+      "KKT::load_A bad ldA = " << ldA << " must be >= " << n
+    );
     pAsolver = &A_LU;
     A_LU.allocate(n,n);
     if ( transposed ) {
@@ -127,9 +131,10 @@ namespace alglin {
      for ( integer k = 0; k < B_nnz; ++k ) {
        integer i = B_row[k]+r_offs;
        integer j = B_col[k]+c_offs;
-       ALGLIN_ASSERT( i >= 0 && i < n && j >= 0 && j < m,
-                      "KKT::load_B bad index (i,j) = (" << i << "," << j <<
-                      ") at position " << k );
+       ALGLIN_ASSERT(
+         i >= 0 && i < n && j >= 0 && j < m,
+         "KKT::load_B bad index (i,j) = (" << i << "," << j << ") at position " << k
+        );
        Zmat[ i + n * j ] += B_values[k];
      }
   }
@@ -145,14 +150,17 @@ namespace alglin {
     bool            transposed
   ) {
     if ( transposed ) {
-      ALGLIN_ASSERT( ldB >= m,
-                     "KKT::load_B bad ldB = " << ldB << " must be >= " << m );
+      ALGLIN_ASSERT(
+        ldB >= m,
+        "KKT::load_B bad ldB = " << ldB << " must be >= " << m
+      );
       for ( integer i = 0; i < n; ++i )
         copy( m, B+i, n, Zmat+i*n, 1 );
     } else {
-     integer info = gecopy( n, m, B, ldB, Zmat, n );
-     ALGLIN_ASSERT( info == 0,
-                    "KKT::load_B bad call gecopy, info = " << info );
+      integer info = gecopy( n, m, B, ldB, Zmat, n );
+      ALGLIN_ASSERT(
+        info == 0, "KKT::load_B bad call gecopy, info = " << info
+      );
     }
   }
 
@@ -171,9 +179,10 @@ namespace alglin {
     for ( integer k = 0; k < C_nnz; ++k ) {
       integer i = C_row[k]+r_offs;
       integer j = C_col[k]+c_offs;
-      ALGLIN_ASSERT( i >= 0 && i < m && j >= 0 && j < n,
-                     "KKT::load_C bad index (i,j) = (" << i << "," << j <<
-                     ") at position " << k );
+      ALGLIN_ASSERT(
+        i >= 0 && i < m && j >= 0 && j < n,
+        "KKT::load_C bad index (i,j) = (" << i << "," << j << ") at position " << k
+      );
       Cmat[ i + m * j ] += C_values[k];
     }
   }
@@ -189,14 +198,16 @@ namespace alglin {
     bool            transposed
   ) {
     if ( transposed ) {
-      ALGLIN_ASSERT( ldC >= n,
-                     "KKT::load_C bad ldC = " << ldC << " must be >= " << n );
+      ALGLIN_ASSERT(
+        ldC >= n, "KKT::load_C bad ldC = " << ldC << " must be >= " << n
+      );
       for ( integer i = 0; i < m; ++i )
         copy( n, C+i, m, Cmat+i*m, 1 );
     } else {
       integer info = gecopy( m, n, C, ldC, Cmat, m );
-      ALGLIN_ASSERT( info == 0,
-                     "KKT::load_C bad call gecopy, info = " << info );
+      ALGLIN_ASSERT(
+        info == 0, "KKT::load_C bad call gecopy, info = " << info
+      );
     }
   }
 
@@ -212,17 +223,18 @@ namespace alglin {
     integer         D_nnz,
     bool            is_symmetric_D
   ) {
-     valueType * Wmat = W_LU.Apointer();
-     gezero( m, m, Wmat, m );
-     for ( integer k = 0; k < D_nnz; ++k ) {
-       integer i = D_row[k]+r_offs;
-       integer j = D_col[k]+c_offs;
-       ALGLIN_ASSERT( i >= 0 && i < m && j >= 0 && j < m,
-                      "KKT::load_D bad index (i,j) = (" << i << "," << j <<
-                      ") at position " << k );
-       Wmat[ i + m * j ] += D_values[k];
-       if ( is_symmetric_D && i == j )
-         Wmat[ j + m * i ] += D_values[k];
+    valueType * Wmat = W_LU.Apointer();
+    gezero( m, m, Wmat, m );
+    for ( integer k = 0; k < D_nnz; ++k ) {
+      integer i = D_row[k]+r_offs;
+      integer j = D_col[k]+c_offs;
+      ALGLIN_ASSERT(
+        i >= 0 && i < m && j >= 0 && j < m,
+        "KKT::load_D bad index (i,j) = (" << i << "," << j << ") at position " << k
+      );
+      Wmat[ i + m * j ] += D_values[k];
+      if ( is_symmetric_D && i == j )
+        Wmat[ j + m * i ] += D_values[k];
      }
   }
 
@@ -236,16 +248,18 @@ namespace alglin {
     integer         ldD,
     bool            transposed
   ) {
-    ALGLIN_ASSERT( ldD >= m,
-                   "KKT::load_D bad ldD = " << ldD << " must be >= " << m );
+    ALGLIN_ASSERT(
+      ldD >= m, "KKT::load_D bad ldD = " << ldD << " must be >= " << m
+    );
     valueType * Wmat = W_LU.Apointer();
     if ( transposed ) {
       for ( integer i = 0; i < m; ++i )
         copy( m, D+i, m, Wmat+i*m, 1 );
     } else {
-     integer info = gecopy( m, m, D, ldD, Wmat, m );
-     ALGLIN_ASSERT( info == 0,
-                    "KKT::load_C bad call gecopy, info = " << info );
+      integer info = gecopy( m, m, D, ldD, Wmat, m );
+      ALGLIN_ASSERT(
+        info == 0, "KKT::load_C bad call gecopy, info = " << info
+      );
     }
   }
 
@@ -259,14 +273,16 @@ namespace alglin {
     // W = C*Z - D
     pAsolver->solve( m, Zmat, n );
     valueType * Wmat = W_LU.Apointer();
-    gemm( NO_TRANSPOSE,
-          NO_TRANSPOSE,
-          m, m, n,
-          1,
-          Cmat, m,
-          Zmat, n,
-          -1,
-          Wmat, m );
+    gemm(
+      NO_TRANSPOSE,
+      NO_TRANSPOSE,
+      m, m, n,
+      1,
+      Cmat, m,
+      Zmat, n,
+      -1,
+      Wmat, m
+    );
     W_LU.factorize( "KKT<::factorize<W>" );
   }
 
@@ -488,19 +504,23 @@ namespace alglin {
     // a' = A^(-1)*a
     pAsolver->solve( xb );
     // b' = C*a' - b
-    gemv( NO_TRANSPOSE,
-          m, n,
-          1, Cmat, m,
-          xb, 1,
-          -1, xb+n, 1 );
+    gemv(
+      NO_TRANSPOSE,
+      m, n,
+      1, Cmat, m,
+      xb, 1,
+      -1, xb+n, 1
+    );
     // y = W^(-1) * b'
     W_LU.solve( xb+n );
     // x = a' - Z*y
-    gemv( NO_TRANSPOSE,
-          n, m,
-          -1, Zmat, n,
-          xb+n, 1,
-          1, xb, 1 );
+    gemv(
+      NO_TRANSPOSE,
+      n, m,
+      -1, Zmat, n,
+      xb+n, 1,
+      1, xb, 1
+    );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -509,19 +529,23 @@ namespace alglin {
   void
   KKT<t_Value>::t_solve( valueType xb[] ) const {
     // b' = Z^T*a -b
-    gemv( TRANSPOSE,
-          n, m,
-          1, Zmat, n,
-          xb, 1,
-          -1, xb+n, 1 );
+    gemv(
+      TRANSPOSE,
+      n, m,
+      1, Zmat, n,
+      xb, 1,
+      -1, xb+n, 1
+    );
     // y  = W^(-T)*b'
     W_LU.t_solve( xb+n );
     // a' = a - C^T*y
-    gemv( TRANSPOSE,
-          m, n,
-          -1, Cmat, m,
-          xb+n, 1,
-          1, xb, 1 );
+    gemv(
+      TRANSPOSE,
+      m, n,
+      -1, Cmat, m,
+      xb+n, 1,
+      1, xb, 1
+    );
     // x = A^(-T) a'
     pAsolver->t_solve( xb );
   }
@@ -534,21 +558,25 @@ namespace alglin {
     // a' = A^(-1)*a
     pAsolver->solve( nrhs, B, ldB );
     // b' = C*a' - b
-    gemm( NO_TRANSPOSE,
-          NO_TRANSPOSE,
-          m, nrhs, n,
-          1, Cmat, m,
-          B, ldB,
-          -1, B+n, ldB );
+    gemm(
+      NO_TRANSPOSE,
+      NO_TRANSPOSE,
+      m, nrhs, n,
+      1, Cmat, m,
+      B, ldB,
+      -1, B+n, ldB
+    );
     // y = W^(-1) * b'
     W_LU.solve( nrhs, B+n, ldB );
     // x = a' - Z*y
-    gemm( NO_TRANSPOSE,
-          NO_TRANSPOSE,
-          n, nrhs, m,
-          -1, Zmat, n,
-          B+n, ldB,
-          1, B, ldB );
+    gemm(
+      NO_TRANSPOSE,
+      NO_TRANSPOSE,
+      n, nrhs, m,
+      -1, Zmat, n,
+      B+n, ldB,
+      1, B, ldB
+    );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -557,21 +585,25 @@ namespace alglin {
   void
   KKT<t_Value>::t_solve( integer nrhs, valueType B[], integer ldB ) const {
     // b' = Z^T*a -b
-    gemm( TRANSPOSE,
-          NO_TRANSPOSE,
-          m, nrhs, n,
-          1, Zmat, n,
-          B, ldB,
-          -1, B+n, ldB );
+    gemm(
+      TRANSPOSE,
+      NO_TRANSPOSE,
+      m, nrhs, n,
+      1, Zmat, n,
+      B, ldB,
+      -1, B+n, ldB
+    );
     // y  = W^(-T)*b'
     W_LU.t_solve( nrhs, B+n, ldB );
     // a' = a - C^T*y
-    gemm( TRANSPOSE,
-          NO_TRANSPOSE,
-          n, nrhs, m,
-          -1, Cmat, m,
-          B+n, ldB,
-          1, B, ldB );
+    gemm(
+      TRANSPOSE,
+      NO_TRANSPOSE,
+      n, nrhs, m,
+      -1, Cmat, m,
+      B+n, ldB,
+      1, B, ldB
+    );
     // x = A^(-T) a'
     pAsolver->t_solve( nrhs, B, ldB );
   }

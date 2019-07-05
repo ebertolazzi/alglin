@@ -178,12 +178,14 @@ namespace alglin {
     int relax      = sp_ienv(2);
     int info = 0;
     //cout << "dgstrf.\n";
-    dgstrf(&slu_options, &AC, relax, panel_size,
-           etree, nullptr, 0, perm_c, perm_r, &L, &U,
+    dgstrf(
+      &slu_options, &AC, relax, panel_size,
+      etree, nullptr, 0, perm_c, perm_r, &L, &U,
     #if defined(SUPERLU_MAJOR_VERSION) && SUPERLU_MAJOR_VERSION >= 5
-           &glu,
+      &glu,
     #endif
-           &slu_stats, &info);
+      &slu_stats, &info
+    );
 
     // Free un-wanted storage
     Destroy_SuperMatrix_Store(&A);
@@ -211,11 +213,13 @@ namespace alglin {
 
     // Initialize the statistics variables.
     StatInit(&slu_stats);
-    dCreate_Dense_Matrix(&B, L.nrow /* neq */,
-                         1 /* nrhs */,
-                         y,
-                         L.nrow /* ldy */,
-                         SLU_DN, SLU_D, SLU_GE);
+    dCreate_Dense_Matrix(
+      &B, L.nrow /* neq */,
+      1 /* nrhs */,
+      y,
+      L.nrow /* ldy */,
+      SLU_DN, SLU_D, SLU_GE
+    );
 
     // Solve the system A*X=B, overwriting B with X.
     dgstrs( trans, &L, &U, perm_c, perm_r, &B, &slu_stats, &info);
