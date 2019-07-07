@@ -114,9 +114,11 @@ namespace alglin {
 
     // Create matrix A in the format expected by SuperLU.
     //cout << "Create matrix A in the format expected by SuperLU.\n";
-    dCreate_CompCol_Matrix( &A, neq, neq, nnz,
-                            values, rowind, colptr,
-                            SLU_NC, SLU_D, SLU_GE );
+    dCreate_CompCol_Matrix(
+      &A, neq, neq, nnz,
+      values, rowind, colptr,
+      SLU_NC, SLU_D, SLU_GE
+    );
 
     std::fill( sumR, sumR+neq, 0 );
     std::fill( sumC, sumC+neq, 0 );
@@ -192,7 +194,7 @@ namespace alglin {
     Destroy_CompCol_Permuted(&AC);
     StatFree(&slu_stats);
 
-    ALGLIN_ASSERT( info == 0, "BABD_SuperLU::factorize -- dgstrf() error returns INFO= " << info );
+    ALGLIN_ASSERT( info == 0, "BABD_SuperLU::factorize -- dgstrf() error returns INFO = " << info );
     //cout << "done\n";
   }
 

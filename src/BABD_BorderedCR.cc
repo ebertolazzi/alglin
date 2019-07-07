@@ -272,6 +272,74 @@ namespace alglin {
     loadBottom( H.get_data(), H.lDim() );
   }
 
+  template <typename t_Value>
+  void
+  BorderedCR<t_Value>::loadBottom2(
+    valueType const C0[], integer ld0,
+    valueType const CN[], integer ldN,
+    valueType const Cq[], integer ldCq,
+    valueType const F[],  integer ldF
+  ) {
+    // (n+qr) x ( n + n + qx + nx )
+    gecopy( nr, n,  C0, ld0,  this->Cmat,              nr );
+    gecopy( nr, n,  CN, ldN,  this->Cmat+nblock*n_x_n, nr );
+    gecopy( nr, qx, Cq, ldCq, this->Cqmat,             nr );
+    gecopy( nr, nx, F,  ldF,  this->Fmat,              nr );
+  }
+
+  template <typename t_Value>
+  void
+  BorderedCR<t_Value>::loadBottom2(
+    MatrixWrapper<valueType> const & C0,
+    MatrixWrapper<valueType> const & CN,
+    MatrixWrapper<valueType> const & Cq,
+    MatrixWrapper<valueType> const & F
+  ) {
+
+    ALGLIN_ASSERT(
+      C0.numRows() == nr && C0.numCols() == n,
+      "loadBottom2, bad dimension size(C0) = " << C0.numRows() <<
+      " x " << C0.numCols() << " expected " << nr << " x " << n
+    );
+
+    ALGLIN_ASSERT(
+      CN.numRows() == nr && CN.numCols() == n,
+      "loadBottom2, bad dimension size(HN) = " << CN.numRows() <<
+      " x " << CN.numCols() << " expected " << nr << " x " << n
+    );
+
+    ALGLIN_ASSERT(
+      Cq.numRows() == nr && Cq.numCols() == qx,
+      "loadBottom2, bad dimension size(Cq) = " << Cq.numRows() <<
+      " x " << Cq.numCols() << " expected " << nr << " x " << qx
+    );
+
+    ALGLIN_ASSERT(
+      F.numRows() == nr && F.numCols() == nx,
+      "loadBottom2, bad dimension size(F) = " << F.numRows() <<
+      " x " << F.numCols() << " expected " << nr << " x " << nx
+    );
+
+    loadBottom2(
+      C0.get_data(), C0.lDim(),
+      CN.get_data(), CN.lDim(),
+      Cq.get_data(), Cq.lDim(),
+      F.get_data(),  F.lDim()
+    );
+
+  }
+
+  template <typename t_Value>
+  void
+  BorderedCR<t_Value>::loadBottom2( MatrixWrapper<valueType> const & H ) {
+    valueType const * ptr = H.get_data();
+    integer           ld  = H.lDim();
+    this->loadC(  0,      ptr, ld ); ptr += nr_x_n;
+    this->loadC(  nblock, ptr, ld ); ptr += nr_x_n;
+    this->loadCq( ptr, ld ); ptr += nr * qx;
+    this->loadF(  ptr, ld );
+  }
+
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   template <typename t_Value>
@@ -533,21 +601,25 @@ namespace alglin {
       info = swaps( ncol, W, n_x_2, 0, n-1, iperm, 1 );
       ALGLIN_ASSERT( info == 0, "BorderedCR::applyT INFO = " << info );
       trsm( LEFT, LOWER, NO_TRANSPOSE, UNIT, n, ncol, 1.0, T, n_x_2, W, n_x_2 );
-      gemm( NO_TRANSPOSE, NO_TRANSPOSE,
-            n, ncol, n,
-            -1.0, T+n, n_x_2,    // M
-                  W,   n_x_2,    // L^(-1) TOP
-             1.0, W+n, n_x_2 ); // TOP = BOTTOM - M L^(-1) TOP
+      gemm(
+        NO_TRANSPOSE, NO_TRANSPOSE,
+        n, ncol, n,
+        -1.0, T+n, n_x_2,  // M
+              W,   n_x_2,  // L^(-1) TOP
+         1.0, W+n, n_x_2   // TOP = BOTTOM - M L^(-1) TOP
+      );
       break;
     case BORDERED_QR:
     case BORDERED_QRP:
-      info = ormqr( LEFT, TRANSPOSE,
-                    n_x_2, ncol, // righe x colonne
-                    n,         // numero riflettori usati nel prodotto Q
-                    T, n_x_2,
-                    T+2*n_x_n,
-                    W, n_x_2,
-                    WorkQR+nth*LworkQR, LworkQR );
+      info = ormqr(
+        LEFT, TRANSPOSE,
+        n_x_2, ncol, // righe x colonne
+        n,         // numero riflettori usati nel prodotto Q
+        T, n_x_2,
+        T+2*n_x_n,
+        W, n_x_2,
+        WorkQR+nth*LworkQR, LworkQR
+      );
       break;
     case BORDERED_SUPERLU:
       ALGLIN_ERROR( "BorderedCR::applyT, cannot be used with SUPERLU" );
@@ -578,22 +650,26 @@ namespace alglin {
       info = swaps( 1, W, n_x_2, 0, n-1, iperm, 1 );
       if ( info == 0 ) {
         trsv( LOWER, NO_TRANSPOSE, UNIT, n, T, n_x_2, W, 1 );
-        gemv( NO_TRANSPOSE,
-              n, n,
-              -1.0, T+n, n_x_2,
-                    W,   1,
-               1.0, W+n, 1 );
+        gemv(
+          NO_TRANSPOSE,
+          n, n,
+          -1.0, T+n, n_x_2,
+                W,   1,
+           1.0, W+n, 1
+        );
       }
       break;
     case BORDERED_QR:
     case BORDERED_QRP:
-      info = ormqr( LEFT, TRANSPOSE,
-                    n_x_2, 1, // righe x colonne
-                    n,      // numero riflettori usati nel prodotto Q
-                    T, n_x_2,
-                    T+2*n_x_n,
-                    W, n_x_2,
-                    WorkQR+nth*LworkQR, LworkQR );
+      info = ormqr(
+        LEFT, TRANSPOSE,
+        n_x_2, 1, // righe x colonne
+        n,      // numero riflettori usati nel prodotto Q
+        T, n_x_2,
+        T+2*n_x_n,
+        W, n_x_2,
+        WorkQR+nth*LworkQR, LworkQR
+      );
       break;
     case BORDERED_SUPERLU:
       ALGLIN_ERROR( "BorderedCR::applyT, cannot be used with SUPERLU" );
@@ -666,31 +742,39 @@ namespace alglin {
               if ( P[i] > i ) swap( nr, Cj+i*nr, 1, Cj+P[i]*nr, 1 );
             } while ( i > 0 );
           }
-          trsm( RIGHT, UPPER, NO_TRANSPOSE, NON_UNIT,
-                nr, n, 1.0, T, n_x_2, Cj, nr );
+          trsm(
+            RIGHT, UPPER, NO_TRANSPOSE, NON_UNIT,
+            nr, n, 1.0, T, n_x_2, Cj, nr
+          );
 
-          gemm( NO_TRANSPOSE, NO_TRANSPOSE,
-                nr, n, n,
-                -1.0, Cj,  nr,
-                      Dj,  n,
-                 1.0, Cjp, nr );
+          gemm(
+            NO_TRANSPOSE, NO_TRANSPOSE,
+            nr, n, n,
+            -1.0, Cj,  nr,
+                  Dj,  n,
+             1.0, Cjp, nr
+          );
 
           integer     jpp = std::min(j+k,eblock);
           valueType * Cpp = Cmat + jpp*nr_x_n;
 
-          gemm( NO_TRANSPOSE, NO_TRANSPOSE,
-                nr, n, n,
-                -1.0, Cj,  nr,
-                      Ej,  n,
-                 1.0, Cpp, nr );
+          gemm(
+            NO_TRANSPOSE, NO_TRANSPOSE,
+            nr, n, n,
+            -1.0, Cj,  nr,
+                  Ej,  n,
+             1.0, Cpp, nr
+          );
         }
 
         if ( nr_x_nx > 0 )
-          gemm( NO_TRANSPOSE, NO_TRANSPOSE,
-                nr, nx, n,
-                -1.0, Cj,      nr,
-                      Bj,      n,
-                 1.0, Fmat_th, nr ); // solo accumulo!
+          gemm(
+            NO_TRANSPOSE, NO_TRANSPOSE,
+            nr, nx, n,
+            -1.0, Cj,      nr,
+                  Bj,      n,
+             1.0, Fmat_th, nr // solo accumulo!
+          );
 
         // NEXT STEP
         T   += k_x_2*Tsize;
@@ -752,34 +836,42 @@ namespace alglin {
               if ( P[i] > i ) swap( nr, Cj+i*nr, 1, Cj+P[i]*nr, 1 );
             } while ( i > 0 );
           }
-          trsm( RIGHT, UPPER, NO_TRANSPOSE, NON_UNIT,
-                nr, n, 1.0, T, n_x_2, Cj, nr );
+          trsm(
+            RIGHT, UPPER, NO_TRANSPOSE, NON_UNIT,
+            nr, n, 1.0, T, n_x_2, Cj, nr
+          );
 
-          gemm( NO_TRANSPOSE, NO_TRANSPOSE,
-                nr, n, n,
-                -1.0, Cj,  nr,
-                      Dj,  n,
-                 1.0, Cjp, nr );
+          gemm(
+            NO_TRANSPOSE, NO_TRANSPOSE,
+            nr, n, n,
+            -1.0, Cj,  nr,
+                  Dj,  n,
+             1.0, Cjp, nr
+          );
 
           integer     jpp = iBlock[std::min(jj+k,nblk)];
           valueType * Cpp = Cmat + jpp*nr_x_n;
 
-          gemm( NO_TRANSPOSE, NO_TRANSPOSE,
-                nr, n, n,
-                -1.0, Cj,  nr,
-                      Ej,  n,
-                 1.0, Cpp, nr );
+          gemm(
+            NO_TRANSPOSE, NO_TRANSPOSE,
+            nr, n, n,
+            -1.0, Cj,  nr,
+                  Ej,  n,
+             1.0, Cpp, nr
+          );
 
         }
 
         if ( nr_x_nx > 0 ) {
           valueType * Cj = Cmat + j*nr_x_n;
           valueType * Bj = Bmat + j*n_x_nx;
-          gemm( NO_TRANSPOSE, NO_TRANSPOSE,
-                nr, nx, n,
-                -1.0, Cj,   nr,
-                      Bj,   n,
-                 1.0, Fmat, nr );
+          gemm(
+            NO_TRANSPOSE, NO_TRANSPOSE,
+            nr, nx, n,
+            -1.0, Cj,   nr,
+                  Bj,   n,
+             1.0, Fmat, nr
+          );
         }
       }
       k *= 2;
@@ -1143,11 +1235,13 @@ namespace alglin {
           #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
           spin.lock();
           #endif
-          gemm( NO_TRANSPOSE, NO_TRANSPOSE,
-                nr, nrhs, n,
-                -1.0, Cj, nr,
-                      xj, ldX,
-                 1.0, xb, ldX );
+          gemm(
+            NO_TRANSPOSE, NO_TRANSPOSE,
+            nr, nrhs, n,
+            -1.0, Cj, nr,
+                  xj, ldX,
+             1.0, xb, ldX
+          );
           #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
           spin.unlock();
           #endif
@@ -1216,11 +1310,13 @@ namespace alglin {
           #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
           spin.lock();
           #endif
-          gemm( NO_TRANSPOSE, NO_TRANSPOSE,
-                nr, nrhs, n,
-                -1.0, Cj, nr,
-                      xj, ldX,
-                 1.0, xb, ldX );
+          gemm(
+            NO_TRANSPOSE, NO_TRANSPOSE,
+            nr, nrhs, n,
+            -1.0, Cj, nr,
+                  xj, ldX,
+             1.0, xb, ldX
+          );
           #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
           spin.unlock();
           #endif
@@ -1312,24 +1408,32 @@ namespace alglin {
       for ( integer j = iblock+k; j < eblock; j += k_x_2 ) {
         integer     jpp = std::min(j+k,eblock);
         valueType * xpp = x + jpp*n;
-        gemm( NO_TRANSPOSE, NO_TRANSPOSE,
-              n, nrhs, n,
-              -1.0, Dj,  n,
-                    xp,  ldX,
-               1.0, xj,  ldX );
-        gemm( NO_TRANSPOSE, NO_TRANSPOSE,
-              n, nrhs, n,
-              -1.0, Ej,  n,
-                    xpp, ldX,
-               1.0, xj,  ldX );
+        gemm(
+          NO_TRANSPOSE, NO_TRANSPOSE,
+          n, nrhs, n,
+          -1.0, Dj,  n,
+                xp,  ldX,
+           1.0, xj,  ldX
+        );
+        gemm(
+          NO_TRANSPOSE, NO_TRANSPOSE,
+          n, nrhs, n,
+          -1.0, Ej,  n,
+                xpp, ldX,
+           1.0, xj,  ldX
+        );
         if ( nx > 0 )
-          gemm( NO_TRANSPOSE, NO_TRANSPOSE,
-                n, nrhs, nx,
-                -1.0, Bj, n,
-                      xn, ldX,
-                 1.0, xj, ldX );
-        trsm( LEFT, UPPER, NO_TRANSPOSE, NON_UNIT,
-              n, nrhs, 1.0, T, n_x_2, xj, ldX );
+          gemm(
+            NO_TRANSPOSE, NO_TRANSPOSE,
+            n, nrhs, nx,
+            -1.0, Bj, n,
+                  xn, ldX,
+             1.0, xj, ldX
+          );
+        trsm(
+          LEFT, UPPER, NO_TRANSPOSE, NON_UNIT,
+          n, nrhs, 1.0, T, n_x_2, xj, ldX
+        );
         if ( selected == BORDERED_QRP ) {
           integer const * P = Perm + j*n;
           for ( integer i = 0; i < n; ++i )
@@ -1407,29 +1511,37 @@ namespace alglin {
         valueType * xj  = x + j*n;
         valueType * xjp = x + jp*n;
         valueType * xpp = x + jpp*n;
-        gemm( NO_TRANSPOSE, NO_TRANSPOSE,
-              n, nrhs, n,
-              -1.0, Dj,  n,
-                    xjp, ldX,
-               1.0, xj,  ldX );
-        gemm( NO_TRANSPOSE, NO_TRANSPOSE,
-              n, nrhs, n,
-              -1.0, Ej,  n,
-                    xpp, ldX,
-               1.0, xj,  ldX );
+        gemm(
+          NO_TRANSPOSE, NO_TRANSPOSE,
+          n, nrhs, n,
+          -1.0, Dj,  n,
+                xjp, ldX,
+           1.0, xj,  ldX
+        );
+        gemm(
+          NO_TRANSPOSE, NO_TRANSPOSE,
+          n, nrhs, n,
+          -1.0, Ej,  n,
+                xpp, ldX,
+           1.0, xj,  ldX
+        );
         if ( nx > 0 ) {
           valueType * Bj = Bmat + j*n_x_nx;
-          gemm( NO_TRANSPOSE, NO_TRANSPOSE,
-                n, nrhs, nx,
-                -1.0, Bj, n,
-                      xn, ldX,
-                 1.0, xj, ldX );
+          gemm(
+            NO_TRANSPOSE, NO_TRANSPOSE,
+            n, nrhs, nx,
+            -1.0, Bj, n,
+                  xn, ldX,
+             1.0, xj, ldX
+          );
         }
 
         // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
         valueType const * T = Tmat + j*Tsize;
-        trsm( LEFT, UPPER, NO_TRANSPOSE, NON_UNIT,
-              n, nrhs, 1.0, T, n_x_2, xj, ldX );
+        trsm(
+          LEFT, UPPER, NO_TRANSPOSE, NON_UNIT,
+          n, nrhs, 1.0, T, n_x_2, xj, ldX
+        );
         if ( selected == BORDERED_QRP ) {
           integer const * P = Perm + j*n;
           for ( integer i = 0; i < n; ++i )
@@ -1499,6 +1611,228 @@ namespace alglin {
   \*/
 
   template <typename t_Value>
+  integer
+  BorderedCR<t_Value>::patternB(
+    integer nbl, integer I[], integer J[], integer offs
+  ) const {
+    integer i0 = nbl*n + offs;
+    integer j0 = (nblock+1)*n + qx + offs;
+    for ( integer ij = 0; ij < n_x_nx; ++ij ) {
+      I[ij] = i0 + (ij % n);
+      J[ij] = j0 + integer(ij/n);
+    }
+    return n_x_nx;
+  }
+
+  template <typename t_Value>
+  integer
+  BorderedCR<t_Value>::valuesB( integer nbl, valueType V[] ) const {
+    alglin::copy( n_x_nx, Bmat + nbl*n_x_nx, 1, V, 1 );
+    return n_x_nx;
+  }
+
+  template <typename t_Value>
+  integer
+  BorderedCR<t_Value>::patternC(
+    integer nbl, integer I[], integer J[], integer offs
+  ) const {
+    integer i0 = (nblock+1)*n + qr + offs;
+    integer j0 = nbl*n + offs;
+    for ( integer ij = 0; ij < nr_x_n; ++ij ) {
+      I[ij] = i0 + (ij % nr);
+      J[ij] = j0 + integer(ij/nr);
+    }
+    return nr_x_n;
+  }
+
+  template <typename t_Value>
+  integer
+  BorderedCR<t_Value>::valuesC( integer nbl, valueType V[] ) const {
+    alglin::copy( nr_x_n, Cmat + nbl*nr_x_n, 1, V, 1 );
+    return nr_x_n;
+  }
+
+  template <typename t_Value>
+  integer
+  BorderedCR<t_Value>::patternD(
+    integer nbl, integer I[], integer J[], integer offs
+  ) const {
+    integer i0 = nbl*n + offs;
+    integer j0 = nbl*n + offs;
+    for ( integer ij = 0; ij < n_x_n; ++ij ) {
+      I[ij] = i0 + (ij % n);
+      J[ij] = j0 + integer(ij/n);
+    }
+    return n_x_n;
+  }
+
+  template <typename t_Value>
+  integer
+  BorderedCR<t_Value>::valuesD( integer nbl, valueType V[] ) const {
+    alglin::copy( n_x_n, Dmat + nbl*n_x_n, 1, V, 1 );
+    return n_x_n;
+  }
+
+  template <typename t_Value>
+  integer
+  BorderedCR<t_Value>::patternE(
+    integer nbl, integer I[], integer J[], integer offs
+  ) const {
+    integer i0 = nbl*n + offs;
+    integer j0 = (nbl+1)*n + offs;
+    for ( integer ij = 0; ij < n_x_n; ++ij ) {
+      I[ij] = i0 + (ij % n);
+      J[ij] = j0 + integer(ij/n);
+    }
+    return n_x_n;
+  }
+
+  template <typename t_Value>
+  integer
+  BorderedCR<t_Value>::valuesE( integer nbl, valueType V[] ) const {
+    alglin::copy( n_x_n, Emat + nbl*n_x_n, 1, V, 1 );
+    return n_x_n;
+  }
+
+  template <typename t_Value>
+  integer
+  BorderedCR<t_Value>::patternF(
+    integer I[], integer J[], integer offs
+  ) const {
+    integer i0 = (nblock+1)*n + qr + offs;
+    integer j0 = (nblock+1)*n + qx + offs;
+    for ( integer ij = 0; ij < nr_x_nx; ++ij ) {
+      I[ij] = i0 + (ij % nr);
+      J[ij] = j0 + integer(ij/nr);
+    }
+    return nr_x_nx;
+  }
+
+  template <typename t_Value>
+  integer
+  BorderedCR<t_Value>::valuesF( valueType V[] ) const {
+    alglin::copy( nr_x_nx, Fmat, 1, V, 1 );
+    return nr_x_nx;
+  }
+
+  template <typename t_Value>
+  integer
+  BorderedCR<t_Value>::patternCq(
+    integer I[], integer J[], integer offs
+  ) const {
+    integer nr_x_qx = nr*qx;
+    integer i0 = (nblock+1)*n + qr + offs;
+    integer j0 = (nblock+1)*n + offs;
+    for ( integer ij = 0; ij < nr_x_qx; ++ij ) {
+      I[ij] = i0 + (ij % nr);
+      J[ij] = j0 + integer(ij/nr);
+    }
+    return nr_x_qx;
+  }
+
+  template <typename t_Value>
+  integer
+  BorderedCR<t_Value>::valuesCq( valueType V[] ) const {
+    integer nr_x_qx = nr*qx;
+    alglin::copy( nr_x_qx, Cqmat, 1, V, 1 );
+    return nr_x_qx;
+  }
+
+  template <typename t_Value>
+  integer
+  BorderedCR<t_Value>::patternH( integer I[], integer J[], integer offs ) const {
+    integer nqr = n + qr;
+    integer nnz = nqr * Nc;
+    integer i0 = nblock*n + offs;
+    integer j0 = i0 - n;
+    for ( integer ij = 0; ij < nnz; ++ij ) {
+      I[ij] = i0 + (ij % nqr);
+      integer j = integer(ij/nqr); if ( j >= n ) j += j0;
+      J[ij] = j;
+    }
+    return nnz;
+  }
+
+  template <typename t_Value>
+  integer
+  BorderedCR<t_Value>::valuesH( valueType V[] ) const {
+    integer nnz = (n + qr) * Nc;
+    alglin::copy( nnz, H0Nqp, 1, V, 1 );
+    return nnz;
+  }
+
+#if 1
+  template <typename t_Value>
+  void
+  BorderedCR<t_Value>::sparsePattern(
+    integer I[],
+    integer J[],
+    integer offs
+  ) const {
+    integer kkk = 0;
+    for ( integer nbl = 0; nbl < nblock; ++nbl ) {
+      kkk += this->patternD( nbl, I+kkk, J+kkk, offs );
+      kkk += this->patternE( nbl, I+kkk, J+kkk, offs );
+      kkk += this->patternB( nbl, I+kkk, J+kkk, offs );
+    }
+
+    // H
+    kkk += this->patternH( I+kkk, J+kkk, offs );
+
+    // C
+    for ( integer nbl = 0; nbl <= nblock; ++nbl )
+      kkk += this->patternC( nbl, I+kkk, J+kkk, offs );
+
+    // F
+    kkk += this->patternF( I+kkk, J+kkk, offs );
+
+    // Cq
+    kkk += this->patternCq( I+kkk, J+kkk, offs );
+
+    ALGLIN_ASSERT(
+      kkk == sparseNnz(),
+      "BorderedCR::sparsePattern( I, J, offs ), inserted " << kkk <<
+      " values, expected " << sparseNnz()
+    );
+
+  }
+
+  // ---------------------------------------------------------------------------
+
+  template <typename t_Value>
+  void
+  BorderedCR<t_Value>::sparseValues( valueType V[] ) const {
+    integer kkk = 0;
+    for ( integer nbl = 0; nbl < nblock; ++nbl ) {
+      kkk += this->valuesD( nbl, V+kkk );
+      kkk += this->valuesE( nbl, V+kkk );
+      kkk += this->valuesB( nbl, V+kkk );
+    }
+
+    // H
+    kkk += this->valuesH( V+kkk );
+
+    // C
+    for ( integer nbl = 0; nbl <= nblock; ++nbl )
+      kkk += this->valuesC( nbl, V+kkk );
+
+    // F
+    kkk += this->valuesF( V+kkk );
+
+    // Cq
+    kkk += this->valuesCq( V+kkk );
+
+    ALGLIN_ASSERT(
+      kkk == sparseNnz(),
+      "BorderedCR::sparseValues( V ), inserted " << kkk <<
+      " values, expected " << sparseNnz()
+    );
+
+  }
+
+#else
+
+  template <typename t_Value>
   void
   BorderedCR<t_Value>::sparsePattern(
     integer I[],
@@ -1559,10 +1893,9 @@ namespace alglin {
     }
 
     // Cq
-    jb -= qx;
     for ( integer i = 0; i < nr; ++i ) {
       for ( integer j = 0; j < qx; ++j ) {
-        I[kkk] = ie+i; J[kkk] = jb+j; ++kkk; // Cqmat[i+j*nr]
+        I[kkk] = ie+i; J[kkk] = jq+j; ++kkk; // Cqmat[i+j*nr]
       }
     }
 
@@ -1602,7 +1935,7 @@ namespace alglin {
     }
 
     // H0
-    valueType * H = H0Nqp;
+    valueType * H = this->H0Nqp;
     for ( integer i = 0; i < n+qr; ++i )
       for ( integer j = 0; j < n; ++j )
         V[kkk++] = H[i+j*(n+qr)];
@@ -1637,6 +1970,7 @@ namespace alglin {
       " values, expected " << sparseNnz()
     );
   }
+#endif
 
   // ---------------------------------------------------------------------------
 
@@ -2098,7 +2432,7 @@ namespace alglin {
     Destroy_CompCol_Permuted(&slu_AC);
     StatFree(&slu_stats);
 
-    ALGLIN_ASSERT( info == 0, "BABD_SuperLU::factorize -- dgstrf() error returns INFO= " << info );
+    ALGLIN_ASSERT( info == 0, "BABD_SuperLU::factorize -- [sd]gstrf() error returns INFO = " << info );
     //cout << "done\n";
 
   }

@@ -543,6 +543,13 @@ namespace alglin {
     \*/
 
     // Border Right blocks
+    /*\
+     |  ____
+     | | __ )
+     | |  _ \
+     | | |_) |
+     | |____/
+    \*/
     void
     loadB( integer nbl, valueType const B[], integer ldB )
     { gecopy( n, nx, B, ldB, Bmat + nbl*n_x_nx, n ); }
@@ -559,7 +566,20 @@ namespace alglin {
     void
     addtoB( integer nbl, MatrixWrapper<valueType> const & B );
 
+    integer
+    patternB( integer nbl, integer I[], integer J[], integer offs ) const;
+
+    integer
+    valuesB( integer nbl, valueType V[] ) const;
+
     // Border Bottom blocks
+    /*\
+     |   ____
+     |  / ___|
+     | | |
+     | | |___
+     |  \____|
+    \*/
     void
     loadC( integer nbl, valueType const C[], integer ldC )
     { gecopy( nr, n, C, ldC, Cmat + nbl*nr_x_n, nr ); }
@@ -580,6 +600,12 @@ namespace alglin {
     void
     addtoC( integer nbl, MatrixWrapper<valueType> const & C );
 
+    integer
+    patternC( integer nbl, integer I[], integer J[], integer offs ) const;
+
+    integer
+    valuesC( integer nbl, valueType V[] ) const;
+
     // add to block nbl and nbl+1
     void
     addtoC2( integer nbl, valueType const C[], integer ldC ) {
@@ -595,6 +621,13 @@ namespace alglin {
     addtoC2( integer nbl, MatrixWrapper<valueType> const & C );
 
     // -------------------------------------------------------------------------
+    /*\
+     |  ____
+     | |  _ \
+     | | | | |
+     | | |_| |
+     | |____/
+    \*/
     void
     loadD( integer nbl, valueType const D[], integer ldD )
     { gecopy( n, n, D, ldD, Dmat + nbl*n_x_n, n ); }
@@ -602,12 +635,31 @@ namespace alglin {
     void
     loadD( integer nbl, MatrixWrapper<valueType> const & D );
 
+    integer
+    patternD( integer nbl, integer I[], integer J[], integer offs ) const;
+
+    integer
+    valuesD( integer nbl, valueType V[] ) const;
+
+    /*\
+     |  _____
+     | | ____|
+     | |  _|
+     | | |___
+     | |_____|
+    \*/
     void
     loadE( integer nbl, valueType const E[], integer ldE )
     { gecopy( n, n, E, ldE, Emat + nbl*n_x_n, n ); }
 
     void
     loadE( integer nbl, MatrixWrapper<valueType> const & E );
+
+    integer
+    patternE( integer nbl, integer I[], integer J[], integer offs ) const;
+
+    integer
+    valuesE( integer nbl, valueType V[] ) const;
 
     void
     loadDE( integer nbl, valueType const DE[], integer ldDE ) {
@@ -623,6 +675,13 @@ namespace alglin {
     }
 
     // -------------------------------------------------------------------------
+    /*\
+     |  _____
+     | |  ___|
+     | | |_
+     | |  _|
+     | |_|
+    \*/
     void
     loadF( valueType const F[], integer ldF )
     { gecopy( nr, nx, F, ldF, Fmat, nr ); }
@@ -637,7 +696,21 @@ namespace alglin {
     void
     addtoF( MatrixWrapper<valueType> const & F );
 
+    integer
+    patternF( integer I[], integer J[], integer offs ) const;
+
+    integer
+    valuesF( valueType V[] ) const;
+
     // -------------------------------------------------------------------------
+    /*\
+     |   ____
+     |  / ___|__ _
+     | | |   / _` |
+     | | |__| (_| |
+     |  \____\__, |
+     |          |_|
+    \*/
     void
     loadCq( valueType const Cq[], integer ldC )
     { gecopy( nr, qx, Cq, ldC, Cqmat, nr ); }
@@ -651,7 +724,25 @@ namespace alglin {
       gecopy( nr, nx, CqF, ldCF, Fmat,  nr );
     }
 
+    integer
+    patternCq( integer I[], integer J[], integer offs ) const;
+
+    integer
+    valuesCq( valueType V[] ) const;
+
     // -------------------------------------------------------------------------
+    /*\
+     |  _   _
+     | | | | |
+     | | |_| |
+     | |  _  |
+     | |_| |_|
+    \*/
+    integer
+    patternH( integer I[], integer J[], integer offs ) const;
+
+    integer
+    valuesH( valueType V[] ) const;
 
     void
     loadBottom(
@@ -677,6 +768,31 @@ namespace alglin {
 
     void
     loadBottom( MatrixWrapper<valueType> const & H );
+
+    /*\
+     |  +---+---+---+---+
+     |  | C | C | Cq| F |
+     |  +---+---+---+---+
+    \*/
+
+    void
+    loadBottom2(
+      valueType const C0[], integer ld0,
+      valueType const CN[], integer ldN,
+      valueType const Cq[], integer ldCq,
+      valueType const F[],  integer ldF
+    );
+
+    void
+    loadBottom2(
+      MatrixWrapper<valueType> const & C0,
+      MatrixWrapper<valueType> const & CN,
+      MatrixWrapper<valueType> const & Cq,
+      MatrixWrapper<valueType> const & F
+    );
+
+    void
+    loadBottom2( MatrixWrapper<valueType> const & H );
 
     /*!
      | @}
@@ -789,7 +905,6 @@ namespace alglin {
 
     void factorize_SuperLU();
     void factorize_CR();
-
 
     /*\
      |         _      _               _
