@@ -288,7 +288,7 @@ namespace alglin {
     }
 
     /*!
-    :|: Fill the matrix with zeros
+    :|: Fill the matrix with value `val`
     \*/
     void
     fill( valueType val ) {

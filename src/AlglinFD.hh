@@ -232,7 +232,7 @@ namespace alglin {
                       fd_jacobian << " must be in {-1, 0, 1}" );
       }
       X[j] = temp; // modify the vector only at i position
-      ok = isRegular(pjac,dim_f);
+      if ( ok ) ok = isRegular(pjac,dim_f);
       pjac += ldJ;
     }
     return ok;
@@ -264,6 +264,9 @@ namespace alglin {
     Number const * pjac = Jac;
 
     for ( integer j = 0; j < dim_x && ok; ++j ) {
+      ok = isRegular(pjac,dim_f);
+      if ( !ok ) break;
+
       Number temp = x[j];
       Number h    = std::max( eps*std::abs(temp), eps );
 
@@ -274,9 +277,9 @@ namespace alglin {
       X[j] = temp-h; // modify the vector only at j position
       ok = (*fun)( X, g0 ) && isRegular(g0,dim_f);
       X[j] = temp; // modify the vector only at i position
+      if ( !ok ) break;
 
-      for ( integer i = 0; i < dim_f && ok; ++i ) {
-        ok = isRegular(pjac,dim_f);
+      for ( integer i = 0; i < dim_f; ++i ) {
         Number d     = (g1[i]-g0[i])/(2*h);
         Number scale = std::max(eps,std::max(std::abs(d),std::abs(pjac[i])));
         Number err   = std::abs(d-pjac[i]);
@@ -314,46 +317,46 @@ namespace alglin {
     Number       Hess[],
     integer      ldH
   ) {
-
+    Number fp, fm, fc, hij, tempi, tempj, hi, hj;
     Number const eps = pow(std::numeric_limits<Number>::epsilon(),0.25);
     bool ok = true;
 
     Number * X = const_cast<Number*>(x);
     Number fpp, fpm, fmp, fmm;
     for ( integer j = 0; j < dim_x && ok; ++j ) {
-      Number tempj = x[j];
-      Number hj    = std::max( eps*std::abs(tempj), eps );
-
-      Number fp, fm, fc;
+      tempj = x[j];
+      hj    = std::max( eps*std::abs(tempj), eps );
       ok = (*fun)( X, fc ) && alglin::isRegular(fc);
-      if ( !ok ) break;
+      if ( !ok ) goto skip;
       X[j] = tempj+hj;
       ok = (*fun)( X, fp ) && alglin::isRegular(fp);
-      if ( !ok ) break;
+      if ( !ok ) goto skip;
       X[j] = tempj-hj;
       ok = (*fun)( X, fm ) && alglin::isRegular(fm);
-      if ( !ok ) break;
+      if ( !ok ) goto skip;
       Hess[j*(ldH+1)] = ((fp+fm)-2*fc)/(hj*hj);
       for ( integer i = j+1; i < dim_x && ok; ++i ) {
-        Number tempi = X[i];
-        Number hi    = std::max( eps*std::abs(tempi), eps );
+        tempi = X[i];
+        hi    = std::max( eps*std::abs(tempi), eps );
         X[i] = tempi+hi;
         X[j] = tempj+hj;
         ok = (*fun)( X, fpp ) && alglin::isRegular(fpp);
-        if ( !ok ) break;
+        if ( !ok ) goto skip2;
         X[i] = tempi-hi;
         ok = (*fun)( X, fmp ) && alglin::isRegular(fmp);
-        if ( !ok ) break;
+        if ( !ok ) goto skip2;
         X[j] = tempj-hj;
         ok = (*fun)( X, fmm ) && alglin::isRegular(fmm);
-        if ( !ok ) break;
+        if ( !ok ) goto skip2;
         X[i] = tempi+hi;
         ok = (*fun)( X, fpm ) && alglin::isRegular(fpm);
-        if ( !ok ) break;
-        Number hij = 4*hi*hj;
+        if ( !ok ) goto skip2;
+        hij = 4*hi*hj;
         Hess[j+i*ldH] = Hess[i+j*ldH] = ( (fpp+fmm) - (fpm+fmp) )/hij;
+      skip2:
         X[i] = tempi;
       }
+    skip:
       X[j] = tempj;
     }
     return ok;
@@ -372,32 +375,31 @@ namespace alglin {
     Number         epsi,
     ostream_type & stream
   ) {
-
+    Number fc, fp, fm, fpp, fpm, fmp, fmm, tempi, tempj, hi, hj, hij;
+    Number ddji, ddij, dde, dd, scale, err;
     Number const eps = pow(std::numeric_limits<Number>::epsilon(),0.25);
     bool ok = true;
 
     Number * X = const_cast<Number*>(x);
-    Number fpp, fpm, fmp, fmm;
     for ( integer j = 0; j < dim_x && ok; ++j ) {
-      Number tempj = x[j];
-      Number hj    = std::max( eps*std::abs(tempj), eps );
+      tempj = x[j];
+      hj    = std::max( eps*std::abs(tempj), eps );
 
-      Number fp, fm, fc;
       ok = (*fun)( X, fc ) && alglin::isRegular(fc);
-      if ( !ok ) break;
+      if ( !ok ) goto skip;
       X[j] = tempj+hj;
       ok = (*fun)( X, fp ) && alglin::isRegular(fp);
-      if ( !ok ) break;
+      if ( !ok ) goto skip;
       X[j] = tempj-hj;
       ok = (*fun)( X, fm ) && alglin::isRegular(fm);
-      if ( !ok ) break;
+      if ( !ok ) goto skip;
 
-      Number dde = Hess[j*(ldH+1)];
-      Number dd  = ((fp+fm)-2*fc)/(hj*hj);
+      dde = Hess[j*(ldH+1)];
+      dd  = ((fp+fm)-2*fc)/(hj*hj);
       ok = alglin::isRegular(dd);
-      if ( !ok ) break;
-      Number scale = std::max(eps,std::max(std::abs(dd),std::abs(dde)));
-      Number err   = std::abs(dd-dde);
+      if ( !ok ) goto skip;
+      scale = std::max(eps,std::max(std::abs(dd),std::abs(dde)));
+      err   = std::abs(dd-dde);
       if ( err > epsi*std::max(Number(1),scale) ) {
         stream << "Hess[" << std::setw(3) << j << ", "
                << std::setw(3) << j << "] = "
@@ -408,27 +410,27 @@ namespace alglin {
       }
 
       for ( integer i = j+1; i < dim_x && ok; ++i ) {
-        Number tempi = X[i];
-        Number hi    = std::max( eps*std::abs(tempi), eps );
+        tempi = X[i];
+        hi    = std::max( eps*std::abs(tempi), eps );
         X[i] = tempi+hi;
         X[j] = tempj+hj;
         ok = (*fun)( X, fpp ) && alglin::isRegular(fpp);
-        if ( !ok ) break;
+        if ( !ok ) goto skip2;
         X[i] = tempi-hi;
         ok = (*fun)( X, fmp ) && alglin::isRegular(fmp);
-        if ( !ok ) break;
+        if ( !ok ) goto skip2;
         X[j] = tempj-hj;
         ok = (*fun)( X, fmm ) && alglin::isRegular(fmm);
-        if ( !ok ) break;
+        if ( !ok ) goto skip2;
         X[i] = tempi+hi;
         ok = (*fun)( X, fpm ) && alglin::isRegular(fpm);
-        if ( !ok ) break;
-        Number hij  = 4*hi*hj;
-        Number ddji = Hess[j+i*ldH];
-        Number ddij = Hess[i+j*ldH];
+        if ( !ok ) goto skip2;
+        hij  = 4*hi*hj;
+        ddji = Hess[j+i*ldH];
+        ddij = Hess[i+j*ldH];
         dd   = ( (fpp+fmm) - (fpm+fmp) )/hij;
         ok = alglin::isRegular(dd);
-        if ( !ok ) break;
+        if ( !ok ) goto skip2;
         scale = std::max(eps,std::max(std::abs(dd),std::abs(ddij)));
         err   = std::abs(dd-ddij);
         if ( err > epsi*std::max(Number(1),scale) ) {
@@ -447,8 +449,10 @@ namespace alglin {
                  << std::setw(14) << err << "  err (%) = "
                  << 100*err/scale << '\n';
         }
+      skip2:
         X[i] = tempi;
       }
+    skip:
       X[j] = tempj;
     }
     return ok;
