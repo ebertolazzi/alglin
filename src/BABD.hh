@@ -57,7 +57,7 @@ namespace alglin {
    *           Via Sommarive 9, I-38123 Povo, Trento, Italy<br>
    *           enrico.bertolazzi@\unitn.it
    *
-   */
+  \*/
   template <typename t_Value>
   class BABD {
   private:
@@ -170,8 +170,10 @@ namespace alglin {
       valueType const _blockN[],
       integer         _ldN
     ) {
-      babd_solver->loadTopBottom( _row0, _col0, _block0, _ld0,
-                                  _rowN, _colN, _blockN, _ldN );
+      babd_solver->loadTopBottom(
+        _row0, _col0, _block0, _ld0,
+        _rowN, _colN, _blockN, _ldN
+      );
     }
 
     void
@@ -221,9 +223,11 @@ namespace alglin {
       valueType HN[], integer ldN,
       valueType Hq[], integer ldq
     ) {
-      babd_solver->loadBC( numInitialBC,  numFinalBC,  numCyclicBC,
-                           numInitialOMEGA, numFinalOMEGA, numCyclicOMEGA,
-                           H0, ld0, HN, ldN, Hq, ldq );
+      babd_solver->loadBC(
+        numInitialBC,  numFinalBC,  numCyclicBC,
+        numInitialOMEGA, numFinalOMEGA, numCyclicOMEGA,
+        H0, ld0, HN, ldN, Hq, ldq
+      );
     }
 
     /*\

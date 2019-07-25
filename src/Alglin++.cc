@@ -2494,6 +2494,109 @@ namespace alglin {
   }
 
   /*\
+  :|:   _     ____   ___   ____
+  :|:  | |   / ___| / _ \ / ___|
+  :|:  | |   \___ \| | | | |
+  :|:  | |___ ___) | |_| | |___
+  :|:  |_____|____/ \__\_\\____|
+  \*/
+
+  #if 0
+
+  template <typename T>
+  void
+  LSQC<T>::factorize(
+    integer         NR,
+    integer         NC,
+    valueType const M[],
+    integer         ldM,
+    bool const      row_select[] // row selected for minimization
+  ) {
+    integer NN = NR+NC;
+    lu.allocate( NN, NN );
+    lu.zero();
+    NR1 = NR2 = 0;
+    for ( integer i = 0; i < NR; ++i ) {
+      if ( row_select[i] ) to_row1[NR1++] = i;
+      else                 to_row2[NR2++] = i;
+    }
+
+    allocReals.allocate( size_t(NN) );
+    rhs = allocReals( size_t(NN) );
+
+    allocIntegers.allocate( size_t(NR) );
+    to_row1 = allocIntegers( size_t(NR1) );
+    to_row2 = allocIntegers( size_t(NR2) );
+
+    /*\
+    :|:  / 0   A^T  B^T \
+    :|:  |              |
+    :|:  | A   -I    0  |
+    :|:  |              |
+    :|:  \ B    0    0  /
+    \*/
+    // A
+    for ( integer i = 0; i < NR1; ++i ) {
+      integer irow = to_row1[i];
+      integer NCi  = NC+i;
+      alglin::copy(
+        NC,
+        M + irow, ldM,
+        lu.Apointer()+NCi, lu.numRow()
+      );
+      alglin::copy(
+        NC,
+        M + irow, ldM,
+        lu.Apointer()+NCi*lu.numRow(), 1
+      );
+      *(lu.Apointer()+(NCi+1)*lu.numRow()) = -1;
+    }
+    // B
+    for ( integer i = 0; i < NR2; ++i ) {
+      integer irow = to_row2[i];
+      integer NCi  = NC+NR1+i;
+      alglin::copy(
+        NC,
+        M + irow, ldM,
+        lu.Apointer()+NCi, lu.numRow()
+      );
+      alglin::copy(
+        NC,
+        M + irow, ldM,
+        lu.Apointer()+NCi*lu.numRow(), 1
+      );
+    }
+
+    lu.factorize( "LSQC" );
+  }
+
+  template <typename T>
+  void
+  LSQC<T>::solve( valueType xb[] ) const {
+    integer NR = lu.numRow();
+    alglin::zero( NR, rhs, 1 );
+    // A^T b
+    for ( integer i = 0; i < NR1; ++i ) {
+      integer ii = to_row1[i];
+      rhs[i] = alglin::dot( NR, xb, 1, this->M+ii*this->ldM, 1);
+    }
+    // c
+    for ( integer i = 0; i < NR2; ++i ) rhs[NR1+i] = xb[to_row2[i]];
+  }
+
+  template <typename T>
+  void
+  LSQC<T>::solve(
+    integer   nrhs,
+    valueType B[],
+    integer   ldB
+  ) const {
+
+  }
+
+  #endif
+
+  /*\
    |    ___                  _ _   _               _
    |   / _ \ _   _  __ _ ___(_) \ | | _____      _| |_ ___  _ __
    |  | | | | | | |/ _` / __| |  \| |/ _ \ \ /\ / / __/ _ \| '_ \
@@ -3891,6 +3994,11 @@ namespace alglin {
 
   template class BandedSPD<real>;
   template class BandedSPD<doublereal>;
+
+#if 0
+  template class LSQC<real>;
+  template class LSQC<doublereal>;
+#endif
 
   template class QN<real>;
   template class QN<doublereal>;

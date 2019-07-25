@@ -82,12 +82,20 @@ namespace alglin {
     ) ALGLIN_PURE_VIRTUAL;
 
     /*!
-     *  \brief Destroy the sparsde matrix
+     *  \brief Destroy the sparse matrix
      *
     \*/
     virtual
     void
     clear() ALGLIN_PURE_VIRTUAL;
+
+    /*!
+     *  \brief Clean to zero the sparse matrix
+     *
+    \*/
+    virtual
+    void
+    setZero() ALGLIN_PURE_VIRTUAL;
 
     /*!
      *  \brief Return true if index are 1-based
@@ -418,6 +426,10 @@ namespace alglin {
     virtual
     void
     clear() ALGLIN_OVERRIDE;
+
+    virtual
+    void
+    setZero() ALGLIN_OVERRIDE;
 
     virtual
     void

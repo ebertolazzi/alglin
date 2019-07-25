@@ -92,8 +92,10 @@ namespace alglin {
     if ( 2*NB < nrA ) ierr = getry( nrA, ncA, A, ldA, swapR, NB );
     else              ierr = gty( nrA, ncA, A, ldA, swapR );
 
-    ALGLIN_ASSERT( ierr == 0,
-                   "DiazLU::LU_left_right, found ierr: " << ierr );
+    ALGLIN_ASSERT(
+      ierr == 0,
+      "DiazLU::LU_left_right, found ierr: " << ierr
+    );
     // applico permutazione al blocco
     t_Value * R = A + ncA * ldA;
     t_Value * L = A - ncL * ldA;
@@ -104,15 +106,19 @@ namespace alglin {
         swap( ncL, L + i, ldA, L + ip, ldA );
       }
     }
-    trsm( LEFT, LOWER, NO_TRANSPOSE, UNIT,
-          ncA, ncR, 1.0,
-          A, ldA,
-          R, ldA );
-    gemm( NO_TRANSPOSE, NO_TRANSPOSE,
-          nrA-ncA, ncR, ncA,
-          -1.0,  A+ncA, ldA,
-          R, ldA,
-          1.0,  R+ncA, ldA );
+    trsm(
+      LEFT, LOWER, NO_TRANSPOSE, UNIT,
+      ncA, ncR, 1.0,
+      A, ldA,
+      R, ldA
+    );
+    gemm(
+      NO_TRANSPOSE, NO_TRANSPOSE,
+      nrA-ncA, ncR, ncA,
+      -1.0,  A+ncA, ldA,
+      R, ldA,
+      1.0,  R+ncA, ldA
+    );
   }
 
   /*
@@ -155,15 +161,19 @@ namespace alglin {
         swap( nrB, B + i*ldB, 1, B + ip*ldB, 1 );
       }
     }
-    trsm( RIGHT, UPPER, NO_TRANSPOSE, NON_UNIT,
-          nrB, nrA, 1.0,
-          A, ldA,
-          B, ldB );
-    gemm( NO_TRANSPOSE, NO_TRANSPOSE,
-          nrB, ncA-nrA, nrA,
-          -1.0, B, ldB,
-          A+nrA*ldA, ldA,
-          1.0,  B+nrA*ldB, ldB );
+    trsm(
+      RIGHT, UPPER, NO_TRANSPOSE, NON_UNIT,
+      nrB, nrA, 1.0,
+      A, ldA,
+      B, ldB
+    );
+    gemm(
+      NO_TRANSPOSE, NO_TRANSPOSE,
+      nrB, ncA-nrA, nrA,
+      -1.0, B, ldB,
+      A+nrA*ldA, ldA,
+      1.0,  B+nrA*ldB, ldB
+    );
   }
 
   /*\
@@ -178,8 +188,10 @@ namespace alglin {
   void
   DiazLU<t_Value>::factorize() {
 
-    ALGLIN_ASSERT( this->numCyclicOMEGA == 0 && this->numCyclicBC == 0,
-                   "DiazLU cannot manage cyclic BC" );
+    ALGLIN_ASSERT(
+      this->numCyclicOMEGA == 0 && this->numCyclicBC == 0,
+      "DiazLU cannot manage cyclic BC"
+    );
 
     integer const & n      = this->n;
     integer const & nxnx2  = this->nxnx2;
@@ -232,9 +244,11 @@ namespace alglin {
     for ( nblk = 1; nblk < nblock; ++nblk ) {
       C += nxnx2;
       valueType * B1 = C - nxn + n_m_row00;
-      LU_top_bottom( n_m_row00, row00,
-                     n, B1, n,
-                     n,  C, n, swapRC );
+      LU_top_bottom(
+        n_m_row00, row00,
+        n, B1, n,
+        n,  C, n, swapRC
+      );
       swapRC += row00;
       valueType * D = C + row00 * n;
       //                 NR          NC            L       R
@@ -261,16 +275,20 @@ namespace alglin {
 
     if ( nblock == 0 ) {
       valueType * B1 = this->block0 + (row0+1) * col00;
-      LU_top_bottom( col00, row00, n,
-                     B1, row0,
-                     rowN, this->blockN, rowN,
-                     swapRC );
+      LU_top_bottom(
+        col00, row00, n,
+        B1, row0,
+        rowN, this->blockN, rowN,
+        swapRC
+      );
     } else {
       valueType * B1 = this->DE_blk + nblock * nxnx2 - nxn + n_m_row00;
-      LU_top_bottom( n_m_row00, row00, n,
-                     B1, n,
-                     rowN, this->blockN, rowN,
-                     swapRC );
+      LU_top_bottom(
+        n_m_row00, row00, n,
+        B1, n,
+        rowN, this->blockN, rowN,
+        swapRC
+      );
     }
 
     // fattorizzazione ultimo blocco
@@ -356,14 +374,15 @@ namespace alglin {
       valueType * L   = M + row00 * n;
 
       // io -= M*io1
-      gemv( NO_TRANSPOSE,
-            n, row00,
-            -1, M, n,
-            io1, 1,
-            1, io, 1 );
+      gemv(
+        NO_TRANSPOSE,
+        n, row00,
+        -1, M, n,
+        io1, 1,
+        1, io, 1
+      );
 
-      trsv( LOWER, NO_TRANSPOSE, UNIT,
-            n, L, n, io, 1 );
+      trsv( LOWER, NO_TRANSPOSE, UNIT, n, L, n, io, 1 );
 
       io += n;
       ++nblk;
@@ -371,11 +390,13 @@ namespace alglin {
 
     // soluzione ultimo blocco
     integer ncol = colN-rowN;
-    gemv( NO_TRANSPOSE,
-          rowN, ncol,
-          -1, this->blockN, rowN,
-          io-ncol, 1,
-          1, io, 1 );
+    gemv(
+      NO_TRANSPOSE,
+      rowN, ncol,
+      -1, this->blockN, rowN,
+      io-ncol, 1,
+      1, io, 1
+    );
 
     this->la_factorization->solve(io);
 
@@ -395,29 +416,34 @@ namespace alglin {
       valueType * U   = this->DE_blk + nblk * nxnx2 + row00 * n;
       valueType * M   = U + nxn;
 
-      gemv( NO_TRANSPOSE,
-            n, n_m_row00,
-            -1, M, n,
-            io1, 1,
-            1, io, 1 );
+      gemv(
+        NO_TRANSPOSE,
+        n, n_m_row00,
+        -1, M, n,
+        io1, 1,
+        1, io, 1
+      );
 
-      trsv( UPPER, NO_TRANSPOSE, NON_UNIT,
-            n, U, n, io, 1 );
+      trsv( UPPER, NO_TRANSPOSE, NON_UNIT, n, U, n, io, 1 );
     }
     
     // primo blocco
     io -= row0;
   
     // soluzione primo blocco
-    gemv( NO_TRANSPOSE,
-          row0, col0-row0,
-          -1, this->block0+row0*row0, row0,
-          io+row0, 1,
-          1, io, 1 );
+    gemv(
+      NO_TRANSPOSE,
+      row0, col0-row0,
+      -1, this->block0+row0*row0, row0,
+      io+row0, 1,
+      1, io, 1
+    );
 
-    trsv( UPPER, NO_TRANSPOSE, NON_UNIT,
-          row0,
-          this->block0, row0, io, 1 );
+    trsv(
+      UPPER, NO_TRANSPOSE, NON_UNIT,
+      row0,
+      this->block0, row0, io, 1
+    );
 
     // applico permutazione alla Soluzione
     integer const * swapC = swapRC_blks+(nblock*n+col00);
@@ -497,10 +523,12 @@ namespace alglin {
 
     // primo blocco
     io = in_out;
-    trsm( LEFT, LOWER, NO_TRANSPOSE, UNIT,
-          row0, nrhs,
-          1.0, this->block0, row0,
-          io, ldRhs );
+    trsm(
+      LEFT, LOWER, NO_TRANSPOSE, UNIT,
+      row0, nrhs,
+      1.0, this->block0, row0,
+      io, ldRhs
+    );
 
     io += row0;
     // blocchi intermedi
@@ -521,17 +549,21 @@ namespace alglin {
       valueType * L   = M + row00 * n;
 
       // io -= M*io1
-      gemm( NO_TRANSPOSE,
-            NO_TRANSPOSE,
-            n, nrhs, row00,
-            -1, M, n,
-            io1, ldRhs,
-            1, io, ldRhs );
+      gemm(
+        NO_TRANSPOSE,
+        NO_TRANSPOSE,
+        n, nrhs, row00,
+        -1, M, n,
+        io1, ldRhs,
+        1, io, ldRhs
+      );
 
-      trsm( LEFT, LOWER, NO_TRANSPOSE, UNIT,
-            n, nrhs,
-            1.0, L, n,
-            io, ldRhs );
+      trsm(
+        LEFT, LOWER, NO_TRANSPOSE, UNIT,
+        n, nrhs,
+        1.0, L, n,
+        io, ldRhs
+      );
 
       io += n;
       ++nblk;
@@ -539,12 +571,14 @@ namespace alglin {
 
     // soluzione ultimo blocco
     integer ncol = colN-rowN;
-    gemm( NO_TRANSPOSE,
-          NO_TRANSPOSE,
-          rowN, nrhs, ncol,
-          -1, this->blockN, rowN,
-          io-ncol, ldRhs,
-          1, io, ldRhs );
+    gemm(
+      NO_TRANSPOSE,
+      NO_TRANSPOSE,
+      rowN, nrhs, ncol,
+      -1, this->blockN, rowN,
+      io-ncol, ldRhs,
+      1, io, ldRhs
+    );
 
     this->la_factorization->solve(nrhs,io,ldRhs);
 
@@ -564,34 +598,42 @@ namespace alglin {
       valueType * U   = this->DE_blk + nblk * nxnx2 + row00 * n;
       valueType * M   = U + nxn;
 
-      gemm( NO_TRANSPOSE,
-            NO_TRANSPOSE,
-            n, nrhs, n_m_row00,
-            -1, M, n,
-            io1, ldRhs,
-            1, io, ldRhs );
+      gemm(
+        NO_TRANSPOSE,
+        NO_TRANSPOSE,
+        n, nrhs, n_m_row00,
+        -1, M, n,
+        io1, ldRhs,
+        1, io, ldRhs
+      );
 
-      trsm( LEFT, UPPER, NO_TRANSPOSE, NON_UNIT,
-            n, nrhs,
-            1.0, U, n,
-            io, ldRhs );
+      trsm(
+        LEFT, UPPER, NO_TRANSPOSE, NON_UNIT,
+        n, nrhs,
+        1.0, U, n,
+        io, ldRhs
+      );
     }
     
     // primo blocco
     io -= row0;
   
     // soluzione primo blocco
-    gemm( NO_TRANSPOSE,
-          NO_TRANSPOSE,
-          row0, nrhs, col0-row0,
-          -1, this->block0+row0*row0, row0,
-          io+row0, ldRhs,
-          1, io, ldRhs );
+    gemm(
+      NO_TRANSPOSE,
+      NO_TRANSPOSE,
+      row0, nrhs, col0-row0,
+      -1, this->block0+row0*row0, row0,
+      io+row0, ldRhs,
+      1, io, ldRhs
+    );
 
-    trsm( LEFT, UPPER, NO_TRANSPOSE, NON_UNIT,
-          row0, nrhs,
-          1.0, this->block0, row0,
-          io, ldRhs );
+    trsm(
+      LEFT, UPPER, NO_TRANSPOSE, NON_UNIT,
+      row0, nrhs,
+      1.0, this->block0, row0,
+      io, ldRhs
+    );
 
     // applico permutazione alla Soluzione
     integer const * swapC = swapRC_blks+(nblock*n+col00);

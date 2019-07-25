@@ -158,6 +158,15 @@ namespace alglin {
 
   template <typename T>
   void
+  SparseCCOOR<T>::setZero() {
+    this->nnz = 0;
+    this->vals.clear();
+    this->rows.clear();
+    this->cols.clear();
+  }
+
+  template <typename T>
+  void
   SparseCCOOR<T>::init(
     integer N,
     integer M,

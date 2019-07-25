@@ -310,6 +310,10 @@ namespace alglin {
     valueType *       Apointer()       { return Amat; }
     valueType const * Apointer() const { return Amat; }
 
+    void
+    zero()
+    { gezero( this->nRow, this->nCol, this->Amat, this->nRow ); }
+
     /*!
     :|:  Zeroes a rectangular block of the stored matrix
     :|:  staring at `(irow,icol)` position
@@ -416,7 +420,7 @@ namespace alglin {
       integer         offs = 0
     ) {
       valueType * Acol = Amat + icol * nRow;
-      zero( nRow, Acol, 1 );
+      alglin::zero( nRow, Acol, 1 );
       for ( integer i = 0; i < nnz; ++i ) Acol[row[i]+offs] = values[i];
     }
 
@@ -477,7 +481,7 @@ namespace alglin {
       integer   const row[], integer r_offs,
       integer   const col[], integer c_offs
     ) {
-      zero( nRow*nCol, Amat, 1 );
+      alglin::zero( nRow*nCol, Amat, 1 );
       for ( integer i = 0; i < nnz; ++i )
         Amat[row[i]+r_offs + (col[i]+c_offs) * nRow] = values[i];
     }
@@ -527,7 +531,7 @@ namespace alglin {
       integer   const row[], integer r_offs,
       integer   const col[], integer c_offs
     ) {
-      zero( nRow*nCol, Amat, 1 );
+      alglin::zero( nRow*nCol, Amat, 1 );
       for ( integer i = 0; i < nnz; ++i ) {
         integer ii = row[i]+r_offs;
         integer jj = col[i]+c_offs;
@@ -1835,8 +1839,8 @@ namespace alglin {
   public:
 
     TridiagonalLU()
-    : allocReals("allocReals")
-    , allocIntegers("allocIntegers")
+    : allocReals("TridiagonalLU-allocReals")
+    , allocIntegers("TridiagonalLU-allocIntegers")
     , nRC(0)
     {}
 
@@ -2074,10 +2078,10 @@ namespace alglin {
   public:
 
     BlockTridiagonalSymmetic()
-    : allocReals("allocReals")
-    , allocIntegers("allocIntegers")
-    , allocRpointers("allocRpointers")
-    , allocIpointers("allocIpointers")
+    : allocReals("BlockTridiagonalSymmetic-allocReals")
+    , allocIntegers("BlockTridiagonalSymmetic-allocIntegers")
+    , allocRpointers("BlockTridiagonalSymmetic-allocRpointers")
+    , allocIpointers("BlockTridiagonalSymmetic-allocIpointers")
     , nBlocks(0)
     , nnz(0)
     , is_factorized(false)
@@ -2347,7 +2351,7 @@ namespace alglin {
     void
     setup(
       ULselect UPLO,
-      integer  N,    // numbe of rows and columns
+      integer  N,    // number of rows and columns
       integer  nD    // number of upper diagonal
     );
 
@@ -2421,6 +2425,89 @@ namespace alglin {
 
   };
 
+  //============================================================================
+  /*\
+  :|:   _     ____   ___   ____
+  :|:  | |   / ___| / _ \ / ___|
+  :|:  | |   \___ \| | | | |
+  :|:  | |___ ___) | |_| | |___
+  :|:  |_____|____/ \__\_\\____|
+  \*/
+  /*!  least square constained
+  :|:
+  :|:  minimize    (1/2) * || A * x - b ||^2
+  :|:
+  :|:  subject to  B * x = c
+  :|:
+  :|:  L = (1/2) * || A * x - b ||^2 + lambda * ( B * x - c )
+  :|:
+  :|:  is equivalent to solve linear system
+  :|:
+  :|:  / A^T*A  B^T \  /   x    \   / A^T b \
+  :|:  |            |  |        | = |       |
+  :|:  \ B       0  /  \ lambda /   \   c   /
+  :|:
+  :|:  is equivalent to solve linear system
+  :|:
+  :|:  / 0   A^T  B^T \  /   x    \   / A^T b \
+  :|:  |              |  |        |   |       |
+  :|:  | A   -I    0  |  | omega  | = |   0   |
+  :|:  |              |  |        |   |       |
+  :|:  \ B    0    0  /  \ lambda /   \   c   /
+  :|:
+  \*/
+
+  #if 0
+
+  template <typename T>
+  class LSQC {
+  public:
+    typedef T valueType;
+
+    Malloc<valueType> allocReals;
+    Malloc<integer>   allocIntegers;
+
+    integer     NR1, NR2;
+    integer   * to_row1;
+    integer   * to_row2;
+    valueType * rhs;
+    LU<T> lu;
+
+  public:
+
+    LSQC()
+    : allocReals("LSQC-allocReals")
+    , allocIntegers("LSQC-allocIntegers")
+    , to_row1(nullptr)
+    , to_row2(nullptr)
+    , rhs(nullptr)
+    {}
+
+    ~LSQC() {}
+
+    void
+    factorize(
+      integer         NR,
+      integer         NC,
+      valueType const M[],
+      integer         ldM,
+      bool const      row_select[] // row selected for minimization
+    );
+
+    void
+    solve( valueType xb[] ) const;
+
+    void
+    solve(
+      integer   nrhs,
+      valueType B[],
+      integer   ldB
+    ) const;
+
+  };
+
+  #endif
+
   /*\
   :|:    ___                  _ _   _               _
   :|:   / _ \ _   _  __ _ ___(_) \ | | _____      _| |_ ___  _ __
@@ -2486,12 +2573,14 @@ namespace alglin {
       valueType       r[],
       integer         inc_r
     ) const {
-      symv( LOWER,
-            n,
-            alpha, H, n,
-            x, inc_x,
-            beta,
-            r, inc_r );
+      symv(
+        LOWER,
+        n,
+        alpha, H, n,
+        x, inc_x,
+        beta,
+        r, inc_r
+      );
     }
 
     // r <- H * x

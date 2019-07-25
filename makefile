@@ -81,7 +81,7 @@ ifneq (,$(findstring Linux, $(OS)))
   CC     += $(WARN)
   CXX    += $(WARN)
   AR      = ar rcs
-  LIBSGCC = -lstdc++ -lm -pthread
+  LIBSGCC = -lsuperlu -lstdc++ -lm -pthread
 
 ifneq (,$(findstring ALGLIN_USE_LAPACK,$(USED_LIB)))
   override LIBS += -llapack -lblas

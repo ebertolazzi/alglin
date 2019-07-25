@@ -61,12 +61,14 @@ namespace alglin {
     Work_lda = F_lda + _n;
     integer Fnnz = _nblock*F_size;
     integer innz = _nblock*_n;
-    BlockBidiagonal<t_Value>::allocateTopBottom( _nblock, _n,
-                                                 _row0, _col0,
-                                                 _rowN, _colN,
-                                                 _nb,
-                                                 Fnnz+2*Work_lda*_n,
-                                                 innz+_row0);
+    BlockBidiagonal<t_Value>::allocateTopBottom(
+      _nblock, _n,
+      _row0, _col0,
+      _rowN, _colN,
+      _nb,
+      Fnnz+2*Work_lda*_n,
+      innz+_row0
+    );
     swap0      = this->baseInteger(size_t(_row0));
     swapR_blks = this->baseInteger(size_t(innz));
     F_mat      = this->baseValue(size_t(Fnnz));
@@ -86,8 +88,10 @@ namespace alglin {
   void
   BlockLU<t_Value>::factorize() {
 
-    ALGLIN_ASSERT( this->numCyclicOMEGA == 0 && this->numCyclicBC == 0,
-                   "BlockLU cannot manage cyclic BC" );
+    ALGLIN_ASSERT(
+      this->numCyclicOMEGA == 0 && this->numCyclicBC == 0,
+      "BlockLU cannot manage cyclic BC"
+    );
 
     integer const & n      = this->n;
     integer const & nxnx2  = this->nxnx2;
@@ -115,19 +119,27 @@ namespace alglin {
       t_Value * block00 = this->block0 + col00*row0;
       if ( col00 > 0 ) {
         integer info = getrf( row0, col00, this->block0, row0, swap0 );
-        ALGLIN_ASSERT( info == 0,
-                       "BlockLU::factorize, first block, getrf INFO = " << info );
+        ALGLIN_ASSERT(
+          info == 0,
+          "BlockLU::factorize, first block, getrf INFO = " << info
+        );
         // applico permutazioni
         info = swaps( n, block00, row0, 0, col00-1, swap0, 1 );
-        ALGLIN_ASSERT( info == 0,
-                       "BlockLU::factorize, first block, swaps INFO = " << info );
-        trsm( LEFT, LOWER, NO_TRANSPOSE, UNIT,
-              col00, n, 1.0, this->block0, row0, block00, row0 );
-        gemm( NO_TRANSPOSE, NO_TRANSPOSE,
-              row00, n, col00,
-              -1.0, this->block0+col00, row0,
-                    block00,            row0,
-               1.0, block00+col00,      row0 );
+        ALGLIN_ASSERT(
+          info == 0,
+          "BlockLU::factorize, first block, swaps INFO = " << info
+        );
+        trsm(
+          LEFT, LOWER, NO_TRANSPOSE, UNIT,
+          col00, n, 1.0, this->block0, row0, block00, row0
+        );
+        gemm(
+          NO_TRANSPOSE, NO_TRANSPOSE,
+          row00, n, col00,
+          -1.0, this->block0+col00, row0,
+                block00,            row0,
+           1.0, block00+col00,      row0
+        );
       }
 
       /*
@@ -146,51 +158,73 @@ namespace alglin {
 
       // copy from
       integer info = gecopy( row00, n, block00 + col00, row0, Work_mat, Work_lda );
-      ALGLIN_ASSERT( info == 0,
-                     "BlockLU::factorize, first block, gecopy INFO = " << info );
+      ALGLIN_ASSERT(
+        info == 0,
+        "BlockLU::factorize, first block, gecopy INFO = " << info
+      );
       gezero( row00, n, Work_mat1, Work_lda );
 
       info = gecopy( n, n, this->DE_blk, n, Work_mat+row00, Work_lda );
-      ALGLIN_ASSERT( info == 0,
-                     "BlockLU::factorize, first block, gecopy INFO = " << info );
+      ALGLIN_ASSERT(
+        info == 0,
+        "BlockLU::factorize, first block, gecopy INFO = " << info
+      );
 
       info = gecopy( n, n, this->DE_blk + nxn, n, Work_mat1+row00, Work_lda );
-      ALGLIN_ASSERT( info == 0,
-                     "BlockLU::factorize, first block, gecopy INFO = " << info );
+      ALGLIN_ASSERT(
+        info == 0,
+        "BlockLU::factorize, first block, gecopy INFO = " << info
+      );
 
       // factorize
       info = getrf( n+row00, n, Work_mat, Work_lda, swapR_blks );
-      ALGLIN_ASSERT( info == 0,
-                     "BlockLU::factorize, first block, getrf INFO = " << info );
+      ALGLIN_ASSERT(
+        info == 0,
+        "BlockLU::factorize, first block, getrf INFO = " << info
+      );
 
       // apply permutation
       info = swaps( n, Work_mat1, Work_lda, 0, n-1, swapR_blks, 1 );
-      ALGLIN_ASSERT( info == 0,
-                     "BlockLU::factorize, first block, swaps INFO = " << info );
-      trsm( LEFT, LOWER, NO_TRANSPOSE, UNIT,
-            n, n, 1.0, Work_mat, Work_lda, Work_mat1, Work_lda );
-      gemm( NO_TRANSPOSE, NO_TRANSPOSE,
-            row00, n, n,
-            -1.0, Work_mat+n,  Work_lda,
-                  Work_mat1,   Work_lda,
-             1.0, Work_mat1+n, Work_lda );
+      ALGLIN_ASSERT(
+        info == 0,
+        "BlockLU::factorize, first block, swaps INFO = " << info
+      );
+      trsm(
+        LEFT, LOWER, NO_TRANSPOSE, UNIT,
+        n, n, 1.0, Work_mat, Work_lda, Work_mat1, Work_lda
+      );
+      gemm(
+        NO_TRANSPOSE, NO_TRANSPOSE,
+        row00, n, n,
+        -1.0, Work_mat+n,  Work_lda,
+              Work_mat1,   Work_lda,
+         1.0, Work_mat1+n, Work_lda
+      );
 
       // copy to
       info = gecopy( row00, n, Work_mat, Work_lda, block00 + col00, row0 );
-      ALGLIN_ASSERT( info == 0,
-                     "BlockLU::factorize, first block, gecopy INFO = " << info );
+      ALGLIN_ASSERT(
+        info == 0,
+        "BlockLU::factorize, first block, gecopy INFO = " << info
+      );
 
       info = gecopy( row00, n, Work_mat1, Work_lda, F_mat, F_lda );
-      ALGLIN_ASSERT( info == 0,
-                     "BlockLU::factorize, first block, gecopy INFO = " << info );
+      ALGLIN_ASSERT(
+        info == 0,
+        "BlockLU::factorize, first block, gecopy INFO = " << info
+      );
 
       info = gecopy( n, n, Work_mat+row00, Work_lda, this->DE_blk, n );
-      ALGLIN_ASSERT( info == 0,
-                     "BlockLU::factorize, first block, gecopy INFO = " << info );
+      ALGLIN_ASSERT(
+        info == 0,
+        "BlockLU::factorize, first block, gecopy INFO = " << info
+      );
 
       info = gecopy( n, n, Work_mat1+row00, Work_lda, this->DE_blk + nxn, n );
-      ALGLIN_ASSERT( info == 0,
-                     "BlockLU::factorize, first block, gecopy INFO = " << info );
+      ALGLIN_ASSERT(
+        info == 0,
+        "BlockLU::factorize, first block, gecopy INFO = " << info
+      );
 
       /*
       // |    A       |
@@ -216,51 +250,73 @@ namespace alglin {
 
         // copy from
         info = gecopy( row00, n, A + n_m_row00, n, Work_mat, Work_lda );
-        ALGLIN_ASSERT( info == 0,
-                       "BlockLU::factorize, first block, gecopy INFO = " << info );
+        ALGLIN_ASSERT(
+          info == 0,
+          "BlockLU::factorize, first block, gecopy INFO = " << info
+        );
         gezero( row00, n, Work_mat1, Work_lda );
 
         info = gecopy( n, n, B, n, Work_mat+row00, Work_lda );
-        ALGLIN_ASSERT( info == 0,
-                       "BlockLU::factorize, first block, gecopy INFO = " << info );
+        ALGLIN_ASSERT(
+          info == 0,
+          "BlockLU::factorize, first block, gecopy INFO = " << info
+        );
 
         info = gecopy( n, n, C, n, Work_mat1+row00, Work_lda );
-        ALGLIN_ASSERT( info == 0,
-                       "BlockLU::factorize, first block, gecopy INFO = " << info );
+        ALGLIN_ASSERT(
+          info == 0,
+          "BlockLU::factorize, first block, gecopy INFO = " << info
+        );
 
         // factorize
         info = getrf( n+row00, n, Work_mat, Work_lda, swps );
-        ALGLIN_ASSERT( info == 0,
-                       "BlockLU::factorize, first block, getrf INFO = " << info );
+        ALGLIN_ASSERT(
+          info == 0,
+          "BlockLU::factorize, first block, getrf INFO = " << info
+        );
 
         // apply permutation
         info = swaps( n, Work_mat1, Work_lda, 0, n-1, swps, 1 );
-        ALGLIN_ASSERT( info == 0,
-                       "BlockLU::factorize, first block, swaps INFO = " << info );
-        trsm( LEFT, LOWER, NO_TRANSPOSE, UNIT,
-              n, n, 1.0, Work_mat, Work_lda, Work_mat1, Work_lda );
-        gemm( NO_TRANSPOSE, NO_TRANSPOSE,
-              row00, n, n,
-              -1.0, Work_mat+n,  Work_lda,
-                    Work_mat1,   Work_lda,
-               1.0, Work_mat1+n, Work_lda );
+        ALGLIN_ASSERT(
+          info == 0,
+          "BlockLU::factorize, first block, swaps INFO = " << info
+        );
+        trsm(
+          LEFT, LOWER, NO_TRANSPOSE, UNIT,
+          n, n, 1.0, Work_mat, Work_lda, Work_mat1, Work_lda
+        );
+        gemm(
+          NO_TRANSPOSE, NO_TRANSPOSE,
+          row00, n, n,
+          -1.0, Work_mat+n,  Work_lda,
+                Work_mat1,   Work_lda,
+           1.0, Work_mat1+n, Work_lda
+        );
 
         // copy to
         info = gecopy( row00, n, Work_mat, Work_lda, A + n_m_row00, n );
-        ALGLIN_ASSERT( info == 0,
-                       "BlockLU::factorize, first block, gecopy INFO = " << info );
+        ALGLIN_ASSERT(
+          info == 0,
+          "BlockLU::factorize, first block, gecopy INFO = " << info
+        );
 
         info = gecopy( row00, n, Work_mat1, Work_lda, F, F_lda );
-        ALGLIN_ASSERT( info == 0,
-                       "BlockLU::factorize, first block, gecopy INFO = " << info );
+        ALGLIN_ASSERT(
+          info == 0,
+          "BlockLU::factorize, first block, gecopy INFO = " << info
+        );
 
         info = gecopy( n, n, Work_mat+row00, Work_lda, B, n );
-        ALGLIN_ASSERT( info == 0,
-                       "BlockLU::factorize, first block, gecopy INFO = " << info );
+        ALGLIN_ASSERT(
+          info == 0,
+          "BlockLU::factorize, first block, gecopy INFO = " << info
+        );
 
         info = gecopy( n, n, Work_mat1+row00, Work_lda, C, n );
-        ALGLIN_ASSERT( info == 0,
-                       "BlockLU::factorize, first block, gecopy INFO = " << info );
+        ALGLIN_ASSERT(
+          info == 0,
+          "BlockLU::factorize, first block, gecopy INFO = " << info
+        );
       }
       /*
       // |    A       |      B     |
@@ -342,15 +398,19 @@ namespace alglin {
       if ( col00 > 0 ) {
         // apply permutation
         integer info = swaps( 1, io, row0, 0, col00-1, swap0, 1 );
-        ALGLIN_ASSERT( info == 0,
-                       "BlockLU::solve, first block, swaps INFO = " << info );
+        ALGLIN_ASSERT(
+          info == 0,
+          "BlockLU::solve, first block, swaps INFO = " << info
+        );
         trsv( LOWER, NO_TRANSPOSE, UNIT, col00, this->block0, row0, in_out, 1 );
         io += col00;
-        gemv( NO_TRANSPOSE,
-              row00, col00,
-              -1.0, this->block0+col00, row0,
-                    in_out, 1,
-               1.0, io, 1 );
+        gemv(
+          NO_TRANSPOSE,
+          row00, col00,
+          -1.0, this->block0+col00, row0,
+                in_out, 1,
+           1.0, io, 1
+        );
       }
 
       /*
@@ -370,24 +430,32 @@ namespace alglin {
 
       // apply permutation
       integer info = swaps( 1, io, n, 0, n-1, swapR_blks, 1 );
-      ALGLIN_ASSERT( info == 0,
-                     "BlockLU::solve, first block, swaps INFO = " << info );
+      ALGLIN_ASSERT(
+        info == 0,
+        "BlockLU::solve, first block, swaps INFO = " << info
+      );
 
       // copy from
       info = gecopy( row00, n, block00 + col00, row0, Work_mat, Work_lda );
-      ALGLIN_ASSERT( info == 0,
-                     "BlockLU::solve, first block, gecopy INFO = " << info );
+      ALGLIN_ASSERT(
+        info == 0,
+        "BlockLU::solve, first block, gecopy INFO = " << info
+      );
 
       info = gecopy( n, n, this->DE_blk, n, Work_mat+row00, Work_lda );
-      ALGLIN_ASSERT( info == 0,
-                     "BlockLU::solve, first block, gecopy INFO = " << info );
+      ALGLIN_ASSERT(
+        info == 0,
+        "BlockLU::solve, first block, gecopy INFO = " << info
+      );
 
       trsv( LOWER, NO_TRANSPOSE, UNIT, n, Work_mat, Work_lda, io, 1 );
-      gemv( NO_TRANSPOSE,
-            row00, n,
-            -1.0, Work_mat+n, Work_lda,
-                  io, 1,
-             1.0, io+n, 1 );
+      gemv(
+        NO_TRANSPOSE,
+        row00, n,
+        -1.0, Work_mat+n, Work_lda,
+              io, 1,
+         1.0, io+n, 1
+      );
       io += n;
 
       /*
@@ -412,24 +480,32 @@ namespace alglin {
 
         // apply permutation
         info = swaps( 1, io, n, 0, n-1, swps, 1 );
-        ALGLIN_ASSERT( info == 0,
-                       "BlockLU::solve, first block, swaps INFO = " << info );
+        ALGLIN_ASSERT(
+          info == 0,
+          "BlockLU::solve, first block, swaps INFO = " << info
+        );
 
         // copy from
         info = gecopy( row00, n, A + n_m_row00, n, Work_mat, Work_lda );
-        ALGLIN_ASSERT( info == 0,
-                       "BlockLU::factorize, first block, gecopy INFO = " << info );
+        ALGLIN_ASSERT(
+          info == 0,
+          "BlockLU::factorize, first block, gecopy INFO = " << info
+        );
 
         info = gecopy( n, n, B, n, Work_mat+row00, Work_lda );
-        ALGLIN_ASSERT( info == 0,
-                       "BlockLU::factorize, first block, gecopy INFO = " << info );
+        ALGLIN_ASSERT(
+          info == 0,
+          "BlockLU::factorize, first block, gecopy INFO = " << info
+        );
 
         trsv( LOWER, NO_TRANSPOSE, UNIT, n, Work_mat, Work_lda, io, 1 );
-        gemv( NO_TRANSPOSE,
-              row00, n,
-              -1.0, Work_mat+n, Work_lda,
-                    io, 1,
-              1.0, io+n, 1 );
+        gemv(
+          NO_TRANSPOSE,
+          row00, n,
+          -1.0, Work_mat+n, Work_lda,
+                io, 1,
+           1.0, io+n, 1
+        );
         io += n;
       }
 
@@ -476,27 +552,37 @@ namespace alglin {
       
         // copy from
         info = gecopy( row00, n, A + n_m_row00, n, Work_mat, Work_lda );
-        ALGLIN_ASSERT( info == 0,
-                       "BlockLU::solve, U block, gecopy INFO = " << info );
+        ALGLIN_ASSERT(
+          info == 0,
+          "BlockLU::solve, U block, gecopy INFO = " << info
+        );
 
         info = gecopy( row00, n, F, F_lda, Work_mat1, Work_lda );
-        ALGLIN_ASSERT( info == 0,
-                       "BlockLU::solve, U block, gecopy INFO = " << info );
+        ALGLIN_ASSERT(
+          info == 0,
+          "BlockLU::solve, U block, gecopy INFO = " << info
+        );
 
         info = gecopy( n_m_row00, n, B, n, Work_mat+row00, Work_lda );
-        ALGLIN_ASSERT( info == 0,
-                       "BlockLU::factorize, first block, gecopy INFO = " << info );
+        ALGLIN_ASSERT(
+          info == 0,
+          "BlockLU::factorize, first block, gecopy INFO = " << info
+        );
 
         info = gecopy( n_m_row00, n, C, n, Work_mat1+row00, Work_lda );
-        ALGLIN_ASSERT( info == 0,
-                       "BlockLU::factorize, first block, gecopy INFO = " << info );
+        ALGLIN_ASSERT(
+          info == 0,
+          "BlockLU::factorize, first block, gecopy INFO = " << info
+        );
 
         io -= n;
-        gemv( NO_TRANSPOSE,
-              n, n,
-              -1.0, Work_mat1, Work_lda,
-                    io+n,      1,
-               1.0, io,        1 );
+        gemv(
+          NO_TRANSPOSE,
+          n, n,
+          -1.0, Work_mat1, Work_lda,
+                io+n,      1,
+           1.0, io,        1
+        );
 
         trsv( UPPER, NO_TRANSPOSE, NON_UNIT, n, Work_mat, Work_lda, io, 1 );
 
@@ -507,27 +593,37 @@ namespace alglin {
 
       // copy from
       info = gecopy( row00, n, block00 + col00, row0, Work_mat, Work_lda );
-      ALGLIN_ASSERT( info == 0,
-                     "BlockLU::solve, U block, gecopy INFO = " << info );
+      ALGLIN_ASSERT(
+        info == 0,
+        "BlockLU::solve, U block, gecopy INFO = " << info
+      );
 
       info = gecopy( row00, n, F_mat, F_lda, Work_mat1, Work_lda );
-      ALGLIN_ASSERT( info == 0,
-                     "BlockLU::solve, U block, gecopy INFO = " << info );
+      ALGLIN_ASSERT(
+        info == 0,
+        "BlockLU::solve, U block, gecopy INFO = " << info
+      );
 
       info = gecopy( n_m_row00, n, B, n, Work_mat+row00, Work_lda );
-      ALGLIN_ASSERT( info == 0,
-                     "BlockLU::factorize, U block, gecopy INFO = " << info );
+      ALGLIN_ASSERT(
+        info == 0,
+        "BlockLU::factorize, U block, gecopy INFO = " << info
+      );
 
       info = gecopy( n_m_row00, n, C, n, Work_mat1+row00, Work_lda );
-      ALGLIN_ASSERT( info == 0,
-                     "BlockLU::factorize, U block, gecopy INFO = " << info );
+      ALGLIN_ASSERT(
+        info == 0,
+        "BlockLU::factorize, U block, gecopy INFO = " << info
+      );
 
       io -= n;
-      gemv( NO_TRANSPOSE,
-            n, n,
-            -1.0, Work_mat1, Work_lda,
-                  io+n,      1,
-             1.0, io,        1 );
+      gemv(
+        NO_TRANSPOSE,
+        n, n,
+        -1.0, Work_mat1, Work_lda,
+              io+n,      1,
+         1.0, io,        1
+      );
 
       trsv( UPPER, NO_TRANSPOSE, NON_UNIT, n, Work_mat, Work_lda, io, 1 );
 
@@ -541,11 +637,13 @@ namespace alglin {
       */
       if ( col00 > 0 ) {
         io -= col00;
-        gemv( NO_TRANSPOSE,
-              col00, n,
-              -1.0, block00,  row0,
-                    io+col00, 1,
-               1.0, io,       1 );
+        gemv(
+          NO_TRANSPOSE,
+          col00, n,
+          -1.0, block00,  row0,
+                io+col00, 1,
+           1.0, io,       1
+        );
         trsv( UPPER, NO_TRANSPOSE, NON_UNIT, col00, this->block0, row0, io, 1 );
       }
     } else {  // case nblock = 0
@@ -617,16 +715,22 @@ namespace alglin {
       if ( col00 > 0 ) {
         // apply permutation
         integer info = swaps( 1, io, row0, 0, col00-1, swap0, 1 );
-        ALGLIN_ASSERT( info == 0,
-                       "BlockLU::solve, first block, swaps INFO = " << info );
-        trsm( LEFT, LOWER, NO_TRANSPOSE, UNIT,
-              col00, nrhs, 1.0, this->block0, row0, in_out, ldRhs );
+        ALGLIN_ASSERT(
+          info == 0,
+          "BlockLU::solve, first block, swaps INFO = " << info
+        );
+        trsm(
+          LEFT, LOWER, NO_TRANSPOSE, UNIT,
+          col00, nrhs, 1.0, this->block0, row0, in_out, ldRhs
+        );
         io += col00;
-        gemm( NO_TRANSPOSE, NO_TRANSPOSE,
-              row00, nrhs, col00,
-              -1.0, this->block0+col00, row0,
-                    in_out, ldRhs,
-               1.0, io, ldRhs );
+        gemm(
+          NO_TRANSPOSE, NO_TRANSPOSE,
+          row00, nrhs, col00,
+          -1.0, this->block0+col00, row0,
+                in_out, ldRhs,
+           1.0, io, ldRhs
+        );
       }
 
       /*
@@ -646,25 +750,35 @@ namespace alglin {
 
       // apply permutation
       integer info = swaps( nrhs, io, ldRhs, 0, n-1, swapR_blks, 1 );
-      ALGLIN_ASSERT( info == 0,
-                     "BlockLU::solve, first block, swaps INFO = " << info );
+      ALGLIN_ASSERT(
+        info == 0,
+        "BlockLU::solve, first block, swaps INFO = " << info
+      );
 
       // copy from
       info = gecopy( row00, n, block00 + col00, row0, Work_mat, Work_lda );
-      ALGLIN_ASSERT( info == 0,
-                     "BlockLU::solve, first block, gecopy INFO = " << info );
+      ALGLIN_ASSERT(
+        info == 0,
+        "BlockLU::solve, first block, gecopy INFO = " << info
+      );
 
       info = gecopy( n, n, this->DE_blk, n, Work_mat+row00, Work_lda );
-      ALGLIN_ASSERT( info == 0,
-                     "BlockLU::solve, first block, gecopy INFO = " << info );
+      ALGLIN_ASSERT(
+        info == 0,
+        "BlockLU::solve, first block, gecopy INFO = " << info
+      );
 
-      trsm( LEFT, LOWER, NO_TRANSPOSE, UNIT,
-            n, nrhs, 1.0, Work_mat, Work_lda, io, ldRhs );
-      gemm( NO_TRANSPOSE, NO_TRANSPOSE,
-            row00, nrhs, n,
-            -1.0, Work_mat+n, Work_lda,
-                  io, ldRhs,
-             1.0, io+n, ldRhs );
+      trsm(
+        LEFT, LOWER, NO_TRANSPOSE, UNIT,
+        n, nrhs, 1.0, Work_mat, Work_lda, io, ldRhs
+      );
+      gemm(
+        NO_TRANSPOSE, NO_TRANSPOSE,
+        row00, nrhs, n,
+        -1.0, Work_mat+n, Work_lda,
+              io, ldRhs,
+         1.0, io+n, ldRhs
+      );
       io += n;
 
       /*
@@ -689,25 +803,35 @@ namespace alglin {
 
         // apply permutation
         info = swaps( nrhs, io, ldRhs, 0, n-1, swps, 1 );
-        ALGLIN_ASSERT( info == 0,
-                       "BlockLU::solve, first block, swaps INFO = " << info );
+        ALGLIN_ASSERT(
+          info == 0,
+          "BlockLU::solve, first block, swaps INFO = " << info
+        );
 
         // copy from
         info = gecopy( row00, n, A + n_m_row00, n, Work_mat, Work_lda );
-        ALGLIN_ASSERT( info == 0,
-                       "BlockLU::factorize, first block, gecopy INFO = " << info );
+        ALGLIN_ASSERT(
+          info == 0,
+          "BlockLU::factorize, first block, gecopy INFO = " << info
+        );
 
         info = gecopy( n, n, B, n, Work_mat+row00, Work_lda );
-        ALGLIN_ASSERT( info == 0,
-                       "BlockLU::factorize, first block, gecopy INFO = " << info );
+        ALGLIN_ASSERT(
+          info == 0,
+          "BlockLU::factorize, first block, gecopy INFO = " << info
+        );
 
-        trsm( LEFT, LOWER, NO_TRANSPOSE, UNIT,
-              n, nrhs, 1.0, Work_mat, Work_lda, io, ldRhs );
-        gemm( NO_TRANSPOSE, NO_TRANSPOSE,
-              row00, nrhs, n,
-              -1.0, Work_mat+n, Work_lda,
-                    io, ldRhs,
-               1.0, io+n, ldRhs );
+        trsm(
+          LEFT, LOWER, NO_TRANSPOSE, UNIT,
+          n, nrhs, 1.0, Work_mat, Work_lda, io, ldRhs
+        );
+        gemm(
+          NO_TRANSPOSE, NO_TRANSPOSE,
+          row00, nrhs, n,
+          -1.0, Work_mat+n, Work_lda,
+                io, ldRhs,
+           1.0, io+n, ldRhs
+        );
         io += n;
       }
 
@@ -754,30 +878,42 @@ namespace alglin {
       
         // copy from
         info = gecopy( row00, n, A + n_m_row00, n, Work_mat, Work_lda );
-        ALGLIN_ASSERT( info == 0,
-                       "BlockLU::solve, U block, gecopy INFO = " << info );
+        ALGLIN_ASSERT(
+          info == 0,
+          "BlockLU::solve, U block, gecopy INFO = " << info
+        );
 
         info = gecopy( row00, n, F, F_lda, Work_mat1, Work_lda );
-        ALGLIN_ASSERT( info == 0,
-                       "BlockLU::solve, U block, gecopy INFO = " << info );
+        ALGLIN_ASSERT(
+          info == 0,
+          "BlockLU::solve, U block, gecopy INFO = " << info
+        );
 
         info = gecopy( n_m_row00, n, B, n, Work_mat+row00, Work_lda );
-        ALGLIN_ASSERT( info == 0,
-                       "BlockLU::factorize, first block, gecopy INFO = " << info );
+        ALGLIN_ASSERT(
+          info == 0,
+          "BlockLU::factorize, first block, gecopy INFO = " << info
+        );
 
         info = gecopy( n_m_row00, n, C, n, Work_mat1+row00, Work_lda );
-        ALGLIN_ASSERT( info == 0,
-                       "BlockLU::factorize, first block, gecopy INFO = " << info );
+        ALGLIN_ASSERT(
+          info == 0,
+          "BlockLU::factorize, first block, gecopy INFO = " << info
+        );
 
         io -= n;
-        gemm( NO_TRANSPOSE, NO_TRANSPOSE,
-              n, nrhs, n,
-              -1.0, Work_mat1, Work_lda,
-                    io+n,      ldRhs,
-               1.0, io,        ldRhs );
+        gemm(
+          NO_TRANSPOSE, NO_TRANSPOSE,
+          n, nrhs, n,
+          -1.0, Work_mat1, Work_lda,
+                io+n,      ldRhs,
+           1.0, io,        ldRhs
+        );
 
-        trsm( LEFT, UPPER, NO_TRANSPOSE, NON_UNIT,
-              n, nrhs, 1.0, Work_mat, Work_lda, io, ldRhs );
+        trsm(
+          LEFT, UPPER, NO_TRANSPOSE, NON_UNIT,
+          n, nrhs, 1.0, Work_mat, Work_lda, io, ldRhs
+        );
 
       }
 
@@ -786,30 +922,42 @@ namespace alglin {
 
       // copy from
       info = gecopy( row00, n, block00 + col00, row0, Work_mat, Work_lda );
-      ALGLIN_ASSERT( info == 0,
-                     "BlockLU::solve, U block, gecopy INFO = " << info );
+      ALGLIN_ASSERT(
+        info == 0,
+        "BlockLU::solve, U block, gecopy INFO = " << info
+      );
 
       info = gecopy( row00, n, F_mat, F_lda, Work_mat1, Work_lda );
-      ALGLIN_ASSERT( info == 0,
-                     "BlockLU::solve, U block, gecopy INFO = " << info );
+      ALGLIN_ASSERT(
+        info == 0,
+        "BlockLU::solve, U block, gecopy INFO = " << info
+      );
 
       info = gecopy( n_m_row00, n, B, n, Work_mat+row00, Work_lda );
-      ALGLIN_ASSERT( info == 0,
-                     "BlockLU::factorize, U block, gecopy INFO = " << info );
+      ALGLIN_ASSERT(
+        info == 0,
+        "BlockLU::factorize, U block, gecopy INFO = " << info
+      );
 
       info = gecopy( n_m_row00, n, C, n, Work_mat1+row00, Work_lda );
-      ALGLIN_ASSERT( info == 0,
-                     "BlockLU::factorize, U block, gecopy INFO = " << info );
+      ALGLIN_ASSERT(
+        info == 0,
+        "BlockLU::factorize, U block, gecopy INFO = " << info
+      );
 
       io -= n;
-      gemm( NO_TRANSPOSE, NO_TRANSPOSE,
-            n, nrhs, n,
-            -1.0, Work_mat1, Work_lda,
-                  io+n,      ldRhs,
-             1.0, io,        ldRhs );
+      gemm(
+        NO_TRANSPOSE, NO_TRANSPOSE,
+        n, nrhs, n,
+        -1.0, Work_mat1, Work_lda,
+              io+n,      ldRhs,
+         1.0, io,        ldRhs
+      );
 
-      trsm( LEFT, UPPER, NO_TRANSPOSE, NON_UNIT,
-            n, nrhs, 1.0, Work_mat, Work_lda, io, ldRhs );
+      trsm(
+        LEFT, UPPER, NO_TRANSPOSE, NON_UNIT,
+        n, nrhs, 1.0, Work_mat, Work_lda, io, ldRhs
+      );
 
       /*
       // fattorizzo primo blocco
@@ -821,13 +969,17 @@ namespace alglin {
       */
       if ( col00 > 0 ) {
         io -= col00;
-        gemm( NO_TRANSPOSE, NO_TRANSPOSE,
-              col00, nrhs, n,
-              -1.0, block00,  row0,
-                    io+col00, ldRhs,
-               1.0, io,       ldRhs );
-        trsm( LEFT, UPPER, NO_TRANSPOSE, NON_UNIT,
-              col00, nrhs, 1.0, this->block0, row0, io, ldRhs );
+        gemm(
+          NO_TRANSPOSE, NO_TRANSPOSE,
+          col00, nrhs, n,
+          -1.0, block00,  row0,
+                io+col00, ldRhs,
+           1.0, io,       ldRhs
+        );
+        trsm(
+          LEFT, UPPER, NO_TRANSPOSE, NON_UNIT,
+          col00, nrhs, 1.0, this->block0, row0, io, ldRhs
+        );
       }
     } else {  // case nblock = 0
       this->la_factorization->solve( nrhs, in_out, ldRhs );

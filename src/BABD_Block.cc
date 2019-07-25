@@ -72,7 +72,9 @@ namespace alglin {
     valueType * Au    = Au_blk;
     valueType * FF    = FF_blk;
 
-    for ( integer k = 0; k < nblock-1; ++k, ipivk += n, AdH += nm*n, Au += n*n, FF += n ) {
+    for ( integer k = 0;
+          k < nblock-1;
+          ++k, ipivk += n, AdH += nm*n, Au += n*n, FF += n ) {
 
       INFO = getrf( nm, n, AdH, nm, ipivk ); // LU factorization
       ALGLIN_ASSERT( INFO==0, "BlockLU::factorize(), matrix singolar" );

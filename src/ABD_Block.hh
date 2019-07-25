@@ -43,8 +43,8 @@ namespace alglin {
    *           Via Sommarive 9, I-38123 Povo, Trento, Italy<br>
    *           `enrico.bertolazzi\@unitn.it`
    * 
-   */
-  /*
+  \*/
+  /*\
       Matrix NNZ structure
         col0-col00
      |    +----+----+                        |
@@ -81,7 +81,7 @@ namespace alglin {
      \                        +--------+ /
                               |        |
                                  colN
-  */
+  \*/
   template <typename t_Value>
   class BlockLU : public BlockBidiagonal<t_Value> {
   public:

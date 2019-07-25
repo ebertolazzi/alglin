@@ -454,8 +454,8 @@ namespace alglin {
       case BORDERED_LAST_QR:   res = "LastBlock QR";   break;
       case BORDERED_LAST_QRP:  res = "LastBlock QRP";  break;
       case BORDERED_LAST_SVD:  res = "LastBlock SVD";  break;
-      case BORDERED_LAST_LSS : res = "LastBlock LSS";  break;
-      case BORDERED_LAST_LSY : res = "LastBlock LSY";  break;
+      case BORDERED_LAST_LSS:  res = "LastBlock LSS";  break;
+      case BORDERED_LAST_LSY:  res = "LastBlock LSY";  break;
       }
       return res;
     }

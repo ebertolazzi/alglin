@@ -288,6 +288,12 @@ namespace alglin {
     }
 
     /*!
+    :|: Fill the matrix with zeros
+    \*/
+    void
+    setZero() { zero_fill(); }
+
+    /*!
     :|: Fill the matrix with value `val`
     \*/
     void
