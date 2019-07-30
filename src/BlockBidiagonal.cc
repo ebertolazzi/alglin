@@ -448,7 +448,7 @@ namespace alglin {
     valueType const x[],
     valueType       res[]
   ) const {
-    zero( neq+nb, res, 1 );
+    alglin::zero( neq+nb, res, 1 );
     if ( numCyclicBC == 0 && numCyclicOMEGA == 0 ) {
       integer row0  = numInitialBC;
       integer rowN  = numFinalBC;

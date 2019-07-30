@@ -488,13 +488,13 @@ namespace alglin {
      | @{
     \*/
 
-    void zeroB()  { zero( nblock*n_x_nx, Cmat, 1 ); }
-    void zeroD()  { zero( nblock*n_x_n,  Dmat, 1 ); }
-    void zeroE()  { zero( nblock*n_x_n,  Emat, 1 ); }
-    void zeroF()  { zero( nr_x_nx, Fmat, 1 ); }
-    void zeroH()  { zero( (n+qr)*Nc, H0Nqp, 1 ); }
-    void zeroC()  { zero( (nblock+1)*nr_x_n, Cmat, 1 ); }
-    void zeroCq() { zero( nr*qx, Cqmat, 1 ); }
+    void zeroB()  { alglin::zero( nblock*n_x_nx, Cmat, 1 ); }
+    void zeroD()  { alglin::zero( nblock*n_x_n,  Dmat, 1 ); }
+    void zeroE()  { alglin::zero( nblock*n_x_n,  Emat, 1 ); }
+    void zeroF()  { alglin::zero( nr_x_nx, Fmat, 1 ); }
+    void zeroH()  { alglin::zero( (n+qr)*Nc, H0Nqp, 1 ); }
+    void zeroC()  { alglin::zero( (nblock+1)*nr_x_n, Cmat, 1 ); }
+    void zeroCq() { alglin::zero( nr*qx, Cqmat, 1 ); }
 
     void
     fillZero()
@@ -962,7 +962,7 @@ namespace alglin {
     \*/
     void
     Mv( valueType const x[], valueType res[] ) const {
-      zero( numRows(), res, 1 );
+      alglin::zero( numRows(), res, 1 );
       addMv( x, res );
     }
 

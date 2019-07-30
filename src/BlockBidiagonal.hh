@@ -255,7 +255,7 @@ namespace alglin {
     // Border Bottom blocks
     void
     setZeroBottomBlocks()
-    { zero( nb*neq, Cmat, 1 ); }
+    { alglin::zero( nb*neq, Cmat, 1 ); }
 
     void
     loadBottomBlocks( valueType const C[], integer ldC )
@@ -299,7 +299,7 @@ namespace alglin {
     // Border Right blocks
     void
     setZeroRightBlocks()
-    { zero( neq*nb, Bmat, 1 ); }
+    { alglin::zero( neq*nb, Bmat, 1 ); }
 
     void
     loadRightBlocks( valueType const B[], integer ldB )
@@ -307,20 +307,20 @@ namespace alglin {
 
     void
     loadRightBlock( integer nbl, valueType const B[], integer ldB )
-    { gecopy( n, nb, B, ldB, Bmat + nbl*n, neq ); }
+    { alglin::gecopy( n, nb, B, ldB, Bmat + nbl*n, neq ); }
 
     void
     loadRightLastBlock( valueType const B[], integer ldB )
-    { gecopy( n+q, nb, B, ldB, Bmat + neq-n-q, neq ); }
+    { alglin::gecopy( n+q, nb, B, ldB, Bmat + neq-n-q, neq ); }
 
     // Border RBblock
     void
     setZeroRBblock()
-    { zero( nb*nb, Dmat, 1 ); }
+    { alglin::zero( nb*nb, Dmat, 1 ); }
 
     void
     loadRBblock( valueType const D[], integer ldD )
-    { gecopy( nb, nb, D, ldD, Dmat, nb ); }
+    { alglin::gecopy( nb, nb, D, ldD, Dmat, nb ); }
 
     // final blocks after cyclic reduction
     valueType const *

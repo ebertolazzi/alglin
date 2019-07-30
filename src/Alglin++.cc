@@ -175,12 +175,18 @@ namespace alglin {
     std::vector<T> Wmin( MN ), Wmax( MN );
 
     // Test the input scalar arguments.
-    ALGLIN_ASSERT( M >= 0 && N >= 0,
-                   "rankEstimate, bad size matrix " << M << " x " << N );
-    ALGLIN_ASSERT( LDA >= max_index(1,M),
-                   "rankEstimate, bad leading dimension ldA = " << LDA );
-    ALGLIN_ASSERT( RCOND >= 0,
-                   "rankEstimate, bad condision number rcond = " << RCOND );
+    ALGLIN_ASSERT(
+      M >= 0 && N >= 0,
+      "rankEstimate, bad size matrix " << M << " x " << N
+    );
+    ALGLIN_ASSERT(
+      LDA >= max_index(1,M),
+      "rankEstimate, bad leading dimension ldA = " << LDA
+    );
+    ALGLIN_ASSERT(
+      RCOND >= 0,
+      "rankEstimate, bad condision number rcond = " << RCOND
+    );
 
     // Quick return if possible
     SVAL[0] = 0;
@@ -297,9 +303,11 @@ namespace alglin {
   template <typename T>
   void
   LU<T>::check_ls( char const who[] ) const {
-    ALGLIN_ASSERT( nRow == nCol,
-                   "LU<T>::" << who << ", rectangular matrix " <<
-                   nRow << " x " << nCol );
+    ALGLIN_ASSERT(
+      nRow == nCol,
+      "LU<T>::" << who << ", rectangular matrix " <<
+      nRow << " x " << nCol
+    );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -308,9 +316,9 @@ namespace alglin {
   void
   LU<T>::solve( valueType xb[] ) const {
     check_ls("solve");
-    integer info = getrs( NO_TRANSPOSE,
-                          nRow, 1, Amat, nRow, i_pivot,
-                          xb, nRow );
+    integer info = getrs(
+      NO_TRANSPOSE, nRow, 1, Amat, nRow, i_pivot, xb, nRow
+    );
     ALGLIN_ASSERT( info == 0, "LU::solve getrs INFO = " << info );
   }
 
@@ -320,9 +328,9 @@ namespace alglin {
   void
   LU<T>::t_solve( valueType xb[] ) const {
     check_ls("t_solve");
-    integer info = getrs( TRANSPOSE,
-                          nRow, 1, Amat, nRow, i_pivot,
-                          xb, nRow );
+    integer info = getrs(
+      TRANSPOSE, nRow, 1, Amat, nRow, i_pivot, xb, nRow
+    );
     ALGLIN_ASSERT( info == 0, "LU::t_solve getrs INFO = " << info );
   }
 
@@ -332,9 +340,9 @@ namespace alglin {
   void
   LU<T>::solve( integer nrhs, valueType B[], integer ldB ) const {
     check_ls("solve");
-    integer info = getrs( NO_TRANSPOSE,
-                          nRow, nrhs, Amat, nRow, i_pivot,
-                          B, ldB );
+    integer info = getrs(
+      NO_TRANSPOSE, nRow, nrhs, Amat, nRow, i_pivot, B, ldB
+    );
     ALGLIN_ASSERT( info == 0, "LU::solve getrs INFO = " << info );
   }
 
@@ -344,9 +352,9 @@ namespace alglin {
   void
   LU<T>::t_solve( integer nrhs, valueType B[], integer ldB ) const {
     check_ls("t_solve");
-    integer info = getrs( TRANSPOSE,
-                          nRow, nrhs, Amat, nRow, i_pivot,
-                          B, ldB );
+    integer info = getrs(
+      TRANSPOSE, nRow, nrhs, Amat, nRow, i_pivot, B, ldB
+    );
     ALGLIN_ASSERT( info >= 0, "LU::t_solve getrs INFO = " << info );
   }
 
@@ -356,8 +364,9 @@ namespace alglin {
   typename LU<T>::valueType
   LU<T>::cond1( valueType norm1 ) const {
     valueType rcond;
-    integer info = gecon1( nRow, Amat, nRow,
-                           norm1, rcond, Work, Iwork );
+    integer info = gecon1(
+      nRow, Amat, nRow, norm1, rcond, Work, Iwork
+    );
     ALGLIN_ASSERT( info == 0, "LU::cond1, gecon1 return info = " << info );
     return rcond;
   }
@@ -368,8 +377,9 @@ namespace alglin {
   typename LU<T>::valueType
   LU<T>::condInf( valueType normInf ) const {
     valueType rcond;
-    integer info = geconInf( nRow, Amat, nRow,
-                             normInf, rcond, Work, Iwork );
+    integer info = geconInf(
+      nRow, Amat, nRow, normInf, rcond, Work, Iwork
+    );
     ALGLIN_ASSERT( info == 0, "LU::condInf, geconInf return info = " << info );
     return rcond;
   }
@@ -403,9 +413,11 @@ namespace alglin {
   template <typename T>
   void
   LUPQ<T>::allocate( integer NR, integer NC ) {
-    ALGLIN_ASSERT( NR == NC,
-                   "LUPQ<T>::allocate, cannot allocate rectangular matrix " <<
-                   NR << " x " << NC );
+    ALGLIN_ASSERT(
+      NR == NC,
+      "LUPQ<T>::allocate, cannot allocate rectangular matrix " <<
+      NR << " x " << NC
+    );
     if ( nRow != NR || nCol != NC ) {
       nRow = NR;
       nCol = NC;
@@ -425,7 +437,8 @@ namespace alglin {
     ALGLIN_ASSERT(
       nRow == nCol,
       "LUPQ<T>::" << who << ", rectangular matrix " <<
-      nRow << " x " << nCol );
+      nRow << " x " << nCol
+    );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -552,8 +565,10 @@ namespace alglin {
   template <typename T>
   void
   QR<T>::setMaxNrhs( integer mnrhs ) {
-    ALGLIN_ASSERT( mnrhs > 0,
-                   "alglin::QR::setMaxNrhs, maxNrhs = " << mnrhs );
+    ALGLIN_ASSERT(
+      mnrhs > 0,
+      "alglin::QR::setMaxNrhs, maxNrhs = " << mnrhs
+    );
     maxNrhs = mnrhs;
   }
 
@@ -602,20 +617,25 @@ namespace alglin {
     valueType     C[],
     integer       ldC
   ) const {
-    ALGLIN_ASSERT( (SIDE == alglin::LEFT  && NR == nRow) ||
-                   (SIDE == alglin::RIGHT && NC == nRow),
-                   "QR::applyQ NR = " << NR << " NC = " << NC <<
-                   " nRow = " << nRow );
-    integer info = ormqr( SIDE, TRANS,
-                          NR, NC,
-                          nRefl,  // numero riflettori usati nel prodotto Q
-                          Amat, nRow /*ldA*/,
-                          Tau,
-                          C, ldC,
-                          Work, Lwork );
-    ALGLIN_ASSERT( info == 0,
-                   "QR::applyQ call alglin::ormqr return info = " << info <<
-                   " Lwork = " << Lwork );
+    ALGLIN_ASSERT(
+      (SIDE == alglin::LEFT  && NR == nRow) ||
+      (SIDE == alglin::RIGHT && NC == nRow),
+      "QR::applyQ NR = " << NR << " NC = " << NC << " nRow = " << nRow
+    );
+    integer info = ormqr(
+      SIDE, TRANS,
+      NR, NC,
+      nRefl,  // numero riflettori usati nel prodotto Q
+      Amat, nRow /*ldA*/,
+      Tau,
+      C, ldC,
+      Work, Lwork
+    );
+    ALGLIN_ASSERT(
+      info == 0,
+      "QR::applyQ call alglin::ormqr return info = " << info <<
+      " Lwork = " << Lwork
+    );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -635,8 +655,10 @@ namespace alglin {
   template <typename T>
   void
   QR<T>::solve( valueType xb[] ) const {
-    ALGLIN_ASSERT( nRow == nCol,
-                   "in QR::solve, factored matrix must be square" );
+    ALGLIN_ASSERT(
+      nRow == nCol,
+      "in QR::solve, factored matrix must be square"
+    );
     Qt_mul(xb);
     invR_mul(xb);
   }
@@ -646,8 +668,10 @@ namespace alglin {
   template <typename T>
   void
   QR<T>::t_solve( valueType xb[] ) const {
-    ALGLIN_ASSERT( nRow == nCol,
-                   "in QR::solve_t, factored matrix must be square" );
+    ALGLIN_ASSERT(
+      nRow == nCol,
+      "in QR::solve_t, factored matrix must be square"
+    );
     invRt_mul(xb);
     Q_mul(xb);
   }
@@ -657,8 +681,10 @@ namespace alglin {
   template <typename T>
   void
   QR<T>::solve( integer nrhs, valueType XB[], integer ldXB ) const {
-    ALGLIN_ASSERT( nRow == nCol,
-                   "in QR::solve, factored matrix must be square" );
+    ALGLIN_ASSERT(
+      nRow == nCol,
+      "in QR::solve, factored matrix must be square"
+    );
     Qt_mul( nRow, nrhs, XB, ldXB );
     invR_mul( nRow, nrhs, XB, ldXB );
   }
@@ -668,8 +694,10 @@ namespace alglin {
   template <typename T>
   void
   QR<T>::t_solve( integer nrhs, valueType XB[], integer ldXB ) const {
-    ALGLIN_ASSERT( nRow == nCol,
-                   "in QR::solve_t, factored matrix must be square" );
+    ALGLIN_ASSERT(
+      nRow == nCol,
+      "in QR::solve_t, factored matrix must be square"
+    );
     invRt_mul( nRow, nrhs, XB, ldXB );
     Q_mul( nRow, nrhs, XB, ldXB );
   }
@@ -725,8 +753,10 @@ namespace alglin {
   template <typename T>
   void
   QRP<T>::solve( valueType xb[] ) const {
-    ALGLIN_ASSERT( nRow == nCol,
-                   "in QRP::solve, factored matrix must be square" );
+    ALGLIN_ASSERT(
+      nRow == nCol,
+      "in QRP::solve, factored matrix must be square"
+    );
     Qt_mul(xb);
     invR_mul(xb);
     permute(xb); // da aggiungere!
@@ -737,8 +767,10 @@ namespace alglin {
   template <typename T>
   void
   QRP<T>::t_solve( valueType xb[] ) const {
-    ALGLIN_ASSERT( nRow == nCol,
-                   "in QRP::solve_t, factored matrix must be square" );
+    ALGLIN_ASSERT(
+      nRow == nCol,
+      "in QRP::solve_t, factored matrix must be square"
+    );
     inv_permute(xb); // da aggiungere!
     invRt_mul(xb);
     Q_mul(xb);
@@ -749,8 +781,10 @@ namespace alglin {
   template <typename T>
   void
   QRP<T>::solve( integer nrhs, valueType XB[], integer ldXB ) const {
-    ALGLIN_ASSERT( nRow == nCol,
-                   "in QRP::solve, factored matrix must be square" );
+    ALGLIN_ASSERT(
+      nRow == nCol,
+      "in QRP::solve, factored matrix must be square"
+    );
     Qt_mul( nRow, nrhs, XB, ldXB );
     invR_mul( nRow, nrhs, XB, ldXB );
     permute_rows( nRow, nrhs, XB, ldXB ); // da aggiungere!
@@ -761,8 +795,10 @@ namespace alglin {
   template <typename T>
   void
   QRP<T>::t_solve( integer nrhs, valueType XB[], integer ldXB ) const {
-    ALGLIN_ASSERT( nRow == nCol,
-                   "in QRP::solve_t, factored matrix must be square" );
+    ALGLIN_ASSERT(
+      nRow == nCol,
+      "in QRP::solve_t, factored matrix must be square"
+    );
     inv_permute_rows( nRow, nrhs, XB, ldXB ); // da aggiungere!
     invRt_mul( nRow, nrhs, XB, ldXB );
     Q_mul( nRow, nrhs, XB, ldXB );
@@ -786,32 +822,37 @@ namespace alglin {
       nCol  = NC;
       minRC = std::min(NR,NC);
       valueType tmp;
-      integer info = gesvd( REDUCED, REDUCED,
-                            NR, NC,
-                            nullptr, NR,
-                            nullptr,
-                            nullptr, NR,
-                            nullptr, minRC,
-                            &tmp, -1 );
-      ALGLIN_ASSERT( info == 0,
-                     "SVD::allocate, in gesvd info = " << info );
+      integer info = gesvd(
+        REDUCED, REDUCED,
+        NR, NC,
+        nullptr, NR,
+        nullptr,
+        nullptr, NR,
+        nullptr, minRC,
+        &tmp, -1
+      );
+      ALGLIN_ASSERT(
+        info == 0, "SVD::allocate, in gesvd info = " << info
+      );
       Lwork = integer(tmp);
-      info = gesdd( REDUCED,
-                    NR, NC,
-                    nullptr, NR,
-                    nullptr,
-                    nullptr, NR,
-                    nullptr, minRC,
-                    &tmp, -1, nullptr );
-       if ( integer(tmp) > Lwork ) Lwork = integer(tmp);
-       allocReals.allocate( size_t(nRow*nCol+minRC*(nRow+nCol+1)+Lwork) );
-       Amat = allocReals( size_t(nRow*nCol));
-       Svec  = allocReals( size_t(minRC) );
-       Umat  = allocReals( size_t(minRC*nRow) );
-       VTmat = allocReals( size_t(minRC*nCol) );
-       Work  = allocReals( size_t(Lwork) );
-       allocIntegers.allocate( size_t(8*minRC) );
-       IWork = allocIntegers( size_t(8*minRC) );
+      info = gesdd(
+        REDUCED,
+        NR, NC,
+        nullptr, NR,
+        nullptr,
+        nullptr, NR,
+        nullptr, minRC,
+        &tmp, -1, nullptr
+      );
+      if ( integer(tmp) > Lwork ) Lwork = integer(tmp);
+      allocReals.allocate( size_t(nRow*nCol+minRC*(nRow+nCol+1)+Lwork) );
+      Amat = allocReals( size_t(nRow*nCol));
+      Svec  = allocReals( size_t(minRC) );
+      Umat  = allocReals( size_t(minRC*nRow) );
+      VTmat = allocReals( size_t(minRC*nCol) );
+      Work  = allocReals( size_t(Lwork) );
+      allocIntegers.allocate( size_t(8*minRC) );
+      IWork = allocIntegers( size_t(8*minRC) );
     }
   }
 
@@ -823,13 +864,15 @@ namespace alglin {
     integer info;
     switch ( svd_used ) {
     case USE_GESVD:
-      info = gesvd( REDUCED,
-                    REDUCED,
-                    nRow, nCol, Amat, nRow,
-                    Svec,
-                    Umat, nRow,
-                    VTmat, minRC,
-                    Work, Lwork );
+      info = gesvd(
+        REDUCED,
+        REDUCED,
+        nRow, nCol, Amat, nRow,
+        Svec,
+        Umat, nRow,
+        VTmat, minRC,
+        Work, Lwork
+      );
       ALGLIN_ASSERT(
         info == 0,
         "SVD::factorize[" << who << 
@@ -837,12 +880,14 @@ namespace alglin {
       );
       break;
     case USE_GESDD:
-      info = gesdd( REDUCED,
-                    nRow, nCol, Amat, nRow,
-                    Svec,
-                    Umat, nRow,
-                    VTmat, minRC,
-                    Work, Lwork, IWork );
+      info = gesdd(
+        REDUCED,
+        nRow, nCol, Amat, nRow,
+        Svec,
+        Umat, nRow,
+        VTmat, minRC,
+        Work, Lwork, IWork
+      );
       ALGLIN_ASSERT(
         info == 0,
         "SVD::factorize[" << who << 
@@ -894,8 +939,10 @@ namespace alglin {
   template <typename T>
   void
   LSS<T>::setMaxNrhs( integer mnrhs ) {
-    ALGLIN_ASSERT( mnrhs > 0,
-                   "LSS::setMaxNrhs, maxNrhs = " << mnrhs );
+    ALGLIN_ASSERT(
+      mnrhs > 0,
+      "LSS::setMaxNrhs, maxNrhs = " << mnrhs
+    );
     maxNrhs         = mnrhs;
     maxNrhs_changed = true;
   }
@@ -908,19 +955,25 @@ namespace alglin {
       nRow = NR;
       nCol = NC;
       valueType tmp;
-      integer info = gelss( NR, NC, maxNrhs,
-                            nullptr, NR, nullptr, NR, nullptr,
-                            rcond, rank, &tmp, -1 );
-      ALGLIN_ASSERT( info == 0,
-                     "LSS::allocate, in gelss info = " << info );
+      integer info = gelss(
+        NR, NC, maxNrhs,
+        nullptr, NR, nullptr, NR, nullptr,
+        rcond, rank, &tmp, -1
+      );
+      ALGLIN_ASSERT(
+        info == 0, "LSS::allocate, in gelss info = " << info
+      );
 
       Lwork = integer(tmp);
       if ( NR != NC ) {
-        info = gelss( NC, NR, maxNrhs,
-                      nullptr, NC, nullptr, NC, nullptr,
-                      rcond, rank, &tmp, -1 );
-        ALGLIN_ASSERT( info == 0,
-                       "LSS::allocate, in gelss info = " << info );
+        info = gelss(
+          NC, NR, maxNrhs,
+          nullptr, NC, nullptr, NC, nullptr,
+          rcond, rank, &tmp, -1
+        );
+        ALGLIN_ASSERT(
+          info == 0, "LSS::allocate, in gelss info = " << info
+        );
         if ( Lwork < integer(tmp) ) Lwork = integer(tmp);
       }
 
@@ -943,13 +996,16 @@ namespace alglin {
   LSS<T>::solve( valueType xb[] ) const {
     // save matrix
     copy( nRow*nCol, Amat, 1, AmatWork, 1);
-    integer info = gelss( nRow, nCol, 1,
-                          AmatWork, nRow,
-                          xb, nRow,
-                          sigma, rcond, rank,
-                          Work, Lwork );
-    ALGLIN_ASSERT( info == 0,
-                   "LSS::solve (rhs=1), in gelss info = " << info );
+    integer info = gelss(
+      nRow, nCol, 1,
+      AmatWork, nRow,
+      xb, nRow,
+      sigma, rcond, rank,
+      Work, Lwork
+    );
+    ALGLIN_ASSERT(
+      info == 0, "LSS::solve (rhs=1), in gelss info = " << info
+    );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -960,13 +1016,16 @@ namespace alglin {
     // save matrix
     for ( integer i = 0; i < nCol; ++i )
       copy( nRow, Amat+i*nRow, 1, AmatWork+i, nCol );
-    integer info = gelss( nCol, nRow, 1,
-                          AmatWork, nCol,
-                          xb, nCol,
-                          sigma, rcond, rank,
-                          Work, Lwork );
-    ALGLIN_ASSERT( info == 0,
-                   "LSS::t_solve (rhs=1), in gelss info = " << info );
+    integer info = gelss(
+      nCol, nRow, 1,
+      AmatWork, nCol,
+      xb, nCol,
+      sigma, rcond, rank,
+      Work, Lwork
+    );
+    ALGLIN_ASSERT(
+      info == 0, "LSS::t_solve (rhs=1), in gelss info = " << info
+    );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -980,14 +1039,17 @@ namespace alglin {
   ) const {
     // save matrix
     copy( nRow*nCol, Amat, 1, AmatWork, 1 );
-    integer info = gelss( nRow, nCol, nrhs,
-                          AmatWork, nRow,
-                          B, ldB,
-                          sigma, rcond, rank,
-                          Work, Lwork );
-    ALGLIN_ASSERT( info == 0,
-                   "LSS::solve (rhs=" << nrhs <<
-                   "), in gelss info = " << info );
+    integer info = gelss(
+      nRow, nCol, nrhs,
+      AmatWork, nRow,
+      B, ldB,
+      sigma, rcond, rank,
+      Work, Lwork
+    );
+    ALGLIN_ASSERT(
+      info == 0,
+      "LSS::solve (rhs=" << nrhs << "), in gelss info = " << info
+    );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1002,14 +1064,17 @@ namespace alglin {
     // save matrix
     for ( integer i = 0; i < nCol; ++i )
       copy( nRow, Amat+i*nRow, 1, AmatWork+i, nCol );
-    integer info = gelss( nCol, nRow, nrhs,
-                          AmatWork, nCol,
-                          B, ldB,
-                          sigma, rcond, rank,
-                          Work, Lwork );
-    ALGLIN_ASSERT( info == 0,
-                   "LSS::t_solve (rhs=" << nrhs <<
-                   "), in gelss info = " << info );
+    integer info = gelss(
+      nCol, nRow, nrhs,
+      AmatWork, nCol,
+      B, ldB,
+      sigma, rcond, rank,
+      Work, Lwork
+    );
+    ALGLIN_ASSERT(
+      info == 0,
+      "LSS::t_solve (rhs=" << nrhs << "), in gelss info = " << info
+    );
   }
 
   /*\
@@ -1024,8 +1089,9 @@ namespace alglin {
   template <typename T>
   void
   LSY<T>::setMaxNrhs( integer mnrhs ) {
-    ALGLIN_ASSERT( mnrhs > 0,
-                   "LSY::setMaxNrhs, maxNrhs = " << mnrhs );
+    ALGLIN_ASSERT(
+      mnrhs > 0, "LSY::setMaxNrhs, maxNrhs = " << mnrhs
+    );
     maxNrhs         = mnrhs;
     maxNrhs_changed = true;
   }
@@ -1040,17 +1106,23 @@ namespace alglin {
       nRow = NR;
       nCol = NC;
       valueType tmp;
-      integer info = gelsy( NR, NC, maxNrhs, nullptr, NR, nullptr, NR, nullptr,
-                            rcond, rank, &tmp, -1 );
-      ALGLIN_ASSERT( info == 0,
-                     "LSY::allocate, in gelss info = " << info );
+      integer info = gelsy(
+        NR, NC, maxNrhs, nullptr, NR, nullptr, NR, nullptr,
+        rcond, rank, &tmp, -1
+      );
+      ALGLIN_ASSERT(
+        info == 0, "LSY::allocate, in gelss info = " << info
+      );
 
       Lwork = integer(tmp);
       if ( NR != NC ) {
-        info = gelsy( NC, NR, maxNrhs, nullptr, NC, nullptr, NC, nullptr,
-                      rcond, rank, &tmp, -1 );
-        ALGLIN_ASSERT( info == 0,
-                       "LSY::allocate, in gelss info = " << info );
+        info = gelsy(
+          NC, NR, maxNrhs, nullptr, NC, nullptr, NC, nullptr,
+          rcond, rank, &tmp, -1
+        );
+        ALGLIN_ASSERT(
+          info == 0, "LSY::allocate, in gelss info = " << info
+        );
         if ( Lwork < integer(tmp) ) Lwork = integer(tmp);
       }
 
@@ -1072,13 +1144,16 @@ namespace alglin {
   LSY<T>::solve( valueType xb[] ) const {
     // save matrix
     copy( nRow*nCol, Amat, 1, AmatWork, 1);
-    integer info = gelsy( nRow, nCol, 1,
-                          AmatWork, nRow,
-                          xb, nRow, jpvt,
-                          rcond, rank,
-                          Work, Lwork );
-    ALGLIN_ASSERT( info == 0,
-                   "LSS::solve (rhs=1), in gelss info = " << info );
+    integer info = gelsy(
+      nRow, nCol, 1,
+      AmatWork, nRow,
+      xb, nRow, jpvt,
+      rcond, rank,
+      Work, Lwork
+    );
+    ALGLIN_ASSERT(
+      info == 0, "LSS::solve (rhs=1), in gelss info = " << info
+    );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1089,13 +1164,16 @@ namespace alglin {
     // save matrix
     for ( integer i = 0; i < nCol; ++i )
       copy( nRow, Amat+i*nRow, 1, AmatWork+i, nCol );
-    integer info = gelsy( nCol, nRow, 1,
-                          AmatWork, nCol,
-                          xb, nCol, jpvt,
-                          rcond, rank,
-                          Work, Lwork );
-    ALGLIN_ASSERT( info == 0,
-                   "LSS::t_solve (rhs=1), in gelss info = " << info );
+    integer info = gelsy(
+      nCol, nRow, 1,
+      AmatWork, nCol,
+      xb, nCol, jpvt,
+      rcond, rank,
+      Work, Lwork
+    );
+    ALGLIN_ASSERT(
+      info == 0, "LSS::t_solve (rhs=1), in gelss info = " << info
+    );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1109,14 +1187,17 @@ namespace alglin {
   ) const {
     // save matrix
     copy( nRow*nCol, Amat, 1, AmatWork, 1 );
-    integer info = gelsy( nRow, nCol, nrhs,
-                          AmatWork, nRow,
-                          B, ldB, jpvt,
-                          rcond, rank,
-                          Work, Lwork );
-    ALGLIN_ASSERT( info == 0,
-                   "LSD::solve (rhs=" << nrhs <<
-                   "), in gelsd info = " << info );
+    integer info = gelsy(
+      nRow, nCol, nrhs,
+      AmatWork, nRow,
+      B, ldB, jpvt,
+      rcond, rank,
+      Work, Lwork
+    );
+    ALGLIN_ASSERT(
+      info == 0,
+      "LSD::solve (rhs=" << nrhs << "), in gelsd info = " << info
+    );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1131,14 +1212,17 @@ namespace alglin {
     // save matrix
     for ( integer i = 0; i < nCol; ++i )
       copy( nRow, Amat+i*nRow, 1, AmatWork+i, nCol );
-    integer info = gelsy( nCol, nRow, nrhs,
-                          AmatWork, nCol,
-                          B, ldB, jpvt,
-                          rcond, rank,
-                          Work, Lwork );
-    ALGLIN_ASSERT( info == 0,
-                   "LSD::t_solve (rhs=" << nrhs <<
-                   "), in gelsd info = " << info );
+    integer info = gelsy(
+      nCol, nRow, nrhs,
+      AmatWork, nCol,
+      B, ldB, jpvt,
+      rcond, rank,
+      Work, Lwork
+    );
+    ALGLIN_ASSERT(
+      info == 0,
+      "LSD::t_solve (rhs=" << nrhs << "), in gelsd info = " << info
+    );
   }
 
   //============================================================================
@@ -1690,13 +1774,17 @@ namespace alglin {
     nrmax = nr0;
     this->nnz = nr0*nr0;
 
-    ALGLIN_ASSERT( nr0 >= 0,
-                   "BlockTridiagonalSymmetic::setup, nr0 = " << nr0 );
+    ALGLIN_ASSERT(
+      nr0 >= 0,
+      "BlockTridiagonalSymmetic::setup, nr0 = " << nr0
+    );
 
     for ( integer i = 1; i < nblks; ++i ) {
       integer nr = rBlocks[i+1] - rBlocks[i];
-      ALGLIN_ASSERT( nr >= 0,
-                     "BlockTridiagonalSymmetic::setup, nr = " << nr );
+      ALGLIN_ASSERT(
+        nr >= 0,
+        "BlockTridiagonalSymmetic::setup, nr = " << nr
+      );
       this->nnz += nr*(nr+nr0);
       if ( nr > nrmax ) nrmax = nr;
       nr0 = nr;
@@ -1725,7 +1813,9 @@ namespace alglin {
 
   template <typename T>
   void
-  BlockTridiagonalSymmetic<T>::setup( integer nblks, integer const block_size ) {
+  BlockTridiagonalSymmetic<T>::setup(
+    integer nblks, integer const block_size
+  ) {
     // use a temporary vector
     std::vector<integer> rBlocks;
     rBlocks.reserve(nblks+1);
@@ -1753,19 +1843,24 @@ namespace alglin {
     integer iBlock = integer(std::upper_bound( ib, ie, ii ) - ib) - 1;
     integer jBlock = integer(std::upper_bound( ib, ie, jj ) - ib) - 1;
 
-    ALGLIN_ASSERT( row_blocks[iBlock] <= ii && ii < row_blocks[iBlock+1], "bad iBlock" );
-    ALGLIN_ASSERT( row_blocks[jBlock] <= jj && jj < row_blocks[jBlock+1], "bad iBlock" );
+    ALGLIN_ASSERT(
+      row_blocks[iBlock] <= ii && ii < row_blocks[iBlock+1],
+      "bad iBlock"
+    );
+    ALGLIN_ASSERT(
+      row_blocks[jBlock] <= jj && jj < row_blocks[jBlock+1],
+      "bad iBlock"
+    );
 
     integer nr = row_blocks[iBlock+1] - row_blocks[iBlock];
     integer i  = ii - row_blocks[iBlock];
     integer j  = jj - row_blocks[jBlock];
-    ALGLIN_ASSERT( jBlock == iBlock || jBlock+1 == iBlock,
-                   "BlockTridiagonalSymmetic:find( " << ii << " , " << jj <<
-                   " ) --> ( iBlock = " << iBlock <<
-                   ", jBlock = " << jBlock <<
-                   " ) --> ( i = " << i <<
-                   ", j = " << j <<
-                   " ) out of range" );
+    ALGLIN_ASSERT(
+      jBlock == iBlock || jBlock+1 == iBlock,
+      "BlockTridiagonalSymmetic:find( " << ii << " , " << jj <<
+      " ) --> ( iBlock = " << iBlock << ", jBlock = " << jBlock <<
+      " ) --> ( i = " << i << ", j = " << j << " ) out of range"
+    );
 
     integer ij = i+j*nr;
     if ( iBlock == jBlock ) {
@@ -1785,19 +1880,24 @@ namespace alglin {
     integer iBlock = integer(std::upper_bound( ib, ie, ii ) - ib) - 1;
     integer jBlock = integer(std::upper_bound( ib, ie, jj ) - ib) - 1;
 
-    ALGLIN_ASSERT( row_blocks[iBlock] <= ii && ii < row_blocks[iBlock+1], "bad iBlock" );
-    ALGLIN_ASSERT( row_blocks[jBlock] <= jj && jj < row_blocks[jBlock+1], "bad iBlock" );
+    ALGLIN_ASSERT(
+      row_blocks[iBlock] <= ii && ii < row_blocks[iBlock+1],
+      "bad iBlock"
+    );
+    ALGLIN_ASSERT(
+      row_blocks[jBlock] <= jj && jj < row_blocks[jBlock+1],
+      "bad iBlock"
+    );
 
     integer nr = row_blocks[iBlock+1] - row_blocks[iBlock];
     integer i  = ii - row_blocks[iBlock];
     integer j  = jj - row_blocks[jBlock];
-    ALGLIN_ASSERT( jBlock == iBlock || jBlock+1 == iBlock,
-                   "BlockTridiagonalSymmetic:find( " << ii << " , " << jj <<
-                   " ) --> ( iBlock = " << iBlock <<
-                   ", jBlock = " << jBlock <<
-                   " ) --> ( i = " << i <<
-                   ", j = " << j <<
-                   " ) out of range" );
+    ALGLIN_ASSERT(
+      jBlock == iBlock || jBlock+1 == iBlock,
+      "BlockTridiagonalSymmetic:find( " << ii << " , " << jj <<
+      " ) --> ( iBlock = " << iBlock << ", jBlock = " << jBlock <<
+      " ) --> ( i = " << i << ", j = " << j << " ) out of range"
+    );
 
     integer ij = i+j*nr;
     if ( iBlock == jBlock ) {
@@ -1823,8 +1923,10 @@ namespace alglin {
     integer jmin   = row_blocks[jBlock];
     integer jmax   = row_blocks[jBlock+1];
     integer j      = jj - jmin;
-    ALGLIN_ASSERT( jmin <= jj && jj < jmax && jmin <= ii,
-                   "bad iBlock ii = " << ii << " jj = " << jj );
+    ALGLIN_ASSERT(
+      jmin <= jj && jj < jmax && jmin <= ii,
+      "bad iBlock ii = " << ii << " jj = " << jj
+    );
     if ( ii < jmax ) {
       integer i  = ii - jmin;
       integer nr = jmax-jmin;
@@ -1855,8 +1957,10 @@ namespace alglin {
       getranspose( nr, nr, data, ldData, this->D_blocks[n], nr );
     } else {
       integer ierr = gecopy( nr, nr, data, ldData, this->D_blocks[n], nr );
-      ALGLIN_ASSERT( ierr == 0,
-                     "BlockTridiagonalSymmetic::setD, gecopy return ierr = " << ierr );
+      ALGLIN_ASSERT(
+        ierr == 0,
+        "BlockTridiagonalSymmetic::setD, gecopy return ierr = " << ierr
+      );
     }
   }
 
@@ -1876,8 +1980,10 @@ namespace alglin {
       getranspose( nr, nc, data, ldData, this->L_blocks[n], nr );
     } else {
       integer ierr = gecopy( nr, nc, data, ldData, this->L_blocks[n], nr );
-      ALGLIN_ASSERT( ierr == 0,
-                     "BlockTridiagonalSymmetic::setL, gecopy return ierr = " << ierr );
+      ALGLIN_ASSERT(
+        ierr == 0,
+        "BlockTridiagonalSymmetic::setL, gecopy return ierr = " << ierr
+      );
     }
   }
 
@@ -1902,8 +2008,10 @@ namespace alglin {
       getranspose( nrow, ncol, data, ldData, D, ldD );
     } else {
       integer ierr = gecopy( nrow, ncol, data, ldData, D, ldD );
-      ALGLIN_ASSERT( ierr == 0,
-                     "BlockTridiagonalSymmetic::setD (block), gecopy return ierr = " << ierr );
+      ALGLIN_ASSERT(
+        ierr == 0,
+        "BlockTridiagonalSymmetic::setD (block), gecopy return ierr = " << ierr
+      );
     }
   }
 
@@ -1927,8 +2035,10 @@ namespace alglin {
       getranspose( nrow, ncol, data, ldData, L, ldL );
     } else {
       integer ierr = gecopy( nrow, ncol, data, ldData, L, ldL );
-      ALGLIN_ASSERT( ierr == 0,
-                     "BlockTridiagonalSymmetic::setL (block), gecopy return ierr = " << ierr );
+      ALGLIN_ASSERT(
+        ierr == 0,
+        "BlockTridiagonalSymmetic::setL (block), gecopy return ierr = " << ierr
+      );
     }
   }
 
@@ -1973,12 +2083,14 @@ namespace alglin {
 
       // DD{k}   = DD{k} - (LL{k-1}*DD{k-1}) *LL{k-1}.';
 
-      gemm( TRANSPOSE,
-            TRANSPOSE,
-            nr1, nr1, nr0,
-            -1.0, Work, nr0,
-            L0, nr1,
-            1.0, D1, nr1 );
+      gemm(
+        TRANSPOSE,
+        TRANSPOSE,
+        nr1, nr1, nr0,
+        -1.0, Work, nr0,
+        L0, nr1,
+        1.0, D1, nr1
+      );
 
       // Work --> L nr1 x nr0
       getranspose( nr0, nr1, Work, nr0, L0, nr1 );
@@ -2013,11 +2125,13 @@ namespace alglin {
       nr1 = this->DnumRows(k);
       valueType const * L0 = this->L_blocks[k-1];
       xk = xkm1 + nr0;
-      gemv( NO_TRANSPOSE, nr1, nr0,
-            -1.0, L0, nr1,
-            xkm1, 1,
-            1.0,
-            xk, 1 );
+      gemv(
+        NO_TRANSPOSE, nr1, nr0,
+        -1.0, L0, nr1,
+        xkm1, 1,
+        1.0,
+        xk, 1
+      );
       xkm1 = xk;
       nr0  = nr1;
     }
@@ -2028,8 +2142,10 @@ namespace alglin {
       // solve
       valueType const * D1 = this->D_blocks[k];
       integer info = getrs( NO_TRANSPOSE, nr1, 1, D1, nr1, B_permutation[k], xk, nr1 );
-      ALGLIN_ASSERT( info == 0,
-                     "BlockTridiagonalSymmetic::solve getrs INFO = " << info );
+      ALGLIN_ASSERT(
+        info == 0,
+        "BlockTridiagonalSymmetic::solve getrs INFO = " << info
+      );
       xk += nr1;
     }
     // RR{k} = RR{k}-LL{k}.'*RR{k+1};
@@ -2039,11 +2155,13 @@ namespace alglin {
       nr0 = this->DnumRows(k-1);
       valueType const * L0 = this->L_blocks[k-1];
       xkm1 = xk - nr0;
-      gemv( TRANSPOSE, nr1, nr0,
-            -1.0, L0, nr1,
-            xk, 1,
-            1.0,
-            xkm1, 1 );
+      gemv(
+        TRANSPOSE, nr1, nr0,
+        -1.0, L0, nr1,
+        xk, 1,
+        1.0,
+        xkm1, 1
+      );
       xk  = xkm1;
       nr1 = nr0;
     }
@@ -2058,8 +2176,10 @@ namespace alglin {
     valueType B[],
     integer   ldB
   ) const {
-    ALGLIN_ASSERT( is_factorized,
-                   "BlockTridiagonalSymmetic::solve, matrix not factored" );
+    ALGLIN_ASSERT(
+      is_factorized,
+      "BlockTridiagonalSymmetic::solve, matrix not factored"
+    );
 
     // RR{k} = RR{k}-LL{k-1}*RR{k-1};
     integer k = 0;
@@ -2069,11 +2189,13 @@ namespace alglin {
       nr1 = this->DnumRows(k);
       valueType const * L0 = this->L_blocks[k-1];
       Bk = Bkm1 + nr0;
-      gemm( NO_TRANSPOSE, NO_TRANSPOSE, nr1, nrhs, nr0,
-            -1.0, L0, nr1,
-            Bkm1, ldB,
-            1.0,
-            Bk, ldB );
+      gemm(
+        NO_TRANSPOSE, NO_TRANSPOSE, nr1, nrhs, nr0,
+        -1.0, L0, nr1,
+        Bkm1, ldB,
+        1.0,
+        Bk, ldB
+      );
       Bkm1 = Bk;
       nr0  = nr1;
     }
@@ -2083,11 +2205,15 @@ namespace alglin {
       nr1 = this->DnumRows(k);
       // solve
       valueType const * D1 = this->D_blocks[k];
-      integer info = getrs( NO_TRANSPOSE, nr1, nrhs,
-                            D1, nr1, B_permutation[k],
-                            Bk, ldB );
-      ALGLIN_ASSERT( info == 0,
-                     "BlockTridiagonalSymmetic::solve getrs INFO = " << info );
+      integer info = getrs(
+        NO_TRANSPOSE, nr1, nrhs,
+        D1, nr1, B_permutation[k],
+        Bk, ldB
+      );
+      ALGLIN_ASSERT(
+        info == 0,
+        "BlockTridiagonalSymmetic::solve getrs INFO = " << info
+      );
       Bk += nr1;
     }
     // RR{k} = RR{k}-LL{k}.'*RR{k+1};
@@ -2097,11 +2223,13 @@ namespace alglin {
       nr0 = this->DnumRows(k-1);
       valueType const * L0 = this->L_blocks[k-1];
       Bkm1 = Bk - nr0;
-      gemm( TRANSPOSE, NO_TRANSPOSE, nr0, nrhs, nr1, 
-            -1.0, L0, nr1,
-            Bk, ldB,
-            1.0,
-            Bkm1, ldB );
+      gemm(
+        TRANSPOSE, NO_TRANSPOSE, nr0, nrhs, nr1,
+        -1.0, L0, nr1,
+        Bk, ldB,
+        1.0,
+        Bkm1, ldB
+      );
       Bk  = Bkm1;
       nr1 = nr0;
     }
@@ -2255,12 +2383,14 @@ namespace alglin {
   template <typename T>
   void
   BandedLU<T>::check( integer i, integer j ) const {
-    ALGLIN_ASSERT( i >= 0 && i < m && j >= 0 && j < n,
-                   "BandedLU::check( " << i << " , " << j <<
-                   " ) out of range" );
-    ALGLIN_ASSERT( j >= i-nL && j <= i+nU,
-                   "BandedLU::check( " << i << " , " << j <<
-                   " ) out of band" );
+    ALGLIN_ASSERT(
+      i >= 0 && i < m && j >= 0 && j < n,
+      "BandedLU::check( " << i << " , " << j << " ) out of range"
+    );
+    ALGLIN_ASSERT(
+      j >= i-nL && j <= i+nU,
+      "BandedLU::check( " << i << " , " << j << " ) out of band"
+    );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -2273,17 +2403,20 @@ namespace alglin {
     valueType v,
     bool      sym
   ) {
-    ALGLIN_ASSERT( i >= 0 && i < m && j >= 0 && j < n,
-                   "BandedLU::insert( " << i << " , " << j <<
-                   " ) out of range" );
-    ALGLIN_ASSERT( i-nL <= j && j <= i+nU,
-                   "BandedLU::insert( " << i << " , " << j <<
-                   " ) out of band" );
+    ALGLIN_ASSERT(
+      i >= 0 && i < m && j >= 0 && j < n,
+      "BandedLU::insert( " << i << " , " << j << " ) out of range"
+    );
+    ALGLIN_ASSERT(
+      i-nL <= j && j <= i+nU,
+      "BandedLU::insert( " << i << " , " << j << " ) out of band"
+    );
     (*this)(i,j) = v;
     if ( sym && i != j ) {
-      ALGLIN_ASSERT( j-nL <= i && i <= j+nU,
-                     "BandedLU::insert( " << i << " , " << j <<
-                     " ) out of band" );
+      ALGLIN_ASSERT(
+        j-nL <= i && i <= j+nU,
+        "BandedLU::insert( " << i << " , " << j << " ) out of band"
+      );
       (*this)(j,i) = v;
     }
   }
@@ -2349,10 +2482,12 @@ namespace alglin {
       integer imin  = j-nU;
       integer imax  = std::min(j+nL,m-1);
       integer imin0 = imin > 0 ? imin : 0;
-      alglin::axpy( imax-imin0+1,
-                    alpha*x[j],
-                    col+imin0-imin, 1,
-                    y+imin0,        1 );
+      alglin::axpy(
+        imax-imin0+1,
+        alpha*x[j],
+        col+imin0-imin, 1,
+        y+imin0,        1
+      );
     }
   }
 
@@ -2410,11 +2545,15 @@ namespace alglin {
   template <typename T>
   void
   BandedSPD<T>::solve( valueType xb[] ) const {
-    ALGLIN_ASSERT( is_factorized,
-                   "BandedSPD::solve, matrix not yet factorized" );
+    ALGLIN_ASSERT(
+      is_factorized,
+      "BandedSPD::solve, matrix not yet factorized"
+    );
     integer info = pbtrs( UPLO, n, nD, 1, AB, ldAB, xb, n );
-    ALGLIN_ASSERT( info == 0,
-                   "BandedSPD::solve, info = " << info );
+    ALGLIN_ASSERT(
+      info == 0,
+      "BandedSPD::solve, info = " << info
+    );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -2422,11 +2561,15 @@ namespace alglin {
   template <typename T>
   void
   BandedSPD<T>::t_solve( valueType xb[] ) const {
-    ALGLIN_ASSERT( is_factorized,
-                   "BandedSPD::solve, matrix not yet factorized" );
+    ALGLIN_ASSERT(
+      is_factorized,
+      "BandedSPD::solve, matrix not yet factorized"
+    );
     integer info = pbtrs( UPLO, n, nD, 1, AB, ldAB, xb, n );
-    ALGLIN_ASSERT( info == 0,
-                   "BandedSPD::t_solve, info = " << info );
+    ALGLIN_ASSERT(
+      info == 0,
+      "BandedSPD::t_solve, info = " << info
+    );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -2434,11 +2577,15 @@ namespace alglin {
   template <typename T>
   void
   BandedSPD<T>::solve( integer nrhs, valueType B[], integer ldB ) const {
-    ALGLIN_ASSERT( is_factorized,
-                   "BandedSPD::solve, matrix not yet factorized" );
+    ALGLIN_ASSERT(
+      is_factorized,
+      "BandedSPD::solve, matrix not yet factorized"
+    );
     integer info = pbtrs( UPLO, n, nD, nrhs, AB, ldAB, B, ldB );
-    ALGLIN_ASSERT( info == 0,
-                   "BandedSPD::solve, info = " << info );
+    ALGLIN_ASSERT(
+      info == 0,
+      "BandedSPD::solve, info = " << info
+    );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -2446,11 +2593,15 @@ namespace alglin {
   template <typename T>
   void
   BandedSPD<T>::t_solve( integer nrhs, valueType B[], integer ldB ) const {
-    ALGLIN_ASSERT( is_factorized,
-                   "BandedSPD::solve, matrix not yet factorized" );
+    ALGLIN_ASSERT(
+      is_factorized,
+      "BandedSPD::solve, matrix not yet factorized"
+    );
     integer info = pbtrs( UPLO, n, nD, nrhs, AB, ldAB, B, ldB );
-    ALGLIN_ASSERT( info == 0,
-                   "BandedSPD::t_solve, info = " << info );
+    ALGLIN_ASSERT(
+      info == 0,
+      "BandedSPD::t_solve, info = " << info
+    );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -3912,8 +4063,8 @@ namespace alglin {
     integer   const B_col[]
   ) {
     this->allocate( m, n, p );
-    zero( this->N*this->M, this->A_saved, 1 );
-    zero( this->P*this->M, this->B_saved, 1 );
+    alglin::zero( this->N*this->M, this->A_saved, 1 );
+    alglin::zero( this->P*this->M, this->B_saved, 1 );
     for ( integer k = 0; k < A_nnz; ++k ) A(A_row[k],A_col[k]) = A_values[k];
     for ( integer k = 0; k < B_nnz; ++k ) B(B_row[k],B_col[k]) = B_values[k];
     compute();

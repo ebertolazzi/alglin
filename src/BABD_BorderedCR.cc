@@ -507,14 +507,14 @@ namespace alglin {
   BorderedCR<t_Value>::factorize_CR() {
     #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
     if ( usedThread > 1 ) {
-      if ( nr_x_nx > 0 ) zero( nr_x_nx*(usedThread-1), Fmat + nr_x_nx, 1 );
+      if ( nr_x_nx > 0 ) alglin::zero( nr_x_nx*(usedThread-1), Fmat + nr_x_nx, 1 );
       for ( integer nt = 1; nt < usedThread; ++nt )
         threads[nt] = std::thread( &BorderedCR<t_Value>::factorize_block, this, nt );
       factorize_block(0);
       for ( integer nt = 1; nt < usedThread; ++nt ) threads[nt].join();
       if ( nr_x_nx > 0 )
         for ( integer nt = 1; nt < usedThread; ++nt )
-          axpy( nr_x_nx, 1.0, Fmat + nt*nr_x_nx, 1, Fmat, 1 );
+          alglin::axpy( nr_x_nx, 1.0, Fmat + nt*nr_x_nx, 1, Fmat, 1 );
       factorize_reduced();
     } else {
       factorize_block(0);
@@ -725,10 +725,10 @@ namespace alglin {
 
         buildT( nth, Ejp, Dj, T, P );
 
-        zero( n_x_n, Dj, 1 );
+        alglin::zero( n_x_n, Dj, 1 );
         applyT( nth, T, P, Djp, n, Dj, n, n );
 
-        zero( n_x_n, Ejp, 1 );
+        alglin::zero( n_x_n, Ejp, 1 );
         applyT( nth, T, P, Ejp, n, Ej, n, n );
 
         if ( nx > 0 ) applyT( nth, T, P, Bjp, n, Bj, n, nx );
@@ -814,10 +814,10 @@ namespace alglin {
 
         buildT( 0, Ejp, Dj, T, P );
 
-        zero( n_x_n, Dj, 1 );
+        alglin::zero( n_x_n, Dj, 1 );
         applyT( 0, T, P, Djp, n, Dj, n, n );
 
-        zero( n_x_n, Ejp, 1 );
+        alglin::zero( n_x_n, Ejp, 1 );
         applyT( 0, T, P, Ejp, n, Ej, n, n );
 
         if ( nx > 0 ) {
@@ -1074,7 +1074,7 @@ namespace alglin {
     #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
     if ( usedThread > 1 ) {
       if ( nr > 0 ) {
-        zero( nr*usedThread, xb_thread, 1 );
+        alglin::zero( nr*usedThread, xb_thread, 1 );
         for ( integer nt = 1; nt < usedThread; ++nt )
           threads[nt] = std::thread( &BorderedCR<t_Value>::forward, this,
                                      nt, x, xb_thread+nr*nt );

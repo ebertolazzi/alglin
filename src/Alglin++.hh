@@ -442,7 +442,7 @@ namespace alglin {
       integer         offs = 0
     ) {
       valueType * Arow = Amat + irow;
-      zero( nRow, Arow, nRow );
+      alglin::zero( nRow, Arow, nRow );
       for ( integer i = 0; i < nnz; ++i ) Arow[col[i]+offs] = values[i];
     }
 
@@ -460,7 +460,7 @@ namespace alglin {
       integer   const row[],
       integer   const col[]
     ) {
-      zero( nRow*nCol, Amat, 1 );
+      alglin::zero( nRow*nCol, Amat, 1 );
       for ( integer i = 0; i < nnz; ++i )
         Amat[row[i] + col[i] * nRow] = values[i];
     }
@@ -503,7 +503,7 @@ namespace alglin {
       integer   const row[],
       integer   const col[]
     ) {
-      zero( nRow*nCol, Amat, 1 );
+      alglin::zero( nRow*nCol, Amat, 1 );
       for ( integer i = 0; i < nnz; ++i ) {
         integer ii = row[i];
         integer jj = col[i];
@@ -2104,13 +2104,13 @@ namespace alglin {
     void
     zero();
 
-    integer  numBlocks() const { return nBlocks; }
+    integer numBlocks() const { return nBlocks; }
 
-    integer  DnumRows( integer n ) const { return row_blocks[n+1] - row_blocks[n]; }
-    integer  DnumCols( integer n ) const { return row_blocks[n+1] - row_blocks[n]; }
+    integer DnumRows( integer n ) const { return row_blocks[n+1] - row_blocks[n]; }
+    integer DnumCols( integer n ) const { return row_blocks[n+1] - row_blocks[n]; }
 
-    integer  LnumRows( integer n ) const { return DnumRows(n+1); }
-    integer  LnumCols( integer n ) const { return DnumCols(n); }
+    integer LnumRows( integer n ) const { return DnumRows(n+1); }
+    integer LnumCols( integer n ) const { return DnumCols(n); }
 
     void
     setD(
