@@ -20,10 +20,8 @@
 #ifndef BABD_SUPERLU_HH
 #define BABD_SUPERLU_HH
 
-#include "AlglinConfig.hh"
-#include "Alglin.hh"
-#include "Alglin++.hh"
-#include "AlglinSuperLU.hh"
+#include "Alglin_Config.hh"
+#include "Alglin_SuperLU.hh"
 
 #ifdef __GNUC__ 
 #pragma GCC diagnostic push

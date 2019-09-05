@@ -36,7 +36,35 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
-		D90F9F27211250CF009E9CA2 /* Alglin_sparse.hxx in Headers */ = {isa = PBXBuildFile; fileRef = D90F9F26211250CE009E9CA2 /* Alglin_sparse.hxx */; };
+		D90D44D523211F2700E31061 /* Alglin_Config.hh in Headers */ = {isa = PBXBuildFile; fileRef = D90D44B623211F2600E31061 /* Alglin_Config.hh */; };
+		D90D44D623211F2700E31061 /* ABD_Diaz.hh in Headers */ = {isa = PBXBuildFile; fileRef = D90D44B723211F2600E31061 /* ABD_Diaz.hh */; };
+		D90D44D723211F2700E31061 /* Simplex.hh in Headers */ = {isa = PBXBuildFile; fileRef = D90D44B823211F2600E31061 /* Simplex.hh */; };
+		D90D44D823211F2700E31061 /* BlockBidiagonal.cc in Sources */ = {isa = PBXBuildFile; fileRef = D90D44B923211F2600E31061 /* BlockBidiagonal.cc */; };
+		D90D44D923211F2700E31061 /* BABD_BorderedCR.cc in Sources */ = {isa = PBXBuildFile; fileRef = D90D44BA23211F2600E31061 /* BABD_BorderedCR.cc */; };
+		D90D44DA23211F2700E31061 /* ABD_Block.hh in Headers */ = {isa = PBXBuildFile; fileRef = D90D44BB23211F2600E31061 /* ABD_Block.hh */; };
+		D90D44DB23211F2700E31061 /* BABD_Block.hh in Headers */ = {isa = PBXBuildFile; fileRef = D90D44BE23211F2600E31061 /* BABD_Block.hh */; };
+		D90D44DC23211F2700E31061 /* BABD.cc in Sources */ = {isa = PBXBuildFile; fileRef = D90D44BF23211F2600E31061 /* BABD.cc */; };
+		D90D44DD23211F2700E31061 /* BABD_F90_interface.inc in Sources */ = {isa = PBXBuildFile; fileRef = D90D44C023211F2600E31061 /* BABD_F90_interface.inc */; };
+		D90D44DE23211F2700E31061 /* ABD_Arceco.hh in Headers */ = {isa = PBXBuildFile; fileRef = D90D44C123211F2600E31061 /* ABD_Arceco.hh */; };
+		D90D44DF23211F2700E31061 /* BABD.hh in Headers */ = {isa = PBXBuildFile; fileRef = D90D44C223211F2600E31061 /* BABD.hh */; };
+		D90D44E023211F2700E31061 /* BABD_Block.cc in Sources */ = {isa = PBXBuildFile; fileRef = D90D44C323211F2600E31061 /* BABD_Block.cc */; };
+		D90D44E123211F2700E31061 /* BABD_C_interface.cc in Sources */ = {isa = PBXBuildFile; fileRef = D90D44C423211F2600E31061 /* BABD_C_interface.cc */; };
+		D90D44E223211F2700E31061 /* ABD_Arceco.cc in Sources */ = {isa = PBXBuildFile; fileRef = D90D44C523211F2600E31061 /* ABD_Arceco.cc */; };
+		D90D44E323211F2700E31061 /* ABD_Diaz.cc in Sources */ = {isa = PBXBuildFile; fileRef = D90D44C623211F2600E31061 /* ABD_Diaz.cc */; };
+		D90D44E423211F2700E31061 /* BlockBidiagonal.hh in Headers */ = {isa = PBXBuildFile; fileRef = D90D44C723211F2600E31061 /* BlockBidiagonal.hh */; };
+		D90D44E523211F2700E31061 /* Simplex.cc in Sources */ = {isa = PBXBuildFile; fileRef = D90D44C823211F2600E31061 /* Simplex.cc */; };
+		D90D44E623211F2700E31061 /* ABD_Block.cc in Sources */ = {isa = PBXBuildFile; fileRef = D90D44C923211F2600E31061 /* ABD_Block.cc */; };
+		D90D44E723211F2700E31061 /* BABD_BorderedCR.hh in Headers */ = {isa = PBXBuildFile; fileRef = D90D44CA23211F2600E31061 /* BABD_BorderedCR.hh */; };
+		D90D44E823211F2700E31061 /* BABD_C_interface.h in Headers */ = {isa = PBXBuildFile; fileRef = D90D44CB23211F2600E31061 /* BABD_C_interface.h */; };
+		D90D44E923211F2700E31061 /* KKT_like.cc in Sources */ = {isa = PBXBuildFile; fileRef = D90D44CC23211F2600E31061 /* KKT_like.cc */; };
+		D90D44EA23211F2700E31061 /* Alglin_tmpl.hh in Headers */ = {isa = PBXBuildFile; fileRef = D90D44CD23211F2600E31061 /* Alglin_tmpl.hh */; };
+		D90D44EB23211F2700E31061 /* BABD_SuperLU.cc in Sources */ = {isa = PBXBuildFile; fileRef = D90D44CE23211F2600E31061 /* BABD_SuperLU.cc */; };
+		D90D44EC23211F2700E31061 /* KKT_like.hh in Headers */ = {isa = PBXBuildFile; fileRef = D90D44CF23211F2600E31061 /* KKT_like.hh */; };
+		D90D44ED23211F2700E31061 /* BABD_SuperLU.hh in Headers */ = {isa = PBXBuildFile; fileRef = D90D44D023211F2600E31061 /* BABD_SuperLU.hh */; };
+		D90D44EE23211F2700E31061 /* Alglin_aux.hh in Headers */ = {isa = PBXBuildFile; fileRef = D90D44D123211F2600E31061 /* Alglin_aux.hh */; };
+		D90D44EF23211F2700E31061 /* Alglin_FD.hh in Headers */ = {isa = PBXBuildFile; fileRef = D90D44D223211F2600E31061 /* Alglin_FD.hh */; };
+		D90D44F023211F2700E31061 /* Alglin_Eigen.hh in Headers */ = {isa = PBXBuildFile; fileRef = D90D44D323211F2600E31061 /* Alglin_Eigen.hh */; };
+		D90D44F123211F2700E31061 /* Alglin_SuperLU.hh in Headers */ = {isa = PBXBuildFile; fileRef = D90D44D423211F2600E31061 /* Alglin_SuperLU.hh */; };
 		D90FCB671E12DB5F00F9EF68 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D937DF251CEA75A2006642C6 /* Accelerate.framework */; };
 		D90FCB6E1E12DBB800F9EF68 /* test7-BorderedCR.cc in Sources */ = {isa = PBXBuildFile; fileRef = D90FCB6D1E12DBB800F9EF68 /* test7-BorderedCR.cc */; };
 		D924A0011E40A294007C4694 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D937DF251CEA75A2006642C6 /* Accelerate.framework */; };
@@ -49,13 +77,14 @@
 		D924A04A1E40A2C7007C4694 /* Simplex-Test4.cc in Sources */ = {isa = PBXBuildFile; fileRef = D924A03A1E40A2C7007C4694 /* Simplex-Test4.cc */; };
 		D92B0CBF1D047E2600222F63 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D937DF251CEA75A2006642C6 /* Accelerate.framework */; };
 		D93ACAE81CF64FE000622119 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D937DF251CEA75A2006642C6 /* Accelerate.framework */; };
-		D9400E7B21386A8900C5AF8A /* Alglin_wrapper.hxx in Headers */ = {isa = PBXBuildFile; fileRef = D9400E7A21386A8900C5AF8A /* Alglin_wrapper.hxx */; };
 		D942D1551F1F9BF70094F8F6 /* libAlglin.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D9BD01C11EE0012F00912006 /* libAlglin.a */; };
 		D942D1561F1F9BF70094F8F6 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D937DF251CEA75A2006642C6 /* Accelerate.framework */; };
 		D942D15D1F1F9C390094F8F6 /* test8-Cinterface.c in Sources */ = {isa = PBXBuildFile; fileRef = D942D15C1F1F9C390094F8F6 /* test8-Cinterface.c */; };
 		D96384121F2F311D0067ABD5 /* libAlglin.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D9BD01C11EE0012F00912006 /* libAlglin.a */; };
 		D96384131F2F311D0067ABD5 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D937DF251CEA75A2006642C6 /* Accelerate.framework */; };
 		D963841A1F2F31390067ABD5 /* test9-Cinterface.c in Sources */ = {isa = PBXBuildFile; fileRef = D96384191F2F31390067ABD5 /* test9-Cinterface.c */; };
+		D972249B2322B4EB00665317 /* Alglin_tmpl.hh in Headers */ = {isa = PBXBuildFile; fileRef = D972249A2322B4EB00665317 /* Alglin_tmpl.hh */; };
+		D972249D2322B4FA00665317 /* Alglin_Config.hh in Headers */ = {isa = PBXBuildFile; fileRef = D972249C2322B4FA00665317 /* Alglin_Config.hh */; };
 		D979B2D31DD5D71A007E048A /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D937DF251CEA75A2006642C6 /* Accelerate.framework */; };
 		D979B2DA1DD5D749007E048A /* test5-ABD-Diaz.cc in Sources */ = {isa = PBXBuildFile; fileRef = D979B2D91DD5D749007E048A /* test5-ABD-Diaz.cc */; };
 		D98323061D6CCF4C00A83B61 /* test3-Timing.cc in Sources */ = {isa = PBXBuildFile; fileRef = D95EB3AF1D6C5067005772D0 /* test3-Timing.cc */; };
@@ -79,7 +108,6 @@
 		D9BD01EE1EE0023900912006 /* libAlglin.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D9BD01C11EE0012F00912006 /* libAlglin.a */; };
 		D9BD01EF1EE0023D00912006 /* libAlglin.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D9BD01C11EE0012F00912006 /* libAlglin.a */; };
 		D9BD01F01EE0024100912006 /* libAlglin.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D9BD01C11EE0012F00912006 /* libAlglin.a */; };
-		D9C36009214A5E9400DCD094 /* Alglin_symmetric.hxx in Headers */ = {isa = PBXBuildFile; fileRef = D9C36008214A5E9400DCD094 /* Alglin_symmetric.hxx */; };
 		D9C3600E214A6D0300DCD094 /* libAlglin.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D9BD01C11EE0012F00912006 /* libAlglin.a */; };
 		D9C3600F214A6D0300DCD094 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D937DF251CEA75A2006642C6 /* Accelerate.framework */; };
 		D9C36016214A6D4900DCD094 /* test13-BFGS.cc in Sources */ = {isa = PBXBuildFile; fileRef = D9C36015214A6D4900DCD094 /* test13-BFGS.cc */; };
@@ -92,46 +120,6 @@
 		D9D949791DB580BD002D2343 /* test0-FD.cc in Sources */ = {isa = PBXBuildFile; fileRef = D9D9496D1DB5807D002D2343 /* test0-FD.cc */; };
 		D9D9497C1DB58306002D2343 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D937DF251CEA75A2006642C6 /* Accelerate.framework */; };
 		D9E477341D6C8B36005800F5 /* test6-ABD-Block.cc in Sources */ = {isa = PBXBuildFile; fileRef = D95EB3A91D6C5067005772D0 /* test6-ABD-Block.cc */; };
-		D9EF86612109FD6F00F1293E /* ABD_Diaz.hh in Headers */ = {isa = PBXBuildFile; fileRef = D9EF862A2109FD6F00F1293E /* ABD_Diaz.hh */; };
-		D9EF86622109FD6F00F1293E /* AlglinFD.hh in Headers */ = {isa = PBXBuildFile; fileRef = D9EF862B2109FD6F00F1293E /* AlglinFD.hh */; };
-		D9EF86632109FD6F00F1293E /* Simplex.hh in Headers */ = {isa = PBXBuildFile; fileRef = D9EF862C2109FD6F00F1293E /* Simplex.hh */; };
-		D9EF86642109FD6F00F1293E /* BlockBidiagonal.cc in Sources */ = {isa = PBXBuildFile; fileRef = D9EF862D2109FD6F00F1293E /* BlockBidiagonal.cc */; };
-		D9EF86652109FD6F00F1293E /* BABD_BorderedCR.cc in Sources */ = {isa = PBXBuildFile; fileRef = D9EF862E2109FD6F00F1293E /* BABD_BorderedCR.cc */; };
-		D9EF86662109FD6F00F1293E /* ABD_Block.hh in Headers */ = {isa = PBXBuildFile; fileRef = D9EF862F2109FD6F00F1293E /* ABD_Block.hh */; };
-		D9EF86672109FD6F00F1293E /* Alglin.hh in Headers */ = {isa = PBXBuildFile; fileRef = D9EF86302109FD6F00F1293E /* Alglin.hh */; };
-		D9EF86682109FD6F00F1293E /* BABD_Block.hh in Headers */ = {isa = PBXBuildFile; fileRef = D9EF86312109FD6F00F1293E /* BABD_Block.hh */; };
-		D9EF86692109FD6F00F1293E /* BABD.cc in Sources */ = {isa = PBXBuildFile; fileRef = D9EF86322109FD6F00F1293E /* BABD.cc */; };
-		D9EF866A2109FD6F00F1293E /* Alglin_blas.hxx in Headers */ = {isa = PBXBuildFile; fileRef = D9EF86332109FD6F00F1293E /* Alglin_blas.hxx */; };
-		D9EF866B2109FD6F00F1293E /* Alglin_triangular.hxx in Headers */ = {isa = PBXBuildFile; fileRef = D9EF86342109FD6F00F1293E /* Alglin_triangular.hxx */; };
-		D9EF866E2109FD6F00F1293E /* ABD_Arceco.hh in Headers */ = {isa = PBXBuildFile; fileRef = D9EF86372109FD6F00F1293E /* ABD_Arceco.hh */; };
-		D9EF866F2109FD6F00F1293E /* Alglin_tridiagonal.hxx in Headers */ = {isa = PBXBuildFile; fileRef = D9EF86382109FD6F00F1293E /* Alglin_tridiagonal.hxx */; };
-		D9EF86702109FD6F00F1293E /* Alglin.cc in Sources */ = {isa = PBXBuildFile; fileRef = D9EF86392109FD6F00F1293E /* Alglin.cc */; };
-		D9EF86722109FD6F00F1293E /* AlglinConfig.hh in Headers */ = {isa = PBXBuildFile; fileRef = D9EF863B2109FD6F00F1293E /* AlglinConfig.hh */; };
-		D9EF86732109FD6F00F1293E /* BABD.hh in Headers */ = {isa = PBXBuildFile; fileRef = D9EF863C2109FD6F00F1293E /* BABD.hh */; };
-		D9EF86742109FD6F00F1293E /* BABD_Block.cc in Sources */ = {isa = PBXBuildFile; fileRef = D9EF863D2109FD6F00F1293E /* BABD_Block.cc */; };
-		D9EF86752109FD6F00F1293E /* AlglinEigen.hh in Headers */ = {isa = PBXBuildFile; fileRef = D9EF863E2109FD6F00F1293E /* AlglinEigen.hh */; };
-		D9EF86762109FD6F00F1293E /* BABD_C_interface.cc in Sources */ = {isa = PBXBuildFile; fileRef = D9EF863F2109FD6F00F1293E /* BABD_C_interface.cc */; };
-		D9EF86782109FD6F00F1293E /* ABD_Arceco.cc in Sources */ = {isa = PBXBuildFile; fileRef = D9EF86412109FD6F00F1293E /* ABD_Arceco.cc */; };
-		D9EF86792109FD6F00F1293E /* TicToc.hh in Headers */ = {isa = PBXBuildFile; fileRef = D9EF86422109FD6F00F1293E /* TicToc.hh */; };
-		D9EF867A2109FD6F00F1293E /* ABD_Diaz.cc in Sources */ = {isa = PBXBuildFile; fileRef = D9EF86432109FD6F00F1293E /* ABD_Diaz.cc */; };
-		D9EF867B2109FD6F00F1293E /* Alglin_general.hxx in Headers */ = {isa = PBXBuildFile; fileRef = D9EF86442109FD6F00F1293E /* Alglin_general.hxx */; };
-		D9EF867C2109FD6F00F1293E /* AlglinSuperLU.hh in Headers */ = {isa = PBXBuildFile; fileRef = D9EF86452109FD6F00F1293E /* AlglinSuperLU.hh */; };
-		D9EF867E2109FD6F00F1293E /* BlockBidiagonal.hh in Headers */ = {isa = PBXBuildFile; fileRef = D9EF86472109FD6F00F1293E /* BlockBidiagonal.hh */; };
-		D9EF867F2109FD6F00F1293E /* Simplex.cc in Sources */ = {isa = PBXBuildFile; fileRef = D9EF86482109FD6F00F1293E /* Simplex.cc */; };
-		D9EF86802109FD6F00F1293E /* ABD_Block.cc in Sources */ = {isa = PBXBuildFile; fileRef = D9EF86492109FD6F00F1293E /* ABD_Block.cc */; };
-		D9EF86812109FD6F00F1293E /* BABD_BorderedCR.hh in Headers */ = {isa = PBXBuildFile; fileRef = D9EF864A2109FD6F00F1293E /* BABD_BorderedCR.hh */; };
-		D9EF86832109FD6F00F1293E /* BABD_C_interface.h in Headers */ = {isa = PBXBuildFile; fileRef = D9EF864D2109FD6F00F1293E /* BABD_C_interface.h */; };
-		D9EF86862109FD6F00F1293E /* Alglin++.cc in Sources */ = {isa = PBXBuildFile; fileRef = D9EF86502109FD6F00F1293E /* Alglin++.cc */; };
-		D9EF86882109FD6F00F1293E /* KKT_like.cc in Sources */ = {isa = PBXBuildFile; fileRef = D9EF86522109FD6F00F1293E /* KKT_like.cc */; };
-		D9EF868B2109FD6F00F1293E /* Alglin_tmpl.hh in Headers */ = {isa = PBXBuildFile; fileRef = D9EF86552109FD6F00F1293E /* Alglin_tmpl.hh */; };
-		D9EF868C2109FD6F00F1293E /* BABD_SuperLU.cc in Sources */ = {isa = PBXBuildFile; fileRef = D9EF86562109FD6F00F1293E /* BABD_SuperLU.cc */; };
-		D9EF868E2109FD6F00F1293E /* Alglin_general_qr.hxx in Headers */ = {isa = PBXBuildFile; fileRef = D9EF86582109FD6F00F1293E /* Alglin_general_qr.hxx */; };
-		D9EF868F2109FD6F00F1293E /* KKT_like.hh in Headers */ = {isa = PBXBuildFile; fileRef = D9EF86592109FD6F00F1293E /* KKT_like.hh */; };
-		D9EF86902109FD6F00F1293E /* Alglin_threads.hh in Headers */ = {isa = PBXBuildFile; fileRef = D9EF865A2109FD6F00F1293E /* Alglin_threads.hh */; };
-		D9EF86912109FD6F00F1293E /* BABD_SuperLU.hh in Headers */ = {isa = PBXBuildFile; fileRef = D9EF865B2109FD6F00F1293E /* BABD_SuperLU.hh */; };
-		D9EF86922109FD6F00F1293E /* Alglin_aux.hh in Headers */ = {isa = PBXBuildFile; fileRef = D9EF865C2109FD6F00F1293E /* Alglin_aux.hh */; };
-		D9EF86932109FD6F00F1293E /* Alglin++.hh in Headers */ = {isa = PBXBuildFile; fileRef = D9EF865D2109FD6F00F1293E /* Alglin++.hh */; };
-		D9EF86952109FD6F00F1293E /* Alglin_banded.hxx in Headers */ = {isa = PBXBuildFile; fileRef = D9EF865F2109FD6F00F1293E /* Alglin_banded.hxx */; };
 		D9EF86972109FE9200F1293E /* libAlglin.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D9BD01C11EE0012F00912006 /* libAlglin.a */; };
 /* End PBXBuildFile section */
 
@@ -416,11 +404,38 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		D90F9F26211250CE009E9CA2 /* Alglin_sparse.hxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Alglin_sparse.hxx; sourceTree = "<group>"; };
+		D90D44B623211F2600E31061 /* Alglin_Config.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Alglin_Config.hh; sourceTree = "<group>"; };
+		D90D44B723211F2600E31061 /* ABD_Diaz.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ABD_Diaz.hh; sourceTree = "<group>"; };
+		D90D44B823211F2600E31061 /* Simplex.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Simplex.hh; sourceTree = "<group>"; };
+		D90D44B923211F2600E31061 /* BlockBidiagonal.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BlockBidiagonal.cc; sourceTree = "<group>"; };
+		D90D44BA23211F2600E31061 /* BABD_BorderedCR.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BABD_BorderedCR.cc; sourceTree = "<group>"; };
+		D90D44BB23211F2600E31061 /* ABD_Block.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ABD_Block.hh; sourceTree = "<group>"; };
+		D90D44BC23211F2600E31061 /* Alglin_SuperLU.hh.tmpl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Alglin_SuperLU.hh.tmpl; sourceTree = "<group>"; };
+		D90D44BE23211F2600E31061 /* BABD_Block.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = BABD_Block.hh; sourceTree = "<group>"; };
+		D90D44BF23211F2600E31061 /* BABD.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BABD.cc; sourceTree = "<group>"; };
+		D90D44C023211F2600E31061 /* BABD_F90_interface.inc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.pascal; path = BABD_F90_interface.inc; sourceTree = "<group>"; };
+		D90D44C123211F2600E31061 /* ABD_Arceco.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ABD_Arceco.hh; sourceTree = "<group>"; };
+		D90D44C223211F2600E31061 /* BABD.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = BABD.hh; sourceTree = "<group>"; };
+		D90D44C323211F2600E31061 /* BABD_Block.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BABD_Block.cc; sourceTree = "<group>"; };
+		D90D44C423211F2600E31061 /* BABD_C_interface.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BABD_C_interface.cc; sourceTree = "<group>"; };
+		D90D44C523211F2600E31061 /* ABD_Arceco.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ABD_Arceco.cc; sourceTree = "<group>"; };
+		D90D44C623211F2600E31061 /* ABD_Diaz.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ABD_Diaz.cc; sourceTree = "<group>"; };
+		D90D44C723211F2600E31061 /* BlockBidiagonal.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = BlockBidiagonal.hh; sourceTree = "<group>"; };
+		D90D44C823211F2600E31061 /* Simplex.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Simplex.cc; sourceTree = "<group>"; };
+		D90D44C923211F2600E31061 /* ABD_Block.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ABD_Block.cc; sourceTree = "<group>"; };
+		D90D44CA23211F2600E31061 /* BABD_BorderedCR.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = BABD_BorderedCR.hh; sourceTree = "<group>"; };
+		D90D44CB23211F2600E31061 /* BABD_C_interface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BABD_C_interface.h; sourceTree = "<group>"; };
+		D90D44CC23211F2600E31061 /* KKT_like.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = KKT_like.cc; sourceTree = "<group>"; };
+		D90D44CD23211F2600E31061 /* Alglin_tmpl.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Alglin_tmpl.hh; sourceTree = "<group>"; };
+		D90D44CE23211F2600E31061 /* BABD_SuperLU.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BABD_SuperLU.cc; sourceTree = "<group>"; };
+		D90D44CF23211F2600E31061 /* KKT_like.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = KKT_like.hh; sourceTree = "<group>"; };
+		D90D44D023211F2600E31061 /* BABD_SuperLU.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = BABD_SuperLU.hh; sourceTree = "<group>"; };
+		D90D44D123211F2600E31061 /* Alglin_aux.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Alglin_aux.hh; sourceTree = "<group>"; };
+		D90D44D223211F2600E31061 /* Alglin_FD.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Alglin_FD.hh; sourceTree = "<group>"; };
+		D90D44D323211F2600E31061 /* Alglin_Eigen.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Alglin_Eigen.hh; sourceTree = "<group>"; };
+		D90D44D423211F2600E31061 /* Alglin_SuperLU.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Alglin_SuperLU.hh; sourceTree = "<group>"; };
 		D90FCB6C1E12DB5F00F9EF68 /* test7-BorderedCR */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "test7-BorderedCR"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D90FCB6D1E12DBB800F9EF68 /* test7-BorderedCR.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "test7-BorderedCR.cc"; sourceTree = "<group>"; };
-		D91913C52242C17D002C20BB /* Alglin_wrapper.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Alglin_wrapper.cxx; sourceTree = "<group>"; };
-		D91913C72242C2ED002C20BB /* Alglin_sparse.cxx */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Alglin_sparse.cxx; sourceTree = "<group>"; };
 		D924A0061E40A294007C4694 /* Simplex-Test1 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "Simplex-Test1"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D924A0161E40A29E007C4694 /* Simplex-Test2 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "Simplex-Test2"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D924A0261E40A2A0007C4694 /* Simplex-Test3 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "Simplex-Test3"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -432,7 +447,6 @@
 		D92B0CC41D047E2600222F63 /* Timing */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; name = Timing; path = "test3-Timing"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D937DF251CEA75A2006642C6 /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
 		D93ACAED1CF64FE000622119 /* Block_test */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; name = Block_test; path = "test6-Block"; sourceTree = BUILT_PRODUCTS_DIR; };
-		D9400E7A21386A8900C5AF8A /* Alglin_wrapper.hxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Alglin_wrapper.hxx; sourceTree = "<group>"; };
 		D942D15B1F1F9BF70094F8F6 /* test8-Cinterface */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "test8-Cinterface"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D942D15C1F1F9C390094F8F6 /* test8-Cinterface.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "test8-Cinterface.c"; sourceTree = "<group>"; };
 		D95EB3A91D6C5067005772D0 /* test6-ABD-Block.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "test6-ABD-Block.cc"; sourceTree = "<group>"; };
@@ -440,6 +454,8 @@
 		D95EB3AF1D6C5067005772D0 /* test3-Timing.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "test3-Timing.cc"; sourceTree = "<group>"; };
 		D96384181F2F311D0067ABD5 /* test9-Cinterface */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "test9-Cinterface"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D96384191F2F31390067ABD5 /* test9-Cinterface.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "test9-Cinterface.c"; sourceTree = "<group>"; };
+		D972249A2322B4EB00665317 /* Alglin_tmpl.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Alglin_tmpl.hh; sourceTree = "<group>"; };
+		D972249C2322B4FA00665317 /* Alglin_Config.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Alglin_Config.hh; sourceTree = "<group>"; };
 		D979B2D81DD5D71A007E048A /* test4-Diaz */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; name = "test4-Diaz"; path = "test5-Diaz"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D979B2D91DD5D749007E048A /* test5-ABD-Diaz.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "test5-ABD-Diaz.cc"; sourceTree = "<group>"; };
 		D9A06AE51D93C02A00573D89 /* test4-KKT.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "test4-KKT.cc"; sourceTree = "<group>"; };
@@ -450,7 +466,6 @@
 		D9B71F622253764500A2FDB0 /* test15-EIGS.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "test15-EIGS.cc"; sourceTree = "<group>"; };
 		D9B8185F1D8B42C100082BB3 /* test1-small-factorization */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "test1-small-factorization"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D9BD01C11EE0012F00912006 /* libAlglin.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libAlglin.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		D9C36008214A5E9400DCD094 /* Alglin_symmetric.hxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Alglin_symmetric.hxx; sourceTree = "<group>"; };
 		D9C36014214A6D0300DCD094 /* test13-BFGS */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "test13-BFGS"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D9C36015214A6D4900DCD094 /* test13-BFGS.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "test13-BFGS.cc"; sourceTree = "<group>"; };
 		D9CF60901E1C0FD30096750D /* test2-Threads.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "test2-Threads.cc"; sourceTree = "<group>"; };
@@ -460,46 +475,6 @@
 		D9D927D51F4D7CAC0080C232 /* test12-BandedMatrix.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "test12-BandedMatrix.cc"; sourceTree = "<group>"; };
 		D9D9496D1DB5807D002D2343 /* test0-FD.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "test0-FD.cc"; sourceTree = "<group>"; };
 		D9D949721DB58093002D2343 /* test0-FD */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "test0-FD"; sourceTree = BUILT_PRODUCTS_DIR; };
-		D9EF862A2109FD6F00F1293E /* ABD_Diaz.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ABD_Diaz.hh; sourceTree = "<group>"; };
-		D9EF862B2109FD6F00F1293E /* AlglinFD.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = AlglinFD.hh; sourceTree = "<group>"; };
-		D9EF862C2109FD6F00F1293E /* Simplex.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Simplex.hh; sourceTree = "<group>"; };
-		D9EF862D2109FD6F00F1293E /* BlockBidiagonal.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BlockBidiagonal.cc; sourceTree = "<group>"; };
-		D9EF862E2109FD6F00F1293E /* BABD_BorderedCR.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BABD_BorderedCR.cc; sourceTree = "<group>"; };
-		D9EF862F2109FD6F00F1293E /* ABD_Block.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ABD_Block.hh; sourceTree = "<group>"; };
-		D9EF86302109FD6F00F1293E /* Alglin.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Alglin.hh; sourceTree = "<group>"; };
-		D9EF86312109FD6F00F1293E /* BABD_Block.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = BABD_Block.hh; sourceTree = "<group>"; };
-		D9EF86322109FD6F00F1293E /* BABD.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BABD.cc; sourceTree = "<group>"; };
-		D9EF86332109FD6F00F1293E /* Alglin_blas.hxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Alglin_blas.hxx; sourceTree = "<group>"; };
-		D9EF86342109FD6F00F1293E /* Alglin_triangular.hxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Alglin_triangular.hxx; sourceTree = "<group>"; };
-		D9EF86372109FD6F00F1293E /* ABD_Arceco.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ABD_Arceco.hh; sourceTree = "<group>"; };
-		D9EF86382109FD6F00F1293E /* Alglin_tridiagonal.hxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Alglin_tridiagonal.hxx; sourceTree = "<group>"; };
-		D9EF86392109FD6F00F1293E /* Alglin.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Alglin.cc; sourceTree = "<group>"; };
-		D9EF863B2109FD6F00F1293E /* AlglinConfig.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = AlglinConfig.hh; sourceTree = "<group>"; };
-		D9EF863C2109FD6F00F1293E /* BABD.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = BABD.hh; sourceTree = "<group>"; };
-		D9EF863D2109FD6F00F1293E /* BABD_Block.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BABD_Block.cc; sourceTree = "<group>"; };
-		D9EF863E2109FD6F00F1293E /* AlglinEigen.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = AlglinEigen.hh; sourceTree = "<group>"; };
-		D9EF863F2109FD6F00F1293E /* BABD_C_interface.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BABD_C_interface.cc; sourceTree = "<group>"; };
-		D9EF86412109FD6F00F1293E /* ABD_Arceco.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ABD_Arceco.cc; sourceTree = "<group>"; };
-		D9EF86422109FD6F00F1293E /* TicToc.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = TicToc.hh; sourceTree = "<group>"; };
-		D9EF86432109FD6F00F1293E /* ABD_Diaz.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ABD_Diaz.cc; sourceTree = "<group>"; };
-		D9EF86442109FD6F00F1293E /* Alglin_general.hxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Alglin_general.hxx; sourceTree = "<group>"; };
-		D9EF86452109FD6F00F1293E /* AlglinSuperLU.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = AlglinSuperLU.hh; sourceTree = "<group>"; };
-		D9EF86472109FD6F00F1293E /* BlockBidiagonal.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = BlockBidiagonal.hh; sourceTree = "<group>"; };
-		D9EF86482109FD6F00F1293E /* Simplex.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Simplex.cc; sourceTree = "<group>"; };
-		D9EF86492109FD6F00F1293E /* ABD_Block.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ABD_Block.cc; sourceTree = "<group>"; };
-		D9EF864A2109FD6F00F1293E /* BABD_BorderedCR.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = BABD_BorderedCR.hh; sourceTree = "<group>"; };
-		D9EF864D2109FD6F00F1293E /* BABD_C_interface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BABD_C_interface.h; sourceTree = "<group>"; };
-		D9EF86502109FD6F00F1293E /* Alglin++.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "Alglin++.cc"; sourceTree = "<group>"; };
-		D9EF86522109FD6F00F1293E /* KKT_like.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = KKT_like.cc; sourceTree = "<group>"; };
-		D9EF86552109FD6F00F1293E /* Alglin_tmpl.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Alglin_tmpl.hh; sourceTree = "<group>"; };
-		D9EF86562109FD6F00F1293E /* BABD_SuperLU.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BABD_SuperLU.cc; sourceTree = "<group>"; };
-		D9EF86582109FD6F00F1293E /* Alglin_general_qr.hxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Alglin_general_qr.hxx; sourceTree = "<group>"; };
-		D9EF86592109FD6F00F1293E /* KKT_like.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = KKT_like.hh; sourceTree = "<group>"; };
-		D9EF865A2109FD6F00F1293E /* Alglin_threads.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Alglin_threads.hh; sourceTree = "<group>"; };
-		D9EF865B2109FD6F00F1293E /* BABD_SuperLU.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = BABD_SuperLU.hh; sourceTree = "<group>"; };
-		D9EF865C2109FD6F00F1293E /* Alglin_aux.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Alglin_aux.hh; sourceTree = "<group>"; };
-		D9EF865D2109FD6F00F1293E /* Alglin++.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = "Alglin++.hh"; sourceTree = "<group>"; };
-		D9EF865F2109FD6F00F1293E /* Alglin_banded.hxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Alglin_banded.hxx; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -675,6 +650,45 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		D90D44B523211F2600E31061 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				D90D44B623211F2600E31061 /* Alglin_Config.hh */,
+				D90D44C123211F2600E31061 /* ABD_Arceco.hh */,
+				D90D44C523211F2600E31061 /* ABD_Arceco.cc */,
+				D90D44B723211F2600E31061 /* ABD_Diaz.hh */,
+				D90D44BB23211F2600E31061 /* ABD_Block.hh */,
+				D90D44B823211F2600E31061 /* Simplex.hh */,
+				D90D44B923211F2600E31061 /* BlockBidiagonal.cc */,
+				D90D44BA23211F2600E31061 /* BABD_BorderedCR.cc */,
+				D90D44BC23211F2600E31061 /* Alglin_SuperLU.hh.tmpl */,
+				D972249C2322B4FA00665317 /* Alglin_Config.hh */,
+				D972249A2322B4EB00665317 /* Alglin_tmpl.hh */,
+				D90D44BE23211F2600E31061 /* BABD_Block.hh */,
+				D90D44BF23211F2600E31061 /* BABD.cc */,
+				D90D44C023211F2600E31061 /* BABD_F90_interface.inc */,
+				D90D44C223211F2600E31061 /* BABD.hh */,
+				D90D44C323211F2600E31061 /* BABD_Block.cc */,
+				D90D44C423211F2600E31061 /* BABD_C_interface.cc */,
+				D90D44C623211F2600E31061 /* ABD_Diaz.cc */,
+				D90D44C723211F2600E31061 /* BlockBidiagonal.hh */,
+				D90D44C823211F2600E31061 /* Simplex.cc */,
+				D90D44C923211F2600E31061 /* ABD_Block.cc */,
+				D90D44CA23211F2600E31061 /* BABD_BorderedCR.hh */,
+				D90D44CB23211F2600E31061 /* BABD_C_interface.h */,
+				D90D44CC23211F2600E31061 /* KKT_like.cc */,
+				D90D44CD23211F2600E31061 /* Alglin_tmpl.hh */,
+				D90D44CE23211F2600E31061 /* BABD_SuperLU.cc */,
+				D90D44CF23211F2600E31061 /* KKT_like.hh */,
+				D90D44D023211F2600E31061 /* BABD_SuperLU.hh */,
+				D90D44D123211F2600E31061 /* Alglin_aux.hh */,
+				D90D44D223211F2600E31061 /* Alglin_FD.hh */,
+				D90D44D323211F2600E31061 /* Alglin_Eigen.hh */,
+				D90D44D423211F2600E31061 /* Alglin_SuperLU.hh */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
 		D95EB3A31D6C5067005772D0 /* src_tests */ = {
 			isa = PBXGroup;
 			children = (
@@ -706,7 +720,7 @@
 			children = (
 				D937DF251CEA75A2006642C6 /* Accelerate.framework */,
 				D96BFE741CD01B4B00AB31CD /* Products */,
-				D9EF86282109FD6F00F1293E /* src */,
+				D90D44B523211F2600E31061 /* src */,
 				D95EB3A31D6C5067005772D0 /* src_tests */,
 				D9EF86962109FE9200F1293E /* Frameworks */,
 			);
@@ -738,58 +752,6 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		D9EF86282109FD6F00F1293E /* src */ = {
-			isa = PBXGroup;
-			children = (
-				D9EF86302109FD6F00F1293E /* Alglin.hh */,
-				D9EF862B2109FD6F00F1293E /* AlglinFD.hh */,
-				D9EF86552109FD6F00F1293E /* Alglin_tmpl.hh */,
-				D9EF865C2109FD6F00F1293E /* Alglin_aux.hh */,
-				D9EF865A2109FD6F00F1293E /* Alglin_threads.hh */,
-				D9EF865F2109FD6F00F1293E /* Alglin_banded.hxx */,
-				D9EF86332109FD6F00F1293E /* Alglin_blas.hxx */,
-				D9EF86342109FD6F00F1293E /* Alglin_triangular.hxx */,
-				D9EF86382109FD6F00F1293E /* Alglin_tridiagonal.hxx */,
-				D9EF86442109FD6F00F1293E /* Alglin_general.hxx */,
-				D9EF86582109FD6F00F1293E /* Alglin_general_qr.hxx */,
-				D9C36008214A5E9400DCD094 /* Alglin_symmetric.hxx */,
-				D90F9F26211250CE009E9CA2 /* Alglin_sparse.hxx */,
-				D91913C72242C2ED002C20BB /* Alglin_sparse.cxx */,
-				D9400E7A21386A8900C5AF8A /* Alglin_wrapper.hxx */,
-				D91913C52242C17D002C20BB /* Alglin_wrapper.cxx */,
-				D9EF86452109FD6F00F1293E /* AlglinSuperLU.hh */,
-				D9EF865D2109FD6F00F1293E /* Alglin++.hh */,
-				D9EF86502109FD6F00F1293E /* Alglin++.cc */,
-				D9EF86392109FD6F00F1293E /* Alglin.cc */,
-				D9EF863B2109FD6F00F1293E /* AlglinConfig.hh */,
-				D9EF863E2109FD6F00F1293E /* AlglinEigen.hh */,
-				D9EF862C2109FD6F00F1293E /* Simplex.hh */,
-				D9EF862F2109FD6F00F1293E /* ABD_Block.hh */,
-				D9EF86492109FD6F00F1293E /* ABD_Block.cc */,
-				D9EF862A2109FD6F00F1293E /* ABD_Diaz.hh */,
-				D9EF86432109FD6F00F1293E /* ABD_Diaz.cc */,
-				D9EF86372109FD6F00F1293E /* ABD_Arceco.hh */,
-				D9EF86412109FD6F00F1293E /* ABD_Arceco.cc */,
-				D9EF86322109FD6F00F1293E /* BABD.cc */,
-				D9EF863C2109FD6F00F1293E /* BABD.hh */,
-				D9EF86312109FD6F00F1293E /* BABD_Block.hh */,
-				D9EF863D2109FD6F00F1293E /* BABD_Block.cc */,
-				D9EF864A2109FD6F00F1293E /* BABD_BorderedCR.hh */,
-				D9EF862E2109FD6F00F1293E /* BABD_BorderedCR.cc */,
-				D9EF865B2109FD6F00F1293E /* BABD_SuperLU.hh */,
-				D9EF86562109FD6F00F1293E /* BABD_SuperLU.cc */,
-				D9EF864D2109FD6F00F1293E /* BABD_C_interface.h */,
-				D9EF863F2109FD6F00F1293E /* BABD_C_interface.cc */,
-				D9EF86472109FD6F00F1293E /* BlockBidiagonal.hh */,
-				D9EF862D2109FD6F00F1293E /* BlockBidiagonal.cc */,
-				D9EF86422109FD6F00F1293E /* TicToc.hh */,
-				D9EF86482109FD6F00F1293E /* Simplex.cc */,
-				D9EF86522109FD6F00F1293E /* KKT_like.cc */,
-				D9EF86592109FD6F00F1293E /* KKT_like.hh */,
-			);
-			path = src;
-			sourceTree = "<group>";
-		};
 		D9EF86962109FE9200F1293E /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -804,36 +766,25 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D9EF86672109FD6F00F1293E /* Alglin.hh in Headers */,
-				D9EF86902109FD6F00F1293E /* Alglin_threads.hh in Headers */,
-				D9EF86622109FD6F00F1293E /* AlglinFD.hh in Headers */,
-				D9EF866B2109FD6F00F1293E /* Alglin_triangular.hxx in Headers */,
-				D9EF868F2109FD6F00F1293E /* KKT_like.hh in Headers */,
-				D9400E7B21386A8900C5AF8A /* Alglin_wrapper.hxx in Headers */,
-				D9EF86912109FD6F00F1293E /* BABD_SuperLU.hh in Headers */,
-				D9EF868B2109FD6F00F1293E /* Alglin_tmpl.hh in Headers */,
-				D9EF86922109FD6F00F1293E /* Alglin_aux.hh in Headers */,
-				D9EF86682109FD6F00F1293E /* BABD_Block.hh in Headers */,
-				D9EF86752109FD6F00F1293E /* AlglinEigen.hh in Headers */,
-				D9C36009214A5E9400DCD094 /* Alglin_symmetric.hxx in Headers */,
-				D9EF868E2109FD6F00F1293E /* Alglin_general_qr.hxx in Headers */,
-				D9EF867C2109FD6F00F1293E /* AlglinSuperLU.hh in Headers */,
-				D9EF866A2109FD6F00F1293E /* Alglin_blas.hxx in Headers */,
-				D9EF867E2109FD6F00F1293E /* BlockBidiagonal.hh in Headers */,
-				D9EF86932109FD6F00F1293E /* Alglin++.hh in Headers */,
-				D9EF86722109FD6F00F1293E /* AlglinConfig.hh in Headers */,
-				D9EF86792109FD6F00F1293E /* TicToc.hh in Headers */,
-				D9EF86952109FD6F00F1293E /* Alglin_banded.hxx in Headers */,
-				D9EF86832109FD6F00F1293E /* BABD_C_interface.h in Headers */,
-				D9EF86732109FD6F00F1293E /* BABD.hh in Headers */,
-				D9EF866E2109FD6F00F1293E /* ABD_Arceco.hh in Headers */,
-				D9EF867B2109FD6F00F1293E /* Alglin_general.hxx in Headers */,
-				D9EF866F2109FD6F00F1293E /* Alglin_tridiagonal.hxx in Headers */,
-				D9EF86612109FD6F00F1293E /* ABD_Diaz.hh in Headers */,
-				D9EF86632109FD6F00F1293E /* Simplex.hh in Headers */,
-				D9EF86812109FD6F00F1293E /* BABD_BorderedCR.hh in Headers */,
-				D9EF86662109FD6F00F1293E /* ABD_Block.hh in Headers */,
-				D90F9F27211250CF009E9CA2 /* Alglin_sparse.hxx in Headers */,
+				D90D44D523211F2700E31061 /* Alglin_Config.hh in Headers */,
+				D90D44F123211F2700E31061 /* Alglin_SuperLU.hh in Headers */,
+				D90D44EF23211F2700E31061 /* Alglin_FD.hh in Headers */,
+				D90D44ED23211F2700E31061 /* BABD_SuperLU.hh in Headers */,
+				D90D44DB23211F2700E31061 /* BABD_Block.hh in Headers */,
+				D90D44DE23211F2700E31061 /* ABD_Arceco.hh in Headers */,
+				D90D44D623211F2700E31061 /* ABD_Diaz.hh in Headers */,
+				D90D44DF23211F2700E31061 /* BABD.hh in Headers */,
+				D90D44EA23211F2700E31061 /* Alglin_tmpl.hh in Headers */,
+				D90D44E823211F2700E31061 /* BABD_C_interface.h in Headers */,
+				D972249D2322B4FA00665317 /* Alglin_Config.hh in Headers */,
+				D90D44E423211F2700E31061 /* BlockBidiagonal.hh in Headers */,
+				D90D44EE23211F2700E31061 /* Alglin_aux.hh in Headers */,
+				D90D44F023211F2700E31061 /* Alglin_Eigen.hh in Headers */,
+				D972249B2322B4EB00665317 /* Alglin_tmpl.hh in Headers */,
+				D90D44D723211F2700E31061 /* Simplex.hh in Headers */,
+				D90D44E723211F2700E31061 /* BABD_BorderedCR.hh in Headers */,
+				D90D44DA23211F2700E31061 /* ABD_Block.hh in Headers */,
+				D90D44EC23211F2700E31061 /* KKT_like.hh in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1343,19 +1294,18 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D9EF86702109FD6F00F1293E /* Alglin.cc in Sources */,
-				D9EF867A2109FD6F00F1293E /* ABD_Diaz.cc in Sources */,
-				D9EF867F2109FD6F00F1293E /* Simplex.cc in Sources */,
-				D9EF86692109FD6F00F1293E /* BABD.cc in Sources */,
-				D9EF86742109FD6F00F1293E /* BABD_Block.cc in Sources */,
-				D9EF86882109FD6F00F1293E /* KKT_like.cc in Sources */,
-				D9EF868C2109FD6F00F1293E /* BABD_SuperLU.cc in Sources */,
-				D9EF86782109FD6F00F1293E /* ABD_Arceco.cc in Sources */,
-				D9EF86652109FD6F00F1293E /* BABD_BorderedCR.cc in Sources */,
-				D9EF86862109FD6F00F1293E /* Alglin++.cc in Sources */,
-				D9EF86802109FD6F00F1293E /* ABD_Block.cc in Sources */,
-				D9EF86762109FD6F00F1293E /* BABD_C_interface.cc in Sources */,
-				D9EF86642109FD6F00F1293E /* BlockBidiagonal.cc in Sources */,
+				D90D44E123211F2700E31061 /* BABD_C_interface.cc in Sources */,
+				D90D44DC23211F2700E31061 /* BABD.cc in Sources */,
+				D90D44E523211F2700E31061 /* Simplex.cc in Sources */,
+				D90D44E023211F2700E31061 /* BABD_Block.cc in Sources */,
+				D90D44DD23211F2700E31061 /* BABD_F90_interface.inc in Sources */,
+				D90D44E923211F2700E31061 /* KKT_like.cc in Sources */,
+				D90D44D923211F2700E31061 /* BABD_BorderedCR.cc in Sources */,
+				D90D44E323211F2700E31061 /* ABD_Diaz.cc in Sources */,
+				D90D44D823211F2700E31061 /* BlockBidiagonal.cc in Sources */,
+				D90D44E223211F2700E31061 /* ABD_Arceco.cc in Sources */,
+				D90D44E623211F2700E31061 /* ABD_Block.cc in Sources */,
+				D90D44EB23211F2700E31061 /* BABD_SuperLU.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

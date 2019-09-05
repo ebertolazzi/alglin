@@ -32,6 +32,10 @@
 #include <condition_variable>
 #include <atomic>
 
+#ifdef __GCC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wc++98-compat"
+#endif
 #ifdef __clang__
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wc++98-compat"
@@ -43,7 +47,7 @@ namespace alglin {
     #ifdef ALGLIN_OS_WINDOWS
     std::atomic_flag locked;
     #else
-    std::atomic_flag locked = ATOMIC_FLAG_INIT;
+    std::atomic_flag locked = ATOMIC_FLAG_INIT ;
     #endif
   public:
 
@@ -55,7 +59,7 @@ namespace alglin {
 
     void
     lock() {
-      while (locked.test_and_set(std::memory_order_acquire)) {; }
+      while (locked.test_and_set(std::memory_order_acquire)) { ; }
     }
 
     void
@@ -81,7 +85,7 @@ namespace alglin {
 
     void
     setup( unsigned count ) {
-      m_count_reset_value = m_count = count;
+      m_count_reset_value = m_count = count ;
     }
 
     void
@@ -114,23 +118,21 @@ namespace alglin {
     }
   };
 
-  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
   class Barrier {
-    int to_be_done, usedThread;
-    std::mutex              mtx;
-    std::condition_variable cond;
+    int to_be_done, usedThread  ;
+    std::mutex              mtx ;
+    std::condition_variable cond ;
   public:
     Barrier() : to_be_done(0) {}
 
     void
     setup( int nthreads )
-    { usedThread = to_be_done = nthreads; }
+    { usedThread = to_be_done = nthreads ; }
 
     void
     count_down() {
       std::unique_lock<std::mutex> lck(mtx);
-      if ( --to_be_done <= 0 ) cond.notify_all(); // wake up all tread
+      if ( --to_be_done <= 0 ) cond.notify_all() ; // wake up all tread
     }
 
     void
@@ -143,8 +145,8 @@ namespace alglin {
     count_down_and_wait() {
       std::unique_lock<std::mutex> lck(mtx);
       if ( --to_be_done <= 0 ) {
-        cond.notify_all(); // wake up all tread
-        to_be_done = usedThread;
+        cond.notify_all() ; // wake up all tread
+        to_be_done = usedThread ;
       } else {
         cond.wait(lck);
       }
@@ -152,6 +154,9 @@ namespace alglin {
   };
 } // end namespace alglin
 
+#ifdef __GCC__
+#pragma GCC diagnostic pop
+#endif
 #ifdef __clang__
 #pragma clang diagnostic pop
 #endif

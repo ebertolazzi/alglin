@@ -20,9 +20,7 @@
 #ifndef BABD_HH
 #define BABD_HH
 
-#include "Alglin.hh"
-#include "Alglin++.hh"
-
+#include "Alglin_Config.hh"
 #include "ABD_Diaz.hh"
 #include "ABD_Arceco.hh"
 #include "BABD_BorderedCR.hh"

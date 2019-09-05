@@ -33,8 +33,7 @@
 #ifndef SIMPLEX_HH
 #define SIMPLEX_HH
 
-#include "Alglin.hh"
-#include "Alglin++.hh"
+#include "Alglin_Config.hh"
 
 #include <string>
 #include <iostream>

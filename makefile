@@ -2,178 +2,16 @@
 OS=$(shell uname)
 PWD=$(shell pwd)
 
-LIB3RD=$(PWD)/lib3rd/lib
-INC3RD=$(PWD)/lib3rd/include
+include Makefile_config.mk
 
-LIB_ALGLIN = libAlglin.a
-
-CC    = gcc
-CXX   = g++
-F90   = gfortran
-INC   =
-LIBS  =
-CLIBS = -lc++
-DEFS  =
-
-CXXFLAGS = -msse4.2 -msse4.1 -mssse3 -msse3 -msse2 -msse -mmmx -m64 -O3 -funroll-loops -fPIC
-override LIBS += -L./lib -lAlglin -L$(LIB3RD)
-override INC  += -I./src -I$(INC3RD)
-
-#
-# select which version of BLAS/LAPACK use
-#
-USED_LIB=""
-SYSTEMOPENBLAS=\/\/
-ifeq ($(ATLAS),1)
-  USED_LIB = ALGLIN_USE_ATLAS
-endif
-#
-ifeq ($(MKL),1)
-  USED_LIB = ALGLIN_USE_MKL
-endif
-#
-ifeq ($(OPENBLAS),1)
-  USED_LIB = ALGLIN_USE_OPENBLAS
-endif
-#
-ifeq ($(LAPACK),1)
-  USED_LIB = ALGLIN_USE_LAPACK
-endif
-#
-ifeq ($(ACCELERATE),1)
-  USED_LIB = ALGLIN_USE_ACCELERATE
-endif
-#
-# if missig setup default
-#
-ifeq ($(USED_LIB), "")
-ifeq (,$(wildcard .alglin_config))
-ifneq (,$(findstring Darwin, $(OS)))
-  USED_LIB = ALGLIN_USE_ACCELERATE
-else
-  USED_LIB = ALGLIN_USE_LAPACK
-endif
-else
- USED_LIB = $(shell cat .alglin_config)
-endif
-endif
-
-$(shell echo "$(USED_LIB)" > .alglin_config )
-$(info $(USED_LIB))
-
-#      # #    # #    # #    #
-#      # ##   # #    #  #  #
-#      # # #  # #    #   ##
-#      # #  # # #    #   ##
-#      # #   ## #    #  #  #
-###### # #    #  ####  #    #
-
-# check if the OS string contains 'Linux'
-ifneq (,$(findstring Linux, $(OS)))
-  WARN   = -Wall
-  CC     = gcc
-  CXX    = g++ -std=c++11 -pthread
-  THREAD = ALGLIN_USE_THREAD
-  #
-  # activate C++11 for g++ >= 4.9
-  #
-  VERSION  = $(shell $(CC) -dumpversion)
-  CC     += $(WARN)
-  CXX    += $(WARN)
-  AR      = ar rcs
-  LIBSGCC = -lsuperlu -lstdc++ -lm -pthread
-
-ifneq (,$(findstring ALGLIN_USE_LAPACK,$(USED_LIB)))
-  override LIBS += -llapack -lblas
-endif
-
-ifneq (,$(findstring ALGLIN_USE_OPENBLAS,$(USED_LIB)))
-  FPATH=$(dir $(shell gfortran -print-libgcc-file-name))
-  override LIBS += -L$(LIB3RD) -Wl,-rpath,$(LIB3RD) -lopenblas -L$(FPATH)/../../.. -Wl,-rpath,$(LIB3RD)/../../..  -lgfortran
-endif
-
-ifneq (,$(findstring ALGLIN_USE_ATLAS,$(USED_LIB)))
-  ATLAS_PATH = /usr/lib/atlas-base
-  ATLAS_LIBS = -llapack -lf77blas -lcblas -latlas -lgfortran
-  override LIBS += -L$(ATLAS_PATH) $(ATLAS_LIBS) -Wl,-rpath,$(ATLAS_PATH)
-endif
-
-ifneq (,$(findstring ALGLIN_USE_MKL,$(USED_LIB)))
-  # for MKL
-  MKL_PATH = /opt/intel/mkl
-  MKL_ARCH = intel64
-  #MKL_LIB = -lmkl_tbb_thread -lmkl_rt -lmkl_core
-  MKL_LIB = -lmkl_sequential -lmkl_rt -lmkl_core
-  override LIBS += -L$(MKL_PATH)/lib/$(MKL_ARCH) -Wl,-rpath,$(MKL_PATH)/lib/$(MKL_ARCH) $(MKL_LIB)
-  override INC  += -I$(MKL_PATH)/include
-endif
-
-ifneq (,$(findstring ALGLIN_USE_ACCELERATE,$(USED_LIB)))
-  $(error error is "Accelerate is supported only on Darwin!")
-endif
-
-  #
-  override INC  += -I/usr/include/eigen3 -I/usr/include/atlas/
-endif
-
-#######  #####  #     #
-#     # #     #  #   #
-#     # #         # #
-#     #  #####     #
-#     #       #   # #
-#     # #     #  #   #
-#######  #####  #     #
-
-# check if the OS string contains 'Darwin'
-ifneq (,$(findstring Darwin, $(OS)))
-  WARN     = -Weverything -Wno-reserved-id-macro -Wno-padded
-  CC       = clang
-  CXX      = clang++
-  VERSION  = $(shell $(CC) --version 2>&1 | grep -o "Apple LLVM version [0-9]\.[0-9]\.[0-9]" | grep -o " [0-9]\.")
-  #---------
-  CXX     += -std=c++11 -stdlib=libc++
-  THREAD   = ALGLIN_USE_THREAD
-  #---------
-  CC     += $(WARN)
-  CXX    += $(WARN)
-  AR      = libtool -static -o
-  LIBSGCC = -lsuperlu -lstdc++ -lm
-
-ifneq (,$(findstring ALGLIN_USE_LAPACK,$(USED_LIB)))
-  override LIBS += -llapack -lblas
-endif
-
-ifneq (,$(findstring ALGLIN_USE_OPENBLAS,$(USED_LIB)))
-  FPATH=$(dir $(shell gfortran -print-libgcc-file-name))
-  override LIBS += -L$(LIB3RD) -Wl,-rpath,$(LIB3RD) -lopenblas -L$(FPATH)/../../.. -Wl,-rpath,$(LIB3RD)/../../..  -lgfortran
-endif
-
-ifneq (,$(findstring ALGLIN_USE_ATLAS,$(USED_LIB)))
-  $(error error is "Atlas is supported only on Linux!")
-endif
-
-ifneq (,$(findstring ALGLIN_USE_MKL,$(USED_LIB)))
-  # for MKL
-  MKL_PATH = /opt/intel/mkl
-  #MKL_LIB = -lmkl_tbb_thread -lmkl_intel -lmkl_core
-  MKL_LIB = -lmkl_sequential -lmkl_intel -lmkl_core
-  override LIBS += -L$(MKL_PATH)/lib -Xlinker -rpath -Xlinker $(MKL_PATH)/lib $(MKL_LIB)
-  override INC  += -I$(MKL_PATH)/include
-endif
-
-ifneq (,$(findstring ALGLIN_USE_ACCELERATE,$(USED_LIB)))
-  override LIBS += -L./lib -lAlglin -framework Accelerate
-endif
-
-  override INC += -I/usr/local/include/eigen3
-endif
+.SUFFIXES:
+.SUFFIXES: .o .c .cc
 
 SRCS = \
+src/Alglin_aux.cc \
 src/ABD_Arceco.cc \
 src/ABD_Block.cc \
 src/ABD_Diaz.cc \
-src/Alglin++.cc \
-src/Alglin.cc \
 src/BABD.cc \
 src/BABD_Block.cc \
 src/BABD_BorderedCR.cc \
@@ -185,132 +23,76 @@ src/Simplex.cc
 
 OBJS = $(SRCS:.cc=.o)
 
-SRCS_TESTS = \
-src_tests/Simplex-Test1.cc \
-src_tests/Simplex-Test2.cc \
-src_tests/Simplex-Test3.cc \
-src_tests/Simplex-Test4.cc \
-src_tests/test0-FD.cc \
-src_tests/test1-small-factorization.cc \
-src_tests/test2-Threads.cc \
-src_tests/test3-Timing.cc \
-src_tests/test4-KKT.cc \
-src_tests/test5-ABD-Diaz.cc \
-src_tests/test6-ABD-Block.cc \
-src_tests/test7-BorderedCR.cc \
-src_tests/test12-BandedMatrix.cc \
-src_tests/test13-BFGS.cc \
-src_tests/test14-BLOCKTRID.cc \
-src_tests/test15-EIGS.cc
-
-OBJS_TESTS = $(SRCS_TESTS:.cc=.o)
-
 #src/AlglinConfig.hh
 DEPS = \
 src/ABD_Arceco.hh \
 src/ABD_Block.hh \
 src/ABD_Diaz.hh \
-src/Alglin++.hh \
-src/Alglin.hh \
-src/AlglinEigen.hh \
-src/AlglinFD.hh \
-src/AlglinSuperLU.hh \
+src/Alglin_Config.hh \
+src/Alglin_Eigen.hh \
+src/Alglin_FD.hh \
+src/Alglin_SuperLU.hh \
 src/Alglin_aux.hh \
-src/Alglin_threads.hh \
 src/Alglin_tmpl.hh \
 src/BABD.hh \
 src/BABD_Block.hh \
 src/BABD_BorderedCR.hh \
+src/BABD_C_interface.h \
 src/BABD_SuperLU.hh \
 src/BlockBidiagonal.hh \
 src/KKT_like.hh \
-src/Simplex.hh \
-src/TicToc.hh
+src/Simplex.hh
 
-MKDIR = mkdir -p
-
-# prefix for installation, use make PREFIX=/new/prefix install
-# to override
+MKDIR     = mkdir -p
 PREFIX    = /usr/local
 FRAMEWORK = Alglin
 
-all: config lib $(OBJS_TESTS)
+# check if the OS string contains 'Linux'
+ifneq (,$(findstring Linux, $(OS)))
+include Makefile_linux.mk
+endif
+
+# check if the OS string contains 'MINGW'
+ifneq (,$(findstring MINGW, $(OS)))
+include Makefile_mingw.mk
+endif
+
+# check if the OS string contains 'Darwin'
+ifneq (,$(findstring Darwin, $(OS)))
+include Makefile_osx.mk
+endif
+
+all: config lib
 	mkdir -p bin
-	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test0-FD                  src_tests/test0-FD.o            $(LIBS) $(LIBSGCC)
-	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test1-small-factorization src_tests/test1-small-factorization.o $(LIBS) $(LIBSGCC)
-	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test2-Threads             src_tests/test2-Threads.o       $(LIBS) $(LIBSGCC)
-	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test3-Timing              src_tests/test3-Timing.o        $(LIBS) $(LIBSGCC)
-	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test4-KKT                 src_tests/test4-KKT.o           $(LIBS) $(LIBSGCC)
-	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test5-ABD-Diaz            src_tests/test5-ABD-Diaz.o      $(LIBS) $(LIBSGCC)
-	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test6-ABD-Block           src_tests/test6-ABD-Block.o     $(LIBS) $(LIBSGCC)
-	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test7-BorderedCR          src_tests/test7-BorderedCR.o    $(LIBS) $(LIBSGCC)
-	$(CC)  $(INC) $(DEFS) $(CXXFLAGS) -o bin/test8-Cinterface          src_tests/test8-Cinterface.c    $(LIBS) $(LIBSGCC)
-	$(CC)  $(INC) $(DEFS) $(CXXFLAGS) -o bin/test9-Cinterface          src_tests/test9-Cinterface.c    $(LIBS) $(LIBSGCC)
-	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test12-BandedMatrix       src_tests/test12-BandedMatrix.o $(LIBS) $(LIBSGCC)
-	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test13-BFGS               src_tests/test13-BFGS.o         $(LIBS) $(LIBSGCC)
-	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test14-BLOCKTRID          src_tests/test14-BLOCKTRID.o    $(LIBS) $(LIBSGCC)
-	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test15-EIGS               src_tests/test15-EIGS.o         $(LIBS) $(LIBSGCC)
-	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/Simplex-Test1             src_tests/Simplex-Test1.cc      $(LIBS) $(LIBSGCC)
-	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/Simplex-Test2             src_tests/Simplex-Test2.cc      $(LIBS) $(LIBSGCC)
-	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/Simplex-Test3             src_tests/Simplex-Test3.cc      $(LIBS) $(LIBSGCC)
-	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/Simplex-Test4             src_tests/Simplex-Test4.cc      $(LIBS) $(LIBSGCC)
+	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test0-FD                  src_tests/test0-FD.cc                  $(LIBS) $(LIBSGCC)
+	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test1-small-factorization src_tests/test1-small-factorization.cc $(LIBS) $(LIBSGCC)
+	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test2-Threads             src_tests/test2-Threads.cc             $(LIBS) $(LIBSGCC)
+	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test3-Timing              src_tests/test3-Timing.cc              $(LIBS) $(LIBSGCC)
+	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test4-KKT                 src_tests/test4-KKT.cc                 $(LIBS) $(LIBSGCC)
+	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test5-ABD-Diaz            src_tests/test5-ABD-Diaz.cc            $(LIBS) $(LIBSGCC)
+	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test6-ABD-Block           src_tests/test6-ABD-Block.cc           $(LIBS) $(LIBSGCC)
+	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test7-BorderedCR          src_tests/test7-BorderedCR.cc          $(LIBS) $(LIBSGCC)
+	$(CC)  $(INC) $(DEFS) $(CXXFLAGS) -o bin/test8-Cinterface          src_tests/test8-Cinterface.c           $(LIBS) $(LIBSGCC)
+	$(CC)  $(INC) $(DEFS) $(CXXFLAGS) -o bin/test9-Cinterface          src_tests/test9-Cinterface.c           $(LIBS) $(LIBSGCC)
+	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test12-BandedMatrix       src_tests/test12-BandedMatrix.cc       $(LIBS) $(LIBSGCC)
+	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test13-BFGS               src_tests/test13-BFGS.cc               $(LIBS) $(LIBSGCC)
+	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test14-BLOCKTRID          src_tests/test14-BLOCKTRID.cc          $(LIBS) $(LIBSGCC)
+	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test15-EIGS               src_tests/test15-EIGS.cc               $(LIBS) $(LIBSGCC)
+	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/Simplex-Test1             src_tests/Simplex-Test1.cc             $(LIBS) $(LIBSGCC)
+	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/Simplex-Test2             src_tests/Simplex-Test2.cc             $(LIBS) $(LIBSGCC)
+	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/Simplex-Test3             src_tests/Simplex-Test3.cc             $(LIBS) $(LIBSGCC)
+	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/Simplex-Test4             src_tests/Simplex-Test4.cc             $(LIBS) $(LIBSGCC)
 
 all1: config lib
 	mkdir -p bin
 	$(F90) $(INC) -o bin/test10-FORTRAN src_tests/test10-FORTRAN.f90 $(LIBS) $(LIBSGCC) $(CLIBS)
 	$(F90) $(INC) -o bin/test11-FORTRAN src_tests/test11-FORTRAN.f90 $(LIBS) $(LIBSGCC) $(CLIBS)
 
-lib: config lib/$(LIB_ALGLIN)
-
-src/%.o: src/%.cc $(DEPS)
+.cc.o: $(DEPS)
 	$(CXX) $(INC) $(CXXFLAGS) $(DEFS) -c $< -o $@
 
-src/%.o: src/%.c $(DEPS)
+.c.o: $(DEPS)
 	$(CC) $(INC) $(CFLAGS) $(DEFS) -c -o $@ $<
-
-src_tests/%.o: src_tests/%.cc $(DEPS)
-	$(CXX) $(INC) $(CXXFLAGS) $(DEFS) -c $< -o $@
-
-src_tests/%.o: src_tests/%.c $(DEPS)
-	$(CC) $(INC) $(CFLAGS) $(DEFS) -c -o $@ $<
-
-lib/libAlglin.a: $(OBJS)
-	$(MKDIR) lib
-	$(AR) lib/libAlglin.a $(OBJS)
-
-lib/libAlglin.dylib: $(OBJS)
-	$(MKDIR) lib
-	$(CXX) -shared -o lib/libAlglin.dylib $(OBJS)
-
-lib/libAlglin.so: $(OBJS)
-	$(MKDIR) lib
-	$(CXX) -shared -o lib/libAlglin.so $(OBJS)
-
-install_local: lib/$(LIB_ALGLIN)
-	$(MKDIR) ./lib/include
-	cp -f -P src/*.h*        ./lib/include
-	cp -rf lib3rd/include/*  ./lib/include
-
-install: lib/$(LIB_ALGLIN)
-	$(MKDIR) $(PREFIX)/include
-	cp -f -P src/*.h*          $(PREFIX)/include
-	#cp -f -P lib3rd/include/*  $(PREFIX)/include
-	cp -f -P lib/$(LIB_ALGLIN) $(PREFIX)/lib
-
-install_as_framework: lib/$(LIB_ALGLIN)
-	$(MKDIR) $(PREFIX)/include/$(FRAMEWORK)
-	$(MKDIR) $(PREFIX)/lib
-	cp -f -P src/*.h*          $(PREFIX)/include/$(FRAMEWORK)
-	cp -rf lib3rd/include/*    $(PREFIX)/include/$(FRAMEWORK)
-	cp -f -P lib/$(LIB_ALGLIN) $(PREFIX)/lib/$(LIB_ALGLIN)
-
-config:
-	rm -f src/AlglinConfig.hh
-	sed 's/@@ALGLIN_USE@@/#define $(USED_LIB) 1/' <src/AlglinConfig.hh.tmpl | \
-	sed 's/@@ALGLIN_THREAD@@/#define $(THREAD) 1/' | \
-	sed 's/@@ALGLIN_NOSYSTEM_OPENBLAS@@/$(SYSTEMOPENBLAS)#define ALGLIN_DO_NOT_USE_SYSTEM_OPENBLAS 1/' >src/AlglinConfig.hh
-	rm -f src/AlglinSuperLU.hh
-	sed 's/@@VSYEARANDBITS@@/_SET_YEAR_AND_BITS_/' < src/AlglinSuperLU.hh.tmpl > src/AlglinSuperLU.hh
 
 run:
 	./bin/test0-FD
@@ -337,5 +119,5 @@ doc:
 	doxygen
 
 clean:
-	rm -rf lib/libAlglin.* src/*.o src_tests/*.o
+	rm -rf lib/libAlglin.* src/*.o
 	rm -rf bin

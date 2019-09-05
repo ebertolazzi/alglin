@@ -21,10 +21,8 @@
 #include <fstream>
 #include <vector>
 
-#include "Alglin.hh"
-#include "Alglin++.hh"
+#include "Alglin_Config.hh"
 #include "Alglin_aux.hh"
-#include "TicToc.hh"
 #include "KKT_like.hh"
 
 #ifdef __GNUC__

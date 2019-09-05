@@ -21,7 +21,7 @@
 #include <iomanip>
 #include <vector>
 #include <random>
-#include "AlglinFD.hh"
+#include "Alglin_FD.hh"
 
 #ifdef __GNUC__ 
 #pragma GCC diagnostic push

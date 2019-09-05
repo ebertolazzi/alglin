@@ -1,0 +1,3 @@
+[submodule "submodules/LapackWrapper"]
+	path = submodules/LapackWrapper
+	url = git@github.com:ebertolazzi/LapackWrapper.git

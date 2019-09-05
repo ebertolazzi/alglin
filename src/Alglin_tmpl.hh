@@ -27,7 +27,7 @@
 /*
 */
 
-#include "Alglin.hh"
+#include "Alglin_Config.hh"
 
 namespace alglin {
 

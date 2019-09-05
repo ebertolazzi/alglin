@@ -32,19 +32,6 @@ namespace alglin {
 
   using namespace std;
 
-  template <typename t_Value>
-  KKT<t_Value>::KKT()
-  : allocReals("KKT-reals")
-  , n(0)
-  , m(0)
-  {}
-
-  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  template <typename t_Value>
-  KKT<t_Value>::~KKT()
-  {}
-
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   template <typename t_Value>

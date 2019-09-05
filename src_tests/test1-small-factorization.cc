@@ -19,10 +19,9 @@
 
 #include <iostream>
 #include <vector>
-#include "Alglin.hh"
-#include "Alglin++.hh"
+
+#include "Alglin_Config.hh"
 #include "Alglin_aux.hh"
-#include "TicToc.hh"
 
 #ifdef __GNUC__ 
 #pragma GCC diagnostic push

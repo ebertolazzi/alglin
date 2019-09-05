@@ -22,7 +22,7 @@
 #include <random>
 #include <fstream>
 
-#include "AlglinConfig.hh"
+#include "Alglin_Config.hh"
 
 #ifndef ALGLIN_USE_CXX11
 
@@ -37,7 +37,6 @@ main() {
 #else
 
 #include "Alglin_threads.hh"
-#include "TicToc.hh"
 
 #ifdef __GNUC__ 
 #pragma GCC diagnostic push

@@ -20,9 +20,8 @@
 #ifndef BABD_BORDERED_CR_HH
 #define BABD_BORDERED_CR_HH
 
-#include "Alglin.hh"
-#include "Alglin++.hh"
-#include "AlglinSuperLU.hh"
+#include "Alglin_Config.hh"
+#include "Alglin_SuperLU.hh"
 
 #include <iostream>
 
@@ -894,17 +893,17 @@ namespace alglin {
      | @}
     \*/
 
+    void factorize_SuperLU();
+    void factorize_CR();
+
     void
     factorize() {
       if ( selected == BORDERED_SUPERLU ) {
-        factorize_SuperLU();
+        this->factorize_SuperLU();
       } else {
-        factorize_CR();
+        this->factorize_CR();
       }
     }
-
-    void factorize_SuperLU();
-    void factorize_CR();
 
     /*\
      |         _      _               _

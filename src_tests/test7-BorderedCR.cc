@@ -21,10 +21,9 @@
 #include <vector>
 #include <random>
 #include <fstream>
-#include "Alglin.hh"
-#include "Alglin++.hh"
+
+#include "Alglin_Config.hh"
 #include "Alglin_aux.hh"
-#include "TicToc.hh"
 #include "BABD_BorderedCR.hh"
 
 #ifdef __GNUC__ 

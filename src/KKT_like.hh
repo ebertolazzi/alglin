@@ -20,8 +20,8 @@
 #ifndef KKT_LIKE_N_HH
 #define KKT_LIKE_N_HH
 
-#include "Alglin.hh"
-#include "Alglin++.hh"
+#include "Alglin_Config.hh"
+
 #include <vector>
 
 #ifdef __GNUC__ 
@@ -201,8 +201,15 @@ namespace alglin {
 
   public:
 
-    explicit KKT();
-    ~KKT();
+    explicit
+    KKT()
+    : allocReals("KKT-reals")
+    , n(0)
+    , m(0)
+    {}
+
+    ~KKT()
+    {}
 
     void
     allocate( integer n, integer m );

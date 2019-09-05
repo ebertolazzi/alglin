@@ -24,8 +24,8 @@
 #pragma clang diagnostic ignored "-Wsign-conversion"
 #endif
 
+#include "Alglin_Config.hh"
 #include "ABD_Arceco.hh"
-#include "Alglin.hh"
 
 namespace alglin {
 

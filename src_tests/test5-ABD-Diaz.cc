@@ -21,9 +21,8 @@
 #include <fstream>
 #include <vector>
 #include <random>
-#include "Alglin.hh"
-#include "Alglin_aux.hh"
-#include "TicToc.hh"
+
+#include "Alglin_Config.hh"
 #include "ABD_Diaz.hh"
 
 #ifdef __GNUC__ 

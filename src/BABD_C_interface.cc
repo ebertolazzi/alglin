@@ -17,9 +17,7 @@
  |                                                                          |
 \*--------------------------------------------------------------------------*/
 
-#include "Alglin.hh"
-#include "Alglin++.hh"
-
+#include "Alglin_Config.hh"
 #include "ABD_Diaz.hh"
 #include "BABD_BorderedCR.hh"
 #include "BABD_C_interface.h"

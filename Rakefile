@@ -18,29 +18,31 @@ task :mkl, [:year, :bits] do |t, args|
   sh "'C:/Program Files (x86)/IntelSWTools/compilers_and_libraries/windows/bin/compilervars.bat' -arch #{args.bits} vs#{args.year}shell"
 end
 
+PARALLEL = ' --parallel 8'
+
 TESTS = [
-	"Simplex-Test1",
-	"Simplex-Test2",
-	"Simplex-Test3",
+  "Simplex-Test1",
+  "Simplex-Test2",
+  "Simplex-Test3",
   "Simplex-Test4",
-	"test0-FD",
-	"test1-small-factorization",
-	"test2-Threads",
-	"test3-Timing",
-	"test4-KKT",
-	"test5-ABD-Diaz",
-	"test6-ABD-Block",
-	"test7-BorderedCR",
-	"test8-Cinterface",
-	"test12-BandedMatrix",
-	"test13-BFGS",
-	"test14-BLOCKTRID",
-	"test15-EIGS"
+  "test0-FD",
+  "test1-small-factorization",
+  "test2-Threads",
+  "test3-Timing",
+  "test4-KKT",
+  "test5-ABD-Diaz",
+  "test6-ABD-Block",
+  "test7-BorderedCR",
+  "test8-Cinterface",
+  "test12-BandedMatrix",
+  "test13-BFGS",
+  "test14-BLOCKTRID",
+  "test15-EIGS"
 ]
 
 desc "run tests"
 task :run do
-  TESTS.each do |cmd| 
+  TESTS.each do |cmd|
     sh "./bin/#{cmd}"
   end
 end
@@ -52,8 +54,32 @@ task :run_win do
 end
 
 desc "build lib"
-task :build  do
-  sh "make"
+task :build2 do
+  sh "make; make --jobs=8 all"
+end
+
+desc "build lib"
+task :build do
+  FileUtils.rm_rf 'build'
+  FileUtils.mkdir 'build'
+  FileUtils.cd    'build'
+  sh 'cmake ..'
+  sh 'make --jobs=8 install'
+  FileUtils.cd '..'
+end
+
+desc "build lib"
+task :build_exe do
+  FileUtils.cd 'build'
+  sh 'cmake -DBUILD_EXECUTABLE=true ..'
+  sh 'make --jobs=8 install'
+  FileUtils.cd '..'
+end
+
+task :build_osx => [:build] do
+end
+
+task :build_win => [:build] do
 end
 
 def ChangeOnFile( file, text_to_replace, text_to_put_in_place )
@@ -62,33 +88,19 @@ def ChangeOnFile( file, text_to_replace, text_to_put_in_place )
 end
 
 desc "compile for Visual Studio [default year=2017 bits=x64]"
-task :build_win, [:year, :bits, :lapack, :thread] do |t, args|
-  args.with_defaults( :year   => "2017",
-                      :bits   => "x64",
-                      :lapack => "ALGLIN_USE_LAPACK",
-                      #:lapack => "ALGLIN_USE_LAPACK2",
-                      #:lapack => "ALGLIN_USE_OPENBLAS",
-                      :thread => "ALGLIN_USE_THREAD" )
+task :build_win, [:year, :bits] do |t, args|
+  args.with_defaults( :year => "2017", :bits => "x64" )
 
   cmd = "set path=%path%;lib3rd\\lib;lib3rd\\dll;"
 
-  FileUtils.rm_f 'src/AlglinConfig.hh'
-  FileUtils.cp   'src/AlglinConfig.hh.tmpl', 'src/AlglinConfig.hh'
   FileUtils.rm_f 'src/AlglinSuperLU.hh'
   FileUtils.cp   'src/AlglinSuperLU.hh.tmpl', 'src/AlglinSuperLU.hh'
 
-  ChangeOnFile( 'src/AlglinConfig.hh',
-                '@@ALGLIN_USE@@',
-                "#define #{args.lapack} 1" )
-  ChangeOnFile( 'src/AlglinConfig.hh',
-                '@@ALGLIN_THREAD@@',
-                "#define #{args.thread} 1" )
-  ChangeOnFile( 'src/AlglinConfig.hh',
-                '@@ALGLIN_NOSYSTEM_OPENBLAS@@',
-                "#define ALGLIN_DO_NOT_USE_SYSTEM_OPENBLAS 1" )
-  ChangeOnFile( 'src/AlglinSuperLU.hh',
-                '@@VSYEARANDBITS@@',
-                "vs#{args.year}_#{args.bits}" )
+  ChangeOnFile(
+    'src/AlglinSuperLU.hh',
+    '@@VSYEARANDBITS@@',
+    "vs#{args.year}_#{args.bits}"
+  )
 
   dir = "vs_#{args.year}_#{args.bits}"
 
@@ -123,12 +135,115 @@ task :build_win, [:year, :bits, :lapack, :thread] do |t, args|
     puts "Visual Studio year #{year} not supported!\n";
   end
 
-  sh 'cmake --build . --config Release  --target ALL_BUILD'
+  sh 'cmake --build . --config Release  --target ALL_BUILD'+PARALLEL
   FileUtils.mkdir_p "../lib"
-  FileUtils.cp 'Release/Alglin.lib', "../lib/Alglin_vs#{args.year}_#{args.bits}.lib"  
-  sh 'cmake --build . --config Debug --target ALL_BUILD'
+  FileUtils.cp 'Release/Alglin.lib', "../lib/Alglin_vs#{args.year}_#{args.bits}.lib"
+  sh 'cmake --build . --config Debug --target ALL_BUILD'+PARALLEL
   FileUtils.cp 'Debug/Alglin.lib', "../lib/Alglin_vs#{args.year}_#{args.bits}_debug.lib"
 
   FileUtils.cd '..'
 
+end
+
+desc 'install third parties for osx [lapack=LAPACK_WRAPPER_USE_ACCELERATE]'
+task :osx_3rd, [:lapack] do |t, args|
+  args.with_defaults( :lapack => "LAPACK_WRAPPER_USE_ACCELERATE" )
+  FileUtils.cd 'third_parties'
+  sh "rake install_osx"
+  FileUtils.cd '..'
+  FileUtils.cd 'submodules/LapackWrapper'
+  sh "rake osx_3rd"
+  sh "rake build_osx[#{args.lapack}]"
+  FileUtils.cd '../..'
+end
+
+task :copy_3rd do
+  FileUtils.mkdir_p "lib"
+  FileUtils.mkdir_p "lib/lib"
+  FileUtils.mkdir_p "lib/bin"
+  FileUtils.mkdir_p "lib/dll"
+  ['./submodules/LapackWrapper/lib',
+   './submodules/LapackWrapper/lib3rd'].each do |path|
+    FileUtils.cp_r "#{path}/lib",     'lib3rd' if Dir.exist?("#{path}/lib")
+    FileUtils.cp_r "#{path}/dll",     'lib3rd' if Dir.exist?("#{path}/dll")
+    FileUtils.cp_r "#{path}/bin",     'lib3rd' if Dir.exist?("#{path}/bin")
+    FileUtils.cp_r "#{path}/include", 'lib3rd' if Dir.exist?("#{path}/include")
+  end
+  FileUtils.cd '..'
+end
+
+desc 'install third parties for osx [lapack=LAPACK_WRAPPER_USE_ACCELERATE]'
+task :osx_3rd, [:lapack] do |t, args|
+  args.with_defaults( :lapack => "LAPACK_WRAPPER_USE_ACCELERATE" )
+  FileUtils.cd 'third_parties'
+  sh "rake install_osx"
+  FileUtils.cd '..'
+  FileUtils.cd 'submodules/LapackWrapper'
+  sh "rake linux_3rd"
+  sh "rake build_osx[#{args.lapack}]"
+  FileUtils.cd '../..'
+  sh "rake copy_3rd"
+end
+
+desc 'install third parties for linux [lapack=LAPACK_WRAPPER_USE_OPENBLAS]'
+task :osx_3rd, [:lapack] do |t, args|
+  args.with_defaults( :lapack => "LAPACK_WRAPPER_USE_OPENBLAS" )
+  FileUtils.cd 'third_parties'
+  sh "rake install_linux"
+  FileUtils.cd '..'
+  FileUtils.cd 'submodules/LapackWrapper'
+  sh "rake linux_3rd"
+  sh "rake build_linux[#{args.lapack}]"
+  FileUtils.cd '../..'
+  sh "rake copy_3rd"
+end
+
+desc "compile for Visual Studio [default year=2017, bits=x64, lapack=LAPACK_WRAPPER_USE_OPENBLAS]"
+task :win_3rd, [:year, :bits, :lapack] do |t, args|
+  args.with_defaults(
+    :year   => "2017",
+    :bits   => "x64",
+    :lapack => "LAPACK_WRAPPER_USE_OPENBLAS"
+  )
+  FileUtils.cd 'third_parties'
+  sh "rake install_win[#{args.year},#{args.bits},#{args.lapack}]"
+  FileUtils.cd '..'
+  FileUtils.cd 'submodules/LapackWrapper'
+  sh "rake win_3rd[#{args.year},#{args.bits},#{args.lapack}]"
+  sh "rake build_win[#{args.year},#{args.bits},#{args.lapack}]"
+  FileUtils.cd '../..'
+  sh "rake copy_3rd"
+end
+
+desc "clean for osx"
+task :clean_osx do
+  sh "make clean"
+  FileUtils.cd 'third_parties'
+  sh "rake clean_osx"
+  FileUtils.cd '..'
+  FileUtils.cd 'submodules/LapackWrapper'
+  sh "rake clean_osx"
+  FileUtils.cd '../..'
+end
+
+desc "clean for linux"
+task :clean_linux do
+  sh "make clean"
+  FileUtils.cd 'third_parties'
+  sh "rake clean_linux"
+  FileUtils.cd '..'
+  FileUtils.cd 'submodules/LapackWrapper'
+  sh "rake clean_linux"
+  FileUtils.cd '../..'
+end
+
+desc "clean for windows"
+task :clean_win do
+  FileUtils.rm_rf 'vs_*'
+  FileUtils.cd 'third_parties'
+  sh "rake clean_win"
+  FileUtils.cd '..'
+  FileUtils.cd 'submodules/LapackWrapper'
+  sh "rake clean_win"
+  FileUtils.cd '../..'
 end

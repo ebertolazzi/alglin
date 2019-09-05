@@ -17,7 +17,7 @@
  |                                                                          |
 \*--------------------------------------------------------------------------*/
 
-#include "Alglin++.hh"
+#include "Alglin_Config.hh"
 #include "KKT_like.hh"
 #include <iostream>
 

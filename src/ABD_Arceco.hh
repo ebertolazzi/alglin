@@ -20,8 +20,7 @@
 #ifndef ABD_ARCECO_HH
 #define ABD_ARCECO_HH
 
-#include "Alglin.hh"
-#include "Alglin++.hh"
+#include "Alglin_Config.hh"
 
 namespace alglin {
 

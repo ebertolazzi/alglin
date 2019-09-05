@@ -20,7 +20,8 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
-#include "Alglin.hh"
+
+#include "Alglin_Config.hh"
 #include "Alglin_aux.hh"
 #include "ABD_Block.hh"
 
@@ -37,7 +38,6 @@
 
 typedef double valueType;
 
-#include "TicToc.hh"
 #include <random>
 static unsigned seed1 = 2;
 // std::chrono::system_clock::now().time_since_epoch().count();

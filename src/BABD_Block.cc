@@ -17,8 +17,8 @@
  |                                                                          |
 \*--------------------------------------------------------------------------*/
 
+#include "Alglin_Config.hh"
 #include "BABD_Block.hh"
-#include "Alglin.hh"
 
 #ifdef __GNUC__ 
 #pragma GCC diagnostic ignored "-Wsign-conversion"

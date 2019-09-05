@@ -20,8 +20,7 @@
 #ifndef BLOCK_BIDIAGONAL_HH
 #define BLOCK_BIDIAGONAL_HH
 
-#include "Alglin.hh"
-#include "Alglin++.hh"
+#include "Alglin_Config.hh"
 
 #ifdef __GNUC__ 
 #pragma GCC diagnostic push

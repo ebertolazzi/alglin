@@ -17,12 +17,11 @@
  |                                                                          |
 \*--------------------------------------------------------------------------*/
 
-#include "Alglin++.hh"
+#include "Alglin_Config.hh"
 #include "KKT_like.hh"
 #include <iostream>
 
 using namespace std;
-
 
 static
 void
@@ -144,7 +143,6 @@ test3() {
     cout << "x[ " << k << "] = " << rhs[k] << "\n";
 }
 
-#include "TicToc.hh"
 #include <random>
 
 static unsigned seed1 = 2;
