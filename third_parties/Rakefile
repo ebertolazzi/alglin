@@ -3,42 +3,18 @@ require "./common.rb"
 
 task :default => [:install_osx]
 
-task :copy_submodule, [:arg] do |t, args|
-  args.with_defaults(:arg => "osx")
-  FileUtils.mkdir_p "../lib3rd/"
-  FileUtils.mkdir_p "../lib3rd/lib/"
-  FileUtils.mkdir_p "../lib3rd/dll/"
-  FileUtils.mkdir_p "../lib3rd/bin/"
-  tmp = '_' + args.arg + '_'
-  base = "../submodules/LapackWrapper/"
-  Dir[base+'lib/lib/*'].select do |f|
-    FileUtils.cp f, "../lib3rd/lib/" if f.include? tmp
-  end
-  Dir[base+'lib/dll/*'].select do |f|
-    FileUtils.cp f, "../lib3rd/dll/" if f.include? tmp
-  end
-  Dir[base+'lib/bin/*'].select do |f|
-    FileUtils.cp f, "../lib3rd/bin/" if f.include? tmp
-  end
-  FileUtils.cp_r base + "lib/include", "../lib3rd/"
-  base = base + "lib3rd/"
-  FileUtils.cp_r base+"lib",     "../lib3rd/" if File.exist?( base+"lib" )
-  FileUtils.cp_r base+"dll",     "../lib3rd/" if File.exist?( base+"dll" )
-  FileUtils.cp_r base+"bin",     "../lib3rd/" if File.exist?( base+"bin" )
-  FileUtils.cp_r base+"include", "../lib3rd/" if File.exist?( base+"include" )
-end
-
 desc "install 3rd parties for OSX"
 task :install_osx do
-  FileUtils.cd "../submodules/LapackWrapper/third_parties"
-  sh "rake install_osx"
-  FileUtils.cd ".."
-  sh "rake build_osx"
-  FileUtils.cd "../../third_parties"
   FileUtils.cd "Eigen3"
   sh "rake install"
   FileUtils.cd ".."
-  Rake::Task[:copy_submodule].invoke("osx")
+end
+
+desc "install 3rd parties for LINUX"
+task :install_linux do
+  FileUtils.cd "Eigen3"
+  sh "rake install"
+  FileUtils.cd ".."
 end
 
 desc "clean 3rd parties for OSX"
@@ -48,17 +24,12 @@ task :clean_osx do
   FileUtils.cd ".."
 end
 
-desc "install 3rd parties for LINUX"
-task :install_linux do
-  FileUtils.cd "../submodules/LapackWrapper/third_parties"
-  sh "rake install_linux"
-  FileUtils.cd ".."
-  sh "rake build_linux"
-  FileUtils.cd "../../third_parties"
+desc "install 3rd parties for WINDOWS"
+task :install_win, [:year, :bits] do |t, args|
+  args.with_defaults(:year => "2017", :bits => "x64" )
   FileUtils.cd "Eigen3"
   sh "rake install"
   FileUtils.cd ".."
-  Rake::Task[:copy_submodule].invoke("linux")
 end
 
 desc "clean 3rd parties for LINUX"
@@ -66,19 +37,6 @@ task :clean_linux do
   FileUtils.cd "Eigen3"
   sh "rake clean"
   FileUtils.cd ".."
-end
-
-desc "install 3rd parties for WINDOWS"
-task :install_win, [:year, :bits] do |t, args|
-  args.with_defaults(:year => "2017", :bits => "x64" )
-  FileUtils.cd "../submodules/LapackWrapper/third_parties"
-  sh "rake install_win[#{args.year},#{args.bits}]"
-  FileUtils.cd ".."
-  sh "rake build_win[#{args.year},#{args.bits}]"
-  FileUtils.cd "../../third_parties"
-  FileUtils.cd "Eigen3"
-  sh "rake install"
-  Rake::Task[:copy_submodule].invoke("win")
 end
 
 desc "clean 3rd parties for WINDOWS"

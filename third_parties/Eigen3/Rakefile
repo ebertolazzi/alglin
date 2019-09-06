@@ -15,7 +15,7 @@ desc "untar Eigen3 #{VER} file"
 task :targz => [:download] do
   tar_gz_archive = VER + ".tar.gz"
   if File.directory?('eigen3')
-    puts "directory: eigen3 found, file `#{tar_gz_archive}` not processed"
+    puts "directory: eigen3 found, file `#{tar_gz_archive}` not processed".red
   else
     extract_tgz( tar_gz_archive, '.' )
     FileUtils.rm_rf 'eigen3'
@@ -26,7 +26,7 @@ end
 desc "install eigen3"
 task :install => [:targz] do
   dir = "../../lib3rd/include"
-  puts "eigen3 copy files to #{dir}"
+  puts "eigen3 copy files to #{dir}".green
   FileUtils.mkdir_p dir
   FileUtils.cp_r "eigen3/Eigen", dir
 end

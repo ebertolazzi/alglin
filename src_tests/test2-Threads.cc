@@ -24,7 +24,7 @@
 
 #include "Alglin_Config.hh"
 
-#ifndef ALGLIN_USE_CXX11
+#ifndef LAPACK_WRAPPER_USE_CXX11
 
 using namespace std;
 

@@ -59,27 +59,35 @@ task :build2 do
 end
 
 desc "build lib"
-task :build do
+task :build, [:lapack] do |t, args|
+  args.with_defaults( :lapack => "LAPACK_WRAPPER_USE_ACCELERATE" )
   FileUtils.rm_rf 'build'
   FileUtils.mkdir 'build'
   FileUtils.cd    'build'
-  sh 'cmake ..'
+  sh 'cmake -D'+args.lapack+':=true ..'
   sh 'make --jobs=8 install'
   FileUtils.cd '..'
 end
 
 desc "build lib"
-task :build_exe do
+task :build_exe, [:lapack] do |t, args|
+  args.with_defaults( :lapack => "LAPACK_WRAPPER_USE_ACCELERATE" )
   FileUtils.cd 'build'
-  sh 'cmake -DBUILD_EXECUTABLE=true ..'
+  sh 'cmake -D'+args.lapack+':=true -DBUILD_EXECUTABLE:=true ..'
   sh 'make --jobs=8 install'
   FileUtils.cd '..'
 end
 
-task :build_osx => [:build] do
+task :build_osx, [:lapack] do |t, args|
+  args.with_defaults( :lapack => "LAPACK_WRAPPER_USE_ACCELERATE" )
+  Rake::Task[:osx_3rd].invoke(args.lapack)
+  Rake::Task[:build].invoke(args.lapack)
 end
 
-task :build_win => [:build] do
+task :build_linux, [:lapack] do |t, args|
+  args.with_defaults( :lapack => "LAPACK_WRAPPER_USE_OPENBLAS" )
+  Rake::Task[:linux_3rd].invoke(args.lapack)
+  Rake::Task[:build].invoke(args.lapack)
 end
 
 def ChangeOnFile( file, text_to_replace, text_to_put_in_place )
@@ -88,8 +96,10 @@ def ChangeOnFile( file, text_to_replace, text_to_put_in_place )
 end
 
 desc "compile for Visual Studio [default year=2017 bits=x64]"
-task :build_win, [:year, :bits] do |t, args|
+task :build_win, [:year, :bits] => [:win_3rd] do |t, args|
   args.with_defaults( :year => "2017", :bits => "x64" )
+
+  puts "\n\nBUILD\n\n".green
 
   cmd = "set path=%path%;lib3rd\\lib;lib3rd\\dll;"
 
@@ -145,57 +155,54 @@ task :build_win, [:year, :bits] do |t, args|
 
 end
 
+##### desc 'install third parties for osx [lapack=LAPACK_WRAPPER_USE_ACCELERATE]'
+##### task :osx_3rd, [:lapack] do |t, args|
+#####   args.with_defaults( :lapack => "LAPACK_WRAPPER_USE_ACCELERATE" )
+#####   FileUtils.cd 'third_parties'
+#####   sh "rake install_osx"
+#####   FileUtils.cd '..'
+#####   FileUtils.cd 'submodules'
+#####   sh "rake build_osx[#{args.lapack}]"
+#####   FileUtils.cd '..'
+##### end
+##### 
+##### task :copy_3rd do
+#####   FileUtils.mkdir_p "lib"
+#####   FileUtils.mkdir_p "lib/lib"
+#####   FileUtils.mkdir_p "lib/bin"
+#####   FileUtils.mkdir_p "lib/dll"
+#####   ['./submodules/LapackWrapper/lib',
+#####    './submodules/LapackWrapper/lib3rd'].each do |path|
+#####     FileUtils.cp_r "#{path}/lib",     'lib3rd' if Dir.exist?("#{path}/lib")
+#####     FileUtils.cp_r "#{path}/dll",     'lib3rd' if Dir.exist?("#{path}/dll")
+#####     FileUtils.cp_r "#{path}/bin",     'lib3rd' if Dir.exist?("#{path}/bin")
+#####     FileUtils.cp_r "#{path}/include", 'lib3rd' if Dir.exist?("#{path}/include")
+#####   end
+#####   FileUtils.cd '..'
+##### end
+
 desc 'install third parties for osx [lapack=LAPACK_WRAPPER_USE_ACCELERATE]'
 task :osx_3rd, [:lapack] do |t, args|
   args.with_defaults( :lapack => "LAPACK_WRAPPER_USE_ACCELERATE" )
-  FileUtils.cd 'third_parties'
-  sh "rake install_osx"
-  FileUtils.cd '..'
-  FileUtils.cd 'submodules/LapackWrapper'
-  sh "rake osx_3rd"
+  FileUtils.cd 'submodules'
+  puts "\n\nSUBMODULES\n\n".green
   sh "rake build_osx[#{args.lapack}]"
-  FileUtils.cd '../..'
-end
-
-task :copy_3rd do
-  FileUtils.mkdir_p "lib"
-  FileUtils.mkdir_p "lib/lib"
-  FileUtils.mkdir_p "lib/bin"
-  FileUtils.mkdir_p "lib/dll"
-  ['./submodules/LapackWrapper/lib',
-   './submodules/LapackWrapper/lib3rd'].each do |path|
-    FileUtils.cp_r "#{path}/lib",     'lib3rd' if Dir.exist?("#{path}/lib")
-    FileUtils.cp_r "#{path}/dll",     'lib3rd' if Dir.exist?("#{path}/dll")
-    FileUtils.cp_r "#{path}/bin",     'lib3rd' if Dir.exist?("#{path}/bin")
-    FileUtils.cp_r "#{path}/include", 'lib3rd' if Dir.exist?("#{path}/include")
-  end
+  FileUtils.cd '../third_parties'
+  puts "\n\nTHIRD PARTIES\n\n".green
+  sh "rake install_osx[#{args.lapack}]"
   FileUtils.cd '..'
-end
-
-desc 'install third parties for osx [lapack=LAPACK_WRAPPER_USE_ACCELERATE]'
-task :osx_3rd, [:lapack] do |t, args|
-  args.with_defaults( :lapack => "LAPACK_WRAPPER_USE_ACCELERATE" )
-  FileUtils.cd 'third_parties'
-  sh "rake install_osx"
-  FileUtils.cd '..'
-  FileUtils.cd 'submodules/LapackWrapper'
-  sh "rake linux_3rd"
-  sh "rake build_osx[#{args.lapack}]"
-  FileUtils.cd '../..'
-  sh "rake copy_3rd"
 end
 
 desc 'install third parties for linux [lapack=LAPACK_WRAPPER_USE_OPENBLAS]'
-task :osx_3rd, [:lapack] do |t, args|
+task :linux_3rd, [:lapack] do |t, args|
   args.with_defaults( :lapack => "LAPACK_WRAPPER_USE_OPENBLAS" )
-  FileUtils.cd 'third_parties'
-  sh "rake install_linux"
-  FileUtils.cd '..'
-  FileUtils.cd 'submodules/LapackWrapper'
-  sh "rake linux_3rd"
+  FileUtils.cd 'submodules'
+  puts "\n\nSUBMODULES\n\n".green
   sh "rake build_linux[#{args.lapack}]"
-  FileUtils.cd '../..'
-  sh "rake copy_3rd"
+  FileUtils.cd '../third_parties'
+  puts "\n\nTHIRD PARTIES\n\n".green
+  sh "rake install_linux[#{args.lapack}]"
+  FileUtils.cd '..'
 end
 
 desc "compile for Visual Studio [default year=2017, bits=x64, lapack=LAPACK_WRAPPER_USE_OPENBLAS]"
@@ -205,14 +212,13 @@ task :win_3rd, [:year, :bits, :lapack] do |t, args|
     :bits   => "x64",
     :lapack => "LAPACK_WRAPPER_USE_OPENBLAS"
   )
-  FileUtils.cd 'third_parties'
+  FileUtils.cd 'submodules'
+  puts "\n\nSUBMODULES\n\n".green
+  sh "rake build_win[#{args.year},#{args.bits},#{args.lapack}]"
+  FileUtils.cd '../third_parties'
+  puts "\n\nTHIRD PARTIES\n\n".green
   sh "rake install_win[#{args.year},#{args.bits},#{args.lapack}]"
   FileUtils.cd '..'
-  FileUtils.cd 'submodules/LapackWrapper'
-  sh "rake win_3rd[#{args.year},#{args.bits},#{args.lapack}]"
-  sh "rake build_win[#{args.year},#{args.bits},#{args.lapack}]"
-  FileUtils.cd '../..'
-  sh "rake copy_3rd"
 end
 
 desc "clean for osx"
@@ -220,10 +226,9 @@ task :clean_osx do
   sh "make clean"
   FileUtils.cd 'third_parties'
   sh "rake clean_osx"
-  FileUtils.cd '..'
-  FileUtils.cd 'submodules/LapackWrapper'
+  FileUtils.cd '../submodules'
   sh "rake clean_osx"
-  FileUtils.cd '../..'
+  FileUtils.cd '..'
 end
 
 desc "clean for linux"
@@ -231,10 +236,9 @@ task :clean_linux do
   sh "make clean"
   FileUtils.cd 'third_parties'
   sh "rake clean_linux"
-  FileUtils.cd '..'
-  FileUtils.cd 'submodules/LapackWrapper'
+  FileUtils.cd '../submodules'
   sh "rake clean_linux"
-  FileUtils.cd '../..'
+  FileUtils.cd '..'
 end
 
 desc "clean for windows"
@@ -242,8 +246,7 @@ task :clean_win do
   FileUtils.rm_rf 'vs_*'
   FileUtils.cd 'third_parties'
   sh "rake clean_win"
-  FileUtils.cd '..'
-  FileUtils.cd 'submodules/LapackWrapper'
+  FileUtils.cd '../submodules'
   sh "rake clean_win"
-  FileUtils.cd '../..'
+  FileUtils.cd '..'
 end

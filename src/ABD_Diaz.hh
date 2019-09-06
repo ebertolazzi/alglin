@@ -212,7 +212,7 @@ namespace alglin {
 
   // explicit instantiation declaration to suppress warnings
 
-  #ifdef ALGLIN_USE_CXX11
+  #ifdef LAPACK_WRAPPER_USE_CXX11
 
   #ifdef __clang__
   #pragma clang diagnostic push

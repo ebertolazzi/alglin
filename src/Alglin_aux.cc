@@ -297,7 +297,8 @@ namespace alglin {
     );
   }
 
-  #if defined(ALGLIN_USE_OPENBLAS) || defined(ALGLIN_USE_ATLAS)
+  #if defined(LAPACK_WRAPPER_USE_OPENBLAS) || \
+      defined(LAPACK_WRAPPER_USE_ATLAS)
   template <typename T>
   integer
   getc2_tmpl(

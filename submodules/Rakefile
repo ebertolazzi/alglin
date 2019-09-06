@@ -1,0 +1,89 @@
+require "rake"
+#require "./common.rb"
+
+task :default => [:install_osx]
+
+task :copy_submodules, [:arg] do |t, args|
+  args.with_defaults(:arg => "osx")
+  FileUtils.mkdir_p "../lib3rd/"
+  FileUtils.mkdir_p "../lib3rd/lib/"
+  FileUtils.mkdir_p "../lib3rd/dll/"
+  FileUtils.mkdir_p "../lib3rd/bin/"
+  tmp = '_' + args.arg
+  ["./LapackWrapper/"].each do |base|
+    Dir[base+'lib*/lib/*'].select do |f|
+      FileUtils.cp f, "../lib3rd/lib/" if f.include? tmp
+    end
+    Dir[base+'lib*/dll/*'].select do |f|
+      FileUtils.cp f, "../lib3rd/dll/" if f.include? tmp
+    end
+    Dir[base+'lib*/bin/*'].select do |f|
+      FileUtils.cp f, "../lib3rd/bin/" if f.include? tmp
+    end
+    FileUtils.cp_r base + "lib/include", "../lib3rd/"
+    FileUtils.cp_r base + "lib3rd/include", "../lib3rd/"
+    #base = base + "lib3rd/"
+    #FileUtils.cp_r base+"lib",     "../lib3rd/" if File.exist?( base+"lib" )
+    #FileUtils.cp_r base+"dll",     "../lib3rd/" if File.exist?( base+"dll" )
+    #FileUtils.cp_r base+"bin",     "../lib3rd/" if File.exist?( base+"bin" )
+    #FileUtils.cp_r base+"include", "../lib3rd/" if File.exist?( base+"include" )
+  end
+end
+
+desc "build 3rd parties for OSX [default=LAPACK_WRAPPER_USE_ACCELERATE]"
+task :build_osx, [:lapack] do |t, args|
+  args.with_defaults( :lapack => "LAPACK_WRAPPER_USE_ACCELERATE" )
+  FileUtils.cd "LapackWrapper"
+  sh "rake clean_osx"
+  sh "rake osx_3rd[#{args.lapack}]"
+  sh "rake build_osx[#{args.lapack}]"
+  FileUtils.cd ".."
+  Rake::Task[:copy_submodules].invoke("osx")
+end
+
+desc "build 3rd parties for LINUX [default=LAPACK_WRAPPER_USE_OPENBLAS]"
+task :build_linux, [:lapack] do |t, args|
+  args.with_defaults( :lapack => "LAPACK_WRAPPER_USE_OPENBLAS" )
+  FileUtils.cd "LapackWrapper"
+  sh "rake clean_linux"
+  sh "rake linux_3rd[#{args.lapack}]"
+  sh "rake build_linux[#{args.lapack}]"
+  FileUtils.cd ".."
+  Rake::Task[:copy_submodules].invoke("linux")
+end
+
+desc "build for Visual Studio [default year=2017, bits=x64, lapack=LAPACK_WRAPPER_USE_OPENBLAS]"
+task :win_3rd, [:year, :bits, :lapack] do |t, args|
+  args.with_defaults(
+    :year   => "2017",
+    :bits   => "x64",
+    :lapack => "LAPACK_WRAPPER_USE_OPENBLAS"
+  )
+  FileUtils.cd "LapackWrapper"
+  sh "rake clean_win"
+  sh "rake win_3rd[#{args.year},#{args.bits},#{args.lapack}]"
+  sh "rake build_win[#{args.year},#{args.bits},#{args.lapack}]"
+  FileUtils.cd ".."
+  Rake::Task[:copy_submodules].invoke("win")
+end
+
+desc "clean 3rd parties for OSX"
+task :clean_osx do
+  FileUtils.cd "LapackWrapper"
+  sh "rake clean_osx"
+  FileUtils.cd ".."
+end
+
+desc "clean 3rd parties for LINUX"
+task :clean_linux do
+  FileUtils.cd "LapackWrapper"
+  sh "rake clean_linux"
+  FileUtils.cd ".."
+end
+
+desc "clean 3rd parties for WINDOWS"
+task :clean_win do |t, args|
+  FileUtils.cd "LapackWrapper"
+  sh "rake clean_win"
+  FileUtils.cd ".."
+end

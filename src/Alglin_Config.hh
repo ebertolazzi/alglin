@@ -24,8 +24,13 @@
 #ifndef ALGLIN_CONFIG_HH
 #define ALGLIN_CONFIG_HH
 
-#include <lapack_wrapper/lapack_wrapper.hh>
-#include <lapack_wrapper/lapack_wrapper++.hh>
+#ifdef ALGLIN_USE_SYSTEM_LAPACK_WRAPPER
+  #include <lapack_wrapper/lapack_wrapper.hh>
+  #include <lapack_wrapper/lapack_wrapper++.hh>
+#else
+  #include "lapack_wrapper/lapack_wrapper.hh"
+  #include "lapack_wrapper/lapack_wrapper++.hh"
+#endif
 
 #ifdef LAPACK_WRAPPER_USE_THREAD
   #ifndef LAPACK_WRAPPER_USE_CXX11
@@ -70,9 +75,27 @@
   #define ALGLIN_USE_CXX11 1
 #endif
 
+#ifdef LAPACK_WRAPPER_USE_ACCELERATE
+  #define ALGLIN_USE_ACCELERATE 1
+#endif
+#ifdef LAPACK_WRAPPER_USE_ATLAS
+  #define ALGLIN_USE_ATLAS 1
+#endif
+#ifdef LAPACK_WRAPPER_USE_OPENBLAS
+  #define ALGLIN_USE_OPENBLAS 1
+#endif
+#ifdef LAPACK_WRAPPER_USE_LAPACK
+  #define ALGLIN_USE_LAPACK 1
+#endif
+#ifdef LAPACK_WRAPPER_USE_MKL
+  #define ALGLIN_USE_MKL 1
+#endif
+
 namespace alglin {
   using namespace lapack_wrapper;
 }
+
+
 
 #endif
 
