@@ -150,7 +150,7 @@ ELSEIF( UNIX )
 ELSE()
   IF ( BITS MATCHES "x64")
     FIND_LIBRARY(
-      lapackblas_libraries libopenblas_x64.lib 
+      lapackblas_libraries libopenblas_x64.lib
       HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib
     )
   ELSE()

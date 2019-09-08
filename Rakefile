@@ -108,11 +108,11 @@ task :build_win, [:year, :bits] => [:win_3rd] do |t, args|
 
   cmd = "set path=%path%;lib3rd\\lib;lib3rd\\dll;"
 
-  FileUtils.rm_f 'src/AlglinSuperLU.hh'
-  FileUtils.cp   'src/AlglinSuperLU.hh.tmpl', 'src/AlglinSuperLU.hh'
+  FileUtils.rm_f 'src/Alglin_SuperLU.hh'
+  FileUtils.cp   'src/Alglin_SuperLU.hh.tmpl', 'src/Alglin_SuperLU.hh'
 
   ChangeOnFile(
-    'src/AlglinSuperLU.hh',
+    'src/Alglin_SuperLU.hh',
     '@@VSYEARANDBITS@@',
     "vs#{args.year}_#{args.bits}"
   )

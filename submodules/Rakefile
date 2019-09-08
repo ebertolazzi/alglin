@@ -53,7 +53,7 @@ task :build_linux, [:lapack] do |t, args|
 end
 
 desc "build for Visual Studio [default year=2017, bits=x64, lapack=LAPACK_WRAPPER_USE_OPENBLAS]"
-task :win_3rd, [:year, :bits, :lapack] do |t, args|
+task :build_win, [:year, :bits, :lapack] do |t, args|
   args.with_defaults(
     :year   => "2017",
     :bits   => "x64",
