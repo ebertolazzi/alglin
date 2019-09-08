@@ -11,9 +11,9 @@
 
 cmake_minimum_required(VERSION 3.5)
 
-IF (APPLE)
+IF ( APPLE )
   SET( TARGET Alglin_osx )
-ELSEIF(LINUX)
+ELSEIF( LINUX OR UNIX )
   SET( TARGET Alglin_linux )
 ELSE()
   SET( TARGET Alglin_win )
