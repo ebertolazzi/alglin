@@ -18,7 +18,12 @@ task :mkl, [:year, :bits] do |t, args|
   sh "'C:/Program Files (x86)/IntelSWTools/compilers_and_libraries/windows/bin/compilervars.bat' -arch #{args.bits} vs#{args.year}shell"
 end
 
-PARALLEL = ' --parallel 8'
+cmakeversion = %x( cmake --version ).scan(/\d+\.\d+/).last
+if cmakeversion >= "3.12" then
+  PARALLEL = '--parallel 8 '
+else
+  PARALLEL = ''
+end
 
 TESTS = [
   "Simplex-Test1",
@@ -145,10 +150,10 @@ task :build_win, [:year, :bits] => [:win_3rd] do |t, args|
     puts "Visual Studio year #{year} not supported!\n";
   end
 
-  sh 'cmake --build . --config Release  --target ALL_BUILD'+PARALLEL
+  sh 'cmake --build . --config Release  --target ALL_BUILD '+PARALLEL
   FileUtils.mkdir_p "../lib"
   FileUtils.cp 'Release/Alglin.lib', "../lib/Alglin_vs#{args.year}_#{args.bits}.lib"
-  sh 'cmake --build . --config Debug --target ALL_BUILD'+PARALLEL
+  sh 'cmake --build . --config Debug --target ALL_BUILD '+PARALLEL
   FileUtils.cp 'Debug/Alglin.lib', "../lib/Alglin_vs#{args.year}_#{args.bits}_debug.lib"
 
   FileUtils.cd '..'
