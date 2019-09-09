@@ -151,12 +151,12 @@ ELSE()
   IF ( BITS MATCHES "x64")
     FIND_LIBRARY(
       lapackblas_libraries libopenblas_x64.lib
-      HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib
+      HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/dll
     )
   ELSE()
     FIND_LIBRARY(
       lapackblas_libraries libopenblas.lib
-      HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib
+      HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/dll
     )
   ENDIF()
 ENDIF()
@@ -169,11 +169,11 @@ IF(APPLE)
   )
   FIND_LIBRARY(
     LAPACKW lapack_wrapper_osx_static
-    HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib
+    HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib
   )
   FIND_LIBRARY(
     SUPERLU superlu_osx
-    HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib
+    HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib
   )
 ELSEIF( UNIX )
   LINK_DIRECTORIES(
@@ -183,11 +183,11 @@ ELSEIF( UNIX )
   )
   FIND_LIBRARY(
     LAPACKW lapack_wrapper_linux_static
-    HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib
+    HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib
   )
   FIND_LIBRARY(
     SUPERLU superlu_linux
-    HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib
+    HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib
   )
 ELSE()
   LINK_DIRECTORIES(
@@ -197,14 +197,15 @@ ELSE()
   )
   FIND_LIBRARY(
     LAPACKW liblapack_wrapper_win_${BITS}_static
-    HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib
+    HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib
   )
   FIND_LIBRARY(
     SUPERLU libsuperlu_win_${BITS}_static
-    HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib
+    HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib
   )
 ENDIF()
 
+LINK_DIRECTORIES( lib3rd/lib lib3rd/dll lib/lib lib/dll )
 TARGET_LINK_LIBRARIES( ${TARGET} ${lapackblas_libraries} ${LAPACKW} ${SUPERLU} )
 
 IF( BUILD_EXECUTABLE )

@@ -91,6 +91,23 @@
   #define ALGLIN_USE_MKL 1
 #endif
 
+
+#ifdef LAPACK_WRAPPER_OS_WINDOWS
+  #define ALGLIN_OS_WINDOWS 1
+#endif
+#ifdef LAPACK_WRAPPER_OS_OSX
+  #define ALGLIN_OS_OSX 1
+#endif
+#ifdef LAPACK_WRAPPER_OS_LINUX
+  #define ALGLIN_OS_LINUX 1
+#endif
+#ifdef LAPACK_WRAPPER_ARCH32
+  #define ALGLIN_ARCH32 1
+#endif
+#ifdef LAPACK_WRAPPER_ARCH64
+  #define ALGLIN_ARCH64 1
+#endif
+
 namespace alglin {
   using namespace lapack_wrapper;
 }
