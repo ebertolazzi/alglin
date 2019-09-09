@@ -42,4 +42,4 @@ $(info $(USED_LIB))
 
 config:
 	rm -f src/Alglin_SuperLU.hh
-	sed 's/@@VSYEARANDBITS@@/_SET_YEAR_AND_BITS_/' < src/Alglin_SuperLU.hh.tmpl > src/Alglin_SuperLU.hh
+	sed 's/@@BITS@@/_BITS_/' < src/Alglin_SuperLU.hh.tmpl > src/Alglin_SuperLU.hh

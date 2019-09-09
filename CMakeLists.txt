@@ -90,11 +90,6 @@ SET(EXELISTC test8-Cinterface test9-Cinterface )
 MESSAGE( STATUS "YEAR = ${YEAR}" )
 MESSAGE( STATUS "BITS = ${BITS}" )
 
-#SET( SUPERLU_NAME "superlu_vs${YEAR}_${BITS}" )
-#SET( OPENBLAS_NAME "libopenblas_${BITS}" )
-#SET( LAPACK_NAME "lapack_${BITS}" )
-#SET( BLAS_NAME "blas_${BITS}" )
-
 SET( LLPATH ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd )
 
 #
