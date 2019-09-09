@@ -105,8 +105,7 @@ def ChangeOnFile( file, text_to_replace, text_to_put_in_place )
 end
 
 desc "compile for Visual Studio [default year=2017 bits=x64]"
-#task :build_win, [:year, :bits] => [:win_3rd] do |t, args|
-task :build_win, [:year, :bits] do |t, args|
+task :build_win, [:year, :bits] => [:win_3rd] do |t, args|
     args.with_defaults( :year => "2017", :bits => "x64" )
 
   puts "\n\nBUILD\n\n".green

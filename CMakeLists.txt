@@ -189,14 +189,25 @@ ELSE()
     ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/dll
     ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/bin/${BITS}
   )
-  FIND_LIBRARY(
-    LAPACKW liblapack_wrapper_win_${BITS}_static
-    HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib
-  )
-  FIND_LIBRARY(
-    SUPERLU libsuperlu_win_${BITS}_static
-    HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib
-  )
+  IF ( (CMAKE_BUILD_TYPE EQ "Debug") OR (CMAKE_BUILD_TYPE EQ "DEBUG") )
+    FIND_LIBRARY(
+      LAPACKW liblapack_wrapper_win_${BITS}_static_debug
+      HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib
+    )
+    FIND_LIBRARY(
+      SUPERLU libsuperlu_win_${BITS}_static_debug
+      HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib
+    )
+  ELSE()
+    FIND_LIBRARY(
+      LAPACKW liblapack_wrapper_win_${BITS}_static
+      HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib
+    )
+    FIND_LIBRARY(
+      SUPERLU libsuperlu_win_${BITS}_static
+      HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib
+    )
+  ENDIF()
 ENDIF()
 
 LINK_DIRECTORIES( lib3rd/lib lib3rd/dll lib/lib lib/dll )
