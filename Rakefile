@@ -85,12 +85,16 @@ end
 
 task :build_osx, [:lapack] do |t, args|
   args.with_defaults( :lapack => "LAPACK_WRAPPER_USE_ACCELERATE" )
+  FileUtils.rm_f 'src/Alglin_SuperLU.hh'
+  FileUtils.cp   'src/Alglin_SuperLU.hh.tmpl', 'src/Alglin_SuperLU.hh'
   Rake::Task[:osx_3rd].invoke(args.lapack)
   Rake::Task[:build].invoke(args.lapack)
 end
 
 task :build_linux, [:lapack] do |t, args|
   args.with_defaults( :lapack => "LAPACK_WRAPPER_USE_OPENBLAS" )
+  FileUtils.rm_f 'src/Alglin_SuperLU.hh'
+  FileUtils.cp   'src/Alglin_SuperLU.hh.tmpl', 'src/Alglin_SuperLU.hh'
   Rake::Task[:linux_3rd].invoke(args.lapack)
   Rake::Task[:build].invoke(args.lapack)
 end
@@ -101,8 +105,9 @@ def ChangeOnFile( file, text_to_replace, text_to_put_in_place )
 end
 
 desc "compile for Visual Studio [default year=2017 bits=x64]"
-task :build_win, [:year, :bits] => [:win_3rd] do |t, args|
-  args.with_defaults( :year => "2017", :bits => "x64" )
+#task :build_win, [:year, :bits] => [:win_3rd] do |t, args|
+task :build_win, [:year, :bits] do |t, args|
+    args.with_defaults( :year => "2017", :bits => "x64" )
 
   puts "\n\nBUILD\n\n".green
 
@@ -170,7 +175,7 @@ end
 #####   sh "rake build_osx[#{args.lapack}]"
 #####   FileUtils.cd '..'
 ##### end
-##### 
+#####
 ##### task :copy_3rd do
 #####   FileUtils.mkdir_p "lib"
 #####   FileUtils.mkdir_p "lib/lib"

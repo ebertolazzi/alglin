@@ -11,22 +11,26 @@ task :copy_submodules, [:arg] do |t, args|
   FileUtils.mkdir_p "../lib3rd/bin/"
   tmp = '_' + args.arg
   ["./LapackWrapper/"].each do |base|
-    Dir[base+'lib*/lib/*'].select do |f|
-      FileUtils.cp f, "../lib3rd/lib/" if f.include? tmp
+    Dir[base+'lib/lib/*'].select do |f|
+      FileUtils.cp f, "../lib3rd/lib/" if (f.include? tmp) or (f.include? "openblas")
     end
-    Dir[base+'lib*/dll/*'].select do |f|
-      FileUtils.cp f, "../lib3rd/dll/" if f.include? tmp
+    Dir[base+'lib3rd/lib/*'].select do |f|
+      FileUtils.cp f, "../lib3rd/lib/" if (f.include? tmp) or (f.include? "openblas")
     end
-    Dir[base+'lib*/bin/*'].select do |f|
-      FileUtils.cp f, "../lib3rd/bin/" if f.include? tmp
+    Dir[base+'lib/dll/*'].select do |f|
+      FileUtils.cp f, "../lib3rd/dll/" if (f.include? tmp) or (f.include? "openblas")
+    end
+    Dir[base+'lib3rd/dll/*'].select do |f|
+      FileUtils.cp f, "../lib3rd/dll/" if (f.include? tmp) or (f.include? "openblas")
+    end
+    Dir[base+'lib/bin/*'].select do |f|
+      FileUtils.cp f, "../lib3rd/bin/" if (f.include? tmp) or (f.include? "openblas")
+    end
+    Dir[base+'lib3rd/bin/*'].select do |f|
+      FileUtils.cp f, "../lib3rd/bin/" if (f.include? tmp) or (f.include? "openblas")
     end
     FileUtils.cp_r base + "lib/include", "../lib3rd/"
     FileUtils.cp_r base + "lib3rd/include", "../lib3rd/"
-    #base = base + "lib3rd/"
-    #FileUtils.cp_r base+"lib",     "../lib3rd/" if File.exist?( base+"lib" )
-    #FileUtils.cp_r base+"dll",     "../lib3rd/" if File.exist?( base+"dll" )
-    #FileUtils.cp_r base+"bin",     "../lib3rd/" if File.exist?( base+"bin" )
-    #FileUtils.cp_r base+"include", "../lib3rd/" if File.exist?( base+"include" )
   end
 end
 

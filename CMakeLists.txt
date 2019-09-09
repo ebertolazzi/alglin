@@ -16,7 +16,7 @@ IF ( APPLE )
 ELSEIF( LINUX OR UNIX )
   SET( TARGET Alglin_linux )
 ELSE()
-  SET( TARGET Alglin_win )
+  SET( TARGET Alglin_win_${BITS} )
 ENDIF()
 
 PROJECT( ${TARGET} CXX C )
@@ -168,12 +168,12 @@ IF(APPLE)
     ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/bin
   )
   FIND_LIBRARY(
-    LAPACKW lapack_wrapper_osx
-    HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/dll
+    LAPACKW lapack_wrapper_osx_static
+    HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib
   )
   FIND_LIBRARY(
     SUPERLU superlu_osx
-    HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/dll
+    HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib
   )
 ELSEIF( UNIX )
   LINK_DIRECTORIES(
@@ -182,26 +182,26 @@ ELSEIF( UNIX )
     ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/bin
   )
   FIND_LIBRARY(
-    LAPACKW lapack_wrapper_linux
-    HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/dll
+    LAPACKW lapack_wrapper_linux_static
+    HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib
   )
   FIND_LIBRARY(
     SUPERLU superlu_linux
-    HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/dll
+    HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib
   )
 ELSE()
   LINK_DIRECTORIES(
     ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib
     ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/dll
-    ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/bin/$(BITS)
+    ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/bin/${BITS}
   )
   FIND_LIBRARY(
-    LAPACKW lapack_wrapper_win
-    HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/dll
+    LAPACKW liblapack_wrapper_win_${BITS}_static
+    HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib
   )
   FIND_LIBRARY(
-    SUPERLU superlu_win
-    HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/dll
+    SUPERLU libsuperlu_win_${BITS}_static
+    HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib
   )
 ENDIF()
 
