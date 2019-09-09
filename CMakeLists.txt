@@ -63,8 +63,8 @@ FOREACH (F ${S})
   LIST( APPEND HEADERS ${RF} )
 ENDFOREACH (F ${S})
 
-add_library( ${TARGET}_static STATIC ${SOURCES} ${HEADERS} )
-add_library( ${TARGET} SHARED ${SOURCES} ${HEADERS} )
+ADD_LIBRARY( ${TARGET}_static STATIC ${SOURCES} ${HEADERS} )
+ADD_LIBRARY( ${TARGET} SHARED ${SOURCES} ${HEADERS} )
 
 SET( EXELISTCPP
   Simplex-Test1
@@ -203,35 +203,6 @@ ENDIF()
 LINK_DIRECTORIES( lib3rd/lib lib3rd/dll lib/lib lib/dll )
 TARGET_LINK_LIBRARIES( ${TARGET} ${lapackblas_libraries} ${LAPACKW} ${SUPERLU} )
 
-IF( BUILD_EXECUTABLE )
-
-  ADD_CUSTOM_TARGET( all_tests ALL )
-
-  SET(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/bin)
-  FILE(MAKE_DIRECTORY  ${CMAKE_CURRENT_SOURCE_DIR}/bin )
-  FOREACH( S ${EXELISTCPP} )
-  	ADD_EXECUTABLE( ${S} src_tests/${S}.cc ${HEADERS} )
-  	TARGET_LINK_LIBRARIES( ${S} ${TARGET} ${lapackblas_libraries} ${LAPACKW} ${SUPERLU} )
-  	ADD_TEST( ${S} COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/${S} )
-    ADD_DEPENDENCIES( all_tests ${S} )
-  ENDFOREACH( S $(EXELIST) )
-
-  FOREACH( S ${EXELISTC} )
-  	ADD_EXECUTABLE( ${S} src_tests/${S}.c ${HEADERS} )
-  	TARGET_LINK_LIBRARIES( ${S} ${TARGET} ${lapackblas_libraries} ${LAPACKW} ${SUPERLU} )
-  	ADD_TEST( ${S} COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/${S} )
-    ADD_DEPENDENCIES( all_tests ${S} )
-  ENDFOREACH( S $(EXELIST) )
-
-  ADD_CUSTOM_COMMAND(
-    TARGET all_tests
-    COMMENT "Run tests"
-    POST_BUILD COMMAND ctest ARGS --output-on-failure
-    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-  )
-
-ENDIF()
-
 FILE( GLOB HDRC   ./src/*.h )
 FILE( GLOB HDRCPP ./src/*.hh )
 
@@ -245,6 +216,35 @@ INSTALL(
 )
 
 INSTALL( FILES ${HDRC} ${HDRCPP} DESTINATION ${CMAKE_INSTALL_PREFIX}/include)
+
+IF( BUILD_EXECUTABLE )
+
+  ADD_CUSTOM_TARGET( all_tests ALL )
+
+  SET(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/bin)
+  FILE(MAKE_DIRECTORY  ${CMAKE_CURRENT_SOURCE_DIR}/bin )
+  FOREACH( S ${EXELISTCPP} )
+  	ADD_EXECUTABLE( ${S} src_tests/${S}.cc ${HEADERS} )
+  	TARGET_LINK_LIBRARIES( ${S} ${TARGET}_static ${lapackblas_libraries} ${LAPACKW} ${SUPERLU} )
+  	ADD_TEST( ${S} COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/${S} )
+    ADD_DEPENDENCIES( all_tests ${S} )
+  ENDFOREACH( S $(EXELIST) )
+
+  FOREACH( S ${EXELISTC} )
+  	ADD_EXECUTABLE( ${S} src_tests/${S}.c ${HEADERS} )
+  	TARGET_LINK_LIBRARIES( ${S} ${TARGET}_static ${lapackblas_libraries} ${LAPACKW} ${SUPERLU} )
+  	ADD_TEST( ${S} COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/${S} )
+    ADD_DEPENDENCIES( all_tests ${S} )
+  ENDFOREACH( S $(EXELIST) )
+
+  ADD_CUSTOM_COMMAND(
+    TARGET all_tests
+    COMMENT "Run tests"
+    POST_BUILD COMMAND ctest ARGS --output-on-failure
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+  )
+
+ENDIF()
 
 MESSAGE( STATUS "Using ${SSE_FLAGS} extensions")
 MESSAGE( STATUS "C compiler                  = ${CMAKE_C_COMPILER_ID} ${CMAKE_C_COMPILER}" )
