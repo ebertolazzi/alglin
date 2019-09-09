@@ -105,7 +105,8 @@ def ChangeOnFile( file, text_to_replace, text_to_put_in_place )
 end
 
 desc "compile for Visual Studio [default year=2017 bits=x64]"
-task :build_win, [:year, :bits] => [win_3rd] do |t, args|
+#task :build_win, [:year, :bits] => [:win_3rd] do |t, args|
+task :build_win, [:year, :bits] do |t, args|
     args.with_defaults( :year => "2017", :bits => "x64" )
 
   puts "\n\nBUILD\n\n".green
@@ -156,9 +157,11 @@ task :build_win, [:year, :bits] => [win_3rd] do |t, args|
 
   sh 'cmake --build . --config Release  --target ALL_BUILD '+PARALLEL
   FileUtils.mkdir_p "../lib"
-  FileUtils.cp "Release/Alglin_win_#{args.bits}.lib", "../lib/Alglin_win_#{args.bits}_static.lib"
+  FileUtils.cp "Release/Alglin_win_#{args.bits}_static.lib", "../lib/Alglin_win_#{args.bits}_static.lib"
+  FileUtils.cp "Release/Alglin_win_#{args.bits}.dll",        "../bin/Alglin_win_#{args.bits}.dll"
   sh 'cmake --build . --config Debug --target ALL_BUILD '+PARALLEL
-  FileUtils.cp "Debug/Alglin_win_#{args.bits}.lib", "../lib/Alglin_win_#{args.bits}_static_debug.lib"
+  FileUtils.cp "Debug/Alglin_win_#{args.bits}_static.lib", "../lib/Alglin_win_#{args.bits}_static_debug.lib"
+  FileUtils.cp "Debug/Alglin_win_#{args.bits}.dll",        "../lib/Alglin_win_#{args.bits}_debug.dll"
 
   FileUtils.cd '..'
 
