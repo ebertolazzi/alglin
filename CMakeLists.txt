@@ -189,7 +189,7 @@ ELSE()
     ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/dll
     ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/bin/${BITS}
   )
-  IF ( CMAKE_BUILD_TYPE EQ "DEBUG" )
+  IF ( (CMAKE_BUILD_TYPE STREQUAL "DEBUG") OR (CMAKE_BUILD_TYPE STREQUAL "Debug") )
     FIND_LIBRARY(
       LAPACKW liblapack_wrapper_win_${BITS}_static_debug
       HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib
