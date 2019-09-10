@@ -1,7 +1,6 @@
 #
 #
 #
-
 %w(colorize fileutils pathname rubygems/package net/http zip zlib uri openssl).each do |gem|
   begin
     require gem
@@ -11,13 +10,35 @@
   end
 end
 
+COMPILE_DEBUG = true
+
+cmakeversion = %x( cmake --version ).scan(/\d+\.\d+/).last
+if cmakeversion >= "3.12" then
+  PARALLEL = '--parallel 8 '
+else
+  PARALLEL = ''
+end
+
+if (/cygwin|mswin|mingw|bccwin|wince|emx/ =~ RUBY_PLATFORM) != nil then
+  #linux
+  task :default => [:install_linux]
+elsif (/darwin/ =~ RUBY_PLATFORM) != nil then
+  #osx
+  task :default => [:install_osx]
+else
+  #windows
+  task :default => [:install_windows]
+end
+
 #
 # https://stackoverflow.com/questions/6934185/ruby-net-http-following-redirects/6934503
 #
-def url_resolve( uri_str,
-                 agent        = 'curl/7.43.0',
-                 max_attempts = 10,
-                 timeout      = 10 )
+def url_resolve(
+  uri_str,
+  agent        = 'curl/7.43.0',
+  max_attempts = 10,
+  timeout      = 10
+)
   attempts = 0
   cookie   = nil
 
@@ -106,7 +127,12 @@ end
 # https://stackoverflow.com/questions/19754883/how-to-unzip-a-zip-file-containing-folders-and-files-in-rails-while-keeping-the
 #
 def extract_zip( filename, destination_path='.' )
-  Zip::ZipFile.open(filename) do |zip_file|
+  if Zip.constants.include? :File
+    zzfile = Zip::File
+  else
+    zzfile = Zip::ZipFile
+  end
+  zzfile.open(filename) do |zip_file|
     zip_file.each do |f|
       f_path=File.join(destination_path, f.name)
       FileUtils.mkdir_p(File.dirname(f_path))
@@ -116,7 +142,30 @@ def extract_zip( filename, destination_path='.' )
 end
 
 
-def ChangeOnFile(file, text_to_replace, text_to_put_in_place)
-  text= File.read file
-  File.open(file, 'w+'){|f| f << text.gsub(text_to_replace, text_to_put_in_place)}
+def win_vs( bits, year )
+
+  tmp = " -DBITS=#{bits} -DYEAR=#{year} "
+
+  win32_64 = ''
+  case bits
+  when /x64/
+    win32_64 = ' Win64'
+  end
+
+  case year
+  when "2010"
+    tmp = 'cmake -G "Visual Studio 10 2010' + win32_64 +'" ' + tmp
+  when "2012"
+    tmp = 'cmake -G "Visual Studio 11 2012' + win32_64 +'" ' + tmp
+  when "2013"
+    tmp = 'cmake -G "Visual Studio 12 2013' + win32_64 +'" ' + tmp
+  when "2015"
+    tmp = 'cmake -G "Visual Studio 14 2015' + win32_64 +'" ' + tmp
+  when "2017"
+    tmp = 'cmake -G "Visual Studio 15 2017' + win32_64 +'" ' + tmp
+  else
+    puts "Visual Studio year #{year} not supported!\n";
+    return ""
+  end
+  return tmp
 end

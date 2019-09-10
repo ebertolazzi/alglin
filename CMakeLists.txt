@@ -11,12 +11,21 @@
 
 cmake_minimum_required(VERSION 3.5)
 
-IF ( APPLE )
-  SET( TARGET Alglin_osx )
-ELSEIF( LINUX OR UNIX )
-  SET( TARGET Alglin_linux )
+IF ( CMAKE_BUILD_TYPE STREQUAL "Debug" )
+  SET( DEBUG_SUFFIX "_debug" )
 ELSE()
-  SET( TARGET Alglin_win_${BITS} )
+  SET( DEBUG_SUFFIX )
+ENDIF()
+
+IF ( APPLE )
+  SET( TARGET  Alglin_osx${DEBUG_SUFFIX} )
+  SET( TARGETS Alglin_osx_static${DEBUG_SUFFIX} )
+ELSEIF( LINUX OR UNIX )
+  SET( TARGET  Alglin_linux${DEBUG_SUFFIX} )
+  SET( TARGETS Alglin_linux_static${DEBUG_SUFFIX} )
+ELSE()
+  SET( TARGET  Alglin_win_${BITS}${DEBUG_SUFFIX} )
+  SET( TARGETS Alglin_win_${BITS}_static${DEBUG_SUFFIX} )
 ENDIF()
 
 PROJECT( ${TARGET} CXX C )
@@ -62,8 +71,8 @@ FOREACH (F ${S})
   LIST( APPEND HEADERS ${RF} )
 ENDFOREACH (F ${S})
 
-ADD_LIBRARY( ${TARGET}_static STATIC ${SOURCES} ${HEADERS} )
-ADD_LIBRARY( ${TARGET} SHARED ${SOURCES} ${HEADERS} )
+ADD_LIBRARY( ${TARGETS} STATIC ${SOURCES} ${HEADERS} )
+ADD_LIBRARY( ${TARGET}  SHARED ${SOURCES} ${HEADERS} )
 
 SET( EXELISTCPP
   Simplex-Test1
@@ -162,11 +171,11 @@ IF(APPLE)
     ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/bin
   )
   FIND_LIBRARY(
-    LAPACKW lapack_wrapper_osx_static
+    LAPACKW lapack_wrapper_osx_static${DEBUG_SUFFIX}
     HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib
   )
   FIND_LIBRARY(
-    SUPERLU superlu_osx
+    SUPERLU superlu_osx_static${DEBUG_SUFFIX}
     HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib
   )
 ELSEIF( UNIX )
@@ -176,11 +185,11 @@ ELSEIF( UNIX )
     ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/bin
   )
   FIND_LIBRARY(
-    LAPACKW lapack_wrapper_linux_static
+    LAPACKW lapack_wrapper_linux_static${DEBUG_SUFFIX}
     HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib
   )
   FIND_LIBRARY(
-    SUPERLU superlu_linux
+    SUPERLU superlu_linux_static${DEBUG_SUFFIX}
     HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib
   )
 ELSE()
@@ -189,25 +198,14 @@ ELSE()
     ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/dll
     ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/bin/${BITS}
   )
-  IF ( (CMAKE_BUILD_TYPE STREQUAL "DEBUG") OR (CMAKE_BUILD_TYPE STREQUAL "Debug") )
-    FIND_LIBRARY(
-      LAPACKW liblapack_wrapper_win_${BITS}_static_debug
-      HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib
-    )
-    FIND_LIBRARY(
-      SUPERLU libsuperlu_win_${BITS}_static_debug
-      HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib
-    )
-  ELSE()
-    FIND_LIBRARY(
-      LAPACKW liblapack_wrapper_win_${BITS}_static
-      HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib
-    )
-    FIND_LIBRARY(
-      SUPERLU libsuperlu_win_${BITS}_static
-      HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib
-    )
-  ENDIF()
+  FIND_LIBRARY(
+    LAPACKW lapack_wrapper_win_${BITS}_static${DEBUG_SUFFIX}
+    HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib
+  )
+  FIND_LIBRARY(
+    SUPERLU superlu_win_${BITS}_static${DEBUG_SUFFIX}
+    HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib
+  )
 ENDIF()
 
 LINK_DIRECTORIES( lib3rd/lib lib3rd/dll lib/lib lib/dll )
@@ -219,7 +217,7 @@ FILE( GLOB HDRCPP ./src/*.hh )
 SET( CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/lib )
 
 INSTALL(
-  TARGETS ${TARGET} ${TARGET}_static
+  TARGETS ${TARGET} ${TARGETS}
   RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/bin
   LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/dll
   ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
@@ -235,14 +233,14 @@ IF( BUILD_EXECUTABLE )
   FILE(MAKE_DIRECTORY  ${CMAKE_CURRENT_SOURCE_DIR}/bin )
   FOREACH( S ${EXELISTCPP} )
   	ADD_EXECUTABLE( ${S} src_tests/${S}.cc ${HEADERS} )
-  	TARGET_LINK_LIBRARIES( ${S} ${TARGET}_static ${lapackblas_libraries} ${LAPACKW} ${SUPERLU} )
+  	TARGET_LINK_LIBRARIES( ${S} ${TARGETS} ${lapackblas_libraries} ${LAPACKW} ${SUPERLU} )
   	ADD_TEST( ${S} COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/${S} )
     ADD_DEPENDENCIES( all_tests ${S} )
   ENDFOREACH( S $(EXELIST) )
 
   FOREACH( S ${EXELISTC} )
   	ADD_EXECUTABLE( ${S} src_tests/${S}.c ${HEADERS} )
-  	TARGET_LINK_LIBRARIES( ${S} ${TARGET}_static ${lapackblas_libraries} ${LAPACKW} ${SUPERLU} )
+  	TARGET_LINK_LIBRARIES( ${S} ${TARGETS} ${lapackblas_libraries} ${LAPACKW} ${SUPERLU} )
   	ADD_TEST( ${S} COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/${S} )
     ADD_DEPENDENCIES( all_tests ${S} )
   ENDFOREACH( S $(EXELIST) )

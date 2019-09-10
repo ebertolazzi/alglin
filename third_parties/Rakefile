@@ -1,5 +1,6 @@
 require "rake"
-require "./common.rb"
+require "../Rakefile_common.rb"
+
 
 task :default => [:install_osx]
 
