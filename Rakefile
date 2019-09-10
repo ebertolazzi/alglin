@@ -108,7 +108,7 @@ task :build_win, [:year, :bits, :lapack] do |t, args|
     :lapack => "LAPACK_WRAPPER_USE_OPENBLAS"
   )
 
-  ##Rake::Task[:win_3rd].invoke(args.year,args.bits,args.lapack)
+  Rake::Task[:win_3rd].invoke(args.year,args.bits,args.lapack)
 
   cmd = "set path=%path%;lib3rd\\lib;lib3rd\\dll;"
 
