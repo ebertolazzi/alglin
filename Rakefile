@@ -53,6 +53,7 @@ task :run_win do
   end
 end
 
+desc "compile for OSX [default lapack=LAPACK_WRAPPER_USE_ACCELERATE]"
 task :build_osx, [:lapack] do |t, args|
   args.with_defaults( :lapack => "LAPACK_WRAPPER_USE_ACCELERATE" )
 
@@ -62,16 +63,30 @@ task :build_osx, [:lapack] do |t, args|
   FileUtils.mkdir_p 'build'
   FileUtils.cd      'build'
 
+  cmake_cmd = 'cmake -DBUILD_SHARED:VAR='
+  if COMPILE_DYNAMIC then
+    cmake_cmd += 'true '
+  else
+    cmake_cmd += 'false '
+  end
+  cmake_cmd += '-D' + args.lapack + ':VAR=true '
+  if COMPILE_EXECUTABLE then
+    cmake_cmd += '-DBUILD_EXECUTABLE:VAR=true '
+  else
+    cmake_cmd += '-DBUILD_EXECUTABLE:VAR=false '
+  end
+
   if COMPILE_DEBUG then
-    sh 'cmake -D' + args.lapack + ':VAR=true -DBUILD_EXECUTABLE:VAR=true -DCMAKE_BUILD_TYPE:VAR=Debug ..'
+    sh cmake_cmd + '-DCMAKE_BUILD_TYPE:VAR=Debug ..'
     sh 'cmake --build . --config Debug --target install '+PARALLEL
   end
-  sh 'cmake -D' + args.lapack + ':VAR=true -DBUILD_EXECUTABLE:VAR=true -DCMAKE_BUILD_TYPE:VAR=Release ..'
+  sh cmake_cmd + '-DCMAKE_BUILD_TYPE:VAR=Release ..'
   sh 'cmake --build . --config Release --target install '+PARALLEL
   FileUtils.cd '..'
 
 end
 
+desc "compile for LINUX [default lapack=LAPACK_WRAPPER_USE_OPENBLAS]"
 task :build_linux, [:lapack] do |t, args|
   args.with_defaults( :lapack => "LAPACK_WRAPPER_USE_OPENBLAS" )
 
@@ -81,11 +96,24 @@ task :build_linux, [:lapack] do |t, args|
   FileUtils.mkdir_p 'build'
   FileUtils.cd      'build'
 
+  cmake_cmd = 'cmake -DBUILD_SHARED:VAR='
+  if COMPILE_DYNAMIC then
+    cmake_cmd += 'true '
+  else
+    cmake_cmd += 'false '
+  end
+  cmake_cmd += '-D' + args.lapack + ':VAR=true '
+  if COMPILE_EXECUTABLE then
+    cmake_cmd += '-DBUILD_EXECUTABLE:VAR=true '
+  else
+    cmake_cmd += '-DBUILD_EXECUTABLE:VAR=false '
+  end
+
   if COMPILE_DEBUG then
-    sh 'cmake -D' + args.lapack + ':VAR=true -DBUILD_EXECUTABLE:VAR=true -DCMAKE_BUILD_TYPE:VAR=Debug ..'
+    sh cmake_cmd + ' -DCMAKE_BUILD_TYPE:VAR=Debug ..'
     sh 'cmake --build . --config Debug --target install '+PARALLEL
   end
-  sh 'cmake -D' + args.lapack + ':VAR=true -DBUILD_EXECUTABLE:VAR=true -DCMAKE_BUILD_TYPE:VAR=Release ..'
+  sh cmake_cmd + ' -DCMAKE_BUILD_TYPE:VAR=Release ..'
   sh 'cmake --build . --config Release --target install '+PARALLEL
   FileUtils.cd '..'
 
@@ -119,6 +147,11 @@ task :build_win, [:year, :bits, :lapack] do |t, args|
   else
     cmake_cmd += ' -DBUILD_EXECUTABLE:VAR=false '
   end
+  if COMPILE_DYNAMIC then
+    cmake_cmd += ' -DBUILD_SHARED:VAR=true '
+  else
+    cmake_cmd += ' -DBUILD_SHARED:VAR=false '
+  end
 
   FileUtils.mkdir_p "../lib/lib"
   FileUtils.mkdir_p "../lib/bin"
@@ -133,17 +166,6 @@ task :build_win, [:year, :bits, :lapack] do |t, args|
 
     sh cmake_cmd + ' -DCMAKE_BUILD_TYPE:VAR=Debug ..'
     sh 'cmake --build . --clean-first --config Debug --target install '+PARALLEL
-    FileUtils.cp_r './lib/dll', '../lib/' if Dir.exist?('./lib/dll')
-    Dir['./lib/bin/*'].each do |f|
-      FileUtils.cp f, '../lib/bin/'+args.bits+'/'+File.basename(f)
-    end
-    Dir['./lib/lib/*'].each do |f|
-      if /\_static.*\.lib$/.match(f) then
-        FileUtils.cp f, '../lib/lib/'+File.basename(f)
-      else
-        FileUtils.cp f, '../lib/dll/'+File.basename(f)
-      end
-    end
     FileUtils.cd '..'
   end
 
@@ -153,18 +175,6 @@ task :build_win, [:year, :bits, :lapack] do |t, args|
 
   sh cmake_cmd + ' -DCMAKE_BUILD_TYPE:VAR=Release ..'
   sh 'cmake --build . --clean-first --config Release  --target install '+PARALLEL
-  FileUtils.cp_r './lib/dll', '../lib/' if Dir.exist?('./lib/dll')
-  Dir['./lib/bin/*'].each do |f|
-    FileUtils.cp f, '../lib/bin/'+args.bits+'/'+File.basename(f)
-  end
-  Dir['./lib/lib/*'].each do |f|
-    if /\_static.*\.lib$/.match(f) then
-      FileUtils.cp f, '../lib/lib/'+File.basename(f)
-    else
-      FileUtils.cp f, '../lib/dll/'+File.basename(f)
-    end
-  end
-  FileUtils.cp_r './lib/include', '../lib/' if Dir.exist?('./lib/include')
   FileUtils.cd '..'
 
 end
