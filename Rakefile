@@ -55,8 +55,6 @@ end
 
 task :build_osx, [:lapack] do |t, args|
   args.with_defaults( :lapack => "LAPACK_WRAPPER_USE_ACCELERATE" )
-  FileUtils.rm_f 'src/Alglin_SuperLU.hh'
-  FileUtils.cp   'src/Alglin_SuperLU.hh.tmpl', 'src/Alglin_SuperLU.hh'
 
   Rake::Task[:osx_3rd].invoke(args.lapack)
 
@@ -76,8 +74,6 @@ end
 
 task :build_linux, [:lapack] do |t, args|
   args.with_defaults( :lapack => "LAPACK_WRAPPER_USE_OPENBLAS" )
-  FileUtils.rm_f 'src/Alglin_SuperLU.hh'
-  FileUtils.cp   'src/Alglin_SuperLU.hh.tmpl', 'src/Alglin_SuperLU.hh'
 
   Rake::Task[:linux_3rd].invoke(args.lapack)
 
@@ -111,18 +107,7 @@ task :build_win, [:year, :bits, :lapack] do |t, args|
   Rake::Task[:win_3rd].invoke(args.year,args.bits,args.lapack)
 
   cmd = "set path=%path%;lib3rd\\lib;lib3rd\\dll;"
-
-  FileUtils.rm_f 'src/Alglin_SuperLU.hh'
-  FileUtils.cp   'src/Alglin_SuperLU.hh.tmpl', 'src/Alglin_SuperLU.hh'
-
-  ChangeOnFile(
-    'src/Alglin_SuperLU.hh',
-    '@@BITS@@',
-    "#{args.bits}"
-  )
-
   dir = "vs_#{args.year}_#{args.bits}"
-
 
   # do not build executable
   cmake_cmd = win_vs(args.bits,args.year)
