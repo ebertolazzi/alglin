@@ -28,6 +28,7 @@ DEPS = \
 src/ABD_Arceco.hh \
 src/ABD_Block.hh \
 src/ABD_Diaz.hh \
+src/Alglin.hh \
 src/Alglin_Config.hh \
 src/Alglin_Eigen.hh \
 src/Alglin_FD.hh \

@@ -132,7 +132,7 @@ task :build_win, [:year, :bits, :lapack] do |t, args|
     FileUtils.cd      dir
 
     sh cmake_cmd + ' -DCMAKE_BUILD_TYPE:VAR=Debug ..'
-    sh 'cmake --build . --config Debug --target install '+PARALLEL
+    sh 'cmake --build . --clean-first --config Debug --target install '+PARALLEL
     FileUtils.cp_r './lib/dll', '../lib/' if Dir.exist?('./lib/dll')
     Dir['./lib/bin/*'].each do |f|
       FileUtils.cp f, '../lib/bin/'+args.bits+'/'+File.basename(f)
