@@ -10,7 +10,7 @@
   end
 end
 
-COMPILE_DEBUG = true
+require_relative "./Rakefile_conf.rb"
 
 cmakeversion = %x( cmake --version ).scan(/\d+\.\d+/).last
 if cmakeversion >= "3.12" then

@@ -11,7 +11,7 @@
   end
 end
 
-require "./Rakefile_common.rb"
+require_relative "./Rakefile_common.rb"
 
 task :default => [:build]
 
@@ -112,8 +112,13 @@ task :build_win, [:year, :bits, :lapack] do |t, args|
   # do not build executable
   cmake_cmd = win_vs(args.bits,args.year)
   cmake_cmd += " -DBITS=#{args.bits} -DYEAR=#{args.year} " +
-               ' -DCMAKE_INSTALL_PREFIX:PATH=..\lib ' +
-               ' -DBUILD_EXECUTABLE:VAR=true ..'
+               ' -DCMAKE_INSTALL_PREFIX:PATH=..\lib '
+
+  if COMPILE_EXECUTABLE then
+    cmake_cmd += ' -DBUILD_EXECUTABLE:VAR=true '
+  else
+    cmake_cmd += ' -DBUILD_EXECUTABLE:VAR=false '
+  end
 
   FileUtils.mkdir_p "../lib/lib"
   FileUtils.mkdir_p "../lib/bin"
