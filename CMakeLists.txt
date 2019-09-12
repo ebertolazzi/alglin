@@ -28,29 +28,9 @@ ELSE()
   SET( TARGETS Alglin_win_${BITS}_static${DEBUG_SUFFIX} )
 ENDIF()
 
-PROJECT( ${TARGET} CXX C )
+PROJECT( Alglin CXX C )
 
-FILE( GLOB S ./CMakeLists-cflags.txt )
-IF(EXISTS ${S})
-  INCLUDE( ${S} )
-ELSE()
-  SET( CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS TRUE )
-  SET( CMAKE_VERBOSE_MAKEFILE            TRUE )
-  IF( CMAKE_CXX_COMPILER_ID MATCHES "GNU" )
-    SET( CMAKE_CXX_FLAGS "-std=c++11 " )
-    SET( CMAKE_CXX_FLAGS_RELEASE "-fPIC -Wall -Wno-weak-vtables -Wno-implicit-fallthrough -Wno-documentation-unknown-command -Wno-float-equal -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-padded -Wno-reserved-id-macro -Wno-documentation -msse4.2 -msse4.1 -mssse3 -msse3 -msse2 -msse -mmmx -funroll-loops -O3 -g0 " )
-    SET( CMAKE_CXX_FLAGS_DEBUG   "-fPIC -Wall -Wno-weak-vtables -Wno-implicit-fallthrough -Wno-documentation-unknown-command -Wno-float-equal -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-padded -Wno-reserved-id-macro -Wno-documentation -O0 -g3 -DMECHATRONIX_DEBUG " )
-  ELSEIF( CMAKE_CXX_COMPILER_ID MATCHES "Clang" )
-    SET( CMAKE_CXX_FLAGS "-std=c++11 -stdlib=libc++ " )
-    SET( CMAKE_CXX_FLAGS_RELEASE "-fPIC -Weverything -Wno-weak-vtables -Wno-implicit-fallthrough -Wno-documentation-unknown-command -Wno-float-equal -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-padded -Wno-reserved-id-macro -Wno-documentation -msse4.2 -msse4.1 -mssse3 -msse3 -msse2 -msse -mmmx -funroll-loops -O3 -g0 -fPIC -Weverything -Wno-weak-vtables -Wno-implicit-fallthrough -Wno-documentation-unknown-command -Wno-float-equal -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-padded -Wno-reserved-id-macro -Wno-documentation " )
-    SET( CMAKE_CXX_FLAGS_DEBUG   "-fPIC -Weverything -Wno-weak-vtables -Wno-implicit-fallthrough -Wno-documentation-unknown-command -Wno-float-equal -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-padded -Wno-reserved-id-macro -Wno-documentation -O0 -gfull -DMECHATRONIX_DEBUG -fPIC -Weverything -Wno-weak-vtables -Wno-implicit-fallthrough -Wno-documentation-unknown-command -Wno-float-equal -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-padded -Wno-reserved-id-macro -Wno-documentation " )
-  ELSEIF( CMAKE_CXX_COMPILER_ID MATCHES "MSVC" )
-    SET( CMAKE_CXX_FLAGS_RELEASE "/nologo /GS /W3 /WX- /Gm- /Gd /fp:precise /EHsc /FS /D_WINDOWS /D_CRT_SECURE_NO_DEPRECATE /D_SCL_SECURE_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DHAVE_STRING_H /DNO_GETTIMEOFDAY /DYAML_DECLARE_STATIC /DPCRE_STATIC /O2 /MD " )
-    SET( CMAKE_CXX_FLAGS_DEBUG   "/nologo /GS /W3 /WX- /Gm- /Gd /fp:precise /EHsc /FS /D_WINDOWS /D_CRT_SECURE_NO_DEPRECATE /D_SCL_SECURE_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DHAVE_STRING_H /DNO_GETTIMEOFDAY /DYAML_DECLARE_STATIC /DPCRE_STATIC /Od /Ob0 /MDd /Zi /RTC1 /D_DEBUG " )
-  ELSE()
-    MESSAGE( FATAL_ERROR "Unsupported compiler ${CMAKE_CXX_COMPILER_ID}")
-  ENDIF()
-ENDIF()
+INCLUDE( ./CMakeLists-cflags.txt )
 
 MESSAGE( STATUS "Compiler used: ${CMAKE_CXX_COMPILER_ID}")
 
@@ -119,8 +99,10 @@ IF( CMAKE_CXX_COMPILER_ID MATCHES "MSVC" )
   ENDIF()
 ENDIF()
 
-LINK_DIRECTORIES( ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/dll )
-
+LINK_DIRECTORIES(
+  ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib
+  ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/dll
+)
 
 IF( APPLE )
   IF ( LAPACK_WRAPPER_USE_OPENBLAS )
@@ -144,7 +126,7 @@ IF( APPLE )
       SET( lapackblas_libraries ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} )
     ENDIF()
   ENDIF()
-ELSEIF( UNIX )
+ELSEIF( UNIX OR LINUX )
   FIND_PACKAGE(BLAS)
   FIND_PACKAGE(LAPACK)
   IF ( LAPACK_FOUND AND BLAS_FOUND )
@@ -164,7 +146,7 @@ ELSE()
   ENDIF()
 ENDIF()
 
-IF(APPLE)
+IF(APPLE )
   LINK_DIRECTORIES(
     ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib
     ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/dll
@@ -178,7 +160,7 @@ IF(APPLE)
     SUPERLU superlu_osx_static${DEBUG_SUFFIX}
     HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib
   )
-ELSEIF( UNIX )
+ELSEIF( UNIX OR LINUX )
   LINK_DIRECTORIES(
     ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib
     ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/dll
