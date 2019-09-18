@@ -78,10 +78,10 @@ task :build_osx, [:lapack] do |t, args|
 
   if COMPILE_DEBUG then
     sh cmake_cmd + '-DCMAKE_BUILD_TYPE:VAR=Debug ..'
-    sh 'cmake --build . --config Debug --target install '+PARALLEL
+    sh 'cmake --build . --config Debug --target install --quiet '+PARALLEL
   end
   sh cmake_cmd + '-DCMAKE_BUILD_TYPE:VAR=Release ..'
-  sh 'cmake --build . --config Release --target install '+PARALLEL
+  sh 'cmake --build . --config Release --target install --quiet '+PARALLEL
   FileUtils.cd '..'
 
 end
@@ -111,10 +111,10 @@ task :build_linux, [:lapack] do |t, args|
 
   if COMPILE_DEBUG then
     sh cmake_cmd + ' -DCMAKE_BUILD_TYPE:VAR=Debug ..'
-    sh 'cmake --build . --config Debug --target install '+PARALLEL
+    sh 'cmake --build . --config Debug --target install --quiet '+PARALLEL
   end
   sh cmake_cmd + ' -DCMAKE_BUILD_TYPE:VAR=Release ..'
-  sh 'cmake --build . --config Release --target install '+PARALLEL
+  sh 'cmake --build . --config Release --target install --quiet '+PARALLEL
   FileUtils.cd '..'
 
 end
@@ -164,8 +164,8 @@ task :build_win, [:year, :bits, :lapack] do |t, args|
     FileUtils.mkdir_p dir
     FileUtils.cd      dir
 
-    sh cmake_cmd + ' -DCMAKE_BUILD_TYPE:VAR=Debug ..'
-    sh 'cmake --build . --clean-first --config Debug --target install '+PARALLEL
+    sh cmake_cmd + ' -DCMAKE_BUILD_TYPE:VAR=Debug --quiet ..'
+    sh 'cmake --build . --clean-first --config Debug --target install --quiet '+PARALLEL
     FileUtils.cd '..'
   end
 
@@ -173,8 +173,8 @@ task :build_win, [:year, :bits, :lapack] do |t, args|
   FileUtils.mkdir_p dir
   FileUtils.cd      dir
 
-  sh cmake_cmd + ' -DCMAKE_BUILD_TYPE:VAR=Release ..'
-  sh 'cmake --build . --clean-first --config Release  --target install '+PARALLEL
+  sh cmake_cmd + ' -DCMAKE_BUILD_TYPE:VAR=Release --quiet ..'
+  sh 'cmake --build . --clean-first --config Release  --target install --quiet '+PARALLEL
   FileUtils.cd '..'
 
 end
