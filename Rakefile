@@ -77,11 +77,11 @@ task :build_osx, [:lapack] do |t, args|
   end
 
   if COMPILE_DEBUG then
-    sh cmake_cmd + '-DCMAKE_BUILD_TYPE:VAR=Debug ..'
-    sh 'cmake --build . --config Debug --target install '+PARALLEL
+    sh cmake_cmd + '-DCMAKE_BUILD_TYPE:VAR=Debug --loglevel=WARNING ..'
+    sh 'cmake --build . --config Debug --target install '+PARALLEL+QUIET
   end
-  sh cmake_cmd + '-DCMAKE_BUILD_TYPE:VAR=Release ..'
-  sh 'cmake --build . --config Release --target install '+PARALLEL
+  sh cmake_cmd + '-DCMAKE_BUILD_TYPE:VAR=Release --loglevel=WARNING ..'
+  sh 'cmake --build . --config Release --target install '+PARALLEL+QUIET
   FileUtils.cd '..'
 
 end
@@ -110,11 +110,11 @@ task :build_linux, [:lapack] do |t, args|
   end
 
   if COMPILE_DEBUG then
-    sh cmake_cmd + ' -DCMAKE_BUILD_TYPE:VAR=Debug ..'
-    sh 'cmake --build . --config Debug --target install '+PARALLEL
+    sh cmake_cmd + ' -DCMAKE_BUILD_TYPE:VAR=Debug --loglevel=WARNING ..'
+    sh 'cmake --build . --config Debug --target install '+PARALLEL+QUIET
   end
-  sh cmake_cmd + ' -DCMAKE_BUILD_TYPE:VAR=Release ..'
-  sh 'cmake --build . --config Release --target install '+PARALLEL
+  sh cmake_cmd + ' -DCMAKE_BUILD_TYPE:VAR=Release --loglevel=WARNING ..'
+  sh 'cmake --build . --config Release --target install '+PARALLEL+QUIET
   FileUtils.cd '..'
 
 end
@@ -164,8 +164,8 @@ task :build_win, [:year, :bits, :lapack] do |t, args|
     FileUtils.mkdir_p dir
     FileUtils.cd      dir
 
-    sh cmake_cmd + ' -DCMAKE_BUILD_TYPE:VAR=Debug ..'
-    sh 'cmake --build . --clean-first --config Debug --target install '+PARALLEL
+    sh cmake_cmd + ' -DCMAKE_BUILD_TYPE:VAR=Debug --loglevel=WARNING ..'
+    sh 'cmake --build . --clean-first --config Debug --target install '+PARALLEL+QUIET
     FileUtils.cd '..'
   end
 
@@ -173,8 +173,8 @@ task :build_win, [:year, :bits, :lapack] do |t, args|
   FileUtils.mkdir_p dir
   FileUtils.cd      dir
 
-  sh cmake_cmd + ' -DCMAKE_BUILD_TYPE:VAR=Release ..'
-  sh 'cmake --build . --clean-first --config Release --target install '+PARALLEL
+  sh cmake_cmd + ' -DCMAKE_BUILD_TYPE:VAR=Release --loglevel=WARNING ..'
+  sh 'cmake --build . --clean-first --config Release --target install '+PARALLEL+QUIET
   FileUtils.cd '..'
 
 end
