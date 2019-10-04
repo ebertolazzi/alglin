@@ -14,7 +14,6 @@ INC   = -I./src -Ilib3rd/include
 CLIBS = -lc++
 DEFS  =
 
-#CXXFLAGS = -m64 -O3 -funroll-loops -fPIC
 CXXFLAGS = -O2 -funroll-loops -fPIC
 #
 # activate C++11 for g++ >= 4.9
