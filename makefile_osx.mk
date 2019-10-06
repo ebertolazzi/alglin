@@ -12,8 +12,8 @@ CXX      = clang++ -fPIC -std=c++11 -stdlib=libc++ $(WARN)
 CXXFLAGS = -O3
 INC      = -Isrc -Ilib3rd/include
 AR       = libtool -static -o
-LIBS3RD  = -Llib3rd/lib -Llib3rd/dll -llapack_wrapper_osx_static -lsuperlu_osx_static
-LIBS     = -Llib/lib -Llib/dll -lAlglin_osx $(LIBS3RD)
+LIBS3RD  = -Llib3rd/lib -Llib3rd/dll  -Wl,-rpath,lib3rd/dll -llapack_wrapper_osx_static -lsuperlu_osx_static
+LIBS     = -Llib/lib -Llib/dll -lAlglin_osx $(LIBS3RD) -Wl,-rpath,lib/dll
 LIBSGCC  = -lstdc++ -lm
 
 
@@ -23,7 +23,7 @@ endif
 
 ifneq (,$(findstring ALGLIN_USE_OPENBLAS,$(USED_LIB)))
   FPATH=$(dir $(shell gfortran -print-libgcc-file-name))
-  override LIBS3RD += -Llib3rd/lib -Wl,-rpath,lib3rd/dll -lopenblas -L$(FPATH)/../../.. -Wl,-rpath,$(FPATH)/../../..  -lgfortran
+  override LIBS3RD += -Llib3rd/lib -lopenblas -L$(FPATH)/../../.. -Wl,-rpath,$(FPATH)/../../..  -lgfortran
 endif
 
 ifneq (,$(findstring ALGLIN_USE_ATLAS,$(USED_LIB)))

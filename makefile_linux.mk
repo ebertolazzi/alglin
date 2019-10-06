@@ -9,8 +9,8 @@ WARN    = -Wall
 CC      = gcc $(WARN)
 CXX     = g++ $(WARN) -std=c++11 -pthread
 F90     = gfortran
-LIBS3RD = -Llib3rd/lib -Llib3rd/dll -llapack_wrapper_linux_static -lsuperlu_linux_static
-LIBS    = -Llib/lib -Llib/dll -lAlglin_linux $(LIBS3RD)
+LIBS3RD = -Llib3rd/lib -Llib3rd/dll -Wl,-rpath,lib3rd/dll -llapack_wrapper_linux_static -lsuperlu_linux_static
+LIBS    = -Llib/lib -Llib/dll -lAlglin_linux $(LIBS3RD) -Wl,-rpath,lib/dll 
 INC     = -I./src -Ilib3rd/include
 CLIBS   = -lc++
 DEFS    =
@@ -21,7 +21,7 @@ CXXFLAGS = -O2 -funroll-loops -fPIC
 #
 VERSION  = $(shell $(CC) -dumpversion)
 AR       = ar rcs
-LIBSGCC  = -lsuperlu_linux -lstdc++ -lm -pthread
+LIBSGCC  = -lstdc++ -lm -pthread
 
 ifneq (,$(findstring ALGLIN_USE_LAPACK,$(USED_LIB)))
   override LIBS += -llapack -lblas
@@ -29,7 +29,7 @@ endif
 
 ifneq (,$(findstring ALGLIN_USE_OPENBLAS,$(USED_LIB)))
   FPATH=$(dir $(shell gfortran -print-libgcc-file-name))
-  override LIBS += -Llib3rd/lib -Wl,-rpath,lib3rd/dll -lopenblas -L$(FPATH)/../../.. -Wl,-rpath,$(LIB3RD)/../../..  -lgfortran
+  override LIBS += -lopenblas -L$(FPATH)/../../.. -lgfortran
 endif
 
 ifneq (,$(findstring ALGLIN_USE_ATLAS,$(USED_LIB)))
