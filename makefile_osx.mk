@@ -12,9 +12,9 @@ CXX      = clang++ -fPIC -std=c++11 -stdlib=libc++ $(WARN)
 CXXFLAGS = -O3
 INC      = -Isrc -Ilib3rd/include
 AR       = libtool -static -o
-LIBS3RD  = -Llib3rd/lib -llapack_wrapper_osx_static -lsuperlu_osx_static
-LIBS     = -L./lib/lib -lAlglin $(LIBS3RD)
-LIBSGCC  = -lsuperlu_osx -lstdc++ -lm
+LIBS3RD  = -Llib3rd/lib -Llib3rd/dll -llapack_wrapper_osx_static -lsuperlu_osx_static
+LIBS     = -Llib/lib -Llib/dll -lAlglin_osx $(LIBS3RD)
+LIBSGCC  = -lstdc++ -lm
 
 
 ifneq (,$(findstring ALGLIN_USE_LAPACK,$(USED_LIB)))
@@ -45,32 +45,32 @@ endif
 
 LIBNAME = Alglin_osx
 
-lib: config lib/lib/lib$(LIBNAME)_static.a lib/lib/lib$(LIBNAME).dylib
+lib: lib/lib/lib$(LIBNAME)_static.a lib/dll/lib$(LIBNAME).dylib
 
 lib/lib/lib$(LIBNAME)_static.a: $(OBJS)
 	$(MKDIR) ./lib
 	$(MKDIR) ./lib/lib
 	$(AR) lib/lib/lib$(LIBNAME)_static.a $(OBJS)
 
-lib/lib/lib$(LIBNAME).dylib: $(OBJS)
+lib/dll/lib$(LIBNAME).dylib: $(OBJS)
 	$(MKDIR) ./lib
-	$(MKDIR) ./lib/lib
-	$(CXX) -shared -o ./lib/lib/lib$(LIBNAME).dylib $(OBJS) $(LIBS3RD)
+	$(MKDIR) ./lib/dll
+	$(CXX) -shared -o ./lib/dll/lib$(LIBNAME).dylib $(OBJS) $(LIBS3RD)
 
-install_local: lib/lib/lib$(LIBNAME).a lib/lib/lib$(LIBNAME).dylib
+install_local: lib/lib/lib$(LIBNAME).a lib/dll/lib$(LIBNAME).dylib
 	$(MKDIR) ./lib/include
 	cp -f -P src/*.h*       ./lib/include
 	cp -rf lib3rd/include/* ./lib/include
 
-install: lib/lib/lib$(LIBNAME).a lib/lib/lib$(LIBNAME).dylib
+install: lib/lib/lib$(LIBNAME).a lib/dll/lib$(LIBNAME).dylib
 	$(MKDIR) $(PREFIX)/include
 	cp -f -P src/*.h*                    $(PREFIX)/include
 	cp -f -P lib/lib/lib$(LIBNAME).a     $(PREFIX)/lib
-	cp -f -P lib/lib/lib$(LIBNAME).dylib $(PREFIX)/lib
+	cp -f -P lib/dll/lib$(LIBNAME).dylib $(PREFIX)/dll
 
-install_as_framework: lib/lib/lib$(LIBNAME).a lib/lib/lib$(LIBNAME).dylib
+install_as_framework: lib/lib/lib$(LIBNAME).a lib/dll/lib$(LIBNAME).dylib
 	$(MKDIR) $(PREFIX)/include/$(FRAMEWORK)
 	$(MKDIR) $(PREFIX)/lib
 	cp -f -P src/*.h*                    $(PREFIX)/include/$(FRAMEWORK)
 	cp -f -P lib/lib/lib$(LIBNAME).a     $(PREFIX)/lib
-	cp -f -P lib/lib/lib$(LIBNAME).dylib $(PREFIX)/lib
+	cp -f -P lib/dll/lib$(LIBNAME).dylib $(PREFIX)/dll

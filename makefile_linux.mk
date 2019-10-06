@@ -5,14 +5,15 @@
 #      # #   ## #    #  #  #
 ###### # #    #  ####  #    #
 
-WARN  = -Wall
-CC    = gcc $(WARN)
-CXX   = g++ $(WARN) -std=c++11 -pthread
-F90   = gfortran
-LIBS  = -L./lib -lAlglin -Llib3rd/lib
-INC   = -I./src -Ilib3rd/include
-CLIBS = -lc++
-DEFS  =
+WARN    = -Wall
+CC      = gcc $(WARN)
+CXX     = g++ $(WARN) -std=c++11 -pthread
+F90     = gfortran
+LIBS3RD = -Llib3rd/lib -Llib3rd/dll -llapack_wrapper_linux_static -lsuperlu_linux_static
+LIBS    = -Llib/lib -Llib/dll -lAlglin_linux $(LIBS3RD)
+INC     = -I./src -Ilib3rd/include
+CLIBS   = -lc++
+DEFS    =
 
 CXXFLAGS = -O2 -funroll-loops -fPIC
 #
@@ -53,32 +54,25 @@ endif
 
 LIBNAME = Alglin_linux
 
-lib: config lib/lib/lib$(LIBNAME)_static.a lib/lib/lib$(LIBNAME).so
+lib: lib/lib/lib$(LIBNAME)_static.a lib/dll/lib$(LIBNAME).so
 
 lib/lib/lib$(LIBNAME)_static.a: $(OBJS)
 	$(MKDIR) ./lib
 	$(MKDIR) ./lib/lib
 	$(AR) lib/lib/lib$(LIBNAME)_static.a $(OBJS)
 
-lib/lib/lib$(LIBNAME).so: $(OBJS)
+lib/dll/lib$(LIBNAME).so: $(OBJS)
 	$(MKDIR) ./lib
-	$(MKDIR) ./lib/lib
-	$(CXX) -shared -o ./lib/lib/lib$(LIBNAME).so $(OBJS)
+	$(MKDIR) ./lib/dll
+	$(CXX) -shared -o ./lib/dll/lib$(LIBNAME).so $(OBJS)
 
-install_local: lib/lib/lib$(LIBNAME).a lib/lib/lib$(LIBNAME).so
+install_local: lib/lib/lib$(LIBNAME).a lib/dll/lib$(LIBNAME).so
 	$(MKDIR) ./lib/include
 	cp -f -P src/*.h*       ./lib/include
 	cp -rf lib3rd/include/* ./lib/include
 
-install: lib/lib/lib$(LIBNAME).a lib/lib/lib$(LIBNAME).so
+install: lib/lib/lib$(LIBNAME).a lib/dll/lib$(LIBNAME).so
 	$(MKDIR) $(PREFIX)/include
 	cp -f -P src/*.h*             $(PREFIX)/include
 	cp -f -P lib/lib/libAlglin.a  $(PREFIX)/lib
-	cp -f -P lib/lib/libAlglin.so $(PREFIX)/lib
-
-install_as_framework: lib/$(LIB_ALGLIN)
-	$(MKDIR) $(PREFIX)/include/$(FRAMEWORK)
-	$(MKDIR) $(PREFIX)/lib
-	cp -f -P src/*.h*          $(PREFIX)/include/$(FRAMEWORK)
-	cp -rf lib3rd/include/*    $(PREFIX)/include/$(FRAMEWORK)
-	cp -f -P lib/$(LIB_ALGLIN) $(PREFIX)/lib/$(LIB_ALGLIN)
+	cp -f -P lib/dll/libAlglin.so $(PREFIX)/dll

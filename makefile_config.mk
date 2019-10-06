@@ -39,7 +39,3 @@ endif
 
 $(shell echo "$(USED_LIB)" > .alglin_config )
 $(info $(USED_LIB))
-
-config:
-	rm -f src/Alglin_SuperLU.hh
-	sed 's/@@BITS@@/_BITS_/' < src/Alglin_SuperLU.hh.tmpl > src/Alglin_SuperLU.hh

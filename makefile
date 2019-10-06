@@ -2,7 +2,7 @@
 OS=$(shell uname)
 PWD=$(shell pwd)
 
-include Makefile_config.mk
+include makefile_config.mk
 
 .SUFFIXES:
 .SUFFIXES: .o .c .cc
@@ -50,20 +50,20 @@ FRAMEWORK = Alglin
 
 # check if the OS string contains 'Linux'
 ifneq (,$(findstring Linux, $(OS)))
-include Makefile_linux.mk
+include makefile_linux.mk
 endif
 
 # check if the OS string contains 'MINGW'
 ifneq (,$(findstring MINGW, $(OS)))
-include Makefile_mingw.mk
+include makefile_mingw.mk
 endif
 
 # check if the OS string contains 'Darwin'
 ifneq (,$(findstring Darwin, $(OS)))
-include Makefile_osx.mk
+include makefile_osx.mk
 endif
 
-all: config lib
+all: lib
 	mkdir -p bin
 	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test0-FD                  src_tests/test0-FD.cc                  $(LIBS) $(LIBSGCC)
 	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test1-small-factorization src_tests/test1-small-factorization.cc $(LIBS) $(LIBSGCC)
@@ -84,7 +84,7 @@ all: config lib
 	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/Simplex-Test3             src_tests/Simplex-Test3.cc             $(LIBS) $(LIBSGCC)
 	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/Simplex-Test4             src_tests/Simplex-Test4.cc             $(LIBS) $(LIBSGCC)
 
-all1: config lib
+all1: lib
 	mkdir -p bin
 	$(F90) $(INC) -o bin/test10-FORTRAN src_tests/test10-FORTRAN.f90 $(LIBS) $(LIBSGCC) $(CLIBS)
 	$(F90) $(INC) -o bin/test11-FORTRAN src_tests/test11-FORTRAN.f90 $(LIBS) $(LIBSGCC) $(CLIBS)
