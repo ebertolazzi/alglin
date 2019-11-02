@@ -160,7 +160,7 @@ main() {
   tm.tic();
   BCR.factorize();
   tm.toc();
-  cout << "\nFactorize = " << tm.elapsed_ms() << " [ms]\n\n";
+  fmt::print("\nFactorize = {:10.5} [ms]\n\n", tm.elapsed_ms());
 
   std::copy( rhs, rhs+N, x );
   std::copy( rhs, rhs+N, x+N );
@@ -188,15 +188,15 @@ main() {
   BCR.solve( x ); ++ns;
   #endif
   tm.toc();
-  cout << "\nSolve = " << tm.elapsed_ms()/ns << " [ms]\n\n";
+  fmt::print("\nSolve = {:10.5} [ms]\n\n", tm.elapsed_ms()/ns);
 
   alglin::copy( N, xref, 1, xref1, 1 );
   alglin::axpy( N, -1.0, x, 1, xref1, 1 );
   valueType err = alglin::absmax( N, xref1, 1 );
-  cout << "Check |err|_inf = " << err << '\n';
+  fmt::print("Check |err|_inf = {:10.5}\n",err);
   ALGLIN_ASSERT( err < 1e-8, "test failed!" );
   err = alglin::asum( N, xref1, 1 )/N;
-  cout << "Check |err|_1/N = " << err << '\n';
+  fmt::print("Check |err|_1/N = {:10.5}\n",err);
   ALGLIN_ASSERT( err < 1e-8, "test failed!" );
 
   std::copy( rhs, rhs+2*N, x );
@@ -226,7 +226,7 @@ main() {
   BCR.solve( 2, x, N ); ++ns;
   #endif
   tm.toc();
-  cout << "\nSolve2 = " << tm.elapsed_ms()/ns << " [ms]\n\n";
+  fmt::print("\nSolve2 = {:10.5} [ms]\n",tm.elapsed_ms()/ns);
 
   /*
   file.open("sol.txt");
@@ -241,13 +241,13 @@ main() {
   alglin::copy( N, xref, 1, xref1, 1 );
   alglin::axpy( N, -1.0, x, 1, xref1, 1 );
   err = alglin::absmax( N, xref1, 1 );
-  cout << "Check |err|_inf = " << err << '\n';
+  fmt::print("Check |err|_inf = {:10.5}\n",err);
   ALGLIN_ASSERT( err < 1e-8, "test failed!" );
-  err =  alglin::asum( N, xref1, 1 )/N;
-  cout << "Check |err|_1/N = " << err << '\n';
+  err = alglin::asum( N, xref1, 1 )/N;
+  fmt::print("Check |err|_1/N = {:10.5}\n",err);
   ALGLIN_ASSERT( err < 1e-8, "test failed!" );
 
-  cout << "\n\ncheck residual\n\n";
+  fmt::print("\n\ncheck residual\n\n");
 
   std::copy( rhs, rhs+N, resid );
   alglin::scal( N, -1.0, resid, 1 );
@@ -256,16 +256,16 @@ main() {
   BCR_SAVED.addMv( x, resid );
 
   valueType res = alglin::nrm2( BCR_SAVED.numRows(), resid, 1 );
-  cout << "||res||_2   = " << res << '\n';
+  fmt::print("||res||_2   = {:10.5}\n",res);
   ALGLIN_ASSERT( res < 1e-6, "test failed!" );
   res = alglin::asum( BCR_SAVED.numRows(), resid, 1 );
-  cout << "||res||_1   = " << res << '\n';
+  fmt::print("||res||_1   = {:10.5}\n",res);
   ALGLIN_ASSERT( res < 1e-6, "test failed!" );
   res = alglin::absmax( BCR_SAVED.numRows(), resid, 1 );
-  cout << "||res||_inf = " << res << '\n';
+  fmt::print("||res||_inf = {:10.5}\n",res);
   ALGLIN_ASSERT( res < 1e-6, "test failed!" );
 
-  cout << "All done!\n";
+  fmt::print("All done!\n");
 
   return 0;
 }

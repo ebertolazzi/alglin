@@ -58,7 +58,7 @@ main() {
   alglin::integer NB = 0;
   for (; NB < 100; NB = NB*2 + 1 ) {
 
-    cout << "\n\n\nNB = " << NB << "\n\n\n\n";
+    fmt::print("\n\n\nNB = {}\n\n\n\n", NB);
 
     alglin::integer dim      = 100;
     alglin::integer row0     = 40;
@@ -101,7 +101,7 @@ main() {
     TicToc tm;
 
     for ( int test = 0; test < 3; ++test ) {
-      cout << "\n\n\ntest N." << test << " NB = " << NB << "\n";
+      fmt::print("\n\n\ntest N.{} NB = {}\n", test, NB);
       valueType diag = 2*dim;
 
       alglin::integer nn = row0-col00;
@@ -146,12 +146,10 @@ main() {
       //LU.dump_ccoord( file );
       //file.close();
 
-      cout << "N = " << N << ' '
-           << "n = " << dim << ' '
-           << "col00 = " << col00 << ' '
-           << "colNN = " << colNN << ' '
-           << "row0 = " << row0 << ' '
-           << "rowN = " << rowN << '\n';
+      fmt::print(
+        "N = {} n = {} col00 = {} colNN = {} row0 = {} rowN {}\n",
+        N, dim, col00, colNN, row0, rowN
+      );
 
       for ( alglin::integer i = 0; i < N+NB; ++i ) x[i] = 1+(i%4);
       std::copy( x, x+N+NB, xref  );
@@ -161,17 +159,23 @@ main() {
       tm.tic();
       LU.factorize_bordered();
       tm.toc();
-      cout << "(Diaz " << kind[test] << ") Factorize = " << tm.elapsed_ms() << " [ms]\n";
+      fmt::print(
+        "(Diaz {}) Factorize = {:10.5} [ms]\n",
+        kind[test], tm.elapsed_ms()
+      );
 
       std::copy( rhs, rhs+N+NB, x );
       tm.tic();
       LU.solve_bordered( x );
       tm.toc();
-      cout << "(Diaz " << kind[test] << ") Solve = " << tm.elapsed_ms() << " [ms]\n";
+      fmt::print(
+        "(Diaz {}) Solve     = {:10.5} [ms]\n",
+        kind[test], tm.elapsed_ms()
+      );
 
       alglin::axpy( N+NB, -1.0, x, 1, xref, 1 );
       valueType err = alglin::absmax( N+NB, xref, 1 );
-      cout << "Check |err|_inf = " << err << '\n';
+      fmt::print("\nCheck |err|_inf = {:10.5}\n\n",err);
       ALGLIN_ASSERT( err < 1e-8, "test failed!" );
 
       for ( alglin::integer i = 0; i < 10; ++i )
@@ -179,16 +183,19 @@ main() {
       tm.tic();
       LU.solve_bordered( 1, x, N+NB );
       tm.toc();
-      cout << "(Diaz " << kind[test] << ") Solve = " << tm.elapsed_ms() << " [ms]\n";
+      fmt::print(
+        "(Diaz {}) Solve     = {:10.5} [ms]\n",
+        kind[test], tm.elapsed_ms()
+      );
 
       alglin::axpy( N+NB, -1.0, x, 1, xref1, 1 );
       err = alglin::absmax( N+NB, xref1, 1 );
-      cout << "Check |err|_inf = " << err << '\n';
+      fmt::print("\nCheck |err|_inf = {:10.5}\n\n",err);
       ALGLIN_ASSERT( err < 1e-8, "test failed!" );
     }
   }
 
-  cout << "\n\nAll done!\n";
+  fmt::print("\n\nAll done!\n");
 
   return 0;
 }

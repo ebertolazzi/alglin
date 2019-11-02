@@ -81,7 +81,7 @@ testN() {
 
   typedef Eigen::Matrix<valueType,N,N> matN_t;
 
-  cout << "\nSize N = " << N << "\n";
+  fmt::print("\nSize N = {}\n",N);
 
   Malloc<valueType>       baseValue("real");
   Malloc<alglin::integer> baseIndex("integer");
@@ -114,15 +114,17 @@ testN() {
 
   tm.tic();
   for ( int i = 0; i < N_TIMES; ++i ) {
-    gemm( NO_TRANSPOSE, NO_TRANSPOSE,
-          N, N, N,
-          -1.0, M1, N,
-          M2, N,
-          1.0, M3, N );
+    gemm(
+      NO_TRANSPOSE, NO_TRANSPOSE,
+      N, N, N,
+      -1.0, M1, N,
+      M2, N,
+      1.0, M3, N
+    );
     copy( N*N, M3, 1, M2, 1);
   }
   tm.toc();
-  cout << "MULT = " << tm.elapsed_ms() << " [ms] (lapack)\n";
+  fmt::print("MULT = {:8.4} [ms] (lapack)\n", tm.elapsed_ms());
 
   // ===========================================================================
 
@@ -132,7 +134,7 @@ testN() {
     dm2 = dm3;
   }
   tm.toc();
-  cout << "MULT = " << tm.elapsed_ms() << " [ms] (eigen dynamic)\n";
+  fmt::print("MULT = {:8.4} [ms] (eigen dynamic)\n", tm.elapsed_ms());
 
   // ===========================================================================
 
@@ -145,7 +147,7 @@ testN() {
     mm2 = mm3;
   }
   tm.toc();
-  cout << "MULT = " << tm.elapsed_ms() << " [ms] (eigen map dynamic)\n";
+  fmt::print("MULT = {:8.4} [ms] (eigen map dynamic)\n", tm.elapsed_ms() );
 
   // ===========================================================================
 
@@ -155,7 +157,7 @@ testN() {
     m2 = m3;
   }
   tm.toc();
-  cout << "MULT = " << tm.elapsed_ms() << " [ms] (eigen fixed)\n";
+  fmt::print("MULT = {:8.4} [ms] (eigen fixed)\n", tm.elapsed_ms());
 
   // ===========================================================================
 
@@ -168,7 +170,7 @@ testN() {
     mm2 = mm3;
   }
   tm.toc();
-  cout << "MULT = " << tm.elapsed_ms() << " [ms] (eigen fixed map)\n";
+  fmt::print("MULT = {:8.4} [ms] (eigen fixed map)\n", tm.elapsed_ms());
 
   // ===========================================================================
 
@@ -179,11 +181,11 @@ testN() {
     //Vec2<valueType,N*N,1,1>::copy(M3,M2);
   }
   tm.toc();
-  cout << "MULT = " << tm.elapsed_ms() << " [ms] (hand unrolled)\n";
+  fmt::print("MULT = {:8.4} [ms] (hand unrolled)\n", tm.elapsed_ms());
 
   // ===========================================================================
 
-  cout << "All done!\n";
+  fmt::print("All done!\n");
 }
 
 
@@ -199,7 +201,7 @@ main() {
   testN<7>();
   testN<8>();
 
-  cout << "\n\nAll done!\n";
+  fmt::print("\n\nAll done!\n");
 
   return 0;
 }

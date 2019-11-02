@@ -187,16 +187,16 @@ test5() {
   vector<vector< alglin::Eigenvectors<real_type>::complexType > > vecs;
   E.getLeftEigenvector( vecs );
   for ( size_t n = 0; n < 4; ++n ) {
-    cout << "vL[" << n << "] = ";
+    fmt::print("vL[{}] = ",n);
     for ( size_t i = 0; i < 4; ++i )
-      cout << ' ' << vecs[n][i];
+      fmt::print(" {}",vecs[n][i]);
     cout << '\n';
   }
   E.getRightEigenvector( vecs );
   for ( size_t n = 0; n < 4; ++n ) {
-    cout << "vR[" << n << "] = ";
+    fmt::print("vR[{}] = ",n);
     for ( size_t i = 0; i < 4; ++i )
-      cout << ' ' << vecs[n][i];
+      fmt::print(" {}",vecs[n][i]);
     cout << '\n';
   }
 }
@@ -228,16 +228,16 @@ test6() {
   vector<vector< alglin::GeneralizedEigenvectors<real_type>::complexType > > vecs;
   E.getLeftEigenvector( vecs );
   for ( size_t n = 0; n < 4; ++n ) {
-    cout << "vL[" << n << "] = ";
+    fmt::print("vL[{}] = ",n);
     for ( size_t i = 0; i < 4; ++i )
-      cout << ' ' << vecs[n][i];
+      fmt::print(" {}",vecs[n][i]);
     cout << '\n';
   }
   E.getRightEigenvector( vecs );
   for ( size_t n = 0; n < 4; ++n ) {
-    cout << "vR[" << n << "] = ";
+    fmt::print("vR[{}] = ",n);
     for ( size_t i = 0; i < 4; ++i )
-      cout << ' ' << vecs[n][i];
+      fmt::print(" {}",vecs[n][i]);
     cout << '\n';
   }
 }

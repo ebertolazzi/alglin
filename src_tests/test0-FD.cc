@@ -113,45 +113,45 @@ main() {
   finite_difference_check_gradient( x, dim_x, &ff, grad, epsi, cout );
   cout << "Done\n";
 
-  cout << "diff grad(FD)[0] = " << gradFD[0] - grad[0] << '\n';
-  cout << "diff grad(FD)[1] = " << gradFD[1] - grad[1] << '\n';
-  cout << "diff grad(FD)[2] = " << gradFD[2] - grad[2] << '\n';
-  cout << "diff grad(FD)[3] = " << gradFD[3] - grad[3] << '\n';
-  cout << "diff grad(FD)[0] = " << (gradFD[0] - grad[0])/max(1.0,abs(grad[0])) << '\n';
-  cout << "diff grad(FD)[1] = " << (gradFD[1] - grad[1])/max(1.0,abs(grad[1])) << '\n';
-  cout << "diff grad(FD)[2] = " << (gradFD[2] - grad[2])/max(1.0,abs(grad[2])) << '\n';
-  cout << "diff grad(FD)[3] = " << (gradFD[3] - grad[3])/max(1.0,abs(grad[3])) << '\n';
+  fmt::print("diff grad(FD)[0] = {:>12.6}\n", gradFD[0] - grad[0]);
+  fmt::print("diff grad(FD)[1] = {:>12.6}\n", gradFD[1] - grad[1]);
+  fmt::print("diff grad(FD)[2] = {:>12.6}\n", gradFD[2] - grad[2]);
+  fmt::print("diff grad(FD)[3] = {:>12.6}\n", gradFD[3] - grad[3]);
+  fmt::print("diff grad(FD)[0] = {:>12.6}\n", (gradFD[0] - grad[0])/max(1.0,abs(grad[0])));
+  fmt::print("diff grad(FD)[1] = {:>12.6}\n", (gradFD[1] - grad[1])/max(1.0,abs(grad[1])));
+  fmt::print("diff grad(FD)[2] = {:>12.6}\n", (gradFD[2] - grad[2])/max(1.0,abs(grad[2])));
+  fmt::print("diff grad(FD)[3] = {:>12.6}\n", (gradFD[3] - grad[3])/max(1.0,abs(grad[3])));
 
   ok = fun_jac( x, jac );
   ok = finite_difference_jacobian( 0, x, dim_x, &gg, dim_x, jacFD, dim_x );
-  cout << "\n\nCheck Jacobian\n";
+  fmt::print("\n\nCheck Jacobian\n");
   finite_difference_check_jacobian( x, dim_x, &gg, dim_x, jac, dim_x, epsi, cout );
-  cout << "Done\n";
+  fmt::print("Done\n");
 
   for ( int i = 0; i < dim_x; ++i ) {
     for ( int j = 0; j < dim_x; ++j ) {
-      cout << "jac[" << i << "," << j << "] = " << setw(14) << jac[i+j*dim_x]
-           << " err = " << abs(jac[i+j*dim_x]-jacFD[i+j*dim_x])
-           << "\n";
+      fmt::print(
+        "jac[{},{}] = {:<12.6}   err = {:<12.6}\n",
+        i, j, jac[i+j*dim_x], abs(jac[i+j*dim_x]-jacFD[i+j*dim_x])
+      );
     }
   }
 
   ok = finite_difference_hessian( x, dim_x, &ff, jacFD, dim_x );
-  cout << "ok = " << (ok?"TRUE\n":"FALSE\n");
+  fmt::print("ok = {}\n",ok);
   for ( int i = 0; i < dim_x; ++i ) {
     for ( int j = 0; j < dim_x; ++j ) {
-      cout << "Hess[" << i << "," << j << "] = " << setw(14) << jac[i+j*dim_x]
-           << " HessFD[" << i << "," << j << "] = " << setw(14) << jacFD[i+j*dim_x]
-           << " err = " << abs(jac[i+j*dim_x]-jacFD[i+j*dim_x])
-           << "\n";
+      fmt::print(
+        "Hess[{0},{1}] = {2:<12.6} HessFD[{0},{1}] = {3:<12.6} err = {4:<12.6}\n",
+        i, j, jac[i+j*dim_x], jacFD[i+j*dim_x], abs(jac[i+j*dim_x]-jacFD[i+j*dim_x])
+      );
     }
   }
 
-  cout << "\n\nCheck Hessian\n";
+  fmt::print("\n\nCheck Hessian\n");
   finite_difference_check_hessian( x, dim_x, &ff, jac, dim_x, epsi, cout );
-  cout << "Done\n";
-
-  cout << "All done!\n";
+  fmt::print("Done\n");
+  fmt::print("All done!\n");
 
   return 0;
 }

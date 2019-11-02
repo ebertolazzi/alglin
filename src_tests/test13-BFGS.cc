@@ -54,7 +54,6 @@ main() {
   cout << "\n\n";
   bfgs.print( cout );
 
-
   for ( int i = 0; i < 90 ; ++i ) {
     bfgs.update( y1, s1 );
     bfgs.update( y2, s2 );

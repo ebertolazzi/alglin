@@ -60,7 +60,7 @@ test1() {
   BT.solve( 2, rhs, 7 );
 
   for ( alglin::integer k = 0; k < rBlocks[3]; ++k )
-    cout << "x[ " << k << "] = " << rhs[7+k] << "\n";
+    fmt::print("x[{}] = {}\n", k, rhs[7+k]);
 }
 
 static
@@ -110,7 +110,7 @@ test2() {
   BT.solve( 2, rhs, 7 );
 
   for ( alglin::integer k = 0; k < rBlocks[3]; ++k )
-    cout << "x[ " << k << "] = " << rhs[7+k] << "\n";
+    fmt::print("x[{}] = {}\n", k, rhs[7+k]);
 }
 
 
@@ -140,7 +140,7 @@ test3() {
   BT.solve( rhs );
 
   for ( alglin::integer k = 0; k < rBlocks[3]; ++k )
-    cout << "x[ " << k << "] = " << rhs[k] << "\n";
+    fmt::print("x[{}] = {}\n", k, rhs[k]);
 }
 
 #include <random>
@@ -194,7 +194,7 @@ test4() {
     alglin::integer(vals.size()), true
   );
   tm.toc();
-  cout << "LOAD1 = " << tm.elapsed_ms() << " [ms]\n";
+  fmt::print("LOAD1      = {:10.5} [ms]\n",tm.elapsed_ms());
 
   tm.tic();
   BT2.load_triblock(
@@ -206,27 +206,27 @@ test4() {
   );
 
   tm.toc();
-  cout << "LOAD2 = " << tm.elapsed_ms() << " [ms]\n";
+  fmt::print("LOAD2      = {:10.5} [ms]\n", tm.elapsed_ms());
 
   tm.tic();
   BT1.factorize();
   tm.toc();
-  cout << "factorize1 = " << tm.elapsed_ms() << " [ms]\n";
+  fmt::print("factorize1 = {:10.5} [ms]\n", tm.elapsed_ms());
 
   tm.tic();
   BT2.factorize();
   tm.toc();
-  cout << "factorize2 = " << tm.elapsed_ms() << " [ms]\n";
+  fmt::print("factorize2 = {:10.5} [ms]\n", tm.elapsed_ms());
 
   tm.tic();
   BT1.solve( &rhs1.front() );
   tm.toc();
-  cout << "solve1 = " << tm.elapsed_ms() << " [ms]\n";
+  fmt::print("solve1     = {:10.5} [ms]\n", tm.elapsed_ms());
 
   tm.tic();
   BT2.solve( &rhs2.front() );
   tm.toc();
-  cout << "solve2 = " << tm.elapsed_ms() << " [ms]\n";
+  fmt::print("solve2     = {:10.5} [ms]\n", tm.elapsed_ms());
 
   alglin::doublereal accerr = 0;
   alglin::doublereal maxerr = 0;
@@ -236,8 +236,8 @@ test4() {
     if ( maxerr < err ) maxerr = err;
   }
 
-  cout << "||err||_1 = " << accerr << "\n";
-  cout << "||err||_i = " << maxerr << "\n";
+  fmt::print("||err||_1  = {:10.5} [ms]\n", accerr);
+  fmt::print("||err||_i  = {:10.5} [ms]\n", maxerr);
 
 }
 
