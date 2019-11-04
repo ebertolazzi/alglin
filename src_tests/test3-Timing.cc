@@ -49,6 +49,7 @@
 #pragma clang diagnostic ignored "-Wundefined-func-template"
 #pragma clang diagnostic ignored "-Wextra-semi"
 #pragma clang diagnostic ignored "-Wzero-as-null-pointer-constant"
+#pragma clang diagnostic ignored "-Wunused-template"
 #endif
 
 #ifdef ALGLIN_USE_SYSTEM_EIGEN
