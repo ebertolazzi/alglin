@@ -29,13 +29,14 @@ endif
 
 ifneq (,$(findstring ALGLIN_USE_OPENBLAS,$(USED_LIB)))
   FPATH=$(dir $(shell gfortran -print-libgcc-file-name))
-  override LIBS += -lopenblas -L$(FPATH)/../../.. -lgfortran
+  override LIBS += -lopenblas -L$(FPATH) -lgfortran
 endif
 
 ifneq (,$(findstring ALGLIN_USE_ATLAS,$(USED_LIB)))
+  FPATH      = $(dir $(shell gfortran -print-libgcc-file-name))
   ATLAS_PATH = /usr/lib/atlas-base
   ATLAS_LIBS = -llapack -lf77blas -lcblas -latlas -lgfortran
-  override LIBS += -L$(ATLAS_PATH) $(ATLAS_LIBS) -Wl,-rpath,$(ATLAS_PATH)
+  override LIBS += -L$(ATLAS_PATH) $(ATLAS_LIBS) -Wl,-rpath,$(ATLAS_PATH) -L$(FPATH) -lgfortran
 endif
 
 ifneq (,$(findstring ALGLIN_USE_MKL,$(USED_LIB)))
