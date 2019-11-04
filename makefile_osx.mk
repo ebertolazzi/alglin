@@ -9,7 +9,7 @@
 WARN     = -Weverything -Wno-reserved-id-macro -Wno-padded
 CC       = clang -fPIC $(WARN)
 CXX      = clang++ -fPIC -std=c++11 -stdlib=libc++ $(WARN)
-CXXFLAGS = -O3
+CXXFLAGS = -O2
 INC      = -Isrc -Ilib3rd/include
 AR       = libtool -static -o
 LIBS3RD  = -Llib3rd/lib -Llib3rd/dll  -Wl,-rpath,lib3rd/dll -llapack_wrapper_osx_static -lsuperlu_osx_static
