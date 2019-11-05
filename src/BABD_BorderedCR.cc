@@ -23,6 +23,12 @@
 #pragma clang diagnostic ignored "-Wweak-template-vtables"
 #endif
 
+#ifdef ALGLIN_USE_SYSTEM_EIGEN
+  #include <Eigen/Dense>
+#else
+  #include "Eigen/Dense"
+#endif
+
 namespace alglin {
 
   /*\
@@ -77,7 +83,7 @@ namespace alglin {
     info = geqp3( Nr, Nc, nullptr, Nr, nullptr, nullptr, &tmp, -1 );
     ALGLIN_ASSERT(
       info == 0,
-      "BorderedCR::allocate call alglin::geqrf return info = " << info
+      "BorderedCR::allocate call alglin::geqp3 return info = " << info
     );
     if ( Lwork < integer(tmp) ) Lwork = integer(tmp);
 
@@ -92,7 +98,7 @@ namespace alglin {
     info = geqp3( n_x_2, n, nullptr, n_x_2, nullptr, nullptr, &tmp, -1 );
     ALGLIN_ASSERT(
       info == 0,
-      "BorderedCR::allocate call alglin::geqrf return info = " << info
+      "BorderedCR::allocate call alglin::geqp3 return info = " << info
     );
     if ( LworkQR < integer(tmp) ) LworkQR = integer(tmp);
 
@@ -304,7 +310,7 @@ namespace alglin {
 
     ALGLIN_ASSERT(
       CN.numRows() == nr && CN.numCols() == n,
-      "loadBottom2, bad dimension size(HN) = " << CN.numRows() <<
+      "loadBottom2, bad dimension size(CN) = " << CN.numRows() <<
       " x " << CN.numCols() << " expected " << nr << " x " << n
     );
 
@@ -507,11 +513,15 @@ namespace alglin {
   BorderedCR<t_Value>::factorize_CR() {
     #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
     if ( usedThread > 1 ) {
+      // fill zero F(...)
       if ( nr_x_nx > 0 ) alglin::zero( nr_x_nx*(usedThread-1), Fmat + nr_x_nx, 1 );
+      // launch thread
       for ( integer nt = 1; nt < usedThread; ++nt )
         threads[nt] = std::thread( &BorderedCR<t_Value>::factorize_block, this, nt );
       factorize_block(0);
+      // wait thread
       for ( integer nt = 1; nt < usedThread; ++nt ) threads[nt].join();
+      // accumulate F(...)
       if ( nr_x_nx > 0 )
         for ( integer nt = 1; nt < usedThread; ++nt )
           alglin::axpy( nr_x_nx, 1.0, Fmat + nt*nr_x_nx, 1, Fmat, 1 );
@@ -641,8 +651,10 @@ namespace alglin {
     valueType       BOTTOM[]
   ) const {
     valueType * W = WorkT + LworkT*nth;
-    copy( n, TOP,    1, W,   1 );
-    copy( n, BOTTOM, 1, W+n, 1 );
+    memcpy( W,   TOP,    n*sizeof(valueType) );
+    memcpy( W+n, BOTTOM, n*sizeof(valueType) );
+    //copy( n, TOP,    1, W,   1 );
+    //copy( n, BOTTOM, 1, W+n, 1 );
     integer info = 0;
     switch ( selected ) {
     case BORDERED_LU:
@@ -664,7 +676,7 @@ namespace alglin {
       info = ormqr(
         LEFT, TRANSPOSE,
         n_x_2, 1, // righe x colonne
-        n,      // numero riflettori usati nel prodotto Q
+        n,        // numero riflettori usati nel prodotto Q
         T, n_x_2,
         T+2*n_x_n,
         W, n_x_2,
@@ -676,8 +688,10 @@ namespace alglin {
       break;
     }
     ALGLIN_ASSERT( info == 0, "BorderedCR::applyT INFO = " << info );
-    copy( n, W+n, 1, TOP,    1 );
-    copy( n, W,   1, BOTTOM, 1 );
+    memcpy( TOP,    W+n, n*sizeof(valueType) );
+    memcpy( BOTTOM, W,   n*sizeof(valueType) );
+    //copy( n, W+n, 1, TOP,    1 );
+    //copy( n, W,   1, BOTTOM, 1 );
   }
 
   /*\
@@ -689,9 +703,15 @@ namespace alglin {
    |                                        |_____|
   \*/
 
+  //#define TRY_EIGEN
+
   template <typename t_Value>
   void
   BorderedCR<t_Value>::factorize_block( integer nth ) {
+
+    typedef Eigen::Matrix<t_Value,Eigen::Dynamic,Eigen::Dynamic> dmat_t;
+    typedef Eigen::Matrix<t_Value,Eigen::Dynamic,1>              dvec_t;
+
     integer iblock = iBlock[2*nth+0];
     integer eblock = iBlock[2*nth+1];
     integer nblk   = eblock - iblock;
@@ -704,6 +724,10 @@ namespace alglin {
     integer   * P0    = Perm + iblock*n;
 
     valueType * Fmat_th = Fmat + nth * nr_x_nx;
+
+    #ifdef TRY_EIGEN
+    Eigen::Map<dmat_t> F_mat(Fmat_th,nr,nx);
+    #endif
 
     integer k = 1;
     while ( k < nblk ) {
@@ -723,12 +747,30 @@ namespace alglin {
       integer k_x_2 = 2*k;
       for ( integer j = iblock+k; j < eblock; j += k_x_2 ) {
 
+        #ifdef TRY_EIGEN
+        Eigen::Map<dmat_t> Bj_mat(Bj,n,nx);
+        Eigen::Map<dmat_t> Cj_mat(Cj,nr,n);
+        Eigen::Map<dmat_t> Cjp_mat(Cjp,nr,n);
+        Eigen::Map<dmat_t> Dj_mat(Dj,n,n);
+        Eigen::Map<dmat_t> Djp_mat(Djp,n,n);
+        Eigen::Map<dmat_t> Ej_mat(Ej,n,n);
+        Eigen::Map<dmat_t> Ejp_mat(Ejp,n,n);
+        #endif
+
         buildT( nth, Ejp, Dj, T, P );
 
+        #ifdef TRY_EIGEN
+        Dj_mat.setZero();
+        #else
         alglin::zero( n_x_n, Dj, 1 );
+        #endif
         applyT( nth, T, P, Djp, n, Dj, n, n );
 
+        #ifdef TRY_EIGEN
+        Ejp_mat.setZero();
+        #else
         alglin::zero( n_x_n, Ejp, 1 );
+        #endif
         applyT( nth, T, P, Ejp, n, Ej, n, n );
 
         if ( nx > 0 ) applyT( nth, T, P, Bjp, n, Bj, n, nx );
@@ -739,14 +781,30 @@ namespace alglin {
             integer i = n;
             do {
               --i;
-              if ( P[i] > i ) swap( nr, Cj+i*nr, 1, Cj+P[i]*nr, 1 );
+              if ( P[i] > i ) {
+                #ifdef TRY_EIGEN
+                Cj_mat.row(i).swap(Cj_mat.row(P[i]));
+                #else
+                swap( nr, Cj+i*nr, 1, Cj+P[i]*nr, 1 );
+                #endif
+              }
             } while ( i > 0 );
           }
+          #ifdef TRY_EIGEN
+          Eigen::Map<dmat_t,Eigen::Unaligned,Eigen::OuterStride<> >
+            T_mat(T,n,n, Eigen::OuterStride<>(n_x_2));
+          T_mat . template triangularView<Eigen::Upper>()
+                . template solveInPlace<Eigen::OnTheRight>(Cj_mat);
+          #else
           trsm(
             RIGHT, UPPER, NO_TRANSPOSE, NON_UNIT,
             nr, n, 1.0, T, n_x_2, Cj, nr
           );
+          #endif
 
+          #ifdef TRY_EIGEN
+          Cjp_mat.noalias() -= Cj_mat * Dj_mat;
+          #else
           gemm(
             NO_TRANSPOSE, NO_TRANSPOSE,
             nr, n, n,
@@ -754,10 +812,15 @@ namespace alglin {
                   Dj,  n,
              1.0, Cjp, nr
           );
+          #endif
 
           integer     jpp = std::min(j+k,eblock);
           valueType * Cpp = Cmat + jpp*nr_x_n;
 
+          #ifdef TRY_EIGEN
+          Eigen::Map<dmat_t> Cpp_mat(Cpp,nr,n);
+          Cpp_mat.noalias() -= Cj_mat * Ej_mat;
+          #else
           gemm(
             NO_TRANSPOSE, NO_TRANSPOSE,
             nr, n, n,
@@ -765,9 +828,13 @@ namespace alglin {
                   Ej,  n,
              1.0, Cpp, nr
           );
+          #endif
         }
 
-        if ( nr_x_nx > 0 )
+        if ( nr_x_nx > 0 ) {
+          #ifdef TRY_EIGEN
+          F_mat.noalias() -= Cj_mat * Bj_mat;
+          #else
           gemm(
             NO_TRANSPOSE, NO_TRANSPOSE,
             nr, nx, n,
@@ -775,6 +842,8 @@ namespace alglin {
                   Bj,      n,
              1.0, Fmat_th, nr // solo accumulo!
           );
+          #endif
+        }
 
         // NEXT STEP
         T   += k_x_2*Tsize;

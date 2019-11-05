@@ -32,17 +32,16 @@
   #include "lapack_wrapper/lapack_wrapper++.hh"
 #endif
 
-#ifdef LAPACK_WRAPPER_USE_THREAD
-  #ifndef LAPACK_WRAPPER_USE_CXX11
-    #error "Alglin libray compiled with c++11 support, cannot use c++ < c++11"
-  #endif
+#ifdef LAPACK_WRAPPER_USE_CXX11
+  #define ALGLIN_USE_THREAD
   #define CYCLIC_REDUCTION_USE_THREAD
-  #define CYCLIC_REDUCTION_USE_FIXED_SIZE
   #define BORDERED_CYCLIC_REDUCTION_USE_THREAD
   #define BABD_AMODIO_N_USE_THREAD
   #define BABD_QR_USE_THREAD
   #define BABD_QR_N_USE_THREAD
   #define BABD_QR_N_USE_PIVOTING
+#else
+  #error "Lapack Wrapper and Alglin must be compiled using C++ >= C++11"
 #endif
 
 #define ALGLIN_PURE_VIRTUAL = 0

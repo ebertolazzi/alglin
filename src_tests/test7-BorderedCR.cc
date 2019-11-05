@@ -58,10 +58,10 @@ main() {
   alglin::BorderedCR<double> BCR, BCR_SAVED;
 
   //#define NSIZE 10
-  #define NSIZE 6
+  #define NSIZE 40
 
   alglin::integer n      = NSIZE;
-  alglin::integer nblock = 200000;
+  alglin::integer nblock = 5000;
   //salglin::integer nblock = 200;
   alglin::integer qx     = 4;// 4+1;
   alglin::integer qr     = 4;// 4;
@@ -84,14 +84,14 @@ main() {
   valueType * rhs   = baseValue(size_t(2*N));
   valueType * resid = baseValue(size_t(N));
 
-  //BCR.select_LU();
+  BCR.select_LU();
   //BCR.select_QR();
   //BCR.select_QRP();
-  BCR.select_SUPERLU();
+  //BCR.select_SUPERLU();
 
-  //BCR.select_last_LU();
+  BCR.select_last_LU();
   //BCR.select_last_LUPQ();
-  BCR.select_last_SVD();
+  //BCR.select_last_SVD();
   //BCR.select_last_QR();
   //BCR.select_last_QRP();
   //BCR.select_last_LSS();
@@ -136,6 +136,8 @@ main() {
   std::copy( x, x+N, xref );
   BCR.Mv( x, rhs );
   BCR_SAVED.dup( BCR );
+
+  cout << "nthread = " << std::thread::hardware_concurrency() << '\n';
 
   cout << "N      = " << N      << '\n'
        << "nblock = " << nblock << '\n'
