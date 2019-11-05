@@ -74,11 +74,12 @@ rand( valueType xmin, valueType xmax ) {
 using namespace alglin;
 typedef Eigen::Matrix<valueType,Eigen::Dynamic,Eigen::Dynamic> dmat_t;
 
-#define N_TIMES 1000000
-
 template <int N>
 void
 testN() {
+
+  int     N_TIMES = (1000000/N);
+  double  to_ps   = 1000000.0/N_TIMES;
 
   typedef Eigen::Matrix<valueType,N,N> matN_t;
 
@@ -125,7 +126,7 @@ testN() {
     copy( N*N, M3, 1, M2, 1);
   }
   tm.toc();
-  fmt::print("MULT = {:8.4} [ms] (lapack)\n", tm.elapsed_ms());
+  fmt::print("MULT = {:8.4} [ps] (lapack)\n", to_ps*tm.elapsed_ms() );
 
   // ===========================================================================
 
@@ -135,7 +136,7 @@ testN() {
     dm2 = dm3;
   }
   tm.toc();
-  fmt::print("MULT = {:8.4} [ms] (eigen dynamic)\n", tm.elapsed_ms());
+  fmt::print("MULT = {:8.4} [ps] (eigen dynamic)\n", to_ps*tm.elapsed_ms() );
 
   // ===========================================================================
 
@@ -148,7 +149,7 @@ testN() {
     mm2 = mm3;
   }
   tm.toc();
-  fmt::print("MULT = {:8.4} [ms] (eigen map dynamic)\n", tm.elapsed_ms() );
+  fmt::print("MULT = {:8.4} [ps] (eigen map dynamic)\n", to_ps*tm.elapsed_ms() );
 
   // ===========================================================================
 
@@ -158,7 +159,7 @@ testN() {
     m2 = m3;
   }
   tm.toc();
-  fmt::print("MULT = {:8.4} [ms] (eigen fixed)\n", tm.elapsed_ms());
+  fmt::print("MULT = {:8.4} [ps] (eigen fixed)\n", to_ps*tm.elapsed_ms() );
 
   // ===========================================================================
 
@@ -171,7 +172,7 @@ testN() {
     mm2 = mm3;
   }
   tm.toc();
-  fmt::print("MULT = {:8.4} [ms] (eigen fixed map)\n", tm.elapsed_ms());
+  fmt::print("MULT = {:8.4} [ps] (eigen fixed map)\n", to_ps*tm.elapsed_ms() );
 
   // ===========================================================================
 
@@ -182,7 +183,7 @@ testN() {
     //Vec2<valueType,N*N,1,1>::copy(M3,M2);
   }
   tm.toc();
-  fmt::print("MULT = {:8.4} [ms] (hand unrolled)\n", tm.elapsed_ms());
+  fmt::print("MULT = {:8.4} [ps] (hand unrolled)\n", to_ps*tm.elapsed_ms() );
 
   // ===========================================================================
 
@@ -201,6 +202,18 @@ main() {
   testN<6>();
   testN<7>();
   testN<8>();
+  testN<8>();
+  testN<10>();
+  testN<11>();
+  testN<12>();
+  testN<13>();
+  testN<14>();
+  testN<15>();
+  testN<16>();
+  testN<17>();
+  testN<18>();
+  testN<19>();
+  testN<20>();
 
   fmt::print("\n\nAll done!\n");
 

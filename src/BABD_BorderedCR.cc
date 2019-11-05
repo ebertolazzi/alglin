@@ -614,7 +614,7 @@ namespace alglin {
       info = ormqr(
         LEFT, TRANSPOSE,
         n_x_2, ncol, // righe x colonne
-        n,         // numero riflettori usati nel prodotto Q
+        n,           // numero riflettori usati nel prodotto Q
         T, n_x_2,
         T+2*n_x_n,
         W, n_x_2,
