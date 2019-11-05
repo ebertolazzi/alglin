@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "1110"
+   LastUpgradeVersion = "1120"
    version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -14,10 +14,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "D942D1511F1F9BF70094F8F6"
-               BuildableName = "test8-Cinterface"
-               BlueprintName = "test8-Cinterface"
-               ReferencedContainer = "container:alglin.xcodeproj">
+               BlueprintIdentifier = "D94CED112371B8EF001067BF"
+               BuildableName = "test7"
+               BlueprintName = "test7"
+               ReferencedContainer = "container:Alglin.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -27,20 +27,11 @@
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "YES">
-      <MacroExpansion>
-         <BuildableReference
-            BuildableIdentifier = "primary"
-            BlueprintIdentifier = "D942D1511F1F9BF70094F8F6"
-            BuildableName = "test8-Cinterface"
-            BlueprintName = "test8-Cinterface"
-            ReferencedContainer = "container:alglin.xcodeproj">
-         </BuildableReference>
-      </MacroExpansion>
       <Testables>
       </Testables>
    </TestAction>
    <LaunchAction
-      buildConfiguration = "Debug"
+      buildConfiguration = "Release"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       launchStyle = "0"
@@ -53,10 +44,10 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "D942D1511F1F9BF70094F8F6"
-            BuildableName = "test8-Cinterface"
-            BlueprintName = "test8-Cinterface"
-            ReferencedContainer = "container:alglin.xcodeproj">
+            BlueprintIdentifier = "D94CED112371B8EF001067BF"
+            BuildableName = "test7"
+            BlueprintName = "test7"
+            ReferencedContainer = "container:Alglin.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -70,10 +61,10 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "D942D1511F1F9BF70094F8F6"
-            BuildableName = "test8-Cinterface"
-            BlueprintName = "test8-Cinterface"
-            ReferencedContainer = "container:alglin.xcodeproj">
+            BlueprintIdentifier = "D94CED112371B8EF001067BF"
+            BuildableName = "test7"
+            BlueprintName = "test7"
+            ReferencedContainer = "container:Alglin.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

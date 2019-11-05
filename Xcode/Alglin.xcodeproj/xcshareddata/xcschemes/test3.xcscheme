@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "1110"
+   LastUpgradeVersion = "1120"
    version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -14,10 +14,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "D9BD01C01EE0012F00912006"
-               BuildableName = "libAlglin.a"
-               BlueprintName = "Alglin"
-               ReferencedContainer = "container:alglin.xcodeproj">
+               BlueprintIdentifier = "D94CECD92371B8CF001067BF"
+               BuildableName = "test3"
+               BlueprintName = "test3"
+               ReferencedContainer = "container:Alglin.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -31,7 +31,7 @@
       </Testables>
    </TestAction>
    <LaunchAction
-      buildConfiguration = "Debug"
+      buildConfiguration = "Release"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       launchStyle = "0"
@@ -40,15 +40,16 @@
       debugDocumentVersioning = "YES"
       debugServiceExtension = "internal"
       allowLocationSimulation = "YES">
-      <MacroExpansion>
+      <BuildableProductRunnable
+         runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "D9BD01C01EE0012F00912006"
-            BuildableName = "libAlglin.a"
-            BlueprintName = "Alglin"
-            ReferencedContainer = "container:alglin.xcodeproj">
+            BlueprintIdentifier = "D94CECD92371B8CF001067BF"
+            BuildableName = "test3"
+            BlueprintName = "test3"
+            ReferencedContainer = "container:Alglin.xcodeproj">
          </BuildableReference>
-      </MacroExpansion>
+      </BuildableProductRunnable>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"
@@ -56,15 +57,16 @@
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES">
-      <MacroExpansion>
+      <BuildableProductRunnable
+         runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "D9BD01C01EE0012F00912006"
-            BuildableName = "libAlglin.a"
-            BlueprintName = "Alglin"
-            ReferencedContainer = "container:alglin.xcodeproj">
+            BlueprintIdentifier = "D94CECD92371B8CF001067BF"
+            BuildableName = "test3"
+            BlueprintName = "test3"
+            ReferencedContainer = "container:Alglin.xcodeproj">
          </BuildableReference>
-      </MacroExpansion>
+      </BuildableProductRunnable>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">

@@ -2,6 +2,6 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "self:/Users/enrico/Ricerca/develop/myGitProjetcs/Alglin/alglin.xcodeproj">
+      location = "self:Alglin.xcodeproj">
    </FileRef>
 </Workspace>
