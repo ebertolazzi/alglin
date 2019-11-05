@@ -73,10 +73,11 @@ rand( valueType xmin, valueType xmax ) {
 
 using namespace alglin;
 typedef Eigen::Matrix<valueType,Eigen::Dynamic,Eigen::Dynamic> dmat_t;
+typedef Eigen::Matrix<valueType,Eigen::Dynamic,1>              dvec_t;
 
 template <int N>
 void
-testN() {
+testMM() {
 
   int     N_TIMES = (1000000/N);
   double  to_ps   = 1000000.0/N_TIMES;
@@ -126,7 +127,7 @@ testN() {
     copy( N*N, M3, 1, M2, 1);
   }
   tm.toc();
-  fmt::print("MULT = {:8.4} [ps] (lapack)\n", to_ps*tm.elapsed_ms() );
+  fmt::print("(MM) MULT = {:8.4} [ps] (lapack)\n", to_ps*tm.elapsed_ms() );
 
   // ===========================================================================
 
@@ -136,7 +137,7 @@ testN() {
     dm2 = dm3;
   }
   tm.toc();
-  fmt::print("MULT = {:8.4} [ps] (eigen dynamic)\n", to_ps*tm.elapsed_ms() );
+  fmt::print("(MM) MULT = {:8.4} [ps] (eigen dynamic)\n", to_ps*tm.elapsed_ms() );
 
   // ===========================================================================
 
@@ -149,7 +150,7 @@ testN() {
     mm2 = mm3;
   }
   tm.toc();
-  fmt::print("MULT = {:8.4} [ps] (eigen map dynamic)\n", to_ps*tm.elapsed_ms() );
+  fmt::print("(MM) MULT = {:8.4} [ps] (eigen map dynamic)\n", to_ps*tm.elapsed_ms() );
 
   // ===========================================================================
 
@@ -159,7 +160,7 @@ testN() {
     m2 = m3;
   }
   tm.toc();
-  fmt::print("MULT = {:8.4} [ps] (eigen fixed)\n", to_ps*tm.elapsed_ms() );
+  fmt::print("(MM) MULT = {:8.4} [ps] (eigen fixed)\n", to_ps*tm.elapsed_ms() );
 
   // ===========================================================================
 
@@ -172,7 +173,7 @@ testN() {
     mm2 = mm3;
   }
   tm.toc();
-  fmt::print("MULT = {:8.4} [ps] (eigen fixed map)\n", to_ps*tm.elapsed_ms() );
+  fmt::print("(MM) MULT = {:8.4} [ps] (eigen fixed map)\n", to_ps*tm.elapsed_ms() );
 
   // ===========================================================================
 
@@ -183,7 +184,128 @@ testN() {
     //Vec2<valueType,N*N,1,1>::copy(M3,M2);
   }
   tm.toc();
-  fmt::print("MULT = {:8.4} [ps] (hand unrolled)\n", to_ps*tm.elapsed_ms() );
+  fmt::print("(MM) MULT = {:8.4} [ps] (hand unrolled)\n", to_ps*tm.elapsed_ms() );
+
+  // ===========================================================================
+
+  fmt::print("All done!\n");
+}
+
+
+template <int N>
+void
+testMv() {
+
+  int     N_TIMES = (1000000/N);
+  double  to_ps   = 1000000.0/N_TIMES;
+
+  typedef Eigen::Matrix<valueType,N,N> matN_t;
+  typedef Eigen::Matrix<valueType,N,1> vecN_t;
+
+  fmt::print("\nSize N = {}\n",N);
+
+  Malloc<valueType>       baseValue("real");
+  Malloc<alglin::integer> baseIndex("integer");
+
+  baseValue.allocate(N*N*10);
+  baseIndex.allocate(N*10);
+
+  valueType * M = baseValue(N*N);
+  valueType * V = baseValue(N);
+  valueType * R = baseValue(N);
+
+  matN_t m;
+  dmat_t dm;
+
+  vecN_t v,  r;
+  dvec_t dv, dr;
+
+  dm.resize(N,N);
+  dv.resize(N);
+  dr.resize(N);
+
+  for ( int i = 0; i < N; ++i ) {
+    dv(i) = v(i) = V[i] = rand(-1,1);
+    dr(i) = r(i) = R[i] = rand(-1,1);
+    for ( int j = 0; j < N; ++j ) {
+      m(i,j) = dm(i,j) = M[i+j*N] = rand(-1,1);
+    }
+  }
+
+  TicToc tm;
+
+  // ===========================================================================
+
+  tm.tic();
+  for ( int i = 0; i < N_TIMES; ++i ) {
+    gemv(
+      NO_TRANSPOSE,
+      N, N,
+      -1.0, M, N,
+      V, 1,
+      1.0, R, 1
+    );
+    copy( N, R, 1, V, 1);
+  }
+  tm.toc();
+  fmt::print("(MV) MULT = {:8.4} [ps] (lapack)\n", to_ps*tm.elapsed_ms() );
+
+  // ===========================================================================
+
+  tm.tic();
+  for ( int i = 0; i < N_TIMES; ++i ) {
+    dr.noalias() -= dm*dv;
+    dv = dr;
+  }
+  tm.toc();
+  fmt::print("(MV) MULT = {:8.4} [ps] (eigen dynamic)\n", to_ps*tm.elapsed_ms() );
+
+  // ===========================================================================
+
+  tm.tic();
+  for ( int i = 0; i < N_TIMES; ++i ) {
+    Eigen::Map<dmat_t> mm(M,N,N);
+    Eigen::Map<dvec_t> vv(V,N);
+    Eigen::Map<dvec_t> rr(R,N);
+    rr.noalias() -= mm*vv;
+    vv = rr;
+  }
+  tm.toc();
+  fmt::print("(MV) MULT = {:8.4} [ps] (eigen map dynamic)\n", to_ps*tm.elapsed_ms() );
+
+  // ===========================================================================
+
+  tm.tic();
+  for ( int i = 0; i < N_TIMES; ++i ) {
+    r.noalias() -= m*v;
+    v = r;
+  }
+  tm.toc();
+  fmt::print("(MV) MULT = {:8.4} [ps] (eigen fixed)\n", to_ps*tm.elapsed_ms() );
+
+  // ===========================================================================
+
+  tm.tic();
+  for ( int i = 0; i < N_TIMES; ++i ) {
+    Eigen::Map<matN_t> mm(M);
+    Eigen::Map<vecN_t> vv(V);
+    Eigen::Map<vecN_t> rr(R);
+    rr.noalias() -= mm*vv;
+    vv = rr;
+  }
+  tm.toc();
+  fmt::print("(MV) MULT = {:8.4} [ps] (eigen fixed map)\n", to_ps*tm.elapsed_ms() );
+
+  // ===========================================================================
+
+  tm.tic();
+  for ( int i = 0; i < N_TIMES; ++i ) {
+    Mv<valueType,N,N,N,N,N>::subTo(M,V,R);
+    memcpy( V, R, N*sizeof(valueType) );
+    //Vec2<valueType,N*N,1,1>::copy(M3,M2);
+  }
+  tm.toc();
+  fmt::print("(MV) MULT = {:8.4} [ps] (hand unrolled)\n", to_ps*tm.elapsed_ms() );
 
   // ===========================================================================
 
@@ -195,25 +317,45 @@ testN() {
 int
 main() {
 
-  testN<2>();
-  testN<3>();
-  testN<4>();
-  testN<5>();
-  testN<6>();
-  testN<7>();
-  testN<8>();
-  testN<8>();
-  testN<10>();
-  testN<11>();
-  testN<12>();
-  testN<13>();
-  testN<14>();
-  testN<15>();
-  testN<16>();
-  testN<17>();
-  testN<18>();
-  testN<19>();
-  testN<20>();
+  testMv<2>();
+  testMv<3>();
+  testMv<4>();
+  testMv<5>();
+  testMv<6>();
+  testMv<7>();
+  testMv<8>();
+  testMv<8>();
+  testMv<10>();
+  testMv<11>();
+  testMv<12>();
+  testMv<13>();
+  testMv<14>();
+  testMv<15>();
+  testMv<16>();
+  testMv<17>();
+  testMv<18>();
+  testMv<19>();
+  testMv<20>();
+
+  testMM<2>();
+  testMM<3>();
+  testMM<4>();
+  testMM<5>();
+  testMM<6>();
+  testMM<7>();
+  testMM<8>();
+  testMM<8>();
+  testMM<10>();
+  testMM<11>();
+  testMM<12>();
+  testMM<13>();
+  testMM<14>();
+  testMM<15>();
+  testMM<16>();
+  testMM<17>();
+  testMM<18>();
+  testMM<19>();
+  testMM<20>();
 
   fmt::print("\n\nAll done!\n");
 
