@@ -29,6 +29,8 @@
   #include "Eigen/Dense"
 #endif
 
+//#define DEBUG_THREAD
+
 namespace alglin {
 
   /*\
@@ -516,11 +518,18 @@ namespace alglin {
       // fill zero F(...)
       if ( nr_x_nx > 0 ) alglin::zero( nr_x_nx*(usedThread-1), Fmat + nr_x_nx, 1 );
       // launch thread
-      for ( integer nt = 1; nt < usedThread; ++nt )
+      for ( integer nt = 1; nt < usedThread; ++nt ) {
+        #ifndef DEBUG_THREAD
         threads[nt] = std::thread( &BorderedCR<t_Value>::factorize_block, this, nt );
+        #else
+        factorize_block(nt);
+        #endif
+      }
       factorize_block(0);
       // wait thread
+      #ifndef DEBUG_THREAD
       for ( integer nt = 1; nt < usedThread; ++nt ) threads[nt].join();
+      #endif
       // accumulate F(...)
       if ( nr_x_nx > 0 )
         for ( integer nt = 1; nt < usedThread; ++nt )
@@ -709,8 +718,10 @@ namespace alglin {
   void
   BorderedCR<t_Value>::factorize_block( integer nth ) {
 
+    #ifdef TRY_EIGEN
     typedef Eigen::Matrix<t_Value,Eigen::Dynamic,Eigen::Dynamic> dmat_t;
     typedef Eigen::Matrix<t_Value,Eigen::Dynamic,1>              dvec_t;
+    #endif
 
     integer iblock = iBlock[2*nth+0];
     integer eblock = iBlock[2*nth+1];
@@ -1145,19 +1156,33 @@ namespace alglin {
       if ( nr > 0 ) {
         alglin::zero( nr*usedThread, xb_thread, 1 );
         for ( integer nt = 1; nt < usedThread; ++nt )
-          threads[nt] = std::thread( &BorderedCR<t_Value>::forward, this,
-                                     nt, x, xb_thread+nr*nt );
+          #ifndef DEBUG_THREAD
+          threads[nt] = std::thread(
+            &BorderedCR<t_Value>::forward, this, nt, x, xb_thread+nr*nt
+          );
+          #else
+          forward( nt, x, xb_thread+nr*nt );
+          #endif
         forward(0,x,xb);
         for ( integer nt = 1; nt < usedThread; ++nt ) {
+          #ifndef DEBUG_THREAD
           threads[nt].join();
+          #endif
           axpy( nr, 1.0, xb_thread+nr*nt, 1, xb, 1 );
         }
       } else {
         for ( integer nt = 1; nt < usedThread; ++nt )
-          threads[nt] = std::thread( &BorderedCR<t_Value>::forward, this,
-                                     nt, x, xb_thread+nr*nt );
+          #ifndef DEBUG_THREAD
+          threads[nt] = std::thread(
+            &BorderedCR<t_Value>::forward, this, nt, x, xb_thread+nr*nt
+          );
+          #else
+          forward( nt, x, xb_thread+nr*nt );
+          #endif
         forward(0,x,xb);
+        #ifndef DEBUG_THREAD
         for ( integer nt = 1; nt < usedThread; ++nt ) threads[nt].join();
+        #endif
       }
       forward_reduced(x,xb);
     } else {
@@ -1173,9 +1198,15 @@ namespace alglin {
     if ( usedThread > 1 ) {
       backward_reduced(x);
       for ( integer nt = 1; nt < usedThread; ++nt )
+        #ifndef DEBUG_THREAD
         threads[nt] = std::thread( &BorderedCR<t_Value>::backward, this, nt, x );
+        #else
+        backward( nt, x );
+        #endif
       backward(0,x);
+      #ifndef DEBUG_THREAD
       for ( integer nt = 1; nt < usedThread; ++nt ) threads[nt].join();
+      #endif
     } else {
       backward(0,x);
     }
@@ -1196,10 +1227,17 @@ namespace alglin {
     #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
     if ( usedThread > 1 ) {
       for ( integer nt = 1; nt < usedThread; ++nt )
-        threads[nt] = std::thread( &BorderedCR<t_Value>::forward_n, this,
-                                   nt, nrhs, rhs, ldRhs );
+        #ifndef DEBUG_THREAD
+        threads[nt] = std::thread(
+          &BorderedCR<t_Value>::forward_n, this, nt, nrhs, rhs, ldRhs
+        );
+        #else
+        forward_n( nt, nrhs, rhs, ldRhs );
+        #endif
       forward_n( 0, nrhs, rhs, ldRhs );
+      #ifndef DEBUG_THREAD
       for ( integer nt = 1; nt < usedThread; ++nt ) threads[nt].join();
+      #endif
       forward_n_reduced( nrhs, rhs, ldRhs );
     } else {
       forward_n( 0, nrhs, rhs, ldRhs );
@@ -1214,10 +1252,17 @@ namespace alglin {
     if ( usedThread > 1 ) {
       backward_n_reduced( nrhs, rhs, ldRhs );
       for ( integer nt = 1; nt < usedThread; ++nt )
-        threads[nt] = std::thread( &BorderedCR<t_Value>::backward_n, this,
-                                   nt, nrhs, rhs, ldRhs );
+        #ifndef DEBUG_THREAD
+        threads[nt] = std::thread(
+          &BorderedCR<t_Value>::backward_n, this, nt, nrhs, rhs, ldRhs
+        );
+        #else
+        backward_n( nt, nrhs, rhs, ldRhs );
+        #endif
       backward_n( 0, nrhs, rhs, ldRhs );
+      #ifndef DEBUG_THREAD
       for ( integer nt = 1; nt < usedThread; ++nt ) threads[nt].join();
+      #endif
     } else {
       backward_n( 0, nrhs, rhs, ldRhs );
     }

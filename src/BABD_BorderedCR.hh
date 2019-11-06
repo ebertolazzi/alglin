@@ -391,6 +391,10 @@ namespace alglin {
         "must be a number > 0 and <= " << BORDERED_CYCLIC_REDUCTION_MAX_THREAD
       );
       maxThread = nth;
+      #ifdef LAPACK_WRAPPER_USE_OPENBLAS
+      openblas_set_num_threads(1);
+      goto_set_num_threads(1);
+      #endif
       #endif
     }
 

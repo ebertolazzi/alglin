@@ -55,7 +55,7 @@ rand( valueType xmin, valueType xmax ) {
 int
 main() {
 
-  alglin::BorderedCR<double> BCR, BCR_SAVED;
+  alglin::BorderedCR<double> BCR(4), BCR_SAVED(4);
 
   //#define NSIZE 10
   #define NSIZE 40
