@@ -205,7 +205,7 @@ namespace alglin {
       for ( integer i = 0; i < nn; ++i ) {
         integer j = i;
         while ( j < nn ) { if ( P[j] == i+1 ) break; ++j; }
-        //ALGLIN_ASSERT( j < nn, "permutation_to_exchange error!" );
+        //LW_ASSERT0( j < nn, "permutation_to_exchange error!" );
         std::swap( P[j], P[i] );
         S[i] = j;
       }
@@ -385,10 +385,11 @@ namespace alglin {
     #endif
     {
       #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
-      ALGLIN_ASSERT(
+      LW_ASSERT(
         nth > 0 && nth <= BORDERED_CYCLIC_REDUCTION_MAX_THREAD,
-        "Bad number of thread specification [" << nth << "]\n"
-        "must be a number > 0 and <= " << BORDERED_CYCLIC_REDUCTION_MAX_THREAD
+        "Bad number of thread specification [{}]\n"
+        "must be a number > 0 and <= {}",
+        nth, BORDERED_CYCLIC_REDUCTION_MAX_THREAD
       );
       maxThread = nth;
       #ifdef LAPACK_WRAPPER_USE_OPENBLAS
@@ -592,9 +593,8 @@ namespace alglin {
 
     void
     addtoC( integer nbl, valueType const C[], integer ldC ) {
-      ALGLIN_ASSERT(
-        ldC >= nr,
-        "addtoC( " << nbl << ", C, ldC = " << ldC << " bad ldC"
+      LW_ASSERT(
+        ldC >= nr, "addtoC( {}, C, ldC = {} ) bad ldC", nbl, ldC
       );
       valueType * CC = Cmat + nbl*nr_x_n;
       geadd( nr, n, 1.0, C, ldC, 1.0, CC, nr, CC, nr );
@@ -612,9 +612,8 @@ namespace alglin {
     // add to block nbl and nbl+1
     void
     addtoC2( integer nbl, valueType const C[], integer ldC ) {
-      ALGLIN_ASSERT(
-        ldC >= nr,
-        "addtoC2( " << nbl << ", C, ldC = " << ldC << " bad ldC"
+      LW_ASSERT(
+        ldC >= nr, "addtoC2( {}, C, ldC = {} ) bad ldC", nbl, ldC
       );
       valueType * CC = Cmat + nbl*nr_x_n;
       geadd( nr, n_x_2, 1.0, C, ldC, 1.0, CC, nr, CC, nr );
@@ -946,13 +945,13 @@ namespace alglin {
     virtual
     void
     t_solve( valueType [] ) const ALGLIN_OVERRIDE {
-      ALGLIN_ERROR( "BorderedCR::t_solve() not defined" );
+      LW_ERROR0( "BorderedCR::t_solve() not defined" );
     }
 
     virtual
     void
     t_solve( integer, valueType [], integer ) const ALGLIN_OVERRIDE {
-      ALGLIN_ERROR( "BorderedCR::t_solve() not defined" );
+      LW_ERROR0( "BorderedCR::t_solve() not defined" );
     }
 
     /*\
@@ -1006,8 +1005,6 @@ namespace alglin {
 
   // explicit instantiation declaration to suppress warnings
 
-  #ifdef ALGLIN_USE_CXX11
-
   #ifdef __clang__
   #pragma clang diagnostic push
   #pragma clang diagnostic ignored "-Wc++98-compat-pedantic"
@@ -1019,8 +1016,6 @@ namespace alglin {
 
   #ifdef __clang__
   #pragma clang diagnostic pop
-  #endif
-
   #endif
 }
 

@@ -45,7 +45,7 @@
 #endif
 
 #define ALGLIN_PURE_VIRTUAL = 0
-#if defined(LAPACK_WRAPPER_USE_CXX11) && !defined(LAPACK_WRAPPER_OS_WINDOWS)
+#ifndef LAPACK_WRAPPER_OS_WINDOWS
   #define ALGLIN_OVERRIDE  override
   #define ALGLIN_CONSTEXPR constexpr
   #ifdef __clang__
@@ -56,6 +56,7 @@
   #define ALGLIN_CONSTEXPR
 #endif
 
+/*
 #ifndef ALGLIN_ERROR
   #define ALGLIN_ERROR(MSG) {                    \
     std::ostringstream ost;                      \
@@ -69,10 +70,7 @@
   #define ALGLIN_ASSERT(COND,MSG) \
     if ( !(COND) ) ALGLIN_ERROR( "in alglin::" << MSG )
 #endif
-
-#ifdef LAPACK_WRAPPER_USE_CXX11
-  #define ALGLIN_USE_CXX11 1
-#endif
+*/
 
 #ifdef LAPACK_WRAPPER_USE_ACCELERATE
   #define ALGLIN_USE_ACCELERATE 1

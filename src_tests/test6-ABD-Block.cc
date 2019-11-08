@@ -170,7 +170,7 @@ main() {
       alglin::axpy( N+NB, -1.0, x, 1, xref, 1 );
       valueType err = alglin::absmax( N+NB, xref, 1 );
       fmt::print("\nCheck |err|_inf = {:10.5}\n\n",err);
-      ALGLIN_ASSERT( err < 1e-8, "test failed!" );
+      LW_ASSERT0( err < 1e-8, "test failed!" );
 
       for ( alglin::integer i = 0; i < 10; ++i ) std::copy( rhs, rhs+N+NB, x+i*(N+NB) );
       TIC;
@@ -181,7 +181,7 @@ main() {
       alglin::axpy( N+NB, -1.0, x, 1, xref1, 1 );
       err = alglin::absmax( N+NB, xref1, 1 );
       fmt::print("\nCheck |err|_inf = {:10.5}\n\n",err);
-      ALGLIN_ASSERT( err < 1e-8, "test failed!" );
+      LW_ASSERT0( err < 1e-8, "test failed!" );
 
     }
   }

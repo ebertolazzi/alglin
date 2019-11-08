@@ -77,7 +77,7 @@ namespace alglin {
           ++k, ipivk += n, AdH += nm*n, Au += n*n, FF += n ) {
 
       INFO = getrf( nm, n, AdH, nm, ipivk ); // LU factorization
-      ALGLIN_ASSERT( INFO==0, "BlockLU::factorize(), matrix singolar" );
+      LW_ASSERT0( INFO==0, "BlockLU::factorize(), matrix singolar" );
 
       valueType * H  = AdH + n;
       valueType * CC = AdH + nm*n + n;
@@ -118,7 +118,7 @@ namespace alglin {
 
     // factorize last two block
     INFO = getrf( nm, n, AdH, nm, ipivk ); // LU factorization
-    ALGLIN_ASSERT( INFO==0, "BlockLU::factorize(), matrix singolar" );
+    LW_ASSERT0( INFO==0, "BlockLU::factorize(), matrix singolar" );
 
     for ( integer i = 0; i < n; ++i ) {
       integer ip = ipivk[i]-1;
@@ -151,7 +151,7 @@ namespace alglin {
     // factorize last block
     ipivk += n;
     INFO = getrf( m, m, DD_blk, m, ipivk ); // LU factorization
-    ALGLIN_ASSERT( INFO==0, "BlockLU::factorize(), singular matrix" );
+    LW_ASSERT0( INFO==0, "BlockLU::factorize(), singular matrix" );
   }
 
   /*\
@@ -193,7 +193,7 @@ namespace alglin {
     integer const * ipive = ipiv_blk + nblock * n;
     integer            ok = getrs( NO_TRANSPOSE, m, 1, DD_blk, m, ipive, ye, m );
 
-    ALGLIN_ASSERT( ok == 0, "BlockLU::solve(...) failed" );
+    LW_ASSERT0( ok == 0, "BlockLU::solve(...) failed" );
 
     if ( rowFF > 0 ) gemv( NO_TRANSPOSE, rowFF, m, -1, FF_blk, rowFF, ye, 1, 1, y, 1 );
     if (     m > n ) gemv( NO_TRANSPOSE, n, m-n, -1, Au_blk + nblock*n*n, n, ye+n, 1, 1, ye-n, 1 );

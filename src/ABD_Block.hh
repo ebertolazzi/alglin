@@ -138,7 +138,7 @@ namespace alglin {
       integer /* numFinalOMEGA   */,
       integer /* numCyclicOMEGA  */
     ) ALGLIN_OVERRIDE
-    { ALGLIN_ERROR("BlockLU::allocate() not defined!"); }
+    { LW_ERROR0("BlockLU::allocate() not defined!"); }
 
     virtual
     void
@@ -192,8 +192,6 @@ namespace alglin {
 
   // explicit instantiation declaration to suppress warnings
 
-  #ifdef LAPACK_WRAPPER_USE_CXX11
-
   #ifdef __clang__
   #pragma clang diagnostic push
   #pragma clang diagnostic ignored "-Wc++98-compat-pedantic"
@@ -206,9 +204,6 @@ namespace alglin {
   #ifdef __clang__
   #pragma clang diagnostic pop
   #endif
-
-  #endif
-
 }
 
 #endif

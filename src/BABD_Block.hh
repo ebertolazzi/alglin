@@ -194,8 +194,6 @@ namespace alglin {
 
   // explicit instantiation declaration to suppress warnings
 
-  #ifdef ALGLIN_USE_CXX11
-
   #ifdef __clang__
   #pragma clang diagnostic push
   #pragma clang diagnostic ignored "-Wc++98-compat-pedantic"
@@ -207,8 +205,6 @@ namespace alglin {
 
   #ifdef __clang__
   #pragma clang diagnostic pop
-  #endif
-
   #endif
 
 }

@@ -76,31 +76,31 @@ namespace alglin {
 
     valueType tmp; // get optimal allocation
     integer info = geqrf( Nr, Nc, nullptr, Nr, nullptr, &tmp, -1 );
-    ALGLIN_ASSERT(
+    LW_ASSERT(
       info == 0,
-      "BorderedCR::allocate call alglin::geqrf return info = " << info
+      "BorderedCR::allocate call alglin::geqrf return info = {}", info
     );
     if ( Lwork < integer(tmp) ) Lwork = integer(tmp);
 
     info = geqp3( Nr, Nc, nullptr, Nr, nullptr, nullptr, &tmp, -1 );
-    ALGLIN_ASSERT(
+    LW_ASSERT(
       info == 0,
-      "BorderedCR::allocate call alglin::geqp3 return info = " << info
+      "BorderedCR::allocate call alglin::geqp3 return info = {}", info
     );
     if ( Lwork < integer(tmp) ) Lwork = integer(tmp);
 
     LworkT = 2*n_x_n;
     info = geqrf( n_x_2, n, nullptr, n_x_2, nullptr, &tmp, -1 );
-    ALGLIN_ASSERT(
+    LW_ASSERT(
       info == 0,
-      "BorderedCR::allocate call alglin::geqrf return info = " << info
+      "BorderedCR::allocate call alglin::geqrf return info = {}", info
     );
     LworkQR = integer(tmp);
 
     info = geqp3( n_x_2, n, nullptr, n_x_2, nullptr, nullptr, &tmp, -1 );
-    ALGLIN_ASSERT(
+    LW_ASSERT(
       info == 0,
-      "BorderedCR::allocate call alglin::geqp3 return info = " << info
+      "BorderedCR::allocate call alglin::geqp3 return info = {}", info
     );
     if ( LworkQR < integer(tmp) ) LworkQR = integer(tmp);
 
@@ -236,28 +236,28 @@ namespace alglin {
 
     integer m = n + qr;
 
-    ALGLIN_ASSERT(
+    LW_ASSERT(
       H0.numRows() == m && H0.numCols() == n,
-      "loadBottom, bad dimension size(H0) = " << H0.numRows() <<
-      " x " << H0.numCols() << " expected " << m << " x " << n
+      "loadBottom, bad dimension size(H0) = {} x {} expected {} x {}",
+      H0.numRows(), H0.numCols(), m, n
     );
 
-    ALGLIN_ASSERT(
+    LW_ASSERT(
       HN.numRows() == m && HN.numCols() == n,
-      "loadBottom, bad dimension size(HN) = " << HN.numRows() <<
-      " x " << HN.numCols() << " expected " << m << " x " << n
+      "loadBottom, bad dimension size(HN) = {} x {} expected {} x {}",
+      HN.numRows(), HN.numCols(), m, n
     );
 
-    ALGLIN_ASSERT(
+    LW_ASSERT(
       Hq.numRows() == m && Hq.numCols() == qx,
-      "loadBottom, bad dimension size(Hq) = " << Hq.numRows() <<
-      " x " << Hq.numCols() << " expected " << m << " x " << qx
+      "loadBottom, bad dimension size(Hq) = {} x {} expected {} x {}",
+      Hq.numRows(), Hq.numCols(), m, qx
     );
 
-    ALGLIN_ASSERT(
+    LW_ASSERT(
       Hp.numRows() == m && Hp.numCols() == nx,
-      "loadBottom, bad dimension size(Hp) = " << Hp.numRows() <<
-      " x " << Hp.numCols() << " expected " << m << " x " << nx
+      "loadBottom, bad dimension size(Hp) = {} x {} expected {} x {}",
+      Hp.numRows(), Hp.numCols(), m, nx
     );
 
     loadBottom(
@@ -272,10 +272,10 @@ namespace alglin {
   void
   BorderedCR<t_Value>::loadBottom( MatrixWrapper<valueType> const & H ) {
     integer m = n + qr;
-    ALGLIN_ASSERT(
+    LW_ASSERT(
       H.numRows() == m && H.numCols() == Nc,
-      "loadBottom, bad dimension size(H) = " << H.numRows() <<
-      " x " << H.numCols() << " expected " << m << " x " << Nc
+      "loadBottom, bad dimension size(H) = {} x {} expected {} x {}",
+      H.numRows(), H.numCols(), m, Nc
     );
     loadBottom( H.get_data(), H.lDim() );
   }
@@ -304,28 +304,28 @@ namespace alglin {
     MatrixWrapper<valueType> const & F
   ) {
 
-    ALGLIN_ASSERT(
+    LW_ASSERT(
       C0.numRows() == nr && C0.numCols() == n,
-      "loadBottom2, bad dimension size(C0) = " << C0.numRows() <<
-      " x " << C0.numCols() << " expected " << nr << " x " << n
+      "loadBottom2, bad dimension size(C0) = {} x {} expected {} x {}",
+      C0.numRows(), C0.numCols(), nr, n
     );
 
-    ALGLIN_ASSERT(
+    LW_ASSERT(
       CN.numRows() == nr && CN.numCols() == n,
-      "loadBottom2, bad dimension size(CN) = " << CN.numRows() <<
-      " x " << CN.numCols() << " expected " << nr << " x " << n
+      "loadBottom2, bad dimension size(CN) = {} x {} expected {} x {}",
+      CN.numRows(), CN.numCols(), nr, n
     );
 
-    ALGLIN_ASSERT(
+    LW_ASSERT(
       Cq.numRows() == nr && Cq.numCols() == qx,
-      "loadBottom2, bad dimension size(Cq) = " << Cq.numRows() <<
-      " x " << Cq.numCols() << " expected " << nr << " x " << qx
+      "loadBottom2, bad dimension size(Cq) = {} x {} expected {} x {}",
+      Cq.numRows(), Cq.numCols(), nr, qx
     );
 
-    ALGLIN_ASSERT(
+    LW_ASSERT(
       F.numRows() == nr && F.numCols() == nx,
-      "loadBottom2, bad dimension size(F) = " << F.numRows() <<
-      " x " << F.numCols() << " expected " << nr << " x " << nx
+      "loadBottom2, bad dimension size(F) = {} x {} expected {} x {}",
+      F.numRows(), F.numCols(), nr, nx
     );
 
     loadBottom2(
@@ -356,10 +356,10 @@ namespace alglin {
     integer                          nbl,
     MatrixWrapper<valueType> const & B
   ) {
-    ALGLIN_ASSERT(
+    LW_ASSERT(
       B.numRows() == n && B.numCols() == nx,
-      "loadB( " << nbl << ", B) bad dimension size(B) = " << B.numRows() <<
-      " x " << B.numCols() << " expected " << n << " x " << nx
+      "loadB( {}, B) bad dimension size(B) = {} x {} expected {} x {}",
+      nbl, B.numRows(), B.numCols(), n, nx
     );
     gecopy( n, nx, B.get_data(), B.lDim(), Bmat + nbl*n_x_nx, n );
   }
@@ -372,10 +372,10 @@ namespace alglin {
     integer                          nbl,
     MatrixWrapper<valueType> const & B
   ) {
-    ALGLIN_ASSERT(
+    LW_ASSERT(
       B.numRows() == n && B.numCols() == nx,
-      "addtoB( " << nbl << ", B) bad dimension size(B) = " << B.numRows() <<
-      " x " << B.numCols() << " expected " << n << " x " << nx
+      "addtoB( {}, B) bad dimension size(B) = {} x {} expected {} x {}",
+      nbl, B.numRows(), B.numCols(), n, nx
     );
     valueType * BB = Bmat + nbl*n_x_nx;
     geadd( n, nx, 1.0, B.get_data(), B.lDim(), 1.0, BB, n, BB, n );
@@ -389,10 +389,10 @@ namespace alglin {
     integer                          nbl,
     MatrixWrapper<valueType> const & C
   ) {
-    ALGLIN_ASSERT(
+    LW_ASSERT(
       C.numRows() == nr && C.numCols() == n,
-      "loadC( " << nbl << ", C) bad dimension size(C) = " << C.numRows() <<
-      " x " << C.numCols() << " expected " << nr << " x " << n
+      "loadC( {}, C) bad dimension size(C) = {} x {} expected {} x {}",
+      nbl, C.numRows(), C.numCols(), nr, n
     );
     gecopy( nr, n, C.get_data(), C.lDim(), Cmat + nbl*nr_x_n, nr );
   }
@@ -405,10 +405,10 @@ namespace alglin {
     integer                          nbl,
     MatrixWrapper<valueType> const & C
   ) {
-    ALGLIN_ASSERT(
+    LW_ASSERT(
       C.numRows() == nr && C.numCols() == n,
-      "addtoC( " << nbl << ", C) bad dimension size(C) = " << C.numRows() <<
-      " x " << C.numCols() << " expected " << nr << " x " << n
+      "addtoC( {}, C) bad dimension size(C) = {} x {} expected {} x {}",
+      nbl, C.numRows(), C.numCols(), nr, n
     );
     valueType * CC = Cmat + nbl*nr_x_n;
     geadd( nr, n, 1.0, C.get_data(), C.lDim(), 1.0, CC, nr, CC, nr );
@@ -422,10 +422,10 @@ namespace alglin {
     integer                          nbl,
     MatrixWrapper<valueType> const & C
   ) {
-    ALGLIN_ASSERT(
+    LW_ASSERT(
       C.numRows() == nr && C.numCols() == n_x_2,
-      "addtoC( " << nbl << ", C) bad dimension size(C) = " << C.numRows() <<
-      " x " << C.numCols() << " expected " << nr << " x " << n_x_2
+      "addtoC( {}, C) bad dimension size(C) = {} x {} expected {} x {}",
+      nbl, C.numRows(), C.numCols(), nr, n_x_2
     );
     valueType * CC = Cmat + nbl*nr_x_n;
     geadd( nr, n_x_2, 1.0, C.get_data(), C.lDim(), 1.0, CC, nr, CC, nr );
@@ -439,10 +439,10 @@ namespace alglin {
     integer                          nbl,
     MatrixWrapper<valueType> const & D
   ) {
-    ALGLIN_ASSERT(
+    LW_ASSERT(
       D.numRows() == n && D.numCols() == n,
-      "loadD( " << nbl << ", D) bad dimension size(D) = " << D.numRows() <<
-      " x " << D.numCols() << " expected " << n << " x " << n
+      "loadD( {}, D) bad dimension size(D) = {} x {} expected {} x {}",
+      nbl, D.numRows(), D.numCols(), n, n
     );
     gecopy( n, n, D.get_data(), D.lDim(), Dmat + nbl*n_x_n, n );
   }
@@ -455,10 +455,10 @@ namespace alglin {
     integer                          nbl,
     MatrixWrapper<valueType> const & E
   ) {
-    ALGLIN_ASSERT(
+    LW_ASSERT(
       E.numRows() == n && E.numCols() == n,
-      "loadE( " << nbl << ", E) bad dimension size(E) = " << E.numRows() <<
-      " x " << E.numCols() << " expected " << n << " x " << n
+      "loadE( {}, E) bad dimension size(E) = {} x {} expected {} x {}",
+      nbl, E.numRows(), E.numCols(), n, n
     );
     gecopy( n, n, E.get_data(), E.lDim(), Emat + nbl*n_x_n, n );
   }
@@ -468,10 +468,10 @@ namespace alglin {
   template <typename t_Value>
   void
   BorderedCR<t_Value>::loadF( MatrixWrapper<valueType> const & F ) {
-    ALGLIN_ASSERT(
+    LW_ASSERT(
       F.numRows() == nr && F.numCols() == nx,
-      "loadF(F) bad dimension size(F) = " << F.numRows() <<
-      " x " << F.numCols() << " expected " << nr << " x " << nx
+      "loadF(F) bad dimension size(F) = {} x {} expected {} x {}",
+      F.numRows(), F.numCols(), nr, nx
     );
     gecopy( nr, nx, F.get_data(), F.lDim(), Fmat, nr );
   }
@@ -481,10 +481,10 @@ namespace alglin {
   template <typename t_Value>
   void
   BorderedCR<t_Value>::addtoF( MatrixWrapper<valueType> const & F ) {
-    ALGLIN_ASSERT(
+    LW_ASSERT(
       F.numRows() == nr && F.numCols() == nx,
-      "addtoF(F) bad dimension size(F) = " << F.numRows() <<
-      " x " << F.numCols() << " expected " << nr << " x " << nx
+      "addtoF(F) bad dimension size(F) = {} x {} expected {} x {}",
+      F.numRows(), F.numCols(), nr, nx
     );
     geadd( nr, nx, 1.0, F.get_data(), F.lDim(), 1.0, Fmat, nr, Fmat, nr );
   }
@@ -494,10 +494,10 @@ namespace alglin {
   template <typename t_Value>
   void
   BorderedCR<t_Value>::loadCq( MatrixWrapper<valueType> const & Cq ) {
-    ALGLIN_ASSERT(
+    LW_ASSERT(
       Cq.numRows() == nr && Cq.numCols() == qx,
-      "loadCq(Cq) bad dimension size(Cq) = " << Cq.numRows() <<
-      " x " << Cq.numCols() << " expected " << nr << " x " << qx
+      "loadCq(Cq) bad dimension size(Cq) = {} x {} expected {} x {}",
+      Cq.numRows(), Cq.numCols(), nr, qx
     );
     gecopy( nr, qx, Cq.get_data(), Cq.lDim(), Cqmat, nr );
   }
@@ -575,10 +575,10 @@ namespace alglin {
       }
       break;
     case BORDERED_SUPERLU:
-      ALGLIN_ERROR( "BorderedCR::buildT, cannot be used with SUPERLU" );
+      LW_ERROR0( "BorderedCR::buildT, cannot be used with SUPERLU" );
       break;
     }
-    ALGLIN_ASSERT( info == 0, "BorderedCR::factorize INFO = " << info );
+    LW_ASSERT( info == 0, "BorderedCR::factorize INFO = {}", info );
   }
 
   /*\
@@ -618,7 +618,7 @@ namespace alglin {
     switch ( selected ) {
     case BORDERED_LU:
       info = swaps( ncol, W, n_x_2, 0, n-1, iperm, 1 );
-      ALGLIN_ASSERT( info == 0, "BorderedCR::applyT INFO = " << info );
+      LW_ASSERT( info == 0, "BorderedCR::applyT INFO = {}", info );
       trsm( LEFT, LOWER, NO_TRANSPOSE, UNIT, n, ncol, 1.0, T, n_x_2, W, n_x_2 );
       gemm(
         NO_TRANSPOSE, NO_TRANSPOSE,
@@ -641,7 +641,7 @@ namespace alglin {
       );
       break;
     case BORDERED_SUPERLU:
-      ALGLIN_ERROR( "BorderedCR::applyT, cannot be used with SUPERLU" );
+      LW_ERROR0( "BorderedCR::applyT, cannot be used with SUPERLU" );
       break;
     }
     gecopy( n, ncol, W+n, n_x_2, TOP,    ldTOP );
@@ -660,8 +660,9 @@ namespace alglin {
     valueType       BOTTOM[]
   ) const {
     valueType * W = WorkT + LworkT*nth;
-    memcpy( W,   TOP,    n*sizeof(valueType) );
-    memcpy( W+n, BOTTOM, n*sizeof(valueType) );
+    size_t nn = size_t(n*sizeof(valueType));
+    memcpy( W,   TOP,    nn );
+    memcpy( W+n, BOTTOM, nn );
     //copy( n, TOP,    1, W,   1 );
     //copy( n, BOTTOM, 1, W+n, 1 );
     integer info = 0;
@@ -693,12 +694,12 @@ namespace alglin {
       );
       break;
     case BORDERED_SUPERLU:
-      ALGLIN_ERROR( "BorderedCR::applyT, cannot be used with SUPERLU" );
+      LW_ERROR0( "BorderedCR::applyT, cannot be used with SUPERLU" );
       break;
     }
-    ALGLIN_ASSERT( info == 0, "BorderedCR::applyT INFO = " << info );
-    memcpy( TOP,    W+n, n*sizeof(valueType) );
-    memcpy( BOTTOM, W,   n*sizeof(valueType) );
+    LW_ASSERT( info == 0, "BorderedCR::applyT INFO = {}", info );
+    memcpy( TOP,    W+n, nn );
+    memcpy( BOTTOM, W,   nn );
     //copy( n, W+n, 1, TOP,    1 );
     //copy( n, W,   1, BOTTOM, 1 );
   }
@@ -1051,10 +1052,9 @@ namespace alglin {
       );
       break;
     }
-    ALGLIN_ASSERT(
+    LW_ASSERT(
       info == 0,
-      "BorderedCR::factorize_last INFO = " << info <<
-      " Nr = " << Nr << " Nc = " << Nc
+      "BorderedCR::factorize_last INFO = {} Nr = {} Nc = {}", info, Nr, Nc
     );
   }
 
@@ -1096,7 +1096,7 @@ namespace alglin {
       last_lsy.solve( X );
       break;
     }
-    ALGLIN_ASSERT( info == 0, "BorderedCR::solve_last INFO = " << info );
+    LW_ASSERT( info == 0, "BorderedCR::solve_last INFO = {}", info );
     swap( n, X, 1, x, 1 );
   }
 
@@ -1135,7 +1135,7 @@ namespace alglin {
       last_lsy.solve( nrhs, X, ldX );
       break;
     }
-    ALGLIN_ASSERT( info == 0, "BorderedCR::solve_last INFO = " << info );
+    LW_ASSERT( info == 0, "BorderedCR::solve_last INFO = {}", info );
     for ( integer i = 0; i < nrhs; ++i ) swap( n, X+i*ldX, 1, x+i*ldX, 1 );
   }
 
@@ -1903,10 +1903,10 @@ namespace alglin {
     // Cq
     kkk += this->patternCq( I+kkk, J+kkk, offs );
 
-    ALGLIN_ASSERT(
+    LW_ASSERT(
       kkk == sparseNnz(),
-      "BorderedCR::sparsePattern( I, J, offs ), inserted " << kkk <<
-      " values, expected " << sparseNnz()
+      "BorderedCR::sparsePattern( I, J, offs ), inserted {} values, expected {}",
+      kkk, sparseNnz()
     );
 
   }
@@ -1936,10 +1936,10 @@ namespace alglin {
     // Cq
     kkk += this->valuesCq( V+kkk );
 
-    ALGLIN_ASSERT(
+    LW_ASSERT(
       kkk == sparseNnz(),
-      "BorderedCR::sparseValues( V ), inserted " << kkk <<
-      " values, expected " << sparseNnz()
+      "BorderedCR::sparseValues( V ), inserted {} values, expected {}",
+      kkk, sparseNnz()
     );
 
   }
@@ -2013,10 +2013,10 @@ namespace alglin {
       }
     }
 
-    ALGLIN_ASSERT(
+    LW_ASSERT(
       kkk == sparseNnz(),
-      "BorderedCR::sparsePattern( V ), inserted " << kkk <<
-      " values, expected " << sparseNnz()
+      "BorderedCR::sparsePattern( V ), inserted {} values, expected {}",
+      kkk, sparseNnz()
     );
 
     if ( offs != 0 ) {
@@ -2078,10 +2078,10 @@ namespace alglin {
       for ( integer j = 0; j < qx; ++j )
         V[kkk++] = Cqmat[i+j*nr];
 
-    ALGLIN_ASSERT(
+    LW_ASSERT(
       kkk == sparseNnz(),
-      "BorderedCR::sparseValues( V ), inserted " << kkk <<
-      " values, expected " << sparseNnz()
+      "BorderedCR::sparseValues( V ), inserted {} values, expected {}",
+      kkk, sparseNnz()
     );
   }
 #endif
@@ -2156,11 +2156,10 @@ namespace alglin {
       } else {
         ok = false;
       }
-      ALGLIN_ASSERT(
+      LW_ASSERT(
         ok,
-        "in BorderedCR<t_Value>::sparseLoad, "
-        "indices (i,j) = ( " << M_row[kkk] <<
-        ", " << M_col[kkk] << ") out on pattern!"
+        "in BorderedCR<t_Value>::sparseLoad, indices (i,j) = ( {}, {}) out on pattern!",
+        M_row[kkk], M_col[kkk]
       );
     }
   }
@@ -2502,10 +2501,9 @@ namespace alglin {
       colptr[++jj] = kk;
     }
 
-    ALGLIN_ASSERT(
+    LW_ASSERT(
       kk == nnz,
-      "BABD_SuperLU::factorize -- dgstrf() error nnz = " << nnz <<
-      " != " << kk
+      "BABD_SuperLU::factorize -- dgstrf() error nnz = {} != {}", nnz, kk
     );
 
     // Create matrix A in the format expected by SuperLU.
@@ -2546,7 +2544,10 @@ namespace alglin {
     Destroy_CompCol_Permuted(&slu_AC);
     StatFree(&slu_stats);
 
-    ALGLIN_ASSERT( info == 0, "BABD_SuperLU::factorize -- [sd]gstrf() error returns INFO = " << info );
+    LW_ASSERT(
+      info == 0,
+      "BABD_SuperLU::factorize -- [sd]gstrf() error returns INFO = {}", info
+    );
     //cout << "done\n";
 
   }
@@ -2579,7 +2580,10 @@ namespace alglin {
     Destroy_SuperMatrix_Store( &B ) ;
     StatFree(&slu_stats);
 
-    ALGLIN_ASSERT( info == 0, "BABD_SuperLU::solve_SuperLU -- gstrs() error returns INFO= " << info );
+    LW_ASSERT(
+      info == 0,
+      "BABD_SuperLU::solve_SuperLU -- gstrs() error returns INFO= {}", info
+    );
   }
 
   template <typename t_Value>
@@ -2613,7 +2617,10 @@ namespace alglin {
     Destroy_SuperMatrix_Store( &B ) ;
     StatFree(&slu_stats);
 
-    ALGLIN_ASSERT( info == 0, "BABD_SuperLU::solve_SuperLU -- gstrs() error returns INFO= " << info );
+    LW_ASSERT(
+      info == 0,
+      "BABD_SuperLU::solve_SuperLU -- gstrs() error returns INFO= {}", info
+    );
   }
 
   // ---------------------------------------------------------------------------

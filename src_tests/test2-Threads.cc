@@ -23,19 +23,6 @@
 #include <fstream>
 
 #include "Alglin_Config.hh"
-
-#ifndef LAPACK_WRAPPER_USE_CXX11
-
-using namespace std;
-
-int
-main() {
-  cout << "To test thread you must compile with a C++11 capable compiler\nAll done!\n";
-  return 0;
-}
-
-#else
-
 #include "Alglin_threads.hh"
 
 #ifdef __GNUC__ 
@@ -114,6 +101,3 @@ main() {
 
   return 0;
 }
-
-#endif
-

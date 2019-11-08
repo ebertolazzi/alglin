@@ -13,7 +13,7 @@ CXXFLAGS = -O2
 INC      = -Isrc -Ilib3rd/include
 AR       = libtool -static -o
 LIBS3RD  = -Llib3rd/lib -Llib3rd/dll  -Wl,-rpath,lib3rd/dll -llapack_wrapper_osx_static -lsuperlu_osx_static
-LIBS     = -Llib/lib -Llib/dll -lfmt_osx_static -lfort_osx_static -lAlglin_osx $(LIBS3RD) -Wl,-rpath,lib/dll
+LIBS     = -Llib/lib -Llib/dll -lAlglin_osx $(LIBS3RD) -Wl,-rpath,lib/dll
 LIBSGCC  = -lstdc++ -lm
 
 

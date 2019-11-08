@@ -110,7 +110,7 @@ namespace alglin {
       colptr[++jj] = kk;
     }
 
-    ALGLIN_ASSERT( jj == neq, "SuperLU::factorize -- bad matrix format" );
+    LW_ASSERT0( jj == neq, "SuperLU::factorize -- bad matrix format" );
 
     // Create matrix A in the format expected by SuperLU.
     //cout << "Create matrix A in the format expected by SuperLU.\n";
@@ -194,7 +194,10 @@ namespace alglin {
     Destroy_CompCol_Permuted(&AC);
     StatFree(&slu_stats);
 
-    ALGLIN_ASSERT( info == 0, "BABD_SuperLU::factorize -- dgstrf() error returns INFO = " << info );
+    LW_ASSERT(
+      info == 0,
+      "BABD_SuperLU::factorize -- dgstrf() error returns INFO = {}", info
+    );
     //cout << "done\n";
   }
 
@@ -229,7 +232,10 @@ namespace alglin {
     Destroy_SuperMatrix_Store(&B);
     StatFree(&slu_stats);
 
-    ALGLIN_ASSERT( info == 0, "BABD_SuperLU::solve -- dgstrs() error returns INFO= " << info );
+    LW_ASSERT(
+      info == 0,
+      "BABD_SuperLU::solve -- dgstrs() error returns INFO = {}", info
+    );
   }
 
   /*\
@@ -246,8 +252,14 @@ namespace alglin {
     dgscon(	const_cast<char*>("1"), &L, &U, one_norm_A, &rcond_1, &slu_stats, &info1 );
     if ( info1 == 0 ) dgscon( const_cast<char*>("I"), &L, &U, inf_norm_A, &rcond_inf, &slu_stats, &info2 );
     StatFree(&slu_stats);
-    ALGLIN_ASSERT( info1 == 0, "BABD_SuperLU::cond -- dgscon() error returns INFO= " << info1 );
-    ALGLIN_ASSERT( info2 == 0, "BABD_SuperLU::cond -- dgscon() error returns INFO= " << info2 );
+    LW_ASSERT(
+      info1 == 0,
+      "BABD_SuperLU::cond -- dgscon() error returns INFO = {}", info1
+    );
+    LW_ASSERT(
+      info2 == 0,
+      "BABD_SuperLU::cond -- dgscon() error returns INFO = {}", info2
+    );
   }
 
 }

@@ -161,7 +161,7 @@ namespace alglin {
       integer /* numFinalOMEGA   */,
       integer /* numCyclicOMEGA  */
     ) ALGLIN_OVERRIDE
-    { ALGLIN_ERROR("DiazLU::allocate() not defined!"); }
+    { LW_ERROR0("DiazLU::allocate() not defined!"); }
 
     virtual
     void
@@ -175,10 +175,12 @@ namespace alglin {
       integer _nb
     ) ALGLIN_OVERRIDE {
       integer inv = _nblock*_n+(_col0+_colN-2*_n);
-      BlockBidiagonal<t_Value>::allocateTopBottom( _nblock, _n,
-                                                   _row0, _col0,
-                                                   _rowN, _colN,
-                                                   _nb, 0, inv);
+      BlockBidiagonal<t_Value>::allocateTopBottom(
+        _nblock, _n,
+        _row0, _col0,
+        _rowN, _colN,
+        _nb, 0, inv
+      );
       swapRC_blks = this->baseInteger(size_t(inv));
     }
 
@@ -212,8 +214,6 @@ namespace alglin {
 
   // explicit instantiation declaration to suppress warnings
 
-  #ifdef LAPACK_WRAPPER_USE_CXX11
-
   #ifdef __clang__
   #pragma clang diagnostic push
   #pragma clang diagnostic ignored "-Wc++98-compat-pedantic"
@@ -225,8 +225,6 @@ namespace alglin {
 
   #ifdef __clang__
   #pragma clang diagnostic pop
-  #endif
-
   #endif
 }
 

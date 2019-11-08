@@ -41,7 +41,6 @@
 		D94CEC592371B551001067BF /* Alglin_Eigen.hh in Headers */ = {isa = PBXBuildFile; fileRef = D94CEC392371B551001067BF /* Alglin_Eigen.hh */; };
 		D94CEC5A2371B551001067BF /* Alglin_SuperLU.hh in Headers */ = {isa = PBXBuildFile; fileRef = D94CEC3A2371B551001067BF /* Alglin_SuperLU.hh */; };
 		D94CECAC2371B6F1001067BF /* test1-small-factorization.cc in Sources */ = {isa = PBXBuildFile; fileRef = D94CECA32371B696001067BF /* test1-small-factorization.cc */; };
-		D94CECB52371B780001067BF /* libbackward_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAF2371B776001067BF /* libbackward_osx_static.a */; };
 		D94CECB62371B783001067BF /* libHSL_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAD2371B776001067BF /* libHSL_osx_static.a */; };
 		D94CECB72371B787001067BF /* liblapack_wrapper_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAE2371B776001067BF /* liblapack_wrapper_osx_static.a */; };
 		D94CECB82371B78A001067BF /* libsuperlu_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECB02371B776001067BF /* libsuperlu_osx_static.a */; };
@@ -50,78 +49,63 @@
 		D94CECC12371B87C001067BF /* libsuperlu_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECB02371B776001067BF /* libsuperlu_osx_static.a */; };
 		D94CECC22371B87C001067BF /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECBA2371B7D5001067BF /* Accelerate.framework */; };
 		D94CECC32371B87C001067BF /* liblapack_wrapper_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAE2371B776001067BF /* liblapack_wrapper_osx_static.a */; };
-		D94CECC42371B87C001067BF /* libbackward_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAF2371B776001067BF /* libbackward_osx_static.a */; };
 		D94CECCA2371B88F001067BF /* test2-Threads.cc in Sources */ = {isa = PBXBuildFile; fileRef = D94CECA02371B696001067BF /* test2-Threads.cc */; };
 		D94CECCF2371B8C5001067BF /* libHSL_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAD2371B776001067BF /* libHSL_osx_static.a */; };
 		D94CECD02371B8C5001067BF /* libsuperlu_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECB02371B776001067BF /* libsuperlu_osx_static.a */; };
 		D94CECD12371B8C5001067BF /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECBA2371B7D5001067BF /* Accelerate.framework */; };
 		D94CECD22371B8C5001067BF /* liblapack_wrapper_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAE2371B776001067BF /* liblapack_wrapper_osx_static.a */; };
-		D94CECD32371B8C5001067BF /* libbackward_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAF2371B776001067BF /* libbackward_osx_static.a */; };
 		D94CECDD2371B8CF001067BF /* libHSL_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAD2371B776001067BF /* libHSL_osx_static.a */; };
 		D94CECDE2371B8CF001067BF /* libsuperlu_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECB02371B776001067BF /* libsuperlu_osx_static.a */; };
 		D94CECDF2371B8CF001067BF /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECBA2371B7D5001067BF /* Accelerate.framework */; };
 		D94CECE02371B8CF001067BF /* liblapack_wrapper_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAE2371B776001067BF /* liblapack_wrapper_osx_static.a */; };
-		D94CECE12371B8CF001067BF /* libbackward_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAF2371B776001067BF /* libbackward_osx_static.a */; };
 		D94CECEB2371B8D7001067BF /* libHSL_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAD2371B776001067BF /* libHSL_osx_static.a */; };
 		D94CECEC2371B8D7001067BF /* libsuperlu_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECB02371B776001067BF /* libsuperlu_osx_static.a */; };
 		D94CECED2371B8D7001067BF /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECBA2371B7D5001067BF /* Accelerate.framework */; };
 		D94CECEE2371B8D7001067BF /* liblapack_wrapper_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAE2371B776001067BF /* liblapack_wrapper_osx_static.a */; };
-		D94CECEF2371B8D7001067BF /* libbackward_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAF2371B776001067BF /* libbackward_osx_static.a */; };
 		D94CECF92371B8DF001067BF /* libHSL_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAD2371B776001067BF /* libHSL_osx_static.a */; };
 		D94CECFA2371B8DF001067BF /* libsuperlu_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECB02371B776001067BF /* libsuperlu_osx_static.a */; };
 		D94CECFB2371B8DF001067BF /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECBA2371B7D5001067BF /* Accelerate.framework */; };
 		D94CECFC2371B8DF001067BF /* liblapack_wrapper_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAE2371B776001067BF /* liblapack_wrapper_osx_static.a */; };
-		D94CECFD2371B8DF001067BF /* libbackward_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAF2371B776001067BF /* libbackward_osx_static.a */; };
 		D94CED072371B8E6001067BF /* libHSL_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAD2371B776001067BF /* libHSL_osx_static.a */; };
 		D94CED082371B8E6001067BF /* libsuperlu_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECB02371B776001067BF /* libsuperlu_osx_static.a */; };
 		D94CED092371B8E6001067BF /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECBA2371B7D5001067BF /* Accelerate.framework */; };
 		D94CED0A2371B8E6001067BF /* liblapack_wrapper_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAE2371B776001067BF /* liblapack_wrapper_osx_static.a */; };
-		D94CED0B2371B8E6001067BF /* libbackward_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAF2371B776001067BF /* libbackward_osx_static.a */; };
 		D94CED152371B8EF001067BF /* libHSL_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAD2371B776001067BF /* libHSL_osx_static.a */; };
 		D94CED162371B8EF001067BF /* libsuperlu_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECB02371B776001067BF /* libsuperlu_osx_static.a */; };
 		D94CED172371B8EF001067BF /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECBA2371B7D5001067BF /* Accelerate.framework */; };
 		D94CED182371B8EF001067BF /* liblapack_wrapper_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAE2371B776001067BF /* liblapack_wrapper_osx_static.a */; };
-		D94CED192371B8EF001067BF /* libbackward_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAF2371B776001067BF /* libbackward_osx_static.a */; };
 		D94CED232371B8F7001067BF /* libHSL_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAD2371B776001067BF /* libHSL_osx_static.a */; };
 		D94CED242371B8F7001067BF /* libsuperlu_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECB02371B776001067BF /* libsuperlu_osx_static.a */; };
 		D94CED252371B8F7001067BF /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECBA2371B7D5001067BF /* Accelerate.framework */; };
 		D94CED262371B8F7001067BF /* liblapack_wrapper_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAE2371B776001067BF /* liblapack_wrapper_osx_static.a */; };
-		D94CED272371B8F7001067BF /* libbackward_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAF2371B776001067BF /* libbackward_osx_static.a */; };
 		D94CED312371B8FD001067BF /* libHSL_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAD2371B776001067BF /* libHSL_osx_static.a */; };
 		D94CED322371B8FD001067BF /* libsuperlu_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECB02371B776001067BF /* libsuperlu_osx_static.a */; };
 		D94CED332371B8FD001067BF /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECBA2371B7D5001067BF /* Accelerate.framework */; };
 		D94CED342371B8FD001067BF /* liblapack_wrapper_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAE2371B776001067BF /* liblapack_wrapper_osx_static.a */; };
-		D94CED352371B8FD001067BF /* libbackward_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAF2371B776001067BF /* libbackward_osx_static.a */; };
 		D94CED3F2371B903001067BF /* libHSL_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAD2371B776001067BF /* libHSL_osx_static.a */; };
 		D94CED402371B903001067BF /* libsuperlu_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECB02371B776001067BF /* libsuperlu_osx_static.a */; };
 		D94CED412371B903001067BF /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECBA2371B7D5001067BF /* Accelerate.framework */; };
 		D94CED422371B903001067BF /* liblapack_wrapper_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAE2371B776001067BF /* liblapack_wrapper_osx_static.a */; };
-		D94CED432371B903001067BF /* libbackward_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAF2371B776001067BF /* libbackward_osx_static.a */; };
 		D94CED4D2371B90B001067BF /* libHSL_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAD2371B776001067BF /* libHSL_osx_static.a */; };
 		D94CED4E2371B90B001067BF /* libsuperlu_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECB02371B776001067BF /* libsuperlu_osx_static.a */; };
 		D94CED4F2371B90B001067BF /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECBA2371B7D5001067BF /* Accelerate.framework */; };
 		D94CED502371B90B001067BF /* liblapack_wrapper_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAE2371B776001067BF /* liblapack_wrapper_osx_static.a */; };
-		D94CED512371B90B001067BF /* libbackward_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAF2371B776001067BF /* libbackward_osx_static.a */; };
 		D94CED5B2371B911001067BF /* libHSL_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAD2371B776001067BF /* libHSL_osx_static.a */; };
 		D94CED5C2371B911001067BF /* libsuperlu_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECB02371B776001067BF /* libsuperlu_osx_static.a */; };
 		D94CED5D2371B911001067BF /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECBA2371B7D5001067BF /* Accelerate.framework */; };
 		D94CED5E2371B911001067BF /* liblapack_wrapper_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAE2371B776001067BF /* liblapack_wrapper_osx_static.a */; };
-		D94CED5F2371B911001067BF /* libbackward_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAF2371B776001067BF /* libbackward_osx_static.a */; };
 		D94CED692371B918001067BF /* libHSL_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAD2371B776001067BF /* libHSL_osx_static.a */; };
 		D94CED6A2371B918001067BF /* libsuperlu_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECB02371B776001067BF /* libsuperlu_osx_static.a */; };
 		D94CED6B2371B918001067BF /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECBA2371B7D5001067BF /* Accelerate.framework */; };
 		D94CED6C2371B918001067BF /* liblapack_wrapper_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAE2371B776001067BF /* liblapack_wrapper_osx_static.a */; };
-		D94CED6D2371B918001067BF /* libbackward_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAF2371B776001067BF /* libbackward_osx_static.a */; };
 		D94CED772371B920001067BF /* libHSL_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAD2371B776001067BF /* libHSL_osx_static.a */; };
 		D94CED782371B920001067BF /* libsuperlu_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECB02371B776001067BF /* libsuperlu_osx_static.a */; };
 		D94CED792371B920001067BF /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECBA2371B7D5001067BF /* Accelerate.framework */; };
 		D94CED7A2371B920001067BF /* liblapack_wrapper_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAE2371B776001067BF /* liblapack_wrapper_osx_static.a */; };
-		D94CED7B2371B920001067BF /* libbackward_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAF2371B776001067BF /* libbackward_osx_static.a */; };
 		D94CED852371B926001067BF /* libHSL_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAD2371B776001067BF /* libHSL_osx_static.a */; };
 		D94CED862371B926001067BF /* libsuperlu_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECB02371B776001067BF /* libsuperlu_osx_static.a */; };
 		D94CED872371B926001067BF /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECBA2371B7D5001067BF /* Accelerate.framework */; };
 		D94CED882371B926001067BF /* liblapack_wrapper_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAE2371B776001067BF /* liblapack_wrapper_osx_static.a */; };
-		D94CED892371B926001067BF /* libbackward_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAF2371B776001067BF /* libbackward_osx_static.a */; };
 		D94CED8F2371B94A001067BF /* test0-FD.cc in Sources */ = {isa = PBXBuildFile; fileRef = D94CECAA2371B696001067BF /* test0-FD.cc */; };
 		D94CED902371B95C001067BF /* test3-Timing.cc in Sources */ = {isa = PBXBuildFile; fileRef = D94CECA52371B696001067BF /* test3-Timing.cc */; };
 		D94CED912371B95F001067BF /* test4-KKT.cc in Sources */ = {isa = PBXBuildFile; fileRef = D94CECA22371B696001067BF /* test4-KKT.cc */; };
@@ -138,30 +122,154 @@
 		D94CEDA02371B985001067BF /* libsuperlu_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECB02371B776001067BF /* libsuperlu_osx_static.a */; };
 		D94CEDA12371B985001067BF /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECBA2371B7D5001067BF /* Accelerate.framework */; };
 		D94CEDA22371B985001067BF /* liblapack_wrapper_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAE2371B776001067BF /* liblapack_wrapper_osx_static.a */; };
-		D94CEDA32371B985001067BF /* libbackward_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAF2371B776001067BF /* libbackward_osx_static.a */; };
 		D94CEDAD2371B98C001067BF /* libHSL_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAD2371B776001067BF /* libHSL_osx_static.a */; };
 		D94CEDAE2371B98C001067BF /* libsuperlu_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECB02371B776001067BF /* libsuperlu_osx_static.a */; };
 		D94CEDAF2371B98C001067BF /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECBA2371B7D5001067BF /* Accelerate.framework */; };
 		D94CEDB02371B98C001067BF /* liblapack_wrapper_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAE2371B776001067BF /* liblapack_wrapper_osx_static.a */; };
-		D94CEDB12371B98C001067BF /* libbackward_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAF2371B776001067BF /* libbackward_osx_static.a */; };
 		D94CEDBB2371B98E001067BF /* libHSL_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAD2371B776001067BF /* libHSL_osx_static.a */; };
 		D94CEDBC2371B98E001067BF /* libsuperlu_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECB02371B776001067BF /* libsuperlu_osx_static.a */; };
 		D94CEDBD2371B98E001067BF /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECBA2371B7D5001067BF /* Accelerate.framework */; };
 		D94CEDBE2371B98E001067BF /* liblapack_wrapper_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAE2371B776001067BF /* liblapack_wrapper_osx_static.a */; };
-		D94CEDBF2371B98E001067BF /* libbackward_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAF2371B776001067BF /* libbackward_osx_static.a */; };
 		D94CEDC92371B98F001067BF /* libHSL_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAD2371B776001067BF /* libHSL_osx_static.a */; };
 		D94CEDCA2371B98F001067BF /* libsuperlu_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECB02371B776001067BF /* libsuperlu_osx_static.a */; };
 		D94CEDCB2371B98F001067BF /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECBA2371B7D5001067BF /* Accelerate.framework */; };
 		D94CEDCC2371B98F001067BF /* liblapack_wrapper_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAE2371B776001067BF /* liblapack_wrapper_osx_static.a */; };
-		D94CEDCD2371B98F001067BF /* libbackward_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAF2371B776001067BF /* libbackward_osx_static.a */; };
 		D94CEDD32371B9B2001067BF /* Simplex-Test1.cc in Sources */ = {isa = PBXBuildFile; fileRef = D94CECA82371B696001067BF /* Simplex-Test1.cc */; };
 		D94CEDD42371B9BA001067BF /* Simplex-Test2.cc in Sources */ = {isa = PBXBuildFile; fileRef = D94CEC9A2371B696001067BF /* Simplex-Test2.cc */; };
 		D94CEDD52371B9BC001067BF /* Simplex-Test3.cc in Sources */ = {isa = PBXBuildFile; fileRef = D94CEC982371B696001067BF /* Simplex-Test3.cc */; };
 		D94CEDD62371B9BF001067BF /* Simplex-Test4.cc in Sources */ = {isa = PBXBuildFile; fileRef = D94CECA92371B696001067BF /* Simplex-Test4.cc */; };
+		D9A9D4522374EA1B00E91CB8 /* libAlglin.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CEC162371B541001067BF /* libAlglin.a */; };
+		D9A9D4552374EA4B00E91CB8 /* libAlglin.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CEC162371B541001067BF /* libAlglin.a */; };
+		D9A9D4582374EA4F00E91CB8 /* libAlglin.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CEC162371B541001067BF /* libAlglin.a */; };
+		D9A9D45B2374EA5200E91CB8 /* libAlglin.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CEC162371B541001067BF /* libAlglin.a */; };
+		D9A9D45E2374EA5A00E91CB8 /* libAlglin.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CEC162371B541001067BF /* libAlglin.a */; };
+		D9A9D4612374EA5E00E91CB8 /* libAlglin.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CEC162371B541001067BF /* libAlglin.a */; };
+		D9A9D4642374EA6200E91CB8 /* libAlglin.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CEC162371B541001067BF /* libAlglin.a */; };
+		D9A9D4672374EA6500E91CB8 /* libAlglin.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CEC162371B541001067BF /* libAlglin.a */; };
+		D9A9D46A2374EA6900E91CB8 /* libAlglin.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CEC162371B541001067BF /* libAlglin.a */; };
+		D9A9D46D2374EA6E00E91CB8 /* libAlglin.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CEC162371B541001067BF /* libAlglin.a */; };
+		D9A9D4702374EA7100E91CB8 /* libAlglin.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CEC162371B541001067BF /* libAlglin.a */; };
+		D9A9D4732374EA7500E91CB8 /* libAlglin.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CEC162371B541001067BF /* libAlglin.a */; };
+		D9A9D4762374EA7900E91CB8 /* libAlglin.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CEC162371B541001067BF /* libAlglin.a */; };
+		D9A9D4792374EA7D00E91CB8 /* libAlglin.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CEC162371B541001067BF /* libAlglin.a */; };
+		D9A9D47C2374EA8000E91CB8 /* libAlglin.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CEC162371B541001067BF /* libAlglin.a */; };
+		D9A9D47F2374EA8500E91CB8 /* libAlglin.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CEC162371B541001067BF /* libAlglin.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
 		D91BB08A2371C552009E068C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D94CEC002371B4F5001067BF /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D94CEC152371B541001067BF;
+			remoteInfo = Alglin;
+		};
+		D9A9D4532374EA1B00E91CB8 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D94CEC002371B4F5001067BF /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D94CEC152371B541001067BF;
+			remoteInfo = Alglin;
+		};
+		D9A9D4562374EA4B00E91CB8 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D94CEC002371B4F5001067BF /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D94CEC152371B541001067BF;
+			remoteInfo = Alglin;
+		};
+		D9A9D4592374EA4F00E91CB8 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D94CEC002371B4F5001067BF /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D94CEC152371B541001067BF;
+			remoteInfo = Alglin;
+		};
+		D9A9D45C2374EA5200E91CB8 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D94CEC002371B4F5001067BF /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D94CEC152371B541001067BF;
+			remoteInfo = Alglin;
+		};
+		D9A9D45F2374EA5A00E91CB8 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D94CEC002371B4F5001067BF /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D94CEC152371B541001067BF;
+			remoteInfo = Alglin;
+		};
+		D9A9D4622374EA5E00E91CB8 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D94CEC002371B4F5001067BF /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D94CEC152371B541001067BF;
+			remoteInfo = Alglin;
+		};
+		D9A9D4652374EA6200E91CB8 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D94CEC002371B4F5001067BF /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D94CEC152371B541001067BF;
+			remoteInfo = Alglin;
+		};
+		D9A9D4682374EA6500E91CB8 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D94CEC002371B4F5001067BF /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D94CEC152371B541001067BF;
+			remoteInfo = Alglin;
+		};
+		D9A9D46B2374EA6900E91CB8 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D94CEC002371B4F5001067BF /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D94CEC152371B541001067BF;
+			remoteInfo = Alglin;
+		};
+		D9A9D46E2374EA6E00E91CB8 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D94CEC002371B4F5001067BF /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D94CEC152371B541001067BF;
+			remoteInfo = Alglin;
+		};
+		D9A9D4712374EA7100E91CB8 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D94CEC002371B4F5001067BF /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D94CEC152371B541001067BF;
+			remoteInfo = Alglin;
+		};
+		D9A9D4742374EA7500E91CB8 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D94CEC002371B4F5001067BF /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D94CEC152371B541001067BF;
+			remoteInfo = Alglin;
+		};
+		D9A9D4772374EA7900E91CB8 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D94CEC002371B4F5001067BF /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D94CEC152371B541001067BF;
+			remoteInfo = Alglin;
+		};
+		D9A9D47A2374EA7D00E91CB8 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D94CEC002371B4F5001067BF /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D94CEC152371B541001067BF;
+			remoteInfo = Alglin;
+		};
+		D9A9D47D2374EA8000E91CB8 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D94CEC002371B4F5001067BF /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D94CEC152371B541001067BF;
+			remoteInfo = Alglin;
+		};
+		D9A9D4802374EA8500E91CB8 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = D94CEC002371B4F5001067BF /* Project object */;
 			proxyType = 1;
@@ -412,7 +520,6 @@
 		D94CECAB2371B696001067BF /* test11-FORTRAN.f90 */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.fortran.f90; path = "test11-FORTRAN.f90"; sourceTree = "<group>"; };
 		D94CECAD2371B776001067BF /* libHSL_osx_static.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libHSL_osx_static.a; path = ../lib3rd/lib/libHSL_osx_static.a; sourceTree = "<group>"; };
 		D94CECAE2371B776001067BF /* liblapack_wrapper_osx_static.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = liblapack_wrapper_osx_static.a; path = ../lib3rd/lib/liblapack_wrapper_osx_static.a; sourceTree = "<group>"; };
-		D94CECAF2371B776001067BF /* libbackward_osx_static.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libbackward_osx_static.a; path = ../lib3rd/lib/libbackward_osx_static.a; sourceTree = "<group>"; };
 		D94CECB02371B776001067BF /* libsuperlu_osx_static.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libsuperlu_osx_static.a; path = ../lib3rd/lib/libsuperlu_osx_static.a; sourceTree = "<group>"; };
 		D94CECBA2371B7D5001067BF /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
 		D94CECC92371B87C001067BF /* test2 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = test2; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -452,7 +559,6 @@
 				D94CECB82371B78A001067BF /* libsuperlu_osx_static.a in Frameworks */,
 				D94CECBB2371B7D5001067BF /* Accelerate.framework in Frameworks */,
 				D94CECB72371B787001067BF /* liblapack_wrapper_osx_static.a in Frameworks */,
-				D94CECB52371B780001067BF /* libbackward_osx_static.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -464,7 +570,6 @@
 				D94CECC12371B87C001067BF /* libsuperlu_osx_static.a in Frameworks */,
 				D94CECC22371B87C001067BF /* Accelerate.framework in Frameworks */,
 				D94CECC32371B87C001067BF /* liblapack_wrapper_osx_static.a in Frameworks */,
-				D94CECC42371B87C001067BF /* libbackward_osx_static.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -476,7 +581,6 @@
 				D94CECD02371B8C5001067BF /* libsuperlu_osx_static.a in Frameworks */,
 				D94CECD12371B8C5001067BF /* Accelerate.framework in Frameworks */,
 				D94CECD22371B8C5001067BF /* liblapack_wrapper_osx_static.a in Frameworks */,
-				D94CECD32371B8C5001067BF /* libbackward_osx_static.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -486,9 +590,9 @@
 			files = (
 				D94CECDD2371B8CF001067BF /* libHSL_osx_static.a in Frameworks */,
 				D94CECDE2371B8CF001067BF /* libsuperlu_osx_static.a in Frameworks */,
+				D9A9D4552374EA4B00E91CB8 /* libAlglin.a in Frameworks */,
 				D94CECDF2371B8CF001067BF /* Accelerate.framework in Frameworks */,
 				D94CECE02371B8CF001067BF /* liblapack_wrapper_osx_static.a in Frameworks */,
-				D94CECE12371B8CF001067BF /* libbackward_osx_static.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -498,9 +602,9 @@
 			files = (
 				D94CECEB2371B8D7001067BF /* libHSL_osx_static.a in Frameworks */,
 				D94CECEC2371B8D7001067BF /* libsuperlu_osx_static.a in Frameworks */,
+				D9A9D4522374EA1B00E91CB8 /* libAlglin.a in Frameworks */,
 				D94CECED2371B8D7001067BF /* Accelerate.framework in Frameworks */,
 				D94CECEE2371B8D7001067BF /* liblapack_wrapper_osx_static.a in Frameworks */,
-				D94CECEF2371B8D7001067BF /* libbackward_osx_static.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -510,9 +614,9 @@
 			files = (
 				D94CECF92371B8DF001067BF /* libHSL_osx_static.a in Frameworks */,
 				D94CECFA2371B8DF001067BF /* libsuperlu_osx_static.a in Frameworks */,
+				D9A9D4582374EA4F00E91CB8 /* libAlglin.a in Frameworks */,
 				D94CECFB2371B8DF001067BF /* Accelerate.framework in Frameworks */,
 				D94CECFC2371B8DF001067BF /* liblapack_wrapper_osx_static.a in Frameworks */,
-				D94CECFD2371B8DF001067BF /* libbackward_osx_static.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -522,9 +626,9 @@
 			files = (
 				D94CED072371B8E6001067BF /* libHSL_osx_static.a in Frameworks */,
 				D94CED082371B8E6001067BF /* libsuperlu_osx_static.a in Frameworks */,
+				D9A9D45B2374EA5200E91CB8 /* libAlglin.a in Frameworks */,
 				D94CED092371B8E6001067BF /* Accelerate.framework in Frameworks */,
 				D94CED0A2371B8E6001067BF /* liblapack_wrapper_osx_static.a in Frameworks */,
-				D94CED0B2371B8E6001067BF /* libbackward_osx_static.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -537,7 +641,6 @@
 				D94CED172371B8EF001067BF /* Accelerate.framework in Frameworks */,
 				D94CED182371B8EF001067BF /* liblapack_wrapper_osx_static.a in Frameworks */,
 				D91BB0892371C552009E068C /* libAlglin.a in Frameworks */,
-				D94CED192371B8EF001067BF /* libbackward_osx_static.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -547,9 +650,9 @@
 			files = (
 				D94CED232371B8F7001067BF /* libHSL_osx_static.a in Frameworks */,
 				D94CED242371B8F7001067BF /* libsuperlu_osx_static.a in Frameworks */,
+				D9A9D45E2374EA5A00E91CB8 /* libAlglin.a in Frameworks */,
 				D94CED252371B8F7001067BF /* Accelerate.framework in Frameworks */,
 				D94CED262371B8F7001067BF /* liblapack_wrapper_osx_static.a in Frameworks */,
-				D94CED272371B8F7001067BF /* libbackward_osx_static.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -559,9 +662,9 @@
 			files = (
 				D94CED312371B8FD001067BF /* libHSL_osx_static.a in Frameworks */,
 				D94CED322371B8FD001067BF /* libsuperlu_osx_static.a in Frameworks */,
+				D9A9D4612374EA5E00E91CB8 /* libAlglin.a in Frameworks */,
 				D94CED332371B8FD001067BF /* Accelerate.framework in Frameworks */,
 				D94CED342371B8FD001067BF /* liblapack_wrapper_osx_static.a in Frameworks */,
-				D94CED352371B8FD001067BF /* libbackward_osx_static.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -571,9 +674,9 @@
 			files = (
 				D94CED3F2371B903001067BF /* libHSL_osx_static.a in Frameworks */,
 				D94CED402371B903001067BF /* libsuperlu_osx_static.a in Frameworks */,
+				D9A9D4642374EA6200E91CB8 /* libAlglin.a in Frameworks */,
 				D94CED412371B903001067BF /* Accelerate.framework in Frameworks */,
 				D94CED422371B903001067BF /* liblapack_wrapper_osx_static.a in Frameworks */,
-				D94CED432371B903001067BF /* libbackward_osx_static.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -583,9 +686,9 @@
 			files = (
 				D94CED4D2371B90B001067BF /* libHSL_osx_static.a in Frameworks */,
 				D94CED4E2371B90B001067BF /* libsuperlu_osx_static.a in Frameworks */,
+				D9A9D4672374EA6500E91CB8 /* libAlglin.a in Frameworks */,
 				D94CED4F2371B90B001067BF /* Accelerate.framework in Frameworks */,
 				D94CED502371B90B001067BF /* liblapack_wrapper_osx_static.a in Frameworks */,
-				D94CED512371B90B001067BF /* libbackward_osx_static.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -595,9 +698,9 @@
 			files = (
 				D94CED5B2371B911001067BF /* libHSL_osx_static.a in Frameworks */,
 				D94CED5C2371B911001067BF /* libsuperlu_osx_static.a in Frameworks */,
+				D9A9D46A2374EA6900E91CB8 /* libAlglin.a in Frameworks */,
 				D94CED5D2371B911001067BF /* Accelerate.framework in Frameworks */,
 				D94CED5E2371B911001067BF /* liblapack_wrapper_osx_static.a in Frameworks */,
-				D94CED5F2371B911001067BF /* libbackward_osx_static.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -607,9 +710,9 @@
 			files = (
 				D94CED692371B918001067BF /* libHSL_osx_static.a in Frameworks */,
 				D94CED6A2371B918001067BF /* libsuperlu_osx_static.a in Frameworks */,
+				D9A9D46D2374EA6E00E91CB8 /* libAlglin.a in Frameworks */,
 				D94CED6B2371B918001067BF /* Accelerate.framework in Frameworks */,
 				D94CED6C2371B918001067BF /* liblapack_wrapper_osx_static.a in Frameworks */,
-				D94CED6D2371B918001067BF /* libbackward_osx_static.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -619,9 +722,9 @@
 			files = (
 				D94CED772371B920001067BF /* libHSL_osx_static.a in Frameworks */,
 				D94CED782371B920001067BF /* libsuperlu_osx_static.a in Frameworks */,
+				D9A9D4702374EA7100E91CB8 /* libAlglin.a in Frameworks */,
 				D94CED792371B920001067BF /* Accelerate.framework in Frameworks */,
 				D94CED7A2371B920001067BF /* liblapack_wrapper_osx_static.a in Frameworks */,
-				D94CED7B2371B920001067BF /* libbackward_osx_static.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -631,9 +734,9 @@
 			files = (
 				D94CED852371B926001067BF /* libHSL_osx_static.a in Frameworks */,
 				D94CED862371B926001067BF /* libsuperlu_osx_static.a in Frameworks */,
+				D9A9D4732374EA7500E91CB8 /* libAlglin.a in Frameworks */,
 				D94CED872371B926001067BF /* Accelerate.framework in Frameworks */,
 				D94CED882371B926001067BF /* liblapack_wrapper_osx_static.a in Frameworks */,
-				D94CED892371B926001067BF /* libbackward_osx_static.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -643,9 +746,9 @@
 			files = (
 				D94CED9F2371B985001067BF /* libHSL_osx_static.a in Frameworks */,
 				D94CEDA02371B985001067BF /* libsuperlu_osx_static.a in Frameworks */,
+				D9A9D4762374EA7900E91CB8 /* libAlglin.a in Frameworks */,
 				D94CEDA12371B985001067BF /* Accelerate.framework in Frameworks */,
 				D94CEDA22371B985001067BF /* liblapack_wrapper_osx_static.a in Frameworks */,
-				D94CEDA32371B985001067BF /* libbackward_osx_static.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -655,9 +758,9 @@
 			files = (
 				D94CEDAD2371B98C001067BF /* libHSL_osx_static.a in Frameworks */,
 				D94CEDAE2371B98C001067BF /* libsuperlu_osx_static.a in Frameworks */,
+				D9A9D4792374EA7D00E91CB8 /* libAlglin.a in Frameworks */,
 				D94CEDAF2371B98C001067BF /* Accelerate.framework in Frameworks */,
 				D94CEDB02371B98C001067BF /* liblapack_wrapper_osx_static.a in Frameworks */,
-				D94CEDB12371B98C001067BF /* libbackward_osx_static.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -667,9 +770,9 @@
 			files = (
 				D94CEDBB2371B98E001067BF /* libHSL_osx_static.a in Frameworks */,
 				D94CEDBC2371B98E001067BF /* libsuperlu_osx_static.a in Frameworks */,
+				D9A9D47C2374EA8000E91CB8 /* libAlglin.a in Frameworks */,
 				D94CEDBD2371B98E001067BF /* Accelerate.framework in Frameworks */,
 				D94CEDBE2371B98E001067BF /* liblapack_wrapper_osx_static.a in Frameworks */,
-				D94CEDBF2371B98E001067BF /* libbackward_osx_static.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -679,9 +782,9 @@
 			files = (
 				D94CEDC92371B98F001067BF /* libHSL_osx_static.a in Frameworks */,
 				D94CEDCA2371B98F001067BF /* libsuperlu_osx_static.a in Frameworks */,
+				D9A9D47F2374EA8500E91CB8 /* libAlglin.a in Frameworks */,
 				D94CEDCB2371B98F001067BF /* Accelerate.framework in Frameworks */,
 				D94CEDCC2371B98F001067BF /* liblapack_wrapper_osx_static.a in Frameworks */,
-				D94CEDCD2371B98F001067BF /* libbackward_osx_static.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -692,7 +795,6 @@
 			isa = PBXGroup;
 			children = (
 				D94CEC092371B4F5001067BF /* Products */,
-				D94CECAF2371B776001067BF /* libbackward_osx_static.a */,
 				D94CECAD2371B776001067BF /* libHSL_osx_static.a */,
 				D94CECAE2371B776001067BF /* liblapack_wrapper_osx_static.a */,
 				D94CECB02371B776001067BF /* libsuperlu_osx_static.a */,
@@ -743,28 +845,28 @@
 				D94CEC312371B551001067BF /* Alglin_aux.cc */,
 				D94CEC322371B551001067BF /* Alglin_tmpl.hh */,
 				D94CEC1C2371B551001067BF /* ABD_Diaz.hh */,
-				D94CEC1D2371B551001067BF /* Simplex.hh */,
-				D94CEC1E2371B551001067BF /* BlockBidiagonal.cc */,
-				D94CEC2E2371B551001067BF /* BABD_BorderedCR.hh */,
-				D94CEC1F2371B551001067BF /* BABD_BorderedCR.cc */,
-				D94CEC202371B551001067BF /* ABD_Block.hh */,
-				D94CEC222371B551001067BF /* BABD_Block.hh */,
-				D94CEC232371B551001067BF /* BABD.cc */,
-				D94CEC242371B551001067BF /* BABD_F90_interface.inc */,
+				D94CEC292371B551001067BF /* ABD_Arceco.cc */,
+				D94CEC2A2371B551001067BF /* ABD_Diaz.cc */,
+				D94CEC2D2371B551001067BF /* ABD_Block.cc */,
 				D94CEC252371B551001067BF /* ABD_Arceco.hh */,
+				D94CEC202371B551001067BF /* ABD_Block.hh */,
 				D94CEC262371B551001067BF /* BABD.hh */,
 				D94CEC272371B551001067BF /* BABD_Block.cc */,
 				D94CEC282371B551001067BF /* BABD_C_interface.cc */,
-				D94CEC292371B551001067BF /* ABD_Arceco.cc */,
-				D94CEC2A2371B551001067BF /* ABD_Diaz.cc */,
-				D94CEC2B2371B551001067BF /* BlockBidiagonal.hh */,
-				D94CEC2C2371B551001067BF /* Simplex.cc */,
-				D94CEC2D2371B551001067BF /* ABD_Block.cc */,
-				D94CEC2F2371B551001067BF /* BABD_C_interface.h */,
-				D94CEC302371B551001067BF /* KKT_like.cc */,
 				D94CEC332371B551001067BF /* BABD_SuperLU.cc */,
-				D94CEC342371B551001067BF /* KKT_like.hh */,
 				D94CEC362371B551001067BF /* BABD_SuperLU.hh */,
+				D94CEC2F2371B551001067BF /* BABD_C_interface.h */,
+				D94CEC2E2371B551001067BF /* BABD_BorderedCR.hh */,
+				D94CEC1F2371B551001067BF /* BABD_BorderedCR.cc */,
+				D94CEC1E2371B551001067BF /* BlockBidiagonal.cc */,
+				D94CEC222371B551001067BF /* BABD_Block.hh */,
+				D94CEC232371B551001067BF /* BABD.cc */,
+				D94CEC242371B551001067BF /* BABD_F90_interface.inc */,
+				D94CEC2B2371B551001067BF /* BlockBidiagonal.hh */,
+				D94CEC342371B551001067BF /* KKT_like.hh */,
+				D94CEC302371B551001067BF /* KKT_like.cc */,
+				D94CEC1D2371B551001067BF /* Simplex.hh */,
+				D94CEC2C2371B551001067BF /* Simplex.cc */,
 			);
 			name = src;
 			path = ../src;
@@ -783,6 +885,7 @@
 				D94CECA72371B696001067BF /* test7-BorderedCR.cc */,
 				D94CEC992371B696001067BF /* test8-Cinterface.c */,
 				D94CEC972371B696001067BF /* test9-Cinterface.c */,
+				D94CEC9F2371B696001067BF /* test10-FORTRAN.f90 */,
 				D94CECAB2371B696001067BF /* test11-FORTRAN.f90 */,
 				D94CECA62371B696001067BF /* test12-BandedMatrix.cc */,
 				D94CEC9B2371B696001067BF /* test13-BFGS.cc */,
@@ -793,7 +896,6 @@
 				D94CEC982371B696001067BF /* Simplex-Test3.cc */,
 				D94CECA92371B696001067BF /* Simplex-Test4.cc */,
 				D94CEC9E2371B696001067BF /* LU_test.hxx */,
-				D94CEC9F2371B696001067BF /* test10-FORTRAN.f90 */,
 				D94CECA42371B696001067BF /* SparseSort.txt */,
 			);
 			name = src_tests;
@@ -919,6 +1021,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				D9A9D4572374EA4B00E91CB8 /* PBXTargetDependency */,
 			);
 			name = test3;
 			productName = test1;
@@ -936,6 +1039,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				D9A9D4542374EA1B00E91CB8 /* PBXTargetDependency */,
 			);
 			name = test4;
 			productName = test1;
@@ -953,6 +1057,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				D9A9D45A2374EA4F00E91CB8 /* PBXTargetDependency */,
 			);
 			name = test5;
 			productName = test1;
@@ -970,6 +1075,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				D9A9D45D2374EA5200E91CB8 /* PBXTargetDependency */,
 			);
 			name = test6;
 			productName = test1;
@@ -1005,6 +1111,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				D9A9D4602374EA5A00E91CB8 /* PBXTargetDependency */,
 			);
 			name = test8;
 			productName = test1;
@@ -1022,6 +1129,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				D9A9D4632374EA5E00E91CB8 /* PBXTargetDependency */,
 			);
 			name = test9;
 			productName = test1;
@@ -1039,6 +1147,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				D9A9D4662374EA6200E91CB8 /* PBXTargetDependency */,
 			);
 			name = test10;
 			productName = test1;
@@ -1056,6 +1165,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				D9A9D4692374EA6500E91CB8 /* PBXTargetDependency */,
 			);
 			name = test11;
 			productName = test1;
@@ -1073,6 +1183,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				D9A9D46C2374EA6900E91CB8 /* PBXTargetDependency */,
 			);
 			name = test12;
 			productName = test1;
@@ -1090,6 +1201,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				D9A9D46F2374EA6E00E91CB8 /* PBXTargetDependency */,
 			);
 			name = test13;
 			productName = test1;
@@ -1107,6 +1219,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				D9A9D4722374EA7100E91CB8 /* PBXTargetDependency */,
 			);
 			name = test14;
 			productName = test1;
@@ -1124,6 +1237,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				D9A9D4752374EA7500E91CB8 /* PBXTargetDependency */,
 			);
 			name = test15;
 			productName = test1;
@@ -1141,6 +1255,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				D9A9D4782374EA7900E91CB8 /* PBXTargetDependency */,
 			);
 			name = Simplex1;
 			productName = test1;
@@ -1158,6 +1273,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				D9A9D47B2374EA7D00E91CB8 /* PBXTargetDependency */,
 			);
 			name = Simplex2;
 			productName = test1;
@@ -1175,6 +1291,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				D9A9D47E2374EA8000E91CB8 /* PBXTargetDependency */,
 			);
 			name = Simplex3;
 			productName = test1;
@@ -1192,6 +1309,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				D9A9D4812374EA8500E91CB8 /* PBXTargetDependency */,
 			);
 			name = Simplex4;
 			productName = test1;
@@ -1439,6 +1557,86 @@
 			isa = PBXTargetDependency;
 			target = D94CEC152371B541001067BF /* Alglin */;
 			targetProxy = D91BB08A2371C552009E068C /* PBXContainerItemProxy */;
+		};
+		D9A9D4542374EA1B00E91CB8 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D94CEC152371B541001067BF /* Alglin */;
+			targetProxy = D9A9D4532374EA1B00E91CB8 /* PBXContainerItemProxy */;
+		};
+		D9A9D4572374EA4B00E91CB8 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D94CEC152371B541001067BF /* Alglin */;
+			targetProxy = D9A9D4562374EA4B00E91CB8 /* PBXContainerItemProxy */;
+		};
+		D9A9D45A2374EA4F00E91CB8 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D94CEC152371B541001067BF /* Alglin */;
+			targetProxy = D9A9D4592374EA4F00E91CB8 /* PBXContainerItemProxy */;
+		};
+		D9A9D45D2374EA5200E91CB8 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D94CEC152371B541001067BF /* Alglin */;
+			targetProxy = D9A9D45C2374EA5200E91CB8 /* PBXContainerItemProxy */;
+		};
+		D9A9D4602374EA5A00E91CB8 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D94CEC152371B541001067BF /* Alglin */;
+			targetProxy = D9A9D45F2374EA5A00E91CB8 /* PBXContainerItemProxy */;
+		};
+		D9A9D4632374EA5E00E91CB8 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D94CEC152371B541001067BF /* Alglin */;
+			targetProxy = D9A9D4622374EA5E00E91CB8 /* PBXContainerItemProxy */;
+		};
+		D9A9D4662374EA6200E91CB8 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D94CEC152371B541001067BF /* Alglin */;
+			targetProxy = D9A9D4652374EA6200E91CB8 /* PBXContainerItemProxy */;
+		};
+		D9A9D4692374EA6500E91CB8 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D94CEC152371B541001067BF /* Alglin */;
+			targetProxy = D9A9D4682374EA6500E91CB8 /* PBXContainerItemProxy */;
+		};
+		D9A9D46C2374EA6900E91CB8 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D94CEC152371B541001067BF /* Alglin */;
+			targetProxy = D9A9D46B2374EA6900E91CB8 /* PBXContainerItemProxy */;
+		};
+		D9A9D46F2374EA6E00E91CB8 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D94CEC152371B541001067BF /* Alglin */;
+			targetProxy = D9A9D46E2374EA6E00E91CB8 /* PBXContainerItemProxy */;
+		};
+		D9A9D4722374EA7100E91CB8 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D94CEC152371B541001067BF /* Alglin */;
+			targetProxy = D9A9D4712374EA7100E91CB8 /* PBXContainerItemProxy */;
+		};
+		D9A9D4752374EA7500E91CB8 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D94CEC152371B541001067BF /* Alglin */;
+			targetProxy = D9A9D4742374EA7500E91CB8 /* PBXContainerItemProxy */;
+		};
+		D9A9D4782374EA7900E91CB8 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D94CEC152371B541001067BF /* Alglin */;
+			targetProxy = D9A9D4772374EA7900E91CB8 /* PBXContainerItemProxy */;
+		};
+		D9A9D47B2374EA7D00E91CB8 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D94CEC152371B541001067BF /* Alglin */;
+			targetProxy = D9A9D47A2374EA7D00E91CB8 /* PBXContainerItemProxy */;
+		};
+		D9A9D47E2374EA8000E91CB8 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D94CEC152371B541001067BF /* Alglin */;
+			targetProxy = D9A9D47D2374EA8000E91CB8 /* PBXContainerItemProxy */;
+		};
+		D9A9D4812374EA8500E91CB8 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D94CEC152371B541001067BF /* Alglin */;
+			targetProxy = D9A9D4802374EA8500E91CB8 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 

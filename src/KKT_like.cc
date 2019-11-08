@@ -37,9 +37,8 @@ namespace alglin {
   template <typename t_Value>
   void
   KKT<t_Value>::allocate( integer _n, integer _m ) {
-    ALGLIN_ASSERT(
-      _n > 0 && _m > 0,
-      "KKT::allocate( " << _n << "," << _m << ")  bad dimension"
+    LW_ASSERT(
+      _n > 0 && _m > 0, "KKT::allocate( {}, {} ) bad dimension", _n, _m
     );
     if ( n != _n || m != _m ) {
       n = _n;
@@ -88,9 +87,8 @@ namespace alglin {
     integer         ldA,
     bool            transposed
   ) {
-    ALGLIN_ASSERT(
-      ldA >= n,
-      "KKT::load_A bad ldA = " << ldA << " must be >= " << n
+    LW_ASSERT(
+      ldA >= n, "KKT::load_A bad ldA = {} must be >= {}", ldA, n
     );
     pAsolver = &A_LU;
     A_LU.allocate(n,n);
@@ -118,10 +116,10 @@ namespace alglin {
      for ( integer k = 0; k < B_nnz; ++k ) {
        integer i = B_row[k]+r_offs;
        integer j = B_col[k]+c_offs;
-       ALGLIN_ASSERT(
+       LW_ASSERT(
          i >= 0 && i < n && j >= 0 && j < m,
-         "KKT::load_B bad index (i,j) = (" << i << "," << j << ") at position " << k
-        );
+         "KKT::load_B bad index (i,j) = ({},{}) at position {}", i, j, k
+       );
        Zmat[ i + n * j ] += B_values[k];
      }
   }
@@ -137,17 +135,14 @@ namespace alglin {
     bool            transposed
   ) {
     if ( transposed ) {
-      ALGLIN_ASSERT(
-        ldB >= m,
-        "KKT::load_B bad ldB = " << ldB << " must be >= " << m
+      LW_ASSERT(
+        ldB >= m, "KKT::load_B bad ldB = {} must be >= {}", ldB,  m
       );
       for ( integer i = 0; i < n; ++i )
         copy( m, B+i, n, Zmat+i*n, 1 );
     } else {
       integer info = gecopy( n, m, B, ldB, Zmat, n );
-      ALGLIN_ASSERT(
-        info == 0, "KKT::load_B bad call gecopy, info = " << info
-      );
+      LW_ASSERT( info == 0, "KKT::load_B bad call gecopy, info = {}", info );
     }
   }
 
@@ -166,9 +161,9 @@ namespace alglin {
     for ( integer k = 0; k < C_nnz; ++k ) {
       integer i = C_row[k]+r_offs;
       integer j = C_col[k]+c_offs;
-      ALGLIN_ASSERT(
+      LW_ASSERT(
         i >= 0 && i < m && j >= 0 && j < n,
-        "KKT::load_C bad index (i,j) = (" << i << "," << j << ") at position " << k
+        "KKT::load_C bad index (i,j) = ({},{}) at position {}", i, j, k
       );
       Cmat[ i + m * j ] += C_values[k];
     }
@@ -185,15 +180,15 @@ namespace alglin {
     bool            transposed
   ) {
     if ( transposed ) {
-      ALGLIN_ASSERT(
-        ldC >= n, "KKT::load_C bad ldC = " << ldC << " must be >= " << n
+      LW_ASSERT(
+        ldC >= n, "KKT::load_C bad ldC = {} must be >= {}", ldC, n
       );
       for ( integer i = 0; i < m; ++i )
         copy( n, C+i, m, Cmat+i*m, 1 );
     } else {
       integer info = gecopy( m, n, C, ldC, Cmat, m );
-      ALGLIN_ASSERT(
-        info == 0, "KKT::load_C bad call gecopy, info = " << info
+      LW_ASSERT(
+        info == 0, "KKT::load_C bad call gecopy, info = {}", info
       );
     }
   }
@@ -215,9 +210,9 @@ namespace alglin {
     for ( integer k = 0; k < D_nnz; ++k ) {
       integer i = D_row[k]+r_offs;
       integer j = D_col[k]+c_offs;
-      ALGLIN_ASSERT(
+      LW_ASSERT(
         i >= 0 && i < m && j >= 0 && j < m,
-        "KKT::load_D bad index (i,j) = (" << i << "," << j << ") at position " << k
+        "KKT::load_D bad index (i,j) = ({},{}) at position {}", i, j, k
       );
       Wmat[ i + m * j ] += D_values[k];
       if ( is_symmetric_D && i == j )
@@ -235,18 +230,14 @@ namespace alglin {
     integer         ldD,
     bool            transposed
   ) {
-    ALGLIN_ASSERT(
-      ldD >= m, "KKT::load_D bad ldD = " << ldD << " must be >= " << m
-    );
+    LW_ASSERT( ldD >= m, "KKT::load_D bad ldD = {} must be >= {}", ldD, m );
     valueType * Wmat = W_LU.Apointer();
     if ( transposed ) {
       for ( integer i = 0; i < m; ++i )
         copy( m, D+i, m, Wmat+i*m, 1 );
     } else {
       integer info = gecopy( m, m, D, ldD, Wmat, m );
-      ALGLIN_ASSERT(
-        info == 0, "KKT::load_C bad call gecopy, info = " << info
-      );
+      LW_ASSERT( info == 0, "KKT::load_C bad call gecopy, info = {}", info );
     }
   }
 

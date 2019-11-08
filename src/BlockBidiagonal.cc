@@ -63,28 +63,31 @@ namespace alglin {
     integer num_extra_i
   ) {
 
-    ALGLIN_ASSERT(
+    LW_ASSERT(
       _numInitialBC  >= 0 && _numFinalBC      >= 0 &&
       _numCyclicBC   >= 0 && _numInitialOMEGA >= 0 &&
       _numFinalOMEGA >= 0 && _numCyclicOMEGA  >= 0,
-      "Bad BC specification:" <<
-      "\nnumInitialBC    = " << _numInitialBC <<
-      "\nnumFinalBC      = " << _numFinalBC <<
-      "\nnumCyclicBC     = " << _numCyclicBC <<
-      "\nnumInitialOMEGA = " << _numInitialOMEGA <<
-      "\nnumFinalOMEGA   = " << _numFinalOMEGA <<
-      "\nnumCyclicOMEGA  = " << _numCyclicOMEGA
+      "Bad BC specification:"
+      "\nnumInitialBC    = {}"
+      "\nnumFinalBC      = {}"
+      "\nnumCyclicBC     = {}"
+      "\nnumInitialOMEGA = {}"
+      "\nnumFinalOMEGA   = {}"
+      "\nnumCyclicOMEGA  = {}",
+      _numInitialBC, _numFinalBC, _numCyclicBC, _numInitialOMEGA,
+      _numFinalOMEGA, _numCyclicOMEGA
     );
 
     q = _numInitialOMEGA + _numFinalOMEGA + _numCyclicOMEGA;
 
-    ALGLIN_ASSERT(
+    LW_ASSERT(
       _numInitialBC + _numFinalBC + _numCyclicBC == _n+q,
-      "Bad BC specification:" <<
-      "\nnumInitialBC    = " << _numInitialBC <<
-      "\nnumFinalBC      = " << _numFinalBC   <<
-      "\nnumCyclicBC     = " << _numCyclicBC  <<
-      "\nnumInitialOMEGA + numFinalOMEGA + numCyclicOMEGA must be = " << _n+q
+      "Bad BC specification:"
+      "\nnumInitialBC    = {}"
+      "\nnumFinalBC      = {}"
+      "\nnumCyclicBC     = {}"
+      "\nnumInitialOMEGA + numFinalOMEGA + numCyclicOMEGA must be = {}",
+      _numInitialBC, _numFinalBC, _numCyclicBC, _n+q
     );
 
     numInitialBC    = _numInitialBC;
@@ -209,10 +212,10 @@ namespace alglin {
     valueType const blockN_in[], integer ldN
   ) {
 
-    ALGLIN_ASSERT(
+    LW_ASSERT(
       numCyclicBC == 0 && numCyclicOMEGA == 0,
-      "in loadTopBottom numCyclicBC = " << numCyclicBC <<
-      " and numCyclicOMEGA = " << numCyclicOMEGA << " must be both zero!"
+      "in loadTopBottom numCyclicBC = {} and numCyclicOMEGA = {} must be both zero!",
+      numCyclicBC, numCyclicOMEGA
     );
 
     integer row0 = numInitialBC;
@@ -747,10 +750,10 @@ namespace alglin {
       }
     }
 
-    ALGLIN_ASSERT(
+    LW_ASSERT(
       kkk == sparseNnz(),
-      "BlockBidiagonal::sparsePattern( V ), inserted " << kkk <<
-      " values, expected " << sparseNnz()
+      "BlockBidiagonal::sparsePattern( V ), inserted {} values, expected {}",
+      kkk, sparseNnz()
     );
   }
 
@@ -817,10 +820,10 @@ namespace alglin {
       for ( integer j = 0; j < nb; ++j )
         V[kkk++] = Dmat[i+j*nb];
 
-    ALGLIN_ASSERT(
+    LW_ASSERT(
       kkk == sparseNnz(),
-      "BlockBidiagonal::sparseValues( V ), inserted " << kkk <<
-      " values, expected " << sparseNnz()
+      "BlockBidiagonal::sparseValues( V ), inserted {} values, expected {}",
+      kkk, sparseNnz()
     );
 
   }

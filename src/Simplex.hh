@@ -173,19 +173,17 @@ namespace Simplex {
     SIMPLEX_API_DLL
     void
     info( ostream_type & stream ) {
-      stream
-        << std::setw(14) << "Flag"
-        << std::setw(14) << "Lower"
-        << std::setw(14) << "Upper"
-        << std::setw(14) << "Flag"
-        << "\n";
+      fmt::print(
+        stream, "{:14} {:14} {:14} {:14}\n",
+        "Flag", "Lower", "Upper", "Flag"
+      );
       for ( integer i = 0; i < dim_x(); ++i )
-        stream
-          << std::setw(14) << (Lower_is_free(i)?"Free":"Bounded")
-          << std::setw(14) << Lower(i)
-          << std::setw(14) << Upper(i)
-          << std::setw(14) << (Upper_is_free(i)?"Free":"Bounded")
-          << "\n";
+        fmt::print(
+          stream, "{:14} {:14.5} {:14.5} {:14}\n",
+          (Lower_is_free(i)?"Free":"Bounded"),
+          Lower(i), Upper(i),
+          (Upper_is_free(i)?"Free":"Bounded")
+        );
     }
   };
 
@@ -262,19 +260,17 @@ namespace Simplex {
     SIMPLEX_API_DLL
     void
     info( ostream_type & stream ) {
-      stream
-        << std::setw(14) << "Flag"
-        << std::setw(14) << "Lower"
-        << std::setw(14) << "Upper"
-        << std::setw(14) << "Flag"
-        << "\n";
+      fmt::print(
+        stream, "{:14} {:14} {:14} {:14}\n",
+        "Flag", "Lower", "Upper", "Flag"
+      );
       for ( integer i = 0; i < dim_x()+dim_x(); ++i )
-        stream
-          << std::setw(14) << (Lower_is_free(i)?"Free":"Bounded")
-          << std::setw(14) << Lower(i)
-          << std::setw(14) << Upper(i)
-          << std::setw(14) << (Upper_is_free(i)?"Free":"Bounded")
-          << "\n";
+        fmt::print(
+          stream, "{:14} {:14.5} {:14.5} {:14}\n",
+          (Lower_is_free(i)?"Free":"Bounded"),
+          Lower(i), Upper(i),
+          (Upper_is_free(i)?"Free":"Bounded")
+        );
     }
 
   };
@@ -826,10 +822,12 @@ namespace Simplex {
       \param eps
     \*/
     void
-    solve( StandardProblemBase * _problem,
-           valueType x[],
-           integer   IB[],
-           valueType eps = relaxedEpsilon );
+    solve(
+      StandardProblemBase * _problem,
+      valueType             x[],
+      integer               IB[],
+      valueType             eps = relaxedEpsilon
+    );
 
   };
 

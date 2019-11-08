@@ -477,12 +477,12 @@ namespace Simplex {
     SIMPLEX_ASSERT(
       IB[0] >= 0 && IB[m-1] < n,
       "Error in Simplex: Wrong Basis index set"
-    );
+    )
     for ( integer i = 1; i < m; ++i ) {
       SIMPLEX_ASSERT(
         IB[i-1] != IB[i],
         "Error in Simplex: Duplicated index in basis index set"
-      );
+      )
     }
 
     integer ib = 0;
@@ -490,7 +490,7 @@ namespace Simplex {
     for ( integer i = 0; i < n; ++i ) {
       while ( ib < m && IB[ib] < i ) ++ib;
       if ( ib == m || IB[ib] != i ) IN[in++] = i;
-      SIMPLEX_ASSERT( in <= nm, "Bad non basis index construction" );
+      SIMPLEX_ASSERT( in <= nm, "Bad non basis index construction" )
     }
 
     if ( n == m ) { // trivial solution
@@ -513,7 +513,7 @@ namespace Simplex {
           "Error in Simplex: Infeasible solution x[" << i <<
           "] = " << x[i] << " not in [" <<
           Lstring(i) << "," << Ustring(i) << "]"
-        );
+        )
       }
     }
 

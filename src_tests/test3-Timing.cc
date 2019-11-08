@@ -526,8 +526,8 @@ testCopyAll() {
 
 int
 main() {
-  //testMvAll();
-  //testMMall();
+  testMvAll();
+  testMMall();
   testCopyAll();
   fmt::print("\n\nAll done!\n");
   return 0;

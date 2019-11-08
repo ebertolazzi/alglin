@@ -91,11 +91,13 @@ namespace alglin {
         break;
 
       default:
-        ALGLIN_ERROR( "finite_difference_gradient::fd_gradient = " <<
-                      fd_gradient << " must be in {-1, 0, 1}" );
+        LW_ERROR(
+          "finite_difference_gradient::fd_gradient = {} must be in {{-1, 0, 1}}",
+          fd_gradient
+        );
       }
       X[i] = temp; // restore i position
-      ok = isRegular(grad[i]);
+      ok   = isRegular(grad[i]);
     }
     return ok;
   }
@@ -138,12 +140,10 @@ namespace alglin {
         Number scale = std::max(eps,std::max(std::abs(gradi),std::abs(grad[i])));
         Number err   = std::abs(gradi-grad[i]);
         if ( err > epsi*std::max(Number(1),scale) ) {
-          stream
-            << "grad[" << std::setw(3) << i << "] = "
-            << std::setw(14) << grad[i] << " [A] --- "
-            << std::setw(14) << gradi   << " [FD]  err = "
-            << std::setw(14) << err << "  err (%) = "
-            << 100*err/scale << '\n';
+          fmt::print( stream,
+            "grad[{:3}] = {:14.5} [A] --- {:14.5} [FD]  err = {:14.5} err (%) {:8.4}\n",
+            i, grad[i], gradi, err, 100*err/scale
+          );
         }
       }
     }
@@ -231,8 +231,10 @@ namespace alglin {
         break;
 
       default:
-        ALGLIN_ERROR( "finite_difference_jacobian::fd_gradient = " <<
-                      fd_jacobian << " must be in {-1, 0, 1}" );
+        LW_ERROR(
+          "finite_difference_jacobian::fd_gradient = {} must be in {{-1, 0, 1}}",
+          fd_jacobian
+        );
       }
       X[j] = temp; // modify the vector only at i position
       if ( ok ) ok = isRegular(pjac,dim_f);
@@ -287,13 +289,10 @@ namespace alglin {
         Number scale = std::max(eps,std::max(std::abs(d),std::abs(pjac[i])));
         Number err   = std::abs(d-pjac[i]);
         if ( err > epsi*std::max(Number(1),scale) ) {
-          stream
-            << "jac[" << std::setw(3) << i << ", "
-            << std::setw(3)  << j       << "] = "
-            << std::setw(14) << pjac[i] << " [A] --- "
-            << std::setw(14) << d       << " [FD]  err = "
-            << std::setw(14) << err     << "  err (%) = "
-            << 100*err/scale << '\n';
+          fmt::print( stream,
+            "jac[{:3},{:3}] = {:14.5} [A] --- {:14.5} [FD]  err = {:14.5} err (%) {:8.4}\n",
+            i, j, pjac[i], d, err, 100*err/scale
+          );
         }
       }
 
@@ -404,12 +403,10 @@ namespace alglin {
       scale = std::max(eps,std::max(std::abs(dd),std::abs(dde)));
       err   = std::abs(dd-dde);
       if ( err > epsi*std::max(Number(1),scale) ) {
-        stream << "Hess[" << std::setw(3) << j << ", "
-               << std::setw(3) << j << "] = "
-               << std::setw(14) << dde << " [A] --- "
-               << std::setw(14) << dd << " [FD]  err = "
-               << std::setw(14) << err << "  err (%) = "
-               << 100*err/scale << '\n';
+        fmt::print( stream,
+          "Hess[{:3},{:3}] = {:14.5} [A] --- {:14.5} [FD]  err = {:14.5}  err (%) = {:8.4}\n",
+          j, j, dde, dd, err, 100*err/scale
+        );
       }
 
       for ( integer i = j+1; i < dim_x && ok; ++i ) {
@@ -437,20 +434,18 @@ namespace alglin {
         scale = std::max(eps,std::max(std::abs(dd),std::abs(ddij)));
         err   = std::abs(dd-ddij);
         if ( err > epsi*std::max(Number(1),scale) ) {
-          stream << "Hess[" << std::setw(3) << i << ", " << std::setw(3) << j
-                 << "] = " << std::setw(14) << ddij << " [A] --- "
-                 << std::setw(14) << dd << " [FD]  err = "
-                 << std::setw(14) << err << "  err (%) = "
-                 << 100*err/scale << '\n';
+          fmt::print( stream,
+            "Hess[{:3},{:3}] = {:14.5} [A] --- {:14.5} [FD]  err = {:14.5}  err (%) = {:8.4}\n",
+            i, j, ddij, dd, err, 100*err/scale
+          );
         }
         scale = std::max(eps,std::max(std::abs(dd),std::abs(ddji)));
         err   = std::abs(dd-ddji);
         if ( err > epsi*std::max(Number(1),scale) ) {
-          stream << "Hess[" << std::setw(3) << j << ", " << std::setw(3) << i
-                 << "] = " << std::setw(14) << ddij << " [A] --- "
-                 << std::setw(14) << dd << " [FD]  err = "
-                 << std::setw(14) << err << "  err (%) = "
-                 << 100*err/scale << '\n';
+          fmt::print( stream,
+            "Hess[{:3},{:3}] = {:14.5} [A] --- {:14.5} [FD]  err = {:14.5}  err (%) = {:8.4}\n",
+            j, i, ddij, dd, err, 100*err/scale
+          );
         }
       skip2:
         X[i] = tempi;

@@ -196,10 +196,10 @@ main() {
   alglin::axpy( N, -1.0, x, 1, xref1, 1 );
   valueType err = alglin::absmax( N, xref1, 1 );
   fmt::print("Check |err|_inf = {:10.5}\n",err);
-  ALGLIN_ASSERT( err < 1e-8, "test failed!" );
+  LW_ASSERT0( err < 1e-8, "test failed!" );
   err = alglin::asum( N, xref1, 1 )/N;
   fmt::print("Check |err|_1/N = {:10.5}\n",err);
-  ALGLIN_ASSERT( err < 1e-8, "test failed!" );
+  LW_ASSERT0( err < 1e-8, "test failed!" );
 
   std::copy( rhs, rhs+2*N, x );
   tm.tic();
@@ -244,10 +244,10 @@ main() {
   alglin::axpy( N, -1.0, x, 1, xref1, 1 );
   err = alglin::absmax( N, xref1, 1 );
   fmt::print("Check |err|_inf = {:10.5}\n",err);
-  ALGLIN_ASSERT( err < 1e-8, "test failed!" );
+  LW_ASSERT0( err < 1e-8, "test failed!" );
   err = alglin::asum( N, xref1, 1 )/N;
   fmt::print("Check |err|_1/N = {:10.5}\n",err);
-  ALGLIN_ASSERT( err < 1e-8, "test failed!" );
+  LW_ASSERT0( err < 1e-8, "test failed!" );
 
   fmt::print("\n\ncheck residual\n\n");
 
@@ -259,13 +259,13 @@ main() {
 
   valueType res = alglin::nrm2( BCR_SAVED.numRows(), resid, 1 );
   fmt::print("||res||_2   = {:10.5}\n",res);
-  ALGLIN_ASSERT( res < 1e-6, "test failed!" );
+  LW_ASSERT0( res < 1e-6, "test failed!" );
   res = alglin::asum( BCR_SAVED.numRows(), resid, 1 );
   fmt::print("||res||_1   = {:10.5}\n",res);
-  ALGLIN_ASSERT( res < 1e-6, "test failed!" );
+  LW_ASSERT0( res < 1e-6, "test failed!" );
   res = alglin::absmax( BCR_SAVED.numRows(), resid, 1 );
   fmt::print("||res||_inf = {:10.5}\n",res);
-  ALGLIN_ASSERT( res < 1e-6, "test failed!" );
+  LW_ASSERT0( res < 1e-6, "test failed!" );
 
   fmt::print("All done!\n");
 
