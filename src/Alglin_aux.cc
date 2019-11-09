@@ -434,7 +434,7 @@ namespace alglin {
     T                   /* AMAX   */,
     EquilibrationType & /* equ    */
   ) {
-    ALGLIN_ERROR("NOT YET IMPLEMENTED" );
+    LW_ERROR0("NOT YET IMPLEMENTED" );
   }
 
   template void laqge_tmpl(
