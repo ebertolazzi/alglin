@@ -25,6 +25,7 @@
 #include "Alglin_Config.hh"
 #include "Alglin_aux.hh"
 #include "BABD_BorderedCR.hh"
+#include "BABD_BorderedCR_eigen3.hh"
 
 #ifdef __GNUC__ 
 #pragma GCC diagnostic push
@@ -55,7 +56,8 @@ rand( valueType xmin, valueType xmax ) {
 int
 main() {
 
-  alglin::BorderedCR<double> BCR(4), BCR_SAVED(4);
+  //alglin::BorderedCR<double> BCR(4), BCR_SAVED(4);
+  alglin::BorderedCR_eigen3<double> BCR(4), BCR_SAVED(4);
 
   //#define NSIZE 10
   #define NSIZE 40

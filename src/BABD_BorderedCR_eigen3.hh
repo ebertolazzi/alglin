@@ -17,11 +17,12 @@
  |                                                                          |
 \*--------------------------------------------------------------------------*/
 
-#ifndef BABD_BORDERED_CR_HH
-#define BABD_BORDERED_CR_HH
+#ifndef BABD_BORDERED_CR_EIGEN3_HH
+#define BABD_BORDERED_CR_EIGEN3_HH
 
 #include "Alglin_Config.hh"
 #include "Alglin_SuperLU.hh"
+#include "Alglin_Eigen.hh"
 
 #include <iostream>
 
@@ -104,15 +105,14 @@ namespace alglin {
   \*/
 
   template <typename t_Value>
-  class BorderedCR : public LinearSystemSolver<t_Value> {
+  class BorderedCR_eigen3 : public LinearSystemSolver<t_Value> {
   public:
     typedef t_Value valueType;
 
     typedef enum {
       BORDERED_LU      = 0,
       BORDERED_QR      = 1,
-      BORDERED_QRP     = 3,
-      BORDERED_SUPERLU = 4
+      BORDERED_QRP     = 3
     } BORDERED_Choice;
 
     typedef enum {
@@ -126,8 +126,8 @@ namespace alglin {
     } BORDERED_LAST_Choice;
 
   private:
-    BorderedCR(BorderedCR const &);
-    BorderedCR const & operator = (BorderedCR const &);
+    BorderedCR_eigen3(BorderedCR_eigen3 const &);
+    BorderedCR_eigen3 const & operator = (BorderedCR_eigen3 const &);
 
   protected:
 
@@ -150,21 +150,6 @@ namespace alglin {
     integer nr_x_nx;
     integer Nr, Nc;
     integer Tsize;
-
-    // for SuperLU =====================
-    int * slu_perm_r; // row permutations from partial pivoting
-    int * slu_perm_c; // column permutation vector
-    int * slu_etree;
-
-    superlu_options_t     slu_options;
-    mutable SuperLUStat_t slu_stats;
-    mutable SuperMatrix   slu_A, slu_AC, slu_L, slu_U; // messo mutable per zittire warning
-
-    #if defined(SUPERLU_MAJOR_VERSION) && SUPERLU_MAJOR_VERSION >= 5
-    mutable GlobalLU_t    slu_glu;
-    #endif
-
-    // for SuperLU ===================== END
 
     BORDERED_LAST_Choice last_selected;
     BORDERED_Choice      selected;
@@ -328,7 +313,7 @@ namespace alglin {
     LSS<valueType>  last_lss;
     LSY<valueType>  last_lsy;
 
-    integer      *iBlock, *kBlock;
+    integer *iBlock, *kBlock;
 
     // used also with a unique thread
     integer maxThread, usedThread;
@@ -345,10 +330,10 @@ namespace alglin {
 
     #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
     explicit
-    BorderedCR( integer nth = integer(std::thread::hardware_concurrency()) )
+    BorderedCR_eigen3( integer nth = integer(std::thread::hardware_concurrency()) )
     #else
     explicit ALGLIN_CONSTEXPR
-    BorderedCR()
+    BorderedCR_eigen3()
     #endif
     : baseValue("BorderedCR_values")
     , baseInteger("BorderedCR_integers")
@@ -402,7 +387,7 @@ namespace alglin {
     }
 
     virtual
-    ~BorderedCR() ALGLIN_OVERRIDE
+    ~BorderedCR_eigen3() ALGLIN_OVERRIDE
     {}
 
     //! load matrix in the class
@@ -417,17 +402,16 @@ namespace alglin {
     );
 
     void
-    dup( BorderedCR const & );
+    dup( BorderedCR_eigen3 const & );
 
     /*!
      | \name Select Linar Algebra solver
      | @{
     \*/
 
-    void select_LU()      { selected = BORDERED_LU; }
-    void select_QR()      { selected = BORDERED_QR; }
-    void select_QRP()     { selected = BORDERED_QRP; }
-    void select_SUPERLU() { selected = BORDERED_SUPERLU; }
+    void select_LU()  { selected = BORDERED_LU; }
+    void select_QR()  { selected = BORDERED_QR; }
+    void select_QRP() { selected = BORDERED_QRP; }
 
     void select_last_LU()   { last_selected = BORDERED_LAST_LU;   }
     void select_last_LUPQ() { last_selected = BORDERED_LAST_LUPQ; }
@@ -442,10 +426,9 @@ namespace alglin {
     choice_to_string( BORDERED_Choice c ) {
       std::string res = "none";
       switch ( c ) {
-      case BORDERED_LU:      res = "CyclicReduction+LU";         break;
-      case BORDERED_QR:      res = "CyclicReduction+QR";         break;
-      case BORDERED_QRP:     res = "CyclicReduction+QRP";        break;
-      case BORDERED_SUPERLU: res = "SuperLU(LastBlock ignored)"; break;
+      case BORDERED_LU:  res = "CyclicReduction+LU";  break;
+      case BORDERED_QR:  res = "CyclicReduction+QR";  break;
+      case BORDERED_QRP: res = "CyclicReduction+QRP"; break;
       }
       return res;
     }
@@ -898,17 +881,7 @@ namespace alglin {
      | @}
     \*/
 
-    void factorize_SuperLU();
-    void factorize_CR();
-
-    void
-    factorize() {
-      if ( selected == BORDERED_SUPERLU ) {
-        this->factorize_SuperLU();
-      } else {
-        this->factorize_CR();
-      }
-    }
+    void factorize();
 
     /*\
      |         _      _               _
@@ -920,29 +893,11 @@ namespace alglin {
 
     virtual
     void
-    solve( valueType x[] ) const ALGLIN_OVERRIDE {
-      if ( selected == BORDERED_SUPERLU ) {
-        solve_SuperLU( x );
-      } else {
-        solve_CR( x );
-      }
-    }
-
-    void solve_SuperLU( valueType x[] ) const;
-    void solve_CR( valueType x[] ) const;
+    solve( valueType x[] ) const ALGLIN_OVERRIDE;
 
     virtual
     void
-    solve( integer nrhs, valueType rhs[], integer ldRhs ) const ALGLIN_OVERRIDE {
-      if ( selected == BORDERED_SUPERLU ) {
-        solve_SuperLU( nrhs, rhs, ldRhs );
-      } else {
-        solve_CR( nrhs, rhs, ldRhs );
-      }
-    }
-
-    void solve_SuperLU( integer nrhs, valueType rhs[], integer ldRhs ) const;
-    void solve_CR( integer nrhs, valueType rhs[], integer ldRhs ) const;
+    solve( integer nrhs, valueType rhs[], integer ldRhs ) const ALGLIN_OVERRIDE;
 
     virtual
     void
@@ -1013,8 +968,8 @@ namespace alglin {
   #pragma clang diagnostic ignored "-Wweak-template-vtables"
   #endif
 
-  extern template class BorderedCR<float>;
-  extern template class BorderedCR<double>;
+  extern template class BorderedCR_eigen3<float>;
+  extern template class BorderedCR_eigen3<double>;
 
   #ifdef __clang__
   #pragma clang diagnostic pop

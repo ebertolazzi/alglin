@@ -138,6 +138,8 @@
 		D94CEDD42371B9BA001067BF /* Simplex-Test2.cc in Sources */ = {isa = PBXBuildFile; fileRef = D94CEC9A2371B696001067BF /* Simplex-Test2.cc */; };
 		D94CEDD52371B9BC001067BF /* Simplex-Test3.cc in Sources */ = {isa = PBXBuildFile; fileRef = D94CEC982371B696001067BF /* Simplex-Test3.cc */; };
 		D94CEDD62371B9BF001067BF /* Simplex-Test4.cc in Sources */ = {isa = PBXBuildFile; fileRef = D94CECA92371B696001067BF /* Simplex-Test4.cc */; };
+		D950EDB52377649B00676C50 /* BABD_BorderedCR_eigen3.cc in Sources */ = {isa = PBXBuildFile; fileRef = D950EDB32377649A00676C50 /* BABD_BorderedCR_eigen3.cc */; };
+		D950EDB62377649B00676C50 /* BABD_BorderedCR_eigen3.hh in Headers */ = {isa = PBXBuildFile; fileRef = D950EDB42377649B00676C50 /* BABD_BorderedCR_eigen3.hh */; };
 		D9A9D4522374EA1B00E91CB8 /* libAlglin.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CEC162371B541001067BF /* libAlglin.a */; };
 		D9A9D4552374EA4B00E91CB8 /* libAlglin.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CEC162371B541001067BF /* libAlglin.a */; };
 		D9A9D4582374EA4F00E91CB8 /* libAlglin.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CEC162371B541001067BF /* libAlglin.a */; };
@@ -541,6 +543,8 @@
 		D94CEDB62371B98C001067BF /* Simplex2 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Simplex2; sourceTree = BUILT_PRODUCTS_DIR; };
 		D94CEDC42371B98E001067BF /* Simplex3 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Simplex3; sourceTree = BUILT_PRODUCTS_DIR; };
 		D94CEDD22371B98F001067BF /* Simplex4 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Simplex4; sourceTree = BUILT_PRODUCTS_DIR; };
+		D950EDB32377649A00676C50 /* BABD_BorderedCR_eigen3.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BABD_BorderedCR_eigen3.cc; sourceTree = "<group>"; };
+		D950EDB42377649B00676C50 /* BABD_BorderedCR_eigen3.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = BABD_BorderedCR_eigen3.hh; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -837,12 +841,12 @@
 			children = (
 				D94CEC212371B551001067BF /* Alglin.hh */,
 				D94CEC372371B551001067BF /* Alglin_aux.hh */,
+				D94CEC312371B551001067BF /* Alglin_aux.cc */,
 				D94CEC382371B551001067BF /* Alglin_FD.hh */,
 				D94CEC392371B551001067BF /* Alglin_Eigen.hh */,
 				D94CEC1B2371B551001067BF /* Alglin_Config.hh */,
 				D94CEC3A2371B551001067BF /* Alglin_SuperLU.hh */,
 				D94CEC352371B551001067BF /* Alglin_threads.hh */,
-				D94CEC312371B551001067BF /* Alglin_aux.cc */,
 				D94CEC322371B551001067BF /* Alglin_tmpl.hh */,
 				D94CEC1C2371B551001067BF /* ABD_Diaz.hh */,
 				D94CEC292371B551001067BF /* ABD_Arceco.cc */,
@@ -852,12 +856,14 @@
 				D94CEC202371B551001067BF /* ABD_Block.hh */,
 				D94CEC262371B551001067BF /* BABD.hh */,
 				D94CEC272371B551001067BF /* BABD_Block.cc */,
+				D94CEC2F2371B551001067BF /* BABD_C_interface.h */,
 				D94CEC282371B551001067BF /* BABD_C_interface.cc */,
 				D94CEC332371B551001067BF /* BABD_SuperLU.cc */,
 				D94CEC362371B551001067BF /* BABD_SuperLU.hh */,
-				D94CEC2F2371B551001067BF /* BABD_C_interface.h */,
 				D94CEC2E2371B551001067BF /* BABD_BorderedCR.hh */,
 				D94CEC1F2371B551001067BF /* BABD_BorderedCR.cc */,
+				D950EDB32377649A00676C50 /* BABD_BorderedCR_eigen3.cc */,
+				D950EDB42377649B00676C50 /* BABD_BorderedCR_eigen3.hh */,
 				D94CEC1E2371B551001067BF /* BlockBidiagonal.cc */,
 				D94CEC222371B551001067BF /* BABD_Block.hh */,
 				D94CEC232371B551001067BF /* BABD.cc */,
@@ -930,6 +936,7 @@
 				D94CEC552371B551001067BF /* Alglin_threads.hh in Headers */,
 				D94CEC592371B551001067BF /* Alglin_Eigen.hh in Headers */,
 				D94CEC522371B551001067BF /* Alglin_tmpl.hh in Headers */,
+				D950EDB62377649B00676C50 /* BABD_BorderedCR_eigen3.hh in Headers */,
 				D94CEC462371B551001067BF /* BABD.hh in Headers */,
 				D94CEC5A2371B551001067BF /* Alglin_SuperLU.hh in Headers */,
 				D94CEC4F2371B551001067BF /* BABD_C_interface.h in Headers */,
@@ -1387,6 +1394,7 @@
 				D94CEC4A2371B551001067BF /* ABD_Diaz.cc in Sources */,
 				D94CEC3E2371B551001067BF /* BlockBidiagonal.cc in Sources */,
 				D94CEC512371B551001067BF /* Alglin_aux.cc in Sources */,
+				D950EDB52377649B00676C50 /* BABD_BorderedCR_eigen3.cc in Sources */,
 				D94CEC492371B551001067BF /* ABD_Arceco.cc in Sources */,
 				D94CEC4D2371B551001067BF /* ABD_Block.cc in Sources */,
 			);

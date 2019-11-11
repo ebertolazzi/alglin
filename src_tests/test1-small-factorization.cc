@@ -451,10 +451,12 @@ test7() {
     << "residual = "
     << lapack_wrapper::print_matrix( 1, M, b, 1 )
     << "\n\nDo QRP factorization of A\n";
-  qrp.allocate( M, M );
-  qrp.load_block( 2, 5, A,   LDA, 0, 0 );
-  qrp.load_block( 3, 5, A+2, LDA, 2, 0 );
-  qrp.factorize( "qrp" );
+
+  lapack_wrapper::Matrix<valueType> mat;
+  mat.setup( M, M );
+  mat.load_block( 2, 5, A,   LDA, 0, 0 );
+  mat.load_block( 3, 5, A+2, LDA, 2, 0 );
+  qrp.factorize( "qrp", mat );
 
   cout << "QRP solution of A x = b\n";
   lapack_wrapper::copy( M, rhs, 1, x, 1 );

@@ -67,15 +67,15 @@ namespace alglin {
     integer   const A_row[], integer r_offs,
     integer   const A_col[], integer c_offs,
     integer         A_nnz,
-    bool  is_symmetric
+    bool            is_symmetric
   ) {
     pAsolver = &A_LU;
-    A_LU.allocate(n,n);
+    A_LU_working.setup(n,n);
     if ( is_symmetric )
-      A_LU.load_sparse_sym( A_nnz, A_values, A_row, r_offs, A_col, c_offs );
+      A_LU_working.load_symmetric( r_offs, c_offs, A_row, A_col, A_values, A_nnz );
     else
-      A_LU.load_sparse( A_nnz, A_values, A_row, r_offs, A_col, c_offs );
-    A_LU.factorize( "KKT::load_A" );
+      A_LU_working.load( r_offs, c_offs, A_row, A_col, A_values, A_nnz );
+    A_LU.factorize( "KKT::load_A", A_LU_working );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -91,14 +91,14 @@ namespace alglin {
       ldA >= n, "KKT::load_A bad ldA = {} must be >= {}", ldA, n
     );
     pAsolver = &A_LU;
-    A_LU.allocate(n,n);
+    A_LU_working.setup(n,n);
     if ( transposed ) {
       for ( integer i = 0; i < n; ++i )
-        A_LU.load_row(A+i*ldA,i);
+        A_LU_working.load_row(A+i*ldA,i);
     } else {
-      A_LU.load_block(n,n,A,ldA);
+      A_LU_working.load_block(n,n,A,ldA);
     }
-    A_LU.factorize( "KKT::load_A" );
+    A_LU.factorize( "KKT::load_A", A_LU_working );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -205,8 +205,8 @@ namespace alglin {
     integer         D_nnz,
     bool            is_symmetric_D
   ) {
-    valueType * Wmat = W_LU.Apointer();
-    gezero( m, m, Wmat, m );
+    W_LU_working.setup(m,m);
+    W_LU_working.zero_fill();
     for ( integer k = 0; k < D_nnz; ++k ) {
       integer i = D_row[k]+r_offs;
       integer j = D_col[k]+c_offs;
@@ -214,9 +214,8 @@ namespace alglin {
         i >= 0 && i < m && j >= 0 && j < m,
         "KKT::load_D bad index (i,j) = ({},{}) at position {}", i, j, k
       );
-      Wmat[ i + m * j ] += D_values[k];
-      if ( is_symmetric_D && i == j )
-        Wmat[ j + m * i ] += D_values[k];
+      W_LU_working(i,j) += D_values[k];
+      if ( is_symmetric_D && i != j ) W_LU_working(j,i) += D_values[k];
      }
   }
 
@@ -231,14 +230,9 @@ namespace alglin {
     bool            transposed
   ) {
     LW_ASSERT( ldD >= m, "KKT::load_D bad ldD = {} must be >= {}", ldD, m );
-    valueType * Wmat = W_LU.Apointer();
-    if ( transposed ) {
-      for ( integer i = 0; i < m; ++i )
-        copy( m, D+i, m, Wmat+i*m, 1 );
-    } else {
-      integer info = gecopy( m, m, D, ldD, Wmat, m );
-      LW_ASSERT( info == 0, "KKT::load_C bad call gecopy, info = {}", info );
-    }
+    W_LU_working.setup(m,m);
+    if ( transposed ) W_LU_working.load_transposed( D, ldD );
+    else              W_LU_working.load( D, ldD );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -250,7 +244,6 @@ namespace alglin {
     // Z = A^(-1)*B
     // W = C*Z - D
     pAsolver->solve( m, Zmat, n );
-    valueType * Wmat = W_LU.Apointer();
     gemm(
       NO_TRANSPOSE,
       NO_TRANSPOSE,
@@ -259,9 +252,9 @@ namespace alglin {
       Cmat, m,
       Zmat, n,
       -1,
-      Wmat, m
+      W_LU_working.get_data(), m
     );
-    W_LU.factorize( "KKT<::factorize<W>" );
+    W_LU.factorize( "KKT<::factorize<W>", W_LU_working );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

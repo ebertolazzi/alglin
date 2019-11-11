@@ -494,13 +494,17 @@ namespace Simplex {
     }
 
     if ( n == m ) { // trivial solution
-      alglin::LU<valueType> lu; // qr decomposition manage class
+      alglin::Matrix<valueType> mat;
+      alglin::LU<valueType>     lu; // qr decomposition manage class
+      mat.setup( m, m );
+      mat.zero_fill();
       // select ALL the column of matrix A
       for ( integer j = 0; j < m; ++j ) {
         integer nnz = problem->load_A_column( j, values, i_row );
-        lu.load_sparse_column( nnz, values, i_row, j );
+        mat.load_sparse_column( nnz, values, i_row, j );
       }
-      lu.factorize( "StandardSolver::solve<lu>" );
+      lu.factorize( "StandardSolver::solve<lu>", mat );
+      
       problem->load_b( x );
       lu.t_solve( x );
       // check solution
@@ -517,8 +521,10 @@ namespace Simplex {
       }
     }
 
-    alglin::QRP<valueType> qr; // qr decomposition manage class
-    qr.allocate( m, m );
+    alglin::Matrix<valueType> qr_mat;
+    alglin::QRP<valueType>    qr; // qr decomposition manage class
+    qr_mat.setup( m, m );
+    qr_mat.zero_fill();
 
     // check basis
     for ( integer i = 0; i < m; ++i ) {
@@ -580,7 +586,7 @@ namespace Simplex {
       for ( integer i = 0; i < m; ++i ) {
         integer ibi = IB[i];
         integer nnz = problem->load_A_column( ibi, values, i_row );
-        qr.load_sparse_column( nnz, values, i_row, i );
+        qr_mat.load_sparse_column( nnz, values, i_row, i );
         y[i] = c[ibi];
       }
       if ( pStream != nullptr ) {
@@ -594,7 +600,7 @@ namespace Simplex {
       // 1.  QR decomposition of AB (without pivoting)
       // 2.  compute dual variable Y from  AB' * Y = CB  <=>  R' * Z = CB, Z = Q' * Y
       // 2B. compute Y = Q * Z
-      qr.factorize( "StandardSolver::solve<qr>" );
+      qr.factorize( "StandardSolver::solve<qr>", qr_mat );
       integer rank = qr.rankEstimate(relaxedEpsilon);
       SIMPLEX_ASSERT(
         rank == m,

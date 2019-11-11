@@ -114,12 +114,17 @@ namespace alglin {
     // solver for A block
     LSS const * pAsolver;
 
+    Matrix<t_Value> A_LU_working;
+    Matrix<t_Value> A_banded_working;
+    Matrix<t_Value> A_strid_working;
+
     LU<t_Value>                         A_LU;
     BandedLU<valueType>                 A_banded_LU;
     BlockTridiagonalSymmetic<valueType> A_strid_LDL;
 
     // sover for D block
-    LU<t_Value> W_LU;
+    Matrix<t_Value> W_LU_working;
+    LU<t_Value>     W_LU;
 
     valueType * Zmat;
     valueType * Cmat;
@@ -164,8 +169,9 @@ namespace alglin {
       mat.zero();
       gezero( n, m, this->Zmat, n );
       gezero( m, n, this->Cmat, m );
-      valueType * Wmat = W_LU.Apointer();
-      gezero( m, m, Wmat, m );
+
+      W_LU_working.setup( m, m );
+      W_LU_working.zero_fill();
 
       // load elements
       for ( integer k = 0; k < M_nnz; ++k ) {
@@ -194,14 +200,16 @@ namespace alglin {
         case 3: // D
           i -= n;
           j -= n;
-          Wmat[ i + m * j ] += v;
-          if ( M_is_symmetric && i != j ) Wmat[ j + m * i ] += v;
+          W_LU_working(i,j) += v;
+          if ( M_is_symmetric && i != j ) W_LU_working(j,i) += v;
           break;
         }
       }
     }
 
   public:
+
+    using LinearSystemSolver<t_Value>::factorize;
 
     explicit
     KKT()

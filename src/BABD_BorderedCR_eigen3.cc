@@ -17,8 +17,11 @@
  |                                                                          |
 \*--------------------------------------------------------------------------*/
 
-#include "BABD_BorderedCR.hh"
-#include "Alglin_Eigen.hh"
+#include "BABD_BorderedCR_eigen3.hh"
+
+#ifdef __clang__
+#pragma clang diagnostic ignored "-Wweak-template-vtables"
+#endif
 
 namespace alglin {
 
@@ -32,7 +35,7 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::allocate(
+  BorderedCR_eigen3<t_Value>::allocate(
     integer _nblock,
     integer _n,
     integer _qr,
@@ -122,7 +125,6 @@ namespace alglin {
     WorkT  = baseValue( size_t(LworkT*usedThread) );
     WorkQR = baseValue( size_t(LworkQR*usedThread) );
 
-
     Perm   = baseInteger( size_t(nblock*n) );
     iBlock = baseInteger( size_t(2*usedThread) );
     kBlock = baseInteger( size_t(usedThread) );
@@ -156,7 +158,7 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::dup( BorderedCR const & M ) {
+  BorderedCR_eigen3<t_Value>::dup( BorderedCR_eigen3 const & M ) {
     allocate( M.nblock, M.n, M.qr, M.qx, M.nr, M.nx );
     copy( nblock*n_x_nx,     M.Bmat,  1, Bmat,  1 );
     copy( (nblock+1)*nr_x_n, M.Cmat,  1, Cmat,  1 );
@@ -177,7 +179,7 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::info( ostream_type & stream ) const {
+  BorderedCR_eigen3<t_Value>::info( ostream_type & stream ) const {
     stream
       << "rows   = " << numRows() << '\n'
       << "cols   = " << numCols() << '\n'
@@ -199,7 +201,7 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::loadBottom(
+  BorderedCR_eigen3<t_Value>::loadBottom(
     valueType const H0[], integer ld0,
     valueType const HN[], integer ldN,
     valueType const Hq[], integer ldQ,
@@ -218,7 +220,7 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::loadBottom(
+  BorderedCR_eigen3<t_Value>::loadBottom(
     MatrixWrapper<valueType> const & H0,
     MatrixWrapper<valueType> const & HN,
     MatrixWrapper<valueType> const & Hq,
@@ -261,7 +263,7 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::loadBottom( MatrixWrapper<valueType> const & H ) {
+  BorderedCR_eigen3<t_Value>::loadBottom( MatrixWrapper<valueType> const & H ) {
     integer m = n + qr;
     LW_ASSERT(
       H.numRows() == m && H.numCols() == Nc,
@@ -273,7 +275,7 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::loadBottom2(
+  BorderedCR_eigen3<t_Value>::loadBottom2(
     valueType const C0[], integer ld0,
     valueType const CN[], integer ldN,
     valueType const Cq[], integer ldCq,
@@ -288,7 +290,7 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::loadBottom2(
+  BorderedCR_eigen3<t_Value>::loadBottom2(
     MatrixWrapper<valueType> const & C0,
     MatrixWrapper<valueType> const & CN,
     MatrixWrapper<valueType> const & Cq,
@@ -330,7 +332,7 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::loadBottom2( MatrixWrapper<valueType> const & H ) {
+  BorderedCR_eigen3<t_Value>::loadBottom2( MatrixWrapper<valueType> const & H ) {
     valueType const * ptr = H.get_data();
     integer           ld  = H.lDim();
     this->loadC(  0,      ptr, ld ); ptr += nr_x_n;
@@ -343,7 +345,7 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::loadB(
+  BorderedCR_eigen3<t_Value>::loadB(
     integer                          nbl,
     MatrixWrapper<valueType> const & B
   ) {
@@ -359,7 +361,7 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::addtoB(
+  BorderedCR_eigen3<t_Value>::addtoB(
     integer                          nbl,
     MatrixWrapper<valueType> const & B
   ) {
@@ -376,7 +378,7 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::loadC(
+  BorderedCR_eigen3<t_Value>::loadC(
     integer                          nbl,
     MatrixWrapper<valueType> const & C
   ) {
@@ -392,7 +394,7 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::addtoC(
+  BorderedCR_eigen3<t_Value>::addtoC(
     integer                          nbl,
     MatrixWrapper<valueType> const & C
   ) {
@@ -409,7 +411,7 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::addtoC2(
+  BorderedCR_eigen3<t_Value>::addtoC2(
     integer                          nbl,
     MatrixWrapper<valueType> const & C
   ) {
@@ -426,7 +428,7 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::loadD(
+  BorderedCR_eigen3<t_Value>::loadD(
     integer                          nbl,
     MatrixWrapper<valueType> const & D
   ) {
@@ -442,7 +444,7 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::loadE(
+  BorderedCR_eigen3<t_Value>::loadE(
     integer                          nbl,
     MatrixWrapper<valueType> const & E
   ) {
@@ -458,7 +460,7 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::loadF( MatrixWrapper<valueType> const & F ) {
+  BorderedCR_eigen3<t_Value>::loadF( MatrixWrapper<valueType> const & F ) {
     LW_ASSERT(
       F.numRows() == nr && F.numCols() == nx,
       "loadF(F) bad dimension size(F) = {} x {} expected {} x {}",
@@ -471,7 +473,7 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::addtoF( MatrixWrapper<valueType> const & F ) {
+  BorderedCR_eigen3<t_Value>::addtoF( MatrixWrapper<valueType> const & F ) {
     LW_ASSERT(
       F.numRows() == nr && F.numCols() == nx,
       "addtoF(F) bad dimension size(F) = {} x {} expected {} x {}",
@@ -484,7 +486,7 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::loadCq( MatrixWrapper<valueType> const & Cq ) {
+  BorderedCR_eigen3<t_Value>::loadCq( MatrixWrapper<valueType> const & Cq ) {
     LW_ASSERT(
       Cq.numRows() == nr && Cq.numCols() == qx,
       "loadCq(Cq) bad dimension size(Cq) = {} x {} expected {} x {}",
@@ -503,14 +505,14 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::factorize_CR() {
+  BorderedCR_eigen3<t_Value>::factorize() {
     #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
     if ( usedThread > 1 ) {
       // fill zero F(...)
       if ( nr_x_nx > 0 ) alglin::zero( nr_x_nx*(usedThread-1), Fmat + nr_x_nx, 1 );
       // launch thread
       for ( integer nt = 1; nt < usedThread; ++nt )
-        threads[nt] = std::thread( &BorderedCR<t_Value>::factorize_block, this, nt );
+        threads[nt] = std::thread( &BorderedCR_eigen3<t_Value>::factorize_block, this, nt );
       factorize_block(0);
       // wait thread
       for ( integer nt = 1; nt < usedThread; ++nt ) threads[nt].join();
@@ -534,7 +536,7 @@ namespace alglin {
   \*/
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::buildT(
+  BorderedCR_eigen3<t_Value>::buildT(
     integer         nth,
     valueType const TOP[],
     valueType const BOTTOM[],
@@ -558,11 +560,8 @@ namespace alglin {
         if ( info == 0 ) permutation_to_exchange( n, P, iperm );
       }
       break;
-    case BORDERED_SUPERLU:
-      LW_ERROR0( "BorderedCR::buildT, cannot be used with SUPERLU" );
-      break;
     }
-    LW_ASSERT( info == 0, "BorderedCR::factorize INFO = {}", info );
+    LW_ASSERT( info == 0, "BorderedCR_eigen3::factorize INFO = {}", info );
   }
 
   /*\
@@ -584,7 +583,7 @@ namespace alglin {
   \*/
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::applyT(
+  BorderedCR_eigen3<t_Value>::applyT(
     integer         nth,
     valueType const T[],
     integer   const iperm[],
@@ -602,8 +601,10 @@ namespace alglin {
     switch ( selected ) {
     case BORDERED_LU:
       info = swaps( ncol, W, n_x_2, 0, n-1, iperm, 1 );
-      LW_ASSERT( info == 0, "BorderedCR::applyT INFO = {}", info );
+      LW_ASSERT( info == 0, "BorderedCR_eigen3::applyT INFO = {}", info );
+      // TOP = L^(-1)*TOP
       trsm( LEFT, LOWER, NO_TRANSPOSE, UNIT, n, ncol, 1.0, T, n_x_2, W, n_x_2 );
+      // BOTTOM = BOTTOM - M * L^(-1)*TOP
       gemm(
         NO_TRANSPOSE, NO_TRANSPOSE,
         n, ncol, n,
@@ -624,9 +625,6 @@ namespace alglin {
         WorkQR+nth*LworkQR, LworkQR
       );
       break;
-    case BORDERED_SUPERLU:
-      LW_ERROR0( "BorderedCR::applyT, cannot be used with SUPERLU" );
-      break;
     }
     gecopy( n, ncol, W+n, n_x_2, TOP,    ldTOP );
     gecopy( n, ncol, W,   n_x_2, BOTTOM, ldBOTTOM );
@@ -636,7 +634,7 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::applyT(
+  BorderedCR_eigen3<t_Value>::applyT(
     integer         nth,
     valueType const T[],
     integer   const iperm[],
@@ -677,9 +675,6 @@ namespace alglin {
         WorkQR+nth*LworkQR, LworkQR
       );
       break;
-    case BORDERED_SUPERLU:
-      LW_ERROR0( "BorderedCR::applyT, cannot be used with SUPERLU" );
-      break;
     }
     LW_ASSERT( info == 0, "BorderedCR::applyT INFO = {}", info );
     memcpy( TOP,    W+n, nn );
@@ -699,7 +694,10 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::factorize_block( integer nth ) {
+  BorderedCR_eigen3<t_Value>::factorize_block( integer nth ) {
+
+    typedef Eigen::Matrix<t_Value,Eigen::Dynamic,Eigen::Dynamic> dmat_t;
+    typedef Eigen::Matrix<t_Value,Eigen::Dynamic,1>              dvec_t;
 
     integer iblock = iBlock[2*nth+0];
     integer eblock = iBlock[2*nth+1];
@@ -713,6 +711,7 @@ namespace alglin {
     integer   * P0    = Perm + iblock*n;
 
     valueType * Fmat_th = Fmat + nth * nr_x_nx;
+    Eigen::Map<dmat_t> F_mat(Fmat_th,nr,nx);
 
     integer k = 1;
     while ( k < nblk ) {
@@ -732,12 +731,22 @@ namespace alglin {
       integer k_x_2 = 2*k;
       for ( integer j = iblock+k; j < eblock; j += k_x_2 ) {
 
+        using namespace Eigen;
+
+        Map<dmat_t> Bj_mat(Bj,n,nx);
+        Map<dmat_t> Cj_mat(Cj,nr,n);
+        Map<dmat_t> Cjp_mat(Cjp,nr,n);
+        Map<dmat_t> Dj_mat(Dj,n,n);
+        Map<dmat_t> Djp_mat(Djp,n,n);
+        Map<dmat_t> Ej_mat(Ej,n,n);
+        Map<dmat_t> Ejp_mat(Ejp,n,n);
+
         buildT( nth, Ejp, Dj, T, P );
 
-        alglin::zero( n_x_n, Dj, 1 );
+        Dj_mat.setZero();
         applyT( nth, T, P, Djp, n, Dj, n, n );
 
-        alglin::zero( n_x_n, Ejp, 1 );
+        Ejp_mat.setZero();
         applyT( nth, T, P, Ejp, n, Ej, n, n );
 
         if ( nx > 0 ) applyT( nth, T, P, Bjp, n, Bj, n, nx );
@@ -748,42 +757,23 @@ namespace alglin {
             integer i = n;
             do {
               --i;
-              if ( P[i] > i ) swap( nr, Cj+i*nr, 1, Cj+P[i]*nr, 1 );
+              if ( P[i] > i ) Cj_mat.col(i).swap(Cj_mat.col(P[i]));
             } while ( i > 0 );
           }
-          trsm(
-            RIGHT, UPPER, NO_TRANSPOSE, NON_UNIT,
-            nr, n, 1.0, T, n_x_2, Cj, nr
-          );
+          Eigen::Map<dmat_t,Unaligned,OuterStride<> > T_mat(T,n,n, OuterStride<>(n_x_2));
+          T_mat . template triangularView<Upper>()
+                . template solveInPlace<OnTheRight>(Cj_mat);
 
-          gemm(
-            NO_TRANSPOSE, NO_TRANSPOSE,
-            nr, n, n,
-            -1.0, Cj,  nr,
-                  Dj,  n,
-             1.0, Cjp, nr
-          );
+          Cjp_mat.noalias() -= Cj_mat * Dj_mat;
 
           integer     jpp = std::min(j+k,eblock);
           valueType * Cpp = Cmat + jpp*nr_x_n;
 
-          gemm(
-            NO_TRANSPOSE, NO_TRANSPOSE,
-            nr, n, n,
-            -1.0, Cj,  nr,
-                  Ej,  n,
-             1.0, Cpp, nr
-          );
+          Map<dmat_t> Cpp_mat(Cpp,nr,n);
+          Cpp_mat.noalias() -= Cj_mat * Ej_mat;
         }
 
-        if ( nr_x_nx > 0 )
-          gemm(
-            NO_TRANSPOSE, NO_TRANSPOSE,
-            nr, nx, n,
-            -1.0, Cj,      nr,
-                  Bj,      n,
-             1.0, Fmat_th, nr // solo accumulo!
-          );
+        if ( nr_x_nx > 0 ) F_mat.noalias() -= Cj_mat * Bj_mat;
 
         // NEXT STEP
         T   += k_x_2*Tsize;
@@ -806,7 +796,7 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::factorize_reduced() {
+  BorderedCR_eigen3<t_Value>::factorize_reduced() {
     integer nblk = 2*usedThread-1;
     integer k = 1;
     while ( k < nblk ) {
@@ -902,7 +892,7 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::load_and_factorize_last() {
+  BorderedCR_eigen3<t_Value>::load_and_factorize_last() {
     /*
     //    n   n  qx  nx
     //  +---+---+---+---+
@@ -997,7 +987,7 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::solve_last( valueType x[] ) const {
+  BorderedCR_eigen3<t_Value>::solve_last( valueType x[] ) const {
     valueType * X = x + (nblock-1)*n;
     swap( n, X, 1, x, 1 ); // uso x stesso come temporaneo
     integer info = 0;
@@ -1032,7 +1022,7 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::solve_last(
+  BorderedCR_eigen3<t_Value>::solve_last(
     integer   nrhs,
     valueType x[],
     integer   ldX
@@ -1077,7 +1067,7 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::solve_CR( valueType x[] ) const {
+  BorderedCR_eigen3<t_Value>::solve( valueType x[] ) const {
     valueType * xb = x + (nblock+1)*n + qr; // deve essere b!
     #ifdef BORDERED_CYCLIC_REDUCTION_USE_THREAD
     if ( usedThread > 1 ) {
@@ -1085,7 +1075,7 @@ namespace alglin {
         for ( integer nt = 1; nt < usedThread; ++nt ) {
           alglin::zero( nr, xb_thread[nt], 1 );
           threads[nt] = std::thread(
-            &BorderedCR<t_Value>::forward, this, nt, x, xb_thread[nt]
+            &BorderedCR_eigen3<t_Value>::forward, this, nt, x, xb_thread[nt]
           );
         }
         alglin::zero( nr, xb_thread[0], 1 );
@@ -1097,7 +1087,7 @@ namespace alglin {
       } else {
         for ( integer nt = 1; nt < usedThread; ++nt )
           threads[nt] = std::thread(
-            &BorderedCR<t_Value>::forward, this, nt, x, xb_thread[nt]
+            &BorderedCR_eigen3<t_Value>::forward, this, nt, x, xb_thread[nt]
           );
         forward(0,x,xb);
         for ( integer nt = 1; nt < usedThread; ++nt ) threads[nt].join();
@@ -1116,7 +1106,7 @@ namespace alglin {
     if ( usedThread > 1 ) {
       backward_reduced(x);
       for ( integer nt = 1; nt < usedThread; ++nt )
-        threads[nt] = std::thread( &BorderedCR<t_Value>::backward, this, nt, x );
+        threads[nt] = std::thread( &BorderedCR_eigen3<t_Value>::backward, this, nt, x );
       backward(0,x);
       for ( integer nt = 1; nt < usedThread; ++nt ) threads[nt].join();
     } else {
@@ -1131,7 +1121,7 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::solve_CR(
+  BorderedCR_eigen3<t_Value>::solve(
     integer   nrhs,
     valueType rhs[],
     integer   ldRhs
@@ -1140,7 +1130,7 @@ namespace alglin {
     if ( usedThread > 1 ) {
       for ( integer nt = 1; nt < usedThread; ++nt )
         threads[nt] = std::thread(
-          &BorderedCR<t_Value>::forward_n, this, nt, nrhs, rhs, ldRhs
+          &BorderedCR_eigen3<t_Value>::forward_n, this, nt, nrhs, rhs, ldRhs
         );
       forward_n( 0, nrhs, rhs, ldRhs );
       for ( integer nt = 1; nt < usedThread; ++nt ) threads[nt].join();
@@ -1159,7 +1149,7 @@ namespace alglin {
       backward_n_reduced( nrhs, rhs, ldRhs );
       for ( integer nt = 1; nt < usedThread; ++nt )
         threads[nt] = std::thread(
-          &BorderedCR<t_Value>::backward_n, this, nt, nrhs, rhs, ldRhs
+          &BorderedCR_eigen3<t_Value>::backward_n, this, nt, nrhs, rhs, ldRhs
         );
       backward_n( 0, nrhs, rhs, ldRhs );
       for ( integer nt = 1; nt < usedThread; ++nt ) threads[nt].join();
@@ -1181,7 +1171,7 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::forward(
+  BorderedCR_eigen3<t_Value>::forward(
     integer   nth,
     valueType x[],
     valueType xb[]
@@ -1219,7 +1209,7 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::forward_n(
+  BorderedCR_eigen3<t_Value>::forward_n(
     integer   nth,
     integer   nrhs,
     valueType x[],
@@ -1274,7 +1264,7 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::forward_reduced(
+  BorderedCR_eigen3<t_Value>::forward_reduced(
     valueType x[],
     valueType xb[]
   ) const {
@@ -1302,7 +1292,7 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::forward_n_reduced(
+  BorderedCR_eigen3<t_Value>::forward_n_reduced(
     integer   nrhs,
     valueType x[],
     integer   ldX
@@ -1350,7 +1340,7 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::backward( integer nth, valueType x[] ) const {
+  BorderedCR_eigen3<t_Value>::backward( integer nth, valueType x[] ) const {
     valueType * xn = x + (nblock+1)*n + qx;
     integer iblock = iBlock[2*nth+0];
     integer eblock = iBlock[2*nth+1];
@@ -1396,7 +1386,7 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::backward_n(
+  BorderedCR_eigen3<t_Value>::backward_n(
     integer   nth,
     integer   nrhs,
     valueType x[],
@@ -1469,7 +1459,7 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::backward_reduced( valueType x[] ) const {
+  BorderedCR_eigen3<t_Value>::backward_reduced( valueType x[] ) const {
     valueType * xn = x + (nblock+1)*n + qx;
     integer nblk = 2*usedThread-1;
     integer k = 1;
@@ -1506,7 +1496,7 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::backward_n_reduced(
+  BorderedCR_eigen3<t_Value>::backward_n_reduced(
     integer   nrhs,
     valueType x[],
     integer   ldX
@@ -1576,7 +1566,7 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::addMv( valueType const x[], valueType res[] ) const {
+  BorderedCR_eigen3<t_Value>::addMv( valueType const x[], valueType res[] ) const {
     // internal blocks block
     t_Value const * D  = Dmat;
     t_Value const * E  = Emat;
@@ -1626,7 +1616,7 @@ namespace alglin {
 
   template <typename t_Value>
   integer
-  BorderedCR<t_Value>::patternB(
+  BorderedCR_eigen3<t_Value>::patternB(
     integer nbl, integer I[], integer J[], integer offs
   ) const {
     integer i0 = nbl*n + offs;
@@ -1640,14 +1630,14 @@ namespace alglin {
 
   template <typename t_Value>
   integer
-  BorderedCR<t_Value>::valuesB( integer nbl, valueType V[] ) const {
+  BorderedCR_eigen3<t_Value>::valuesB( integer nbl, valueType V[] ) const {
     alglin::copy( n_x_nx, Bmat + nbl*n_x_nx, 1, V, 1 );
     return n_x_nx;
   }
 
   template <typename t_Value>
   integer
-  BorderedCR<t_Value>::patternC(
+  BorderedCR_eigen3<t_Value>::patternC(
     integer nbl, integer I[], integer J[], integer offs
   ) const {
     integer i0 = (nblock+1)*n + qr + offs;
@@ -1661,14 +1651,14 @@ namespace alglin {
 
   template <typename t_Value>
   integer
-  BorderedCR<t_Value>::valuesC( integer nbl, valueType V[] ) const {
+  BorderedCR_eigen3<t_Value>::valuesC( integer nbl, valueType V[] ) const {
     alglin::copy( nr_x_n, Cmat + nbl*nr_x_n, 1, V, 1 );
     return nr_x_n;
   }
 
   template <typename t_Value>
   integer
-  BorderedCR<t_Value>::patternD(
+  BorderedCR_eigen3<t_Value>::patternD(
     integer nbl, integer I[], integer J[], integer offs
   ) const {
     integer i0 = nbl*n + offs;
@@ -1682,14 +1672,14 @@ namespace alglin {
 
   template <typename t_Value>
   integer
-  BorderedCR<t_Value>::valuesD( integer nbl, valueType V[] ) const {
+  BorderedCR_eigen3<t_Value>::valuesD( integer nbl, valueType V[] ) const {
     alglin::copy( n_x_n, Dmat + nbl*n_x_n, 1, V, 1 );
     return n_x_n;
   }
 
   template <typename t_Value>
   integer
-  BorderedCR<t_Value>::patternE(
+  BorderedCR_eigen3<t_Value>::patternE(
     integer nbl, integer I[], integer J[], integer offs
   ) const {
     integer i0 = nbl*n + offs;
@@ -1703,14 +1693,14 @@ namespace alglin {
 
   template <typename t_Value>
   integer
-  BorderedCR<t_Value>::valuesE( integer nbl, valueType V[] ) const {
+  BorderedCR_eigen3<t_Value>::valuesE( integer nbl, valueType V[] ) const {
     alglin::copy( n_x_n, Emat + nbl*n_x_n, 1, V, 1 );
     return n_x_n;
   }
 
   template <typename t_Value>
   integer
-  BorderedCR<t_Value>::patternF(
+  BorderedCR_eigen3<t_Value>::patternF(
     integer I[], integer J[], integer offs
   ) const {
     integer i0 = (nblock+1)*n + qr + offs;
@@ -1724,14 +1714,14 @@ namespace alglin {
 
   template <typename t_Value>
   integer
-  BorderedCR<t_Value>::valuesF( valueType V[] ) const {
+  BorderedCR_eigen3<t_Value>::valuesF( valueType V[] ) const {
     alglin::copy( nr_x_nx, Fmat, 1, V, 1 );
     return nr_x_nx;
   }
 
   template <typename t_Value>
   integer
-  BorderedCR<t_Value>::patternCq(
+  BorderedCR_eigen3<t_Value>::patternCq(
     integer I[], integer J[], integer offs
   ) const {
     integer nr_x_qx = nr*qx;
@@ -1746,7 +1736,7 @@ namespace alglin {
 
   template <typename t_Value>
   integer
-  BorderedCR<t_Value>::valuesCq( valueType V[] ) const {
+  BorderedCR_eigen3<t_Value>::valuesCq( valueType V[] ) const {
     integer nr_x_qx = nr*qx;
     alglin::copy( nr_x_qx, Cqmat, 1, V, 1 );
     return nr_x_qx;
@@ -1754,7 +1744,7 @@ namespace alglin {
 
   template <typename t_Value>
   integer
-  BorderedCR<t_Value>::patternH( integer I[], integer J[], integer offs ) const {
+  BorderedCR_eigen3<t_Value>::patternH( integer I[], integer J[], integer offs ) const {
     integer nqr = n + qr;
     integer nnz = nqr * Nc;
     integer i0 = nblock*n + offs;
@@ -1769,7 +1759,7 @@ namespace alglin {
 
   template <typename t_Value>
   integer
-  BorderedCR<t_Value>::valuesH( valueType V[] ) const {
+  BorderedCR_eigen3<t_Value>::valuesH( valueType V[] ) const {
     integer nnz = (n + qr) * Nc;
     alglin::copy( nnz, H0Nqp, 1, V, 1 );
     return nnz;
@@ -1778,7 +1768,7 @@ namespace alglin {
 #if 1
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::sparsePattern(
+  BorderedCR_eigen3<t_Value>::sparsePattern(
     integer I[],
     integer J[],
     integer offs
@@ -1805,7 +1795,7 @@ namespace alglin {
 
     LW_ASSERT(
       kkk == sparseNnz(),
-      "BorderedCR::sparsePattern( I, J, offs ), inserted {} values, expected {}",
+      "BorderedCR_eigen3::sparsePattern( I, J, offs ), inserted {} values, expected {}",
       kkk, sparseNnz()
     );
 
@@ -1815,7 +1805,7 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::sparseValues( valueType V[] ) const {
+  BorderedCR_eigen3<t_Value>::sparseValues( valueType V[] ) const {
     integer kkk = 0;
     for ( integer nbl = 0; nbl < nblock; ++nbl ) {
       kkk += this->valuesD( nbl, V+kkk );
@@ -1838,7 +1828,7 @@ namespace alglin {
 
     LW_ASSERT(
       kkk == sparseNnz(),
-      "BorderedCR::sparseValues( V ), inserted {} values, expected {}",
+      "BorderedCR_eigen3::sparseValues( V ), inserted {} values, expected {}",
       kkk, sparseNnz()
     );
 
@@ -1848,7 +1838,7 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::sparsePattern(
+  BorderedCR_eigen3<t_Value>::sparsePattern(
     integer I[],
     integer J[],
     integer offs
@@ -1915,7 +1905,7 @@ namespace alglin {
 
     LW_ASSERT(
       kkk == sparseNnz(),
-      "BorderedCR::sparsePattern( V ), inserted {} values, expected {}",
+      "BorderedCR_eigen3::sparsePattern( V ), inserted {} values, expected {}",
       kkk, sparseNnz()
     );
 
@@ -1931,7 +1921,7 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::sparseValues( valueType V[] ) const {
+  BorderedCR_eigen3<t_Value>::sparseValues( valueType V[] ) const {
     // D, E, B
     integer kkk = 0;
     for ( integer k = 0; k < nblock; ++k ) {
@@ -1980,7 +1970,7 @@ namespace alglin {
 
     LW_ASSERT(
       kkk == sparseNnz(),
-      "BorderedCR::sparseValues( V ), inserted {} values, expected {}",
+      "BorderedCR_eigen3::sparseValues( V ), inserted {} values, expected {}",
       kkk, sparseNnz()
     );
   }
@@ -1990,7 +1980,7 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::sparseLoad(
+  BorderedCR_eigen3<t_Value>::sparseLoad(
     valueType const M_values[],
     integer   const M_row[], integer r_offs,
     integer   const M_col[], integer c_offs,
@@ -2058,474 +2048,15 @@ namespace alglin {
       }
       LW_ASSERT(
         ok,
-        "in BorderedCR<t_Value>::sparseLoad, indices (i,j) = ( {}, {}) out on pattern!",
+        "in BorderedCR_eigen3<t_Value>::sparseLoad, indices (i,j) = ( {}, {}) out on pattern!",
         M_row[kkk], M_col[kkk]
       );
     }
   }
 
-  /*\
-   |   ____                        _    _   _
-   |  / ___| _   _ _ __   ___ _ __| |  | | | |
-   |  \___ \| | | | '_ \ / _ \ '__| |  | | | |
-   |   ___) | |_| | |_) |  __/ |  | |__| |_| |
-   |  |____/ \__,_| .__/ \___|_|  |_____\___/
-   |              |_|
-  \*/
-
-  static
-  inline
-  void
-  Create_CompCol_Matrix(
-    SuperMatrix * A,
-    int           m,
-    int           n,
-    int           nnz,
-    double      * nzval,
-    int         * rowind,
-    int         * colptr,
-    Stype_t       stype,
-    Dtype_t       dtype,
-    Mtype_t       mtype
-  ) {
-    dCreate_CompCol_Matrix(
-      A, m, n, nnz, nzval, rowind, colptr, stype, dtype, mtype
-    );
-  }
-
-  static
-  inline
-  void
-  Create_CompCol_Matrix(
-    SuperMatrix * A,
-    int           m,
-    int           n,
-    int           nnz,
-    float       * nzval,
-    int         * rowind,
-    int         * colptr,
-    Stype_t       stype,
-    Dtype_t       dtype,
-    Mtype_t       mtype
-  ) {
-    sCreate_CompCol_Matrix(
-      A, m, n, nnz, nzval, rowind, colptr, stype, dtype, mtype
-    );
-  }
-
-  static
-  inline
-  void
-  Create_Dense_Matrix(
-    SuperMatrix * X,
-    int           m,
-    int           n,
-    double      * x,
-    int           ldx,
-    Stype_t       stype,
-    Dtype_t       dtype,
-    Mtype_t       mtype
-  ) {
-    dCreate_Dense_Matrix( X, m, n, x, ldx, stype, dtype, mtype );
-  }
-
-  static
-  inline
-  void
-  Create_Dense_Matrix(
-    SuperMatrix * X,
-    int           m,
-    int           n,
-    float       * x,
-    int           ldx,
-    Stype_t       stype,
-    Dtype_t       dtype,
-    Mtype_t       mtype
-  ) {
-    sCreate_Dense_Matrix( X, m, n, x, ldx, stype, dtype, mtype );
-  }
-
-  template <typename T>
-  class SuperLU {
-  public:
-
-    static
-    void
-    gstrf(
-      superlu_options_t * options,
-      SuperMatrix       * A,
-      int                 relax,
-      int                 panel_size,
-      int               * etree,
-      void              * work,
-      int                 lwork,
-      int               * perm_c,
-      int               * perm_r,
-      SuperMatrix       * L,
-      SuperMatrix       * U,
-      #if defined(SUPERLU_MAJOR_VERSION) && SUPERLU_MAJOR_VERSION >= 5
-      GlobalLU_t        * Glu,
-      #endif
-      SuperLUStat_t     * stat,
-      int               * info
-    );
-
-    static
-    void
-    gstrs(
-      trans_t         trans,
-      SuperMatrix   * L,
-      SuperMatrix   * U,
-      int           * perm_c,
-      int           * perm_r,
-      SuperMatrix   * B,
-      SuperLUStat_t * stat,
-      int           * info
-    );
-
-  };
-
-  template <>
-  void
-  SuperLU<float>::gstrf(
-    superlu_options_t * options,
-    SuperMatrix       * A,
-    int                 relax,
-    int                 panel_size,
-    int               * etree,
-    void              * work,
-    int                 lwork,
-    int               * perm_c,
-    int               * perm_r,
-    SuperMatrix       * L,
-    SuperMatrix       * U,
-    #if defined(SUPERLU_MAJOR_VERSION) && SUPERLU_MAJOR_VERSION >= 5
-    GlobalLU_t        * Glu,
-    #endif
-    SuperLUStat_t     * stat,
-    int               * info
-  ) {
-    sgstrf(
-      options, A, relax, panel_size, etree, work, lwork,
-      perm_c, perm_r, L, U,
-      #if defined(SUPERLU_MAJOR_VERSION) && SUPERLU_MAJOR_VERSION >= 5
-      Glu,
-      #endif
-      stat, info
-    );
-  }
-
-  template <>
-  void
-  SuperLU<double>::gstrf(
-    superlu_options_t * options,
-    SuperMatrix       * A,
-    int                 relax,
-    int                 panel_size,
-    int               * etree,
-    void              * work,
-    int                 lwork,
-    int               * perm_c,
-    int               * perm_r,
-    SuperMatrix       * L,
-    SuperMatrix       * U,
-    #if defined(SUPERLU_MAJOR_VERSION) && SUPERLU_MAJOR_VERSION >= 5
-    GlobalLU_t        * Glu,
-    #endif
-    SuperLUStat_t     * stat,
-    int               * info
-  ) {
-    dgstrf(
-      options, A, relax, panel_size, etree, work, lwork,
-      perm_c, perm_r, L, U,
-      #if defined(SUPERLU_MAJOR_VERSION) && SUPERLU_MAJOR_VERSION >= 5
-      Glu,
-      #endif
-      stat, info
-    );
-  }
-
-  template <>
-  void
-  SuperLU<float>::gstrs(
-    trans_t         trans,
-    SuperMatrix   * L,
-    SuperMatrix   * U,
-    int           * perm_c,
-    int           * perm_r,
-    SuperMatrix   * B,
-    SuperLUStat_t * stat,
-    int           * info
-  ) {
-    sgstrs( trans, L, U, perm_c, perm_r, B, stat,  info );
-  }
-
-  template <>
-  void
-  SuperLU<double>::gstrs(
-    trans_t         trans,
-    SuperMatrix   * L,
-    SuperMatrix   * U,
-    int           * perm_c,
-    int           * perm_r,
-    SuperMatrix   * B,
-    SuperLUStat_t * stat,
-    int           * info
-  ) {
-    dgstrs( trans, L, U, perm_c, perm_r, B, stat,  info );
-  }
-
-  template <typename t_Value>
-  void
-  BorderedCR<t_Value>::factorize_SuperLU() {
-
-    int neq = int(this->numRows());
-    int nnz = nblock * ( 2 * n_x_n + nx * n ) +
-              ( n * (nblock+1) + (qx+nx) ) * nr +
-              (n+qr) * (n_x_2+qx+nx);
-
-    superluInteger.allocate( size_t(nnz+5*neq+1) );
-    superluValue.allocate( size_t(nnz) );
-
-    set_default_options(&slu_options);
-
-    // Initialize the statistics variables.
-    StatInit(&slu_stats);
-
-    slu_perm_r = superluInteger( size_t(neq) ); /* row permutations from partial pivoting */
-    slu_perm_c = superluInteger( size_t(neq) ); /* column permutation vector */
-    slu_etree  = superluInteger( size_t(neq) );
-
-    valueType * values = superluValue( size_t(nnz) );
-    int       * rowind = superluInteger( size_t(nnz) );
-    int       * colptr = superluInteger( size_t(neq+1) );
-
-    // fill matrix
-    int row1 = n*nblock;
-    int row2 = row1+n+qr;
-    int kk   = 0;
-    int jj   = 0;
-    colptr[jj] = 0;
-    for ( int j = 0; j < n; ++j ) {
-      for ( int i = 0; i < n; ++i ) {
-        values[kk] = D( 0, i, j );
-        rowind[kk] = i;
-        ++kk;
-      }
-      for ( int i = 0; i < n+qr; ++i ) {
-        values[kk] = H( i, j );
-        rowind[kk] = i+row1;
-        ++kk;
-      }
-      for ( int i = 0; i < nr; ++i ) {
-        values[kk] = C( 0, i, j );
-        rowind[kk] = i+row2;
-        ++kk;
-      }
-      colptr[++jj] = kk;
-    }
-
-    for ( int nbl = 1; nbl < nblock; ++nbl ) {
-      int rown = nbl*n;
-      for ( int j = 0; j < n; ++j ) {
-        for ( int i = 0; i < n; ++i ) {
-          values[kk] = E( nbl-1, i, j );
-          rowind[kk] = i+rown-n;
-          ++kk;
-        }
-        for ( int i = 0; i < n; ++i ) {
-          values[kk] = D( nbl, i, j );
-          rowind[kk] = i+rown;
-          ++kk;
-        }
-        for ( int i = 0; i < nr; ++i ) {
-          values[kk] = C( nbl, i, j );
-          rowind[kk] = i+row2;
-          ++kk;
-        }
-        colptr[++jj] = kk;
-      }
-    }
-
-    for ( int j = 0; j < n; ++j ) {
-      for ( int i = 0; i < n; ++i ) {
-        values[kk] = E( nblock-1, i, j );
-        rowind[kk] = i+row1-n;
-        ++kk;
-      }
-      for ( int i = 0; i < n+qr; ++i ) {
-        values[kk] = H( i, j+n );;
-        rowind[kk] = i+row1;
-        ++kk;
-      }
-      for ( int i = 0; i < nr; ++i ) {
-        values[kk] = C( nblock, i, j );
-        rowind[kk] = i+row2;
-        ++kk;
-      }
-      colptr[++jj] = kk;
-    }
-
-    for ( int j = 0; j < qx; ++j ) {
-      for ( int i = 0; i < n+qr; ++i ) {
-        values[kk] = H( i, j+2*n );
-        rowind[kk] = i+row1;
-        ++kk;
-      }
-      for ( int i = 0; i < nr; ++i ) {
-        values[kk] = Cq( i, j );
-        rowind[kk] = i+row2;
-        ++kk;
-      }
-      colptr[++jj] = kk;
-    }
-
-    for ( int j = 0; j < nx; ++j ) {
-      for ( int nbl = 0; nbl < nblock; ++nbl ) {
-        for ( int i = 0; i < n; ++i ) {
-          values[kk] = B( nbl, i, j );
-          rowind[kk] = i+nbl*n;
-          ++kk;
-        }
-      }
-      for ( int i = 0; i < n+qr; ++i ) {
-        values[kk] = H( i, j+2*n+qx );
-        rowind[kk] = i+row1;
-        ++kk;
-      }
-      for ( int i = 0; i < nr; ++i ) {
-        values[kk] = F( i, j );
-        rowind[kk] = i+row2;
-        ++kk;
-      }
-      colptr[++jj] = kk;
-    }
-
-    LW_ASSERT(
-      kk == nnz,
-      "BABD_SuperLU::factorize -- dgstrf() error nnz = {} != {}", nnz, kk
-    );
-
-    // Create matrix A in the format expected by SuperLU.
-    Create_CompCol_Matrix(
-      &slu_A, neq, neq, nnz,
-      values, rowind, colptr,
-      SLU_NC, SLU_D, SLU_GE
-    );
-
-    /*\
-     * Get column permutation vector perm_c[], according to permc_spec:
-     *   ColPerm = 0: natural ordering
-     *   ColPerm = 1: minimum degree on structure of A'*A
-     *   ColPerm = 2: minimum degree on structure of A'+A
-     *   ColPerm = 3: approximate minimum degree for unsymmetric matrices
-    \*/
-    //cout << "get_perm_c.\n";
-    get_perm_c( slu_options.ColPerm, &slu_A, slu_perm_c );
-    //cout << "sp_preorder.\n";
-    sp_preorder( &slu_options, &slu_A, slu_perm_c, slu_etree, &slu_AC );
-
-    int panel_size = sp_ienv(1);
-    int relax      = sp_ienv(2);
-    int info = 0;
-    //cout << "dgstrf.\n";
-    SuperLU<t_Value>::gstrf(
-      &slu_options, &slu_AC, relax, panel_size,
-      slu_etree, nullptr, 0,
-      slu_perm_c, slu_perm_r, &slu_L, &slu_U,
-    #if defined(SUPERLU_MAJOR_VERSION) && SUPERLU_MAJOR_VERSION >= 5
-      &slu_glu,
-    #endif
-      &slu_stats, &info
-    );
-
-    // Free un-wanted storage
-    Destroy_SuperMatrix_Store(&slu_A);
-    Destroy_CompCol_Permuted(&slu_AC);
-    StatFree(&slu_stats);
-
-    LW_ASSERT(
-      info == 0,
-      "BABD_SuperLU::factorize -- [sd]gstrf() error returns INFO = {}", info
-    );
-    //cout << "done\n";
-
-  }
-
-  template <typename t_Value>
-  void
-  BorderedCR<t_Value>::solve_SuperLU( valueType x[] ) const {
-    int const   nrhs = 1;
-    int         info;
-    SuperMatrix B;
-
-    trans_t trans = NOTRANS; // TRANS
-
-    // Initialize the statistics variables.
-    StatInit(&slu_stats) ;
-
-    int nrow = slu_L.nrow;
-
-    Create_Dense_Matrix(
-      &B, nrow, nrhs,
-      x, nrow,
-      SLU_DN, SLU_D, SLU_GE
-    );
-
-    // Solve the system A*X=B, overwriting B with X.
-    SuperLU<t_Value>::gstrs(
-      trans, &slu_L, &slu_U, slu_perm_c, slu_perm_r, &B, &slu_stats, &info
-    );
-
-    Destroy_SuperMatrix_Store( &B ) ;
-    StatFree(&slu_stats);
-
-    LW_ASSERT(
-      info == 0,
-      "BABD_SuperLU::solve_SuperLU -- gstrs() error returns INFO= {}", info
-    );
-  }
-
-  template <typename t_Value>
-  void
-  BorderedCR<t_Value>::solve_SuperLU(
-    integer   nrhs,
-    valueType rhs[],
-    integer   ldRhs
-  ) const {
-    int         info;
-    SuperMatrix B;
-
-    trans_t trans = NOTRANS; // TRANS
-
-    // Initialize the statistics variables.
-    StatInit(&slu_stats) ;
-
-    int nrow = slu_L.nrow;
-
-    Create_Dense_Matrix(
-      &B, nrow, nrhs,
-      rhs, ldRhs,
-      SLU_DN, SLU_D, SLU_GE
-    );
-
-    // Solve the system A*X=B, overwriting B with X.
-    SuperLU<t_Value>::gstrs(
-      trans, &slu_L, &slu_U, slu_perm_c, slu_perm_r, &B, &slu_stats, &info
-    );
-
-    Destroy_SuperMatrix_Store( &B ) ;
-    StatFree(&slu_stats);
-
-    LW_ASSERT(
-      info == 0,
-      "BABD_SuperLU::solve_SuperLU -- gstrs() error returns INFO= {}", info
-    );
-  }
-
   // ---------------------------------------------------------------------------
 
-  template class BorderedCR<float>;
-  template class BorderedCR<double>;
+  template class BorderedCR_eigen3<float>;
+  template class BorderedCR_eigen3<double>;
 
 }

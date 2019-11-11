@@ -259,7 +259,7 @@ namespace alglin {
     integer m  = n+q;
     integer mn = m+n;
 
-    la_factorization->allocate( mn, mn );
+    la_matrix.setup( mn, mn );
     if ( this->numCyclicBC == 0 && this->numCyclicOMEGA == 0 ) {
       /*\
        |  +----+-----+---+
@@ -275,19 +275,19 @@ namespace alglin {
       integer rowN  = numFinalBC;
       integer col00 = numInitialOMEGA;
       integer colNN = numFinalOMEGA;
-      la_factorization->load_block( n, nx2, DE_blk, n );
-      la_factorization->zero_block( m, mn, n, 0 );
-      la_factorization->load_block( rowN, n+colNN, blockN, rowN, n, n );
-      la_factorization->load_block( row0, n,     block0+col00*row0, row0, n+rowN, 0 );
-      la_factorization->load_block( row0, col00, block0,            row0, n+rowN, nx2+colNN );
+      la_matrix.load_block( n, nx2, DE_blk, n );
+      la_matrix.zero_block( m, mn, n, 0 );
+      la_matrix.load_block( rowN, n+colNN, blockN, rowN, n, n );
+      la_matrix.load_block( row0, n,     block0+col00*row0, row0, n+rowN, 0 );
+      la_matrix.load_block( row0, col00, block0,            row0, n+rowN, nx2+colNN );
     } else {
-      la_factorization->load_block( n, nx2, DE_blk, n );
-      la_factorization->load_block( m, mn, H0Nq, m, n, 0 );
-      if ( m > n ) la_factorization->zero_block( n, q, 0, nx2 );
+      la_matrix.load_block( n, nx2, DE_blk, n );
+      la_matrix.load_block( m, mn, H0Nq, m, n, 0 );
+      if ( m > n ) la_matrix.zero_block( n, q, 0, nx2 );
     }
 
     // fattorizzazione ultimo blocco
-    this->la_factorization->factorize( "BlockBidiagonal::last_block_factorize" );
+    this->la_factorization->factorize( "BlockBidiagonal::last_block_factorize", la_matrix );
   }
 
   /*\

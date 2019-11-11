@@ -24,6 +24,7 @@
 
 #include "Alglin_Config.hh"
 #include "Alglin_tmpl.hh"
+#include "Alglin_Eigen.hh"
 
 #ifdef __GNUC__
 #pragma GCC diagnostic ignored "-Wsign-conversion"
@@ -50,12 +51,6 @@
 #pragma clang diagnostic ignored "-Wextra-semi"
 #pragma clang diagnostic ignored "-Wzero-as-null-pointer-constant"
 #pragma clang diagnostic ignored "-Wunused-template"
-#endif
-
-#ifdef ALGLIN_USE_SYSTEM_EIGEN
-  #include <Eigen/Dense>
-#else
-  #include "Eigen/Dense"
 #endif
 
 using namespace std;
@@ -453,24 +448,24 @@ static
 void
 testMvAll() {
   testMv<2>();
-  testMv<3>();
+  //testMv<3>();
   testMv<4>();
-  testMv<5>();
-  testMv<6>();
-  testMv<7>();
+  //testMv<5>();
+  //testMv<6>();
+  //testMv<7>();
   testMv<8>();
-  testMv<8>();
-  testMv<10>();
-  testMv<11>();
-  testMv<12>();
-  testMv<13>();
-  testMv<14>();
-  testMv<15>();
+  //testMv<9>();
+  //testMv<10>();
+  //testMv<11>();
+  //testMv<12>();
+  //testMv<13>();
+  //testMv<14>();
+  //testMv<15>();
   testMv<16>();
-  testMv<17>();
-  testMv<18>();
-  testMv<19>();
-  testMv<20>();
+  //testMv<17>();
+  //testMv<18>();
+  //testMv<19>();
+  //testMv<20>();
   testMv<100>();
 }
 
@@ -478,24 +473,24 @@ static
 void
 testMMall() {
   testMM<2>();
-  testMM<3>();
+  //testMM<3>();
   testMM<4>();
-  testMM<5>();
-  testMM<6>();
-  testMM<7>();
+  //testMM<5>();
+  //testMM<6>();
+  //testMM<7>();
   testMM<8>();
-  testMM<8>();
-  testMM<10>();
-  testMM<11>();
-  testMM<12>();
-  testMM<13>();
-  testMM<14>();
-  testMM<15>();
+  //testMM<9>();
+  //testMM<10>();
+  //testMM<11>();
+  //testMM<12>();
+  //testMM<13>();
+  //testMM<14>();
+  //testMM<15>();
   testMM<16>();
-  testMM<17>();
-  testMM<18>();
-  testMM<19>();
-  testMM<20>();
+  //testMM<17>();
+  //testMM<18>();
+  //testMM<19>();
+  //testMM<20>();
   testMM<100>();
 }
 
@@ -503,24 +498,24 @@ static
 void
 testCopyAll() {
   testCopy<2>();
-  testCopy<3>();
+  //testCopy<3>();
   testCopy<4>();
-  testCopy<5>();
-  testCopy<6>();
-  testCopy<7>();
+  //testCopy<5>();
+  //testCopy<6>();
+  //testCopy<7>();
   testCopy<8>();
-  testCopy<8>();
-  testCopy<10>();
-  testCopy<11>();
-  testCopy<12>();
-  testCopy<13>();
-  testCopy<14>();
-  testCopy<15>();
+  //testCopy<9>();
+  //testCopy<10>();
+  //testCopy<11>();
+  //testCopy<12>();
+  //testCopy<13>();
+  //testCopy<14>();
+  //testCopy<15>();
   testCopy<16>();
-  testCopy<17>();
-  testCopy<18>();
-  testCopy<19>();
-  testCopy<20>();
+  //testCopy<17>();
+  //testCopy<18>();
+  //testCopy<19>();
+  //testCopy<20>();
   testCopy<100>();
 }
 

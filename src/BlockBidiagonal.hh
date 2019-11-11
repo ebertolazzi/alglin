@@ -105,8 +105,10 @@ namespace alglin {
     integer numFinalOMEGA;
     integer numCyclicOMEGA;
 
-    Factorization<t_Value> * la_factorization;
-    Factorization<t_Value> * bb_factorization;
+    Matrix<t_Value> la_matrix;
+    Matrix<t_Value> bb_matrix;
+    LinearSystemSolver<t_Value> * la_factorization;
+    LinearSystemSolver<t_Value> * bb_factorization;
 
     /*
     //

@@ -42,11 +42,9 @@
 #pragma GCC diagnostic ignored "-Wshadow"
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 #pragma GCC diagnostic ignored "-Wunused-function"
-#pragma GCC diagnostic ignored "-Wunused-template"
 #pragma GCC diagnostic ignored "-Wzero-as-null-pointer-constant"
 #pragma GCC diagnostic ignored "-Wcast-qual"
 #pragma GCC diagnostic ignored "-Wfloat-equal"
-#pragma GCC diagnostic ignored "-Wextra-semi"
 #endif
 
 #ifdef __clang__
@@ -83,13 +81,17 @@
 #pragma warning( disable : 4200 )
 #endif
 
+#define EIGEN_DONT_PARALLELIZE
+#define EIGEN_DEFAULT_DENSE_INDEX_TYPE int
+#define EIGEN_NO_AUTOMATIC_RESIZING
+
 #ifdef ALGLIN_USE_SYSTEM_EIGEN
   #include <Eigen/Dense>
 #else
   #include "Eigen/Dense"
 #endif
 
-#ifdef __GNUC__ 
+#ifdef __GNUC__
 #pragma GCC diagnostic pop
 #endif
 #ifdef __clang__
