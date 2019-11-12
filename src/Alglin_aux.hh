@@ -31,25 +31,6 @@
 
 namespace alglin {
 
-  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  template <typename t_Value>
-  inline
-  void
-  print_matrix(
-    ostream_type & stream,
-    integer        nr,
-    integer        nc,
-    t_Value const  A[],
-    integer        ldA
-  ) {
-    for ( integer i = 0; i < nr; ++i ) {
-      for ( integer j = 0; j < nc; ++j )
-        stream << std::setw(14) << A[i+j*ldA] << " ";
-      stream << '\n';
-    }
-  }
-
   /*
       Matrix NNZ structure
           col0

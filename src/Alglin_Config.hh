@@ -32,18 +32,6 @@
   #include "lapack_wrapper/lapack_wrapper++.hh"
 #endif
 
-#ifdef LAPACK_WRAPPER_USE_CXX11
-  #define ALGLIN_USE_THREAD
-  #define CYCLIC_REDUCTION_USE_THREAD
-  #define BORDERED_CYCLIC_REDUCTION_USE_THREAD
-  #define BABD_AMODIO_N_USE_THREAD
-  #define BABD_QR_USE_THREAD
-  #define BABD_QR_N_USE_THREAD
-  #define BABD_QR_N_USE_PIVOTING
-#else
-  #error "Lapack Wrapper and Alglin must be compiled using C++ >= C++11"
-#endif
-
 #define ALGLIN_PURE_VIRTUAL = 0
 #ifndef LAPACK_WRAPPER_OS_WINDOWS
   #define ALGLIN_OVERRIDE  override
@@ -55,22 +43,6 @@
   #define ALGLIN_OVERRIDE
   #define ALGLIN_CONSTEXPR
 #endif
-
-/*
-#ifndef ALGLIN_ERROR
-  #define ALGLIN_ERROR(MSG) {                    \
-    std::ostringstream ost;                      \
-    ost << "in file: " << __FILE__ << "\nline: " \
-        << __LINE__ << '\n' << MSG << '\n';      \
-    throw std::runtime_error(ost.str());         \
-  }
-#endif
-
-#ifndef ALGLIN_ASSERT
-  #define ALGLIN_ASSERT(COND,MSG) \
-    if ( !(COND) ) ALGLIN_ERROR( "in alglin::" << MSG )
-#endif
-*/
 
 #ifdef LAPACK_WRAPPER_USE_ACCELERATE
   #define ALGLIN_USE_ACCELERATE 1
