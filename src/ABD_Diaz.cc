@@ -92,7 +92,7 @@ namespace alglin {
     if ( 2*NB < nrA ) ierr = getry( nrA, ncA, A, ldA, swapR, NB );
     else              ierr = gty( nrA, ncA, A, ldA, swapR );
 
-    LW_ASSERT( ierr == 0, "DiazLU::LU_left_right, found ierr: {}", ierr );
+    LW_ASSERT( ierr == 0, "DiazLU::LU_left_right, found ierr: {}\n", ierr );
     // applico permutazione al blocco
     t_Value * R = A + ncA * ldA;
     t_Value * L = A - ncL * ldA;
@@ -147,7 +147,7 @@ namespace alglin {
     if ( 2*NB < ncA ) ierr = getrx( nrA, ncA, A, ldA, swapC, NB );
     else              ierr = gtx( nrA, ncA, A, ldA, swapC );
 
-    LW_ASSERT( ierr == 0, "DiazLU::LU_top_bottom, found ierr: {}", ierr );
+    LW_ASSERT( ierr == 0, "DiazLU::LU_top_bottom, found ierr: {}\n", ierr );
     // applico permutazione al blocco
     t_Value * T = A - nrT;
     for ( integer i = 0; i < nrA; ++i ) {
@@ -186,7 +186,7 @@ namespace alglin {
 
     LW_ASSERT0(
       this->numCyclicOMEGA == 0 && this->numCyclicBC == 0,
-      "DiazLU cannot manage cyclic BC"
+      "DiazLU cannot manage cyclic BC\n"
     );
 
     integer const & n      = this->n;

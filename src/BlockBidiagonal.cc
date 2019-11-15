@@ -73,7 +73,7 @@ namespace alglin {
       "\nnumCyclicBC     = {}"
       "\nnumInitialOMEGA = {}"
       "\nnumFinalOMEGA   = {}"
-      "\nnumCyclicOMEGA  = {}",
+      "\nnumCyclicOMEGA  = {}\n",
       _numInitialBC, _numFinalBC, _numCyclicBC, _numInitialOMEGA,
       _numFinalOMEGA, _numCyclicOMEGA
     );
@@ -86,7 +86,7 @@ namespace alglin {
       "\nnumInitialBC    = {}"
       "\nnumFinalBC      = {}"
       "\nnumCyclicBC     = {}"
-      "\nnumInitialOMEGA + numFinalOMEGA + numCyclicOMEGA must be = {}",
+      "\nnumInitialOMEGA + numFinalOMEGA + numCyclicOMEGA must be = {}\n",
       _numInitialBC, _numFinalBC, _numCyclicBC, _n+q
     );
 
@@ -214,7 +214,8 @@ namespace alglin {
 
     LW_ASSERT(
       numCyclicBC == 0 && numCyclicOMEGA == 0,
-      "in loadTopBottom numCyclicBC = {} and numCyclicOMEGA = {} must be both zero!",
+      "in loadTopBottom numCyclicBC = {} and numCyclicOMEGA = {} "
+      "must be both zero!\n",
       numCyclicBC, numCyclicOMEGA
     );
 
@@ -752,7 +753,7 @@ namespace alglin {
 
     LW_ASSERT(
       kkk == sparseNnz(),
-      "BlockBidiagonal::sparsePattern( V ), inserted {} values, expected {}",
+      "BlockBidiagonal::sparsePattern( V ), inserted {} values, expected {}\n",
       kkk, sparseNnz()
     );
   }
@@ -822,7 +823,7 @@ namespace alglin {
 
     LW_ASSERT(
       kkk == sparseNnz(),
-      "BlockBidiagonal::sparseValues( V ), inserted {} values, expected {}",
+      "BlockBidiagonal::sparseValues( V ), inserted {} values, expected {}\n",
       kkk, sparseNnz()
     );
 

@@ -70,14 +70,14 @@ namespace alglin {
     integer info = geqrf( Nr, Nc, nullptr, Nr, nullptr, &tmp, -1 );
     LW_ASSERT(
       info == 0,
-      "BorderedCR::allocate call alglin::geqrf return info = {}", info
+      "BorderedCR::allocate call alglin::geqrf return info = {}\n", info
     );
     if ( Lwork < integer(tmp) ) Lwork = integer(tmp);
 
     info = geqp3( Nr, Nc, nullptr, Nr, nullptr, nullptr, &tmp, -1 );
     LW_ASSERT(
       info == 0,
-      "BorderedCR::allocate call alglin::geqp3 return info = {}", info
+      "BorderedCR::allocate call alglin::geqp3 return info = {}\n", info
     );
     if ( Lwork < integer(tmp) ) Lwork = integer(tmp);
 
@@ -85,14 +85,14 @@ namespace alglin {
     info = geqrf( n_x_2, n, nullptr, n_x_2, nullptr, &tmp, -1 );
     LW_ASSERT(
       info == 0,
-      "BorderedCR::allocate call alglin::geqrf return info = {}", info
+      "BorderedCR::allocate call alglin::geqrf return info = {}\n", info
     );
     LworkQR = integer(tmp);
 
     info = geqp3( n_x_2, n, nullptr, n_x_2, nullptr, nullptr, &tmp, -1 );
     LW_ASSERT(
       info == 0,
-      "BorderedCR::allocate call alglin::geqp3 return info = {}", info
+      "BorderedCR::allocate call alglin::geqp3 return info = {}\n", info
     );
     if ( LworkQR < integer(tmp) ) LworkQR = integer(tmp);
 
@@ -221,25 +221,25 @@ namespace alglin {
 
     LW_ASSERT(
       H0.numRows() == m && H0.numCols() == n,
-      "loadBottom, bad dimension size(H0) = {} x {} expected {} x {}",
+      "loadBottom, bad dimension size(H0) = {} x {} expected {} x {}\n",
       H0.numRows(), H0.numCols(), m, n
     );
 
     LW_ASSERT(
       HN.numRows() == m && HN.numCols() == n,
-      "loadBottom, bad dimension size(HN) = {} x {} expected {} x {}",
+      "loadBottom, bad dimension size(HN) = {} x {} expected {} x {}\n",
       HN.numRows(), HN.numCols(), m, n
     );
 
     LW_ASSERT(
       Hq.numRows() == m && Hq.numCols() == qx,
-      "loadBottom, bad dimension size(Hq) = {} x {} expected {} x {}",
+      "loadBottom, bad dimension size(Hq) = {} x {} expected {} x {}\n",
       Hq.numRows(), Hq.numCols(), m, qx
     );
 
     LW_ASSERT(
       Hp.numRows() == m && Hp.numCols() == nx,
-      "loadBottom, bad dimension size(Hp) = {} x {} expected {} x {}",
+      "loadBottom, bad dimension size(Hp) = {} x {} expected {} x {}\n",
       Hp.numRows(), Hp.numCols(), m, nx
     );
 
@@ -257,7 +257,7 @@ namespace alglin {
     integer m = n + qr;
     LW_ASSERT(
       H.numRows() == m && H.numCols() == Nc,
-      "loadBottom, bad dimension size(H) = {} x {} expected {} x {}",
+      "loadBottom, bad dimension size(H) = {} x {} expected {} x {}\n",
       H.numRows(), H.numCols(), m, Nc
     );
     loadBottom( H.get_data(), H.lDim() );
@@ -289,25 +289,25 @@ namespace alglin {
 
     LW_ASSERT(
       C0.numRows() == nr && C0.numCols() == n,
-      "loadBottom2, bad dimension size(C0) = {} x {} expected {} x {}",
+      "loadBottom2, bad dimension size(C0) = {} x {} expected {} x {}\n",
       C0.numRows(), C0.numCols(), nr, n
     );
 
     LW_ASSERT(
       CN.numRows() == nr && CN.numCols() == n,
-      "loadBottom2, bad dimension size(CN) = {} x {} expected {} x {}",
+      "loadBottom2, bad dimension size(CN) = {} x {} expected {} x {}\n",
       CN.numRows(), CN.numCols(), nr, n
     );
 
     LW_ASSERT(
       Cq.numRows() == nr && Cq.numCols() == qx,
-      "loadBottom2, bad dimension size(Cq) = {} x {} expected {} x {}",
+      "loadBottom2, bad dimension size(Cq) = {} x {} expected {} x {}\n",
       Cq.numRows(), Cq.numCols(), nr, qx
     );
 
     LW_ASSERT(
       F.numRows() == nr && F.numCols() == nx,
-      "loadBottom2, bad dimension size(F) = {} x {} expected {} x {}",
+      "loadBottom2, bad dimension size(F) = {} x {} expected {} x {}\n",
       F.numRows(), F.numCols(), nr, nx
     );
 
@@ -341,7 +341,7 @@ namespace alglin {
   ) {
     LW_ASSERT(
       B.numRows() == n && B.numCols() == nx,
-      "loadB( {}, B) bad dimension size(B) = {} x {} expected {} x {}",
+      "loadB( {}, B) bad dimension size(B) = {} x {} expected {} x {}\n",
       nbl, B.numRows(), B.numCols(), n, nx
     );
     gecopy( n, nx, B.get_data(), B.lDim(), Bmat + nbl*n_x_nx, n );
@@ -357,7 +357,7 @@ namespace alglin {
   ) {
     LW_ASSERT(
       B.numRows() == n && B.numCols() == nx,
-      "addtoB( {}, B) bad dimension size(B) = {} x {} expected {} x {}",
+      "addtoB( {}, B) bad dimension size(B) = {} x {} expected {} x {}\n",
       nbl, B.numRows(), B.numCols(), n, nx
     );
     valueType * BB = Bmat + nbl*n_x_nx;
@@ -374,7 +374,7 @@ namespace alglin {
   ) {
     LW_ASSERT(
       C.numRows() == nr && C.numCols() == n,
-      "loadC( {}, C) bad dimension size(C) = {} x {} expected {} x {}",
+      "loadC( {}, C) bad dimension size(C) = {} x {} expected {} x {}\n",
       nbl, C.numRows(), C.numCols(), nr, n
     );
     gecopy( nr, n, C.get_data(), C.lDim(), Cmat + nbl*nr_x_n, nr );
@@ -390,7 +390,7 @@ namespace alglin {
   ) {
     LW_ASSERT(
       C.numRows() == nr && C.numCols() == n,
-      "addtoC( {}, C) bad dimension size(C) = {} x {} expected {} x {}",
+      "addtoC( {}, C) bad dimension size(C) = {} x {} expected {} x {}\n",
       nbl, C.numRows(), C.numCols(), nr, n
     );
     valueType * CC = Cmat + nbl*nr_x_n;
@@ -407,7 +407,7 @@ namespace alglin {
   ) {
     LW_ASSERT(
       C.numRows() == nr && C.numCols() == n_x_2,
-      "addtoC( {}, C) bad dimension size(C) = {} x {} expected {} x {}",
+      "addtoC( {}, C) bad dimension size(C) = {} x {} expected {} x {}\n",
       nbl, C.numRows(), C.numCols(), nr, n_x_2
     );
     valueType * CC = Cmat + nbl*nr_x_n;
@@ -424,7 +424,7 @@ namespace alglin {
   ) {
     LW_ASSERT(
       D.numRows() == n && D.numCols() == n,
-      "loadD( {}, D) bad dimension size(D) = {} x {} expected {} x {}",
+      "loadD( {}, D) bad dimension size(D) = {} x {} expected {} x {}\n",
       nbl, D.numRows(), D.numCols(), n, n
     );
     gecopy( n, n, D.get_data(), D.lDim(), Dmat + nbl*n_x_n, n );
@@ -440,7 +440,7 @@ namespace alglin {
   ) {
     LW_ASSERT(
       E.numRows() == n && E.numCols() == n,
-      "loadE( {}, E) bad dimension size(E) = {} x {} expected {} x {}",
+      "loadE( {}, E) bad dimension size(E) = {} x {} expected {} x {}\n",
       nbl, E.numRows(), E.numCols(), n, n
     );
     gecopy( n, n, E.get_data(), E.lDim(), Emat + nbl*n_x_n, n );
@@ -453,7 +453,7 @@ namespace alglin {
   BorderedCR_eigen3<t_Value>::loadF( MatrixWrapper<valueType> const & F ) {
     LW_ASSERT(
       F.numRows() == nr && F.numCols() == nx,
-      "loadF(F) bad dimension size(F) = {} x {} expected {} x {}",
+      "loadF(F) bad dimension size(F) = {} x {} expected {} x {}\n",
       F.numRows(), F.numCols(), nr, nx
     );
     gecopy( nr, nx, F.get_data(), F.lDim(), Fmat[0], nr );
@@ -466,7 +466,7 @@ namespace alglin {
   BorderedCR_eigen3<t_Value>::addtoF( MatrixWrapper<valueType> const & F ) {
     LW_ASSERT(
       F.numRows() == nr && F.numCols() == nx,
-      "addtoF(F) bad dimension size(F) = {} x {} expected {} x {}",
+      "addtoF(F) bad dimension size(F) = {} x {} expected {} x {}\n",
       F.numRows(), F.numCols(), nr, nx
     );
     geadd( nr, nx, 1.0, F.get_data(), F.lDim(), 1.0, Fmat[0], nr, Fmat[0], nr );
@@ -479,7 +479,7 @@ namespace alglin {
   BorderedCR_eigen3<t_Value>::loadCq( MatrixWrapper<valueType> const & Cq ) {
     LW_ASSERT(
       Cq.numRows() == nr && Cq.numCols() == qx,
-      "loadCq(Cq) bad dimension size(Cq) = {} x {} expected {} x {}",
+      "loadCq(Cq) bad dimension size(Cq) = {} x {} expected {} x {}\n",
       Cq.numRows(), Cq.numCols(), nr, qx
     );
     gecopy( nr, qx, Cq.get_data(), Cq.lDim(), Cqmat, nr );
@@ -556,7 +556,7 @@ namespace alglin {
       }
       break;
     }
-    LW_ASSERT( info == 0, "BorderedCR_eigen3::factorize INFO = {}", info );
+    LW_ASSERT( info == 0, "BorderedCR_eigen3::factorize INFO = {}\n", info );
   }
 
   /*\
@@ -596,7 +596,7 @@ namespace alglin {
     switch ( selected ) {
     case BORDERED_LU:
       info = swaps( ncol, W, n_x_2, 0, n-1, iperm, 1 );
-      LW_ASSERT( info == 0, "BorderedCR_eigen3::applyT INFO = {}", info );
+      LW_ASSERT( info == 0, "BorderedCR_eigen3::applyT INFO = {}\n", info );
       // TOP = L^(-1)*TOP
       trsm( LEFT, LOWER, NO_TRANSPOSE, UNIT, n, ncol, 1.0, T, n_x_2, W, n_x_2 );
       // BOTTOM = BOTTOM - M * L^(-1)*TOP
@@ -671,7 +671,7 @@ namespace alglin {
       );
       break;
     }
-    LW_ASSERT( info == 0, "BorderedCR::applyT INFO = {}", info );
+    LW_ASSERT( info == 0, "BorderedCR::applyT INFO = {}\n", info );
     memcpy( TOP,    W+n, nn );
     memcpy( BOTTOM, W,   nn );
     //copy( n, W+n, 1, TOP,    1 );
@@ -966,7 +966,7 @@ namespace alglin {
     }
     LW_ASSERT(
       info == 0,
-      "BorderedCR::factorize_last INFO = {} Nr = {} Nc = {}", info, Nr, Nc
+      "BorderedCR::factorize_last INFO = {} Nr = {} Nc = {}\n", info, Nr, Nc
     );
   }
 
@@ -1008,7 +1008,7 @@ namespace alglin {
       last_lsy.solve( X );
       break;
     }
-    LW_ASSERT( info == 0, "BorderedCR::solve_last INFO = {}", info );
+    LW_ASSERT( info == 0, "BorderedCR::solve_last INFO = {}\n", info );
     swap( n, X, 1, x, 1 );
   }
 
@@ -1047,7 +1047,7 @@ namespace alglin {
       last_lsy.solve( nrhs, X, ldX );
       break;
     }
-    LW_ASSERT( info == 0, "BorderedCR::solve_last INFO = {}", info );
+    LW_ASSERT( info == 0, "BorderedCR::solve_last INFO = {}\n", info );
     for ( integer i = 0; i < nrhs; ++i ) swap( n, X+i*ldX, 1, x+i*ldX, 1 );
   }
 
@@ -1765,7 +1765,8 @@ namespace alglin {
 
     LW_ASSERT(
       kkk == sparseNnz(),
-      "BorderedCR_eigen3::sparsePattern( I, J, offs ), inserted {} values, expected {}",
+      "BorderedCR_eigen3::sparsePattern( I, J, offs ), "
+      "inserted {} values, expected {}\n",
       kkk, sparseNnz()
     );
 
@@ -1798,7 +1799,8 @@ namespace alglin {
 
     LW_ASSERT(
       kkk == sparseNnz(),
-      "BorderedCR_eigen3::sparseValues( V ), inserted {} values, expected {}",
+      "BorderedCR_eigen3::sparseValues( V ), "
+      "inserted {} values, expected {}\n",
       kkk, sparseNnz()
     );
 
@@ -1875,7 +1877,8 @@ namespace alglin {
 
     LW_ASSERT(
       kkk == sparseNnz(),
-      "BorderedCR_eigen3::sparsePattern( V ), inserted {} values, expected {}",
+      "BorderedCR_eigen3::sparsePattern( V ), "
+      "inserted {} values, expected {}\n",
       kkk, sparseNnz()
     );
 
@@ -1940,7 +1943,8 @@ namespace alglin {
 
     LW_ASSERT(
       kkk == sparseNnz(),
-      "BorderedCR_eigen3::sparseValues( V ), inserted {} values, expected {}",
+      "BorderedCR_eigen3::sparseValues( V ), "
+      "inserted {} values, expected {}\n",
       kkk, sparseNnz()
     );
   }
@@ -2018,7 +2022,8 @@ namespace alglin {
       }
       LW_ASSERT(
         ok,
-        "in BorderedCR_eigen3<t_Value>::sparseLoad, indices (i,j) = ( {}, {}) out on pattern!",
+        "in BorderedCR_eigen3<t_Value>::sparseLoad, "
+        "indices (i,j) = ( {}, {}) out on pattern!\n",
         M_row[kkk], M_col[kkk]
       );
     }

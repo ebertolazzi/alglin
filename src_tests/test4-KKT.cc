@@ -549,7 +549,7 @@ main() {
     cout << "\n\n\ntest6\n";
     test6();
   } catch ( exception const & exc ) {
-    cerr << exc.what() << '\n';
+    cerr << exc.what();
   } catch ( ... ) {
     cerr << "Errore Sconosciuto!\n";
   }

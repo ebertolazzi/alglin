@@ -64,7 +64,7 @@ namespace alglin {
   
     LW_ASSERT(
       numOverlap(numberOfBlocks-1) == 0,
-      "Arceco::checkStructure: numOverlap({}) = {} expected zero!",
+      "Arceco::checkStructure: numOverlap({}) = {} expected zero!\n",
       numberOfBlocks-1, numOverlap(numberOfBlocks-1)
     );
 
@@ -72,19 +72,19 @@ namespace alglin {
     for ( integer k = 0; k < numberOfBlocks; ++k ) {
       LW_ASSERT(
         numCols(k) >= 1,
-        "ArcecoLU::checkStructure: numCols({}) = {} < 1", k, numCols(k)
+        "ArcecoLU::checkStructure: numCols({}) = {} < 1\n", k, numCols(k)
       );
       LW_ASSERT(
         numRows(k) >= 1,
-        "ArcecoLU::checkStructure: numRows({}) = {} < 1 ", k, numRows(k)
+        "ArcecoLU::checkStructure: numRows({}) = {} < 1\n", k, numRows(k)
       );
       LW_ASSERT(
         numOverlap(k) >= 0,
-        "ArcecoLU::checkStructure: numOverlap({}) = {} < 0 ", k, numOverlap(k)
+        "ArcecoLU::checkStructure: numOverlap({}) = {} < 0\n", k, numOverlap(k)
       );
       LW_ASSERT(
         numCols(k) >= numOverlap(k),
-        "ArcecoLU::checkStructure: numCols({}) = {} < numOverlap({}) = {}",
+        "ArcecoLU::checkStructure: numCols({}) = {} < numOverlap({}) = {}\n",
         k, numCols(k), k, numOverlap(k)
       );
     }
@@ -93,7 +93,7 @@ namespace alglin {
     for ( integer k = 1; k < numberOfBlocks; ++k )
       LW_ASSERT(
         numOverlap(k-1) + numOverlap(k) <= numCols(k),
-        "Arceco::checkStructure: at block {} three consecutive block overlap", k
+        "Arceco::checkStructure: at block {} three consecutive block overlap\n", k
       );
 
     // controlla che i blocchi atraversino la diagonale
@@ -105,7 +105,7 @@ namespace alglin {
     for ( integer k = 1; k < numberOfBlocks; ++k ) {
       LW_ASSERT(
         c <= r && c+numCols(k) >= r+numRows(k),
-        "ArcecoLU::checkStructure: block n. {} do not cross the diagonal", k
+        "ArcecoLU::checkStructure: block n. {} do not cross the diagonal\n", k
       );
       r += numRows(k);
       c += numCols(k)-numOverlap(k);
@@ -120,13 +120,13 @@ namespace alglin {
     LW_ASSERT(
       isum1 == isum2,
       "ArcecoLU::checkStructure: matrix not squared!\n"
-      "row sum = {} column sum = {}",
+      "row sum = {} column sum = {}\n",
       isum1, isum2
     );
     LW_ASSERT(
       isum1 == neq,
       "ArcecoLU::checkStructure: block dimension = {}"
-      " different from expected dimension = ",
+      " different from expected dimension = {}\n",
       isum1, neq
     );
   }
@@ -278,7 +278,7 @@ namespace alglin {
         if ( tempiv > rowmax ) { rowmax = tempiv; jmax = i1; }
       }
 
-      LW_ASSERT0( rowmax > 0, "Arceco::rowElimination, singular matrix" );
+      LW_ASSERT0( rowmax > 0, "Arceco::rowElimination, singular matrix\n" );
 
       pivot[j] = jmax;
       if ( j != jmax )
@@ -322,7 +322,7 @@ namespace alglin {
         if ( tempiv > colmax) { colmax = tempiv; jmax = j1; }
       }
       
-      LW_ASSERT0( colmax > 0, "Arceco::columnElimination, singular matrix" );
+      LW_ASSERT0( colmax > 0, "Arceco::columnElimination, singular matrix\n" );
 
       pivot[j] = jmax;
       if ( j != jmax ) {

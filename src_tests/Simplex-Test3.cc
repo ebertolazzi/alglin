@@ -88,7 +88,7 @@ main() {
     simplex.solve( &simplex_problem, xdd, IBd );
   }
   catch (  exception const & err ) {
-    cerr << "Error: " << err.what() << "\n";
+    cerr << "Error: " << err.what();
   }
   catch (...) {
     cerr << "Unknwn error\n";

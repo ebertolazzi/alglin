@@ -203,7 +203,7 @@ namespace alglin {
       for ( integer i = 0; i < nn; ++i ) {
         integer j = i;
         while ( j < nn ) { if ( P[j] == i+1 ) break; ++j; }
-        //LW_ASSERT0( j < nn, "permutation_to_exchange error!" );
+        //LW_ASSERT0( j < nn, "permutation_to_exchange error!\n" );
         std::swap( P[j], P[i] );
         S[i] = j;
       }
@@ -377,7 +377,7 @@ namespace alglin {
       LW_ASSERT(
         nth > 0 && nth <= BORDERED_CYCLIC_REDUCTION_MAX_THREAD,
         "Bad number of thread specification [{}]\n"
-        "must be a number > 0 and <= {}",
+        "must be a number > 0 and <= {}\n",
         nth, BORDERED_CYCLIC_REDUCTION_MAX_THREAD
       );
       maxThread  = integer(std::thread::hardware_concurrency());
@@ -593,7 +593,7 @@ namespace alglin {
     void
     addtoC( integer nbl, valueType const C[], integer ldC ) {
       LW_ASSERT(
-        ldC >= nr, "addtoC( {}, C, ldC = {} ) bad ldC", nbl, ldC
+        ldC >= nr, "addtoC( {}, C, ldC = {} ) bad ldC\n", nbl, ldC
       );
       valueType * CC = Cmat + nbl*nr_x_n;
       geadd( nr, n, 1.0, C, ldC, 1.0, CC, nr, CC, nr );
@@ -612,7 +612,7 @@ namespace alglin {
     void
     addtoC2( integer nbl, valueType const C[], integer ldC ) {
       LW_ASSERT(
-        ldC >= nr, "addtoC2( {}, C, ldC = {} ) bad ldC", nbl, ldC
+        ldC >= nr, "addtoC2( {}, C, ldC = {} ) bad ldC\n", nbl, ldC
       );
       valueType * CC = Cmat + nbl*nr_x_n;
       geadd( nr, n_x_2, 1.0, C, ldC, 1.0, CC, nr, CC, nr );
@@ -944,13 +944,13 @@ namespace alglin {
     virtual
     void
     t_solve( valueType [] ) const ALGLIN_OVERRIDE {
-      LW_ERROR0( "BorderedCR::t_solve() not defined" );
+      LW_ERROR0( "BorderedCR::t_solve() not defined\n" );
     }
 
     virtual
     void
     t_solve( integer, valueType [], integer ) const ALGLIN_OVERRIDE {
-      LW_ERROR0( "BorderedCR::t_solve() not defined" );
+      LW_ERROR0( "BorderedCR::t_solve() not defined\n" );
     }
 
     /*\

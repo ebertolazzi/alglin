@@ -92,7 +92,7 @@ namespace alglin {
 
       default:
         LW_ERROR(
-          "finite_difference_gradient::fd_gradient = {} must be in {{-1, 0, 1}}",
+          "finite_difference_gradient::fd_gradient = {} must be in {{-1, 0, 1}}\n",
           fd_gradient
         );
       }
@@ -232,7 +232,7 @@ namespace alglin {
 
       default:
         LW_ERROR(
-          "finite_difference_jacobian::fd_gradient = {} must be in {{-1, 0, 1}}",
+          "finite_difference_jacobian::fd_gradient = {} must be in {{-1, 0, 1}}\n",
           fd_jacobian
         );
       }

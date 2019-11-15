@@ -265,7 +265,7 @@ namespace alglin {
     void
     loadBottomBlock( integer nbl, valueType const C[], integer ldC ) {
       LW_ASSERT(
-        ldC >= nb, "loadBottomBlock( {}, C, ldC = {} ) bad ldC", nbl, ldC
+        ldC >= nb, "loadBottomBlock( {}, C, ldC = {} ) bad ldC\n", nbl, ldC
       );
       valueType * CC = Cmat + nbl*nxnb;
       gecopy( nb, n, C, ldC, CC, nb );
@@ -274,7 +274,7 @@ namespace alglin {
     void
     addtoBottomBlock( integer nbl, valueType const C[], integer ldC ) {
       LW_ASSERT(
-        ldC >= nb, "addtoBottomBlock( {}, C, ldC = {} )bad ldC", nbl, ldC
+        ldC >= nb, "addtoBottomBlock( {}, C, ldC = {} ) bad ldC\n", nbl, ldC
       );
       valueType * CC = Cmat + nbl*nxnb;
       geadd( nb, n, 1.0, C, ldC, 1.0, CC, nb, CC, nb );
@@ -284,7 +284,7 @@ namespace alglin {
     void
     addtoBottomBlock2( integer nbl, valueType const C[], integer ldC ) {
       LW_ASSERT(
-        ldC >= nb, "addtoBottomBlock2( {}, C, ldC = {} ) bad ldC", nbl, ldC
+        ldC >= nb, "addtoBottomBlock2( {}, C, ldC = {} ) bad ldC\n", nbl, ldC
       );
       valueType * CC = Cmat + nbl*nxnb;
       geadd( nb, nx2, 1.0, C, ldC, 1.0, CC, nb, CC, nb );
@@ -486,7 +486,7 @@ namespace alglin {
       valueType const HN[],
       valueType const Hq[]
     ) {
-      LW_ASSERT0( nb == 0, "factorize nb > 0 and no border assigned" );
+      LW_ASSERT0( nb == 0, "factorize nb > 0 and no border assigned\n" );
       this->loadBlocks( AdAu, n );
       this->loadBottom( H0, n+q, HN, n+q, Hq, n+q );
       this->factorize();

@@ -110,7 +110,7 @@ namespace alglin {
       colptr[++jj] = kk;
     }
 
-    LW_ASSERT0( jj == neq, "SuperLU::factorize -- bad matrix format" );
+    LW_ASSERT0( jj == neq, "SuperLU::factorize -- bad matrix format\n" );
 
     // Create matrix A in the format expected by SuperLU.
     //cout << "Create matrix A in the format expected by SuperLU.\n";
@@ -196,7 +196,7 @@ namespace alglin {
 
     LW_ASSERT(
       info == 0,
-      "BABD_SuperLU::factorize -- dgstrf() error returns INFO = {}", info
+      "BABD_SuperLU::factorize -- dgstrf() error returns INFO = {}\n", info
     );
     //cout << "done\n";
   }
@@ -234,7 +234,7 @@ namespace alglin {
 
     LW_ASSERT(
       info == 0,
-      "BABD_SuperLU::solve -- dgstrs() error returns INFO = {}", info
+      "BABD_SuperLU::solve -- dgstrs() error returns INFO = {}\n", info
     );
   }
 
@@ -254,11 +254,11 @@ namespace alglin {
     StatFree(&slu_stats);
     LW_ASSERT(
       info1 == 0,
-      "BABD_SuperLU::cond -- dgscon() error returns INFO = {}", info1
+      "BABD_SuperLU::cond -- dgscon() error returns INFO = {}\n", info1
     );
     LW_ASSERT(
       info2 == 0,
-      "BABD_SuperLU::cond -- dgscon() error returns INFO = {}", info2
+      "BABD_SuperLU::cond -- dgscon() error returns INFO = {}\n", info2
     );
   }
 
