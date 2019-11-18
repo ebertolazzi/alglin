@@ -519,7 +519,10 @@ namespace alglin {
       iBlock[1] = nblock;
       factorize_block(0);
     }
-    load_and_factorize_last();
+    LW_ASSERT0(
+      load_and_factorize_last(),
+      "BorderedCR<t_Value>::factorize_CR, load_and_factorize_last failed\n"
+    );
   }
 
   /*\
@@ -895,7 +898,7 @@ namespace alglin {
   \*/
 
   template <typename t_Value>
-  void
+  bool
   BorderedCR<t_Value>::load_and_factorize_last() {
     /*
     //    n   n  qx  nx
@@ -929,55 +932,31 @@ namespace alglin {
     gecopy( nr, qx, Cqmat,   nr, Wq+offs, Nr );
     gecopy( nr, nx, Fmat[0], nr, Wp+offs, Nr );
 
-    integer info = 0;
+    bool ok = false;
     switch ( last_selected ) {
     case BORDERED_LAST_LU:
-      last_lu.factorize(
-        "BorderedCR::load_and_factorize_last",
-        Nr, Nc, Hmat, Nr
-      );
+      ok = last_lu.factorize( Nr, Nc, Hmat, Nr );
       break;
     case BORDERED_LAST_LUPQ:
-      last_lupq.factorize(
-        "BorderedCR::load_and_factorize_last",
-        Nr, Nc, Hmat, Nr
-      );
+      ok = last_lupq.factorize( Nr, Nc, Hmat, Nr );
       break;
     case BORDERED_LAST_QR:
-      last_qr.factorize(
-        "BorderedCR::load_and_factorize_last",
-        Nr, Nc, Hmat, Nr
-      );
+      ok = last_qr.factorize( Nr, Nc, Hmat, Nr );
       break;
     case BORDERED_LAST_QRP:
-      last_qrp.factorize(
-        "BorderedCR::load_and_factorize_last",
-        Nr, Nc, Hmat, Nr
-      );
+      ok = last_qrp.factorize( Nr, Nc, Hmat, Nr );
       break;
     case BORDERED_LAST_SVD:
-      last_svd.factorize(
-        "BorderedCR::load_and_factorize_last",
-        Nr, Nc, Hmat, Nr
-      );
+      ok = last_svd.factorize( Nr, Nc, Hmat, Nr );
       break;
     case BORDERED_LAST_LSS:
-      last_lss.factorize(
-        "BorderedCR::load_and_factorize_last",
-        Nr, Nc, Hmat, Nr
-      );
+      ok = last_lss.factorize( Nr, Nc, Hmat, Nr );
       break;
     case BORDERED_LAST_LSY:
-      last_lsy.factorize(
-        "BorderedCR::load_and_factorize_last",
-        Nr, Nc, Hmat, Nr
-      );
+      ok = last_lsy.factorize( Nr, Nc, Hmat, Nr );
       break;
     }
-    LW_ASSERT(
-      info == 0,
-      "BorderedCR::factorize_last INFO = {} Nr = {} Nc = {}\n", info, Nr, Nc
-    );
+    return ok;
   }
 
   /*\
@@ -990,42 +969,28 @@ namespace alglin {
   \*/
 
   template <typename t_Value>
-  void
+  bool
   BorderedCR<t_Value>::solve_last( valueType x[] ) const {
     valueType * X = x + (nblock-1)*n;
     swap( n, X, 1, x, 1 ); // uso x stesso come temporaneo
-    integer info = 0;
+    bool ok = false;
     switch ( last_selected ) {
-    case BORDERED_LAST_LU:
-      last_lu.solve( X );
-      break;
-    case BORDERED_LAST_LUPQ:
-      last_lupq.solve( X );
-      break;
-    case BORDERED_LAST_QR:
-      last_qr.solve( X );
-      break;
-    case BORDERED_LAST_QRP:
-      last_qrp.solve( X );
-      break;
-    case BORDERED_LAST_SVD:
-      last_svd.solve( X );
-      break;
-    case BORDERED_LAST_LSS:
-      last_lss.solve( X );
-      break;
-    case BORDERED_LAST_LSY:
-      last_lsy.solve( X );
-      break;
+    case BORDERED_LAST_LU:   ok = last_lu.solve( X );   break;
+    case BORDERED_LAST_LUPQ: ok = last_lupq.solve( X ); break;
+    case BORDERED_LAST_QR:   ok = last_qr.solve( X );   break;
+    case BORDERED_LAST_QRP:  ok = last_qrp.solve( X );  break;
+    case BORDERED_LAST_SVD:  ok = last_svd.solve( X );  break;
+    case BORDERED_LAST_LSS:  ok = last_lss.solve( X );  break;
+    case BORDERED_LAST_LSY:  ok = last_lsy.solve( X );  break;
     }
-    LW_ASSERT( info == 0, "BorderedCR::solve_last INFO = {}\n", info );
-    swap( n, X, 1, x, 1 );
+    if ( ok ) swap( n, X, 1, x, 1 );
+    return ok;
   }
 
   // ---------------------------------------------------------------------------
 
   template <typename t_Value>
-  void
+  bool
   BorderedCR<t_Value>::solve_last(
     integer   nrhs,
     valueType x[],
@@ -1033,32 +998,20 @@ namespace alglin {
   ) const {
     valueType * X = x + (nblock-1)*n;
     for ( integer i = 0; i < nrhs; ++i ) swap( n, X+i*ldX, 1, x+i*ldX, 1 );
-    integer info = 0;
+    bool ok = false;
     switch ( last_selected ) {
-    case BORDERED_LAST_LU:
-      last_lu.solve( nrhs, X, ldX );
-      break;
-    case BORDERED_LAST_LUPQ:
-      last_lupq.solve( nrhs, X, ldX );
-      break;
-    case BORDERED_LAST_QR:
-      last_qr.solve( nrhs, X, ldX );
-      break;
-    case BORDERED_LAST_QRP:
-      last_qrp.solve( nrhs, X, ldX );
-      break;
-    case BORDERED_LAST_SVD:
-      last_svd.solve( nrhs, X, ldX );
-      break;
-    case BORDERED_LAST_LSS:
-      last_lss.solve( nrhs, X, ldX );
-      break;
-    case BORDERED_LAST_LSY:
-      last_lsy.solve( nrhs, X, ldX );
-      break;
+    case BORDERED_LAST_LU:   ok = last_lu.solve( nrhs, X, ldX );   break;
+    case BORDERED_LAST_LUPQ: ok = last_lupq.solve( nrhs, X, ldX ); break;
+    case BORDERED_LAST_QR:   ok = last_qr.solve( nrhs, X, ldX );   break;
+    case BORDERED_LAST_QRP:  ok = last_qrp.solve( nrhs, X, ldX );  break;
+    case BORDERED_LAST_SVD:  ok = last_svd.solve( nrhs, X, ldX );  break;
+    case BORDERED_LAST_LSS:  ok = last_lss.solve( nrhs, X, ldX );  break;
+    case BORDERED_LAST_LSY:  ok = last_lsy.solve( nrhs, X, ldX );  break;
     }
-    LW_ASSERT( info == 0, "BorderedCR::solve_last INFO = {}\n", info );
-    for ( integer i = 0; i < nrhs; ++i ) swap( n, X+i*ldX, 1, x+i*ldX, 1 );
+    if ( ok )
+      for ( integer i = 0; i < nrhs; ++i )
+        swap( n, X+i*ldX, 1, x+i*ldX, 1 );
+    return ok;
   }
 
   /*\
@@ -1070,7 +1023,7 @@ namespace alglin {
   \*/
 
   template <typename t_Value>
-  void
+  bool
   BorderedCR<t_Value>::solve_CR( valueType x[] ) const {
     valueType * xb = x + (nblock+1)*n + qr; // deve essere b!
     if ( usedThread > 1 ) {
@@ -1100,7 +1053,7 @@ namespace alglin {
       forward(0,x,xb);
     }
 
-    solve_last( x );
+    if ( !solve_last( x ) ) return false;
 
     if ( usedThread > 1 ) {
       backward_reduced(x);
@@ -1111,12 +1064,13 @@ namespace alglin {
     } else {
       backward(0,x);
     }
+    return true;
   }
 
   // ---------------------------------------------------------------------------
 
   template <typename t_Value>
-  void
+  bool
   BorderedCR<t_Value>::solve_CR(
     integer   nrhs,
     valueType rhs[],
@@ -1134,7 +1088,7 @@ namespace alglin {
       forward_n( 0, nrhs, rhs, ldRhs );
     }
 
-    solve_last( nrhs, rhs, ldRhs );
+    if ( !solve_last( nrhs, rhs, ldRhs ) ) return false;
 
     if ( usedThread > 1 ) {
       backward_n_reduced( nrhs, rhs, ldRhs );
@@ -1147,6 +1101,7 @@ namespace alglin {
     } else {
       backward_n( 0, nrhs, rhs, ldRhs );
     }
+    return true;
   }
 
   /*\
@@ -2424,7 +2379,7 @@ namespace alglin {
   }
 
   template <typename t_Value>
-  void
+  bool
   BorderedCR<t_Value>::solve_SuperLU( valueType x[] ) const {
     int const   nrhs = 1;
     int         info;
@@ -2451,14 +2406,11 @@ namespace alglin {
     Destroy_SuperMatrix_Store( &B ) ;
     StatFree(&slu_stats);
 
-    LW_ASSERT(
-      info == 0,
-      "BABD_SuperLU::solve_SuperLU -- gstrs() error returns INFO= {}\n", info
-    );
+    return info == 0;
   }
 
   template <typename t_Value>
-  void
+  bool
   BorderedCR<t_Value>::solve_SuperLU(
     integer   nrhs,
     valueType rhs[],
@@ -2488,10 +2440,8 @@ namespace alglin {
     Destroy_SuperMatrix_Store( &B ) ;
     StatFree(&slu_stats);
 
-    LW_ASSERT(
-      info == 0,
-      "BABD_SuperLU::solve_SuperLU -- gstrs() error returns INFO = {}\n", info
-    );
+    return info == 0;
+
   }
 
   // ---------------------------------------------------------------------------

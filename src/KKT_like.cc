@@ -470,7 +470,7 @@ namespace alglin {
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   template <typename t_Value>
-  void
+  bool
   KKT<t_Value>::solve( valueType xb[] ) const {
     // a' = A^(-1)*a
     pAsolver->solve( xb );
@@ -492,12 +492,13 @@ namespace alglin {
       xb+n, 1,
       1, xb, 1
     );
+    return true;
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   template <typename t_Value>
-  void
+  bool
   KKT<t_Value>::t_solve( valueType xb[] ) const {
     // b' = Z^T*a -b
     gemv(
@@ -519,12 +520,13 @@ namespace alglin {
     );
     // x = A^(-T) a'
     pAsolver->t_solve( xb );
+    return true;
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   template <typename t_Value>
-  void
+  bool
   KKT<t_Value>::solve( integer nrhs, valueType B[], integer ldB ) const {
     // a' = A^(-1)*a
     pAsolver->solve( nrhs, B, ldB );
@@ -548,12 +550,13 @@ namespace alglin {
       B+n, ldB,
       1, B, ldB
     );
+    return true;
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   template <typename t_Value>
-  void
+  bool
   KKT<t_Value>::t_solve( integer nrhs, valueType B[], integer ldB ) const {
     // b' = Z^T*a -b
     gemm(
@@ -577,6 +580,7 @@ namespace alglin {
     );
     // x = A^(-T) a'
     pAsolver->t_solve( nrhs, B, ldB );
+    return true;
   }
 
   template class KKT<float>;

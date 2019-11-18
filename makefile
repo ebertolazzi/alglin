@@ -15,6 +15,7 @@ src/ABD_Diaz.cc \
 src/BABD.cc \
 src/BABD_Block.cc \
 src/BABD_BorderedCR.cc \
+src/BABD_BorderedCR_eigen3.cc \
 src/BABD_C_interface.cc \
 src/BABD_SuperLU.cc \
 src/BlockBidiagonal.cc \

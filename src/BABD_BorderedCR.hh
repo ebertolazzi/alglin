@@ -278,7 +278,7 @@ namespace alglin {
       integer   ldRhs
     ) const;
 
-    void
+    bool
     load_and_factorize_last();
 
     /*
@@ -288,10 +288,10 @@ namespace alglin {
     //  |_\__,_/__/\__|
     */
 
-    void
+    bool
     solve_last( valueType [] ) const;
 
-    void
+    bool
     solve_last(
       integer   nrhs,
       valueType rhs[],
@@ -907,6 +907,11 @@ namespace alglin {
       }
     }
 
+    bool solve_SuperLU( valueType x[] ) const;
+    bool solve_CR( valueType x[] ) const;
+    bool solve_SuperLU( integer nrhs, valueType rhs[], integer ldRhs ) const;
+    bool solve_CR( integer nrhs, valueType rhs[], integer ldRhs ) const;
+
     /*\
      |         _      _               _
      |  __   _(_)_ __| |_ _   _  __ _| |___
@@ -916,39 +921,33 @@ namespace alglin {
     \*/
 
     virtual
-    void
+    bool
     solve( valueType x[] ) const ALGLIN_OVERRIDE {
       if ( selected == BORDERED_SUPERLU ) {
-        solve_SuperLU( x );
+        return solve_SuperLU( x );
       } else {
-        solve_CR( x );
+        return solve_CR( x );
       }
     }
 
-    void solve_SuperLU( valueType x[] ) const;
-    void solve_CR( valueType x[] ) const;
-
     virtual
-    void
+    bool
     solve( integer nrhs, valueType rhs[], integer ldRhs ) const ALGLIN_OVERRIDE {
       if ( selected == BORDERED_SUPERLU ) {
-        solve_SuperLU( nrhs, rhs, ldRhs );
+        return solve_SuperLU( nrhs, rhs, ldRhs );
       } else {
-        solve_CR( nrhs, rhs, ldRhs );
+        return solve_CR( nrhs, rhs, ldRhs );
       }
     }
 
-    void solve_SuperLU( integer nrhs, valueType rhs[], integer ldRhs ) const;
-    void solve_CR( integer nrhs, valueType rhs[], integer ldRhs ) const;
-
     virtual
-    void
+    bool
     t_solve( valueType [] ) const ALGLIN_OVERRIDE {
       LW_ERROR0( "BorderedCR::t_solve() not defined\n" );
     }
 
     virtual
-    void
+    bool
     t_solve( integer, valueType [], integer ) const ALGLIN_OVERRIDE {
       LW_ERROR0( "BorderedCR::t_solve() not defined\n" );
     }

@@ -262,7 +262,7 @@ namespace alglin {
       integer   ldRhs
     ) const;
 
-    void
+    bool
     load_and_factorize_last();
 
     /*
@@ -272,10 +272,10 @@ namespace alglin {
     //  |_\__,_/__/\__|
     */
 
-    void
+    bool
     solve_last( valueType [] ) const;
 
-    void
+    bool
     solve_last(
       integer   nrhs,
       valueType rhs[],
@@ -888,21 +888,21 @@ namespace alglin {
     \*/
 
     virtual
-    void
+    bool
     solve( valueType x[] ) const ALGLIN_OVERRIDE;
 
     virtual
-    void
+    bool
     solve( integer nrhs, valueType rhs[], integer ldRhs ) const ALGLIN_OVERRIDE;
 
     virtual
-    void
+    bool
     t_solve( valueType [] ) const ALGLIN_OVERRIDE {
       LW_ERROR0( "BorderedCR::t_solve() not defined\n" );
     }
 
     virtual
-    void
+    bool
     t_solve( integer, valueType [], integer ) const ALGLIN_OVERRIDE {
       LW_ERROR0( "BorderedCR::t_solve() not defined\n" );
     }

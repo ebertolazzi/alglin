@@ -218,7 +218,7 @@ namespace alglin {
     , m(0)
     {}
 
-    ~KKT()
+    ~KKT() ALGLIN_OVERRIDE
     {}
 
     void
@@ -653,20 +653,20 @@ namespace alglin {
     // virtuals redefined
 
     virtual
-    void
-    solve( valueType xb[] ) const;
+    bool
+    solve( valueType xb[] ) const ALGLIN_OVERRIDE;
 
     virtual
-    void
-    t_solve( valueType xb[] ) const;
+    bool
+    t_solve( valueType xb[] ) const ALGLIN_OVERRIDE;
 
     virtual
-    void
-    solve( integer nrhs, valueType B[], integer ldB ) const;
+    bool
+    solve( integer nrhs, valueType B[], integer ldB ) const ALGLIN_OVERRIDE;
 
     virtual
-    void
-    t_solve( integer nrhs, valueType B[], integer ldB ) const;
+    bool
+    t_solve( integer nrhs, valueType B[], integer ldB ) const ALGLIN_OVERRIDE;
 
   };
 
