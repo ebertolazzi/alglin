@@ -164,7 +164,7 @@ main() {
   tm.tic();
   BCR.factorize();
   tm.toc();
-  fmt::print("\nFactorize = {:10.5} [ms]\n\n", tm.elapsed_ms());
+  fmt::print("\nFactorize = {:.5} [ms]\n\n", tm.elapsed_ms());
 
   std::copy( rhs, rhs+N, x );
   std::copy( rhs, rhs+N, x+N );
@@ -192,15 +192,15 @@ main() {
   BCR.solve( x ); ++ns;
   #endif
   tm.toc();
-  fmt::print("\nSolve = {:10.5} [ms]\n\n", tm.elapsed_ms()/ns);
+  fmt::print("\nSolve = {:.5} [ms]\n\n", tm.elapsed_ms()/ns);
 
   alglin::copy( N, xref, 1, xref1, 1 );
   alglin::axpy( N, -1.0, x, 1, xref1, 1 );
   valueType err = alglin::absmax( N, xref1, 1 );
-  fmt::print("Check |err|_inf = {:10.5}\n",err);
+  fmt::print("Check |err|_inf = {:.5}\n",err);
   LW_ASSERT0( err < 1e-8, "test failed!\n" );
   err = alglin::asum( N, xref1, 1 )/N;
-  fmt::print("Check |err|_1/N = {:10.5}\n",err);
+  fmt::print("Check |err|_1/N = {:.5}\n",err);
   LW_ASSERT0( err < 1e-8, "test failed!\n" );
 
   std::copy( rhs, rhs+2*N, x );
@@ -230,7 +230,7 @@ main() {
   BCR.solve( 2, x, N ); ++ns;
   #endif
   tm.toc();
-  fmt::print("\nSolve2 = {:10.5} [ms]\n",tm.elapsed_ms()/ns);
+  fmt::print("\nSolve2 = {:.5} [ms]\n",tm.elapsed_ms()/ns);
 
   /*
   file.open("sol.txt");
@@ -245,10 +245,10 @@ main() {
   alglin::copy( N, xref, 1, xref1, 1 );
   alglin::axpy( N, -1.0, x, 1, xref1, 1 );
   err = alglin::absmax( N, xref1, 1 );
-  fmt::print("Check |err|_inf = {:10.5}\n",err);
+  fmt::print("Check |err|_inf = {:.5}\n",err);
   LW_ASSERT0( err < 1e-8, "test failed!\n" );
   err = alglin::asum( N, xref1, 1 )/N;
-  fmt::print("Check |err|_1/N = {:10.5}\n",err);
+  fmt::print("Check |err|_1/N = {:.5}\n",err);
   LW_ASSERT0( err < 1e-8, "test failed!\n" );
 
   fmt::print("\n\ncheck residual\n\n");
@@ -260,13 +260,13 @@ main() {
   BCR_SAVED.addMv( x, resid );
 
   valueType res = alglin::nrm2( BCR_SAVED.numRows(), resid, 1 );
-  fmt::print("||res||_2   = {:10.5}\n",res);
+  fmt::print("||res||_2   = {:.5}\n",res);
   LW_ASSERT0( res < 1e-6, "test failed!\n" );
   res = alglin::asum( BCR_SAVED.numRows(), resid, 1 );
-  fmt::print("||res||_1   = {:10.5}\n",res);
+  fmt::print("||res||_1   = {:.5}\n",res);
   LW_ASSERT0( res < 1e-6, "test failed!\n" );
   res = alglin::absmax( BCR_SAVED.numRows(), resid, 1 );
-  fmt::print("||res||_inf = {:10.5}\n",res);
+  fmt::print("||res||_inf = {:.5}\n",res);
   LW_ASSERT0( res < 1e-6, "test failed!\n" );
 
   fmt::print("All done!\n");

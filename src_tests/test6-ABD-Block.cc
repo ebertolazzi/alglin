@@ -159,28 +159,28 @@ main() {
       TIC;
       LU.factorize_bordered();
       TOC;
-      fmt::print("(Block {}) Factorize = {:10.5} [ms]\n", kind[test], tm.elapsed_ms());
+      fmt::print("(Block {}) Factorize = {:.5} [ms]\n", kind[test], tm.elapsed_ms());
 
       std::copy( rhs, rhs+N+NB, x );
       TIC;
       LU.solve_bordered( x );
       TOC;
-      fmt::print("(Block {}) Solve     = {:10.5} [ms]\n", kind[test], tm.elapsed_ms());
+      fmt::print("(Block {}) Solve     = {:.5} [ms]\n", kind[test], tm.elapsed_ms());
 
       alglin::axpy( N+NB, -1.0, x, 1, xref, 1 );
       valueType err = alglin::absmax( N+NB, xref, 1 );
-      fmt::print("\nCheck |err|_inf = {:10.5}\n\n",err);
+      fmt::print("\nCheck |err|_inf = {:.5}\n\n",err);
       LW_ASSERT0( err < 1e-8, "test failed!\n" );
 
       for ( alglin::integer i = 0; i < 10; ++i ) std::copy( rhs, rhs+N+NB, x+i*(N+NB) );
       TIC;
       LU.solve_bordered( 1, x, N+NB );
       TOC;
-      fmt::print("(Block {}) Solve     = {:10.5} [ms]\n", kind[test], tm.elapsed_ms());
+      fmt::print("(Block {}) Solve     = {:.5} [ms]\n", kind[test], tm.elapsed_ms());
 
       alglin::axpy( N+NB, -1.0, x, 1, xref1, 1 );
       err = alglin::absmax( N+NB, xref1, 1 );
-      fmt::print("\nCheck |err|_inf = {:10.5}\n\n",err);
+      fmt::print("\nCheck |err|_inf = {:.5}\n\n",err);
       LW_ASSERT0( err < 1e-8, "test failed!\n" );
 
     }

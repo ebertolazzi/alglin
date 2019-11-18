@@ -194,7 +194,7 @@ test4() {
     alglin::integer(vals.size()), true
   );
   tm.toc();
-  fmt::print("LOAD1      = {:10.5} [ms]\n",tm.elapsed_ms());
+  fmt::print("LOAD1      = {:.5} [ms]\n",tm.elapsed_ms());
 
   tm.tic();
   BT2.load_triblock(
@@ -206,27 +206,27 @@ test4() {
   );
 
   tm.toc();
-  fmt::print("LOAD2      = {:10.5} [ms]\n", tm.elapsed_ms());
+  fmt::print("LOAD2      = {:.5} [ms]\n", tm.elapsed_ms());
 
   tm.tic();
   BT1.factorize();
   tm.toc();
-  fmt::print("factorize1 = {:10.5} [ms]\n", tm.elapsed_ms());
+  fmt::print("factorize1 = {:.5} [ms]\n", tm.elapsed_ms());
 
   tm.tic();
   BT2.factorize();
   tm.toc();
-  fmt::print("factorize2 = {:10.5} [ms]\n", tm.elapsed_ms());
+  fmt::print("factorize2 = {:.5} [ms]\n", tm.elapsed_ms());
 
   tm.tic();
   BT1.solve( &rhs1.front() );
   tm.toc();
-  fmt::print("solve1     = {:10.5} [ms]\n", tm.elapsed_ms());
+  fmt::print("solve1     = {:.5} [ms]\n", tm.elapsed_ms());
 
   tm.tic();
   BT2.solve( &rhs2.front() );
   tm.toc();
-  fmt::print("solve2     = {:10.5} [ms]\n", tm.elapsed_ms());
+  fmt::print("solve2     = {:.5} [ms]\n", tm.elapsed_ms());
 
   alglin::doublereal accerr = 0;
   alglin::doublereal maxerr = 0;
@@ -236,8 +236,8 @@ test4() {
     if ( maxerr < err ) maxerr = err;
   }
 
-  fmt::print("||err||_1  = {:10.5} [ms]\n", accerr);
-  fmt::print("||err||_i  = {:10.5} [ms]\n", maxerr);
+  fmt::print("||err||_1  = {:.5} [ms]\n", accerr);
+  fmt::print("||err||_i  = {:.5} [ms]\n", maxerr);
 
 }
 
