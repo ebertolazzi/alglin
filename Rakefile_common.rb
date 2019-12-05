@@ -12,15 +12,10 @@ end
 
 require_relative "./Rakefile_conf.rb"
 
-cmakeversion = %x( cmake --version ).scan(/\d+\.\d+/).last
-mm = cmakeversion.split('.');
-if mm[0].to_i > 3 || (mm[0].to_i == 3 && mm[1].to_i >= 12) then
-  PARALLEL = '--parallel 8 '
-  QUIET    = '-- --quiet '
-else
-  PARALLEL = ''
-  QUIET    = ''
-end
+puts "Alglin Configuration".yellow
+puts "COMPILE_DEBUG      = #{COMPILE_DEBUG}".yellow
+puts "COMPILE_DYNAMIC    = #{COMPILE_DYNAMIC}".yellow
+puts "COMPILE_EXECUTABLE = #{COMPILE_EXECUTABLE}".yellow
 
 if (/cygwin|mswin|mingw|bccwin|wince|emx/ =~ RUBY_PLATFORM) != nil then
   #linux
@@ -98,12 +93,12 @@ end
 #
 # https://stackoverflow.com/questions/856891/unzip-zip-tar-tag-gz-files-with-ruby
 #
-TAR_LONGLINK = '././@LongLink'
 def extract_tgz( tar_gz_archive, destination = '.' )
+  tar_longlink = '././@LongLink'
   Gem::Package::TarReader.new( Zlib::GzipReader.open tar_gz_archive ) do |tar|
     dest = nil
     tar.each do |entry|
-      if entry.full_name == TAR_LONGLINK
+      if entry.full_name == tar_longlink
         dest = File.join destination, entry.read.strip
         next
       end
