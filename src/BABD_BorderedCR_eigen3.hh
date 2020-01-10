@@ -107,9 +107,9 @@ namespace alglin {
     typedef t_Value valueType;
 
     typedef enum {
-      BORDERED_LU      = 0,
-      BORDERED_QR      = 1,
-      BORDERED_QRP     = 3
+      BORDERED_LU  = 0,
+      BORDERED_QR  = 1,
+      BORDERED_QRP = 3
     } BORDERED_Choice;
 
     typedef enum {
@@ -145,6 +145,7 @@ namespace alglin {
     integer n_x_nx;
     integer nr_x_n;
     integer nr_x_nx;
+    integer nr_x_qx;
     integer Nr, Nc;
     integer Tsize;
 
@@ -340,6 +341,7 @@ namespace alglin {
     , n_x_nx(0)
     , nr_x_n(0)
     , nr_x_nx(0)
+    , nr_x_qx(0)
     , Nr(0)
     , Nc(0)
     , last_selected(BORDERED_LAST_LU)
@@ -473,13 +475,13 @@ namespace alglin {
      | @{
     \*/
 
-    void zeroB()  { alglin::zero( nblock*n_x_nx, Cmat,    1 ); }
-    void zeroD()  { alglin::zero( nblock*n_x_n,  Dmat,    1 ); }
-    void zeroE()  { alglin::zero( nblock*n_x_n,  Emat,    1 ); }
-    void zeroF()  { alglin::zero( nr_x_nx,       Fmat[0], 1 ); }
-    void zeroH()  { alglin::zero( (n+qr)*Nc,     H0Nqp,   1 ); }
-    void zeroC()  { alglin::zero( (nblock+1)*nr_x_n, Cmat, 1 ); }
-    void zeroCq() { alglin::zero( nr*qx, Cqmat, 1 ); }
+    void zeroB()  { alglin::zero( nblock*n_x_nx,     Bmat,    1 ); }
+    void zeroD()  { alglin::zero( nblock*n_x_n,      Dmat,    1 ); }
+    void zeroE()  { alglin::zero( nblock*n_x_n,      Emat,    1 ); }
+    void zeroF()  { alglin::zero( nr_x_nx,           Fmat[0], 1 ); }
+    void zeroH()  { alglin::zero( (n+qr)*Nc,         H0Nqp,   1 ); }
+    void zeroC()  { alglin::zero( (nblock+1)*nr_x_n, Cmat,    1 ); }
+    void zeroCq() { alglin::zero( nr_x_qx,           Cqmat,   1 ); }
 
     void
     fillZero()
@@ -574,9 +576,7 @@ namespace alglin {
 
     void
     addtoC( integer nbl, valueType const C[], integer ldC ) {
-      LW_ASSERT(
-        ldC >= nr, "addtoC( {}, C, ldC = {} ) bad ldC\n", nbl, ldC
-      );
+      LW_ASSERT( ldC >= nr, "addtoC( {}, C, ldC = {} ) bad ldC\n", nbl, ldC );
       valueType * CC = Cmat + nbl*nr_x_n;
       geadd( nr, n, 1.0, C, ldC, 1.0, CC, nr, CC, nr );
     }
@@ -593,9 +593,7 @@ namespace alglin {
     // add to block nbl and nbl+1
     void
     addtoC2( integer nbl, valueType const C[], integer ldC ) {
-      LW_ASSERT(
-        ldC >= nr, "addtoC2( {}, C, ldC = {} ) bad ldC\n", nbl, ldC
-      );
+      LW_ASSERT( ldC >= nr, "addtoC2( {}, C, ldC = {} ) bad ldC\n", nbl, ldC );
       valueType * CC = Cmat + nbl*nr_x_n;
       geadd( nr, n_x_2, 1.0, C, ldC, 1.0, CC, nr, CC, nr );
     }
@@ -652,9 +650,9 @@ namespace alglin {
 
     void
     loadDEB( integer nbl, valueType const DEB[], integer ldDEB ) {
-      gecopy( n, n,  DEB, ldDEB, Dmat + nbl*n_x_n,  n  ); DEB += n*ldDEB;
-      gecopy( n, n,  DEB, ldDEB, Emat + nbl*n_x_n,  n  ); DEB += n*ldDEB;
-      gecopy( n, nx, DEB, ldDEB, Bmat + nbl*n_x_nx, nx );
+      gecopy( n, n,  DEB, ldDEB, Dmat + nbl*n_x_n,  n ); DEB += n*ldDEB;
+      gecopy( n, n,  DEB, ldDEB, Emat + nbl*n_x_n,  n ); DEB += n*ldDEB;
+      gecopy( n, nx, DEB, ldDEB, Bmat + nbl*n_x_nx, n );
     }
 
     // -------------------------------------------------------------------------
@@ -704,7 +702,7 @@ namespace alglin {
     void
     loadCqF( valueType const CqF[], integer ldCF ) {
       gecopy( nr, qx, CqF, ldCF, Cqmat, nr ); CqF += qx*ldCF;
-      gecopy( nr, nx, CqF, ldCF, Fmat[0],  nr );
+      gecopy( nr, nx, CqF, ldCF, Fmat[0], nr );
     }
 
     integer

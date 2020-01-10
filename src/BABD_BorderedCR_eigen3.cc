@@ -98,7 +98,7 @@ namespace alglin {
 
     integer nnz = nblock*(n_x_nx+2*n_x_n+Tsize+n) +
                   (nblock+1)*nr_x_n +
-                  nr*qx +
+                  nr_x_qx +
                   Nr*Nc + (n+qr)*Nc +
                   Lwork + (LworkT+LworkQR+nr_x_nx+nr)*maxThread;
     integer innz = nblock*n + (3+n)*maxThread;
@@ -108,7 +108,7 @@ namespace alglin {
 
     Bmat  = baseValue( size_t(nblock*n_x_nx) );
     Cmat  = baseValue( size_t((nblock+1)*nr_x_n) );
-    Cqmat = baseValue( size_t(nr*qx) );
+    Cqmat = baseValue( size_t(nr_x_qx) );
     Dmat  = baseValue( size_t(nblock*n_x_n) );
     Emat  = baseValue( size_t(nblock*n_x_n) );
 
@@ -156,7 +156,7 @@ namespace alglin {
     copy( nblock*n_x_n,      M.Emat,    1, Emat,    1 );
     copy( nr_x_nx,           M.Fmat[0], 1, Fmat[0], 1 );
     copy( (n+qr)*Nc,         M.H0Nqp,   1, H0Nqp,   1 );
-    copy( nr*qx,             M.Cqmat,   1, Cqmat,   1 );
+    copy( nr_x_qx,           M.Cqmat,   1, Cqmat,   1 );
   }
 
   /*\
@@ -1646,7 +1646,6 @@ namespace alglin {
   BorderedCR_eigen3<t_Value>::patternCq(
     integer I[], integer J[], integer offs
   ) const {
-    integer nr_x_qx = nr*qx;
     integer i0 = (nblock+1)*n + qr + offs;
     integer j0 = (nblock+1)*n + offs;
     for ( integer ij = 0; ij < nr_x_qx; ++ij ) {
@@ -1659,7 +1658,6 @@ namespace alglin {
   template <typename t_Value>
   integer
   BorderedCR_eigen3<t_Value>::valuesCq( valueType V[] ) const {
-    integer nr_x_qx = nr*qx;
     alglin::copy( nr_x_qx, Cqmat, 1, V, 1 );
     return nr_x_qx;
   }
@@ -1687,7 +1685,6 @@ namespace alglin {
     return nnz;
   }
 
-#if 1
   template <typename t_Value>
   void
   BorderedCR_eigen3<t_Value>::sparsePattern(
@@ -1757,150 +1754,6 @@ namespace alglin {
     );
 
   }
-
-#else
-
-  template <typename t_Value>
-  void
-  BorderedCR_eigen3<t_Value>::sparsePattern(
-    integer I[],
-    integer J[],
-    integer offs
-  ) const {
-    integer kkk = 0;
-
-    // D, E, B
-    integer je = nblock*n;
-    integer jq = je+n;
-    integer jb = jq+qx;
-    for ( integer k = 0; k < nblock; ++k ) {
-      integer ii = k*n;
-      for ( integer i = 0; i < n; ++i ) {
-        integer iii = ii+i;
-        for ( integer j = 0; j < n; ++j ) {
-          I[kkk] = iii; J[kkk] = ii+j;   ++kkk; // D[i+j*n]
-          I[kkk] = iii; J[kkk] = ii+n+j; ++kkk; // E[i+j*n]
-        }
-        for ( integer j = 0; j < nx; ++j ) {
-          I[kkk] = iii; J[kkk] = jb+j; ++kkk; // B[i+j*n]
-        }
-      }
-    }
-
-    // H0
-    integer ie = nblock*n;
-    for ( integer i = 0; i < n+qr; ++i ) {
-      for ( integer j = 0; j < n; ++j ) {
-        I[kkk] = ie+i; J[kkk] = j; ++kkk; // H[i+j*(n+qr)]
-      }
-    }
-
-    // HNp
-    for ( integer i = 0; i < n+qr; ++i ) {
-      for ( integer j = 0; j < n+qx+nx; ++j ) {
-        I[kkk] = ie+i; J[kkk] = je+j; ++kkk; // H[i+j*(n+qr)]
-      }
-    }
-
-    // C
-    ie += n+qr;
-    for ( integer k = 0; k <= nblock; ++k ) {
-      integer ii = k*n;
-      for ( integer i = 0; i < nr; ++i ) {
-        for ( integer j = 0; j < n; ++j ) {
-          I[kkk] = ie+i; J[kkk] = ii+j; ++kkk; // C[i+j*nr]
-        }
-      }
-    }
-
-    // F
-    for ( integer i = 0; i < nr; ++i ) {
-      for ( integer j = 0; j < nx; ++j ) {
-        I[kkk] = ie+i; J[kkk] = jb+j; ++kkk; // Fmat[i+j*nr]
-      }
-    }
-
-    // Cq
-    for ( integer i = 0; i < nr; ++i ) {
-      for ( integer j = 0; j < qx; ++j ) {
-        I[kkk] = ie+i; J[kkk] = jq+j; ++kkk; // Cqmat[i+j*nr]
-      }
-    }
-
-    LW_ASSERT(
-      kkk == sparseNnz(),
-      "BorderedCR_eigen3::sparsePattern( V ), "
-      "inserted {} values, expected {}\n",
-      kkk, sparseNnz()
-    );
-
-    if ( offs != 0 ) {
-      for ( integer kkk = 0; kkk < sparseNnz(); ++kkk ) {
-        I[kkk] += offs;
-        J[kkk] += offs;
-      }
-    }
-  }
-
-  // ---------------------------------------------------------------------------
-
-  template <typename t_Value>
-  void
-  BorderedCR_eigen3<t_Value>::sparseValues( valueType V[] ) const {
-    // D, E, B
-    integer kkk = 0;
-    for ( integer k = 0; k < nblock; ++k ) {
-      //integer ii = offs+k*n;
-      valueType * D = Dmat + k * n_x_n;
-      valueType * E = Emat + k * n_x_n;
-      valueType * B = Bmat + k * n_x_nx;
-      for ( integer i = 0; i < n; ++i ) {
-        for ( integer j = 0; j < n; ++j ) {
-          V[kkk++] = D[i+j*n];
-          V[kkk++] = E[i+j*n];
-        }
-        for ( integer j = 0; j < nx; ++j ) V[kkk++] = B[i+j*n];
-      }
-    }
-
-    // H0
-    valueType * H = this->H0Nqp;
-    for ( integer i = 0; i < n+qr; ++i )
-      for ( integer j = 0; j < n; ++j )
-        V[kkk++] = H[i+j*(n+qr)];
-    H += n*(n+qr);
-
-    // HNp
-    for ( integer i = 0; i < n+qr; ++i )
-      for ( integer j = 0; j < n+qx+nx; ++j )
-        V[kkk++] = H[i+j*(n+qr)];
-
-    // C
-    for ( integer k = 0; k <= nblock; ++k ) {
-      valueType * C = Cmat + k * nr_x_n;
-      for ( integer i = 0; i < nr; ++i )
-        for ( integer j = 0; j < n; ++j )
-          V[kkk++] = C[i+j*nr];
-    }
-
-    // F
-    for ( integer i = 0; i < nr; ++i )
-      for ( integer j = 0; j < nx; ++j )
-        V[kkk++] = Fmat[i+j*nr];
-
-    // Cq
-    for ( integer i = 0; i < nr; ++i )
-      for ( integer j = 0; j < qx; ++j )
-        V[kkk++] = Cqmat[i+j*nr];
-
-    LW_ASSERT(
-      kkk == sparseNnz(),
-      "BorderedCR_eigen3::sparseValues( V ), "
-      "inserted {} values, expected {}\n",
-      kkk, sparseNnz()
-    );
-  }
-#endif
 
   // ---------------------------------------------------------------------------
 
