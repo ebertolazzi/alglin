@@ -336,7 +336,7 @@ namespace alglin {
     integer usedThread;
     mutable integer    * perm_thread[BORDERED_CYCLIC_REDUCTION_MAX_THREAD];
     mutable valueType  * xb_thread[BORDERED_CYCLIC_REDUCTION_MAX_THREAD];
-    mutable ThreadPool * TP;
+    mutable ThreadPool * pTP;
     mutable SpinLock     spin;
 
   public:
@@ -377,9 +377,9 @@ namespace alglin {
     , Perm(nullptr)
     , Lwork(0)
     , Hmat(nullptr)
-    , TP(_TP)
+    , pTP(_TP)
     {
-      usedThread = _TP == nullptr ? 1 : integer(TP->size());
+      usedThread = pTP == nullptr ? 1 : pTP->size();
       if ( usedThread > BORDERED_CYCLIC_REDUCTION_MAX_THREAD )
         usedThread = BORDERED_CYCLIC_REDUCTION_MAX_THREAD;
       #ifdef LAPACK_WRAPPER_USE_OPENBLAS
@@ -391,6 +391,14 @@ namespace alglin {
     virtual
     ~BorderedCR() ALGLIN_OVERRIDE
     {}
+
+    void
+    setThreadPool( ThreadPool * _TP = nullptr ) {
+      pTP = _TP;
+      usedThread = _TP == nullptr ? 1 : pTP->size();
+      if ( usedThread > BORDERED_CYCLIC_REDUCTION_MAX_THREAD )
+        usedThread = BORDERED_CYCLIC_REDUCTION_MAX_THREAD;
+    }
 
     //! load matrix in the class
     void

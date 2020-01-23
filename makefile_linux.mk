@@ -10,7 +10,7 @@ CC      = gcc $(WARN)
 CXX     = g++ $(WARN) -std=c++11 -pthread
 F90     = gfortran
 LIBS3RD = -Llib3rd/lib -Llib3rd/dll -Wl,-rpath,lib3rd/dll -llapack_wrapper_linux_static -lsuperlu_linux_static
-LIBS    = -Llib/lib -Llib/dll -lfmt_linux_static -lfort_linux_static -lAlglin_linux $(LIBS3RD) -Wl,-rpath,lib/dll 
+LIBS    = -Llib/lib -Llib/dll -lAlglin_linux $(LIBS3RD) -Wl,-rpath,lib/dll -ldl
 INC     = -I./src -Ilib3rd/include
 CLIBS   = -lc++
 DEFS    =

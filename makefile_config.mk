@@ -30,7 +30,7 @@ ifeq (,$(wildcard .alglin_config))
 ifneq (,$(findstring Darwin, $(OS)))
   USED_LIB = ALGLIN_USE_ACCELERATE
 else
-  USED_LIB = ALGLIN_USE_LAPACK
+  USED_LIB = ALGLIN_USE_OPENBLAS
 endif
 else
   USED_LIB = $(shell cat .alglin_config)

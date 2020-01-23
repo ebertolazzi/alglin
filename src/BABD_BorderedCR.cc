@@ -143,7 +143,7 @@ namespace alglin {
   void
   BorderedCR<t_Value>::dup( BorderedCR const & M ) {
     usedThread = M.usedThread;
-    TP         = M.TP;
+    pTP        = M.pTP;
     allocate( M.nblock, M.n, M.qr, M.qx, M.nr, M.nx );
     copy( nblock*n_x_nx,     M.Bmat,    1, Bmat,    1 );
     copy( (nblock+1)*nr_x_n, M.Cmat,    1, Cmat,    1 );
@@ -502,11 +502,11 @@ namespace alglin {
       for ( integer nt = 1; nt < usedThread; ++nt ) {
         // fill zero F(...) only that of the extra threads
         if ( nr_x_nx > 0 ) alglin::zero( nr_x_nx, Fmat[nt], 1 );
-        TP->run( nt, &BorderedCR<t_Value>::factorize_block, this, nt );
+        pTP->run( nt, &BorderedCR<t_Value>::factorize_block, this, nt );
       }
       factorize_block(0);
       // wait thread
-      TP->wait_all();
+      pTP->wait_all();
       // accumulate F(...)
       if ( nr_x_nx > 0 )
         for ( integer nt = 1; nt < usedThread; ++nt )
@@ -1028,18 +1028,18 @@ namespace alglin {
       if ( nr > 0 ) {
         for ( integer nt = 1; nt < usedThread; ++nt ) {
           alglin::zero( nr, xb_thread[nt], 1 );
-          TP->run( nt, &BorderedCR<t_Value>::forward, this, nt, x, xb_thread[nt] );
+          pTP->run( nt, &BorderedCR<t_Value>::forward, this, nt, x, xb_thread[nt] );
         }
         alglin::zero( nr, xb_thread[0], 1 );
         forward(0,x,xb);
-        TP->wait_all();
+        pTP->wait_all();
         for ( integer nt = 1; nt < usedThread; ++nt )
           axpy( nr, 1.0, xb_thread[nt], 1, xb, 1 );
       } else {
         for ( integer nt = 1; nt < usedThread; ++nt )
-          TP->run( nt, &BorderedCR<t_Value>::forward, this, nt, x, xb_thread[nt] );
+          pTP->run( nt, &BorderedCR<t_Value>::forward, this, nt, x, xb_thread[nt] );
         forward(0,x,xb);
-        TP->wait_all();
+        pTP->wait_all();
       }
       forward_reduced(x,xb);
     } else {
@@ -1051,9 +1051,9 @@ namespace alglin {
     if ( usedThread > 1 ) {
       backward_reduced(x);
       for ( integer nt = 1; nt < usedThread; ++nt )
-        TP->run( nt, &BorderedCR<t_Value>::backward, this, nt, x );
+        pTP->run( nt, &BorderedCR<t_Value>::backward, this, nt, x );
       backward(0,x);
-      TP->wait_all();
+      pTP->wait_all();
     } else {
       backward(0,x);
     }
@@ -1071,9 +1071,9 @@ namespace alglin {
   ) const {
     if ( usedThread > 1 ) {
       for ( integer nt = 1; nt < usedThread; ++nt )
-        TP->run( nt, &BorderedCR<t_Value>::forward_n, this, nt, nrhs, rhs, ldRhs );
+        pTP->run( nt, &BorderedCR<t_Value>::forward_n, this, nt, nrhs, rhs, ldRhs );
       forward_n( 0, nrhs, rhs, ldRhs );
-      TP->wait_all();
+      pTP->wait_all();
       forward_n_reduced( nrhs, rhs, ldRhs );
     } else {
       forward_n( 0, nrhs, rhs, ldRhs );
@@ -1084,9 +1084,9 @@ namespace alglin {
     if ( usedThread > 1 ) {
       backward_n_reduced( nrhs, rhs, ldRhs );
       for ( integer nt = 1; nt < usedThread; ++nt )
-        TP->run( nt, &BorderedCR<t_Value>::backward_n, this, nt, nrhs, rhs, ldRhs );
+        pTP->run( nt, &BorderedCR<t_Value>::backward_n, this, nt, nrhs, rhs, ldRhs );
       backward_n( 0, nrhs, rhs, ldRhs );
-      TP->wait_all();
+      pTP->wait_all();
     } else {
       backward_n( 0, nrhs, rhs, ldRhs );
     }
