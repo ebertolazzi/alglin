@@ -21,6 +21,8 @@
 /// file: ABD_Block.hh
 ///
 
+#pragma once
+
 #ifndef ABD_BLOCK_HH
 #define ABD_BLOCK_HH
 

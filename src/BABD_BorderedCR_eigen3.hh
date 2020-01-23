@@ -17,10 +17,12 @@
  |                                                                          |
 \*--------------------------------------------------------------------------*/
 
+#pragma once
+
 #ifndef BABD_BORDERED_CR_EIGEN3_HH
 #define BABD_BORDERED_CR_EIGEN3_HH
 
-#include "Alglin_Config.hh"
+#include "Alglin_ThreadPool.hh"
 #include "Alglin_SuperLU.hh"
 #include "Alglin_Eigen.hh"
 #include "Alglin_threads.hh"
@@ -314,10 +316,10 @@ namespace alglin {
     integer *iBlock, *kBlock;
 
     // used also with a unique thread
-    integer maxThread, usedThread;
+    integer usedThread;
     mutable integer   * perm_thread[BORDERED_CYCLIC_REDUCTION_MAX_THREAD];
     mutable valueType * xb_thread[BORDERED_CYCLIC_REDUCTION_MAX_THREAD];
-    mutable std::thread threads[BORDERED_CYCLIC_REDUCTION_MAX_THREAD];
+    mutable ThreadPool * TP;
     mutable SpinLock spin;
 
   public:
@@ -325,7 +327,7 @@ namespace alglin {
     using LinearSystemSolver<t_Value>::factorize;
 
     explicit
-    BorderedCR_eigen3( integer nth = integer(1+std::thread::hardware_concurrency()/2) )
+    BorderedCR_eigen3( ThreadPool * _TP = nullptr )
     : baseValue("BorderedCR_values")
     , baseInteger("BorderedCR_integers")
     , superluValue("BorderedCR_superluValue")
@@ -358,16 +360,11 @@ namespace alglin {
     , Perm(nullptr)
     , Lwork(0)
     , Hmat(nullptr)
-    , maxThread(1)
+    , TP(_TP)
     {
-      LW_ASSERT(
-        nth > 0 && nth <= BORDERED_CYCLIC_REDUCTION_MAX_THREAD,
-        "Bad number of thread specification [{}]\n"
-        "must be a number > 0 and <= {}\n",
-        nth, BORDERED_CYCLIC_REDUCTION_MAX_THREAD
-      );
-      maxThread  = integer(std::thread::hardware_concurrency());
-      usedThread = nth;
+      usedThread = _TP == nullptr ? 1 : TP->size();
+      if ( usedThread > BORDERED_CYCLIC_REDUCTION_MAX_THREAD )
+        usedThread = BORDERED_CYCLIC_REDUCTION_MAX_THREAD;
       #ifdef LAPACK_WRAPPER_USE_OPENBLAS
       openblas_set_num_threads(1);
       goto_set_num_threads(1);
@@ -377,16 +374,6 @@ namespace alglin {
     virtual
     ~BorderedCR_eigen3() ALGLIN_OVERRIDE
     {}
-
-    void
-    set_N_thread( integer nth ) {
-      if      ( nth < 1         ) usedThread = 1;
-      else if ( nth > maxThread ) usedThread = maxThread;
-      else                        usedThread = nth;
-    }
-
-    integer get_used_thread() const { return usedThread; }
-    integer get_max_thread()  const { return maxThread; }
 
     //! load matrix in the class
     void

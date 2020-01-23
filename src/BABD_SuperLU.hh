@@ -17,6 +17,8 @@
  |                                                                          |
 \*--------------------------------------------------------------------------*/
 
+#pragma once
+
 #ifndef BABD_SUPERLU_HH
 #define BABD_SUPERLU_HH
 

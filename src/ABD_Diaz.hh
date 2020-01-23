@@ -21,6 +21,8 @@
 /// file: ABD_Diaz.hh
 ///
 
+#pragma once
+
 #ifndef ABD_DIAZ_HH
 #define ABD_DIAZ_HH
 

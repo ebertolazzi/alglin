@@ -21,6 +21,8 @@
 /// file: Alglin_threads.hh
 ///
 
+#pragma once
+
 #ifndef ALGLIN_THREADS_HH
 #define ALGLIN_THREADS_HH
 
@@ -119,9 +121,9 @@ namespace alglin {
   };
 
   class Barrier {
-    int to_be_done, usedThread  ;
-    std::mutex              mtx ;
-    std::condition_variable cond ;
+    int to_be_done, usedThread;
+    std::mutex              mtx;
+    std::condition_variable cond;
   public:
     Barrier() : to_be_done(0) {}
 

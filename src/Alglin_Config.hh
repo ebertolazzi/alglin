@@ -21,6 +21,8 @@
 /// file: Alglin_Config.hh
 ///
 
+#pragma once
+
 #ifndef ALGLIN_CONFIG_HH
 #define ALGLIN_CONFIG_HH
 

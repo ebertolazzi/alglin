@@ -21,6 +21,8 @@
 /// file: Alglin_SuperLU.hh
 ///
 
+#pragma once
+
 #ifndef ALGLIN_SUPERLU_HH
 #define ALGLIN_SUPERLU_HH
 

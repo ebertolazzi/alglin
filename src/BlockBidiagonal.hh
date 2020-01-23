@@ -17,6 +17,8 @@
  |                                                                          |
 \*--------------------------------------------------------------------------*/
 
+#pragma once
+
 #ifndef BLOCK_BIDIAGONAL_HH
 #define BLOCK_BIDIAGONAL_HH
 

@@ -56,8 +56,10 @@ rand( valueType xmin, valueType xmax ) {
 int
 main() {
 
-  //alglin::BorderedCR<double> BCR(4), BCR_SAVED(4);
-  alglin::BorderedCR_eigen3<double> BCR(4), BCR_SAVED(4);
+  alglin::ThreadPool TP(8);
+
+  alglin::BorderedCR<double> BCR(&TP), BCR_SAVED(&TP);
+  //alglin::BorderedCR_eigen3<double> BCR(&TP), BCR_SAVED(&TP);
 
   //#define NSIZE 10
   #define NSIZE 40

@@ -21,13 +21,15 @@
 /// file: Alglin_FD.hh
 ///
 
+#pragma once
+
+#ifndef ALGLIN_FD_HH
+#define ALGLIN_FD_HH
+
 #include "Alglin_Config.hh"
 
 #include <iostream>
 #include <iomanip>
-
-#ifndef ALGLIN_FD_HH
-#define ALGLIN_FD_HH
 
 namespace alglin {
 

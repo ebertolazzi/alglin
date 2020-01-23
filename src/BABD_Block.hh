@@ -17,6 +17,8 @@
  |                                                                          |
 \*--------------------------------------------------------------------------*/
 
+#pragma once
+
 #ifndef LU_BABD_BLOCK_HH
 #define LU_BABD_BLOCK_HH
 

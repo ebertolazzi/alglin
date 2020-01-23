@@ -21,6 +21,8 @@
 /// file: Alglin_aux.hh
 ///
 
+#pragma once
+
 #ifndef ALGLIN_AUX_HH
 #define ALGLIN_AUX_HH
 

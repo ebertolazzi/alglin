@@ -21,6 +21,8 @@
 /// file: AlglinEigen.hh
 ///
 
+#pragma once
+
 #ifndef ALGLIN_EIGEN_HH
 #define ALGLIN_EIGEN_HH
 

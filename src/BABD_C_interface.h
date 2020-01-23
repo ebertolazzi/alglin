@@ -17,6 +17,8 @@
  |                                                                          |
 \*--------------------------------------------------------------------------*/
 
+#pragma once
+
 #ifndef BABD_C_INTERFACE_HH
 #define BABD_C_INTERFACE_HH
 
