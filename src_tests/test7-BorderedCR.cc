@@ -56,16 +56,23 @@ rand( valueType xmin, valueType xmax ) {
 int
 main() {
 
-  alglin::ThreadPool TP(8);
+  alglin::integer nth = std::thread::hardware_concurrency();
+  
+  #ifdef LAPACK_WRAPPER_USE_OPENBLAS
+  openblas_set_num_threads(1);
+  goto_set_num_threads(1);
+  #endif
+
+  alglin::ThreadPool TP(nth);
 
   alglin::BorderedCR<double> BCR(&TP), BCR_SAVED(&TP);
   //alglin::BorderedCR_eigen3<double> BCR(&TP), BCR_SAVED(&TP);
 
-  //#define NSIZE 10
-  #define NSIZE 40
+  #define NSIZE 8
+  //#define NSIZE 40
 
   alglin::integer n      = NSIZE;
-  alglin::integer nblock = 5000;
+  alglin::integer nblock = 10000;
   //salglin::integer nblock = 200;
   alglin::integer qx     = 4;// 4+1;
   alglin::integer qr     = 4;// 4;
@@ -141,7 +148,8 @@ main() {
   BCR.Mv( x, rhs );
   BCR_SAVED.dup( BCR );
 
-  cout << "nthread = " << std::thread::hardware_concurrency() << '\n';
+  cout << "nthread (avilable)= " << std::thread::hardware_concurrency() << '\n';
+  cout << "nthread (used)    = " << nth << '\n';
 
   cout << "N      = " << N      << '\n'
        << "nblock = " << nblock << '\n'
@@ -150,6 +158,7 @@ main() {
        << "nx     = " << nx     << '\n'
        << "qr     = " << qr     << '\n'
        << "qx     = " << qx     << '\n';
+
   /*
   ofstream file("mat.txt");
   file.precision(15);

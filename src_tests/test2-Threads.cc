@@ -23,7 +23,7 @@
 #include <fstream>
 
 #include "Alglin_Config.hh"
-#include "Alglin_threads.hh"
+#include "Alglin_ThreadPool.hh"
 
 #ifdef __GNUC__ 
 #pragma GCC diagnostic push
