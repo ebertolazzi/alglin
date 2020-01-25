@@ -25,9 +25,12 @@
 #include "Alglin_ThreadPool.hh"
 #include "Alglin_SuperLU.hh"
 #include "Alglin_Eigen.hh"
-#include "Alglin_ThreadPool.hh"
 
 #include <iostream>
+
+#ifndef BORDERED_CYCLIC_REDUCTION_MAX_THREAD
+  #define BORDERED_CYCLIC_REDUCTION_MAX_THREAD 256
+#endif
 
 #ifdef __GNUC__ 
 #pragma GCC diagnostic push
@@ -126,13 +129,11 @@ namespace alglin {
 
   protected:
 
-    Malloc<valueType>  baseValue;
-    Malloc<integer>    baseInteger;
-    Malloc<valueType*> basePointer;
-    Malloc<integer*>   basePointerI;
+    Malloc<valueType> baseValue;
+    Malloc<integer>   baseInteger;
 
-    Malloc<valueType>  superluValue;
-    Malloc<int>        superluInteger;
+    Malloc<valueType> superluValue;
+    Malloc<int>       superluInteger;
 
     integer nblock; //!< total number of blocks
     integer n;      //!< size of square blocks
@@ -289,9 +290,9 @@ namespace alglin {
     valueType * Cqmat;
     valueType * Dmat;
     valueType * Emat;
-    valueType ** Fmat_vec;
-    valueType ** WorkT_vec;
-    valueType ** WorkQR_vec;
+    valueType * Fmat[BORDERED_CYCLIC_REDUCTION_MAX_THREAD];
+    valueType * WorkT[BORDERED_CYCLIC_REDUCTION_MAX_THREAD];
+    valueType * WorkQR[BORDERED_CYCLIC_REDUCTION_MAX_THREAD];
 
     // working block
     valueType * Tmat;
@@ -315,8 +316,8 @@ namespace alglin {
 
     // used also with a unique thread
     integer usedThread;
-    mutable integer   ** perm_thread_vec;
-    mutable valueType ** xb_thread_vec;
+    mutable integer    * perm_thread[BORDERED_CYCLIC_REDUCTION_MAX_THREAD];
+    mutable valueType  * xb_thread[BORDERED_CYCLIC_REDUCTION_MAX_THREAD];
     mutable ThreadPool * pTP;
     mutable SpinLock spin;
 
@@ -326,12 +327,10 @@ namespace alglin {
 
     explicit
     BorderedCR_eigen3( ThreadPool * _TP = nullptr )
-    : baseValue("BorderedCR_eigen3_values")
-    , baseInteger("BorderedCR_eigen3_integers")
-    , basePointer("BorderedCR_eigen3_pointers")
-    , basePointerI("BorderedCR_eigen3_Ipointers")
-    , superluValue("BorderedCR_eigen3_superluValue")
-    , superluInteger("BorderedCR_eigen3_superluInteger")
+    : baseValue("BorderedCR_values")
+    , baseInteger("BorderedCR_integers")
+    , superluValue("BorderedCR_superluValue")
+    , superluInteger("BorderedCR_superluInteger")
     , nblock(0)
     , n(0)
     , qr(0)
@@ -363,6 +362,8 @@ namespace alglin {
     , pTP(_TP)
     {
       usedThread = pTP == nullptr ? 1 : pTP->size();
+      if ( usedThread > BORDERED_CYCLIC_REDUCTION_MAX_THREAD )
+        usedThread = BORDERED_CYCLIC_REDUCTION_MAX_THREAD;
       #ifdef LAPACK_WRAPPER_USE_OPENBLAS
       openblas_set_num_threads(1);
       goto_set_num_threads(1);
@@ -377,6 +378,8 @@ namespace alglin {
     setThreadPool( ThreadPool * _TP = nullptr ) {
       pTP = _TP;
       usedThread = _TP == nullptr ? 1 : pTP->size();
+      if ( usedThread > BORDERED_CYCLIC_REDUCTION_MAX_THREAD )
+        usedThread = BORDERED_CYCLIC_REDUCTION_MAX_THREAD;
     }
 
     //! load matrix in the class
@@ -466,13 +469,13 @@ namespace alglin {
      | @{
     \*/
 
-    void zeroB()  { alglin::zero( nblock*n_x_nx,     Bmat,        1 ); }
-    void zeroD()  { alglin::zero( nblock*n_x_n,      Dmat,        1 ); }
-    void zeroE()  { alglin::zero( nblock*n_x_n,      Emat,        1 ); }
-    void zeroF()  { alglin::zero( nr_x_nx,           Fmat_vec[0], 1 ); }
-    void zeroH()  { alglin::zero( (n+qr)*Nc,         H0Nqp,       1 ); }
-    void zeroC()  { alglin::zero( (nblock+1)*nr_x_n, Cmat,        1 ); }
-    void zeroCq() { alglin::zero( nr_x_qx,           Cqmat,       1 ); }
+    void zeroB()  { alglin::zero( nblock*n_x_nx,     Bmat,    1 ); }
+    void zeroD()  { alglin::zero( nblock*n_x_n,      Dmat,    1 ); }
+    void zeroE()  { alglin::zero( nblock*n_x_n,      Emat,    1 ); }
+    void zeroF()  { alglin::zero( nr_x_nx,           Fmat[0], 1 ); }
+    void zeroH()  { alglin::zero( (n+qr)*Nc,         H0Nqp,   1 ); }
+    void zeroC()  { alglin::zero( (nblock+1)*nr_x_n, Cmat,    1 ); }
+    void zeroCq() { alglin::zero( nr_x_qx,           Cqmat,   1 ); }
 
     void
     fillZero()
@@ -656,14 +659,14 @@ namespace alglin {
     \*/
     void
     loadF( valueType const F[], integer ldF )
-    { gecopy( nr, nx, F, ldF, Fmat_vec[0], nr ); }
+    { gecopy( nr, nx, F, ldF, Fmat[0], nr ); }
 
     void
     loadF( MatrixWrapper<valueType> const & F );
 
     void
     addtoF( valueType const F[], integer ldF )
-    { gecopy( nr, nx, F, ldF, Fmat_vec[0], nr ); }
+    { gecopy( nr, nx, F, ldF, Fmat[0], nr ); }
 
     void
     addtoF( MatrixWrapper<valueType> const & F );
@@ -693,7 +696,7 @@ namespace alglin {
     void
     loadCqF( valueType const CqF[], integer ldCF ) {
       gecopy( nr, qx, CqF, ldCF, Cqmat, nr ); CqF += qx*ldCF;
-      gecopy( nr, nx, CqF, ldCF, Fmat_vec[0], nr );
+      gecopy( nr, nx, CqF, ldCF, Fmat[0], nr );
     }
 
     integer
@@ -811,11 +814,11 @@ namespace alglin {
 
     t_Value &
     F( integer i, integer j )
-    { return Fmat_vec[0][ i + j*nr ]; }
+    { return Fmat[0][ i + j*nr ]; }
 
     t_Value const &
     F( integer i, integer j ) const
-    { return Fmat_vec[0][ i + j*nr ]; }
+    { return Fmat[0][ i + j*nr ]; }
 
     t_Value &
     Cq( integer i, integer j )
@@ -852,7 +855,7 @@ namespace alglin {
 
     void
     F( MatrixWrapper<valueType> & F_wrap )
-    { F_wrap.setup( Fmat_vec[0], nr, nx, nr); }
+    { F_wrap.setup( Fmat[0], nr, nx, nr); }
 
     void
     Cq( MatrixWrapper<valueType> & Cq_wrap )

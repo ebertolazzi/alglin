@@ -21,9 +21,9 @@
 #include <iostream>
 #include <vector>
 #include <random>
+#include <lapack_wrapper/lapack_wrapper_tmpl.hh>
 
 #include "Alglin_Config.hh"
-#include "Alglin_tmpl.hh"
 #include "Alglin_Eigen.hh"
 
 #ifdef __GNUC__
