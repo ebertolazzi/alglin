@@ -27,10 +27,6 @@
 
 #include <iostream>
 
-#ifndef BORDERED_CYCLIC_REDUCTION_MAX_THREAD
-  #define BORDERED_CYCLIC_REDUCTION_MAX_THREAD 256
-#endif
-
 #ifdef __GNUC__ 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpadded"
@@ -307,9 +303,10 @@ namespace alglin {
     valueType * Cqmat;
     valueType * Dmat;
     valueType * Emat;
-    valueType * Fmat[BORDERED_CYCLIC_REDUCTION_MAX_THREAD];
-    valueType * WorkT[BORDERED_CYCLIC_REDUCTION_MAX_THREAD];
-    valueType * WorkQR[BORDERED_CYCLIC_REDUCTION_MAX_THREAD];
+
+    std::vector<valueType*> Fmat;
+    std::vector<valueType*> WorkT;
+    std::vector<valueType*> WorkQR;
 
     // working block
     valueType * Tmat;
@@ -333,8 +330,8 @@ namespace alglin {
 
     // used also with a unique thread
     integer usedThread;
-    mutable integer    * perm_thread[BORDERED_CYCLIC_REDUCTION_MAX_THREAD];
-    mutable valueType  * xb_thread[BORDERED_CYCLIC_REDUCTION_MAX_THREAD];
+    mutable std::vector<integer*>   perm_thread;
+    mutable std::vector<valueType*> xb_thread;
     mutable ThreadPool * pTP;
     mutable SpinLock     spin;
 
@@ -379,8 +376,6 @@ namespace alglin {
     , pTP(_TP)
     {
       usedThread = pTP == nullptr ? 1 : pTP->size();
-      if ( usedThread > BORDERED_CYCLIC_REDUCTION_MAX_THREAD )
-        usedThread = BORDERED_CYCLIC_REDUCTION_MAX_THREAD;
       #ifdef LAPACK_WRAPPER_USE_OPENBLAS
       openblas_set_num_threads(1);
       goto_set_num_threads(1);
@@ -393,10 +388,8 @@ namespace alglin {
 
     void
     setThreadPool( ThreadPool * _TP = nullptr ) {
-      pTP = _TP;
-      usedThread = _TP == nullptr ? 1 : pTP->size();
-      if ( usedThread > BORDERED_CYCLIC_REDUCTION_MAX_THREAD )
-        usedThread = BORDERED_CYCLIC_REDUCTION_MAX_THREAD;
+      pTP        = _TP;
+      usedThread = pTP == nullptr ? 1 : pTP->size();
     }
 
     //! load matrix in the class

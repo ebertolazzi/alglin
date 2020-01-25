@@ -120,10 +120,16 @@ namespace alglin {
     iBlock = baseInteger( size_t(2*usedThread) );
     kBlock = baseInteger( size_t(usedThread) );
 
+    xb_thread   . resize( size_t(usedThread) );
+    perm_thread . resize( size_t(usedThread) );
+    WorkT       . resize( size_t(usedThread) );
+    WorkQR      . resize( size_t(usedThread) );
+    Fmat        . resize( size_t(usedThread) );
+
     // precompute partition for parallel computation
-    for ( integer nt = 0; nt < usedThread; ++nt ) {
-      xb_thread[nt]   = baseValue( size_t(nr) );
+    for ( size_t nt = 0; nt < size_t(usedThread); ++nt ) {
       perm_thread[nt] = baseInteger( size_t(n) );
+      xb_thread[nt]   = baseValue( size_t(nr) );
       WorkT[nt]       = baseValue( size_t(LworkT) );
       WorkQR[nt]      = baseValue( size_t(LworkQR) );
       Fmat[nt]        = baseValue( size_t(nr_x_nx) );
@@ -501,7 +507,7 @@ namespace alglin {
       // launch thread
       for ( integer nt = 1; nt < usedThread; ++nt ) {
         // fill zero F(...) only that of the extra threads
-        if ( nr_x_nx > 0 ) alglin::zero( nr_x_nx, Fmat[nt], 1 );
+        if ( nr_x_nx > 0 ) alglin::zero( nr_x_nx, Fmat[size_t(nt)], 1 );
         pTP->run( nt, &BorderedCR<t_Value>::factorize_block, this, nt );
       }
       factorize_block(0);
@@ -510,7 +516,7 @@ namespace alglin {
       // accumulate F(...)
       if ( nr_x_nx > 0 )
         for ( integer nt = 1; nt < usedThread; ++nt )
-          alglin::axpy( nr_x_nx, 1.0, Fmat[nt], 1, Fmat[0], 1 );
+          alglin::axpy( nr_x_nx, 1.0, Fmat[size_t(nt)], 1, Fmat[0], 1 );
       factorize_reduced();
     } else {
       iBlock[0] = 0;
@@ -544,12 +550,12 @@ namespace alglin {
       info = getrf( n_x_2, n, T, n_x_2, iperm );
       break;
     case BORDERED_QR:
-      info = geqrf( n_x_2, n, T, n_x_2, T+2*n_x_n, WorkQR[nth], LworkQR );
+      info = geqrf( n_x_2, n, T, n_x_2, T+2*n_x_n, WorkQR[size_t(nth)], LworkQR );
       break;
     case BORDERED_QRP:
-      { integer * P = perm_thread[nth];
+      { integer * P = perm_thread[size_t(nth)];
         std::fill( P, P+n, 0 );
-        info = geqp3( n_x_2, n, T, n_x_2, P, T+2*n_x_n, WorkQR[nth], LworkQR );
+        info = geqp3( n_x_2, n, T, n_x_2, P, T+2*n_x_n, WorkQR[size_t(nth)], LworkQR );
         if ( info == 0 ) permutation_to_exchange( n, P, iperm );
       }
       break;
@@ -589,7 +595,7 @@ namespace alglin {
     integer         ldBOTTOM,
     integer         ncol
   ) const {
-    valueType * W = WorkT[nth];
+    valueType * W = WorkT[size_t(nth)];
     gecopy( n, ncol, TOP,    ldTOP,    W,   n_x_2 );
     gecopy( n, ncol, BOTTOM, ldBOTTOM, W+n, n_x_2 );
     // Apply row interchanges to the right hand sides.
@@ -616,7 +622,7 @@ namespace alglin {
         T, n_x_2,
         T+2*n_x_n,
         W, n_x_2,
-        WorkQR[nth], LworkQR
+        WorkQR[size_t(nth)], LworkQR
       );
       break;
     case BORDERED_SUPERLU:
@@ -638,7 +644,7 @@ namespace alglin {
     valueType       TOP[],
     valueType       BOTTOM[]
   ) const {
-    valueType * W = WorkT[nth];
+    valueType * W = WorkT[size_t(nth)];
     size_t nn = size_t(n)*sizeof(valueType);
     memcpy( W,   TOP,    nn );
     memcpy( W+n, BOTTOM, nn );
@@ -669,7 +675,7 @@ namespace alglin {
         T, n_x_2,
         T+2*n_x_n,
         W, n_x_2,
-        WorkQR[nth], LworkQR
+        WorkQR[size_t(nth)], LworkQR
       );
       break;
     case BORDERED_SUPERLU:
@@ -707,7 +713,7 @@ namespace alglin {
     valueType * T0    = Tmat + iblock*Tsize;
     integer   * P0    = Perm + iblock*n;
 
-    valueType * Fmat_th = Fmat[nth];
+    valueType * Fmat_th = Fmat[size_t(nth)];
 
     integer k = 1;
     while ( k < nblk ) {
@@ -1027,17 +1033,23 @@ namespace alglin {
     if ( usedThread > 1 ) {
       if ( nr > 0 ) {
         for ( integer nt = 1; nt < usedThread; ++nt ) {
-          alglin::zero( nr, xb_thread[nt], 1 );
-          pTP->run( nt, &BorderedCR<t_Value>::forward, this, nt, x, xb_thread[nt] );
+          alglin::zero( nr, xb_thread[size_t(nt)], 1 );
+          pTP->run(
+            nt, &BorderedCR<t_Value>::forward, this,
+            nt, x, xb_thread[size_t(nt)]
+          );
         }
         alglin::zero( nr, xb_thread[0], 1 );
         forward(0,x,xb);
         pTP->wait_all();
         for ( integer nt = 1; nt < usedThread; ++nt )
-          axpy( nr, 1.0, xb_thread[nt], 1, xb, 1 );
+          axpy( nr, 1.0, xb_thread[size_t(nt)], 1, xb, 1 );
       } else {
         for ( integer nt = 1; nt < usedThread; ++nt )
-          pTP->run( nt, &BorderedCR<t_Value>::forward, this, nt, x, xb_thread[nt] );
+          pTP->run(
+            nt, &BorderedCR<t_Value>::forward, this,
+            nt, x, xb_thread[size_t(nt)]
+          );
         forward(0,x,xb);
         pTP->wait_all();
       }
