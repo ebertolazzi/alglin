@@ -15,6 +15,8 @@
 #include <mutex>
 #include <functional>
 
+#include <pthread.h>
+
 namespace alglin {
 
   class SpinLock {
@@ -164,6 +166,8 @@ namespace alglin {
   \*/
 
   class Worker {
+    friend class ThreadPool;
+
     bool                  active;
     SimpleSemaphore       is_running, job_done;
     std::thread           running_thread;
@@ -244,6 +248,30 @@ namespace alglin {
     ThreadPool( ThreadPool const & ) = delete;
     ThreadPool& operator = ( ThreadPool const & ) = delete;
 
+    #ifdef ALGLIN_OS_WINDOWS
+    void
+    setup() {
+      sched_param sch;
+      int         policy;
+      for ( auto & w: workers ) {
+        std::thread & t = w.running_thread;
+        SetThreadPriority( t.native_handle(), THREAD_PRIORITY_HIGHEST );
+      }
+    }
+    #else
+    void
+    setup() {
+      sched_param sch;
+      int         policy;
+      for ( auto & w: workers ) {
+        std::thread & t = w.running_thread;
+        pthread_getschedparam( t.native_handle(), &policy, &sch );
+        sch.sched_priority = sched_get_priority_max( SCHED_RR );
+        pthread_setschedparam( t.native_handle(), SCHED_RR, &sch );
+      }
+    }
+    #endif
+
   public:
 
     ThreadPool(
@@ -253,13 +281,14 @@ namespace alglin {
       )
     ) {
       workers.resize( size_t( nthread ) );
+      setup();
     }
 
     //! Submit a job to be run by the thread pool.
     template <typename Func, typename... Args>
     void
     run( integer nt, Func && func, Args && ... args ) {
-      workers[ size_t(nt) ].run( func, args...);
+      workers[size_t(nt)].run( func, args...);
     }
 
     void wait_all()  { for ( auto && w : workers ) w.wait(); }
@@ -268,11 +297,24 @@ namespace alglin {
 
     integer size() const { return integer(workers.size()); }
 
+    std::thread::id
+    get_id( integer i ) const
+    { return workers[size_t(i)].running_thread.get_id(); }
+
+    std::thread const &
+    get_thread( integer i ) const
+    { return workers[size_t(i)].running_thread; }
+
+    std::thread &
+    get_thread( integer i )
+    { return workers[size_t(i)].running_thread; }
+
     void
     resize( integer numThreads ) {
       wait_all();
       stop_all();
       workers.resize( size_t(numThreads) );
+      setup();
       start_all();
     }
 
