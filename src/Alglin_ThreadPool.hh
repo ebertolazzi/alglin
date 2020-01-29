@@ -15,7 +15,9 @@
 #include <mutex>
 #include <functional>
 
-#include <pthread.h>
+#ifdef ALGLIN_OS_LINUX
+  #include <pthread.h>
+#endif
 
 namespace alglin {
 
@@ -248,17 +250,15 @@ namespace alglin {
     ThreadPool( ThreadPool const & ) = delete;
     ThreadPool& operator = ( ThreadPool const & ) = delete;
 
-    #ifdef ALGLIN_OS_WINDOWS
+    #if defined(ALGLIN_OS_WINDOWS)
     void
     setup() {
-      sched_param sch;
-      int         policy;
       for ( auto & w: workers ) {
         std::thread & t = w.running_thread;
         SetThreadPriority( t.native_handle(), THREAD_PRIORITY_HIGHEST );
       }
     }
-    #else
+    #elif defined(ALGLIN_OS_LINUX)
     void
     setup() {
       sched_param sch;
@@ -270,6 +270,8 @@ namespace alglin {
         pthread_setschedparam( t.native_handle(), SCHED_RR, &sch );
       }
     }
+    #else
+    void setup() {}
     #endif
 
   public:
