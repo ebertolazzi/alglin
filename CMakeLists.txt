@@ -75,7 +75,7 @@ SET( EXELISTCPP
   test15-EIGS
 )
 
-SET(EXELISTC test8-Cinterface test9-Cinterface )
+SET( EXELISTC test8-Cinterface test9-Cinterface )
 
 MESSAGE( STATUS "YEAR = ${YEAR}" )
 MESSAGE( STATUS "BITS = ${BITS}" )
@@ -86,20 +86,9 @@ SET( LLPATH ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd )
 # setup search path for DLL
 #
 # openblas linked with #pragma
-set(CMAKE_MSVCIDE_RUN_PATH ${LLPATH}/dll/openblas)
+SET( CMAKE_MSVCIDE_RUN_PATH ${LLPATH}/dll/openblas )
 
 INCLUDE_DIRECTORIES( src ${LLPATH}/include ${LLPATH}/include/eigen3 )
-
-IF( CMAKE_CXX_COMPILER_ID MATCHES "MSVC" )
-  INCLUDE_DIRECTORIES( "C:/Program Files (x86)/IntelSWTools/compilers_and_libraries/windows/mkl/include" )
-  IF ( ${BITS} STREQUAL "x64" )
-    set(WINXXBITS Win64)
-    LINK_DIRECTORIES( "C:/Program Files (x86)/IntelSWTools/compilers_and_libraries/windows/mkl/lib/intel64" )
-  ELSE()
-    set(WINXXBITS Win32)
-    LINK_DIRECTORIES( "C:/Program Files (x86)/IntelSWTools/compilers_and_libraries/windows/mkl/lib/ia32" )
-  ENDIF()
-ENDIF()
 
 LINK_DIRECTORIES(
   ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib
@@ -108,11 +97,11 @@ LINK_DIRECTORIES(
 
 IF( APPLE )
   IF ( LAPACK_WRAPPER_USE_OPENBLAS )
-    execute_process( COMMAND gfortran -print-libgcc-file-name OUTPUT_VARIABLE GFORTRANDIR )
-    get_filename_component( GFORTRANDIR1 ${GFORTRANDIR} DIRECTORY )
+    EXECUTE_PROCESS( COMMAND gfortran -print-libgcc-file-name OUTPUT_VARIABLE GFORTRANDIR )
+    GET_FILENAME_COMPONENT( GFORTRANDIR1 ${GFORTRANDIR} DIRECTORY )
     MESSAGE( STATUS ${GFORTRANDIR1} )
-    FIND_LIBRARY( GFORTRAN libgfortran.dylib HINTS ${GFORTRANDIR1}/../../.. )
-    FIND_LIBRARY( OPENBLAS libopenblas.dylib HINTS /usr/local/opt/openblas/lib )
+    FIND_LIBRARY( GFORTRAN gfortran HINTS ${GFORTRANDIR1}/../../.. )
+    FIND_LIBRARY( OPENBLAS openblas HINTS /usr/local/opt/openblas/lib )
     SET( lapackblas_libraries ${OPENBLAS} ${GFORTRAN} )
     INCLUDE_DIRECTORIES( /usr/local/opt/openblas/include )
   ELSEIF( LAPACK_WRAPPER_USE_MKL )
@@ -131,15 +120,15 @@ IF( APPLE )
   ENDIF()
 ELSEIF( UNIX OR LINUX )
   EXECUTE_PROCESS(COMMAND uname -m OUTPUT_VARIABLE ARCH)
-  SET(THREADS_PREFER_PTHREAD_FLAG ON)
-  FIND_PACKAGE(Threads REQUIRED)
+  SET( THREADS_PREFER_PTHREAD_FLAG ON )
+  FIND_PACKAGE( Threads REQUIRED )
   IF ( LAPACK_WRAPPER_USE_OPENBLAS OR LAPACK_WRAPPER_USE_BLASFEO )
     EXECUTE_PROCESS( COMMAND gfortran -print-libgcc-file-name OUTPUT_VARIABLE GFORTRANDIR )
     GET_FILENAME_COMPONENT( GFORTRANDIR1 ${GFORTRANDIR} DIRECTORY )
     MESSAGE( STATUS "GFORTRANDIR = ${GFORTRANDIR1}" )
-    FIND_LIBRARY( GFORTRAN libgfortran.so HINTS ${GFORTRANDIR1} )
+    FIND_LIBRARY( GFORTRAN gfortran HINTS ${GFORTRANDIR1} )
     INCLUDE_DIRECTORIES( /usr/include/${ARCH}-linux-gnu )
-    FIND_LIBRARY( OPENBLAS libopenblas.so HINTS /usr/lib /usr/lib/${ARCH}-linux-gnu/openblas )
+    FIND_LIBRARY( OPENBLAS openblas HINTS /usr/lib /usr/lib/${ARCH}-linux-gnu/openblas )
     SET( lapackblas_libraries ${OPENBLAS} ${GFORTRAN} Threads::Threads )
   ELSEIF( LAPACK_WRAPPER_USE_MKL )
     SET( MKLBITS intel64 )
@@ -150,8 +139,8 @@ ELSEIF( UNIX OR LINUX )
     SET( lapackblas_libraries  ${MKL_CORE} ${MKL_INTEL} ${MKL_RT} ${MKL_IOMP5} )
     INCLUDE_DIRECTORIES( /opt/intel/mkl/include/ )
   ELSE()
-    FIND_PACKAGE(BLAS)
-    FIND_PACKAGE(LAPACK)
+    FIND_PACKAGE( BLAS )
+    FIND_PACKAGE( LAPACK )
     IF ( LAPACK_FOUND AND BLAS_FOUND )
       SET( lapackblas_libraries ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} Threads::Threads )
     ENDIF()
@@ -159,10 +148,26 @@ ELSEIF( UNIX OR LINUX )
   INCLUDE_DIRECTORIES( /usr/local/include )
   IF( LAPACK_WRAPPER_USE_BLASFEO )
     FIND_LIBRARY( BLASFEO libblasfeo.a HINTS /opt/blasfeo/lib/ )
-    SET( lapackblas_libraries ${lapackblas_libraries} ${BLASFEO})
+    SET( lapackblas_libraries ${lapackblas_libraries} ${BLASFEO} )
     INCLUDE_DIRECTORIES( /opt/blasfeo/include/ )
   ENDIF()
 ELSE()
+  IF( CMAKE_CXX_COMPILER_ID MATCHES "MSVC" )
+    INCLUDE_DIRECTORIES(
+      "C:/Program Files (x86)/IntelSWTools/compilers_and_libraries/windows/mkl/include"
+    )
+    IF ( ${BITS} STREQUAL "x64" )
+      SET( WINXXBITS Win64 )
+      LINK_DIRECTORIES(
+        "C:/Program Files (x86)/IntelSWTools/compilers_and_libraries/windows/mkl/lib/intel64"
+      )
+    ELSE()
+      SET( WINXXBITS Win32 )
+      LINK_DIRECTORIES(
+        "C:/Program Files (x86)/IntelSWTools/compilers_and_libraries/windows/mkl/lib/ia32"
+      )
+    ENDIF()
+  ENDIF()
   IF ( BITS MATCHES "x64")
     FIND_LIBRARY(
       lapackblas_libraries libopenblas_x64.lib
@@ -242,8 +247,8 @@ IF( BUILD_EXECUTABLE )
 
   ADD_CUSTOM_TARGET( all_tests ALL )
 
-  SET(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/bin)
-  FILE(MAKE_DIRECTORY  ${CMAKE_CURRENT_SOURCE_DIR}/bin )
+  SET( EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/bin )
+  FILE( MAKE_DIRECTORY  ${CMAKE_CURRENT_SOURCE_DIR}/bin )
   FOREACH( S ${EXELISTCPP} )
   	ADD_EXECUTABLE( ${S} src_tests/${S}.cc ${HEADERS} )
   	TARGET_LINK_LIBRARIES( ${S} ${TARGETS} ${LAPACKW} ${SUPERLU} ${lapackblas_libraries} )

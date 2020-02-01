@@ -178,10 +178,10 @@ desc 'install third parties for osx [lapack=LAPACK_WRAPPER_USE_ACCELERATE]'
 task :osx_3rd, [:lapack] do |t, args|
   args.with_defaults( :lapack => "LAPACK_WRAPPER_USE_ACCELERATE" )
   FileUtils.cd 'submodules'
-  puts "\n\nSUBMODULES\n\n".green
+  puts "\n\nSUBMODULES (for ALGLIN)\n\n".green
   sh "rake build_osx[#{args.lapack}]"
   FileUtils.cd '../third_parties'
-  puts "\n\nTHIRD PARTIES\n\n".green
+  puts "\n\nTHIRD PARTIES (for ALGLIN)\n\n".green
   sh "rake install_osx[#{args.lapack}]"
   FileUtils.cd '..'
 end
@@ -190,10 +190,10 @@ desc 'install third parties for linux [lapack=LAPACK_WRAPPER_USE_OPENBLAS]'
 task :linux_3rd, [:lapack] do |t, args|
   args.with_defaults( :lapack => "LAPACK_WRAPPER_USE_OPENBLAS" )
   FileUtils.cd 'submodules'
-  puts "\n\nSUBMODULES\n\n".green
+  puts "\n\nSUBMODULES (for ALGLIN)\n\n".green
   sh "rake build_linux[#{args.lapack}]"
   FileUtils.cd '../third_parties'
-  puts "\n\nTHIRD PARTIES\n\n".green
+  puts "\n\nTHIRD PARTIES (for ALGLIN)\n\n".green
   sh "rake install_linux[#{args.lapack}]"
   FileUtils.cd '..'
 end
@@ -206,10 +206,10 @@ task :win_3rd, [:year, :bits, :lapack] do |t, args|
     :lapack => "LAPACK_WRAPPER_USE_OPENBLAS"
   )
   FileUtils.cd 'submodules'
-  puts "\n\nSUBMODULES\n\n".green
+  puts "\n\nSUBMODULES (for ALGLIN)\n\n".green
   sh "rake build_win[#{args.year},#{args.bits},#{args.lapack}]"
   FileUtils.cd '../third_parties'
-  puts "\n\nTHIRD PARTIES\n\n".green
+  puts "\n\nTHIRD PARTIES (for ALGLIN)\n\n".green
   sh "rake install_win[#{args.year},#{args.bits},#{args.lapack}]"
   FileUtils.cd '..'
 end
