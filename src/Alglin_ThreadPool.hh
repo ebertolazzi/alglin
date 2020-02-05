@@ -154,7 +154,7 @@ namespace alglin {
     void
     wait() noexcept {
       std::unique_lock<std::mutex> lock(m_mutex);
-      m_cv.wait(lock, [&]()->bool { return m_go; });
+      m_cv.wait(lock, [this]()->bool { return this->m_go; });
     }
 
   };
@@ -206,7 +206,7 @@ namespace alglin {
         active = true;
         is_running.red();
         job_done.green();
-        running_thread = std::thread( [&] () -> void { loop(); } );
+        running_thread = std::thread( [this] () -> void { this->loop(); } );
       }
     }
 
@@ -254,6 +254,7 @@ namespace alglin {
     void
     setup() {
       for ( auto & w: workers ) {
+        w.start();
         std::thread & t = w.running_thread;
         SetThreadPriority( t.native_handle(), THREAD_PRIORITY_HIGHEST );
       }
@@ -264,6 +265,7 @@ namespace alglin {
       sched_param sch;
       int         policy;
       for ( auto & w: workers ) {
+        w.start();
         std::thread & t = w.running_thread;
         pthread_getschedparam( t.native_handle(), &policy, &sch );
         sch.sched_priority = sched_get_priority_max( SCHED_RR );
@@ -271,7 +273,10 @@ namespace alglin {
       }
     }
     #else
-    void setup() {}
+    void
+    setup() {
+      for ( auto & w: workers ) w.start();
+    }
     #endif
 
   public:
@@ -317,7 +322,6 @@ namespace alglin {
       stop_all();
       workers.resize( size_t(numThreads) );
       setup();
-      start_all();
     }
 
   };
