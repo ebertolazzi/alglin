@@ -29,7 +29,7 @@ endif
 
 ifneq (,$(findstring ALGLIN_USE_OPENBLAS,$(USED_LIB)))
   FPATH=$(dir $(shell gfortran -print-libgcc-file-name))
-  override LIBS += -lopenblas -L$(FPATH) -lgfortran
+  override LIBS += -lopenblas -lomp -L$(FPATH) -lgfortran
 endif
 
 ifneq (,$(findstring ALGLIN_USE_ATLAS,$(USED_LIB)))
