@@ -109,7 +109,7 @@ IF( APPLE )
     FIND_LIBRARY( MKL_INTEL mkl_intel_thread HINTS /opt/intel/mkl/lib )
     FIND_LIBRARY( MKL_RT    mkl_rt           HINTS /opt/intel/mkl/lib )
     FIND_LIBRARY( MKL_IOMP5 iomp5            HINTS /opt/intel/lib     )
-    SET( lapackblas_libraries  ${MKL_CORE} ${MKL_INTEL} ${MKL_RT} ${MKL_IOMP5} )
+    SET( lapackblas_libraries ${MKL_CORE} ${MKL_INTEL} ${MKL_RT} ${MKL_IOMP5} )
     INCLUDE_DIRECTORIES( /opt/intel/mkl/include/ )
   ELSE()
     FIND_PACKAGE(BLAS)
@@ -138,7 +138,7 @@ ELSEIF( UNIX OR LINUX )
     FIND_LIBRARY( MKL_INTEL mkl_intel_thread HINTS /opt/intel/mkl/lib/${MKLBITS}  )
     FIND_LIBRARY( MKL_RT    mkl_rt           HINTS /opt/intel/mkl/lib/${MKLBITS}  )
     FIND_LIBRARY( MKL_IOMP5 iomp5            HINTS /opt/intel/lib/${MKLBITS}      )
-    SET( lapackblas_libraries  ${MKL_CORE} ${MKL_INTEL} ${MKL_RT} ${MKL_IOMP5} )
+    SET( lapackblas_libraries ${MKL_CORE} ${MKL_INTEL} ${MKL_RT} ${MKL_IOMP5} )
     INCLUDE_DIRECTORIES( /opt/intel/mkl/include/ )
   ELSE()
     FIND_PACKAGE( BLAS )
@@ -198,6 +198,10 @@ IF(APPLE )
     SUPERLU superlu_osx_static${DEBUG_SUFFIX}
     HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib
   )
+  FIND_LIBRARY(
+    HSL HSL_osx_static${DEBUG_SUFFIX}
+    HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib
+  )
 ELSEIF( UNIX OR LINUX )
   LINK_DIRECTORIES(
     ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib
@@ -210,6 +214,10 @@ ELSEIF( UNIX OR LINUX )
   )
   FIND_LIBRARY(
     SUPERLU superlu_linux_static${DEBUG_SUFFIX}
+    HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib
+  )
+  FIND_LIBRARY(
+    HSL HSL_linux_static${DEBUG_SUFFIX}
     HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib
   )
 ELSE()
@@ -226,10 +234,14 @@ ELSE()
     SUPERLU superlu_win_${BITS}_static${DEBUG_SUFFIX}
     HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib
   )
+  FIND_LIBRARY(
+    HSL HSL_win_${BITS}_static${DEBUG_SUFFIX}
+    HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib
+  )
 ENDIF()
 
 LINK_DIRECTORIES( lib3rd/lib lib3rd/dll lib/lib lib/dll )
-TARGET_LINK_LIBRARIES( ${TARGET} ${LAPACKW} ${SUPERLU} ${lapackblas_libraries} )
+TARGET_LINK_LIBRARIES( ${TARGET} ${LAPACKW} ${SUPERLU} ${HSL} ${lapackblas_libraries} )
 
 FILE( GLOB HDRC   ./src/*.h )
 FILE( GLOB HDRCPP ./src/*.hh )
@@ -272,6 +284,14 @@ IF( BUILD_EXECUTABLE )
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
   )
 
+ENDIF()
+
+IF ( APPLE )
+  SET_TARGET_PROPERTIES( ${TARGETS} PROPERTIES LINK_FLAGS "-Wl,-all_load" )
+ELSEIF( LINUX OR UNIX )
+  SET_TARGET_PROPERTIES( ${TARGETS} PROPERTIES LINK_FLAGS "-Wl,--whole-archive" )
+ELSE()
+  SET_TARGET_PROPERTIES( ${TARGETS} PROPERTIES LINK_FLAGS "/WHOLEARCHIVE" )
 ENDIF()
 
 MESSAGE( STATUS "Using ${SSE_FLAGS} extensions")
