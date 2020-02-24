@@ -9,7 +9,7 @@
 #                                                                          #
 ############################################################################
 
-cmake_minimum_required(VERSION 3.5)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.5)
 SET( CMAKE_VERBOSE_MAKEFILE OFF )
 SET( CMAKE_INSTALL_MESSAGE NEVER )
 
@@ -17,6 +17,12 @@ IF ( CMAKE_BUILD_TYPE STREQUAL "Debug" )
   SET( DEBUG_SUFFIX "_debug" )
 ELSE()
   SET( DEBUG_SUFFIX )
+ENDIF()
+
+IF(APPLE)
+ELSEIF( UNIX OR LINUX )
+ELSE()
+  SET( CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON )
 ENDIF()
 
 IF ( APPLE )
