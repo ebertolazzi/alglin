@@ -215,11 +215,8 @@ namespace alglin {
     //  |_| \__,_\__|\__\___/_| |_/__\___|
     */
 
-    void
-    factorize_block( integer nth );
-
-    void
-    factorize_reduced();
+    void factorize_block( integer nth );
+    void factorize_reduced();
 
     /*
     //    __                            _
@@ -256,11 +253,8 @@ namespace alglin {
     //  |_.__/\__,_\__|_\_\ \_/\_/\__,_|_| \__,_|
     */
 
-    void
-    backward( integer nth, valueType x[] ) const;
-
-    void
-    backward_reduced( valueType x[] ) const;
+    void backward( integer nth, valueType x[] ) const;
+    void backward_reduced( valueType x[] ) const;
 
     void
     backward_n(
@@ -340,47 +334,7 @@ namespace alglin {
     using LinearSystemSolver<t_Value>::factorize;
 
     explicit
-    BorderedCR( ThreadPool * _TP = nullptr )
-    : baseValue("BorderedCR_values")
-    , baseInteger("BorderedCR_integers")
-    , superluValue("BorderedCR_superluValue")
-    , superluInteger("BorderedCR_superluInteger")
-    , nblock(0)
-    , n(0)
-    , qr(0)
-    , qx(0)
-    , nr(0)
-    , nx(0)
-    , n_x_2(0)
-    , n_x_n(0)
-    , n_x_nx(0)
-    , nr_x_n(0)
-    , nr_x_nx(0)
-    , nr_x_qx(0)
-    , Nr(0)
-    , Nc(0)
-    , last_selected(BORDERED_LAST_LU)
-    , selected(BORDERED_LU)
-    , H0Nqp(nullptr)
-    , Bmat(nullptr)
-    , Cmat(nullptr)
-    , Cqmat(nullptr)
-    , Dmat(nullptr)
-    , Emat(nullptr)
-    , Tmat(nullptr)
-    , Ttau(nullptr)
-    , Work(nullptr)
-    , Perm(nullptr)
-    , Lwork(0)
-    , Hmat(nullptr)
-    , pTP(_TP)
-    {
-      usedThread = pTP == nullptr ? 1 : pTP->size();
-      #ifdef LAPACK_WRAPPER_USE_OPENBLAS
-      openblas_set_num_threads(1);
-      goto_set_num_threads(1);
-      #endif
-    }
+    BorderedCR( ThreadPool * _TP = nullptr );
 
     virtual
     ~BorderedCR() ALGLIN_OVERRIDE
@@ -481,13 +435,13 @@ namespace alglin {
      | @{
     \*/
 
-    void zeroD()  { alglin::zero( nblock*n_x_n,      Dmat,    1 ); }
-    void zeroE()  { alglin::zero( nblock*n_x_n,      Emat,    1 ); }
-    void zeroB()  { alglin::zero( nblock*n_x_nx,     Bmat,    1 ); }
-    void zeroF()  { alglin::zero( nr_x_nx,           Fmat[0], 1 ); }
-    void zeroH()  { alglin::zero( (n+qr)*Nc,         H0Nqp,   1 ); }
-    void zeroC()  { alglin::zero( (nblock+1)*nr_x_n, Cmat,    1 ); }
-    void zeroCq() { alglin::zero( nr_x_qx,           Cqmat,   1 ); }
+    void zeroD();
+    void zeroE();
+    void zeroB();
+    void zeroF();
+    void zeroH();
+    void zeroC();
+    void zeroCq();
 
     void
     fillZero()
@@ -543,27 +497,13 @@ namespace alglin {
      | | |_) |
      | |____/
     \*/
-    void
-    loadB( integer nbl, valueType const B[], integer ldB )
-    { gecopy( n, nx, B, ldB, Bmat + nbl*n_x_nx, n ); }
+    void loadB( integer nbl, valueType const B[], integer ldB );
+    void loadB( integer nbl, MatrixWrapper<valueType> const & B );
+    void addtoB( integer nbl, valueType const B[], integer ldB );
+    void addtoB( integer nbl, MatrixWrapper<valueType> const & B );
 
-    void
-    loadB( integer nbl, MatrixWrapper<valueType> const & B );
-
-    void
-    addtoB( integer nbl, valueType const B[], integer ldB ) {
-      valueType * BB = Bmat + nbl*n_x_nx;
-      geadd( n, nx, 1.0, B, ldB, 1.0, BB, n, BB, n );
-    }
-
-    void
-    addtoB( integer nbl, MatrixWrapper<valueType> const & B );
-
-    integer
-    patternB( integer nbl, integer I[], integer J[], integer offs ) const;
-
-    integer
-    valuesB( integer nbl, valueType V[] ) const;
+    integer patternB( integer nbl, integer I[], integer J[], integer offs ) const;
+    integer valuesB( integer nbl, valueType V[] ) const;
 
     // Border Bottom blocks
     /*\
@@ -573,43 +513,17 @@ namespace alglin {
      | | |___
      |  \____|
     \*/
-    void
-    loadC( integer nbl, valueType const C[], integer ldC )
-    { gecopy( nr, n, C, ldC, Cmat + nbl*nr_x_n, nr ); }
+    void loadC( integer nbl, valueType const C[], integer ldC );
+    void loadC( integer nbl, MatrixWrapper<valueType> const & C );
+    void addtoC( integer nbl, valueType const C[], integer ldC );
+    void addtoC( integer nbl, MatrixWrapper<valueType> const & C );
 
-    void
-    loadC( integer nbl, MatrixWrapper<valueType> const & C );
-
-    void
-    addtoC( integer nbl, valueType const C[], integer ldC ) {
-      LW_ASSERT(
-        ldC >= nr, "addtoC( {}, C, ldC = {} ) bad ldC\n", nbl, ldC
-      );
-      valueType * CC = Cmat + nbl*nr_x_n;
-      geadd( nr, n, 1.0, C, ldC, 1.0, CC, nr, CC, nr );
-    }
-
-    void
-    addtoC( integer nbl, MatrixWrapper<valueType> const & C );
-
-    integer
-    patternC( integer nbl, integer I[], integer J[], integer offs ) const;
-
-    integer
-    valuesC( integer nbl, valueType V[] ) const;
+    integer patternC( integer nbl, integer I[], integer J[], integer offs ) const;
+    integer valuesC( integer nbl, valueType V[] ) const;
 
     // add to block nbl and nbl+1
-    void
-    addtoC2( integer nbl, valueType const C[], integer ldC ) {
-      LW_ASSERT(
-        ldC >= nr, "addtoC2( {}, C, ldC = {} ) bad ldC\n", nbl, ldC
-      );
-      valueType * CC = Cmat + nbl*nr_x_n;
-      geadd( nr, n_x_2, 1.0, C, ldC, 1.0, CC, nr, CC, nr );
-    }
-
-    void
-    addtoC2( integer nbl, MatrixWrapper<valueType> const & C );
+    void addtoC2( integer nbl, valueType const C[], integer ldC );
+    void addtoC2( integer nbl, MatrixWrapper<valueType> const & C );
 
     // -------------------------------------------------------------------------
     /*\
@@ -619,18 +533,11 @@ namespace alglin {
      | | |_| |
      | |____/
     \*/
-    void
-    loadD( integer nbl, valueType const D[], integer ldD )
-    { gecopy( n, n, D, ldD, Dmat + nbl*n_x_n, n ); }
+    void loadD( integer nbl, valueType const D[], integer ldD );
+    void loadD( integer nbl, MatrixWrapper<valueType> const & D );
 
-    void
-    loadD( integer nbl, MatrixWrapper<valueType> const & D );
-
-    integer
-    patternD( integer nbl, integer I[], integer J[], integer offs ) const;
-
-    integer
-    valuesD( integer nbl, valueType V[] ) const;
+    integer patternD( integer nbl, integer I[], integer J[], integer offs ) const;
+    integer valuesD( integer nbl, valueType V[] ) const;
 
     /*\
      |  _____
@@ -639,31 +546,14 @@ namespace alglin {
      | | |___
      | |_____|
     \*/
-    void
-    loadE( integer nbl, valueType const E[], integer ldE )
-    { gecopy( n, n, E, ldE, Emat + nbl*n_x_n, n ); }
+    void loadE( integer nbl, valueType const E[], integer ldE );
+    void loadE( integer nbl, MatrixWrapper<valueType> const & E );
 
-    void
-    loadE( integer nbl, MatrixWrapper<valueType> const & E );
+    integer patternE( integer nbl, integer I[], integer J[], integer offs ) const;
+    integer valuesE( integer nbl, valueType V[] ) const;
 
-    integer
-    patternE( integer nbl, integer I[], integer J[], integer offs ) const;
-
-    integer
-    valuesE( integer nbl, valueType V[] ) const;
-
-    void
-    loadDE( integer nbl, valueType const DE[], integer ldDE ) {
-      gecopy( n, n, DE, ldDE, Dmat + nbl*n_x_n, n ); DE += n*ldDE;
-      gecopy( n, n, DE, ldDE, Emat + nbl*n_x_n, n );
-    }
-
-    void
-    loadDEB( integer nbl, valueType const DEB[], integer ldDEB ) {
-      gecopy( n, n,  DEB, ldDEB, Dmat + nbl*n_x_n,  n ); DEB += n*ldDEB;
-      gecopy( n, n,  DEB, ldDEB, Emat + nbl*n_x_n,  n ); DEB += n*ldDEB;
-      gecopy( n, nx, DEB, ldDEB, Bmat + nbl*n_x_nx, n );
-    }
+    void loadDE( integer nbl, valueType const DE[], integer ldDE );
+    void loadDEB( integer nbl, valueType const DEB[], integer ldDEB );
 
     // -------------------------------------------------------------------------
     /*\
@@ -673,25 +563,13 @@ namespace alglin {
      | |  _|
      | |_|
     \*/
-    void
-    loadF( valueType const F[], integer ldF )
-    { gecopy( nr, nx, F, ldF, Fmat[0], nr ); }
+    void loadF( valueType const F[], integer ldF );
+    void loadF( MatrixWrapper<valueType> const & F );
+    void addtoF( valueType const F[], integer ldF );
+    void addtoF( MatrixWrapper<valueType> const & F );
 
-    void
-    loadF( MatrixWrapper<valueType> const & F );
-
-    void
-    addtoF( valueType const F[], integer ldF )
-    { gecopy( nr, nx, F, ldF, Fmat[0], nr ); }
-
-    void
-    addtoF( MatrixWrapper<valueType> const & F );
-
-    integer
-    patternF( integer I[], integer J[], integer offs ) const;
-
-    integer
-    valuesF( valueType V[] ) const;
+    integer patternF( integer I[], integer J[], integer offs ) const;
+    integer valuesF( valueType V[] ) const;
 
     // -------------------------------------------------------------------------
     /*\
@@ -702,24 +580,13 @@ namespace alglin {
      |  \____\__, |
      |          |_|
     \*/
-    void
-    loadCq( valueType const Cq[], integer ldC )
-    { gecopy( nr, qx, Cq, ldC, Cqmat, nr ); }
 
-    void
-    loadCq( MatrixWrapper<valueType> const & Cq );
+    void loadCq( valueType const Cq[], integer ldC );
+    void loadCq( MatrixWrapper<valueType> const & Cq );
+    void loadCqF( valueType const CqF[], integer ldCF );
 
-    void
-    loadCqF( valueType const CqF[], integer ldCF ) {
-      gecopy( nr, qx, CqF, ldCF, Cqmat, nr ); CqF += qx*ldCF;
-      gecopy( nr, nx, CqF, ldCF, Fmat[0], nr );
-    }
-
-    integer
-    patternCq( integer I[], integer J[], integer offs ) const;
-
-    integer
-    valuesCq( valueType V[] ) const;
+    integer patternCq( integer I[], integer J[], integer offs ) const;
+    integer valuesCq( valueType V[] ) const;
 
     // -------------------------------------------------------------------------
     /*\
@@ -729,11 +596,8 @@ namespace alglin {
      | |  _  |
      | |_| |_|
     \*/
-    integer
-    patternH( integer I[], integer J[], integer offs ) const;
-
-    integer
-    valuesH( valueType V[] ) const;
+    integer patternH( integer I[], integer J[], integer offs ) const;
+    integer valuesH( valueType V[] ) const;
 
     void
     loadBottom(
@@ -751,14 +615,8 @@ namespace alglin {
       MatrixWrapper<valueType> const & Hp
     );
 
-    void
-    loadBottom( valueType const _H0Nqp[], integer ldH ) {
-      integer nq = n+qr;
-      gecopy( nq, Nc, _H0Nqp, ldH, H0Nqp, nq );
-    }
-
-    void
-    loadBottom( MatrixWrapper<valueType> const & H );
+    void loadBottom( valueType const _H0Nqp[], integer ldH );
+    void loadBottom( MatrixWrapper<valueType> const & H );
 
     /*\
      |  +---+---+---+---+
@@ -950,14 +808,8 @@ namespace alglin {
      | /_/   \_\__,_/_/\_\
      |
     \*/
-    void
-    Mv( valueType const x[], valueType res[] ) const {
-      alglin::zero( numRows(), res, 1 );
-      addMv( x, res );
-    }
-
-    void
-    addMv( valueType const x[], valueType res[] ) const;
+    void Mv( valueType const x[], valueType res[] ) const;
+    void addMv( valueType const x[], valueType res[] ) const;
 
     /*\
      |  ____
