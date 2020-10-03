@@ -256,5 +256,6 @@ main() {
   test5();
   cout << "\n\ntest6\n";
   test6();
+  cout << "All done!\n";
   return 0;
 }

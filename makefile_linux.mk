@@ -10,7 +10,7 @@ CC      = gcc $(WARN)
 CXX     = g++ $(WARN) -std=c++11 -pthread
 F90     = gfortran
 LIBS3RD = -Llib3rd/lib -Llib3rd/dll -Wl,-rpath,lib3rd/dll -llapack_wrapper_linux_static -lsuperlu_linux_static
-LIBS    = -Llib/lib -Llib/dll -lAlglin_linux $(LIBS3RD) -Wl,-rpath,lib/dll -ldl
+LIBS    = -Llib/lib -Llib/dll -lAlglin_linux $(LIBS3RD) -Wl,-rpath,lib/dll,-rpath,/usr/local/lib -ldl
 INC     = -I./src -Ilib3rd/include
 CLIBS   = -lc++
 DEFS    =
@@ -29,7 +29,7 @@ endif
 
 ifneq (,$(findstring ALGLIN_USE_OPENBLAS,$(USED_LIB)))
   FPATH=$(dir $(shell gfortran -print-libgcc-file-name))
-  override LIBS += -lopenblas -lomp -L$(FPATH) -lgfortran
+  override LIBS += -lopenblas -lgomp -L$(FPATH) -lgfortran
 endif
 
 ifneq (,$(findstring ALGLIN_USE_ATLAS,$(USED_LIB)))
