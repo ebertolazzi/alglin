@@ -29,7 +29,7 @@
 //nowarn = "-Wno-weak-vtables -Wno-implicit-fallthrough -Wno-documentation-unknown-command -Wno-float-equal -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-padded -Wno-reserved-id-macro -Wno-documentation"
 
 // Eigen3
-#ifdef __GNUC__ 
+#ifdef __GNUC__
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wall"
 #pragma GCC diagnostic ignored "-Wold-style-cast"
@@ -77,6 +77,7 @@
 #pragma clang diagnostic ignored "-Wfloat-equal"
 #pragma clang diagnostic ignored "-Wextra-semi"
 #pragma clang diagnostic ignored "-Wunused-template"
+#pragma clang diagnostic ignored "-Wanon-enum-enum-conversion"
 #endif
 
 #ifdef _MSC_VER

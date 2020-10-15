@@ -323,10 +323,10 @@ namespace alglin {
     );
 
     loadBottom(
-      H0.get_data(), H0.lDim(),
-      HN.get_data(), HN.lDim(),
-      Hq.get_data(), Hq.lDim(),
-      Hp.get_data(), Hp.lDim()
+      H0.data(), H0.lDim(),
+      HN.data(), HN.lDim(),
+      Hq.data(), Hq.lDim(),
+      Hp.data(), Hp.lDim()
     );
   }
 
@@ -346,7 +346,7 @@ namespace alglin {
       "loadBottom, bad dimension size(H) = {} x {} expected {} x {}\n",
       H.numRows(), H.numCols(), m, Nc
     );
-    loadBottom( H.get_data(), H.lDim() );
+    loadBottom( H.data(), H.lDim() );
   }
 
   template <typename t_Value>
@@ -398,10 +398,10 @@ namespace alglin {
     );
 
     loadBottom2(
-      C0.get_data(), C0.lDim(),
-      CN.get_data(), CN.lDim(),
-      Cq.get_data(), Cq.lDim(),
-      F.get_data(),  F.lDim()
+      C0.data(), C0.lDim(),
+      CN.data(), CN.lDim(),
+      Cq.data(), Cq.lDim(),
+      F.data(),  F.lDim()
     );
 
   }
@@ -409,7 +409,7 @@ namespace alglin {
   template <typename t_Value>
   void
   BorderedCR<t_Value>::loadBottom2( MatrixWrapper<valueType> const & H ) {
-    valueType const * ptr = H.get_data();
+    valueType const * ptr = H.data();
     integer           ld  = H.lDim();
     this->loadC(  0,      ptr, ld ); ptr += nr_x_n;
     this->loadC(  nblock, ptr, ld ); ptr += nr_x_n;
@@ -437,7 +437,7 @@ namespace alglin {
       "loadB( {}, B) bad dimension size(B) = {} x {} expected {} x {}\n",
       nbl, B.numRows(), B.numCols(), n, nx
     );
-    alglin::gecopy( n, nx, B.get_data(), B.lDim(), Bmat + nbl*n_x_nx, n );
+    alglin::gecopy( n, nx, B.data(), B.lDim(), Bmat + nbl*n_x_nx, n );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -463,7 +463,7 @@ namespace alglin {
       nbl, B.numRows(), B.numCols(), n, nx
     );
     valueType * BB = Bmat + nbl*n_x_nx;
-    alglin::geadd( n, nx, 1.0, B.get_data(), B.lDim(), 1.0, BB, n, BB, n );
+    alglin::geadd( n, nx, 1.0, B.data(), B.lDim(), 1.0, BB, n, BB, n );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -486,7 +486,7 @@ namespace alglin {
       "loadC( {}, C) bad dimension size(C) = {} x {} expected {} x {}\n",
       nbl, C.numRows(), C.numCols(), nr, n
     );
-    alglin::gecopy( nr, n, C.get_data(), C.lDim(), Cmat + nbl*nr_x_n, nr );
+    alglin::gecopy( nr, n, C.data(), C.lDim(), Cmat + nbl*nr_x_n, nr );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -515,7 +515,7 @@ namespace alglin {
       nbl, C.numRows(), C.numCols(), nr, n
     );
     valueType * CC = Cmat + nbl*nr_x_n;
-    alglin::geadd( nr, n, 1.0, C.get_data(), C.lDim(), 1.0, CC, nr, CC, nr );
+    alglin::geadd( nr, n, 1.0, C.data(), C.lDim(), 1.0, CC, nr, CC, nr );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -544,7 +544,7 @@ namespace alglin {
       nbl, C.numRows(), C.numCols(), nr, n_x_2
     );
     valueType * CC = Cmat + nbl*nr_x_n;
-    alglin::geadd( nr, n_x_2, 1.0, C.get_data(), C.lDim(), 1.0, CC, nr, CC, nr );
+    alglin::geadd( nr, n_x_2, 1.0, C.data(), C.lDim(), 1.0, CC, nr, CC, nr );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -567,7 +567,7 @@ namespace alglin {
       "loadD( {}, D) bad dimension size(D) = {} x {} expected {} x {}\n",
       nbl, D.numRows(), D.numCols(), n, n
     );
-    alglin::gecopy( n, n, D.get_data(), D.lDim(), Dmat + nbl*n_x_n, n );
+    alglin::gecopy( n, n, D.data(), D.lDim(), Dmat + nbl*n_x_n, n );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -590,7 +590,7 @@ namespace alglin {
       "loadE( {}, E) bad dimension size(E) = {} x {} expected {} x {}\n",
       nbl, E.numRows(), E.numCols(), n, n
     );
-    alglin::gecopy( n, n, E.get_data(), E.lDim(), Emat + nbl*n_x_n, n );
+    alglin::gecopy( n, n, E.data(), E.lDim(), Emat + nbl*n_x_n, n );
   }
 
 
@@ -630,7 +630,7 @@ namespace alglin {
       "loadF(F) bad dimension size(F) = {} x {} expected {} x {}\n",
       F.numRows(), F.numCols(), nr, nx
     );
-    alglin::gecopy( nr, nx, F.get_data(), F.lDim(), Fmat[0], nr );
+    alglin::gecopy( nr, nx, F.data(), F.lDim(), Fmat[0], nr );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -650,7 +650,7 @@ namespace alglin {
       "addtoF(F) bad dimension size(F) = {} x {} expected {} x {}\n",
       F.numRows(), F.numCols(), nr, nx
     );
-    alglin::geadd( nr, nx, 1.0, F.get_data(), F.lDim(), 1.0, Fmat[0], nr, Fmat[0], nr );
+    alglin::geadd( nr, nx, 1.0, F.data(), F.lDim(), 1.0, Fmat[0], nr, Fmat[0], nr );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -670,7 +670,7 @@ namespace alglin {
       "loadCq(Cq) bad dimension size(Cq) = {} x {} expected {} x {}\n",
       Cq.numRows(), Cq.numCols(), nr, qx
     );
-    alglin::gecopy( nr, qx, Cq.get_data(), Cq.lDim(), Cqmat, nr );
+    alglin::gecopy( nr, qx, Cq.data(), Cq.lDim(), Cqmat, nr );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

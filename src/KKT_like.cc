@@ -252,7 +252,7 @@ namespace alglin {
       Cmat, m,
       Zmat, n,
       -1,
-      W_LU_working.get_data(), m
+      W_LU_working.data(), m
     );
     W_LU.factorize( "KKT<::factorize<W>", W_LU_working );
   }

@@ -6,7 +6,7 @@
 #     # #     #  #   #
 #######  #####  #     #
 
-WARN     = -Weverything -Wno-reserved-id-macro -Wno-padded
+WARN     = -Weverything -Wno-reserved-id-macro -Wno-padded -Wno-poison-system-directories -Wno-alloca
 CC       = clang -fPIC $(WARN)
 CXX      = clang++ -fPIC -std=c++11 -stdlib=libc++ $(WARN)
 CXXFLAGS = -O2
