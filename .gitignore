@@ -4,6 +4,7 @@ src_no_git
 *.a
 .alglin_config
 .vscode
+vs20*
 cmake
 DerivedData
 babd.xcodeproj
