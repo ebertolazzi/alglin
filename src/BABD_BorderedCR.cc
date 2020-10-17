@@ -708,11 +708,12 @@ namespace alglin {
       }
       factorize_block(0);
       // wait thread
-      pTP->wait_all();
-      // accumulate F(...)
-      if ( nr_x_nx > 0 )
-        for ( integer nt = 1; nt < usedThread; ++nt )
-          alglin::axpy( nr_x_nx, 1.0, Fmat[size_t(nt)], 1, Fmat[0], 1 );
+      if ( usedThread > 1 ) { pTP->wait_all();
+        // accumulate F(...)
+        if ( nr_x_nx > 0 )
+          for ( integer nt = 1; nt < usedThread; ++nt )
+            alglin::axpy( nr_x_nx, 1.0, Fmat[size_t(nt)], 1, Fmat[0], 1 );
+      }
       factorize_reduced();
     } else {
       iBlock[0] = 0;
@@ -1237,9 +1238,11 @@ namespace alglin {
         }
         alglin::zero( nr, xb_thread[0], 1 );
         forward(0,x,xb);
-        pTP->wait_all();
-        for ( integer nt = 1; nt < usedThread; ++nt )
-          axpy( nr, 1.0, xb_thread[size_t(nt)], 1, xb, 1 );
+        if ( usedThread > 1 ) {
+          pTP->wait_all();
+          for ( integer nt = 1; nt < usedThread; ++nt )
+            axpy( nr, 1.0, xb_thread[size_t(nt)], 1, xb, 1 );
+        }
       } else {
         for ( integer nt = 1; nt < usedThread; ++nt )
           pTP->run(
@@ -1247,7 +1250,7 @@ namespace alglin {
             nt, x, xb_thread[size_t(nt)]
           );
         forward(0,x,xb);
-        pTP->wait_all();
+        if ( usedThread > 1 ) pTP->wait_all();
       }
       forward_reduced(x,xb);
     } else {
@@ -1261,7 +1264,7 @@ namespace alglin {
       for ( integer nt = 1; nt < usedThread; ++nt )
         pTP->run( nt, &BorderedCR<t_Value>::backward, this, nt, x );
       backward(0,x);
-      pTP->wait_all();
+      if ( usedThread > 1 ) pTP->wait_all();
     } else {
       backward(0,x);
     }
@@ -1281,7 +1284,7 @@ namespace alglin {
       for ( integer nt = 1; nt < usedThread; ++nt )
         pTP->run( nt, &BorderedCR<t_Value>::forward_n, this, nt, nrhs, rhs, ldRhs );
       forward_n( 0, nrhs, rhs, ldRhs );
-      pTP->wait_all();
+      if ( usedThread > 1 ) pTP->wait_all();
       forward_n_reduced( nrhs, rhs, ldRhs );
     } else {
       forward_n( 0, nrhs, rhs, ldRhs );
@@ -1294,7 +1297,7 @@ namespace alglin {
       for ( integer nt = 1; nt < usedThread; ++nt )
         pTP->run( nt, &BorderedCR<t_Value>::backward_n, this, nt, nrhs, rhs, ldRhs );
       backward_n( 0, nrhs, rhs, ldRhs );
-      pTP->wait_all();
+      if ( usedThread > 1 ) pTP->wait_all();
     } else {
       backward_n( 0, nrhs, rhs, ldRhs );
     }

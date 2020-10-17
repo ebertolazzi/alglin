@@ -57,7 +57,7 @@ int
 main() {
 
   alglin::integer nth = std::thread::hardware_concurrency();
-  
+
   #ifdef LAPACK_WRAPPER_USE_OPENBLAS
   openblas_set_num_threads(1);
   goto_set_num_threads(1);
@@ -66,6 +66,7 @@ main() {
   alglin::ThreadPool TP(nth);
 
   alglin::BorderedCR<double> BCR(&TP), BCR_SAVED(&TP);
+  //alglin::BorderedCR<double> BCR(nullptr), BCR_SAVED(nullptr);
   //alglin::BorderedCR_eigen3<double> BCR(&TP), BCR_SAVED(&TP);
 
   #define NSIZE 8
@@ -79,14 +80,14 @@ main() {
   alglin::integer nx     = 1;// 2-1;
   alglin::integer nr     = 1;//2;
   alglin::integer N      = (nblock+1)*n+nx+qx;
- 
+
   BCR.allocate( nblock, n, qr, qx, nr, nx );
 
   alglin::Malloc<valueType>       baseValue("real");
   alglin::Malloc<alglin::integer> baseIndex("integer");
-  
+
   baseValue.allocate( size_t(7*N) );
-  
+
   valueType diag = 1.01*n;
 
   valueType * x     = baseValue(size_t(2*N)); // extra space per multiple rhs
