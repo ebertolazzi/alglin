@@ -176,6 +176,7 @@ end
 
 desc 'install third parties for osx [lapack=LAPACK_WRAPPER_USE_ACCELERATE]'
 task :osx_3rd, [:lapack] do |t, args|
+  FileUtils.cp 'CMakeLists-cflags.txt', 'submodules/LapackWrapper/CMakeLists-cflags.txt'
   args.with_defaults( :lapack => "LAPACK_WRAPPER_USE_ACCELERATE" )
   FileUtils.cd 'submodules'
   puts "\n\nSUBMODULES (for ALGLIN)\n\n".green
@@ -188,6 +189,8 @@ end
 
 desc 'install third parties for linux [lapack=LAPACK_WRAPPER_USE_OPENBLAS]'
 task :linux_3rd, [:lapack] do |t, args|
+  FileUtils.cp 'CMakeLists-cflags.txt', 'submodules/LapackWrapper/CMakeLists-cflags.txt'
+
   args.with_defaults( :lapack => "LAPACK_WRAPPER_USE_OPENBLAS" )
   FileUtils.cd 'submodules'
   puts "\n\nSUBMODULES (for ALGLIN)\n\n".green
@@ -200,6 +203,8 @@ end
 
 desc "compile for Visual Studio [default year=2017, bits=x64, lapack=LAPACK_WRAPPER_USE_OPENBLAS]"
 task :win_3rd, [:year, :bits, :lapack] do |t, args|
+  FileUtils.cp 'CMakeLists-cflags.txt', 'submodules/LapackWrapper/CMakeLists-cflags.txt'
+
   args.with_defaults(
     :year   => "2017",
     :bits   => "x64",
