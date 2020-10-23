@@ -37,7 +37,7 @@ namespace alglin {
   template <typename t_Value>
   void
   KKT<t_Value>::allocate( integer _n, integer _m ) {
-    LW_ASSERT(
+    UTILS_ASSERT(
       _n > 0 && _m > 0, "KKT::allocate( {}, {} ) bad dimension\n", _n, _m
     );
     if ( n != _n || m != _m ) {
@@ -87,7 +87,7 @@ namespace alglin {
     integer         ldA,
     bool            transposed
   ) {
-    LW_ASSERT(
+    UTILS_ASSERT(
       ldA >= n, "KKT::load_A bad ldA = {} must be >= {}\n", ldA, n
     );
     pAsolver = &A_LU;
@@ -116,7 +116,7 @@ namespace alglin {
      for ( integer k = 0; k < B_nnz; ++k ) {
        integer i = B_row[k]+r_offs;
        integer j = B_col[k]+c_offs;
-       LW_ASSERT(
+       UTILS_ASSERT(
          i >= 0 && i < n && j >= 0 && j < m,
          "KKT::load_B bad index (i,j) = ({},{}) at position {}\n", i, j, k
        );
@@ -135,14 +135,14 @@ namespace alglin {
     bool            transposed
   ) {
     if ( transposed ) {
-      LW_ASSERT(
+      UTILS_ASSERT(
         ldB >= m, "KKT::load_B bad ldB = {} must be >= {}\n", ldB,  m
       );
       for ( integer i = 0; i < n; ++i )
         copy( m, B+i, n, Zmat+i*n, 1 );
     } else {
       integer info = gecopy( n, m, B, ldB, Zmat, n );
-      LW_ASSERT( info == 0, "KKT::load_B bad call gecopy, info = {}\n", info );
+      UTILS_ASSERT( info == 0, "KKT::load_B bad call gecopy, info = {}\n", info );
     }
   }
 
@@ -161,7 +161,7 @@ namespace alglin {
     for ( integer k = 0; k < C_nnz; ++k ) {
       integer i = C_row[k]+r_offs;
       integer j = C_col[k]+c_offs;
-      LW_ASSERT(
+      UTILS_ASSERT(
         i >= 0 && i < m && j >= 0 && j < n,
         "KKT::load_C bad index (i,j) = ({},{}) at position {}\n", i, j, k
       );
@@ -180,14 +180,14 @@ namespace alglin {
     bool            transposed
   ) {
     if ( transposed ) {
-      LW_ASSERT(
+      UTILS_ASSERT(
         ldC >= n, "KKT::load_C bad ldC = {} must be >= {}\n", ldC, n
       );
       for ( integer i = 0; i < m; ++i )
         copy( n, C+i, m, Cmat+i*m, 1 );
     } else {
       integer info = gecopy( m, n, C, ldC, Cmat, m );
-      LW_ASSERT(
+      UTILS_ASSERT(
         info == 0, "KKT::load_C bad call gecopy, info = {}\n", info
       );
     }
@@ -210,7 +210,7 @@ namespace alglin {
     for ( integer k = 0; k < D_nnz; ++k ) {
       integer i = D_row[k]+r_offs;
       integer j = D_col[k]+c_offs;
-      LW_ASSERT(
+      UTILS_ASSERT(
         i >= 0 && i < m && j >= 0 && j < m,
         "KKT::load_D bad index (i,j) = ({},{}) at position {}\n", i, j, k
       );
@@ -229,7 +229,7 @@ namespace alglin {
     integer         ldD,
     bool            transposed
   ) {
-    LW_ASSERT( ldD >= m, "KKT::load_D bad ldD = {} must be >= {}\n", ldD, m );
+    UTILS_ASSERT( ldD >= m, "KKT::load_D bad ldD = {} must be >= {}\n", ldD, m );
     W_LU_working.setup(m,m);
     if ( transposed ) W_LU_working.load_transposed( D, ldD );
     else              W_LU_working.load( D, ldD );

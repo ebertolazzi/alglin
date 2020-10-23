@@ -63,7 +63,7 @@ namespace alglin {
     integer num_extra_i
   ) {
 
-    LW_ASSERT(
+    UTILS_ASSERT(
       _numInitialBC  >= 0 && _numFinalBC      >= 0 &&
       _numCyclicBC   >= 0 && _numInitialOMEGA >= 0 &&
       _numFinalOMEGA >= 0 && _numCyclicOMEGA  >= 0,
@@ -80,7 +80,7 @@ namespace alglin {
 
     q = _numInitialOMEGA + _numFinalOMEGA + _numCyclicOMEGA;
 
-    LW_ASSERT(
+    UTILS_ASSERT(
       _numInitialBC + _numFinalBC + _numCyclicBC == _n+q,
       "Bad BC specification:"
       "\nnumInitialBC    = {}"
@@ -212,7 +212,7 @@ namespace alglin {
     valueType const blockN_in[], integer ldN
   ) {
 
-    LW_ASSERT(
+    UTILS_ASSERT(
       numCyclicBC == 0 && numCyclicOMEGA == 0,
       "in loadTopBottom numCyclicBC = {} and numCyclicOMEGA = {} "
       "must be both zero!\n",
@@ -751,7 +751,7 @@ namespace alglin {
       }
     }
 
-    LW_ASSERT(
+    UTILS_ASSERT(
       kkk == sparseNnz(),
       "BlockBidiagonal::sparsePattern( V ), inserted {} values, expected {}\n",
       kkk, sparseNnz()
@@ -821,7 +821,7 @@ namespace alglin {
       for ( integer j = 0; j < nb; ++j )
         V[kkk++] = Dmat[i+j*nb];
 
-    LW_ASSERT(
+    UTILS_ASSERT(
       kkk == sparseNnz(),
       "BlockBidiagonal::sparseValues( V ), inserted {} values, expected {}\n",
       kkk, sparseNnz()

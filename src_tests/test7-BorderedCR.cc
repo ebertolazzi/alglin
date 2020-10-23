@@ -63,7 +63,7 @@ main() {
   goto_set_num_threads(1);
   #endif
 
-  alglin::ThreadPool TP(nth);
+  Utils::ThreadPool TP(nth);
 
   alglin::BorderedCR<double> BCR(&TP), BCR_SAVED(&TP);
   //alglin::BorderedCR<double> BCR(nullptr), BCR_SAVED(nullptr);
@@ -210,10 +210,10 @@ main() {
   alglin::axpy( N, -1.0, x, 1, xref1, 1 );
   valueType err = alglin::absmax( N, xref1, 1 );
   fmt::print("Check |err|_inf = {:.5}\n",err);
-  LW_ASSERT0( err < 1e-8, "test failed!\n" );
+  UTILS_ASSERT0( err < 1e-8, "test failed!\n" );
   err = alglin::asum( N, xref1, 1 )/N;
   fmt::print("Check |err|_1/N = {:.5}\n",err);
-  LW_ASSERT0( err < 1e-8, "test failed!\n" );
+  UTILS_ASSERT0( err < 1e-8, "test failed!\n" );
 
   std::copy( rhs, rhs+2*N, x );
   tm.tic();
@@ -258,10 +258,10 @@ main() {
   alglin::axpy( N, -1.0, x, 1, xref1, 1 );
   err = alglin::absmax( N, xref1, 1 );
   fmt::print("Check |err|_inf = {:.5}\n",err);
-  LW_ASSERT0( err < 1e-8, "test failed!\n" );
+  UTILS_ASSERT0( err < 1e-8, "test failed!\n" );
   err = alglin::asum( N, xref1, 1 )/N;
   fmt::print("Check |err|_1/N = {:.5}\n",err);
-  LW_ASSERT0( err < 1e-8, "test failed!\n" );
+  UTILS_ASSERT0( err < 1e-8, "test failed!\n" );
 
   fmt::print("\n\ncheck residual\n\n");
 
@@ -273,13 +273,13 @@ main() {
 
   valueType res = alglin::nrm2( BCR_SAVED.numRows(), resid, 1 );
   fmt::print("||res||_2   = {:.5}\n",res);
-  LW_ASSERT0( res < 1e-6, "test failed!\n" );
+  UTILS_ASSERT0( res < 1e-6, "test failed!\n" );
   res = alglin::asum( BCR_SAVED.numRows(), resid, 1 );
   fmt::print("||res||_1   = {:.5}\n",res);
-  LW_ASSERT0( res < 1e-6, "test failed!\n" );
+  UTILS_ASSERT0( res < 1e-6, "test failed!\n" );
   res = alglin::absmax( BCR_SAVED.numRows(), resid, 1 );
   fmt::print("||res||_inf = {:.5}\n",res);
-  LW_ASSERT0( res < 1e-6, "test failed!\n" );
+  UTILS_ASSERT0( res < 1e-6, "test failed!\n" );
 
   fmt::print("All done!\n");
 

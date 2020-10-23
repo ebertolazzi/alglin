@@ -266,7 +266,7 @@ namespace alglin {
 
     void
     loadBottomBlock( integer nbl, valueType const C[], integer ldC ) {
-      LW_ASSERT(
+      UTILS_ASSERT(
         ldC >= nb, "loadBottomBlock( {}, C, ldC = {} ) bad ldC\n", nbl, ldC
       );
       valueType * CC = Cmat + nbl*nxnb;
@@ -275,7 +275,7 @@ namespace alglin {
 
     void
     addtoBottomBlock( integer nbl, valueType const C[], integer ldC ) {
-      LW_ASSERT(
+      UTILS_ASSERT(
         ldC >= nb, "addtoBottomBlock( {}, C, ldC = {} ) bad ldC\n", nbl, ldC
       );
       valueType * CC = Cmat + nbl*nxnb;
@@ -285,7 +285,7 @@ namespace alglin {
     // add to bottom block nbl and nbl+1
     void
     addtoBottomBlock2( integer nbl, valueType const C[], integer ldC ) {
-      LW_ASSERT(
+      UTILS_ASSERT(
         ldC >= nb, "addtoBottomBlock2( {}, C, ldC = {} ) bad ldC\n", nbl, ldC
       );
       valueType * CC = Cmat + nbl*nxnb;
@@ -488,7 +488,7 @@ namespace alglin {
       valueType const HN[],
       valueType const Hq[]
     ) {
-      LW_ASSERT0( nb == 0, "factorize nb > 0 and no border assigned\n" );
+      UTILS_ASSERT0( nb == 0, "factorize nb > 0 and no border assigned\n" );
       this->loadBlocks( AdAu, n );
       this->loadBottom( H0, n+q, HN, n+q, Hq, n+q );
       this->factorize();

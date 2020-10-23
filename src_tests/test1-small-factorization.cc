@@ -241,7 +241,7 @@ test3() {
   cout << "residual =" << lapack_wrapper::print_matrix( 1, M, b, 1 ); \
   res = lapack_wrapper::nrm2( M, b, 1 ); \
   cout << "||res||_2 = " << res << '\n'; \
-  LW_ASSERT0( res < 1e-6, "test failed!\n" );
+  UTILS_ASSERT0( res < 1e-6, "test failed!\n" );
 
 static
 void
@@ -303,7 +303,7 @@ test4() {
   cout << "residual = " << lapack_wrapper::print_matrix( 1, M, b, 1 ); \
   res = lapack_wrapper::nrm2( M, b, 1 ); \
   cout << "||res||_2 = " << res << '\n'; \
-  LW_ASSERT0( res < 1e-6, "test failed!\n" );
+  UTILS_ASSERT0( res < 1e-6, "test failed!\n" );
 
 
 static

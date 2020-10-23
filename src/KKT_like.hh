@@ -181,7 +181,7 @@ namespace alglin {
         integer i = M_row[k]+r_offs;
         integer j = M_col[k]+c_offs;
         integer quad = (i < n ? 0 : 1) + (j < n ? 0 : 2);
-        LW_ASSERT(
+        UTILS_ASSERT(
           i >= 0 && i < mn &&  j >= 0 && j < mn,
           "Element ( {}, {} ) outside the matrix M\n", i, j
         );

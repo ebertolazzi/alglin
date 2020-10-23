@@ -140,7 +140,7 @@ namespace alglin {
       integer /* numFinalOMEGA   */,
       integer /* numCyclicOMEGA  */
     ) ALGLIN_OVERRIDE
-    { LW_ERROR0("BlockLU::allocate() not defined!\n"); }
+    { UTILS_ERROR0("BlockLU::allocate() not defined!\n"); }
 
     virtual
     void

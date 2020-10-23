@@ -22,7 +22,6 @@
 #ifndef BABD_BORDERED_CR_HH
 #define BABD_BORDERED_CR_HH
 
-#include "Alglin_ThreadPool.hh"
 #include "Alglin_SuperLU.hh"
 
 #include <iostream>
@@ -202,7 +201,7 @@ namespace alglin {
       for ( integer i = 0; i < nn; ++i ) {
         integer j = i;
         while ( j < nn ) { if ( P[j] == i+1 ) break; ++j; }
-        //LW_ASSERT0( j < nn, "permutation_to_exchange error!\n" );
+        //UTILS_ASSERT0( j < nn, "permutation_to_exchange error!\n" );
         std::swap( P[j], P[i] );
         S[i] = j;
       }
@@ -326,22 +325,22 @@ namespace alglin {
     integer usedThread;
     mutable std::vector<integer*>   perm_thread;
     mutable std::vector<valueType*> xb_thread;
-    mutable ThreadPool * pTP;
-    mutable SpinLock     spin;
+    mutable Utils::ThreadPool *     pTP;
+    mutable Utils::SpinLock         spin;
 
   public:
 
     using LinearSystemSolver<t_Value>::factorize;
 
     explicit
-    BorderedCR( ThreadPool * _TP = nullptr );
+    BorderedCR( Utils::ThreadPool * _TP = nullptr );
 
     virtual
     ~BorderedCR() ALGLIN_OVERRIDE
     {}
 
     void
-    setThreadPool( ThreadPool * _TP = nullptr ) {
+    setThreadPool( Utils::ThreadPool * _TP = nullptr ) {
       pTP        = _TP;
       usedThread = pTP == nullptr ? 1 : pTP->size();
     }
@@ -791,13 +790,13 @@ namespace alglin {
     virtual
     bool
     t_solve( valueType [] ) const ALGLIN_OVERRIDE {
-      LW_ERROR0( "BorderedCR::t_solve() not defined\n" );
+      UTILS_ERROR0( "BorderedCR::t_solve() not defined\n" );
     }
 
     virtual
     bool
     t_solve( integer, valueType [], integer ) const ALGLIN_OVERRIDE {
-      LW_ERROR0( "BorderedCR::t_solve() not defined\n" );
+      UTILS_ERROR0( "BorderedCR::t_solve() not defined\n" );
     }
 
     /*\
