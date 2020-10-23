@@ -622,10 +622,10 @@ namespace Simplex {
         ceta[i] = 0;
         for ( integer j = 0; j < nnz; ++j ) ceta[i] += y[i_row[j]] * values[j];
         ceta[i] -= c[ini];
-        if ( alglin::isZero(x[ini]-L(ini)) ) {
+        if ( Utils::isZero(x[ini]-L(ini)) ) {
           if ( ceta_max_L < ceta[i] ) ceta_max_L = ceta[i];
           if ( ini < inmin && ceta[i] >  eps ) { inmin = ini; Q = i; }
-        } else if ( alglin::isZero(x[ini]-U(ini)) ) {
+        } else if ( Utils::isZero(x[ini]-U(ini)) ) {
           if ( ceta_min_U > ceta[i] ) ceta_min_U = ceta[i];
           if ( ini < inmin && ceta[i] < -eps ) { inmin = ini; Q = i; }
         } else {
@@ -663,9 +663,9 @@ namespace Simplex {
           }
           for ( integer i = 0; i < nm; ++i ) {
             integer ini = IN[i];
-            if ( alglin::isZero(x[ini]-L(ini)) ) {
+            if ( Utils::isZero(x[ini]-L(ini)) ) {
               D[ini] = ceta[i];
-            } else if ( alglin::isZero(x[ini]-U(ini)) ) {
+            } else if ( Utils::isZero(x[ini]-U(ini)) ) {
               D[ini] = -ceta[i];
             } else {
               SIMPLEX_ERROR(

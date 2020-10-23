@@ -33,8 +33,6 @@
 
 namespace alglin {
 
-  using lapack_wrapper::isRegular;
-
   /*
   //    ____               _ _            _
   //   / ___|_ __ __ _  __| (_) ___ _ __ | |_
@@ -60,7 +58,7 @@ namespace alglin {
     Number value0=0, value1=0; // only to stop warning
     bool ok = true;
     if ( fd_gradient != 0 ) {
-      ok = (*fun)( x, value0 ) && isRegular(value0);
+      ok = (*fun)( x, value0 ) && Utils::isRegular(value0);
       if ( !ok ) return false;
     }
 
@@ -72,23 +70,23 @@ namespace alglin {
       switch ( fd_gradient ) {
       case 0:
         X[i] = temp+h; // modify the vector only at i position
-        ok = (*fun)( X, value1 ) && isRegular(value1);
+        ok = (*fun)( X, value1 ) && Utils::isRegular(value1);
         if ( !ok ) break;
 
         X[i] = temp-h; // modify the vector only at i position
-        ok = (*fun)( X, value0 ) && isRegular(value0);
+        ok = (*fun)( X, value0 ) && Utils::isRegular(value0);
         if ( ok ) grad[i] = (value1-value0)/(2*h);
         break;
 
       case 1:
         X[i] = temp+h; // modify the vector only at i position
-        ok = (*fun)( X, value1 ) && isRegular(value1);
+        ok = (*fun)( X, value1 ) && Utils::isRegular(value1);
         if ( ok ) grad[i] = (value1-value0)/h;
         break;
 
       case -1:
         X[i] = temp-h; // modify the vector only at i position
-        ok = (*fun)( X, value1 ) && isRegular(value1);
+        ok = (*fun)( X, value1 ) && Utils::isRegular(value1);
         if ( ok ) grad[i] = (value0-value1)/h;
         break;
 
@@ -99,7 +97,7 @@ namespace alglin {
         );
       }
       X[i] = temp; // restore i position
-      ok   = isRegular(grad[i]);
+      ok   = Utils::isRegular(grad[i]);
     }
     return ok;
   }
@@ -127,14 +125,14 @@ namespace alglin {
       Number temp = x[i];
       Number h    = std::max( eps*std::abs(temp), eps );
       X[i] = temp+h; // modify the vector only at i position
-      ok = (*fun)( X, value1 ) && isRegular(value1);
+      ok = (*fun)( X, value1 ) && Utils::isRegular(value1);
       if ( !ok ) break;
 
       X[i] = temp-h; // modify the vector only at i position
-      ok = (*fun)( X, value0 ) && isRegular(value0);
+      ok = (*fun)( X, value0 ) && Utils::isRegular(value0);
       if ( ok ) {
         gradi = (value1-value0)/(2*h);
-        ok    = isRegular(gradi);
+        ok    = Utils::isRegular(gradi);
       }
 
       X[i] = temp; // restore i position
@@ -160,7 +158,7 @@ namespace alglin {
   bool
   isRegular( Number const v[], integer n ) {
     bool ok = true;
-    for ( integer i = 0; i < n && ok; ++i ) ok = alglin::isRegular(v[i]);
+    for ( integer i = 0; i < n && ok; ++i ) ok = Utils::isRegular(v[i]);
     return ok;
   }
 

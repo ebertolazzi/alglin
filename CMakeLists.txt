@@ -112,6 +112,10 @@ IF (APPLE )
     ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/bin
   )
   FIND_LIBRARY(
+    UTILS Utils_osx_static${DEBUG_SUFFIX}
+    HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib
+  )
+  FIND_LIBRARY(
     LAPACKW lapack_wrapper_osx_static${DEBUG_SUFFIX}
     HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib
   )
@@ -128,6 +132,10 @@ ELSEIF ( UNIX OR LINUX )
     ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib
     ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/dll
     ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/bin
+  )
+  FIND_LIBRARY(
+    UTILS Utils_linux_static${DEBUG_SUFFIX}
+    HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib
   )
   FIND_LIBRARY(
     LAPACKW lapack_wrapper_linux_static${DEBUG_SUFFIX}
@@ -148,6 +156,10 @@ ELSE()
     ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/bin/${BITS}
   )
   FIND_LIBRARY(
+    UTILS Utils_win_${BITS}_static${DEBUG_SUFFIX}
+    HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib
+  )
+  FIND_LIBRARY(
     LAPACKW lapack_wrapper_win_${BITS}_static${DEBUG_SUFFIX}
     HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib
   )
@@ -162,7 +174,7 @@ ELSE()
 ENDIF()
 
 LINK_DIRECTORIES( lib3rd/lib lib3rd/dll lib/lib lib/dll )
-TARGET_LINK_LIBRARIES( ${TARGET} ${LAPACKW} ${SUPERLU} ${HSL} ${lapackblas_libraries} )
+TARGET_LINK_LIBRARIES( ${TARGET} ${LAPACKW} ${SUPERLU} ${HSL} ${lapackblas_libraries} ${UTILS} )
 
 FILE( GLOB HDRC   ./src/*.h )
 FILE( GLOB HDRCPP ./src/*.hh )
@@ -186,14 +198,14 @@ IF( BUILD_EXECUTABLE )
   FILE( MAKE_DIRECTORY  ${CMAKE_CURRENT_SOURCE_DIR}/bin )
   FOREACH( S ${EXELISTCPP} )
   	ADD_EXECUTABLE( ${S} src_tests/${S}.cc ${HEADERS} )
-  	TARGET_LINK_LIBRARIES( ${S} ${TARGETS} ${LAPACKW} ${SUPERLU} ${lapackblas_libraries} )
+  	TARGET_LINK_LIBRARIES( ${S} ${TARGETS} ${LAPACKW} ${SUPERLU} ${lapackblas_libraries} ${UTILS} )
   	ADD_TEST( ${S} COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/${S} )
     ADD_DEPENDENCIES( all_tests ${S} )
   ENDFOREACH( S $(EXELIST) )
 
   FOREACH( S ${EXELISTC} )
   	ADD_EXECUTABLE( ${S} src_tests/${S}.c ${HEADERS} )
-  	TARGET_LINK_LIBRARIES( ${S} ${TARGETS} ${LAPACKW} ${SUPERLU} ${lapackblas_libraries} )
+  	TARGET_LINK_LIBRARIES( ${S} ${TARGETS} ${LAPACKW} ${SUPERLU} ${lapackblas_libraries} ${UTILS} )
   	ADD_TEST( ${S} COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/${S} )
     ADD_DEPENDENCIES( all_tests ${S} )
   ENDFOREACH( S $(EXELIST) )
@@ -225,4 +237,5 @@ ENDIF()
 
 MESSAGE( STATUS "lapackblas_libraries        = ${lapackblas_libraries}" )
 MESSAGE( STATUS "LAPACKW                     = ${LAPACKW}" )
+MESSAGE( STATUS "UTILS                       = ${UTILS}" )
 MESSAGE( STATUS "SUPERLU                     = ${SUPERLU}" )
