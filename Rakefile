@@ -55,6 +55,9 @@ end
 
 desc "compile for OSX [default lapack=LAPACK_WRAPPER_USE_ACCELERATE]"
 task :build_osx, [:lapack] do |t, args|
+  FileUtils.rm_rf 'lib'
+  FileUtils.rm_rf 'lib3rd'
+
   args.with_defaults( :lapack => "LAPACK_WRAPPER_USE_ACCELERATE" )
 
   Rake::Task[:osx_3rd].invoke(args.lapack)
@@ -88,6 +91,9 @@ end
 
 desc "compile for LINUX [default lapack=LAPACK_WRAPPER_USE_OPENBLAS]"
 task :build_linux, [:lapack] do |t, args|
+  FileUtils.rm_rf 'lib'
+  FileUtils.rm_rf 'lib3rd'
+
   args.with_defaults( :lapack => "LAPACK_WRAPPER_USE_OPENBLAS" )
 
   Rake::Task[:linux_3rd].invoke(args.lapack)
@@ -127,6 +133,9 @@ end
 
 desc "compile for Visual Studio [default year=2017 bits=x64]"
 task :build_win, [:year, :bits, :lapack] do |t, args|
+  FileUtils.rm_rf 'lib'
+  FileUtils.rm_rf 'lib3rd'
+
   args.with_defaults(
     :year   => "2017",
     :bits   => "x64",
@@ -221,6 +230,8 @@ end
 
 desc "clean for osx"
 task :clean_osx do
+  FileUtils.rm_rf 'lib'
+  FileUtils.rm_rf 'lib3rd'
   sh "make clean"
   FileUtils.cd 'third_parties'
   sh "rake clean_osx"
@@ -231,6 +242,8 @@ end
 
 desc "clean for linux"
 task :clean_linux do
+  FileUtils.rm_rf 'lib'
+  FileUtils.rm_rf 'lib3rd'
   sh "make clean"
   FileUtils.cd 'third_parties'
   sh "rake clean_linux"
@@ -241,6 +254,8 @@ end
 
 desc "clean for windows"
 task :clean_win do
+  FileUtils.rm_rf 'lib'
+  FileUtils.rm_rf 'lib3rd'
   FileUtils.rm_rf 'vs_*'
   FileUtils.cd 'third_parties'
   sh "rake clean_win"

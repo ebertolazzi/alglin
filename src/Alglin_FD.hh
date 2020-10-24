@@ -328,13 +328,13 @@ namespace alglin {
     for ( integer j = 0; j < dim_x && ok; ++j ) {
       tempj = x[j];
       hj    = std::max( eps*std::abs(tempj), eps );
-      ok = (*fun)( X, fc ) && alglin::isRegular(fc);
+      ok = (*fun)( X, fc ) && Utils::isRegular(fc);
       if ( !ok ) goto skip;
       X[j] = tempj+hj;
-      ok = (*fun)( X, fp ) && alglin::isRegular(fp);
+      ok = (*fun)( X, fp ) && Utils::isRegular(fp);
       if ( !ok ) goto skip;
       X[j] = tempj-hj;
-      ok = (*fun)( X, fm ) && alglin::isRegular(fm);
+      ok = (*fun)( X, fm ) && Utils::isRegular(fm);
       if ( !ok ) goto skip;
       Hess[j*(ldH+1)] = ((fp+fm)-2*fc)/(hj*hj);
       for ( integer i = j+1; i < dim_x && ok; ++i ) {
@@ -342,16 +342,16 @@ namespace alglin {
         hi    = std::max( eps*std::abs(tempi), eps );
         X[i] = tempi+hi;
         X[j] = tempj+hj;
-        ok = (*fun)( X, fpp ) && alglin::isRegular(fpp);
+        ok = (*fun)( X, fpp ) && Utils::isRegular(fpp);
         if ( !ok ) goto skip2;
         X[i] = tempi-hi;
-        ok = (*fun)( X, fmp ) && alglin::isRegular(fmp);
+        ok = (*fun)( X, fmp ) && Utils::isRegular(fmp);
         if ( !ok ) goto skip2;
         X[j] = tempj-hj;
-        ok = (*fun)( X, fmm ) && alglin::isRegular(fmm);
+        ok = (*fun)( X, fmm ) && Utils::isRegular(fmm);
         if ( !ok ) goto skip2;
         X[i] = tempi+hi;
-        ok = (*fun)( X, fpm ) && alglin::isRegular(fpm);
+        ok = (*fun)( X, fpm ) && Utils::isRegular(fpm);
         if ( !ok ) goto skip2;
         hij = 4*hi*hj;
         Hess[j+i*ldH] = Hess[i+j*ldH] = ( (fpp+fmm) - (fpm+fmp) )/hij;
@@ -387,18 +387,18 @@ namespace alglin {
       tempj = x[j];
       hj    = std::max( eps*std::abs(tempj), eps );
 
-      ok = (*fun)( X, fc ) && alglin::isRegular(fc);
+      ok = (*fun)( X, fc ) && Utils::isRegular(fc);
       if ( !ok ) goto skip;
       X[j] = tempj+hj;
-      ok = (*fun)( X, fp ) && alglin::isRegular(fp);
+      ok = (*fun)( X, fp ) && Utils::isRegular(fp);
       if ( !ok ) goto skip;
       X[j] = tempj-hj;
-      ok = (*fun)( X, fm ) && alglin::isRegular(fm);
+      ok = (*fun)( X, fm ) && Utils::isRegular(fm);
       if ( !ok ) goto skip;
 
       dde = Hess[j*(ldH+1)];
       dd  = ((fp+fm)-2*fc)/(hj*hj);
-      ok = alglin::isRegular(dd);
+      ok = Utils::isRegular(dd);
       if ( !ok ) goto skip;
       scale = std::max(eps,std::max(std::abs(dd),std::abs(dde)));
       err   = std::abs(dd-dde);
@@ -414,22 +414,22 @@ namespace alglin {
         hi    = std::max( eps*std::abs(tempi), eps );
         X[i] = tempi+hi;
         X[j] = tempj+hj;
-        ok = (*fun)( X, fpp ) && alglin::isRegular(fpp);
+        ok = (*fun)( X, fpp ) && Utils::isRegular(fpp);
         if ( !ok ) goto skip2;
         X[i] = tempi-hi;
-        ok = (*fun)( X, fmp ) && alglin::isRegular(fmp);
+        ok = (*fun)( X, fmp ) && Utils::isRegular(fmp);
         if ( !ok ) goto skip2;
         X[j] = tempj-hj;
-        ok = (*fun)( X, fmm ) && alglin::isRegular(fmm);
+        ok = (*fun)( X, fmm ) && Utils::isRegular(fmm);
         if ( !ok ) goto skip2;
         X[i] = tempi+hi;
-        ok = (*fun)( X, fpm ) && alglin::isRegular(fpm);
+        ok = (*fun)( X, fpm ) && Utils::isRegular(fpm);
         if ( !ok ) goto skip2;
         hij  = 4*hi*hj;
         ddji = Hess[j+i*ldH];
         ddij = Hess[i+j*ldH];
         dd   = ( (fpp+fmm) - (fpm+fmp) )/hij;
-        ok = alglin::isRegular(dd);
+        ok = Utils::isRegular(dd);
         if ( !ok ) goto skip2;
         scale = std::max(eps,std::max(std::abs(dd),std::abs(ddij)));
         err   = std::abs(dd-ddij);

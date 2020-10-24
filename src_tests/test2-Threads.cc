@@ -45,7 +45,7 @@ static std::mt19937 generator(seed1);
 static TicToc tictoc;
 static std::mutex mtx;
 
-static alglin::Barrier bar;
+static Utils::Barrier bar;
 
 static
 void

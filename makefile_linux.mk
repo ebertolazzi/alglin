@@ -5,11 +5,13 @@
 #      # #   ## #    #  #  #
 ###### # #    #  ####  #    #
 
+LIB3RD  = $(shell echo lib3rd/lib/*.a)
+
 WARN    = -Wall
 CC      = gcc $(WARN)
 CXX     = g++ $(WARN) -std=c++11 -pthread
 F90     = gfortran
-LIBS3RD = -Llib3rd/lib -Llib3rd/dll -Wl,-rpath,lib3rd/dll -llapack_wrapper_linux_static -lsuperlu_linux_static
+LIBS3RD = -Llib3rd/lib -Llib3rd/dll -Wl,-rpath,lib3rd/dll $(LIB3RD)
 LIBS    = -Llib/lib -Llib/dll -lAlglin_linux $(LIBS3RD) -Wl,-rpath,lib/dll,-rpath,/usr/local/lib -ldl
 INC     = -I./src -Ilib3rd/include
 CLIBS   = -lc++
