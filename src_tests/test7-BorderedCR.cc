@@ -27,7 +27,7 @@
 #include "BABD_BorderedCR.hh"
 //#include "BABD_BorderedCR_eigen3.hh"
 
-#ifdef __GNUC__ 
+#ifdef __GNUC__
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 #endif

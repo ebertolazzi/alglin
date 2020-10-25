@@ -7,42 +7,12 @@ include makefile_config.mk
 .SUFFIXES:
 .SUFFIXES: .o .c .cc
 
-SRCS = \
-src/Alglin_aux.cc \
-src/ABD_Arceco.cc \
-src/ABD_Block.cc \
-src/ABD_Diaz.cc \
-src/BABD.cc \
-src/BABD_Block.cc \
-src/BABD_BorderedCR.cc \
-src/BABD_C_interface.cc \
-src/BABD_SuperLU.cc \
-src/BlockBidiagonal.cc \
-src/KKT_like.cc \
-src/Simplex.cc
+INC   = -I./src -Ilib3rd/include
+
+SRCS  = $(shell echo src/*.cc)
+##        $(shell echo submodules/GenericContainer/src/*.cc)
 
 OBJS = $(SRCS:.cc=.o)
-
-#src/AlglinConfig.hh
-DEPS = \
-src/ABD_Arceco.hh \
-src/ABD_Block.hh \
-src/ABD_Diaz.hh \
-src/Alglin.hh \
-src/Alglin_Config.hh \
-src/Alglin_Eigen.hh \
-src/Alglin_FD.hh \
-src/Alglin_SuperLU.hh \
-src/Alglin_aux.hh \
-src/Alglin_tmpl.hh \
-src/BABD.hh \
-src/BABD_Block.hh \
-src/BABD_BorderedCR.hh \
-src/BABD_C_interface.h \
-src/BABD_SuperLU.hh \
-src/BlockBidiagonal.hh \
-src/KKT_like.hh \
-src/Simplex.hh
 
 MKDIR     = mkdir -p
 PREFIX    = /usr/local
@@ -89,10 +59,10 @@ all1: lib
 	$(F90) $(INC) -o bin/test10-FORTRAN src_tests/test10-FORTRAN.f90 $(LIBS) $(LIBSGCC) $(CLIBS)
 	$(F90) $(INC) -o bin/test11-FORTRAN src_tests/test11-FORTRAN.f90 $(LIBS) $(LIBSGCC) $(CLIBS)
 
-.cc.o: $(DEPS)
+.cc.o:
 	$(CXX) $(INC) $(CXXFLAGS) $(DEFS) -c $< -o $@
 
-.c.o: $(DEPS)
+.c.o:
 	$(CC) $(INC) $(CFLAGS) $(DEFS) -c -o $@ $<
 
 run:
@@ -122,3 +92,7 @@ doc:
 clean:
 	rm -rf lib/libAlglin.* src/*.o
 	rm -rf bin
+
+depend:
+	makedepend -- $(INC) $(CXXFLAGS) $(DEFS) -- $(SRCS)
+# DO NOT DELETE

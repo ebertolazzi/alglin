@@ -12,7 +12,6 @@ WARN     = -Weverything -Wno-reserved-id-macro -Wno-padded -Wno-poison-system-di
 CC       = clang -fPIC $(WARN)
 CXX      = clang++ -fPIC -std=c++11 -stdlib=libc++ $(WARN)
 CXXFLAGS = -O2
-INC      = -Isrc -Ilib3rd/include
 AR       = libtool -static -o
 LIBS3RD  = -Llib3rd/lib -Llib3rd/dll  -Wl,-rpath,lib3rd/dll $(LIB3RD)
 LIBS     = -Llib/lib -Llib/dll -lAlglin_osx $(LIBS3RD) -Wl,-rpath,lib/dll

@@ -23,7 +23,7 @@
 #include <random>
 #include "Alglin_FD.hh"
 
-#ifdef __GNUC__ 
+#ifdef __GNUC__
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 #endif
