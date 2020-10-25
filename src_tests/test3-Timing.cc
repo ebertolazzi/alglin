@@ -17,41 +17,8 @@
  |                                                                          |
 \*--------------------------------------------------------------------------*/
 
-
-#include <iostream>
-#include <vector>
+#include "Alglin.hh"
 #include <random>
-#include <lapack_wrapper/lapack_wrapper_tmpl.hh>
-
-#include "Alglin_Config.hh"
-#include "Alglin_Eigen.hh"
-
-#ifdef __GNUC__
-#pragma GCC diagnostic ignored "-Wsign-conversion"
-#pragma GCC diagnostic ignored "-Wold-style-cast"
-#pragma GCC diagnostic ignored "-Wmissing-noreturn"
-#pragma GCC diagnostic ignored "-Wfloat-equal"
-#pragma GCC diagnostic ignored "-Wdeprecated"
-#endif
-#ifdef __clang__
-#pragma clang diagnostic ignored "-Wc++98-compat"
-#pragma clang diagnostic ignored "-Wc++98-compat-pedantic"
-#pragma clang diagnostic ignored "-Wsign-conversion"
-#pragma clang diagnostic ignored "-Wglobal-constructors"
-#pragma clang diagnostic ignored "-Wundefined-func-template"
-#pragma clang diagnostic ignored "-Wdocumentation-unknown-command"
-#pragma clang diagnostic ignored "-Wold-style-cast"
-#pragma clang diagnostic ignored "-Wmissing-noreturn"
-#pragma clang diagnostic ignored "-Wfloat-equal"
-#pragma clang diagnostic ignored "-Wdocumentation"
-#pragma clang diagnostic ignored "-Wdocumentation-deprecated-sync"
-#pragma clang diagnostic ignored "-Wused-but-marked-unused"
-#pragma clang diagnostic ignored "-Wdeprecated"
-#pragma clang diagnostic ignored "-Wundefined-func-template"
-#pragma clang diagnostic ignored "-Wextra-semi"
-#pragma clang diagnostic ignored "-Wzero-as-null-pointer-constant"
-#pragma clang diagnostic ignored "-Wunused-template"
-#endif
 
 using namespace std;
 typedef double valueType;
@@ -295,7 +262,7 @@ testMv() {
 
   tm.tic();
   for ( int i = 0; i < N_TIMES; ++i ) {
-    Mv<valueType,N,N,N,N,N>::subTo(M,V,R);
+    alglin::Mv<valueType,N,N,N,N,N>::subTo(M,V,R);
     memcpy( V, R, N*sizeof(valueType) );
     //Vec2<valueType,N*N,1,1>::copy(M3,M2);
   }

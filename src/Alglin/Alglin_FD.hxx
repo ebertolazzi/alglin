@@ -18,18 +18,8 @@
 \*--------------------------------------------------------------------------*/
 
 ///
-/// file: Alglin_FD.hh
+/// file: Alglin_FD.hxx
 ///
-
-#pragma once
-
-#ifndef ALGLIN_FD_HH
-#define ALGLIN_FD_HH
-
-#include "Alglin_Config.hh"
-
-#include <iostream>
-#include <iomanip>
 
 namespace alglin {
 
@@ -458,8 +448,6 @@ namespace alglin {
 
 } // end namespace alglin
 
-#endif
-
 ///
-/// eof: Alglin_FD.hh
+/// eof: Alglin_FD.hxx
 ///

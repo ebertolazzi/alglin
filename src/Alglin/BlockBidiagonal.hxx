@@ -17,23 +17,9 @@
  |                                                                          |
 \*--------------------------------------------------------------------------*/
 
-#pragma once
-
-#ifndef BLOCK_BIDIAGONAL_HH
-#define BLOCK_BIDIAGONAL_HH
-
-#include "Alglin_Config.hh"
-
-#ifdef __GNUC__ 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wpadded"
-#endif
-#ifdef __clang__
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wpadded"
-#pragma clang diagnostic ignored "-Wc++98-compat"
-#pragma clang diagnostic ignored "-Wundefined-func-template"
-#endif
+///
+/// file: BlockBidiagonal.hxx
+///
 
 namespace alglin {
 
@@ -366,7 +352,7 @@ namespace alglin {
       integer /* numInitialOMEGA */,
       integer /* numFinalOMEGA   */,
       integer /* numCyclicOMEGA  */
-    ) ALGLIN_PURE_VIRTUAL;
+    ) UTILS_PURE_VIRTUAL;
 
     virtual
     void
@@ -378,15 +364,15 @@ namespace alglin {
       integer /* rowN   */,
       integer /* colN   */,
       integer /* nb     */
-    ) ALGLIN_PURE_VIRTUAL;
+    ) UTILS_PURE_VIRTUAL;
 
     virtual
     void
-    factorize() ALGLIN_PURE_VIRTUAL;
+    factorize() UTILS_PURE_VIRTUAL;
 
     virtual
     void
-    solve( valueType [] ) const ALGLIN_PURE_VIRTUAL;
+    solve( valueType [] ) const UTILS_PURE_VIRTUAL;
 
     virtual
     void
@@ -394,7 +380,7 @@ namespace alglin {
       integer      /* nrhs  */,
       valueType [] /* rhs   */,
       integer      /* ldRhs */
-    ) const ALGLIN_PURE_VIRTUAL;
+    ) const UTILS_PURE_VIRTUAL;
 
     void
     loadBottom(
@@ -533,4 +519,6 @@ namespace alglin {
   };
 }
 
-#endif
+///
+/// eof: BlockBidiagonal.hxx
+///

@@ -17,16 +17,9 @@
  |                                                                          |
 \*--------------------------------------------------------------------------*/
 
-#pragma once
-
-#ifndef BABD_HH
-#define BABD_HH
-
-#include "Alglin_Config.hh"
-#include "ABD_Diaz.hh"
-#include "ABD_Arceco.hh"
-#include "BABD_BorderedCR.hh"
-#include "BABD_Block.hh"
+///
+/// file: BABD.hxx
+///
 
 namespace alglin {
 
@@ -74,7 +67,7 @@ namespace alglin {
 
   public:
 
-    explicit ALGLIN_CONSTEXPR BABD()
+    explicit UTILS_CONSTEXPR BABD()
     : babd_solver(&bordered)
     {}
 
@@ -314,4 +307,6 @@ namespace alglin {
   };
 }
 
-#endif
+///
+/// eof: BABD.hxx
+///

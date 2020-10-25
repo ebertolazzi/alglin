@@ -29,7 +29,7 @@
 #include "Alglin_Config.hh"
 
 // automatic library inclusion
-#if defined(ALGLIN_OS_WINDOWS) && defined(_MSC_VER)
+#if defined(UTILS_OS_WINDOWS) && defined(_MSC_VER)
   #if defined(_DEBUG) || defined(DEBUG)
     #ifdef ALGLIN_ARCH64
       #pragma comment(lib, "Alglin_win_x64_static_debug.lib")

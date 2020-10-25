@@ -29,21 +29,11 @@
 #ifdef ALGLIN_USE_SYSTEM_LAPACK_WRAPPER
   #include <lapack_wrapper/lapack_wrapper.hh>
   #include <lapack_wrapper/lapack_wrapper++.hh>
+  #include <lapack_wrapper/lapack_wrapper_tmpl.hh>
 #else
   #include "lapack_wrapper/lapack_wrapper.hh"
   #include "lapack_wrapper/lapack_wrapper++.hh"
-#endif
-
-#define ALGLIN_PURE_VIRTUAL = 0
-#ifndef LAPACK_WRAPPER_OS_WINDOWS
-  #define ALGLIN_OVERRIDE  override
-  #define ALGLIN_CONSTEXPR constexpr
-  #ifdef __clang__
-    #pragma clang diagnostic ignored "-Wc++98-compat"
-  #endif
-#else
-  #define ALGLIN_OVERRIDE
-  #define ALGLIN_CONSTEXPR
+  #include "lapack_wrapper/lapack_wrapper_tmpl.hh"
 #endif
 
 #ifdef LAPACK_WRAPPER_USE_ACCELERATE
@@ -60,23 +50,6 @@
 #endif
 #ifdef LAPACK_WRAPPER_USE_MKL
   #define ALGLIN_USE_MKL 1
-#endif
-
-
-#ifdef LAPACK_WRAPPER_OS_WINDOWS
-  #define ALGLIN_OS_WINDOWS 1
-#endif
-#ifdef LAPACK_WRAPPER_OS_OSX
-  #define ALGLIN_OS_OSX 1
-#endif
-#ifdef LAPACK_WRAPPER_OS_LINUX
-  #define ALGLIN_OS_LINUX 1
-#endif
-#ifdef LAPACK_WRAPPER_ARCH32
-  #define ALGLIN_ARCH32 1
-#endif
-#ifdef LAPACK_WRAPPER_ARCH64
-  #define ALGLIN_ARCH64 1
 #endif
 
 namespace alglin {

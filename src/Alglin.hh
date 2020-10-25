@@ -23,10 +23,37 @@
 
 #pragma once
 
-#ifndef ALGLIN_HH
-#define ALGLIN_HH
+#ifndef ALGLIN_dot_HH
+#define ALGLIN_dot_HH
 
 #include "Alglin_Config.hh"
+
+#include <algorithm>
+#include <vector>
+#include <map>
+
+#include <thread>
+#include <mutex>
+
+#include <string>
+#include <cmath>
+
+#include "Alglin/Alglin_aux.hxx"
+#include "Alglin/Alglin_Eigen.hxx"
+#include "Alglin/Alglin_SuperLU.hxx"
+#include "Alglin/Alglin_FD.hxx"
+
+#include "Alglin/BlockBidiagonal.hxx"
+#include "Alglin/ABD_Block.hxx"
+#include "Alglin/ABD_Arceco.hxx"
+#include "Alglin/ABD_Diaz.hxx"
+#include "Alglin/BABD_Block.hxx"
+#include "Alglin/BABD_BorderedCR.hxx"
+#include "Alglin/BABD_SuperLU.hxx"
+#include "Alglin/KKT_like.hxx"
+#include "Alglin/Simplex.hxx"
+
+#include "Alglin/BABD.hxx"
 
 #endif
 

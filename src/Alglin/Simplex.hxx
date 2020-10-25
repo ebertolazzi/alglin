@@ -30,21 +30,12 @@
  |                                                                          |
 \*--------------------------------------------------------------------------*/
 
-#pragma once
-
-#ifndef SIMPLEX_HH
-#define SIMPLEX_HH
-
-#include "Alglin_Config.hh"
-
-#include <string>
-#include <iostream>
-#include <iomanip>
-#include <sstream>
-#include <vector>
+///
+/// file: Simplex.hxx
+///
 
 #ifndef SIMPLEX_API_DLL
-  #ifdef ALGLIN_OS_WINDOWS
+  #ifdef UTILS_OS_WINDOWS
     #ifdef SIMPLEX_EXPORT
       #define SIMPLEX_API_DLL __declspec(dllexport)
     #elif defined(SIMPLEX_IMPORT)
@@ -70,19 +61,6 @@
 
 #ifndef SIMPLEX_ASSERT
   #define SIMPLEX_ASSERT(COND,MSG) if ( !(COND) ) SIMPLEX_ERROR(MSG);
-#endif
-
-#ifdef __GNUC__ 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wsign-conversion"
-#pragma GCC diagnostic ignored "-Wpadded"
-#endif
-#ifdef __clang__
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wc++98-compat"
-#pragma clang diagnostic ignored "-Wsign-conversion"
-#pragma clang diagnostic ignored "-Wweak-vtables"
-#pragma clang diagnostic ignored "-Wpadded"
 #endif
 
 //! namespace for nonlinear systems and nonlinearsolver
@@ -135,17 +113,17 @@ namespace Simplex {
     ~StandardProblemBase()
     {}
 
-    SIMPLEX_VIRTUAL valueType get_b_max_abs() const ALGLIN_PURE_VIRTUAL;
-    SIMPLEX_VIRTUAL valueType get_c_max_abs() const ALGLIN_PURE_VIRTUAL;
-    SIMPLEX_VIRTUAL valueType get_A_max_abs() const ALGLIN_PURE_VIRTUAL;
+    SIMPLEX_VIRTUAL valueType get_b_max_abs() const UTILS_PURE_VIRTUAL;
+    SIMPLEX_VIRTUAL valueType get_c_max_abs() const UTILS_PURE_VIRTUAL;
+    SIMPLEX_VIRTUAL valueType get_A_max_abs() const UTILS_PURE_VIRTUAL;
 
-    SIMPLEX_VIRTUAL integer dim_x() const ALGLIN_PURE_VIRTUAL; //!< dimension of x
-    SIMPLEX_VIRTUAL integer dim_g() const ALGLIN_PURE_VIRTUAL; //!< number of equality constraints
+    SIMPLEX_VIRTUAL integer dim_x() const UTILS_PURE_VIRTUAL; //!< dimension of x
+    SIMPLEX_VIRTUAL integer dim_g() const UTILS_PURE_VIRTUAL; //!< number of equality constraints
 
-    SIMPLEX_VIRTUAL void load_c( valueType c[] ) const ALGLIN_PURE_VIRTUAL;
+    SIMPLEX_VIRTUAL void load_c( valueType c[] ) const UTILS_PURE_VIRTUAL;
 
     //! fill the vector b with the rhs of the constraints \f$ Ax = b \$f
-    SIMPLEX_VIRTUAL void load_b( valueType b[] ) const ALGLIN_PURE_VIRTUAL;
+    SIMPLEX_VIRTUAL void load_b( valueType b[] ) const UTILS_PURE_VIRTUAL;
 
     /*!
       fill the sparse vector with the column `j_col` of matrix `A` in a sparse form as values
@@ -155,22 +133,22 @@ namespace Simplex {
       \param  i_row  the index of the row of the corresponding nonzeros element
       \return number of nonzeros elements of the column
     \*/
-    SIMPLEX_VIRTUAL integer load_A_column( integer j_col, valueType values[], integer i_row[] ) const ALGLIN_PURE_VIRTUAL;
+    SIMPLEX_VIRTUAL integer load_A_column( integer j_col, valueType values[], integer i_row[] ) const UTILS_PURE_VIRTUAL;
 
     //! subtract to `res` the product `Ax`
-    SIMPLEX_VIRTUAL void subtract_Ax( valueType const x[], valueType res[] ) const ALGLIN_PURE_VIRTUAL;
+    SIMPLEX_VIRTUAL void subtract_Ax( valueType const x[], valueType res[] ) const UTILS_PURE_VIRTUAL;
 
     //! lower bound of `x_i`
-    SIMPLEX_VIRTUAL valueType Lower( integer i ) const ALGLIN_PURE_VIRTUAL;
+    SIMPLEX_VIRTUAL valueType Lower( integer i ) const UTILS_PURE_VIRTUAL;
 
     //! upper bound of `x_i`
-    SIMPLEX_VIRTUAL valueType Upper( integer i ) const ALGLIN_PURE_VIRTUAL;
+    SIMPLEX_VIRTUAL valueType Upper( integer i ) const UTILS_PURE_VIRTUAL;
 
     //! return true if lower bound of `x_i` is unlimited
-    SIMPLEX_VIRTUAL bool Lower_is_free( integer i ) const ALGLIN_PURE_VIRTUAL;
+    SIMPLEX_VIRTUAL bool Lower_is_free( integer i ) const UTILS_PURE_VIRTUAL;
 
     //! return true if upper bound of `x_i` is unlimited
-    SIMPLEX_VIRTUAL bool Upper_is_free( integer i ) const ALGLIN_PURE_VIRTUAL;
+    SIMPLEX_VIRTUAL bool Upper_is_free( integer i ) const UTILS_PURE_VIRTUAL;
 
     SIMPLEX_API_DLL
     void
@@ -226,13 +204,13 @@ namespace Simplex {
     ~ProblemBase()
     {}
 
-    SIMPLEX_VIRTUAL valueType get_c_max_abs() const ALGLIN_PURE_VIRTUAL;
-    SIMPLEX_VIRTUAL valueType get_A_max_abs() const ALGLIN_PURE_VIRTUAL;
+    SIMPLEX_VIRTUAL valueType get_c_max_abs() const UTILS_PURE_VIRTUAL;
+    SIMPLEX_VIRTUAL valueType get_A_max_abs() const UTILS_PURE_VIRTUAL;
 
-    SIMPLEX_VIRTUAL integer dim_x() const ALGLIN_PURE_VIRTUAL; //!< dimension of x
-    SIMPLEX_VIRTUAL integer dim_g() const ALGLIN_PURE_VIRTUAL; //!< number of equality constraints
+    SIMPLEX_VIRTUAL integer dim_x() const UTILS_PURE_VIRTUAL; //!< dimension of x
+    SIMPLEX_VIRTUAL integer dim_g() const UTILS_PURE_VIRTUAL; //!< number of equality constraints
 
-    SIMPLEX_VIRTUAL void load_c( valueType c[] ) const ALGLIN_PURE_VIRTUAL;
+    SIMPLEX_VIRTUAL void load_c( valueType c[] ) const UTILS_PURE_VIRTUAL;
 
     /*!
       fill the sparse vector with the column `j_col` of matrix `A` in a sparse form as values
@@ -242,22 +220,22 @@ namespace Simplex {
       \param  i_row  the index of the row of the corresponding nonzeros element
       \return number of nonzeros elements of the column
     \*/
-    SIMPLEX_VIRTUAL integer load_A_column( integer j_col, valueType values[], integer i_row[] ) const ALGLIN_PURE_VIRTUAL;
+    SIMPLEX_VIRTUAL integer load_A_column( integer j_col, valueType values[], integer i_row[] ) const UTILS_PURE_VIRTUAL;
 
     //! subtract to `res` the product `Ax`
-    SIMPLEX_VIRTUAL void subtract_Ax( valueType const x[], valueType res[] ) const ALGLIN_PURE_VIRTUAL;
+    SIMPLEX_VIRTUAL void subtract_Ax( valueType const x[], valueType res[] ) const UTILS_PURE_VIRTUAL;
 
     //! lower bound of `x_i`
-    SIMPLEX_VIRTUAL valueType Lower( integer i ) const ALGLIN_PURE_VIRTUAL;
+    SIMPLEX_VIRTUAL valueType Lower( integer i ) const UTILS_PURE_VIRTUAL;
 
     //! upper bound of `x_i`
-    SIMPLEX_VIRTUAL valueType Upper( integer i ) const ALGLIN_PURE_VIRTUAL;
+    SIMPLEX_VIRTUAL valueType Upper( integer i ) const UTILS_PURE_VIRTUAL;
 
     //! return true if lower bound of `x_i` is unlimited
-    SIMPLEX_VIRTUAL bool Lower_is_free( integer i ) const ALGLIN_PURE_VIRTUAL;
+    SIMPLEX_VIRTUAL bool Lower_is_free( integer i ) const UTILS_PURE_VIRTUAL;
 
     //! return true if upper bound of `x_i` is unlimited
-    SIMPLEX_VIRTUAL bool Upper_is_free( integer i ) const ALGLIN_PURE_VIRTUAL;
+    SIMPLEX_VIRTUAL bool Upper_is_free( integer i ) const UTILS_PURE_VIRTUAL;
 
     SIMPLEX_API_DLL
     void
@@ -835,11 +813,6 @@ namespace Simplex {
 
 }
 
-#ifdef __GNUC__ 
-#pragma GCC diagnostic pop
-#endif
-#ifdef __clang__
-#pragma clang diagnostic pop
-#endif
-
-#endif
+///
+/// eof: Simplex.hxx
+///

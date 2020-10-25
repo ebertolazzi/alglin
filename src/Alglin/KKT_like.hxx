@@ -17,27 +17,9 @@
  |                                                                          |
 \*--------------------------------------------------------------------------*/
 
-#pragma once
-
-#ifndef KKT_LIKE_N_HH
-#define KKT_LIKE_N_HH
-
-#include "Alglin_Config.hh"
-
-#include <vector>
-
-#ifdef __GNUC__ 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wpadded"
-#endif
-#ifdef __clang__
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wpadded"
-#pragma clang diagnostic ignored "-Wc++98-compat"
-#pragma clang diagnostic ignored "-Wc++98-compat-pedantic"
-#pragma clang diagnostic ignored "-Wweak-template-vtables"
-#pragma clang diagnostic ignored "-Wundefined-func-template"
-#endif
+///
+/// file: KKT_lite.hxx
+///
 
 namespace alglin {
 
@@ -220,7 +202,7 @@ namespace alglin {
     , m(0)
     {}
 
-    ~KKT() ALGLIN_OVERRIDE
+    ~KKT() UTILS_OVERRIDE
     {}
 
     void
@@ -656,19 +638,19 @@ namespace alglin {
 
     virtual
     bool
-    solve( valueType xb[] ) const ALGLIN_OVERRIDE;
+    solve( valueType xb[] ) const UTILS_OVERRIDE;
 
     virtual
     bool
-    t_solve( valueType xb[] ) const ALGLIN_OVERRIDE;
+    t_solve( valueType xb[] ) const UTILS_OVERRIDE;
 
     virtual
     bool
-    solve( integer nrhs, valueType B[], integer ldB ) const ALGLIN_OVERRIDE;
+    solve( integer nrhs, valueType B[], integer ldB ) const UTILS_OVERRIDE;
 
     virtual
     bool
-    t_solve( integer nrhs, valueType B[], integer ldB ) const ALGLIN_OVERRIDE;
+    t_solve( integer nrhs, valueType B[], integer ldB ) const UTILS_OVERRIDE;
 
   };
 
@@ -678,11 +660,6 @@ namespace alglin {
   extern template class KKT<double>;
 }
 
-#ifdef __GNUC__ 
-#pragma GCC diagnostic pop
-#endif
-#ifdef __clang__
-#pragma clang diagnostic pop
-#endif
-
-#endif
+///
+/// eof: KKT_lite.hxx
+///

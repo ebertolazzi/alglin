@@ -17,22 +17,7 @@
  |                                                                          |
 \*--------------------------------------------------------------------------*/
 
-#include <iostream>
-#include <iomanip>
-#include <vector>
-#include <random>
-#include "Alglin_FD.hh"
-
-#ifdef __GNUC__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wsign-conversion"
-#endif
-#ifdef __clang__
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wsign-conversion"
-#pragma clang diagnostic ignored "-Wc99-extensions"
-#pragma clang diagnostic ignored "-Wglobal-constructors"
-#endif
+#include "Alglin.hh"
 
 using namespace alglin;
 

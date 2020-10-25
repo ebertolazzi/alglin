@@ -17,22 +17,9 @@
  |                                                                          |
 \*--------------------------------------------------------------------------*/
 
-#pragma once
-
-#ifndef BABD_SUPERLU_HH
-#define BABD_SUPERLU_HH
-
-#include "Alglin_Config.hh"
-#include "Alglin_SuperLU.hh"
-
-#ifdef __GNUC__ 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wpadded"
-#endif
-#ifdef __clang__
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wpadded"
-#endif
+///
+/// file: BABD_SuperLU.hxx
+///
 
 namespace alglin {
 
@@ -150,11 +137,6 @@ namespace alglin {
   };
 }
 
-#ifdef __GNUC__ 
-#pragma GCC diagnostic pop
-#endif
-#ifdef __clang__
-#pragma clang diagnostic pop
-#endif
-
-#endif
+///
+/// eof: BABD_SuperLU.hxx
+///

@@ -30,26 +30,7 @@
  |                                                                          |
 \*--------------------------------------------------------------------------*/
 
-#include "Simplex.hh"
-#include <vector>
-#include <algorithm>
-#include <cmath>
-#include <iostream>
-#include <iomanip>
-#include <sstream>
-#include <limits>
-
-#ifdef __GNUC__ 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wsign-conversion"
-#endif
-#ifdef __clang__
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wc++98-compat"
-#pragma clang diagnostic ignored "-Wsign-conversion"
-#pragma clang diagnostic ignored "-Wglobal-constructors"
-#pragma clang diagnostic ignored "-Wundefined-func-template"
-#endif
+#include "Alglin.hh"
 
 //! namespace for nonlinear systems and nonlinearsolver
 namespace Simplex {

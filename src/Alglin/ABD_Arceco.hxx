@@ -17,12 +17,9 @@
  |                                                                          |
 \*--------------------------------------------------------------------------*/
 
-#pragma once
-
-#ifndef ABD_ARCECO_HH
-#define ABD_ARCECO_HH
-
-#include "Alglin_Config.hh"
+///
+/// file: ABD_Arceco.hxx
+///
 
 namespace alglin {
 
@@ -187,7 +184,7 @@ namespace alglin {
 
   public:
 
-    explicit ALGLIN_CONSTEXPR ArcecoLU()
+    explicit UTILS_CONSTEXPR ArcecoLU()
     : baseValue("ArcecoLU_values")
     , baseInteger("ArcecoLU_integers")
     {}
@@ -283,4 +280,6 @@ namespace alglin {
   #endif
 }
 
-#endif
+///
+/// eof: ABD_Arceco.hxx
+///

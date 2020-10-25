@@ -17,8 +17,7 @@
  |                                                                          |
 \*--------------------------------------------------------------------------*/
 
-#include "Alglin_Config.hh"
-#include <iostream>
+#include "Alglin.hh"
 
 using namespace std;
 

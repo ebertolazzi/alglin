@@ -17,24 +17,9 @@
  |                                                                          |
 \*--------------------------------------------------------------------------*/
 
-#pragma once
-
-#ifndef BABD_BORDERED_CR_HH
-#define BABD_BORDERED_CR_HH
-
-#include "Alglin_SuperLU.hh"
-
-#include <iostream>
-
-#ifdef __GNUC__ 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wpadded"
-#endif
-#ifdef __clang__
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wpadded"
-#pragma clang diagnostic ignored "-Wc++98-compat"
-#endif
+///
+/// file: BABD_BorderedCR.hxx
+///
 
 namespace alglin {
 
@@ -336,7 +321,7 @@ namespace alglin {
     BorderedCR( Utils::ThreadPool * _TP = nullptr );
 
     virtual
-    ~BorderedCR() ALGLIN_OVERRIDE
+    ~BorderedCR() UTILS_OVERRIDE
     {}
 
     void
@@ -769,7 +754,7 @@ namespace alglin {
 
     virtual
     bool
-    solve( valueType x[] ) const ALGLIN_OVERRIDE {
+    solve( valueType x[] ) const UTILS_OVERRIDE {
       if ( selected == BORDERED_SUPERLU ) {
         return solve_SuperLU( x );
       } else {
@@ -779,7 +764,7 @@ namespace alglin {
 
     virtual
     bool
-    solve( integer nrhs, valueType rhs[], integer ldRhs ) const ALGLIN_OVERRIDE {
+    solve( integer nrhs, valueType rhs[], integer ldRhs ) const UTILS_OVERRIDE {
       if ( selected == BORDERED_SUPERLU ) {
         return solve_SuperLU( nrhs, rhs, ldRhs );
       } else {
@@ -789,13 +774,13 @@ namespace alglin {
 
     virtual
     bool
-    t_solve( valueType [] ) const ALGLIN_OVERRIDE {
+    t_solve( valueType [] ) const UTILS_OVERRIDE {
       UTILS_ERROR0( "BorderedCR::t_solve() not defined\n" );
     }
 
     virtual
     bool
-    t_solve( integer, valueType [], integer ) const ALGLIN_OVERRIDE {
+    t_solve( integer, valueType [], integer ) const UTILS_OVERRIDE {
       UTILS_ERROR0( "BorderedCR::t_solve() not defined\n" );
     }
 
@@ -858,4 +843,6 @@ namespace alglin {
   #endif
 }
 
-#endif
+///
+/// eof: BABD_BorderedCR.hxx
+///

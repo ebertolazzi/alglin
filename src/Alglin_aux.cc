@@ -17,17 +17,7 @@
  |                                                                          |
 \*--------------------------------------------------------------------------*/
 
-#ifdef __GNUC__ 
-#pragma GCC diagnostic ignored "-Wsign-conversion"
-#endif
-#ifdef __clang__
-#pragma clang diagnostic ignored "-Wsign-conversion"
-#endif
-
-#include "Alglin_aux.hh"
-#include <vector>
-#include <limits>
-#include <string>
+#include "Alglin.hh"
 
 // workaround for windows
 #ifdef _MSC_VER
@@ -38,8 +28,6 @@
     #undef min
   #endif
 #endif
-
-#include <algorithm>
 
 namespace alglin {
 
@@ -255,7 +243,7 @@ namespace alglin {
 
     std::vector<T> Tmat(N*N), line(N), r(nrhs);
     T C, S;
-    
+
     gecopy( N, N, Amat, ldA, &Tmat.front(), N );
 
     for ( integer i = 0; i < N; ++i ) {
@@ -324,18 +312,18 @@ namespace alglin {
 
   template integer getc2_tmpl(
     integer N,
-    real    A[],
+    float   A[],
     integer LDA,
     integer IPIV[],
     integer JPIV[]
   );
 
   template integer getc2_tmpl(
-    integer    N,
-    doublereal A[],
-    integer    LDA,
-    integer    IPIV[],
-    integer    JPIV[]
+    integer N,
+    double  A[],
+    integer LDA,
+    integer IPIV[],
+    integer JPIV[]
   );
 
   template <typename T>
@@ -384,22 +372,22 @@ namespace alglin {
     return SCALE;
   }
 
-  template real gesc2_tmpl(
+  template float gesc2_tmpl(
     integer       N,
-    real    const A[],
+    float   const A[],
     integer       LDA,
-    real          RHS[],
+    float         RHS[],
     integer const IPIV[],
     integer const JPIV[]
   );
 
-  template doublereal gesc2_tmpl(
-    integer          N,
-    doublereal const A[],
-    integer          LDA,
-    doublereal       RHS[],
-    integer    const IPIV[],
-    integer    const JPIV[]
+  template double gesc2_tmpl(
+    integer       N,
+    double  const A[],
+    integer       LDA,
+    double        RHS[],
+    integer const IPIV[],
+    integer const JPIV[]
   );
 
   template <typename T>
@@ -422,49 +410,49 @@ namespace alglin {
   template void laqge_tmpl(
     integer             M,
     integer             N,
-    real                A[],
+    float               A[],
     integer             LDA,
-    real const          R[],
-    real const          C[],
-    real                ROWCND,
-    real                COLCND,
-    real                AMAX,
+    float const         R[],
+    float const         C[],
+    float               ROWCND,
+    float               COLCND,
+    float               AMAX,
     EquilibrationType & equ
   );
 
   template void laqge_tmpl(
     integer             M,
     integer             N,
-    doublereal          A[],
+    double              A[],
     integer             LDA,
-    doublereal const    R[],
-    doublereal const    C[],
-    doublereal          ROWCND,
-    doublereal          COLCND,
-    doublereal          AMAX,
+    double const        R[],
+    double const        C[],
+    double              ROWCND,
+    double              COLCND,
+    double              AMAX,
     EquilibrationType & equ
   );
 
   #endif
 
   template void triTikhonov(
-    integer    N,
-    real const Tmat[],
-    integer    LDT,
-    integer    nrhs,
-    real       RHS[],
-    integer    ldRHS,
-    real       lambda
+    integer     N,
+    float const Tmat[],
+    integer     LDT,
+    integer     nrhs,
+    float       RHS[],
+    integer     ldRHS,
+    float       lambda
   );
 
   template void triTikhonov(
-    integer          N,
-    doublereal const Tmat[],
-    integer          LDT,
-    integer          nrhs,
-    doublereal       RHS[],
-    integer          ldRHS,
-    doublereal       lambda
+    integer      N,
+    double const Tmat[],
+    integer      LDT,
+    integer      nrhs,
+    double       RHS[],
+    integer      ldRHS,
+    double       lambda
   );
 } // end namespace alglin
 

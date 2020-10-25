@@ -17,7 +17,7 @@
  |                                                                          |
 \*--------------------------------------------------------------------------*/
 
-#include "BABD_C_interface.h"
+#include "Alglin/BABD_C_interface.h"
 #include <stdio.h>
 
 int

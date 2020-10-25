@@ -17,21 +17,7 @@
  |                                                                          |
 \*--------------------------------------------------------------------------*/
 
-#include "Alglin_Config.hh"
-
-#ifdef __GNUC__ 
-#pragma GCC diagnostic ignored "-Wsign-conversion"
-#endif
-#ifdef __clang__
-#pragma clang diagnostic ignored "-Wsign-conversion"
-#endif
-
-#include "BABD_SuperLU.hh"
-
-#include <iostream>
-#include <algorithm>
-
-using namespace std;
+#include "Alglin.hh"
 
 namespace alglin {
 

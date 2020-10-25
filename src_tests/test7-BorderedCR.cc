@@ -17,28 +17,8 @@
  |                                                                          |
 \*--------------------------------------------------------------------------*/
 
-#include <iostream>
-#include <vector>
+#include "Alglin.hh"
 #include <random>
-#include <fstream>
-
-#include "Alglin_Config.hh"
-#include "Alglin_aux.hh"
-#include "BABD_BorderedCR.hh"
-//#include "BABD_BorderedCR_eigen3.hh"
-
-#ifdef __GNUC__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wsign-conversion"
-#endif
-#ifdef __clang__
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wsign-conversion"
-#pragma clang diagnostic ignored "-Wc99-extensions"
-#pragma clang diagnostic ignored "-Wglobal-constructors"
-#pragma clang diagnostic ignored "-Wundefined-func-template"
-#endif
-
 
 using namespace std;
 typedef double valueType;

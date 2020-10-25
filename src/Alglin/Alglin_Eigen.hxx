@@ -18,13 +18,8 @@
 \*--------------------------------------------------------------------------*/
 
 ///
-/// file: AlglinEigen.hh
+/// file: Alglin_Eigen.hxx
 ///
-
-#pragma once
-
-#ifndef ALGLIN_EIGEN_HH
-#define ALGLIN_EIGEN_HH
 
 //nowarn = "-Wno-weak-vtables -Wno-implicit-fallthrough -Wno-documentation-unknown-command -Wno-float-equal -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-padded -Wno-reserved-id-macro -Wno-documentation"
 
@@ -101,8 +96,6 @@
 #pragma clang diagnostic pop
 #endif
 
-#endif
-
 ///
-/// eof: AlglinEigen.hh
+/// eof: Alglin_Eigen.hxx
 ///

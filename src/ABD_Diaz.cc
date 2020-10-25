@@ -21,23 +21,7 @@
 /// file: ABD_Diaz.cc
 ///
 
-#include "Alglin_aux.hh"
-#include "ABD_Diaz.hh"
-
-#include <iomanip>
-#include <vector>
-#include <limits>
-#include <algorithm>
-#include <cmath>
-
-#ifdef __GNUC__ 
-#pragma GCC diagnostic ignored "-Wsign-conversion"
-#endif
-#ifdef __clang__
-#pragma clang diagnostic ignored "-Wsign-conversion"
-#pragma clang diagnostic ignored "-Wweak-template-vtables"
-#pragma clang diagnostic ignored "-Wundefined-func-template"
-#endif
+#include "Alglin.hh"
 
 /*
 //  Blocco algoritmo di Diaz

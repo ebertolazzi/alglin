@@ -17,15 +17,7 @@
  |                                                                          |
 \*--------------------------------------------------------------------------*/
 
-#ifdef __GNUC__ 
-#pragma GCC diagnostic ignored "-Wsign-conversion"
-#endif
-#ifdef __clang__
-#pragma clang diagnostic ignored "-Wsign-conversion"
-#endif
-
-#include "Alglin_Config.hh"
-#include "ABD_Arceco.hh"
+#include "Alglin.hh"
 
 namespace alglin {
 
@@ -595,13 +587,6 @@ namespace alglin {
       if ( pivotj != j1 ) std::swap( x[pivotj], x[j1] );
     }
   }
-
-  #ifdef __GNUC__ 
-  #pragma GCC diagnostic ignored "-Wpadded"
-  #endif
-  #ifdef __clang__
-  #pragma clang diagnostic ignored "-Wpadded"
-  #endif
 
   template class ArcecoLU<float>;
   template class ArcecoLU<double>;

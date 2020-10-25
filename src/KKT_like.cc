@@ -17,16 +17,7 @@
  |                                                                          |
 \*--------------------------------------------------------------------------*/
 
-#include "KKT_like.hh"
-
-#ifdef __GNUC__ 
-#pragma GCC diagnostic ignored "-Wsign-conversion"
-#endif
-#ifdef __clang__
-#pragma clang diagnostic ignored "-Wsign-conversion"
-#pragma clang diagnostic ignored "-Wweak-template-vtables"
-#pragma clang diagnostic ignored "-Wundefined-func-template"
-#endif
+#include "Alglin.hh"
 
 namespace alglin {
 

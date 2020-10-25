@@ -17,13 +17,9 @@
  |                                                                          |
 \*--------------------------------------------------------------------------*/
 
-#pragma once
-
-#ifndef LU_BABD_BLOCK_HH
-#define LU_BABD_BLOCK_HH
-
-#include "BlockBidiagonal.hh"
-#include <vector>
+///
+/// file: BABD_Block.hxx
+///
 
 //! Various LU decomposition classes
 namespace alglin {
@@ -79,10 +75,10 @@ namespace alglin {
     //  |  0  | Ad  | Au  |  0               |  0  |  0  | n   |
     //  +-----+-----+-----+-----+       -----+-----+-----+     |
     //  |  0  |  0  | Ad  | Au  |            |  0  |  0  | n   |
-    //  +-----+-----+-----+-----+       -----+-----+-----+     |   
+    //  +-----+-----+-----+-----+       -----+-----+-----+     |
     //  |                                                :     |
     //  :                                                :      > n * nblock
-    //  :                                                :     | 
+    //  :                                                :     |
     //  :                                                :     |
     //  :                                                :     |
     //  :                              +-----+-----+-----+     |
@@ -96,7 +92,7 @@ namespace alglin {
     //  +-----+-----+---......---+-----+-----+=====+=====+
     //
     */
-    
+
     /*!
     //
     //  Working block AdH_blk [ size = nblock * ( n * (n+m) ) ]
@@ -104,7 +100,7 @@ namespace alglin {
     //                 n * nblock
     //    ________________^_________________
     //   /                                  \
-    //     n     n     n                      
+    //     n     n     n
     //  +-----+-----+-----+----........+-----+
     //  |  Ad | Ad  | Ad  |               Ad | n
     //  +-----+-----+-----+            +-----+
@@ -173,42 +169,34 @@ namespace alglin {
     integer * ipiv_blk;
 
   public:
-  
+
     using BlockBidiagonal<t_Value>::factorize;
     using BlockBidiagonal<t_Value>::dump_ccoord;
 
     explicit BBlockLU() { }
 
     virtual
-    ~BBlockLU() ALGLIN_OVERRIDE
+    ~BBlockLU() UTILS_OVERRIDE
     { }
 
     virtual
     void
-    factorize() ALGLIN_OVERRIDE;
+    factorize() UTILS_OVERRIDE;
 
     //! solve linear system previously factorized
     virtual
     void
-    solve( valueType in_out[] ) const ALGLIN_OVERRIDE;
+    solve( valueType in_out[] ) const UTILS_OVERRIDE;
 
   };
 
   // explicit instantiation declaration to suppress warnings
 
-  #ifdef __clang__
-  #pragma clang diagnostic push
-  #pragma clang diagnostic ignored "-Wc++98-compat-pedantic"
-  #pragma clang diagnostic ignored "-Wweak-template-vtables"
-  #endif
-
   extern template class BBlockLU<float>;
   extern template class BBlockLU<double>;
 
-  #ifdef __clang__
-  #pragma clang diagnostic pop
-  #endif
-
 }
 
-#endif
+///
+/// eof: BABD_Block.hxx
+///

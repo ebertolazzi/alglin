@@ -30,22 +30,7 @@
  |                                                                          |
 \*--------------------------------------------------------------------------*/
 
-#include "Simplex.hh"
-#include <vector>
-#include <iostream>
-
-#ifdef __GNUC__ 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wsign-conversion"
-#endif
-#ifdef __clang__
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wsign-conversion"
-#pragma clang diagnostic ignored "-Wc99-extensions"
-#pragma clang diagnostic ignored "-Wglobal-constructors"
-#endif
-
-using namespace std;
+#include "Alglin.hh"
 
 int
 main() {
@@ -87,13 +72,13 @@ main() {
     simplex_problem_aux.to_primal( xd, xdd, IBd );
     simplex.solve( &simplex_problem, xdd, IBd );
   }
-  catch (  exception const & err ) {
-    cerr << "Error: " << err.what();
+  catch ( std::exception const & err ) {
+    std::cerr << "Error: " << err.what();
   }
   catch (...) {
-    cerr << "Unknwn error\n";
+    std::cerr << "Unknwn error\n";
   }
 
-  cout << "\nAll Done Folks!\n";
+  std::cout << "\nAll Done Folks!\n";
   return 0;
 }

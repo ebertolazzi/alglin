@@ -16,25 +16,8 @@
  |      email: enrico.bertolazzi@unitn.it                                   |
  |                                                                          |
 \*--------------------------------------------------------------------------*/
-
-#include <iostream>
-#include <fstream>
-#include <vector>
-
-#include "Alglin_Config.hh"
-#include "Alglin_aux.hh"
-#include "ABD_Block.hh"
-
-#ifdef __GNUC__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wsign-conversion"
-#endif
-#ifdef __clang__
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wsign-conversion"
-#pragma clang diagnostic ignored "-Wc99-extensions"
-#pragma clang diagnostic ignored "-Wglobal-constructors"
-#endif
+#include "Alglin.hh"
+#include <random>
 
 typedef double valueType;
 

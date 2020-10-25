@@ -17,8 +17,7 @@
  |                                                                          |
 \*--------------------------------------------------------------------------*/
 
-#include "BABD_BorderedCR.hh"
-#include "Alglin_Eigen.hh"
+#include "Alglin.hh"
 
 namespace alglin {
 

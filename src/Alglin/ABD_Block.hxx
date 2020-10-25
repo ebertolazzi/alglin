@@ -18,23 +18,15 @@
 \*--------------------------------------------------------------------------*/
 
 ///
-/// file: ABD_Diaz.hh
+/// file: ABD_Block.hxx
 ///
-
-#pragma once
-
-#ifndef ABD_DIAZ_HH
-#define ABD_DIAZ_HH
-
-#include "BlockBidiagonal.hh"
-#include <iostream>
 
 namespace alglin {
 
   //! LU decomposition of a ABD matrix
   /*!
-   * 
-   * \date     May, 2016
+   *
+   * \date     January, 2017
    * \version  1.0
    *
    * \author   Enrico Bertolazzi
@@ -44,9 +36,9 @@ namespace alglin {
    *           University of Trento <br>
    *           Via Sommarive 9, I-38123 Povo, Trento, Italy<br>
    *           `enrico.bertolazzi\@unitn.it`
-   * 
-   */
-  /*
+   *
+  \*/
+  /*\
       Matrix NNZ structure
         col0-col00
      |    +----+----+                        |
@@ -65,64 +57,44 @@ namespace alglin {
      |    +----+                       +--+  |
                                 colN  col00
 
-      Matrix NNZ internal structure
           col0
        |       |
-     / +-------+                         \
-     | |  TOP  |                         | <-- row0
-     | +--+----+----+                    |
-     |    |    |    |                    | <- sizeBlock
-     |    +----+----+----+               |
-     |         |    |    |               |
-     |         +----+----+----+          |
-     |              |    |    |          |
-     |              +----+----+----+     |
-     |                   |    |    |     |
+     / +-------+....+                    \
+     | |  TOP  |  F :                    | <-- row0
+     | +--+----+----+....+               |
+     |    |    |    |  F :               | <- sizeBlock
+     |    +----+----+----+....+          |
+     |         |    |    |  F :          |
+     |         +----+----+----+....+     |
+     |              |    |    |  F :     |
+     |              +----+----+----+...+ |
+     |                   |    |    | E | |
      |                   +----+----+---+ |
      |                        |        | | <-- rowN
      |                        | BOTTOM | |
      \                        +--------+ /
                               |        |
                                  colN
-  */
-
+  \*/
   template <typename t_Value>
-  class DiazLU : public BlockBidiagonal<t_Value> {
+  class BlockLU : public BlockBidiagonal<t_Value> {
   public:
 
     typedef t_Value valueType;
 
   private:
 
-    DiazLU( DiazLU const & );
-    DiazLU const & operator = ( DiazLU const & );
-
-    integer NB;
+    BlockLU( BlockLU const & );
+    BlockLU const & operator = ( BlockLU const & );
 
     mutable integer nblk;
 
-    integer * swapRC_blks;
-
-    void
-    LU_left_right(
-      integer nrA,
-      integer ncA,
-      integer ncL,
-      integer ncR,
-      t_Value * A, integer ldA,
-      integer swapR[]
-    );
-
-    void
-    LU_top_bottom(
-      integer nrT,
-      integer nrA,
-      integer ncA,
-      t_Value * A, integer ldA,
-      integer nrB,
-      t_Value * B, integer ldB,
-      integer swapC[]
-    );
+    integer * swap0;
+    integer * swapR_blks;
+    integer   Work_lda, F_size, F_lda;
+    t_Value * Work_mat;
+    t_Value * Work_mat1;
+    t_Value * F_mat;
 
     //! solve linear sistem using internal factorized matrix
     void
@@ -142,11 +114,8 @@ namespace alglin {
     using BlockBidiagonal<valueType>::factorize;
     using BlockBidiagonal<valueType>::dump_ccoord;
 
-    explicit ALGLIN_CONSTEXPR DiazLU() : NB(25) {}
-
-    virtual
-    ~DiazLU() ALGLIN_OVERRIDE
-    {}
+    explicit BlockLU() {}
+    // ~BlockLU() UTILS_OVERRIDE {}
 
     virtual
     void
@@ -162,8 +131,8 @@ namespace alglin {
       integer /* numInitialOMEGA */,
       integer /* numFinalOMEGA   */,
       integer /* numCyclicOMEGA  */
-    ) ALGLIN_OVERRIDE
-    { UTILS_ERROR0("DiazLU::allocate() not defined!\n"); }
+    ) UTILS_OVERRIDE
+    { UTILS_ERROR0("BlockLU::allocate() not defined!\n"); }
 
     virtual
     void
@@ -175,42 +144,43 @@ namespace alglin {
       integer _rowN,
       integer _colN,
       integer _nb
-    ) ALGLIN_OVERRIDE {
-      integer inv = _nblock*_n+(_col0+_colN-2*_n);
-      BlockBidiagonal<t_Value>::allocateTopBottom(
-        _nblock, _n,
-        _row0, _col0,
-        _rowN, _colN,
-        _nb, 0, inv
-      );
-      swapRC_blks = this->baseInteger(size_t(inv));
-    }
+    ) UTILS_OVERRIDE;
 
     virtual
     void
-    factorize() ALGLIN_OVERRIDE;
+    factorize() UTILS_OVERRIDE;
 
     //! solve linear sistem using internal factorized matrix
     virtual
     void
-    solve( valueType in_out[] ) const ALGLIN_OVERRIDE
+    solve( valueType in_out[] ) const UTILS_OVERRIDE
     { solve_internal( true, in_out ); }
 
     //! solve linear sistem using internal factorized matrix
     virtual
     void
-    solve( integer nrhs, valueType in_out[], integer ldRhs ) const ALGLIN_OVERRIDE
-    { solve_internal( true, nrhs, in_out, ldRhs ); }
+    solve(
+      integer   nrhs,
+      valueType in_out[],
+      integer   ldRhs
+    ) const UTILS_OVERRIDE {
+      this->solve_internal( true, nrhs, in_out, ldRhs );
+    }
 
     //! solve linear sistem using internal factorized matrix
     void
     solve_ABD( valueType in_out[] ) const
-    { solve_internal( false, in_out ); }
+    { this->solve_internal( false, in_out ); }
 
     //! solve linear sistem using internal factorized matrix
     void
-    solve_ABD( integer nrhs, valueType in_out[], integer ldRhs ) const
-    { solve_internal( false, nrhs, in_out, ldRhs ); }
+    solve_ABD(
+      integer   nrhs,
+      valueType in_out[],
+      integer   ldRhs
+    ) const {
+      this->solve_internal( false, nrhs, in_out, ldRhs );
+    }
 
   };
 
@@ -222,17 +192,15 @@ namespace alglin {
   #pragma clang diagnostic ignored "-Wweak-template-vtables"
   #endif
 
-  extern template class DiazLU<float>;
-  extern template class DiazLU<double>;
+  extern template class BlockLU<float>;
+  extern template class BlockLU<double>;
 
   #ifdef __clang__
   #pragma clang diagnostic pop
   #endif
 }
 
-#endif
-
 ///
-/// eof: ABD_Diaz.hh
+/// eof: ABD_Block.hxx
 ///
 

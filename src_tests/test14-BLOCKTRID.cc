@@ -17,9 +17,7 @@
  |                                                                          |
 \*--------------------------------------------------------------------------*/
 
-#include "Alglin_Config.hh"
-#include "KKT_like.hh"
-#include <iostream>
+#include "Alglin.hh"
 
 using namespace std;
 

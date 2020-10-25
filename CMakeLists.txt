@@ -15,6 +15,8 @@ cmake_policy(SET CMP0015 NEW)
 SET( CMAKE_VERBOSE_MAKEFILE OFF )
 SET( CMAKE_INSTALL_MESSAGE NEVER )
 
+PROJECT( Alglin CXX C )
+
 IF ( CMAKE_BUILD_TYPE STREQUAL "Debug" )
   SET( DEBUG_SUFFIX "_debug" )
 ELSE()
@@ -37,8 +39,6 @@ ELSE()
   SET( TARGET  Alglin_win_${BITS}${DEBUG_SUFFIX} )
   SET( TARGETS Alglin_win_${BITS}_static${DEBUG_SUFFIX} )
 ENDIF()
-
-PROJECT( Alglin CXX C )
 
 INCLUDE( ./CMakeLists-cflags.txt )
 
@@ -64,6 +64,10 @@ ENDFOREACH (F ${S})
 ADD_LIBRARY( ${TARGETS} STATIC ${SOURCES} ${HEADERS} )
 ADD_LIBRARY( ${TARGET}  SHARED ${SOURCES} ${HEADERS} )
 
+SET( LLPATH ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd )
+SET( CMAKE_MSVCIDE_RUN_PATH ${LLPATH}/dll/openblas )
+INCLUDE_DIRECTORIES( src ${LLPATH}/include ${LLPATH}/include/eigen3 )
+
 SET( EXELISTCPP
   Simplex-Test1
   Simplex-Test2
@@ -87,16 +91,6 @@ SET( EXELISTC test8-Cinterface test9-Cinterface )
 
 MESSAGE( STATUS "YEAR = ${YEAR}" )
 MESSAGE( STATUS "BITS = ${BITS}" )
-
-SET( LLPATH ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd )
-
-#
-# setup search path for DLL
-#
-# openblas linked with #pragma
-SET( CMAKE_MSVCIDE_RUN_PATH ${LLPATH}/dll/openblas )
-
-INCLUDE_DIRECTORIES( src ${LLPATH}/include ${LLPATH}/include/eigen3 )
 
 LINK_DIRECTORIES(
   ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib

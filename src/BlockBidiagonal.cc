@@ -17,11 +17,7 @@
  |                                                                          |
 \*--------------------------------------------------------------------------*/
 
-#include "BlockBidiagonal.hh"
-
-#ifdef __clang__
-#pragma clang diagnostic ignored "-Wweak-template-vtables"
-#endif
+#include "Alglin.hh"
 
 namespace alglin {
 

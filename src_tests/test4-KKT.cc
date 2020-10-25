@@ -17,26 +17,7 @@
  |                                                                          |
 \*--------------------------------------------------------------------------*/
 
-#include <iostream>
-#include <fstream>
-#include <vector>
-
-#include "Alglin_Config.hh"
-#include "Alglin_aux.hh"
-#include "KKT_like.hh"
-
-#ifdef __GNUC__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wsign-conversion"
-#pragma GCC diagnostic ignored "-Wunused-variable"
-#endif
-#ifdef __clang__
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wsign-conversion"
-#pragma clang diagnostic ignored "-Wc99-extensions"
-#pragma clang diagnostic ignored "-Wglobal-constructors"
-#pragma clang diagnostic ignored "-Wundefined-func-template"
-#endif
+#include "Alglin.hh"
 
 using namespace std;
 typedef double valueType;

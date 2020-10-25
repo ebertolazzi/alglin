@@ -21,13 +21,6 @@
 /// file: Alglin_SuperLU.hh
 ///
 
-#pragma once
-
-#ifndef ALGLIN_SUPERLU_HH
-#define ALGLIN_SUPERLU_HH
-
-#include "Alglin_Config.hh"
-
 // Eigen3
 #ifdef __GNUC__
 #pragma GCC diagnostic push
@@ -96,8 +89,6 @@
 #pragma clang diagnostic pop
 #endif
 
-#endif
-
 ///
-/// eof: Alglin_SuperLU.hh
+/// eof: Alglin_SuperLU.hxx
 ///
