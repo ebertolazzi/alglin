@@ -81,7 +81,7 @@ main() {
     LU.allocateTopBottom( numBlock, dim, row0, dim+col00, rowN, dim+colNN, NB );
 
     // carico matrice
-    TicToc tm;
+    Utils::TicToc tm;
 
     for ( int test = 0; test < 3; ++test ) {
       fmt::print("\n\n\ntest N.{} NB = {}\n", test, NB);

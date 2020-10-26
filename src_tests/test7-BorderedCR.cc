@@ -152,7 +152,7 @@ main() {
   file.close();
   */
 
-  TicToc tm;
+  Utils::TicToc tm;
   tm.tic();
   BCR.factorize();
   tm.toc();

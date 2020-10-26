@@ -157,7 +157,7 @@ static
 void
 test4() {
 
-  TicToc tm;
+  Utils::TicToc tm;
 
   alglin::KKT<alglin::doublereal> BT1, BT2;
 
