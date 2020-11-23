@@ -9,7 +9,7 @@
 #                                                                          #
 ############################################################################
 
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8.12)
 cmake_policy(SET CMP0015 NEW)
 
 SET( CMAKE_VERBOSE_MAKEFILE OFF )
