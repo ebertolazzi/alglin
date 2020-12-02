@@ -100,7 +100,8 @@ namespace alglin {
       BORDERED_LAST_QRP  = 3,
       BORDERED_LAST_SVD  = 4,
       BORDERED_LAST_LSS  = 5,
-      BORDERED_LAST_LSY  = 6
+      BORDERED_LAST_LSY  = 6,
+      BORDERED_LAST_PINV = 7
     } BORDERED_LAST_Choice;
 
   private:
@@ -111,16 +112,16 @@ namespace alglin {
 
   protected:
 
-    Malloc<valueType> baseValue;
-    Malloc<integer>   baseInteger;
+    Malloc<valueType> m_baseValue;
+    Malloc<integer>   m_baseInteger;
 
-    Malloc<valueType> superluValue;
-    Malloc<int>       superluInteger;
+    Malloc<valueType> m_superluValue;
+    Malloc<int>       m_superluInteger;
 
-    integer nblock; //!< total number of blocks
-    integer n;      //!< size of square blocks
-    integer qr, qx; //!< extra BC
-    integer nr, nx; //!< border size
+    integer m_nblock;   //!< total number of blocks
+    integer m_dim;      //!< size of square blocks
+    integer m_qr, m_qx; //!< extra BC
+    integer m_nr, m_nx; //!< border size
 
     // some derived constants
     integer n_x_2;
@@ -129,7 +130,8 @@ namespace alglin {
     integer nr_x_n;
     integer nr_x_nx;
     integer nr_x_qx;
-    integer Nr, Nc;
+    integer Nr;
+    integer Nc;
     integer Tsize;
 
     // for SuperLU =====================
@@ -147,8 +149,8 @@ namespace alglin {
 
     // for SuperLU ===================== END
 
-    BORDERED_LAST_Choice last_selected;
-    BORDERED_Choice      selected;
+    BORDERED_LAST_Choice m_last_selected;
+    BORDERED_Choice      m_selected;
 
     void
     buildT(
@@ -275,26 +277,28 @@ namespace alglin {
       integer   ldRhs
     ) const;
 
-    valueType * H0Nqp;
-    valueType * Bmat;
-    valueType * Cmat;
-    valueType * Cqmat;
-    valueType * Dmat;
-    valueType * Emat;
+    valueType * m_H0Nqp;
+    valueType * m_Bmat;
+    valueType * m_Cmat;
+    valueType * m_Cqmat;
+    valueType * m_Dmat;
+    valueType * m_Emat;
 
-    std::vector<valueType*> Fmat;
-    std::vector<valueType*> WorkT;
-    std::vector<valueType*> WorkQR;
+    std::vector<valueType*> m_Fmat;
+    std::vector<valueType*> m_WorkT;
+    std::vector<valueType*> m_WorkQR;
 
     // working block
-    valueType * Tmat;
-    valueType * Ttau;
-    valueType * Work;
-    integer   * Perm;
-    integer     Lwork, LworkT, LworkQR;
+    valueType * m_Tmat;
+    valueType * m_Ttau;
+    valueType * m_Work;
+    integer   * m_Perm;
+    integer     m_Lwork;
+    integer     m_LworkT;
+    integer     m_LworkQR;
 
     // last block
-    valueType * Hmat;
+    valueType * m_Hmat;
 
     LU<valueType>   last_lu;
     LUPQ<valueType> last_lupq;
@@ -303,15 +307,16 @@ namespace alglin {
     SVD<valueType>  last_svd;
     LSS<valueType>  last_lss;
     LSY<valueType>  last_lsy;
+    PINV<valueType> last_pinv;
 
     integer *iBlock, *kBlock;
 
     // used also with a unique thread
-    integer usedThread;
-    mutable std::vector<integer*>   perm_thread;
-    mutable std::vector<valueType*> xb_thread;
-    mutable Utils::ThreadPool *     pTP;
-    mutable Utils::SpinLock         spin;
+    integer                         m_usedThread;
+    mutable std::vector<integer*>   m_perm_thread;
+    mutable std::vector<valueType*> m_xb_thread;
+    mutable Utils::ThreadPool *     m_TP;
+    mutable Utils::SpinLock         m_spin;
 
   public:
 
@@ -326,8 +331,8 @@ namespace alglin {
 
     void
     setThreadPool( Utils::ThreadPool * _TP = nullptr ) {
-      pTP        = _TP;
-      usedThread = pTP == nullptr ? 1 : pTP->size();
+      m_TP         = _TP;
+      m_usedThread = m_TP == nullptr ? 1 : m_TP->size();
     }
 
     //! load matrix in the class
@@ -349,18 +354,19 @@ namespace alglin {
      | @{
     \*/
 
-    void select_LU()      { selected = BORDERED_LU; }
-    void select_QR()      { selected = BORDERED_QR; }
-    void select_QRP()     { selected = BORDERED_QRP; }
-    void select_SUPERLU() { selected = BORDERED_SUPERLU; }
+    void select_LU()      { m_selected = BORDERED_LU; }
+    void select_QR()      { m_selected = BORDERED_QR; }
+    void select_QRP()     { m_selected = BORDERED_QRP; }
+    void select_SUPERLU() { m_selected = BORDERED_SUPERLU; }
 
-    void select_last_LU()   { last_selected = BORDERED_LAST_LU;   }
-    void select_last_LUPQ() { last_selected = BORDERED_LAST_LUPQ; }
-    void select_last_QR()   { last_selected = BORDERED_LAST_QR;   }
-    void select_last_QRP()  { last_selected = BORDERED_LAST_QRP;  }
-    void select_last_SVD()  { last_selected = BORDERED_LAST_SVD;  }
-    void select_last_LSS()  { last_selected = BORDERED_LAST_LSS;  }
-    void select_last_LSY()  { last_selected = BORDERED_LAST_LSY;  }
+    void select_last_LU()   { m_last_selected = BORDERED_LAST_LU;   }
+    void select_last_LUPQ() { m_last_selected = BORDERED_LAST_LUPQ; }
+    void select_last_QR()   { m_last_selected = BORDERED_LAST_QR;   }
+    void select_last_QRP()  { m_last_selected = BORDERED_LAST_QRP;  }
+    void select_last_SVD()  { m_last_selected = BORDERED_LAST_SVD;  }
+    void select_last_LSS()  { m_last_selected = BORDERED_LAST_LSS;  }
+    void select_last_LSY()  { m_last_selected = BORDERED_LAST_LSY;  }
+    void select_last_PINV() { m_last_selected = BORDERED_LAST_PINV; }
 
     static
     std::string
@@ -380,21 +386,22 @@ namespace alglin {
     choice_to_string( BORDERED_LAST_Choice c ) {
       std::string res = "LastBlock not selected";
       switch ( c ) {
-      case BORDERED_LAST_LU:   res = "LastBlock LU";   break;
-      case BORDERED_LAST_LUPQ: res = "LastBlock LUPQ"; break;
-      case BORDERED_LAST_QR:   res = "LastBlock QR";   break;
-      case BORDERED_LAST_QRP:  res = "LastBlock QRP";  break;
-      case BORDERED_LAST_SVD:  res = "LastBlock SVD";  break;
-      case BORDERED_LAST_LSS:  res = "LastBlock LSS";  break;
-      case BORDERED_LAST_LSY:  res = "LastBlock LSY";  break;
+      case BORDERED_LAST_LU:   res = "LastBlock LU";    break;
+      case BORDERED_LAST_LUPQ: res = "LastBlock LUPQ";  break;
+      case BORDERED_LAST_QR:   res = "LastBlock QR";    break;
+      case BORDERED_LAST_QRP:  res = "LastBlock QRP";   break;
+      case BORDERED_LAST_SVD:  res = "LastBlock SVD";   break;
+      case BORDERED_LAST_LSS:  res = "LastBlock LSS";   break;
+      case BORDERED_LAST_LSY:  res = "LastBlock LSY";   break;
+      case BORDERED_LAST_PINV: res = "LastBlock PINV";  break;
       }
       return res;
     }
 
     std::string
     info_algo() const {
-      std::string a = choice_to_string(selected);
-      std::string b = choice_to_string(last_selected);
+      std::string a = choice_to_string(m_selected);
+      std::string b = choice_to_string(m_last_selected);
       return a+" and "+b;
     }
 
@@ -407,12 +414,12 @@ namespace alglin {
     //! \brief Number of rows of the linear system
     integer
     numRows() const
-    { return n * (nblock+1) + qx + nx; }
+    { return m_dim * (m_nblock+1) + m_qx + m_nx; }
 
     //! \brief Number of columns of the linear system
     integer
     numCols() const
-    { return n * (nblock+1) + qr + nr; }
+    { return m_dim * (m_nblock+1) + m_qr + m_nr; }
 
     /*!
      | \name Filling all or part of the linear system with zero
@@ -640,88 +647,88 @@ namespace alglin {
 
     t_Value &
     B( integer nbl, integer i, integer j )
-    { return Bmat[ nbl*n_x_nx + i + j*n ]; }
+    { return m_Bmat[ nbl*n_x_nx + i + j*m_dim ]; }
 
     t_Value const &
     B( integer nbl, integer i, integer j ) const
-    { return Bmat[ nbl*n_x_nx + i + j*n ]; }
+    { return m_Bmat[ nbl*n_x_nx + i + j*m_dim ]; }
 
     t_Value &
     C( integer nbl, integer i, integer j )
-    { return Cmat[ nbl*nr_x_n + i + j*nr ]; }
+    { return m_Cmat[ nbl*nr_x_n + i + j*m_nr ]; }
 
     t_Value const &
     C( integer nbl, integer i, integer j ) const
-    { return Cmat[ nbl*nr_x_n + i + j*nr ]; }
+    { return m_Cmat[ nbl*nr_x_n + i + j*m_nr ]; }
 
     t_Value &
     D( integer nbl, integer i, integer j )
-    { return Dmat[ nbl*n_x_n + i + j*n]; }
+    { return m_Dmat[ nbl*n_x_n + i + j*m_dim]; }
 
     t_Value const &
     D( integer nbl, integer i, integer j ) const
-    { return Dmat[ nbl*n_x_n + i + j*n]; }
+    { return m_Dmat[ nbl*n_x_n + i + j*m_dim]; }
 
     t_Value &
     E( integer nbl, integer i, integer j )
-    { return Emat[ nbl*n_x_n + i + j*n]; }
+    { return m_Emat[ nbl*n_x_n + i + j*m_dim]; }
 
     t_Value const &
     E( integer nbl, integer i, integer j ) const
-    { return Emat[ nbl*n_x_n + i + j*n]; }
+    { return m_Emat[ nbl*n_x_n + i + j*m_dim]; }
 
     t_Value &
     F( integer i, integer j )
-    { return Fmat[0][ i + j*nr ]; }
+    { return m_Fmat[0][ i + j*m_nr ]; }
 
     t_Value const &
     F( integer i, integer j ) const
-    { return Fmat[0][ i + j*nr ]; }
+    { return m_Fmat[0][ i + j*m_nr ]; }
 
     t_Value &
     Cq( integer i, integer j )
-    { return Cqmat[ i + j*nr ]; }
+    { return m_Cqmat[ i + j*m_nr ]; }
 
     t_Value const &
     Cq( integer i, integer j ) const
-    { return Cqmat[ i + j*nr ]; }
+    { return m_Cqmat[ i + j*m_nr ]; }
 
     t_Value &
     H( integer i, integer j )
-    { return H0Nqp[ i + j*(n+qr) ]; }
+    { return m_H0Nqp[ i + j*(m_dim+m_qr) ]; }
 
     t_Value const &
     H( integer i, integer j ) const
-    { return H0Nqp[ i + j*(n+qr) ]; }
+    { return m_H0Nqp[ i + j*(m_dim+m_qr) ]; }
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     void
     B( integer nbl, MatrixWrapper<valueType> & B_wrap )
-    { B_wrap.setup( Bmat + nbl*n_x_nx, n, nx, n ); }
+    { B_wrap.setup( m_Bmat + nbl*n_x_nx, m_dim, m_nx, m_dim ); }
 
     void
     C( integer nbl, MatrixWrapper<valueType> & C_wrap )
-    { C_wrap.setup( Cmat + nbl*nr_x_n, nr, n, nr); }
+    { C_wrap.setup( m_Cmat + nbl*nr_x_n, m_nr, m_dim, m_nr ); }
 
     void
     D( integer nbl, MatrixWrapper<valueType> & D_wrap )
-    { D_wrap.setup( Dmat + nbl*n_x_n, n, n, n ); }
+    { D_wrap.setup( m_Dmat + nbl*n_x_n, m_dim, m_dim, m_dim ); }
 
     void
     E( integer nbl, MatrixWrapper<valueType> & E_wrap )
-    { E_wrap.setup( Emat + nbl*n_x_n, n, n, n ); }
+    { E_wrap.setup( m_Emat + nbl*n_x_n, m_dim, m_dim, m_dim ); }
 
     void
     F( MatrixWrapper<valueType> & F_wrap )
-    { F_wrap.setup( Fmat[0], nr, nx, nr); }
+    { F_wrap.setup( m_Fmat[0], m_nr, m_nx, m_nr ); }
 
     void
     Cq( MatrixWrapper<valueType> & Cq_wrap )
-    { Cq_wrap.setup( Cqmat, nr, qx, nr ); }
+    { Cq_wrap.setup( m_Cqmat, m_nr, m_qx, m_nr ); }
 
     void
     H( MatrixWrapper<valueType> & H_wrap ) const
-    { H_wrap.setup( H0Nqp, n + qr, Nc, n + qr ); }
+    { H_wrap.setup( m_H0Nqp, m_dim + m_qr, Nc, m_dim + m_qr ); }
 
     /*!
      | @}
@@ -732,7 +739,7 @@ namespace alglin {
 
     void
     factorize() {
-      if ( selected == BORDERED_SUPERLU ) {
+      if ( m_selected == BORDERED_SUPERLU ) {
         this->factorize_SuperLU();
       } else {
         this->factorize_CR();
@@ -755,7 +762,7 @@ namespace alglin {
     virtual
     bool
     solve( valueType x[] ) const UTILS_OVERRIDE {
-      if ( selected == BORDERED_SUPERLU ) {
+      if ( m_selected == BORDERED_SUPERLU ) {
         return solve_SuperLU( x );
       } else {
         return solve_CR( x );
@@ -765,7 +772,7 @@ namespace alglin {
     virtual
     bool
     solve( integer nrhs, valueType rhs[], integer ldRhs ) const UTILS_OVERRIDE {
-      if ( selected == BORDERED_SUPERLU ) {
+      if ( m_selected == BORDERED_SUPERLU ) {
         return solve_SuperLU( nrhs, rhs, ldRhs );
       } else {
         return solve_CR( nrhs, rhs, ldRhs );
@@ -807,8 +814,8 @@ namespace alglin {
 
     integer
     sparseNnz() const {
-      return nblock*(2*n_x_n+n_x_nx+nr_x_n) +
-             nr_x_n + nr*(qx+nx) + (n+qr)*(2*n+qx+nx);
+      return m_nblock*(2*n_x_n+n_x_nx+nr_x_n) + nr_x_n +
+             m_nr*(m_qx+m_nx) + (m_dim+m_qr)*(2*m_dim+m_qx+m_nx);
     }
 
     void

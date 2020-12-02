@@ -60,8 +60,8 @@ namespace alglin {
 
     typedef t_Value valueType;
 
-    Malloc<valueType> baseValue;
-    Malloc<integer>   baseInteger;
+    Malloc<valueType> m_baseValue;
+    Malloc<integer>   m_baseInteger;
 
     ArcecoLU(ArcecoLU<t_Value> const &);
     ArcecoLU<t_Value> const &operator = (ArcecoLU<t_Value> const &);
@@ -70,7 +70,7 @@ namespace alglin {
     integer   * pivot_array;     //!< permutation array
     valueType * array;           //!< the matrix data
 
-    integer     numberOfBlocks;  //!< total number of blocks of the matrix A
+    integer m_numberOfBlocks;  //!< total number of blocks of the matrix A
 
     /*!
      *  RowElimination performs numRowsPivot row elimination on the matrix block.
@@ -185,8 +185,8 @@ namespace alglin {
   public:
 
     explicit UTILS_CONSTEXPR ArcecoLU()
-    : baseValue("ArcecoLU_values")
-    , baseInteger("ArcecoLU_integers")
+    : m_baseValue("ArcecoLU_values")
+    , m_baseInteger("ArcecoLU_integers")
     {}
 
     ~ArcecoLU()

@@ -54,6 +54,14 @@ namespace alglin {
 
   private:
 
+    using BlockBidiagonal<t_Value>::m_DE_blk;
+    using BlockBidiagonal<t_Value>::m_H0Nq;
+    using BlockBidiagonal<t_Value>::m_block0;
+    using BlockBidiagonal<t_Value>::m_blockN;
+    using BlockBidiagonal<t_Value>::m_Bmat;
+    using BlockBidiagonal<t_Value>::m_Cmat;
+    using BlockBidiagonal<t_Value>::m_Dmat;
+
     BBlockLU(BBlockLU const &);
     BBlockLU const & operator = (BBlockLU const &);
 

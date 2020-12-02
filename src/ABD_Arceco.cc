@@ -37,10 +37,10 @@ namespace alglin {
     valueType _array[],
     integer   _pivot[]
   ) {
-    numberOfBlocks  = _numberOfBlocks;
-    matrixStructure = _matrixStructure;
-    array           = _array;
-    pivot_array     = _pivot;
+    m_numberOfBlocks = _numberOfBlocks;
+    matrixStructure  = _matrixStructure;
+    array            = _array;
+    pivot_array      = _pivot;
   }
 
   /*\
@@ -55,13 +55,13 @@ namespace alglin {
   ArcecoLU<t_Value>::checkStructure( integer neq ) {
 
     UTILS_ASSERT(
-      numOverlap(numberOfBlocks-1) == 0,
+      numOverlap(m_numberOfBlocks-1) == 0,
       "Arceco::checkStructure: numOverlap({}) = {} expected zero!\n",
-      numberOfBlocks-1, numOverlap(numberOfBlocks-1)
+      m_numberOfBlocks-1, numOverlap(m_numberOfBlocks-1)
     );
 
     // check index
-    for ( integer k = 0; k < numberOfBlocks; ++k ) {
+    for ( integer k = 0; k < m_numberOfBlocks; ++k ) {
       UTILS_ASSERT(
         numCols(k) >= 1,
         "ArcecoLU::checkStructure: numCols({}) = {} < 1\n", k, numCols(k)
@@ -82,7 +82,7 @@ namespace alglin {
     }
 
     // check ovelapping
-    for ( integer k = 1; k < numberOfBlocks; ++k )
+    for ( integer k = 1; k < m_numberOfBlocks; ++k )
       UTILS_ASSERT(
         numOverlap(k-1) + numOverlap(k) <= numCols(k),
         "Arceco::checkStructure: at block {} three consecutive block overlap\n", k
@@ -94,7 +94,7 @@ namespace alglin {
     //             |                  |
     // r+numRow    +------------------+
     integer r = numRows(0), c = numCols(0) - numOverlap(0);
-    for ( integer k = 1; k < numberOfBlocks; ++k ) {
+    for ( integer k = 1; k < m_numberOfBlocks; ++k ) {
       UTILS_ASSERT(
         c <= r && c+numCols(k) >= r+numRows(k),
         "ArcecoLU::checkStructure: block n. {} do not cross the diagonal\n", k
@@ -105,7 +105,7 @@ namespace alglin {
 
     integer isum1 = 0;
     integer isum2 = 0;
-    for ( integer k = 0; k < numberOfBlocks; ++k ) {
+    for ( integer k = 0; k < m_numberOfBlocks; ++k ) {
       isum1 += numRows(k);
       isum2 += numCols(k) - numOverlap(k);
     }
@@ -146,7 +146,7 @@ namespace alglin {
     valueType const blockN[]
   ) {
 
-    numberOfBlocks = nblk + 2;
+    m_numberOfBlocks = nblk + 2;
 
     integer size0        = row0 * col0;
     integer sizeN        = rowN * colN;
@@ -154,12 +154,12 @@ namespace alglin {
     integer numEquations = nblk * n + row0 + rowN;
 
     // allocazione dinamica
-    baseValue   . allocate( size_t( BLK_size + size0 + sizeN ) );
-    baseInteger . allocate( size_t( 3*numberOfBlocks + numEquations ) );
+    m_baseValue   . allocate( size_t( BLK_size + size0 + sizeN ) );
+    m_baseInteger . allocate( size_t( 3*m_numberOfBlocks + numEquations ) );
 
-    array           = baseValue( size_t( BLK_size + size0 + sizeN ) );
-    pivot_array     = baseInteger( size_t( numEquations ) );
-    matrixStructure = baseInteger( size_t( 3*numberOfBlocks ) );
+    array           = m_baseValue( size_t( BLK_size + size0 + sizeN ) );
+    pivot_array     = m_baseInteger( size_t( numEquations ) );
+    matrixStructure = m_baseInteger( size_t( 3*m_numberOfBlocks ) );
 
     // Fill structures
     alglin::copy( size0,    block0, 1, array, 1 );
@@ -209,11 +209,13 @@ namespace alglin {
      |            +------------------+
     \*/
 
-    rowElimination( array + index1,
-                    numRowsBlock, numColsBlock, numRowsPivot,
-                    pivot_array + indpiv );
+    rowElimination(
+      array + index1,
+      numRowsBlock, numColsBlock, numRowsPivot,
+      pivot_array + indpiv
+    );
 
-    for ( integer k = 1; k < numberOfBlocks; ++k ) {
+    for ( integer k = 1; k < m_numberOfBlocks; ++k ) {
       indpiv += numRowsPivot;
       integer index2        = index1 + numRowsBlock * numRowsPivot;
       integer index3        = index2 + numRowsBlock * numOverlapCols;
@@ -358,7 +360,7 @@ namespace alglin {
     );
 
     integer numColsPivot = 0;
-    for ( integer k = 1; k < numberOfBlocks; ++k ) {
+    for ( integer k = 1; k < m_numberOfBlocks; ++k ) {
       indexa      += numRowsBlock * numRowsPivot;
       numColsPivot = numRowsBlock - numRowsPivot;
       indpiv      += numRowsPivot;
@@ -390,11 +392,24 @@ namespace alglin {
       );
     }
     // BACKWARD LOOP
-    for ( integer k = numberOfBlocks - 2; k >= 0; --k ) {
+    for ( integer k = m_numberOfBlocks - 2; k >= 0; --k ) {
 
       if ( numRowsPivot != 0 ) {
-        if ( numRowsPivot != numColsBlock ) backwardModification ( array + indexa, numRowsBlock, numColsBlock, numRowsPivot, b + indpiv );
-        backwardSolution ( array + indexa, numRowsBlock, numColsBlock, numRowsPivot, b + indpiv );
+        if ( numRowsPivot != numColsBlock )
+          backwardModification(
+            array + indexa,
+            numRowsBlock,
+            numColsBlock,
+            numRowsPivot,
+            b + indpiv
+          );
+        backwardSolution(
+          array + indexa,
+          numRowsBlock,
+          numColsBlock,
+          numRowsPivot,
+          b + indpiv
+        );
       }
 
       indexa        -= numRowsBlock * numColsPivot;

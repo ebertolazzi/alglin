@@ -3,107 +3,28 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
-		D91BB0892371C552009E068C /* libAlglin.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CEC162371B541001067BF /* libAlglin.a */; };
-		D94CEC3B2371B551001067BF /* Alglin_Config.hh in Headers */ = {isa = PBXBuildFile; fileRef = D94CEC1B2371B551001067BF /* Alglin_Config.hh */; };
-		D94CEC3C2371B551001067BF /* ABD_Diaz.hh in Headers */ = {isa = PBXBuildFile; fileRef = D94CEC1C2371B551001067BF /* ABD_Diaz.hh */; };
-		D94CEC3D2371B551001067BF /* Simplex.hh in Headers */ = {isa = PBXBuildFile; fileRef = D94CEC1D2371B551001067BF /* Simplex.hh */; };
-		D94CEC3E2371B551001067BF /* BlockBidiagonal.cc in Sources */ = {isa = PBXBuildFile; fileRef = D94CEC1E2371B551001067BF /* BlockBidiagonal.cc */; };
-		D94CEC3F2371B551001067BF /* BABD_BorderedCR.cc in Sources */ = {isa = PBXBuildFile; fileRef = D94CEC1F2371B551001067BF /* BABD_BorderedCR.cc */; };
-		D94CEC402371B551001067BF /* ABD_Block.hh in Headers */ = {isa = PBXBuildFile; fileRef = D94CEC202371B551001067BF /* ABD_Block.hh */; };
-		D94CEC412371B551001067BF /* Alglin.hh in Headers */ = {isa = PBXBuildFile; fileRef = D94CEC212371B551001067BF /* Alglin.hh */; };
-		D94CEC422371B551001067BF /* BABD_Block.hh in Headers */ = {isa = PBXBuildFile; fileRef = D94CEC222371B551001067BF /* BABD_Block.hh */; };
-		D94CEC432371B551001067BF /* BABD.cc in Sources */ = {isa = PBXBuildFile; fileRef = D94CEC232371B551001067BF /* BABD.cc */; };
-		D94CEC442371B551001067BF /* BABD_F90_interface.inc in Sources */ = {isa = PBXBuildFile; fileRef = D94CEC242371B551001067BF /* BABD_F90_interface.inc */; };
-		D94CEC452371B551001067BF /* ABD_Arceco.hh in Headers */ = {isa = PBXBuildFile; fileRef = D94CEC252371B551001067BF /* ABD_Arceco.hh */; };
-		D94CEC462371B551001067BF /* BABD.hh in Headers */ = {isa = PBXBuildFile; fileRef = D94CEC262371B551001067BF /* BABD.hh */; };
-		D94CEC472371B551001067BF /* BABD_Block.cc in Sources */ = {isa = PBXBuildFile; fileRef = D94CEC272371B551001067BF /* BABD_Block.cc */; };
-		D94CEC482371B551001067BF /* BABD_C_interface.cc in Sources */ = {isa = PBXBuildFile; fileRef = D94CEC282371B551001067BF /* BABD_C_interface.cc */; };
-		D94CEC492371B551001067BF /* ABD_Arceco.cc in Sources */ = {isa = PBXBuildFile; fileRef = D94CEC292371B551001067BF /* ABD_Arceco.cc */; };
-		D94CEC4A2371B551001067BF /* ABD_Diaz.cc in Sources */ = {isa = PBXBuildFile; fileRef = D94CEC2A2371B551001067BF /* ABD_Diaz.cc */; };
-		D94CEC4B2371B551001067BF /* BlockBidiagonal.hh in Headers */ = {isa = PBXBuildFile; fileRef = D94CEC2B2371B551001067BF /* BlockBidiagonal.hh */; };
-		D94CEC4C2371B551001067BF /* Simplex.cc in Sources */ = {isa = PBXBuildFile; fileRef = D94CEC2C2371B551001067BF /* Simplex.cc */; };
-		D94CEC4D2371B551001067BF /* ABD_Block.cc in Sources */ = {isa = PBXBuildFile; fileRef = D94CEC2D2371B551001067BF /* ABD_Block.cc */; };
-		D94CEC4E2371B551001067BF /* BABD_BorderedCR.hh in Headers */ = {isa = PBXBuildFile; fileRef = D94CEC2E2371B551001067BF /* BABD_BorderedCR.hh */; };
-		D94CEC4F2371B551001067BF /* BABD_C_interface.h in Headers */ = {isa = PBXBuildFile; fileRef = D94CEC2F2371B551001067BF /* BABD_C_interface.h */; };
-		D94CEC502371B551001067BF /* KKT_like.cc in Sources */ = {isa = PBXBuildFile; fileRef = D94CEC302371B551001067BF /* KKT_like.cc */; };
-		D94CEC512371B551001067BF /* Alglin_aux.cc in Sources */ = {isa = PBXBuildFile; fileRef = D94CEC312371B551001067BF /* Alglin_aux.cc */; };
-		D94CEC532371B551001067BF /* BABD_SuperLU.cc in Sources */ = {isa = PBXBuildFile; fileRef = D94CEC332371B551001067BF /* BABD_SuperLU.cc */; };
-		D94CEC542371B551001067BF /* KKT_like.hh in Headers */ = {isa = PBXBuildFile; fileRef = D94CEC342371B551001067BF /* KKT_like.hh */; };
-		D94CEC562371B551001067BF /* BABD_SuperLU.hh in Headers */ = {isa = PBXBuildFile; fileRef = D94CEC362371B551001067BF /* BABD_SuperLU.hh */; };
-		D94CEC572371B551001067BF /* Alglin_aux.hh in Headers */ = {isa = PBXBuildFile; fileRef = D94CEC372371B551001067BF /* Alglin_aux.hh */; };
-		D94CEC582371B551001067BF /* Alglin_FD.hh in Headers */ = {isa = PBXBuildFile; fileRef = D94CEC382371B551001067BF /* Alglin_FD.hh */; };
-		D94CEC592371B551001067BF /* Alglin_Eigen.hh in Headers */ = {isa = PBXBuildFile; fileRef = D94CEC392371B551001067BF /* Alglin_Eigen.hh */; };
-		D94CEC5A2371B551001067BF /* Alglin_SuperLU.hh in Headers */ = {isa = PBXBuildFile; fileRef = D94CEC3A2371B551001067BF /* Alglin_SuperLU.hh */; };
 		D94CECAC2371B6F1001067BF /* test1-small-factorization.cc in Sources */ = {isa = PBXBuildFile; fileRef = D94CECA32371B696001067BF /* test1-small-factorization.cc */; };
-		D94CECB62371B783001067BF /* libHSL_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAD2371B776001067BF /* libHSL_osx_static.a */; };
-		D94CECB72371B787001067BF /* liblapack_wrapper_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAE2371B776001067BF /* liblapack_wrapper_osx_static.a */; };
-		D94CECB82371B78A001067BF /* libsuperlu_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECB02371B776001067BF /* libsuperlu_osx_static.a */; };
 		D94CECBB2371B7D5001067BF /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECBA2371B7D5001067BF /* Accelerate.framework */; };
-		D94CECC02371B87C001067BF /* libHSL_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAD2371B776001067BF /* libHSL_osx_static.a */; };
-		D94CECC12371B87C001067BF /* libsuperlu_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECB02371B776001067BF /* libsuperlu_osx_static.a */; };
 		D94CECC22371B87C001067BF /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECBA2371B7D5001067BF /* Accelerate.framework */; };
-		D94CECC32371B87C001067BF /* liblapack_wrapper_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAE2371B776001067BF /* liblapack_wrapper_osx_static.a */; };
 		D94CECCA2371B88F001067BF /* test2-Threads.cc in Sources */ = {isa = PBXBuildFile; fileRef = D94CECA02371B696001067BF /* test2-Threads.cc */; };
-		D94CECCF2371B8C5001067BF /* libHSL_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAD2371B776001067BF /* libHSL_osx_static.a */; };
-		D94CECD02371B8C5001067BF /* libsuperlu_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECB02371B776001067BF /* libsuperlu_osx_static.a */; };
 		D94CECD12371B8C5001067BF /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECBA2371B7D5001067BF /* Accelerate.framework */; };
-		D94CECD22371B8C5001067BF /* liblapack_wrapper_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAE2371B776001067BF /* liblapack_wrapper_osx_static.a */; };
-		D94CECDD2371B8CF001067BF /* libHSL_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAD2371B776001067BF /* libHSL_osx_static.a */; };
-		D94CECDE2371B8CF001067BF /* libsuperlu_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECB02371B776001067BF /* libsuperlu_osx_static.a */; };
 		D94CECDF2371B8CF001067BF /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECBA2371B7D5001067BF /* Accelerate.framework */; };
-		D94CECE02371B8CF001067BF /* liblapack_wrapper_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAE2371B776001067BF /* liblapack_wrapper_osx_static.a */; };
-		D94CECEB2371B8D7001067BF /* libHSL_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAD2371B776001067BF /* libHSL_osx_static.a */; };
-		D94CECEC2371B8D7001067BF /* libsuperlu_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECB02371B776001067BF /* libsuperlu_osx_static.a */; };
 		D94CECED2371B8D7001067BF /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECBA2371B7D5001067BF /* Accelerate.framework */; };
-		D94CECEE2371B8D7001067BF /* liblapack_wrapper_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAE2371B776001067BF /* liblapack_wrapper_osx_static.a */; };
-		D94CECF92371B8DF001067BF /* libHSL_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAD2371B776001067BF /* libHSL_osx_static.a */; };
-		D94CECFA2371B8DF001067BF /* libsuperlu_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECB02371B776001067BF /* libsuperlu_osx_static.a */; };
 		D94CECFB2371B8DF001067BF /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECBA2371B7D5001067BF /* Accelerate.framework */; };
-		D94CECFC2371B8DF001067BF /* liblapack_wrapper_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAE2371B776001067BF /* liblapack_wrapper_osx_static.a */; };
-		D94CED072371B8E6001067BF /* libHSL_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAD2371B776001067BF /* libHSL_osx_static.a */; };
-		D94CED082371B8E6001067BF /* libsuperlu_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECB02371B776001067BF /* libsuperlu_osx_static.a */; };
 		D94CED092371B8E6001067BF /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECBA2371B7D5001067BF /* Accelerate.framework */; };
-		D94CED0A2371B8E6001067BF /* liblapack_wrapper_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAE2371B776001067BF /* liblapack_wrapper_osx_static.a */; };
-		D94CED152371B8EF001067BF /* libHSL_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAD2371B776001067BF /* libHSL_osx_static.a */; };
-		D94CED162371B8EF001067BF /* libsuperlu_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECB02371B776001067BF /* libsuperlu_osx_static.a */; };
 		D94CED172371B8EF001067BF /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECBA2371B7D5001067BF /* Accelerate.framework */; };
-		D94CED182371B8EF001067BF /* liblapack_wrapper_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAE2371B776001067BF /* liblapack_wrapper_osx_static.a */; };
-		D94CED232371B8F7001067BF /* libHSL_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAD2371B776001067BF /* libHSL_osx_static.a */; };
-		D94CED242371B8F7001067BF /* libsuperlu_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECB02371B776001067BF /* libsuperlu_osx_static.a */; };
 		D94CED252371B8F7001067BF /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECBA2371B7D5001067BF /* Accelerate.framework */; };
-		D94CED262371B8F7001067BF /* liblapack_wrapper_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAE2371B776001067BF /* liblapack_wrapper_osx_static.a */; };
-		D94CED312371B8FD001067BF /* libHSL_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAD2371B776001067BF /* libHSL_osx_static.a */; };
-		D94CED322371B8FD001067BF /* libsuperlu_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECB02371B776001067BF /* libsuperlu_osx_static.a */; };
 		D94CED332371B8FD001067BF /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECBA2371B7D5001067BF /* Accelerate.framework */; };
-		D94CED342371B8FD001067BF /* liblapack_wrapper_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAE2371B776001067BF /* liblapack_wrapper_osx_static.a */; };
-		D94CED3F2371B903001067BF /* libHSL_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAD2371B776001067BF /* libHSL_osx_static.a */; };
-		D94CED402371B903001067BF /* libsuperlu_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECB02371B776001067BF /* libsuperlu_osx_static.a */; };
 		D94CED412371B903001067BF /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECBA2371B7D5001067BF /* Accelerate.framework */; };
-		D94CED422371B903001067BF /* liblapack_wrapper_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAE2371B776001067BF /* liblapack_wrapper_osx_static.a */; };
-		D94CED4D2371B90B001067BF /* libHSL_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAD2371B776001067BF /* libHSL_osx_static.a */; };
-		D94CED4E2371B90B001067BF /* libsuperlu_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECB02371B776001067BF /* libsuperlu_osx_static.a */; };
 		D94CED4F2371B90B001067BF /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECBA2371B7D5001067BF /* Accelerate.framework */; };
-		D94CED502371B90B001067BF /* liblapack_wrapper_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAE2371B776001067BF /* liblapack_wrapper_osx_static.a */; };
-		D94CED5B2371B911001067BF /* libHSL_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAD2371B776001067BF /* libHSL_osx_static.a */; };
-		D94CED5C2371B911001067BF /* libsuperlu_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECB02371B776001067BF /* libsuperlu_osx_static.a */; };
 		D94CED5D2371B911001067BF /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECBA2371B7D5001067BF /* Accelerate.framework */; };
-		D94CED5E2371B911001067BF /* liblapack_wrapper_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAE2371B776001067BF /* liblapack_wrapper_osx_static.a */; };
-		D94CED692371B918001067BF /* libHSL_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAD2371B776001067BF /* libHSL_osx_static.a */; };
-		D94CED6A2371B918001067BF /* libsuperlu_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECB02371B776001067BF /* libsuperlu_osx_static.a */; };
 		D94CED6B2371B918001067BF /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECBA2371B7D5001067BF /* Accelerate.framework */; };
-		D94CED6C2371B918001067BF /* liblapack_wrapper_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAE2371B776001067BF /* liblapack_wrapper_osx_static.a */; };
-		D94CED772371B920001067BF /* libHSL_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAD2371B776001067BF /* libHSL_osx_static.a */; };
-		D94CED782371B920001067BF /* libsuperlu_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECB02371B776001067BF /* libsuperlu_osx_static.a */; };
 		D94CED792371B920001067BF /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECBA2371B7D5001067BF /* Accelerate.framework */; };
-		D94CED7A2371B920001067BF /* liblapack_wrapper_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAE2371B776001067BF /* liblapack_wrapper_osx_static.a */; };
-		D94CED852371B926001067BF /* libHSL_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAD2371B776001067BF /* libHSL_osx_static.a */; };
-		D94CED862371B926001067BF /* libsuperlu_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECB02371B776001067BF /* libsuperlu_osx_static.a */; };
 		D94CED872371B926001067BF /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECBA2371B7D5001067BF /* Accelerate.framework */; };
-		D94CED882371B926001067BF /* liblapack_wrapper_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAE2371B776001067BF /* liblapack_wrapper_osx_static.a */; };
 		D94CED8F2371B94A001067BF /* test0-FD.cc in Sources */ = {isa = PBXBuildFile; fileRef = D94CECAA2371B696001067BF /* test0-FD.cc */; };
 		D94CED902371B95C001067BF /* test3-Timing.cc in Sources */ = {isa = PBXBuildFile; fileRef = D94CECA52371B696001067BF /* test3-Timing.cc */; };
 		D94CED912371B95F001067BF /* test4-KKT.cc in Sources */ = {isa = PBXBuildFile; fileRef = D94CECA22371B696001067BF /* test4-KKT.cc */; };
@@ -116,185 +37,355 @@
 		D94CED982371B977001067BF /* test13-BFGS.cc in Sources */ = {isa = PBXBuildFile; fileRef = D94CEC9B2371B696001067BF /* test13-BFGS.cc */; };
 		D94CED992371B97B001067BF /* test14-BLOCKTRID.cc in Sources */ = {isa = PBXBuildFile; fileRef = D94CEC9D2371B696001067BF /* test14-BLOCKTRID.cc */; };
 		D94CED9A2371B97D001067BF /* test15-EIGS.cc in Sources */ = {isa = PBXBuildFile; fileRef = D94CEC962371B696001067BF /* test15-EIGS.cc */; };
-		D94CED9F2371B985001067BF /* libHSL_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAD2371B776001067BF /* libHSL_osx_static.a */; };
-		D94CEDA02371B985001067BF /* libsuperlu_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECB02371B776001067BF /* libsuperlu_osx_static.a */; };
 		D94CEDA12371B985001067BF /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECBA2371B7D5001067BF /* Accelerate.framework */; };
-		D94CEDA22371B985001067BF /* liblapack_wrapper_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAE2371B776001067BF /* liblapack_wrapper_osx_static.a */; };
-		D94CEDAD2371B98C001067BF /* libHSL_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAD2371B776001067BF /* libHSL_osx_static.a */; };
-		D94CEDAE2371B98C001067BF /* libsuperlu_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECB02371B776001067BF /* libsuperlu_osx_static.a */; };
 		D94CEDAF2371B98C001067BF /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECBA2371B7D5001067BF /* Accelerate.framework */; };
-		D94CEDB02371B98C001067BF /* liblapack_wrapper_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAE2371B776001067BF /* liblapack_wrapper_osx_static.a */; };
-		D94CEDBB2371B98E001067BF /* libHSL_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAD2371B776001067BF /* libHSL_osx_static.a */; };
-		D94CEDBC2371B98E001067BF /* libsuperlu_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECB02371B776001067BF /* libsuperlu_osx_static.a */; };
 		D94CEDBD2371B98E001067BF /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECBA2371B7D5001067BF /* Accelerate.framework */; };
-		D94CEDBE2371B98E001067BF /* liblapack_wrapper_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAE2371B776001067BF /* liblapack_wrapper_osx_static.a */; };
-		D94CEDC92371B98F001067BF /* libHSL_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAD2371B776001067BF /* libHSL_osx_static.a */; };
-		D94CEDCA2371B98F001067BF /* libsuperlu_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECB02371B776001067BF /* libsuperlu_osx_static.a */; };
 		D94CEDCB2371B98F001067BF /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECBA2371B7D5001067BF /* Accelerate.framework */; };
-		D94CEDCC2371B98F001067BF /* liblapack_wrapper_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CECAE2371B776001067BF /* liblapack_wrapper_osx_static.a */; };
 		D94CEDD32371B9B2001067BF /* Simplex-Test1.cc in Sources */ = {isa = PBXBuildFile; fileRef = D94CECA82371B696001067BF /* Simplex-Test1.cc */; };
 		D94CEDD42371B9BA001067BF /* Simplex-Test2.cc in Sources */ = {isa = PBXBuildFile; fileRef = D94CEC9A2371B696001067BF /* Simplex-Test2.cc */; };
 		D94CEDD52371B9BC001067BF /* Simplex-Test3.cc in Sources */ = {isa = PBXBuildFile; fileRef = D94CEC982371B696001067BF /* Simplex-Test3.cc */; };
 		D94CEDD62371B9BF001067BF /* Simplex-Test4.cc in Sources */ = {isa = PBXBuildFile; fileRef = D94CECA92371B696001067BF /* Simplex-Test4.cc */; };
-		D9A9D4522374EA1B00E91CB8 /* libAlglin.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CEC162371B541001067BF /* libAlglin.a */; };
-		D9A9D4552374EA4B00E91CB8 /* libAlglin.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CEC162371B541001067BF /* libAlglin.a */; };
-		D9A9D4582374EA4F00E91CB8 /* libAlglin.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CEC162371B541001067BF /* libAlglin.a */; };
-		D9A9D45B2374EA5200E91CB8 /* libAlglin.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CEC162371B541001067BF /* libAlglin.a */; };
-		D9A9D45E2374EA5A00E91CB8 /* libAlglin.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CEC162371B541001067BF /* libAlglin.a */; };
-		D9A9D4612374EA5E00E91CB8 /* libAlglin.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CEC162371B541001067BF /* libAlglin.a */; };
-		D9A9D4642374EA6200E91CB8 /* libAlglin.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CEC162371B541001067BF /* libAlglin.a */; };
-		D9A9D4672374EA6500E91CB8 /* libAlglin.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CEC162371B541001067BF /* libAlglin.a */; };
-		D9A9D46A2374EA6900E91CB8 /* libAlglin.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CEC162371B541001067BF /* libAlglin.a */; };
-		D9A9D46D2374EA6E00E91CB8 /* libAlglin.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CEC162371B541001067BF /* libAlglin.a */; };
-		D9A9D4702374EA7100E91CB8 /* libAlglin.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CEC162371B541001067BF /* libAlglin.a */; };
-		D9A9D4732374EA7500E91CB8 /* libAlglin.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CEC162371B541001067BF /* libAlglin.a */; };
-		D9A9D4762374EA7900E91CB8 /* libAlglin.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CEC162371B541001067BF /* libAlglin.a */; };
-		D9A9D4792374EA7D00E91CB8 /* libAlglin.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CEC162371B541001067BF /* libAlglin.a */; };
-		D9A9D47C2374EA8000E91CB8 /* libAlglin.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CEC162371B541001067BF /* libAlglin.a */; };
-		D9A9D47F2374EA8500E91CB8 /* libAlglin.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D94CEC162371B541001067BF /* libAlglin.a */; };
-		D9EA76142544AC0500313829 /* libUtils_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D9EA76132544AC0500313829 /* libUtils_osx_static.a */; };
-		D9EA76152544AC0500313829 /* libUtils_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D9EA76132544AC0500313829 /* libUtils_osx_static.a */; };
-		D9EA76162544AC0500313829 /* libUtils_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D9EA76132544AC0500313829 /* libUtils_osx_static.a */; };
-		D9EA76172544AC0500313829 /* libUtils_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D9EA76132544AC0500313829 /* libUtils_osx_static.a */; };
-		D9EA76182544AC0500313829 /* libUtils_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D9EA76132544AC0500313829 /* libUtils_osx_static.a */; };
-		D9EA76192544AC0500313829 /* libUtils_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D9EA76132544AC0500313829 /* libUtils_osx_static.a */; };
-		D9EA761A2544AC0500313829 /* libUtils_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D9EA76132544AC0500313829 /* libUtils_osx_static.a */; };
-		D9EA761B2544AC0500313829 /* libUtils_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D9EA76132544AC0500313829 /* libUtils_osx_static.a */; };
-		D9EA761C2544AC0500313829 /* libUtils_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D9EA76132544AC0500313829 /* libUtils_osx_static.a */; };
-		D9EA761D2544AC0500313829 /* libUtils_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D9EA76132544AC0500313829 /* libUtils_osx_static.a */; };
-		D9EA761E2544AC0500313829 /* libUtils_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D9EA76132544AC0500313829 /* libUtils_osx_static.a */; };
-		D9EA761F2544AC0500313829 /* libUtils_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D9EA76132544AC0500313829 /* libUtils_osx_static.a */; };
-		D9EA76202544AC0500313829 /* libUtils_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D9EA76132544AC0500313829 /* libUtils_osx_static.a */; };
-		D9EA76212544AC0500313829 /* libUtils_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D9EA76132544AC0500313829 /* libUtils_osx_static.a */; };
-		D9EA76222544AC0500313829 /* libUtils_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D9EA76132544AC0500313829 /* libUtils_osx_static.a */; };
-		D9EA76232544AC0500313829 /* libUtils_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D9EA76132544AC0500313829 /* libUtils_osx_static.a */; };
-		D9EA76242544AC0500313829 /* libUtils_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D9EA76132544AC0500313829 /* libUtils_osx_static.a */; };
-		D9EA76252544AC0500313829 /* libUtils_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D9EA76132544AC0500313829 /* libUtils_osx_static.a */; };
-		D9EA76262544AC0500313829 /* libUtils_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D9EA76132544AC0500313829 /* libUtils_osx_static.a */; };
-		D9EA76272544AC0500313829 /* libUtils_osx_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D9EA76132544AC0500313829 /* libUtils_osx_static.a */; };
+		D97FE7FA2576F2A400BED58B /* BlockBidiagonal.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7D92576F2A400BED58B /* BlockBidiagonal.cc */; };
+		D97FE7FB2576F2A400BED58B /* BlockBidiagonal.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7D92576F2A400BED58B /* BlockBidiagonal.cc */; };
+		D97FE7FC2576F2A400BED58B /* BlockBidiagonal.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7D92576F2A400BED58B /* BlockBidiagonal.cc */; };
+		D97FE7FD2576F2A400BED58B /* BlockBidiagonal.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7D92576F2A400BED58B /* BlockBidiagonal.cc */; };
+		D97FE7FE2576F2A400BED58B /* BlockBidiagonal.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7D92576F2A400BED58B /* BlockBidiagonal.cc */; };
+		D97FE7FF2576F2A400BED58B /* BlockBidiagonal.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7D92576F2A400BED58B /* BlockBidiagonal.cc */; };
+		D97FE8002576F2A400BED58B /* BlockBidiagonal.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7D92576F2A400BED58B /* BlockBidiagonal.cc */; };
+		D97FE8012576F2A400BED58B /* BlockBidiagonal.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7D92576F2A400BED58B /* BlockBidiagonal.cc */; };
+		D97FE8022576F2A400BED58B /* BlockBidiagonal.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7D92576F2A400BED58B /* BlockBidiagonal.cc */; };
+		D97FE8032576F2A400BED58B /* BlockBidiagonal.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7D92576F2A400BED58B /* BlockBidiagonal.cc */; };
+		D97FE8042576F2A400BED58B /* BlockBidiagonal.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7D92576F2A400BED58B /* BlockBidiagonal.cc */; };
+		D97FE8052576F2A400BED58B /* BlockBidiagonal.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7D92576F2A400BED58B /* BlockBidiagonal.cc */; };
+		D97FE8062576F2A400BED58B /* BlockBidiagonal.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7D92576F2A400BED58B /* BlockBidiagonal.cc */; };
+		D97FE8072576F2A400BED58B /* BlockBidiagonal.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7D92576F2A400BED58B /* BlockBidiagonal.cc */; };
+		D97FE8082576F2A400BED58B /* BlockBidiagonal.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7D92576F2A400BED58B /* BlockBidiagonal.cc */; };
+		D97FE8092576F2A400BED58B /* BlockBidiagonal.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7D92576F2A400BED58B /* BlockBidiagonal.cc */; };
+		D97FE80A2576F2A400BED58B /* BlockBidiagonal.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7D92576F2A400BED58B /* BlockBidiagonal.cc */; };
+		D97FE80B2576F2A400BED58B /* BlockBidiagonal.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7D92576F2A400BED58B /* BlockBidiagonal.cc */; };
+		D97FE80C2576F2A400BED58B /* BlockBidiagonal.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7D92576F2A400BED58B /* BlockBidiagonal.cc */; };
+		D97FE80D2576F2A400BED58B /* BlockBidiagonal.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7D92576F2A400BED58B /* BlockBidiagonal.cc */; };
+		D97FE80F2576F2A400BED58B /* BABD_BorderedCR.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7DA2576F2A400BED58B /* BABD_BorderedCR.cc */; };
+		D97FE8102576F2A400BED58B /* BABD_BorderedCR.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7DA2576F2A400BED58B /* BABD_BorderedCR.cc */; };
+		D97FE8112576F2A400BED58B /* BABD_BorderedCR.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7DA2576F2A400BED58B /* BABD_BorderedCR.cc */; };
+		D97FE8122576F2A400BED58B /* BABD_BorderedCR.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7DA2576F2A400BED58B /* BABD_BorderedCR.cc */; };
+		D97FE8132576F2A400BED58B /* BABD_BorderedCR.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7DA2576F2A400BED58B /* BABD_BorderedCR.cc */; };
+		D97FE8142576F2A400BED58B /* BABD_BorderedCR.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7DA2576F2A400BED58B /* BABD_BorderedCR.cc */; };
+		D97FE8152576F2A400BED58B /* BABD_BorderedCR.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7DA2576F2A400BED58B /* BABD_BorderedCR.cc */; };
+		D97FE8162576F2A400BED58B /* BABD_BorderedCR.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7DA2576F2A400BED58B /* BABD_BorderedCR.cc */; };
+		D97FE8172576F2A400BED58B /* BABD_BorderedCR.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7DA2576F2A400BED58B /* BABD_BorderedCR.cc */; };
+		D97FE8182576F2A400BED58B /* BABD_BorderedCR.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7DA2576F2A400BED58B /* BABD_BorderedCR.cc */; };
+		D97FE8192576F2A400BED58B /* BABD_BorderedCR.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7DA2576F2A400BED58B /* BABD_BorderedCR.cc */; };
+		D97FE81A2576F2A400BED58B /* BABD_BorderedCR.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7DA2576F2A400BED58B /* BABD_BorderedCR.cc */; };
+		D97FE81B2576F2A400BED58B /* BABD_BorderedCR.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7DA2576F2A400BED58B /* BABD_BorderedCR.cc */; };
+		D97FE81C2576F2A400BED58B /* BABD_BorderedCR.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7DA2576F2A400BED58B /* BABD_BorderedCR.cc */; };
+		D97FE81D2576F2A400BED58B /* BABD_BorderedCR.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7DA2576F2A400BED58B /* BABD_BorderedCR.cc */; };
+		D97FE81E2576F2A400BED58B /* BABD_BorderedCR.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7DA2576F2A400BED58B /* BABD_BorderedCR.cc */; };
+		D97FE81F2576F2A400BED58B /* BABD_BorderedCR.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7DA2576F2A400BED58B /* BABD_BorderedCR.cc */; };
+		D97FE8202576F2A400BED58B /* BABD_BorderedCR.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7DA2576F2A400BED58B /* BABD_BorderedCR.cc */; };
+		D97FE8212576F2A400BED58B /* BABD_BorderedCR.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7DA2576F2A400BED58B /* BABD_BorderedCR.cc */; };
+		D97FE8222576F2A400BED58B /* BABD_BorderedCR.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7DA2576F2A400BED58B /* BABD_BorderedCR.cc */; };
+		D97FE8252576F2A400BED58B /* BABD.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7DC2576F2A400BED58B /* BABD.cc */; };
+		D97FE8262576F2A400BED58B /* BABD.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7DC2576F2A400BED58B /* BABD.cc */; };
+		D97FE8272576F2A400BED58B /* BABD.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7DC2576F2A400BED58B /* BABD.cc */; };
+		D97FE8282576F2A400BED58B /* BABD.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7DC2576F2A400BED58B /* BABD.cc */; };
+		D97FE8292576F2A400BED58B /* BABD.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7DC2576F2A400BED58B /* BABD.cc */; };
+		D97FE82A2576F2A400BED58B /* BABD.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7DC2576F2A400BED58B /* BABD.cc */; };
+		D97FE82B2576F2A400BED58B /* BABD.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7DC2576F2A400BED58B /* BABD.cc */; };
+		D97FE82C2576F2A400BED58B /* BABD.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7DC2576F2A400BED58B /* BABD.cc */; };
+		D97FE82D2576F2A400BED58B /* BABD.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7DC2576F2A400BED58B /* BABD.cc */; };
+		D97FE82E2576F2A400BED58B /* BABD.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7DC2576F2A400BED58B /* BABD.cc */; };
+		D97FE82F2576F2A400BED58B /* BABD.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7DC2576F2A400BED58B /* BABD.cc */; };
+		D97FE8302576F2A400BED58B /* BABD.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7DC2576F2A400BED58B /* BABD.cc */; };
+		D97FE8312576F2A400BED58B /* BABD.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7DC2576F2A400BED58B /* BABD.cc */; };
+		D97FE8322576F2A400BED58B /* BABD.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7DC2576F2A400BED58B /* BABD.cc */; };
+		D97FE8332576F2A400BED58B /* BABD.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7DC2576F2A400BED58B /* BABD.cc */; };
+		D97FE8342576F2A400BED58B /* BABD.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7DC2576F2A400BED58B /* BABD.cc */; };
+		D97FE8352576F2A400BED58B /* BABD.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7DC2576F2A400BED58B /* BABD.cc */; };
+		D97FE8362576F2A400BED58B /* BABD.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7DC2576F2A400BED58B /* BABD.cc */; };
+		D97FE8372576F2A400BED58B /* BABD.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7DC2576F2A400BED58B /* BABD.cc */; };
+		D97FE8382576F2A400BED58B /* BABD.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7DC2576F2A400BED58B /* BABD.cc */; };
+		D97FE83A2576F2A400BED58B /* BABD_F90_interface.inc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7DD2576F2A400BED58B /* BABD_F90_interface.inc */; };
+		D97FE83B2576F2A400BED58B /* BABD_F90_interface.inc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7DD2576F2A400BED58B /* BABD_F90_interface.inc */; };
+		D97FE83C2576F2A400BED58B /* BABD_F90_interface.inc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7DD2576F2A400BED58B /* BABD_F90_interface.inc */; };
+		D97FE83D2576F2A400BED58B /* BABD_F90_interface.inc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7DD2576F2A400BED58B /* BABD_F90_interface.inc */; };
+		D97FE83E2576F2A400BED58B /* BABD_F90_interface.inc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7DD2576F2A400BED58B /* BABD_F90_interface.inc */; };
+		D97FE83F2576F2A400BED58B /* BABD_F90_interface.inc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7DD2576F2A400BED58B /* BABD_F90_interface.inc */; };
+		D97FE8402576F2A400BED58B /* BABD_F90_interface.inc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7DD2576F2A400BED58B /* BABD_F90_interface.inc */; };
+		D97FE8412576F2A400BED58B /* BABD_F90_interface.inc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7DD2576F2A400BED58B /* BABD_F90_interface.inc */; };
+		D97FE8422576F2A400BED58B /* BABD_F90_interface.inc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7DD2576F2A400BED58B /* BABD_F90_interface.inc */; };
+		D97FE8432576F2A400BED58B /* BABD_F90_interface.inc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7DD2576F2A400BED58B /* BABD_F90_interface.inc */; };
+		D97FE8442576F2A400BED58B /* BABD_F90_interface.inc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7DD2576F2A400BED58B /* BABD_F90_interface.inc */; };
+		D97FE8452576F2A400BED58B /* BABD_F90_interface.inc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7DD2576F2A400BED58B /* BABD_F90_interface.inc */; };
+		D97FE8462576F2A400BED58B /* BABD_F90_interface.inc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7DD2576F2A400BED58B /* BABD_F90_interface.inc */; };
+		D97FE8472576F2A400BED58B /* BABD_F90_interface.inc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7DD2576F2A400BED58B /* BABD_F90_interface.inc */; };
+		D97FE8482576F2A400BED58B /* BABD_F90_interface.inc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7DD2576F2A400BED58B /* BABD_F90_interface.inc */; };
+		D97FE8492576F2A400BED58B /* BABD_F90_interface.inc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7DD2576F2A400BED58B /* BABD_F90_interface.inc */; };
+		D97FE84A2576F2A400BED58B /* BABD_F90_interface.inc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7DD2576F2A400BED58B /* BABD_F90_interface.inc */; };
+		D97FE84B2576F2A400BED58B /* BABD_F90_interface.inc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7DD2576F2A400BED58B /* BABD_F90_interface.inc */; };
+		D97FE84C2576F2A400BED58B /* BABD_F90_interface.inc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7DD2576F2A400BED58B /* BABD_F90_interface.inc */; };
+		D97FE84D2576F2A400BED58B /* BABD_F90_interface.inc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7DD2576F2A400BED58B /* BABD_F90_interface.inc */; };
+		D97FE85E2576F2A400BED58B /* BABD_Block.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7EE2576F2A400BED58B /* BABD_Block.cc */; };
+		D97FE85F2576F2A400BED58B /* BABD_Block.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7EE2576F2A400BED58B /* BABD_Block.cc */; };
+		D97FE8602576F2A400BED58B /* BABD_Block.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7EE2576F2A400BED58B /* BABD_Block.cc */; };
+		D97FE8612576F2A400BED58B /* BABD_Block.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7EE2576F2A400BED58B /* BABD_Block.cc */; };
+		D97FE8622576F2A400BED58B /* BABD_Block.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7EE2576F2A400BED58B /* BABD_Block.cc */; };
+		D97FE8632576F2A400BED58B /* BABD_Block.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7EE2576F2A400BED58B /* BABD_Block.cc */; };
+		D97FE8642576F2A400BED58B /* BABD_Block.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7EE2576F2A400BED58B /* BABD_Block.cc */; };
+		D97FE8652576F2A400BED58B /* BABD_Block.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7EE2576F2A400BED58B /* BABD_Block.cc */; };
+		D97FE8662576F2A400BED58B /* BABD_Block.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7EE2576F2A400BED58B /* BABD_Block.cc */; };
+		D97FE8672576F2A400BED58B /* BABD_Block.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7EE2576F2A400BED58B /* BABD_Block.cc */; };
+		D97FE8682576F2A400BED58B /* BABD_Block.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7EE2576F2A400BED58B /* BABD_Block.cc */; };
+		D97FE8692576F2A400BED58B /* BABD_Block.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7EE2576F2A400BED58B /* BABD_Block.cc */; };
+		D97FE86A2576F2A400BED58B /* BABD_Block.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7EE2576F2A400BED58B /* BABD_Block.cc */; };
+		D97FE86B2576F2A400BED58B /* BABD_Block.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7EE2576F2A400BED58B /* BABD_Block.cc */; };
+		D97FE86C2576F2A400BED58B /* BABD_Block.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7EE2576F2A400BED58B /* BABD_Block.cc */; };
+		D97FE86D2576F2A400BED58B /* BABD_Block.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7EE2576F2A400BED58B /* BABD_Block.cc */; };
+		D97FE86E2576F2A400BED58B /* BABD_Block.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7EE2576F2A400BED58B /* BABD_Block.cc */; };
+		D97FE86F2576F2A400BED58B /* BABD_Block.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7EE2576F2A400BED58B /* BABD_Block.cc */; };
+		D97FE8702576F2A400BED58B /* BABD_Block.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7EE2576F2A400BED58B /* BABD_Block.cc */; };
+		D97FE8712576F2A400BED58B /* BABD_Block.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7EE2576F2A400BED58B /* BABD_Block.cc */; };
+		D97FE8732576F2A400BED58B /* BABD_C_interface.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7EF2576F2A400BED58B /* BABD_C_interface.cc */; };
+		D97FE8742576F2A400BED58B /* BABD_C_interface.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7EF2576F2A400BED58B /* BABD_C_interface.cc */; };
+		D97FE8752576F2A400BED58B /* BABD_C_interface.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7EF2576F2A400BED58B /* BABD_C_interface.cc */; };
+		D97FE8762576F2A400BED58B /* BABD_C_interface.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7EF2576F2A400BED58B /* BABD_C_interface.cc */; };
+		D97FE8772576F2A400BED58B /* BABD_C_interface.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7EF2576F2A400BED58B /* BABD_C_interface.cc */; };
+		D97FE8782576F2A400BED58B /* BABD_C_interface.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7EF2576F2A400BED58B /* BABD_C_interface.cc */; };
+		D97FE8792576F2A400BED58B /* BABD_C_interface.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7EF2576F2A400BED58B /* BABD_C_interface.cc */; };
+		D97FE87A2576F2A400BED58B /* BABD_C_interface.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7EF2576F2A400BED58B /* BABD_C_interface.cc */; };
+		D97FE87B2576F2A400BED58B /* BABD_C_interface.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7EF2576F2A400BED58B /* BABD_C_interface.cc */; };
+		D97FE87C2576F2A400BED58B /* BABD_C_interface.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7EF2576F2A400BED58B /* BABD_C_interface.cc */; };
+		D97FE87D2576F2A400BED58B /* BABD_C_interface.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7EF2576F2A400BED58B /* BABD_C_interface.cc */; };
+		D97FE87E2576F2A400BED58B /* BABD_C_interface.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7EF2576F2A400BED58B /* BABD_C_interface.cc */; };
+		D97FE87F2576F2A400BED58B /* BABD_C_interface.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7EF2576F2A400BED58B /* BABD_C_interface.cc */; };
+		D97FE8802576F2A400BED58B /* BABD_C_interface.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7EF2576F2A400BED58B /* BABD_C_interface.cc */; };
+		D97FE8812576F2A400BED58B /* BABD_C_interface.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7EF2576F2A400BED58B /* BABD_C_interface.cc */; };
+		D97FE8822576F2A400BED58B /* BABD_C_interface.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7EF2576F2A400BED58B /* BABD_C_interface.cc */; };
+		D97FE8832576F2A400BED58B /* BABD_C_interface.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7EF2576F2A400BED58B /* BABD_C_interface.cc */; };
+		D97FE8842576F2A400BED58B /* BABD_C_interface.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7EF2576F2A400BED58B /* BABD_C_interface.cc */; };
+		D97FE8852576F2A400BED58B /* BABD_C_interface.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7EF2576F2A400BED58B /* BABD_C_interface.cc */; };
+		D97FE8862576F2A400BED58B /* BABD_C_interface.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7EF2576F2A400BED58B /* BABD_C_interface.cc */; };
+		D97FE8882576F2A400BED58B /* ABD_Arceco.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F02576F2A400BED58B /* ABD_Arceco.cc */; };
+		D97FE8892576F2A400BED58B /* ABD_Arceco.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F02576F2A400BED58B /* ABD_Arceco.cc */; };
+		D97FE88A2576F2A400BED58B /* ABD_Arceco.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F02576F2A400BED58B /* ABD_Arceco.cc */; };
+		D97FE88B2576F2A400BED58B /* ABD_Arceco.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F02576F2A400BED58B /* ABD_Arceco.cc */; };
+		D97FE88C2576F2A400BED58B /* ABD_Arceco.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F02576F2A400BED58B /* ABD_Arceco.cc */; };
+		D97FE88D2576F2A400BED58B /* ABD_Arceco.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F02576F2A400BED58B /* ABD_Arceco.cc */; };
+		D97FE88E2576F2A400BED58B /* ABD_Arceco.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F02576F2A400BED58B /* ABD_Arceco.cc */; };
+		D97FE88F2576F2A400BED58B /* ABD_Arceco.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F02576F2A400BED58B /* ABD_Arceco.cc */; };
+		D97FE8902576F2A400BED58B /* ABD_Arceco.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F02576F2A400BED58B /* ABD_Arceco.cc */; };
+		D97FE8912576F2A400BED58B /* ABD_Arceco.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F02576F2A400BED58B /* ABD_Arceco.cc */; };
+		D97FE8922576F2A400BED58B /* ABD_Arceco.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F02576F2A400BED58B /* ABD_Arceco.cc */; };
+		D97FE8932576F2A400BED58B /* ABD_Arceco.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F02576F2A400BED58B /* ABD_Arceco.cc */; };
+		D97FE8942576F2A400BED58B /* ABD_Arceco.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F02576F2A400BED58B /* ABD_Arceco.cc */; };
+		D97FE8952576F2A400BED58B /* ABD_Arceco.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F02576F2A400BED58B /* ABD_Arceco.cc */; };
+		D97FE8962576F2A400BED58B /* ABD_Arceco.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F02576F2A400BED58B /* ABD_Arceco.cc */; };
+		D97FE8972576F2A400BED58B /* ABD_Arceco.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F02576F2A400BED58B /* ABD_Arceco.cc */; };
+		D97FE8982576F2A400BED58B /* ABD_Arceco.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F02576F2A400BED58B /* ABD_Arceco.cc */; };
+		D97FE8992576F2A400BED58B /* ABD_Arceco.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F02576F2A400BED58B /* ABD_Arceco.cc */; };
+		D97FE89A2576F2A400BED58B /* ABD_Arceco.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F02576F2A400BED58B /* ABD_Arceco.cc */; };
+		D97FE89B2576F2A400BED58B /* ABD_Arceco.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F02576F2A400BED58B /* ABD_Arceco.cc */; };
+		D97FE89D2576F2A400BED58B /* ABD_Diaz.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F12576F2A400BED58B /* ABD_Diaz.cc */; };
+		D97FE89E2576F2A400BED58B /* ABD_Diaz.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F12576F2A400BED58B /* ABD_Diaz.cc */; };
+		D97FE89F2576F2A400BED58B /* ABD_Diaz.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F12576F2A400BED58B /* ABD_Diaz.cc */; };
+		D97FE8A02576F2A400BED58B /* ABD_Diaz.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F12576F2A400BED58B /* ABD_Diaz.cc */; };
+		D97FE8A12576F2A400BED58B /* ABD_Diaz.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F12576F2A400BED58B /* ABD_Diaz.cc */; };
+		D97FE8A22576F2A400BED58B /* ABD_Diaz.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F12576F2A400BED58B /* ABD_Diaz.cc */; };
+		D97FE8A32576F2A400BED58B /* ABD_Diaz.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F12576F2A400BED58B /* ABD_Diaz.cc */; };
+		D97FE8A42576F2A400BED58B /* ABD_Diaz.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F12576F2A400BED58B /* ABD_Diaz.cc */; };
+		D97FE8A52576F2A400BED58B /* ABD_Diaz.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F12576F2A400BED58B /* ABD_Diaz.cc */; };
+		D97FE8A62576F2A400BED58B /* ABD_Diaz.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F12576F2A400BED58B /* ABD_Diaz.cc */; };
+		D97FE8A72576F2A400BED58B /* ABD_Diaz.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F12576F2A400BED58B /* ABD_Diaz.cc */; };
+		D97FE8A82576F2A400BED58B /* ABD_Diaz.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F12576F2A400BED58B /* ABD_Diaz.cc */; };
+		D97FE8A92576F2A400BED58B /* ABD_Diaz.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F12576F2A400BED58B /* ABD_Diaz.cc */; };
+		D97FE8AA2576F2A400BED58B /* ABD_Diaz.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F12576F2A400BED58B /* ABD_Diaz.cc */; };
+		D97FE8AB2576F2A400BED58B /* ABD_Diaz.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F12576F2A400BED58B /* ABD_Diaz.cc */; };
+		D97FE8AC2576F2A400BED58B /* ABD_Diaz.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F12576F2A400BED58B /* ABD_Diaz.cc */; };
+		D97FE8AD2576F2A400BED58B /* ABD_Diaz.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F12576F2A400BED58B /* ABD_Diaz.cc */; };
+		D97FE8AE2576F2A400BED58B /* ABD_Diaz.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F12576F2A400BED58B /* ABD_Diaz.cc */; };
+		D97FE8AF2576F2A400BED58B /* ABD_Diaz.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F12576F2A400BED58B /* ABD_Diaz.cc */; };
+		D97FE8B02576F2A400BED58B /* ABD_Diaz.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F12576F2A400BED58B /* ABD_Diaz.cc */; };
+		D97FE8B32576F2A400BED58B /* Simplex.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F32576F2A400BED58B /* Simplex.cc */; };
+		D97FE8B42576F2A400BED58B /* Simplex.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F32576F2A400BED58B /* Simplex.cc */; };
+		D97FE8B52576F2A400BED58B /* Simplex.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F32576F2A400BED58B /* Simplex.cc */; };
+		D97FE8B62576F2A400BED58B /* Simplex.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F32576F2A400BED58B /* Simplex.cc */; };
+		D97FE8B72576F2A400BED58B /* Simplex.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F32576F2A400BED58B /* Simplex.cc */; };
+		D97FE8B82576F2A400BED58B /* Simplex.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F32576F2A400BED58B /* Simplex.cc */; };
+		D97FE8B92576F2A400BED58B /* Simplex.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F32576F2A400BED58B /* Simplex.cc */; };
+		D97FE8BA2576F2A400BED58B /* Simplex.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F32576F2A400BED58B /* Simplex.cc */; };
+		D97FE8BB2576F2A400BED58B /* Simplex.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F32576F2A400BED58B /* Simplex.cc */; };
+		D97FE8BC2576F2A400BED58B /* Simplex.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F32576F2A400BED58B /* Simplex.cc */; };
+		D97FE8BD2576F2A400BED58B /* Simplex.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F32576F2A400BED58B /* Simplex.cc */; };
+		D97FE8BE2576F2A400BED58B /* Simplex.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F32576F2A400BED58B /* Simplex.cc */; };
+		D97FE8BF2576F2A400BED58B /* Simplex.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F32576F2A400BED58B /* Simplex.cc */; };
+		D97FE8C02576F2A400BED58B /* Simplex.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F32576F2A400BED58B /* Simplex.cc */; };
+		D97FE8C12576F2A400BED58B /* Simplex.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F32576F2A400BED58B /* Simplex.cc */; };
+		D97FE8C22576F2A400BED58B /* Simplex.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F32576F2A400BED58B /* Simplex.cc */; };
+		D97FE8C32576F2A400BED58B /* Simplex.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F32576F2A400BED58B /* Simplex.cc */; };
+		D97FE8C42576F2A400BED58B /* Simplex.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F32576F2A400BED58B /* Simplex.cc */; };
+		D97FE8C52576F2A400BED58B /* Simplex.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F32576F2A400BED58B /* Simplex.cc */; };
+		D97FE8C62576F2A400BED58B /* Simplex.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F32576F2A400BED58B /* Simplex.cc */; };
+		D97FE8C82576F2A400BED58B /* ABD_Block.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F42576F2A400BED58B /* ABD_Block.cc */; };
+		D97FE8C92576F2A400BED58B /* ABD_Block.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F42576F2A400BED58B /* ABD_Block.cc */; };
+		D97FE8CA2576F2A400BED58B /* ABD_Block.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F42576F2A400BED58B /* ABD_Block.cc */; };
+		D97FE8CB2576F2A400BED58B /* ABD_Block.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F42576F2A400BED58B /* ABD_Block.cc */; };
+		D97FE8CC2576F2A400BED58B /* ABD_Block.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F42576F2A400BED58B /* ABD_Block.cc */; };
+		D97FE8CD2576F2A400BED58B /* ABD_Block.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F42576F2A400BED58B /* ABD_Block.cc */; };
+		D97FE8CE2576F2A400BED58B /* ABD_Block.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F42576F2A400BED58B /* ABD_Block.cc */; };
+		D97FE8CF2576F2A400BED58B /* ABD_Block.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F42576F2A400BED58B /* ABD_Block.cc */; };
+		D97FE8D02576F2A400BED58B /* ABD_Block.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F42576F2A400BED58B /* ABD_Block.cc */; };
+		D97FE8D12576F2A400BED58B /* ABD_Block.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F42576F2A400BED58B /* ABD_Block.cc */; };
+		D97FE8D22576F2A400BED58B /* ABD_Block.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F42576F2A400BED58B /* ABD_Block.cc */; };
+		D97FE8D32576F2A400BED58B /* ABD_Block.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F42576F2A400BED58B /* ABD_Block.cc */; };
+		D97FE8D42576F2A400BED58B /* ABD_Block.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F42576F2A400BED58B /* ABD_Block.cc */; };
+		D97FE8D52576F2A400BED58B /* ABD_Block.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F42576F2A400BED58B /* ABD_Block.cc */; };
+		D97FE8D62576F2A400BED58B /* ABD_Block.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F42576F2A400BED58B /* ABD_Block.cc */; };
+		D97FE8D72576F2A400BED58B /* ABD_Block.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F42576F2A400BED58B /* ABD_Block.cc */; };
+		D97FE8D82576F2A400BED58B /* ABD_Block.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F42576F2A400BED58B /* ABD_Block.cc */; };
+		D97FE8D92576F2A400BED58B /* ABD_Block.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F42576F2A400BED58B /* ABD_Block.cc */; };
+		D97FE8DA2576F2A400BED58B /* ABD_Block.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F42576F2A400BED58B /* ABD_Block.cc */; };
+		D97FE8DB2576F2A400BED58B /* ABD_Block.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F42576F2A400BED58B /* ABD_Block.cc */; };
+		D97FE8DD2576F2A400BED58B /* KKT_like.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F52576F2A400BED58B /* KKT_like.cc */; };
+		D97FE8DE2576F2A400BED58B /* KKT_like.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F52576F2A400BED58B /* KKT_like.cc */; };
+		D97FE8DF2576F2A400BED58B /* KKT_like.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F52576F2A400BED58B /* KKT_like.cc */; };
+		D97FE8E02576F2A400BED58B /* KKT_like.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F52576F2A400BED58B /* KKT_like.cc */; };
+		D97FE8E12576F2A400BED58B /* KKT_like.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F52576F2A400BED58B /* KKT_like.cc */; };
+		D97FE8E22576F2A400BED58B /* KKT_like.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F52576F2A400BED58B /* KKT_like.cc */; };
+		D97FE8E32576F2A400BED58B /* KKT_like.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F52576F2A400BED58B /* KKT_like.cc */; };
+		D97FE8E42576F2A400BED58B /* KKT_like.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F52576F2A400BED58B /* KKT_like.cc */; };
+		D97FE8E52576F2A400BED58B /* KKT_like.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F52576F2A400BED58B /* KKT_like.cc */; };
+		D97FE8E62576F2A400BED58B /* KKT_like.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F52576F2A400BED58B /* KKT_like.cc */; };
+		D97FE8E72576F2A400BED58B /* KKT_like.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F52576F2A400BED58B /* KKT_like.cc */; };
+		D97FE8E82576F2A400BED58B /* KKT_like.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F52576F2A400BED58B /* KKT_like.cc */; };
+		D97FE8E92576F2A400BED58B /* KKT_like.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F52576F2A400BED58B /* KKT_like.cc */; };
+		D97FE8EA2576F2A400BED58B /* KKT_like.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F52576F2A400BED58B /* KKT_like.cc */; };
+		D97FE8EB2576F2A400BED58B /* KKT_like.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F52576F2A400BED58B /* KKT_like.cc */; };
+		D97FE8EC2576F2A400BED58B /* KKT_like.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F52576F2A400BED58B /* KKT_like.cc */; };
+		D97FE8ED2576F2A400BED58B /* KKT_like.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F52576F2A400BED58B /* KKT_like.cc */; };
+		D97FE8EE2576F2A400BED58B /* KKT_like.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F52576F2A400BED58B /* KKT_like.cc */; };
+		D97FE8EF2576F2A400BED58B /* KKT_like.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F52576F2A400BED58B /* KKT_like.cc */; };
+		D97FE8F02576F2A400BED58B /* KKT_like.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F52576F2A400BED58B /* KKT_like.cc */; };
+		D97FE8F22576F2A400BED58B /* Alglin_aux.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F62576F2A400BED58B /* Alglin_aux.cc */; };
+		D97FE8F32576F2A400BED58B /* Alglin_aux.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F62576F2A400BED58B /* Alglin_aux.cc */; };
+		D97FE8F42576F2A400BED58B /* Alglin_aux.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F62576F2A400BED58B /* Alglin_aux.cc */; };
+		D97FE8F52576F2A400BED58B /* Alglin_aux.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F62576F2A400BED58B /* Alglin_aux.cc */; };
+		D97FE8F62576F2A400BED58B /* Alglin_aux.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F62576F2A400BED58B /* Alglin_aux.cc */; };
+		D97FE8F72576F2A400BED58B /* Alglin_aux.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F62576F2A400BED58B /* Alglin_aux.cc */; };
+		D97FE8F82576F2A400BED58B /* Alglin_aux.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F62576F2A400BED58B /* Alglin_aux.cc */; };
+		D97FE8F92576F2A400BED58B /* Alglin_aux.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F62576F2A400BED58B /* Alglin_aux.cc */; };
+		D97FE8FA2576F2A400BED58B /* Alglin_aux.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F62576F2A400BED58B /* Alglin_aux.cc */; };
+		D97FE8FB2576F2A400BED58B /* Alglin_aux.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F62576F2A400BED58B /* Alglin_aux.cc */; };
+		D97FE8FC2576F2A500BED58B /* Alglin_aux.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F62576F2A400BED58B /* Alglin_aux.cc */; };
+		D97FE8FD2576F2A500BED58B /* Alglin_aux.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F62576F2A400BED58B /* Alglin_aux.cc */; };
+		D97FE8FE2576F2A500BED58B /* Alglin_aux.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F62576F2A400BED58B /* Alglin_aux.cc */; };
+		D97FE8FF2576F2A500BED58B /* Alglin_aux.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F62576F2A400BED58B /* Alglin_aux.cc */; };
+		D97FE9002576F2A500BED58B /* Alglin_aux.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F62576F2A400BED58B /* Alglin_aux.cc */; };
+		D97FE9012576F2A500BED58B /* Alglin_aux.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F62576F2A400BED58B /* Alglin_aux.cc */; };
+		D97FE9022576F2A500BED58B /* Alglin_aux.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F62576F2A400BED58B /* Alglin_aux.cc */; };
+		D97FE9032576F2A500BED58B /* Alglin_aux.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F62576F2A400BED58B /* Alglin_aux.cc */; };
+		D97FE9042576F2A500BED58B /* Alglin_aux.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F62576F2A400BED58B /* Alglin_aux.cc */; };
+		D97FE9052576F2A500BED58B /* Alglin_aux.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F62576F2A400BED58B /* Alglin_aux.cc */; };
+		D97FE9072576F2A500BED58B /* BABD_SuperLU.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F72576F2A400BED58B /* BABD_SuperLU.cc */; };
+		D97FE9082576F2A500BED58B /* BABD_SuperLU.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F72576F2A400BED58B /* BABD_SuperLU.cc */; };
+		D97FE9092576F2A500BED58B /* BABD_SuperLU.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F72576F2A400BED58B /* BABD_SuperLU.cc */; };
+		D97FE90A2576F2A500BED58B /* BABD_SuperLU.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F72576F2A400BED58B /* BABD_SuperLU.cc */; };
+		D97FE90B2576F2A500BED58B /* BABD_SuperLU.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F72576F2A400BED58B /* BABD_SuperLU.cc */; };
+		D97FE90C2576F2A500BED58B /* BABD_SuperLU.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F72576F2A400BED58B /* BABD_SuperLU.cc */; };
+		D97FE90D2576F2A500BED58B /* BABD_SuperLU.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F72576F2A400BED58B /* BABD_SuperLU.cc */; };
+		D97FE90E2576F2A500BED58B /* BABD_SuperLU.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F72576F2A400BED58B /* BABD_SuperLU.cc */; };
+		D97FE90F2576F2A500BED58B /* BABD_SuperLU.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F72576F2A400BED58B /* BABD_SuperLU.cc */; };
+		D97FE9102576F2A500BED58B /* BABD_SuperLU.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F72576F2A400BED58B /* BABD_SuperLU.cc */; };
+		D97FE9112576F2A500BED58B /* BABD_SuperLU.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F72576F2A400BED58B /* BABD_SuperLU.cc */; };
+		D97FE9122576F2A500BED58B /* BABD_SuperLU.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F72576F2A400BED58B /* BABD_SuperLU.cc */; };
+		D97FE9132576F2A500BED58B /* BABD_SuperLU.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F72576F2A400BED58B /* BABD_SuperLU.cc */; };
+		D97FE9142576F2A500BED58B /* BABD_SuperLU.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F72576F2A400BED58B /* BABD_SuperLU.cc */; };
+		D97FE9152576F2A500BED58B /* BABD_SuperLU.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F72576F2A400BED58B /* BABD_SuperLU.cc */; };
+		D97FE9162576F2A500BED58B /* BABD_SuperLU.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F72576F2A400BED58B /* BABD_SuperLU.cc */; };
+		D97FE9172576F2A500BED58B /* BABD_SuperLU.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F72576F2A400BED58B /* BABD_SuperLU.cc */; };
+		D97FE9182576F2A500BED58B /* BABD_SuperLU.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F72576F2A400BED58B /* BABD_SuperLU.cc */; };
+		D97FE9192576F2A500BED58B /* BABD_SuperLU.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F72576F2A400BED58B /* BABD_SuperLU.cc */; };
+		D97FE91A2576F2A500BED58B /* BABD_SuperLU.cc in Sources */ = {isa = PBXBuildFile; fileRef = D97FE7F72576F2A400BED58B /* BABD_SuperLU.cc */; };
+		D97FEBFA25770A9B00BED58B /* libsuperlu_osx_static_debug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D97FEBF525770A9B00BED58B /* libsuperlu_osx_static_debug.a */; };
+		D97FEBFB25770A9B00BED58B /* libsuperlu_osx_static_debug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D97FEBF525770A9B00BED58B /* libsuperlu_osx_static_debug.a */; };
+		D97FEBFC25770A9B00BED58B /* libsuperlu_osx_static_debug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D97FEBF525770A9B00BED58B /* libsuperlu_osx_static_debug.a */; };
+		D97FEBFD25770A9B00BED58B /* libsuperlu_osx_static_debug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D97FEBF525770A9B00BED58B /* libsuperlu_osx_static_debug.a */; };
+		D97FEBFE25770A9B00BED58B /* libsuperlu_osx_static_debug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D97FEBF525770A9B00BED58B /* libsuperlu_osx_static_debug.a */; };
+		D97FEBFF25770A9B00BED58B /* libsuperlu_osx_static_debug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D97FEBF525770A9B00BED58B /* libsuperlu_osx_static_debug.a */; };
+		D97FEC0025770A9B00BED58B /* libsuperlu_osx_static_debug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D97FEBF525770A9B00BED58B /* libsuperlu_osx_static_debug.a */; };
+		D97FEC0125770A9B00BED58B /* libsuperlu_osx_static_debug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D97FEBF525770A9B00BED58B /* libsuperlu_osx_static_debug.a */; };
+		D97FEC0325770A9B00BED58B /* libsuperlu_osx_static_debug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D97FEBF525770A9B00BED58B /* libsuperlu_osx_static_debug.a */; };
+		D97FEC0425770A9B00BED58B /* libsuperlu_osx_static_debug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D97FEBF525770A9B00BED58B /* libsuperlu_osx_static_debug.a */; };
+		D97FEC0525770A9B00BED58B /* libsuperlu_osx_static_debug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D97FEBF525770A9B00BED58B /* libsuperlu_osx_static_debug.a */; };
+		D97FEC0625770A9B00BED58B /* libsuperlu_osx_static_debug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D97FEBF525770A9B00BED58B /* libsuperlu_osx_static_debug.a */; };
+		D97FEC0725770A9B00BED58B /* libsuperlu_osx_static_debug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D97FEBF525770A9B00BED58B /* libsuperlu_osx_static_debug.a */; };
+		D97FEC0825770A9B00BED58B /* libsuperlu_osx_static_debug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D97FEBF525770A9B00BED58B /* libsuperlu_osx_static_debug.a */; };
+		D97FEC0925770A9B00BED58B /* libsuperlu_osx_static_debug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D97FEBF525770A9B00BED58B /* libsuperlu_osx_static_debug.a */; };
+		D97FEC0A25770A9B00BED58B /* libsuperlu_osx_static_debug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D97FEBF525770A9B00BED58B /* libsuperlu_osx_static_debug.a */; };
+		D97FEC0B25770A9B00BED58B /* libsuperlu_osx_static_debug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D97FEBF525770A9B00BED58B /* libsuperlu_osx_static_debug.a */; };
+		D97FEC0C25770A9B00BED58B /* libsuperlu_osx_static_debug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D97FEBF525770A9B00BED58B /* libsuperlu_osx_static_debug.a */; };
+		D97FEC0D25770A9B00BED58B /* libsuperlu_osx_static_debug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D97FEBF525770A9B00BED58B /* libsuperlu_osx_static_debug.a */; };
+		D97FEC0F25770A9B00BED58B /* liblapack_wrapper_osx_static_debug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D97FEBF625770A9B00BED58B /* liblapack_wrapper_osx_static_debug.a */; };
+		D97FEC1025770A9B00BED58B /* liblapack_wrapper_osx_static_debug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D97FEBF625770A9B00BED58B /* liblapack_wrapper_osx_static_debug.a */; };
+		D97FEC1125770A9B00BED58B /* liblapack_wrapper_osx_static_debug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D97FEBF625770A9B00BED58B /* liblapack_wrapper_osx_static_debug.a */; };
+		D97FEC1225770A9B00BED58B /* liblapack_wrapper_osx_static_debug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D97FEBF625770A9B00BED58B /* liblapack_wrapper_osx_static_debug.a */; };
+		D97FEC1325770A9B00BED58B /* liblapack_wrapper_osx_static_debug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D97FEBF625770A9B00BED58B /* liblapack_wrapper_osx_static_debug.a */; };
+		D97FEC1425770A9B00BED58B /* liblapack_wrapper_osx_static_debug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D97FEBF625770A9B00BED58B /* liblapack_wrapper_osx_static_debug.a */; };
+		D97FEC1525770A9B00BED58B /* liblapack_wrapper_osx_static_debug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D97FEBF625770A9B00BED58B /* liblapack_wrapper_osx_static_debug.a */; };
+		D97FEC1625770A9B00BED58B /* liblapack_wrapper_osx_static_debug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D97FEBF625770A9B00BED58B /* liblapack_wrapper_osx_static_debug.a */; };
+		D97FEC1825770A9B00BED58B /* liblapack_wrapper_osx_static_debug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D97FEBF625770A9B00BED58B /* liblapack_wrapper_osx_static_debug.a */; };
+		D97FEC1925770A9B00BED58B /* liblapack_wrapper_osx_static_debug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D97FEBF625770A9B00BED58B /* liblapack_wrapper_osx_static_debug.a */; };
+		D97FEC1A25770A9B00BED58B /* liblapack_wrapper_osx_static_debug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D97FEBF625770A9B00BED58B /* liblapack_wrapper_osx_static_debug.a */; };
+		D97FEC1B25770A9B00BED58B /* liblapack_wrapper_osx_static_debug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D97FEBF625770A9B00BED58B /* liblapack_wrapper_osx_static_debug.a */; };
+		D97FEC1C25770A9B00BED58B /* liblapack_wrapper_osx_static_debug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D97FEBF625770A9B00BED58B /* liblapack_wrapper_osx_static_debug.a */; };
+		D97FEC1D25770A9B00BED58B /* liblapack_wrapper_osx_static_debug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D97FEBF625770A9B00BED58B /* liblapack_wrapper_osx_static_debug.a */; };
+		D97FEC1E25770A9B00BED58B /* liblapack_wrapper_osx_static_debug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D97FEBF625770A9B00BED58B /* liblapack_wrapper_osx_static_debug.a */; };
+		D97FEC1F25770A9B00BED58B /* liblapack_wrapper_osx_static_debug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D97FEBF625770A9B00BED58B /* liblapack_wrapper_osx_static_debug.a */; };
+		D97FEC2025770A9B00BED58B /* liblapack_wrapper_osx_static_debug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D97FEBF625770A9B00BED58B /* liblapack_wrapper_osx_static_debug.a */; };
+		D97FEC2125770A9B00BED58B /* liblapack_wrapper_osx_static_debug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D97FEBF625770A9B00BED58B /* liblapack_wrapper_osx_static_debug.a */; };
+		D97FEC2225770A9B00BED58B /* liblapack_wrapper_osx_static_debug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D97FEBF625770A9B00BED58B /* liblapack_wrapper_osx_static_debug.a */; };
+		D97FEC2425770A9B00BED58B /* libHSL_osx_static_debug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D97FEBF725770A9B00BED58B /* libHSL_osx_static_debug.a */; };
+		D97FEC2525770A9B00BED58B /* libHSL_osx_static_debug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D97FEBF725770A9B00BED58B /* libHSL_osx_static_debug.a */; };
+		D97FEC2625770A9B00BED58B /* libHSL_osx_static_debug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D97FEBF725770A9B00BED58B /* libHSL_osx_static_debug.a */; };
+		D97FEC2725770A9B00BED58B /* libHSL_osx_static_debug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D97FEBF725770A9B00BED58B /* libHSL_osx_static_debug.a */; };
+		D97FEC2825770A9B00BED58B /* libHSL_osx_static_debug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D97FEBF725770A9B00BED58B /* libHSL_osx_static_debug.a */; };
+		D97FEC2925770A9B00BED58B /* libHSL_osx_static_debug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D97FEBF725770A9B00BED58B /* libHSL_osx_static_debug.a */; };
+		D97FEC2A25770A9B00BED58B /* libHSL_osx_static_debug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D97FEBF725770A9B00BED58B /* libHSL_osx_static_debug.a */; };
+		D97FEC2B25770A9B00BED58B /* libHSL_osx_static_debug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D97FEBF725770A9B00BED58B /* libHSL_osx_static_debug.a */; };
+		D97FEC2D25770A9B00BED58B /* libHSL_osx_static_debug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D97FEBF725770A9B00BED58B /* libHSL_osx_static_debug.a */; };
+		D97FEC2E25770A9B00BED58B /* libHSL_osx_static_debug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D97FEBF725770A9B00BED58B /* libHSL_osx_static_debug.a */; };
+		D97FEC2F25770A9B00BED58B /* libHSL_osx_static_debug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D97FEBF725770A9B00BED58B /* libHSL_osx_static_debug.a */; };
+		D97FEC3025770A9B00BED58B /* libHSL_osx_static_debug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D97FEBF725770A9B00BED58B /* libHSL_osx_static_debug.a */; };
+		D97FEC3125770A9B00BED58B /* libHSL_osx_static_debug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D97FEBF725770A9B00BED58B /* libHSL_osx_static_debug.a */; };
+		D97FEC3225770A9B00BED58B /* libHSL_osx_static_debug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D97FEBF725770A9B00BED58B /* libHSL_osx_static_debug.a */; };
+		D97FEC3325770A9B00BED58B /* libHSL_osx_static_debug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D97FEBF725770A9B00BED58B /* libHSL_osx_static_debug.a */; };
+		D97FEC3425770A9B00BED58B /* libHSL_osx_static_debug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D97FEBF725770A9B00BED58B /* libHSL_osx_static_debug.a */; };
+		D97FEC3525770A9B00BED58B /* libHSL_osx_static_debug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D97FEBF725770A9B00BED58B /* libHSL_osx_static_debug.a */; };
+		D97FEC3625770A9B00BED58B /* libHSL_osx_static_debug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D97FEBF725770A9B00BED58B /* libHSL_osx_static_debug.a */; };
+		D97FEC3725770A9B00BED58B /* libHSL_osx_static_debug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D97FEBF725770A9B00BED58B /* libHSL_osx_static_debug.a */; };
+		D97FEC3925770A9B00BED58B /* libUtils_osx_static_debug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D97FEBF825770A9B00BED58B /* libUtils_osx_static_debug.a */; };
+		D97FEC3A25770A9B00BED58B /* libUtils_osx_static_debug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D97FEBF825770A9B00BED58B /* libUtils_osx_static_debug.a */; };
+		D97FEC3B25770A9B00BED58B /* libUtils_osx_static_debug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D97FEBF825770A9B00BED58B /* libUtils_osx_static_debug.a */; };
+		D97FEC3C25770A9B00BED58B /* libUtils_osx_static_debug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D97FEBF825770A9B00BED58B /* libUtils_osx_static_debug.a */; };
+		D97FEC3D25770A9B00BED58B /* libUtils_osx_static_debug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D97FEBF825770A9B00BED58B /* libUtils_osx_static_debug.a */; };
+		D97FEC3E25770A9B00BED58B /* libUtils_osx_static_debug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D97FEBF825770A9B00BED58B /* libUtils_osx_static_debug.a */; };
+		D97FEC3F25770A9B00BED58B /* libUtils_osx_static_debug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D97FEBF825770A9B00BED58B /* libUtils_osx_static_debug.a */; };
+		D97FEC4025770A9B00BED58B /* libUtils_osx_static_debug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D97FEBF825770A9B00BED58B /* libUtils_osx_static_debug.a */; };
+		D97FEC4225770A9B00BED58B /* libUtils_osx_static_debug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D97FEBF825770A9B00BED58B /* libUtils_osx_static_debug.a */; };
+		D97FEC4325770A9B00BED58B /* libUtils_osx_static_debug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D97FEBF825770A9B00BED58B /* libUtils_osx_static_debug.a */; };
+		D97FEC4425770A9B00BED58B /* libUtils_osx_static_debug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D97FEBF825770A9B00BED58B /* libUtils_osx_static_debug.a */; };
+		D97FEC4525770A9B00BED58B /* libUtils_osx_static_debug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D97FEBF825770A9B00BED58B /* libUtils_osx_static_debug.a */; };
+		D97FEC4625770A9B00BED58B /* libUtils_osx_static_debug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D97FEBF825770A9B00BED58B /* libUtils_osx_static_debug.a */; };
+		D97FEC4725770A9B00BED58B /* libUtils_osx_static_debug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D97FEBF825770A9B00BED58B /* libUtils_osx_static_debug.a */; };
+		D97FEC4825770A9B00BED58B /* libUtils_osx_static_debug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D97FEBF825770A9B00BED58B /* libUtils_osx_static_debug.a */; };
+		D97FEC4925770A9B00BED58B /* libUtils_osx_static_debug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D97FEBF825770A9B00BED58B /* libUtils_osx_static_debug.a */; };
+		D97FEC4A25770A9B00BED58B /* libUtils_osx_static_debug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D97FEBF825770A9B00BED58B /* libUtils_osx_static_debug.a */; };
+		D97FEC4B25770A9B00BED58B /* libUtils_osx_static_debug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D97FEBF825770A9B00BED58B /* libUtils_osx_static_debug.a */; };
+		D97FEC4C25770A9B00BED58B /* libUtils_osx_static_debug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D97FEBF825770A9B00BED58B /* libUtils_osx_static_debug.a */; };
+		D9F24AEB25770B02000DADA1 /* libHSL_osx_static_debug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D97FEBF725770A9B00BED58B /* libHSL_osx_static_debug.a */; };
+		D9F24AEC25770B02000DADA1 /* liblapack_wrapper_osx_static_debug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D97FEBF625770A9B00BED58B /* liblapack_wrapper_osx_static_debug.a */; };
+		D9F24AED25770B02000DADA1 /* libsuperlu_osx_static_debug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D97FEBF525770A9B00BED58B /* libsuperlu_osx_static_debug.a */; };
+		D9F24AEE25770B02000DADA1 /* libUtils_osx_static_debug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D97FEBF825770A9B00BED58B /* libUtils_osx_static_debug.a */; };
 /* End PBXBuildFile section */
-
-/* Begin PBXContainerItemProxy section */
-		D91BB08A2371C552009E068C /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = D94CEC002371B4F5001067BF /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = D94CEC152371B541001067BF;
-			remoteInfo = Alglin;
-		};
-		D9A9D4532374EA1B00E91CB8 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = D94CEC002371B4F5001067BF /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = D94CEC152371B541001067BF;
-			remoteInfo = Alglin;
-		};
-		D9A9D4562374EA4B00E91CB8 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = D94CEC002371B4F5001067BF /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = D94CEC152371B541001067BF;
-			remoteInfo = Alglin;
-		};
-		D9A9D4592374EA4F00E91CB8 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = D94CEC002371B4F5001067BF /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = D94CEC152371B541001067BF;
-			remoteInfo = Alglin;
-		};
-		D9A9D45C2374EA5200E91CB8 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = D94CEC002371B4F5001067BF /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = D94CEC152371B541001067BF;
-			remoteInfo = Alglin;
-		};
-		D9A9D45F2374EA5A00E91CB8 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = D94CEC002371B4F5001067BF /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = D94CEC152371B541001067BF;
-			remoteInfo = Alglin;
-		};
-		D9A9D4622374EA5E00E91CB8 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = D94CEC002371B4F5001067BF /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = D94CEC152371B541001067BF;
-			remoteInfo = Alglin;
-		};
-		D9A9D4652374EA6200E91CB8 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = D94CEC002371B4F5001067BF /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = D94CEC152371B541001067BF;
-			remoteInfo = Alglin;
-		};
-		D9A9D4682374EA6500E91CB8 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = D94CEC002371B4F5001067BF /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = D94CEC152371B541001067BF;
-			remoteInfo = Alglin;
-		};
-		D9A9D46B2374EA6900E91CB8 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = D94CEC002371B4F5001067BF /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = D94CEC152371B541001067BF;
-			remoteInfo = Alglin;
-		};
-		D9A9D46E2374EA6E00E91CB8 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = D94CEC002371B4F5001067BF /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = D94CEC152371B541001067BF;
-			remoteInfo = Alglin;
-		};
-		D9A9D4712374EA7100E91CB8 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = D94CEC002371B4F5001067BF /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = D94CEC152371B541001067BF;
-			remoteInfo = Alglin;
-		};
-		D9A9D4742374EA7500E91CB8 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = D94CEC002371B4F5001067BF /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = D94CEC152371B541001067BF;
-			remoteInfo = Alglin;
-		};
-		D9A9D4772374EA7900E91CB8 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = D94CEC002371B4F5001067BF /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = D94CEC152371B541001067BF;
-			remoteInfo = Alglin;
-		};
-		D9A9D47A2374EA7D00E91CB8 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = D94CEC002371B4F5001067BF /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = D94CEC152371B541001067BF;
-			remoteInfo = Alglin;
-		};
-		D9A9D47D2374EA8000E91CB8 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = D94CEC002371B4F5001067BF /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = D94CEC152371B541001067BF;
-			remoteInfo = Alglin;
-		};
-		D9A9D4802374EA8500E91CB8 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = D94CEC002371B4F5001067BF /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = D94CEC152371B541001067BF;
-			remoteInfo = Alglin;
-		};
-/* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
 		D94CEC8C2371B68B001067BF /* CopyFiles */ = {
@@ -480,37 +571,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		D94CEC162371B541001067BF /* libAlglin.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libAlglin.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		D94CEC1B2371B551001067BF /* Alglin_Config.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Alglin_Config.hh; sourceTree = "<group>"; };
-		D94CEC1C2371B551001067BF /* ABD_Diaz.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ABD_Diaz.hh; sourceTree = "<group>"; };
-		D94CEC1D2371B551001067BF /* Simplex.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Simplex.hh; sourceTree = "<group>"; };
-		D94CEC1E2371B551001067BF /* BlockBidiagonal.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BlockBidiagonal.cc; sourceTree = "<group>"; };
-		D94CEC1F2371B551001067BF /* BABD_BorderedCR.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BABD_BorderedCR.cc; sourceTree = "<group>"; };
-		D94CEC202371B551001067BF /* ABD_Block.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ABD_Block.hh; sourceTree = "<group>"; };
-		D94CEC212371B551001067BF /* Alglin.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Alglin.hh; sourceTree = "<group>"; };
-		D94CEC222371B551001067BF /* BABD_Block.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = BABD_Block.hh; sourceTree = "<group>"; };
-		D94CEC232371B551001067BF /* BABD.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BABD.cc; sourceTree = "<group>"; };
-		D94CEC242371B551001067BF /* BABD_F90_interface.inc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.pascal; path = BABD_F90_interface.inc; sourceTree = "<group>"; };
-		D94CEC252371B551001067BF /* ABD_Arceco.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ABD_Arceco.hh; sourceTree = "<group>"; };
-		D94CEC262371B551001067BF /* BABD.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = BABD.hh; sourceTree = "<group>"; };
-		D94CEC272371B551001067BF /* BABD_Block.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BABD_Block.cc; sourceTree = "<group>"; };
-		D94CEC282371B551001067BF /* BABD_C_interface.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BABD_C_interface.cc; sourceTree = "<group>"; };
-		D94CEC292371B551001067BF /* ABD_Arceco.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ABD_Arceco.cc; sourceTree = "<group>"; };
-		D94CEC2A2371B551001067BF /* ABD_Diaz.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ABD_Diaz.cc; sourceTree = "<group>"; };
-		D94CEC2B2371B551001067BF /* BlockBidiagonal.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = BlockBidiagonal.hh; sourceTree = "<group>"; };
-		D94CEC2C2371B551001067BF /* Simplex.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Simplex.cc; sourceTree = "<group>"; };
-		D94CEC2D2371B551001067BF /* ABD_Block.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ABD_Block.cc; sourceTree = "<group>"; };
-		D94CEC2E2371B551001067BF /* BABD_BorderedCR.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = BABD_BorderedCR.hh; sourceTree = "<group>"; };
-		D94CEC2F2371B551001067BF /* BABD_C_interface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BABD_C_interface.h; sourceTree = "<group>"; };
-		D94CEC302371B551001067BF /* KKT_like.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = KKT_like.cc; sourceTree = "<group>"; };
-		D94CEC312371B551001067BF /* Alglin_aux.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Alglin_aux.cc; sourceTree = "<group>"; };
-		D94CEC332371B551001067BF /* BABD_SuperLU.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BABD_SuperLU.cc; sourceTree = "<group>"; };
-		D94CEC342371B551001067BF /* KKT_like.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = KKT_like.hh; sourceTree = "<group>"; };
-		D94CEC362371B551001067BF /* BABD_SuperLU.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = BABD_SuperLU.hh; sourceTree = "<group>"; };
-		D94CEC372371B551001067BF /* Alglin_aux.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Alglin_aux.hh; sourceTree = "<group>"; };
-		D94CEC382371B551001067BF /* Alglin_FD.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Alglin_FD.hh; sourceTree = "<group>"; };
-		D94CEC392371B551001067BF /* Alglin_Eigen.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Alglin_Eigen.hh; sourceTree = "<group>"; };
-		D94CEC3A2371B551001067BF /* Alglin_SuperLU.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Alglin_SuperLU.hh; sourceTree = "<group>"; };
 		D94CEC8E2371B68B001067BF /* test1 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = test1; sourceTree = BUILT_PRODUCTS_DIR; };
 		D94CEC962371B696001067BF /* test15-EIGS.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "test15-EIGS.cc"; sourceTree = "<group>"; };
 		D94CEC972371B696001067BF /* test9-Cinterface.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = "test9-Cinterface.c"; sourceTree = "<group>"; };
@@ -534,9 +594,6 @@
 		D94CECA92371B696001067BF /* Simplex-Test4.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "Simplex-Test4.cc"; sourceTree = "<group>"; };
 		D94CECAA2371B696001067BF /* test0-FD.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "test0-FD.cc"; sourceTree = "<group>"; };
 		D94CECAB2371B696001067BF /* test11-FORTRAN.f90 */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.fortran.f90; path = "test11-FORTRAN.f90"; sourceTree = "<group>"; };
-		D94CECAD2371B776001067BF /* libHSL_osx_static.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libHSL_osx_static.a; path = ../lib3rd/lib/libHSL_osx_static.a; sourceTree = "<group>"; };
-		D94CECAE2371B776001067BF /* liblapack_wrapper_osx_static.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = liblapack_wrapper_osx_static.a; path = ../lib3rd/lib/liblapack_wrapper_osx_static.a; sourceTree = "<group>"; };
-		D94CECB02371B776001067BF /* libsuperlu_osx_static.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libsuperlu_osx_static.a; path = ../lib3rd/lib/libsuperlu_osx_static.a; sourceTree = "<group>"; };
 		D94CECBA2371B7D5001067BF /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
 		D94CECC92371B87C001067BF /* test2 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = test2; sourceTree = BUILT_PRODUCTS_DIR; };
 		D94CECD82371B8C5001067BF /* test0 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = test0; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -557,26 +614,53 @@
 		D94CEDB62371B98C001067BF /* Simplex2 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Simplex2; sourceTree = BUILT_PRODUCTS_DIR; };
 		D94CEDC42371B98E001067BF /* Simplex3 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Simplex3; sourceTree = BUILT_PRODUCTS_DIR; };
 		D94CEDD22371B98F001067BF /* Simplex4 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Simplex4; sourceTree = BUILT_PRODUCTS_DIR; };
-		D9EA76132544AC0500313829 /* libUtils_osx_static.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libUtils_osx_static.a; path = ../lib3rd/lib/libUtils_osx_static.a; sourceTree = "<group>"; };
+		D97FE7D82576F2A400BED58B /* Alglin_Config.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Alglin_Config.hh; sourceTree = "<group>"; };
+		D97FE7D92576F2A400BED58B /* BlockBidiagonal.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BlockBidiagonal.cc; sourceTree = "<group>"; };
+		D97FE7DA2576F2A400BED58B /* BABD_BorderedCR.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BABD_BorderedCR.cc; sourceTree = "<group>"; };
+		D97FE7DB2576F2A400BED58B /* Alglin.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Alglin.hh; sourceTree = "<group>"; };
+		D97FE7DC2576F2A400BED58B /* BABD.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BABD.cc; sourceTree = "<group>"; };
+		D97FE7DD2576F2A400BED58B /* BABD_F90_interface.inc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.pascal; path = BABD_F90_interface.inc; sourceTree = "<group>"; };
+		D97FE7DE2576F2A400BED58B /* Alglin_Eigen.hxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Alglin_Eigen.hxx; sourceTree = "<group>"; };
+		D97FE7E02576F2A400BED58B /* BABD_SuperLU.hxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = BABD_SuperLU.hxx; sourceTree = "<group>"; };
+		D97FE7E12576F2A400BED58B /* ABD_Diaz.hxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ABD_Diaz.hxx; sourceTree = "<group>"; };
+		D97FE7E22576F2A400BED58B /* Simplex.hxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Simplex.hxx; sourceTree = "<group>"; };
+		D97FE7E32576F2A400BED58B /* BABD_BorderedCR.hxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = BABD_BorderedCR.hxx; sourceTree = "<group>"; };
+		D97FE7E42576F2A400BED58B /* Alglin_aux.hxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Alglin_aux.hxx; sourceTree = "<group>"; };
+		D97FE7E52576F2A400BED58B /* ABD_Block.hxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ABD_Block.hxx; sourceTree = "<group>"; };
+		D97FE7E62576F2A400BED58B /* BlockBidiagonal.hxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = BlockBidiagonal.hxx; sourceTree = "<group>"; };
+		D97FE7E72576F2A400BED58B /* BABD_Block.hxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = BABD_Block.hxx; sourceTree = "<group>"; };
+		D97FE7E82576F2A400BED58B /* BABD_C_interface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BABD_C_interface.h; sourceTree = "<group>"; };
+		D97FE7E92576F2A400BED58B /* Alglin_libs.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Alglin_libs.hh; sourceTree = "<group>"; };
+		D97FE7EA2576F2A400BED58B /* BABD.hxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = BABD.hxx; sourceTree = "<group>"; };
+		D97FE7EB2576F2A400BED58B /* KKT_like.hxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = KKT_like.hxx; sourceTree = "<group>"; };
+		D97FE7EC2576F2A400BED58B /* ABD_Arceco.hxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ABD_Arceco.hxx; sourceTree = "<group>"; };
+		D97FE7ED2576F2A400BED58B /* Alglin_FD.hxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Alglin_FD.hxx; sourceTree = "<group>"; };
+		D97FE7EE2576F2A400BED58B /* BABD_Block.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BABD_Block.cc; sourceTree = "<group>"; };
+		D97FE7EF2576F2A400BED58B /* BABD_C_interface.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BABD_C_interface.cc; sourceTree = "<group>"; };
+		D97FE7F02576F2A400BED58B /* ABD_Arceco.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ABD_Arceco.cc; sourceTree = "<group>"; };
+		D97FE7F12576F2A400BED58B /* ABD_Diaz.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ABD_Diaz.cc; sourceTree = "<group>"; };
+		D97FE7F22576F2A400BED58B /* Alglin_SuperLU.hxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Alglin_SuperLU.hxx; sourceTree = "<group>"; };
+		D97FE7F32576F2A400BED58B /* Simplex.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Simplex.cc; sourceTree = "<group>"; };
+		D97FE7F42576F2A400BED58B /* ABD_Block.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ABD_Block.cc; sourceTree = "<group>"; };
+		D97FE7F52576F2A400BED58B /* KKT_like.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = KKT_like.cc; sourceTree = "<group>"; };
+		D97FE7F62576F2A400BED58B /* Alglin_aux.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Alglin_aux.cc; sourceTree = "<group>"; };
+		D97FE7F72576F2A400BED58B /* BABD_SuperLU.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BABD_SuperLU.cc; sourceTree = "<group>"; };
+		D97FEBF525770A9B00BED58B /* libsuperlu_osx_static_debug.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libsuperlu_osx_static_debug.a; path = ../submodules/LapackWrapper/lib3rd/lib/libsuperlu_osx_static_debug.a; sourceTree = "<group>"; };
+		D97FEBF625770A9B00BED58B /* liblapack_wrapper_osx_static_debug.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = liblapack_wrapper_osx_static_debug.a; path = ../submodules/LapackWrapper/lib/lib/liblapack_wrapper_osx_static_debug.a; sourceTree = "<group>"; };
+		D97FEBF725770A9B00BED58B /* libHSL_osx_static_debug.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libHSL_osx_static_debug.a; path = ../submodules/LapackWrapper/lib/lib/libHSL_osx_static_debug.a; sourceTree = "<group>"; };
+		D97FEBF825770A9B00BED58B /* libUtils_osx_static_debug.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libUtils_osx_static_debug.a; path = ../submodules/LapackWrapper/lib3rd/lib/libUtils_osx_static_debug.a; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		D94CEC142371B541001067BF /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		D94CEC8B2371B68B001067BF /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D94CECB62371B783001067BF /* libHSL_osx_static.a in Frameworks */,
-				D94CECB82371B78A001067BF /* libsuperlu_osx_static.a in Frameworks */,
-				D9EA76152544AC0500313829 /* libUtils_osx_static.a in Frameworks */,
+				D97FEC2525770A9B00BED58B /* libHSL_osx_static_debug.a in Frameworks */,
+				D97FEC3A25770A9B00BED58B /* libUtils_osx_static_debug.a in Frameworks */,
+				D97FEC1025770A9B00BED58B /* liblapack_wrapper_osx_static_debug.a in Frameworks */,
 				D94CECBB2371B7D5001067BF /* Accelerate.framework in Frameworks */,
-				D94CECB72371B787001067BF /* liblapack_wrapper_osx_static.a in Frameworks */,
+				D97FEBFB25770A9B00BED58B /* libsuperlu_osx_static_debug.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -584,11 +668,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D94CECC02371B87C001067BF /* libHSL_osx_static.a in Frameworks */,
-				D94CECC12371B87C001067BF /* libsuperlu_osx_static.a in Frameworks */,
-				D9EA76162544AC0500313829 /* libUtils_osx_static.a in Frameworks */,
+				D97FEC2625770A9B00BED58B /* libHSL_osx_static_debug.a in Frameworks */,
+				D97FEC3B25770A9B00BED58B /* libUtils_osx_static_debug.a in Frameworks */,
+				D97FEC1125770A9B00BED58B /* liblapack_wrapper_osx_static_debug.a in Frameworks */,
 				D94CECC22371B87C001067BF /* Accelerate.framework in Frameworks */,
-				D94CECC32371B87C001067BF /* liblapack_wrapper_osx_static.a in Frameworks */,
+				D97FEBFC25770A9B00BED58B /* libsuperlu_osx_static_debug.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -596,11 +680,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D94CECCF2371B8C5001067BF /* libHSL_osx_static.a in Frameworks */,
-				D94CECD02371B8C5001067BF /* libsuperlu_osx_static.a in Frameworks */,
-				D9EA76142544AC0500313829 /* libUtils_osx_static.a in Frameworks */,
+				D97FEC2425770A9B00BED58B /* libHSL_osx_static_debug.a in Frameworks */,
+				D97FEC3925770A9B00BED58B /* libUtils_osx_static_debug.a in Frameworks */,
+				D97FEC0F25770A9B00BED58B /* liblapack_wrapper_osx_static_debug.a in Frameworks */,
 				D94CECD12371B8C5001067BF /* Accelerate.framework in Frameworks */,
-				D94CECD22371B8C5001067BF /* liblapack_wrapper_osx_static.a in Frameworks */,
+				D97FEBFA25770A9B00BED58B /* libsuperlu_osx_static_debug.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -608,12 +692,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D94CECDD2371B8CF001067BF /* libHSL_osx_static.a in Frameworks */,
-				D94CECDE2371B8CF001067BF /* libsuperlu_osx_static.a in Frameworks */,
-				D9EA76172544AC0500313829 /* libUtils_osx_static.a in Frameworks */,
-				D9A9D4552374EA4B00E91CB8 /* libAlglin.a in Frameworks */,
+				D97FEC1225770A9B00BED58B /* liblapack_wrapper_osx_static_debug.a in Frameworks */,
+				D97FEBFD25770A9B00BED58B /* libsuperlu_osx_static_debug.a in Frameworks */,
 				D94CECDF2371B8CF001067BF /* Accelerate.framework in Frameworks */,
-				D94CECE02371B8CF001067BF /* liblapack_wrapper_osx_static.a in Frameworks */,
+				D97FEC3C25770A9B00BED58B /* libUtils_osx_static_debug.a in Frameworks */,
+				D97FEC2725770A9B00BED58B /* libHSL_osx_static_debug.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -621,12 +704,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D94CECEB2371B8D7001067BF /* libHSL_osx_static.a in Frameworks */,
-				D94CECEC2371B8D7001067BF /* libsuperlu_osx_static.a in Frameworks */,
-				D9EA76182544AC0500313829 /* libUtils_osx_static.a in Frameworks */,
-				D9A9D4522374EA1B00E91CB8 /* libAlglin.a in Frameworks */,
+				D97FEC1325770A9B00BED58B /* liblapack_wrapper_osx_static_debug.a in Frameworks */,
+				D97FEBFE25770A9B00BED58B /* libsuperlu_osx_static_debug.a in Frameworks */,
 				D94CECED2371B8D7001067BF /* Accelerate.framework in Frameworks */,
-				D94CECEE2371B8D7001067BF /* liblapack_wrapper_osx_static.a in Frameworks */,
+				D97FEC3D25770A9B00BED58B /* libUtils_osx_static_debug.a in Frameworks */,
+				D97FEC2825770A9B00BED58B /* libHSL_osx_static_debug.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -634,12 +716,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D94CECF92371B8DF001067BF /* libHSL_osx_static.a in Frameworks */,
-				D94CECFA2371B8DF001067BF /* libsuperlu_osx_static.a in Frameworks */,
-				D9EA76192544AC0500313829 /* libUtils_osx_static.a in Frameworks */,
-				D9A9D4582374EA4F00E91CB8 /* libAlglin.a in Frameworks */,
+				D97FEC1425770A9B00BED58B /* liblapack_wrapper_osx_static_debug.a in Frameworks */,
+				D97FEBFF25770A9B00BED58B /* libsuperlu_osx_static_debug.a in Frameworks */,
 				D94CECFB2371B8DF001067BF /* Accelerate.framework in Frameworks */,
-				D94CECFC2371B8DF001067BF /* liblapack_wrapper_osx_static.a in Frameworks */,
+				D97FEC3E25770A9B00BED58B /* libUtils_osx_static_debug.a in Frameworks */,
+				D97FEC2925770A9B00BED58B /* libHSL_osx_static_debug.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -647,12 +728,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D94CED072371B8E6001067BF /* libHSL_osx_static.a in Frameworks */,
-				D94CED082371B8E6001067BF /* libsuperlu_osx_static.a in Frameworks */,
-				D9EA761A2544AC0500313829 /* libUtils_osx_static.a in Frameworks */,
-				D9A9D45B2374EA5200E91CB8 /* libAlglin.a in Frameworks */,
+				D97FEC1525770A9B00BED58B /* liblapack_wrapper_osx_static_debug.a in Frameworks */,
+				D97FEC0025770A9B00BED58B /* libsuperlu_osx_static_debug.a in Frameworks */,
 				D94CED092371B8E6001067BF /* Accelerate.framework in Frameworks */,
-				D94CED0A2371B8E6001067BF /* liblapack_wrapper_osx_static.a in Frameworks */,
+				D97FEC3F25770A9B00BED58B /* libUtils_osx_static_debug.a in Frameworks */,
+				D97FEC2A25770A9B00BED58B /* libHSL_osx_static_debug.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -660,12 +740,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D94CED152371B8EF001067BF /* libHSL_osx_static.a in Frameworks */,
-				D94CED162371B8EF001067BF /* libsuperlu_osx_static.a in Frameworks */,
-				D9EA761B2544AC0500313829 /* libUtils_osx_static.a in Frameworks */,
+				D97FEC1625770A9B00BED58B /* liblapack_wrapper_osx_static_debug.a in Frameworks */,
+				D97FEC0125770A9B00BED58B /* libsuperlu_osx_static_debug.a in Frameworks */,
 				D94CED172371B8EF001067BF /* Accelerate.framework in Frameworks */,
-				D94CED182371B8EF001067BF /* liblapack_wrapper_osx_static.a in Frameworks */,
-				D91BB0892371C552009E068C /* libAlglin.a in Frameworks */,
+				D97FEC4025770A9B00BED58B /* libUtils_osx_static_debug.a in Frameworks */,
+				D97FEC2B25770A9B00BED58B /* libHSL_osx_static_debug.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -673,12 +752,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D94CED232371B8F7001067BF /* libHSL_osx_static.a in Frameworks */,
-				D94CED242371B8F7001067BF /* libsuperlu_osx_static.a in Frameworks */,
-				D9EA761C2544AC0500313829 /* libUtils_osx_static.a in Frameworks */,
-				D9A9D45E2374EA5A00E91CB8 /* libAlglin.a in Frameworks */,
+				D9F24AEC25770B02000DADA1 /* liblapack_wrapper_osx_static_debug.a in Frameworks */,
+				D9F24AEB25770B02000DADA1 /* libHSL_osx_static_debug.a in Frameworks */,
 				D94CED252371B8F7001067BF /* Accelerate.framework in Frameworks */,
-				D94CED262371B8F7001067BF /* liblapack_wrapper_osx_static.a in Frameworks */,
+				D9F24AEE25770B02000DADA1 /* libUtils_osx_static_debug.a in Frameworks */,
+				D9F24AED25770B02000DADA1 /* libsuperlu_osx_static_debug.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -686,12 +764,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D94CED312371B8FD001067BF /* libHSL_osx_static.a in Frameworks */,
-				D94CED322371B8FD001067BF /* libsuperlu_osx_static.a in Frameworks */,
-				D9EA761D2544AC0500313829 /* libUtils_osx_static.a in Frameworks */,
-				D9A9D4612374EA5E00E91CB8 /* libAlglin.a in Frameworks */,
+				D97FEC1825770A9B00BED58B /* liblapack_wrapper_osx_static_debug.a in Frameworks */,
+				D97FEC0325770A9B00BED58B /* libsuperlu_osx_static_debug.a in Frameworks */,
 				D94CED332371B8FD001067BF /* Accelerate.framework in Frameworks */,
-				D94CED342371B8FD001067BF /* liblapack_wrapper_osx_static.a in Frameworks */,
+				D97FEC4225770A9B00BED58B /* libUtils_osx_static_debug.a in Frameworks */,
+				D97FEC2D25770A9B00BED58B /* libHSL_osx_static_debug.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -699,12 +776,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D94CED3F2371B903001067BF /* libHSL_osx_static.a in Frameworks */,
-				D94CED402371B903001067BF /* libsuperlu_osx_static.a in Frameworks */,
-				D9EA761E2544AC0500313829 /* libUtils_osx_static.a in Frameworks */,
-				D9A9D4642374EA6200E91CB8 /* libAlglin.a in Frameworks */,
+				D97FEC1925770A9B00BED58B /* liblapack_wrapper_osx_static_debug.a in Frameworks */,
+				D97FEC0425770A9B00BED58B /* libsuperlu_osx_static_debug.a in Frameworks */,
 				D94CED412371B903001067BF /* Accelerate.framework in Frameworks */,
-				D94CED422371B903001067BF /* liblapack_wrapper_osx_static.a in Frameworks */,
+				D97FEC4325770A9B00BED58B /* libUtils_osx_static_debug.a in Frameworks */,
+				D97FEC2E25770A9B00BED58B /* libHSL_osx_static_debug.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -712,12 +788,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D94CED4D2371B90B001067BF /* libHSL_osx_static.a in Frameworks */,
-				D94CED4E2371B90B001067BF /* libsuperlu_osx_static.a in Frameworks */,
-				D9EA761F2544AC0500313829 /* libUtils_osx_static.a in Frameworks */,
-				D9A9D4672374EA6500E91CB8 /* libAlglin.a in Frameworks */,
+				D97FEC1A25770A9B00BED58B /* liblapack_wrapper_osx_static_debug.a in Frameworks */,
+				D97FEC0525770A9B00BED58B /* libsuperlu_osx_static_debug.a in Frameworks */,
 				D94CED4F2371B90B001067BF /* Accelerate.framework in Frameworks */,
-				D94CED502371B90B001067BF /* liblapack_wrapper_osx_static.a in Frameworks */,
+				D97FEC4425770A9B00BED58B /* libUtils_osx_static_debug.a in Frameworks */,
+				D97FEC2F25770A9B00BED58B /* libHSL_osx_static_debug.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -725,12 +800,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D94CED5B2371B911001067BF /* libHSL_osx_static.a in Frameworks */,
-				D94CED5C2371B911001067BF /* libsuperlu_osx_static.a in Frameworks */,
-				D9EA76202544AC0500313829 /* libUtils_osx_static.a in Frameworks */,
-				D9A9D46A2374EA6900E91CB8 /* libAlglin.a in Frameworks */,
+				D97FEC1B25770A9B00BED58B /* liblapack_wrapper_osx_static_debug.a in Frameworks */,
+				D97FEC0625770A9B00BED58B /* libsuperlu_osx_static_debug.a in Frameworks */,
 				D94CED5D2371B911001067BF /* Accelerate.framework in Frameworks */,
-				D94CED5E2371B911001067BF /* liblapack_wrapper_osx_static.a in Frameworks */,
+				D97FEC4525770A9B00BED58B /* libUtils_osx_static_debug.a in Frameworks */,
+				D97FEC3025770A9B00BED58B /* libHSL_osx_static_debug.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -738,12 +812,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D94CED692371B918001067BF /* libHSL_osx_static.a in Frameworks */,
-				D94CED6A2371B918001067BF /* libsuperlu_osx_static.a in Frameworks */,
-				D9EA76212544AC0500313829 /* libUtils_osx_static.a in Frameworks */,
-				D9A9D46D2374EA6E00E91CB8 /* libAlglin.a in Frameworks */,
+				D97FEC1C25770A9B00BED58B /* liblapack_wrapper_osx_static_debug.a in Frameworks */,
+				D97FEC0725770A9B00BED58B /* libsuperlu_osx_static_debug.a in Frameworks */,
 				D94CED6B2371B918001067BF /* Accelerate.framework in Frameworks */,
-				D94CED6C2371B918001067BF /* liblapack_wrapper_osx_static.a in Frameworks */,
+				D97FEC4625770A9B00BED58B /* libUtils_osx_static_debug.a in Frameworks */,
+				D97FEC3125770A9B00BED58B /* libHSL_osx_static_debug.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -751,12 +824,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D94CED772371B920001067BF /* libHSL_osx_static.a in Frameworks */,
-				D94CED782371B920001067BF /* libsuperlu_osx_static.a in Frameworks */,
-				D9EA76222544AC0500313829 /* libUtils_osx_static.a in Frameworks */,
-				D9A9D4702374EA7100E91CB8 /* libAlglin.a in Frameworks */,
+				D97FEC1D25770A9B00BED58B /* liblapack_wrapper_osx_static_debug.a in Frameworks */,
+				D97FEC0825770A9B00BED58B /* libsuperlu_osx_static_debug.a in Frameworks */,
 				D94CED792371B920001067BF /* Accelerate.framework in Frameworks */,
-				D94CED7A2371B920001067BF /* liblapack_wrapper_osx_static.a in Frameworks */,
+				D97FEC4725770A9B00BED58B /* libUtils_osx_static_debug.a in Frameworks */,
+				D97FEC3225770A9B00BED58B /* libHSL_osx_static_debug.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -764,12 +836,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D94CED852371B926001067BF /* libHSL_osx_static.a in Frameworks */,
-				D94CED862371B926001067BF /* libsuperlu_osx_static.a in Frameworks */,
-				D9EA76232544AC0500313829 /* libUtils_osx_static.a in Frameworks */,
-				D9A9D4732374EA7500E91CB8 /* libAlglin.a in Frameworks */,
+				D97FEC1E25770A9B00BED58B /* liblapack_wrapper_osx_static_debug.a in Frameworks */,
+				D97FEC0925770A9B00BED58B /* libsuperlu_osx_static_debug.a in Frameworks */,
 				D94CED872371B926001067BF /* Accelerate.framework in Frameworks */,
-				D94CED882371B926001067BF /* liblapack_wrapper_osx_static.a in Frameworks */,
+				D97FEC4825770A9B00BED58B /* libUtils_osx_static_debug.a in Frameworks */,
+				D97FEC3325770A9B00BED58B /* libHSL_osx_static_debug.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -777,12 +848,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D94CED9F2371B985001067BF /* libHSL_osx_static.a in Frameworks */,
-				D94CEDA02371B985001067BF /* libsuperlu_osx_static.a in Frameworks */,
-				D9EA76242544AC0500313829 /* libUtils_osx_static.a in Frameworks */,
-				D9A9D4762374EA7900E91CB8 /* libAlglin.a in Frameworks */,
+				D97FEC1F25770A9B00BED58B /* liblapack_wrapper_osx_static_debug.a in Frameworks */,
+				D97FEC0A25770A9B00BED58B /* libsuperlu_osx_static_debug.a in Frameworks */,
 				D94CEDA12371B985001067BF /* Accelerate.framework in Frameworks */,
-				D94CEDA22371B985001067BF /* liblapack_wrapper_osx_static.a in Frameworks */,
+				D97FEC4925770A9B00BED58B /* libUtils_osx_static_debug.a in Frameworks */,
+				D97FEC3425770A9B00BED58B /* libHSL_osx_static_debug.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -790,12 +860,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D94CEDAD2371B98C001067BF /* libHSL_osx_static.a in Frameworks */,
-				D94CEDAE2371B98C001067BF /* libsuperlu_osx_static.a in Frameworks */,
-				D9EA76252544AC0500313829 /* libUtils_osx_static.a in Frameworks */,
-				D9A9D4792374EA7D00E91CB8 /* libAlglin.a in Frameworks */,
+				D97FEC2025770A9B00BED58B /* liblapack_wrapper_osx_static_debug.a in Frameworks */,
+				D97FEC0B25770A9B00BED58B /* libsuperlu_osx_static_debug.a in Frameworks */,
 				D94CEDAF2371B98C001067BF /* Accelerate.framework in Frameworks */,
-				D94CEDB02371B98C001067BF /* liblapack_wrapper_osx_static.a in Frameworks */,
+				D97FEC4A25770A9B00BED58B /* libUtils_osx_static_debug.a in Frameworks */,
+				D97FEC3525770A9B00BED58B /* libHSL_osx_static_debug.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -803,12 +872,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D94CEDBB2371B98E001067BF /* libHSL_osx_static.a in Frameworks */,
-				D94CEDBC2371B98E001067BF /* libsuperlu_osx_static.a in Frameworks */,
-				D9EA76262544AC0500313829 /* libUtils_osx_static.a in Frameworks */,
-				D9A9D47C2374EA8000E91CB8 /* libAlglin.a in Frameworks */,
+				D97FEC2125770A9B00BED58B /* liblapack_wrapper_osx_static_debug.a in Frameworks */,
+				D97FEC0C25770A9B00BED58B /* libsuperlu_osx_static_debug.a in Frameworks */,
 				D94CEDBD2371B98E001067BF /* Accelerate.framework in Frameworks */,
-				D94CEDBE2371B98E001067BF /* liblapack_wrapper_osx_static.a in Frameworks */,
+				D97FEC4B25770A9B00BED58B /* libUtils_osx_static_debug.a in Frameworks */,
+				D97FEC3625770A9B00BED58B /* libHSL_osx_static_debug.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -816,12 +884,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D94CEDC92371B98F001067BF /* libHSL_osx_static.a in Frameworks */,
-				D94CEDCA2371B98F001067BF /* libsuperlu_osx_static.a in Frameworks */,
-				D9EA76272544AC0500313829 /* libUtils_osx_static.a in Frameworks */,
-				D9A9D47F2374EA8500E91CB8 /* libAlglin.a in Frameworks */,
+				D97FEC2225770A9B00BED58B /* liblapack_wrapper_osx_static_debug.a in Frameworks */,
+				D97FEC0D25770A9B00BED58B /* libsuperlu_osx_static_debug.a in Frameworks */,
 				D94CEDCB2371B98F001067BF /* Accelerate.framework in Frameworks */,
-				D94CEDCC2371B98F001067BF /* liblapack_wrapper_osx_static.a in Frameworks */,
+				D97FEC4C25770A9B00BED58B /* libUtils_osx_static_debug.a in Frameworks */,
+				D97FEC3725770A9B00BED58B /* libHSL_osx_static_debug.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -831,12 +898,12 @@
 		D94CEBFF2371B4F5001067BF = {
 			isa = PBXGroup;
 			children = (
+				D97FEBF725770A9B00BED58B /* libHSL_osx_static_debug.a */,
+				D97FEBF625770A9B00BED58B /* liblapack_wrapper_osx_static_debug.a */,
+				D97FEBF525770A9B00BED58B /* libsuperlu_osx_static_debug.a */,
+				D97FEBF825770A9B00BED58B /* libUtils_osx_static_debug.a */,
 				D94CEC092371B4F5001067BF /* Products */,
-				D94CECAD2371B776001067BF /* libHSL_osx_static.a */,
-				D94CECAE2371B776001067BF /* liblapack_wrapper_osx_static.a */,
-				D94CECB02371B776001067BF /* libsuperlu_osx_static.a */,
-				D9EA76132544AC0500313829 /* libUtils_osx_static.a */,
-				D94CEC1A2371B551001067BF /* src */,
+				D97FE7D72576F2A400BED58B /* src */,
 				D94CEC952371B696001067BF /* src_tests */,
 				D94CECB92371B7D5001067BF /* Frameworks */,
 			);
@@ -845,7 +912,6 @@
 		D94CEC092371B4F5001067BF /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				D94CEC162371B541001067BF /* libAlglin.a */,
 				D94CEC8E2371B68B001067BF /* test1 */,
 				D94CECC92371B87C001067BF /* test2 */,
 				D94CECD82371B8C5001067BF /* test0 */,
@@ -868,44 +934,6 @@
 				D94CEDD22371B98F001067BF /* Simplex4 */,
 			);
 			name = Products;
-			sourceTree = "<group>";
-		};
-		D94CEC1A2371B551001067BF /* src */ = {
-			isa = PBXGroup;
-			children = (
-				D94CEC212371B551001067BF /* Alglin.hh */,
-				D94CEC372371B551001067BF /* Alglin_aux.hh */,
-				D94CEC312371B551001067BF /* Alglin_aux.cc */,
-				D94CEC382371B551001067BF /* Alglin_FD.hh */,
-				D94CEC392371B551001067BF /* Alglin_Eigen.hh */,
-				D94CEC1B2371B551001067BF /* Alglin_Config.hh */,
-				D94CEC3A2371B551001067BF /* Alglin_SuperLU.hh */,
-				D94CEC1C2371B551001067BF /* ABD_Diaz.hh */,
-				D94CEC292371B551001067BF /* ABD_Arceco.cc */,
-				D94CEC2A2371B551001067BF /* ABD_Diaz.cc */,
-				D94CEC2D2371B551001067BF /* ABD_Block.cc */,
-				D94CEC252371B551001067BF /* ABD_Arceco.hh */,
-				D94CEC202371B551001067BF /* ABD_Block.hh */,
-				D94CEC262371B551001067BF /* BABD.hh */,
-				D94CEC272371B551001067BF /* BABD_Block.cc */,
-				D94CEC2F2371B551001067BF /* BABD_C_interface.h */,
-				D94CEC282371B551001067BF /* BABD_C_interface.cc */,
-				D94CEC332371B551001067BF /* BABD_SuperLU.cc */,
-				D94CEC362371B551001067BF /* BABD_SuperLU.hh */,
-				D94CEC2E2371B551001067BF /* BABD_BorderedCR.hh */,
-				D94CEC1F2371B551001067BF /* BABD_BorderedCR.cc */,
-				D94CEC1E2371B551001067BF /* BlockBidiagonal.cc */,
-				D94CEC222371B551001067BF /* BABD_Block.hh */,
-				D94CEC232371B551001067BF /* BABD.cc */,
-				D94CEC242371B551001067BF /* BABD_F90_interface.inc */,
-				D94CEC2B2371B551001067BF /* BlockBidiagonal.hh */,
-				D94CEC342371B551001067BF /* KKT_like.hh */,
-				D94CEC302371B551001067BF /* KKT_like.cc */,
-				D94CEC1D2371B551001067BF /* Simplex.hh */,
-				D94CEC2C2371B551001067BF /* Simplex.cc */,
-			);
-			name = src;
-			path = ../src;
 			sourceTree = "<group>";
 		};
 		D94CEC952371B696001067BF /* src_tests */ = {
@@ -946,53 +974,56 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		D97FE7D72576F2A400BED58B /* src */ = {
+			isa = PBXGroup;
+			children = (
+				D97FE7D82576F2A400BED58B /* Alglin_Config.hh */,
+				D97FE7D92576F2A400BED58B /* BlockBidiagonal.cc */,
+				D97FE7DA2576F2A400BED58B /* BABD_BorderedCR.cc */,
+				D97FE7DB2576F2A400BED58B /* Alglin.hh */,
+				D97FE7DC2576F2A400BED58B /* BABD.cc */,
+				D97FE7DD2576F2A400BED58B /* BABD_F90_interface.inc */,
+				D97FE7DE2576F2A400BED58B /* Alglin_Eigen.hxx */,
+				D97FE7DF2576F2A400BED58B /* Alglin */,
+				D97FE7EE2576F2A400BED58B /* BABD_Block.cc */,
+				D97FE7EF2576F2A400BED58B /* BABD_C_interface.cc */,
+				D97FE7F02576F2A400BED58B /* ABD_Arceco.cc */,
+				D97FE7F12576F2A400BED58B /* ABD_Diaz.cc */,
+				D97FE7F22576F2A400BED58B /* Alglin_SuperLU.hxx */,
+				D97FE7F32576F2A400BED58B /* Simplex.cc */,
+				D97FE7F42576F2A400BED58B /* ABD_Block.cc */,
+				D97FE7F52576F2A400BED58B /* KKT_like.cc */,
+				D97FE7F62576F2A400BED58B /* Alglin_aux.cc */,
+				D97FE7F72576F2A400BED58B /* BABD_SuperLU.cc */,
+			);
+			name = src;
+			path = ../src;
+			sourceTree = "<group>";
+		};
+		D97FE7DF2576F2A400BED58B /* Alglin */ = {
+			isa = PBXGroup;
+			children = (
+				D97FE7E02576F2A400BED58B /* BABD_SuperLU.hxx */,
+				D97FE7E12576F2A400BED58B /* ABD_Diaz.hxx */,
+				D97FE7E22576F2A400BED58B /* Simplex.hxx */,
+				D97FE7E32576F2A400BED58B /* BABD_BorderedCR.hxx */,
+				D97FE7E42576F2A400BED58B /* Alglin_aux.hxx */,
+				D97FE7E52576F2A400BED58B /* ABD_Block.hxx */,
+				D97FE7E62576F2A400BED58B /* BlockBidiagonal.hxx */,
+				D97FE7E72576F2A400BED58B /* BABD_Block.hxx */,
+				D97FE7E82576F2A400BED58B /* BABD_C_interface.h */,
+				D97FE7E92576F2A400BED58B /* Alglin_libs.hh */,
+				D97FE7EA2576F2A400BED58B /* BABD.hxx */,
+				D97FE7EB2576F2A400BED58B /* KKT_like.hxx */,
+				D97FE7EC2576F2A400BED58B /* ABD_Arceco.hxx */,
+				D97FE7ED2576F2A400BED58B /* Alglin_FD.hxx */,
+			);
+			path = Alglin;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
-/* Begin PBXHeadersBuildPhase section */
-		D94CEC122371B541001067BF /* Headers */ = {
-			isa = PBXHeadersBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				D94CEC412371B551001067BF /* Alglin.hh in Headers */,
-				D94CEC4B2371B551001067BF /* BlockBidiagonal.hh in Headers */,
-				D94CEC3B2371B551001067BF /* Alglin_Config.hh in Headers */,
-				D94CEC422371B551001067BF /* BABD_Block.hh in Headers */,
-				D94CEC542371B551001067BF /* KKT_like.hh in Headers */,
-				D94CEC562371B551001067BF /* BABD_SuperLU.hh in Headers */,
-				D94CEC3C2371B551001067BF /* ABD_Diaz.hh in Headers */,
-				D94CEC3D2371B551001067BF /* Simplex.hh in Headers */,
-				D94CEC452371B551001067BF /* ABD_Arceco.hh in Headers */,
-				D94CEC582371B551001067BF /* Alglin_FD.hh in Headers */,
-				D94CEC592371B551001067BF /* Alglin_Eigen.hh in Headers */,
-				D94CEC462371B551001067BF /* BABD.hh in Headers */,
-				D94CEC5A2371B551001067BF /* Alglin_SuperLU.hh in Headers */,
-				D94CEC4F2371B551001067BF /* BABD_C_interface.h in Headers */,
-				D94CEC4E2371B551001067BF /* BABD_BorderedCR.hh in Headers */,
-				D94CEC402371B551001067BF /* ABD_Block.hh in Headers */,
-				D94CEC572371B551001067BF /* Alglin_aux.hh in Headers */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXHeadersBuildPhase section */
-
 /* Begin PBXNativeTarget section */
-		D94CEC152371B541001067BF /* Alglin */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = D94CEC172371B541001067BF /* Build configuration list for PBXNativeTarget "Alglin" */;
-			buildPhases = (
-				D94CEC122371B541001067BF /* Headers */,
-				D94CEC132371B541001067BF /* Sources */,
-				D94CEC142371B541001067BF /* Frameworks */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = Alglin;
-			productName = Alglin;
-			productReference = D94CEC162371B541001067BF /* libAlglin.a */;
-			productType = "com.apple.product-type.library.static";
-		};
 		D94CEC8D2371B68B001067BF /* test1 */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = D94CEC922371B68B001067BF /* Build configuration list for PBXNativeTarget "test1" */;
@@ -1055,7 +1086,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				D9A9D4572374EA4B00E91CB8 /* PBXTargetDependency */,
 			);
 			name = test3;
 			productName = test1;
@@ -1073,7 +1103,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				D9A9D4542374EA1B00E91CB8 /* PBXTargetDependency */,
 			);
 			name = test4;
 			productName = test1;
@@ -1091,7 +1120,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				D9A9D45A2374EA4F00E91CB8 /* PBXTargetDependency */,
 			);
 			name = test5;
 			productName = test1;
@@ -1109,7 +1137,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				D9A9D45D2374EA5200E91CB8 /* PBXTargetDependency */,
 			);
 			name = test6;
 			productName = test1;
@@ -1127,7 +1154,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				D91BB08B2371C552009E068C /* PBXTargetDependency */,
 			);
 			name = test7;
 			productName = test1;
@@ -1145,7 +1171,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				D9A9D4602374EA5A00E91CB8 /* PBXTargetDependency */,
 			);
 			name = test8;
 			productName = test1;
@@ -1163,7 +1188,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				D9A9D4632374EA5E00E91CB8 /* PBXTargetDependency */,
 			);
 			name = test9;
 			productName = test1;
@@ -1181,7 +1205,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				D9A9D4662374EA6200E91CB8 /* PBXTargetDependency */,
 			);
 			name = test10;
 			productName = test1;
@@ -1199,7 +1222,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				D9A9D4692374EA6500E91CB8 /* PBXTargetDependency */,
 			);
 			name = test11;
 			productName = test1;
@@ -1217,7 +1239,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				D9A9D46C2374EA6900E91CB8 /* PBXTargetDependency */,
 			);
 			name = test12;
 			productName = test1;
@@ -1235,7 +1256,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				D9A9D46F2374EA6E00E91CB8 /* PBXTargetDependency */,
 			);
 			name = test13;
 			productName = test1;
@@ -1253,7 +1273,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				D9A9D4722374EA7100E91CB8 /* PBXTargetDependency */,
 			);
 			name = test14;
 			productName = test1;
@@ -1271,7 +1290,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				D9A9D4752374EA7500E91CB8 /* PBXTargetDependency */,
 			);
 			name = test15;
 			productName = test1;
@@ -1289,7 +1307,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				D9A9D4782374EA7900E91CB8 /* PBXTargetDependency */,
 			);
 			name = Simplex1;
 			productName = test1;
@@ -1307,7 +1324,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				D9A9D47B2374EA7D00E91CB8 /* PBXTargetDependency */,
 			);
 			name = Simplex2;
 			productName = test1;
@@ -1325,7 +1341,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				D9A9D47E2374EA8000E91CB8 /* PBXTargetDependency */,
 			);
 			name = Simplex3;
 			productName = test1;
@@ -1343,7 +1358,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				D9A9D4812374EA8500E91CB8 /* PBXTargetDependency */,
 			);
 			name = Simplex4;
 			productName = test1;
@@ -1356,19 +1370,16 @@
 		D94CEC002371B4F5001067BF /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 1130;
+				LastUpgradeCheck = 1200;
 				ORGANIZATIONNAME = "Enrico Bertolazzi";
 				TargetAttributes = {
-					D94CEC152371B541001067BF = {
-						CreatedOnToolsVersion = 11.2;
-					};
 					D94CEC8D2371B68B001067BF = {
 						CreatedOnToolsVersion = 11.2;
 					};
 				};
 			};
 			buildConfigurationList = D94CEC032371B4F5001067BF /* Build configuration list for PBXProject "Alglin" */;
-			compatibilityVersion = "Xcode 9.3";
+			compatibilityVersion = "Xcode 12.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -1380,7 +1391,6 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				D94CEC152371B541001067BF /* Alglin */,
 				D94CECCB2371B8C5001067BF /* test0 */,
 				D94CEC8D2371B68B001067BF /* test1 */,
 				D94CECBC2371B87C001067BF /* test2 */,
@@ -1406,31 +1416,24 @@
 /* End PBXProject section */
 
 /* Begin PBXSourcesBuildPhase section */
-		D94CEC132371B541001067BF /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				D94CEC532371B551001067BF /* BABD_SuperLU.cc in Sources */,
-				D94CEC482371B551001067BF /* BABD_C_interface.cc in Sources */,
-				D94CEC432371B551001067BF /* BABD.cc in Sources */,
-				D94CEC4C2371B551001067BF /* Simplex.cc in Sources */,
-				D94CEC472371B551001067BF /* BABD_Block.cc in Sources */,
-				D94CEC442371B551001067BF /* BABD_F90_interface.inc in Sources */,
-				D94CEC502371B551001067BF /* KKT_like.cc in Sources */,
-				D94CEC3F2371B551001067BF /* BABD_BorderedCR.cc in Sources */,
-				D94CEC4A2371B551001067BF /* ABD_Diaz.cc in Sources */,
-				D94CEC3E2371B551001067BF /* BlockBidiagonal.cc in Sources */,
-				D94CEC512371B551001067BF /* Alglin_aux.cc in Sources */,
-				D94CEC492371B551001067BF /* ABD_Arceco.cc in Sources */,
-				D94CEC4D2371B551001067BF /* ABD_Block.cc in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		D94CEC8A2371B68B001067BF /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D97FE8262576F2A400BED58B /* BABD.cc in Sources */,
+				D97FE89E2576F2A400BED58B /* ABD_Diaz.cc in Sources */,
+				D97FE8F32576F2A400BED58B /* Alglin_aux.cc in Sources */,
+				D97FE8B42576F2A400BED58B /* Simplex.cc in Sources */,
 				D94CECAC2371B6F1001067BF /* test1-small-factorization.cc in Sources */,
+				D97FE85F2576F2A400BED58B /* BABD_Block.cc in Sources */,
+				D97FE8DE2576F2A400BED58B /* KKT_like.cc in Sources */,
+				D97FE9082576F2A500BED58B /* BABD_SuperLU.cc in Sources */,
+				D97FE8102576F2A400BED58B /* BABD_BorderedCR.cc in Sources */,
+				D97FE8892576F2A400BED58B /* ABD_Arceco.cc in Sources */,
+				D97FE83B2576F2A400BED58B /* BABD_F90_interface.inc in Sources */,
+				D97FE8C92576F2A400BED58B /* ABD_Block.cc in Sources */,
+				D97FE8742576F2A400BED58B /* BABD_C_interface.cc in Sources */,
+				D97FE7FB2576F2A400BED58B /* BlockBidiagonal.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1438,7 +1441,20 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D97FE8272576F2A400BED58B /* BABD.cc in Sources */,
+				D97FE89F2576F2A400BED58B /* ABD_Diaz.cc in Sources */,
+				D97FE8F42576F2A400BED58B /* Alglin_aux.cc in Sources */,
+				D97FE8B52576F2A400BED58B /* Simplex.cc in Sources */,
 				D94CECCA2371B88F001067BF /* test2-Threads.cc in Sources */,
+				D97FE8602576F2A400BED58B /* BABD_Block.cc in Sources */,
+				D97FE8DF2576F2A400BED58B /* KKT_like.cc in Sources */,
+				D97FE9092576F2A500BED58B /* BABD_SuperLU.cc in Sources */,
+				D97FE8112576F2A400BED58B /* BABD_BorderedCR.cc in Sources */,
+				D97FE88A2576F2A400BED58B /* ABD_Arceco.cc in Sources */,
+				D97FE83C2576F2A400BED58B /* BABD_F90_interface.inc in Sources */,
+				D97FE8CA2576F2A400BED58B /* ABD_Block.cc in Sources */,
+				D97FE8752576F2A400BED58B /* BABD_C_interface.cc in Sources */,
+				D97FE7FC2576F2A400BED58B /* BlockBidiagonal.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1446,7 +1462,20 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D97FE8252576F2A400BED58B /* BABD.cc in Sources */,
+				D97FE89D2576F2A400BED58B /* ABD_Diaz.cc in Sources */,
+				D97FE8F22576F2A400BED58B /* Alglin_aux.cc in Sources */,
+				D97FE8B32576F2A400BED58B /* Simplex.cc in Sources */,
 				D94CED8F2371B94A001067BF /* test0-FD.cc in Sources */,
+				D97FE85E2576F2A400BED58B /* BABD_Block.cc in Sources */,
+				D97FE8DD2576F2A400BED58B /* KKT_like.cc in Sources */,
+				D97FE9072576F2A500BED58B /* BABD_SuperLU.cc in Sources */,
+				D97FE80F2576F2A400BED58B /* BABD_BorderedCR.cc in Sources */,
+				D97FE8882576F2A400BED58B /* ABD_Arceco.cc in Sources */,
+				D97FE83A2576F2A400BED58B /* BABD_F90_interface.inc in Sources */,
+				D97FE8C82576F2A400BED58B /* ABD_Block.cc in Sources */,
+				D97FE8732576F2A400BED58B /* BABD_C_interface.cc in Sources */,
+				D97FE7FA2576F2A400BED58B /* BlockBidiagonal.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1454,7 +1483,20 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D97FE8282576F2A400BED58B /* BABD.cc in Sources */,
+				D97FE8A02576F2A400BED58B /* ABD_Diaz.cc in Sources */,
+				D97FE8F52576F2A400BED58B /* Alglin_aux.cc in Sources */,
+				D97FE8B62576F2A400BED58B /* Simplex.cc in Sources */,
 				D94CED902371B95C001067BF /* test3-Timing.cc in Sources */,
+				D97FE8612576F2A400BED58B /* BABD_Block.cc in Sources */,
+				D97FE8E02576F2A400BED58B /* KKT_like.cc in Sources */,
+				D97FE90A2576F2A500BED58B /* BABD_SuperLU.cc in Sources */,
+				D97FE8122576F2A400BED58B /* BABD_BorderedCR.cc in Sources */,
+				D97FE88B2576F2A400BED58B /* ABD_Arceco.cc in Sources */,
+				D97FE83D2576F2A400BED58B /* BABD_F90_interface.inc in Sources */,
+				D97FE8CB2576F2A400BED58B /* ABD_Block.cc in Sources */,
+				D97FE8762576F2A400BED58B /* BABD_C_interface.cc in Sources */,
+				D97FE7FD2576F2A400BED58B /* BlockBidiagonal.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1462,7 +1504,20 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D97FE8292576F2A400BED58B /* BABD.cc in Sources */,
+				D97FE8A12576F2A400BED58B /* ABD_Diaz.cc in Sources */,
+				D97FE8F62576F2A400BED58B /* Alglin_aux.cc in Sources */,
+				D97FE8B72576F2A400BED58B /* Simplex.cc in Sources */,
 				D94CED912371B95F001067BF /* test4-KKT.cc in Sources */,
+				D97FE8622576F2A400BED58B /* BABD_Block.cc in Sources */,
+				D97FE8E12576F2A400BED58B /* KKT_like.cc in Sources */,
+				D97FE90B2576F2A500BED58B /* BABD_SuperLU.cc in Sources */,
+				D97FE8132576F2A400BED58B /* BABD_BorderedCR.cc in Sources */,
+				D97FE88C2576F2A400BED58B /* ABD_Arceco.cc in Sources */,
+				D97FE83E2576F2A400BED58B /* BABD_F90_interface.inc in Sources */,
+				D97FE8CC2576F2A400BED58B /* ABD_Block.cc in Sources */,
+				D97FE8772576F2A400BED58B /* BABD_C_interface.cc in Sources */,
+				D97FE7FE2576F2A400BED58B /* BlockBidiagonal.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1470,7 +1525,20 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D97FE82A2576F2A400BED58B /* BABD.cc in Sources */,
+				D97FE8A22576F2A400BED58B /* ABD_Diaz.cc in Sources */,
+				D97FE8F72576F2A400BED58B /* Alglin_aux.cc in Sources */,
+				D97FE8B82576F2A400BED58B /* Simplex.cc in Sources */,
 				D94CED922371B962001067BF /* test5-ABD-Diaz.cc in Sources */,
+				D97FE8632576F2A400BED58B /* BABD_Block.cc in Sources */,
+				D97FE8E22576F2A400BED58B /* KKT_like.cc in Sources */,
+				D97FE90C2576F2A500BED58B /* BABD_SuperLU.cc in Sources */,
+				D97FE8142576F2A400BED58B /* BABD_BorderedCR.cc in Sources */,
+				D97FE88D2576F2A400BED58B /* ABD_Arceco.cc in Sources */,
+				D97FE83F2576F2A400BED58B /* BABD_F90_interface.inc in Sources */,
+				D97FE8CD2576F2A400BED58B /* ABD_Block.cc in Sources */,
+				D97FE8782576F2A400BED58B /* BABD_C_interface.cc in Sources */,
+				D97FE7FF2576F2A400BED58B /* BlockBidiagonal.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1478,7 +1546,20 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D97FE82B2576F2A400BED58B /* BABD.cc in Sources */,
+				D97FE8A32576F2A400BED58B /* ABD_Diaz.cc in Sources */,
+				D97FE8F82576F2A400BED58B /* Alglin_aux.cc in Sources */,
+				D97FE8B92576F2A400BED58B /* Simplex.cc in Sources */,
 				D94CED932371B965001067BF /* test6-ABD-Block.cc in Sources */,
+				D97FE8642576F2A400BED58B /* BABD_Block.cc in Sources */,
+				D97FE8E32576F2A400BED58B /* KKT_like.cc in Sources */,
+				D97FE90D2576F2A500BED58B /* BABD_SuperLU.cc in Sources */,
+				D97FE8152576F2A400BED58B /* BABD_BorderedCR.cc in Sources */,
+				D97FE88E2576F2A400BED58B /* ABD_Arceco.cc in Sources */,
+				D97FE8402576F2A400BED58B /* BABD_F90_interface.inc in Sources */,
+				D97FE8CE2576F2A400BED58B /* ABD_Block.cc in Sources */,
+				D97FE8792576F2A400BED58B /* BABD_C_interface.cc in Sources */,
+				D97FE8002576F2A400BED58B /* BlockBidiagonal.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1486,7 +1567,20 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D97FE82C2576F2A400BED58B /* BABD.cc in Sources */,
+				D97FE8A42576F2A400BED58B /* ABD_Diaz.cc in Sources */,
+				D97FE8F92576F2A400BED58B /* Alglin_aux.cc in Sources */,
+				D97FE8BA2576F2A400BED58B /* Simplex.cc in Sources */,
 				D94CED942371B968001067BF /* test7-BorderedCR.cc in Sources */,
+				D97FE8652576F2A400BED58B /* BABD_Block.cc in Sources */,
+				D97FE8E42576F2A400BED58B /* KKT_like.cc in Sources */,
+				D97FE90E2576F2A500BED58B /* BABD_SuperLU.cc in Sources */,
+				D97FE8162576F2A400BED58B /* BABD_BorderedCR.cc in Sources */,
+				D97FE88F2576F2A400BED58B /* ABD_Arceco.cc in Sources */,
+				D97FE8412576F2A400BED58B /* BABD_F90_interface.inc in Sources */,
+				D97FE8CF2576F2A400BED58B /* ABD_Block.cc in Sources */,
+				D97FE87A2576F2A400BED58B /* BABD_C_interface.cc in Sources */,
+				D97FE8012576F2A400BED58B /* BlockBidiagonal.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1494,7 +1588,20 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D97FE82D2576F2A400BED58B /* BABD.cc in Sources */,
+				D97FE8A52576F2A400BED58B /* ABD_Diaz.cc in Sources */,
+				D97FE8FA2576F2A400BED58B /* Alglin_aux.cc in Sources */,
+				D97FE8BB2576F2A400BED58B /* Simplex.cc in Sources */,
 				D94CED952371B96B001067BF /* test8-Cinterface.c in Sources */,
+				D97FE8662576F2A400BED58B /* BABD_Block.cc in Sources */,
+				D97FE8E52576F2A400BED58B /* KKT_like.cc in Sources */,
+				D97FE90F2576F2A500BED58B /* BABD_SuperLU.cc in Sources */,
+				D97FE8172576F2A400BED58B /* BABD_BorderedCR.cc in Sources */,
+				D97FE8902576F2A400BED58B /* ABD_Arceco.cc in Sources */,
+				D97FE8422576F2A400BED58B /* BABD_F90_interface.inc in Sources */,
+				D97FE8D02576F2A400BED58B /* ABD_Block.cc in Sources */,
+				D97FE87B2576F2A400BED58B /* BABD_C_interface.cc in Sources */,
+				D97FE8022576F2A400BED58B /* BlockBidiagonal.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1502,7 +1609,20 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D97FE82E2576F2A400BED58B /* BABD.cc in Sources */,
+				D97FE8A62576F2A400BED58B /* ABD_Diaz.cc in Sources */,
+				D97FE8FB2576F2A400BED58B /* Alglin_aux.cc in Sources */,
+				D97FE8BC2576F2A400BED58B /* Simplex.cc in Sources */,
 				D94CED962371B96E001067BF /* test9-Cinterface.c in Sources */,
+				D97FE8672576F2A400BED58B /* BABD_Block.cc in Sources */,
+				D97FE8E62576F2A400BED58B /* KKT_like.cc in Sources */,
+				D97FE9102576F2A500BED58B /* BABD_SuperLU.cc in Sources */,
+				D97FE8182576F2A400BED58B /* BABD_BorderedCR.cc in Sources */,
+				D97FE8912576F2A400BED58B /* ABD_Arceco.cc in Sources */,
+				D97FE8432576F2A400BED58B /* BABD_F90_interface.inc in Sources */,
+				D97FE8D12576F2A400BED58B /* ABD_Block.cc in Sources */,
+				D97FE87C2576F2A400BED58B /* BABD_C_interface.cc in Sources */,
+				D97FE8032576F2A400BED58B /* BlockBidiagonal.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1510,6 +1630,19 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D97FE9112576F2A500BED58B /* BABD_SuperLU.cc in Sources */,
+				D97FE87D2576F2A400BED58B /* BABD_C_interface.cc in Sources */,
+				D97FE82F2576F2A400BED58B /* BABD.cc in Sources */,
+				D97FE8BD2576F2A400BED58B /* Simplex.cc in Sources */,
+				D97FE8682576F2A400BED58B /* BABD_Block.cc in Sources */,
+				D97FE8442576F2A400BED58B /* BABD_F90_interface.inc in Sources */,
+				D97FE8E72576F2A400BED58B /* KKT_like.cc in Sources */,
+				D97FE8192576F2A400BED58B /* BABD_BorderedCR.cc in Sources */,
+				D97FE8A72576F2A400BED58B /* ABD_Diaz.cc in Sources */,
+				D97FE8042576F2A400BED58B /* BlockBidiagonal.cc in Sources */,
+				D97FE8FC2576F2A500BED58B /* Alglin_aux.cc in Sources */,
+				D97FE8922576F2A400BED58B /* ABD_Arceco.cc in Sources */,
+				D97FE8D22576F2A400BED58B /* ABD_Block.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1517,6 +1650,19 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D97FE9122576F2A500BED58B /* BABD_SuperLU.cc in Sources */,
+				D97FE87E2576F2A400BED58B /* BABD_C_interface.cc in Sources */,
+				D97FE8302576F2A400BED58B /* BABD.cc in Sources */,
+				D97FE8BE2576F2A400BED58B /* Simplex.cc in Sources */,
+				D97FE8692576F2A400BED58B /* BABD_Block.cc in Sources */,
+				D97FE8452576F2A400BED58B /* BABD_F90_interface.inc in Sources */,
+				D97FE8E82576F2A400BED58B /* KKT_like.cc in Sources */,
+				D97FE81A2576F2A400BED58B /* BABD_BorderedCR.cc in Sources */,
+				D97FE8A82576F2A400BED58B /* ABD_Diaz.cc in Sources */,
+				D97FE8052576F2A400BED58B /* BlockBidiagonal.cc in Sources */,
+				D97FE8FD2576F2A500BED58B /* Alglin_aux.cc in Sources */,
+				D97FE8932576F2A400BED58B /* ABD_Arceco.cc in Sources */,
+				D97FE8D32576F2A400BED58B /* ABD_Block.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1524,7 +1670,20 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D97FE8312576F2A400BED58B /* BABD.cc in Sources */,
+				D97FE8A92576F2A400BED58B /* ABD_Diaz.cc in Sources */,
+				D97FE8FE2576F2A500BED58B /* Alglin_aux.cc in Sources */,
+				D97FE8BF2576F2A400BED58B /* Simplex.cc in Sources */,
 				D94CED972371B975001067BF /* test12-BandedMatrix.cc in Sources */,
+				D97FE86A2576F2A400BED58B /* BABD_Block.cc in Sources */,
+				D97FE8E92576F2A400BED58B /* KKT_like.cc in Sources */,
+				D97FE9132576F2A500BED58B /* BABD_SuperLU.cc in Sources */,
+				D97FE81B2576F2A400BED58B /* BABD_BorderedCR.cc in Sources */,
+				D97FE8942576F2A400BED58B /* ABD_Arceco.cc in Sources */,
+				D97FE8462576F2A400BED58B /* BABD_F90_interface.inc in Sources */,
+				D97FE8D42576F2A400BED58B /* ABD_Block.cc in Sources */,
+				D97FE87F2576F2A400BED58B /* BABD_C_interface.cc in Sources */,
+				D97FE8062576F2A400BED58B /* BlockBidiagonal.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1532,7 +1691,20 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D97FE8322576F2A400BED58B /* BABD.cc in Sources */,
+				D97FE8AA2576F2A400BED58B /* ABD_Diaz.cc in Sources */,
+				D97FE8FF2576F2A500BED58B /* Alglin_aux.cc in Sources */,
+				D97FE8C02576F2A400BED58B /* Simplex.cc in Sources */,
 				D94CED982371B977001067BF /* test13-BFGS.cc in Sources */,
+				D97FE86B2576F2A400BED58B /* BABD_Block.cc in Sources */,
+				D97FE8EA2576F2A400BED58B /* KKT_like.cc in Sources */,
+				D97FE9142576F2A500BED58B /* BABD_SuperLU.cc in Sources */,
+				D97FE81C2576F2A400BED58B /* BABD_BorderedCR.cc in Sources */,
+				D97FE8952576F2A400BED58B /* ABD_Arceco.cc in Sources */,
+				D97FE8472576F2A400BED58B /* BABD_F90_interface.inc in Sources */,
+				D97FE8D52576F2A400BED58B /* ABD_Block.cc in Sources */,
+				D97FE8802576F2A400BED58B /* BABD_C_interface.cc in Sources */,
+				D97FE8072576F2A400BED58B /* BlockBidiagonal.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1540,7 +1712,20 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D97FE8332576F2A400BED58B /* BABD.cc in Sources */,
+				D97FE8AB2576F2A400BED58B /* ABD_Diaz.cc in Sources */,
+				D97FE9002576F2A500BED58B /* Alglin_aux.cc in Sources */,
+				D97FE8C12576F2A400BED58B /* Simplex.cc in Sources */,
 				D94CED992371B97B001067BF /* test14-BLOCKTRID.cc in Sources */,
+				D97FE86C2576F2A400BED58B /* BABD_Block.cc in Sources */,
+				D97FE8EB2576F2A400BED58B /* KKT_like.cc in Sources */,
+				D97FE9152576F2A500BED58B /* BABD_SuperLU.cc in Sources */,
+				D97FE81D2576F2A400BED58B /* BABD_BorderedCR.cc in Sources */,
+				D97FE8962576F2A400BED58B /* ABD_Arceco.cc in Sources */,
+				D97FE8482576F2A400BED58B /* BABD_F90_interface.inc in Sources */,
+				D97FE8D62576F2A400BED58B /* ABD_Block.cc in Sources */,
+				D97FE8812576F2A400BED58B /* BABD_C_interface.cc in Sources */,
+				D97FE8082576F2A400BED58B /* BlockBidiagonal.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1548,7 +1733,20 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D97FE8342576F2A400BED58B /* BABD.cc in Sources */,
+				D97FE8AC2576F2A400BED58B /* ABD_Diaz.cc in Sources */,
+				D97FE9012576F2A500BED58B /* Alglin_aux.cc in Sources */,
+				D97FE8C22576F2A400BED58B /* Simplex.cc in Sources */,
 				D94CED9A2371B97D001067BF /* test15-EIGS.cc in Sources */,
+				D97FE86D2576F2A400BED58B /* BABD_Block.cc in Sources */,
+				D97FE8EC2576F2A400BED58B /* KKT_like.cc in Sources */,
+				D97FE9162576F2A500BED58B /* BABD_SuperLU.cc in Sources */,
+				D97FE81E2576F2A400BED58B /* BABD_BorderedCR.cc in Sources */,
+				D97FE8972576F2A400BED58B /* ABD_Arceco.cc in Sources */,
+				D97FE8492576F2A400BED58B /* BABD_F90_interface.inc in Sources */,
+				D97FE8D72576F2A400BED58B /* ABD_Block.cc in Sources */,
+				D97FE8822576F2A400BED58B /* BABD_C_interface.cc in Sources */,
+				D97FE8092576F2A400BED58B /* BlockBidiagonal.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1556,7 +1754,20 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D97FE8352576F2A400BED58B /* BABD.cc in Sources */,
+				D97FE8AD2576F2A400BED58B /* ABD_Diaz.cc in Sources */,
+				D97FE9022576F2A500BED58B /* Alglin_aux.cc in Sources */,
+				D97FE8C32576F2A400BED58B /* Simplex.cc in Sources */,
 				D94CEDD32371B9B2001067BF /* Simplex-Test1.cc in Sources */,
+				D97FE86E2576F2A400BED58B /* BABD_Block.cc in Sources */,
+				D97FE8ED2576F2A400BED58B /* KKT_like.cc in Sources */,
+				D97FE9172576F2A500BED58B /* BABD_SuperLU.cc in Sources */,
+				D97FE81F2576F2A400BED58B /* BABD_BorderedCR.cc in Sources */,
+				D97FE8982576F2A400BED58B /* ABD_Arceco.cc in Sources */,
+				D97FE84A2576F2A400BED58B /* BABD_F90_interface.inc in Sources */,
+				D97FE8D82576F2A400BED58B /* ABD_Block.cc in Sources */,
+				D97FE8832576F2A400BED58B /* BABD_C_interface.cc in Sources */,
+				D97FE80A2576F2A400BED58B /* BlockBidiagonal.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1564,7 +1775,20 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D97FE8362576F2A400BED58B /* BABD.cc in Sources */,
+				D97FE8AE2576F2A400BED58B /* ABD_Diaz.cc in Sources */,
+				D97FE9032576F2A500BED58B /* Alglin_aux.cc in Sources */,
+				D97FE8C42576F2A400BED58B /* Simplex.cc in Sources */,
 				D94CEDD42371B9BA001067BF /* Simplex-Test2.cc in Sources */,
+				D97FE86F2576F2A400BED58B /* BABD_Block.cc in Sources */,
+				D97FE8EE2576F2A400BED58B /* KKT_like.cc in Sources */,
+				D97FE9182576F2A500BED58B /* BABD_SuperLU.cc in Sources */,
+				D97FE8202576F2A400BED58B /* BABD_BorderedCR.cc in Sources */,
+				D97FE8992576F2A400BED58B /* ABD_Arceco.cc in Sources */,
+				D97FE84B2576F2A400BED58B /* BABD_F90_interface.inc in Sources */,
+				D97FE8D92576F2A400BED58B /* ABD_Block.cc in Sources */,
+				D97FE8842576F2A400BED58B /* BABD_C_interface.cc in Sources */,
+				D97FE80B2576F2A400BED58B /* BlockBidiagonal.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1572,7 +1796,20 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D97FE8372576F2A400BED58B /* BABD.cc in Sources */,
+				D97FE8AF2576F2A400BED58B /* ABD_Diaz.cc in Sources */,
+				D97FE9042576F2A500BED58B /* Alglin_aux.cc in Sources */,
+				D97FE8C52576F2A400BED58B /* Simplex.cc in Sources */,
 				D94CEDD52371B9BC001067BF /* Simplex-Test3.cc in Sources */,
+				D97FE8702576F2A400BED58B /* BABD_Block.cc in Sources */,
+				D97FE8EF2576F2A400BED58B /* KKT_like.cc in Sources */,
+				D97FE9192576F2A500BED58B /* BABD_SuperLU.cc in Sources */,
+				D97FE8212576F2A400BED58B /* BABD_BorderedCR.cc in Sources */,
+				D97FE89A2576F2A400BED58B /* ABD_Arceco.cc in Sources */,
+				D97FE84C2576F2A400BED58B /* BABD_F90_interface.inc in Sources */,
+				D97FE8DA2576F2A400BED58B /* ABD_Block.cc in Sources */,
+				D97FE8852576F2A400BED58B /* BABD_C_interface.cc in Sources */,
+				D97FE80C2576F2A400BED58B /* BlockBidiagonal.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1580,99 +1817,24 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D97FE8382576F2A400BED58B /* BABD.cc in Sources */,
+				D97FE8B02576F2A400BED58B /* ABD_Diaz.cc in Sources */,
+				D97FE9052576F2A500BED58B /* Alglin_aux.cc in Sources */,
+				D97FE8C62576F2A400BED58B /* Simplex.cc in Sources */,
 				D94CEDD62371B9BF001067BF /* Simplex-Test4.cc in Sources */,
+				D97FE8712576F2A400BED58B /* BABD_Block.cc in Sources */,
+				D97FE8F02576F2A400BED58B /* KKT_like.cc in Sources */,
+				D97FE91A2576F2A500BED58B /* BABD_SuperLU.cc in Sources */,
+				D97FE8222576F2A400BED58B /* BABD_BorderedCR.cc in Sources */,
+				D97FE89B2576F2A400BED58B /* ABD_Arceco.cc in Sources */,
+				D97FE84D2576F2A400BED58B /* BABD_F90_interface.inc in Sources */,
+				D97FE8DB2576F2A400BED58B /* ABD_Block.cc in Sources */,
+				D97FE8862576F2A400BED58B /* BABD_C_interface.cc in Sources */,
+				D97FE80D2576F2A400BED58B /* BlockBidiagonal.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
-
-/* Begin PBXTargetDependency section */
-		D91BB08B2371C552009E068C /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = D94CEC152371B541001067BF /* Alglin */;
-			targetProxy = D91BB08A2371C552009E068C /* PBXContainerItemProxy */;
-		};
-		D9A9D4542374EA1B00E91CB8 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = D94CEC152371B541001067BF /* Alglin */;
-			targetProxy = D9A9D4532374EA1B00E91CB8 /* PBXContainerItemProxy */;
-		};
-		D9A9D4572374EA4B00E91CB8 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = D94CEC152371B541001067BF /* Alglin */;
-			targetProxy = D9A9D4562374EA4B00E91CB8 /* PBXContainerItemProxy */;
-		};
-		D9A9D45A2374EA4F00E91CB8 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = D94CEC152371B541001067BF /* Alglin */;
-			targetProxy = D9A9D4592374EA4F00E91CB8 /* PBXContainerItemProxy */;
-		};
-		D9A9D45D2374EA5200E91CB8 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = D94CEC152371B541001067BF /* Alglin */;
-			targetProxy = D9A9D45C2374EA5200E91CB8 /* PBXContainerItemProxy */;
-		};
-		D9A9D4602374EA5A00E91CB8 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = D94CEC152371B541001067BF /* Alglin */;
-			targetProxy = D9A9D45F2374EA5A00E91CB8 /* PBXContainerItemProxy */;
-		};
-		D9A9D4632374EA5E00E91CB8 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = D94CEC152371B541001067BF /* Alglin */;
-			targetProxy = D9A9D4622374EA5E00E91CB8 /* PBXContainerItemProxy */;
-		};
-		D9A9D4662374EA6200E91CB8 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = D94CEC152371B541001067BF /* Alglin */;
-			targetProxy = D9A9D4652374EA6200E91CB8 /* PBXContainerItemProxy */;
-		};
-		D9A9D4692374EA6500E91CB8 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = D94CEC152371B541001067BF /* Alglin */;
-			targetProxy = D9A9D4682374EA6500E91CB8 /* PBXContainerItemProxy */;
-		};
-		D9A9D46C2374EA6900E91CB8 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = D94CEC152371B541001067BF /* Alglin */;
-			targetProxy = D9A9D46B2374EA6900E91CB8 /* PBXContainerItemProxy */;
-		};
-		D9A9D46F2374EA6E00E91CB8 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = D94CEC152371B541001067BF /* Alglin */;
-			targetProxy = D9A9D46E2374EA6E00E91CB8 /* PBXContainerItemProxy */;
-		};
-		D9A9D4722374EA7100E91CB8 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = D94CEC152371B541001067BF /* Alglin */;
-			targetProxy = D9A9D4712374EA7100E91CB8 /* PBXContainerItemProxy */;
-		};
-		D9A9D4752374EA7500E91CB8 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = D94CEC152371B541001067BF /* Alglin */;
-			targetProxy = D9A9D4742374EA7500E91CB8 /* PBXContainerItemProxy */;
-		};
-		D9A9D4782374EA7900E91CB8 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = D94CEC152371B541001067BF /* Alglin */;
-			targetProxy = D9A9D4772374EA7900E91CB8 /* PBXContainerItemProxy */;
-		};
-		D9A9D47B2374EA7D00E91CB8 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = D94CEC152371B541001067BF /* Alglin */;
-			targetProxy = D9A9D47A2374EA7D00E91CB8 /* PBXContainerItemProxy */;
-		};
-		D9A9D47E2374EA8000E91CB8 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = D94CEC152371B541001067BF /* Alglin */;
-			targetProxy = D9A9D47D2374EA8000E91CB8 /* PBXContainerItemProxy */;
-		};
-		D9A9D4812374EA8500E91CB8 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = D94CEC152371B541001067BF /* Alglin */;
-			targetProxy = D9A9D4802374EA8500E91CB8 /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		D94CEC0D2371B4F5001067BF /* Debug */ = {
@@ -1702,6 +1864,7 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -1727,8 +1890,16 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = $SOURCE_ROOT/../lib3rd/include;
-				LIBRARY_SEARCH_PATHS = $SOURCE_ROOT/../lib3rd/lib;
+				HEADER_SEARCH_PATHS = (
+					$SOURCE_ROOT/../lib3rd/include,
+					$SOURCE_ROOT/../src,
+					$SOURCE_ROOT/../submodules/LapackWrapper/submodules/Utils/src,
+					$SOURCE_ROOT/../submodules/LapackWrapper/submodules/Utils/src/Utils,
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$SOURCE_ROOT/../lib3rd/lib/**",
+					"$SOURCE_ROOT/../lib/lib/**",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -1764,6 +1935,7 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -1783,38 +1955,20 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = $SOURCE_ROOT/../lib3rd/include;
-				LIBRARY_SEARCH_PATHS = $SOURCE_ROOT/../lib3rd/lib;
+				HEADER_SEARCH_PATHS = (
+					$SOURCE_ROOT/../lib3rd/include,
+					$SOURCE_ROOT/../src,
+					$SOURCE_ROOT/../submodules/LapackWrapper/submodules/Utils/src,
+					$SOURCE_ROOT/../submodules/LapackWrapper/submodules/Utils/src/Utils,
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$SOURCE_ROOT/../lib3rd/lib/**",
+					"$SOURCE_ROOT/../lib/lib/**",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = macosx;
-			};
-			name = Release;
-		};
-		D94CEC182371B541001067BF /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
-				CODE_SIGN_STYLE = Automatic;
-				EXECUTABLE_PREFIX = lib;
-				HEADER_SEARCH_PATHS = $SOURCE_ROOT/../lib3rd/include;
-				LIBRARY_SEARCH_PATHS = $SOURCE_ROOT/../lib3rd/dll;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SKIP_INSTALL = YES;
-			};
-			name = Debug;
-		};
-		D94CEC192371B541001067BF /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
-				CODE_SIGN_STYLE = Automatic;
-				EXECUTABLE_PREFIX = lib;
-				HEADER_SEARCH_PATHS = $SOURCE_ROOT/../lib3rd/include;
-				LIBRARY_SEARCH_PATHS = $SOURCE_ROOT/../lib3rd/dll;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SKIP_INSTALL = YES;
 			};
 			name = Release;
 		};
@@ -2229,15 +2383,6 @@
 			buildConfigurations = (
 				D94CEC0D2371B4F5001067BF /* Debug */,
 				D94CEC0E2371B4F5001067BF /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		D94CEC172371B541001067BF /* Build configuration list for PBXNativeTarget "Alglin" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				D94CEC182371B541001067BF /* Debug */,
-				D94CEC192371B541001067BF /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

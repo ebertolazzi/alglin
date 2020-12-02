@@ -234,6 +234,7 @@ test4() {
   lapack_wrapper::SVD<valueType>  svd;
   lapack_wrapper::LSS<valueType>  lss;
   lapack_wrapper::LSY<valueType>  lsy;
+  lapack_wrapper::PINV<valueType> pinv;
 
   integer const M   = 5;
   integer const LDA = 5;
@@ -265,6 +266,7 @@ test4() {
   TEST4("SVD",svd);
   TEST4("LSS",lss);
   TEST4("LSY",lsy);
+  TEST4("PINV",pinv);
 
   cout << "done test4\n";
 }
@@ -297,6 +299,7 @@ test5() {
   lapack_wrapper::SVD<valueType>  svd;
   lapack_wrapper::LSS<valueType>  lss;
   lapack_wrapper::LSY<valueType>  lsy;
+  lapack_wrapper::PINV<valueType> pinv;
 
   integer const M   = 5;
   integer const LDA = 5;
@@ -328,6 +331,7 @@ test5() {
   TEST5("SVD",svd);
   TEST5("LSS",lss);
   TEST5("LSY",lsy);
+  TEST5("PINV",pinv);
 
   cout << "\ndone test5\n";
 }

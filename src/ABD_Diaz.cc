@@ -73,8 +73,8 @@ namespace alglin {
   ) {
 
     integer ierr;
-    if ( 2*NB < nrA ) ierr = getry( nrA, ncA, A, ldA, swapR, NB );
-    else              ierr = gty( nrA, ncA, A, ldA, swapR );
+    if ( 2*m_NB < nrA ) ierr = getry( nrA, ncA, A, ldA, swapR, m_NB );
+    else                ierr = gty( nrA, ncA, A, ldA, swapR );
 
     UTILS_ASSERT( ierr == 0, "DiazLU::LU_left_right, found ierr: {}\n", ierr );
     // applico permutazione al blocco
@@ -128,8 +128,8 @@ namespace alglin {
   ) {
 
     integer ierr;
-    if ( 2*NB < ncA ) ierr = getrx( nrA, ncA, A, ldA, swapC, NB );
-    else              ierr = gtx( nrA, ncA, A, ldA, swapC );
+    if ( 2*m_NB < ncA ) ierr = getrx( nrA, ncA, A, ldA, swapC, m_NB );
+    else                ierr = gtx( nrA, ncA, A, ldA, swapC );
 
     UTILS_ASSERT( ierr == 0, "DiazLU::LU_top_bottom, found ierr: {}\n", ierr );
     // applico permutazione al blocco
@@ -187,9 +187,9 @@ namespace alglin {
     integer const n_m_row00 = n - row00;
 
     // primo blocco
-    integer * swapRC = swapRC_blks;
+    integer * swapRC = m_swapRC_blks;
     if ( col00 > 0 ) {
-      LU_left_right( row0, col00, 0, col0-col00, this->block0, row0, swapRC );
+      LU_left_right( row0, col00, 0, col0-col00, m_block0, row0, swapRC );
       swapRC += col00;
     }
 
@@ -209,19 +209,19 @@ namespace alglin {
 
     // blocchi intermedi (n-1)
     if ( nblock > 0 ) {
-      valueType * B1 = this->block0 + (row0+1)*col00;
+      valueType * B1 = m_block0 + (row0+1)*col00;
       LU_top_bottom( col00, row00,
                      n, B1, row0,
-                     n, this->DE_blk, n, swapRC );
+                     n, m_DE_blk, n, swapRC );
       swapRC += row00;
-      valueType * D = this->DE_blk + row00 * n;
+      valueType * D = m_DE_blk + row00 * n;
       //                 NR          NC            L       R
       LU_left_right( n, n_m_row00, row00, n, D, n, swapRC );
       swapRC += n_m_row00;
     }
     
-    valueType * C = this->DE_blk;
-    for ( nblk = 1; nblk < nblock; ++nblk ) {
+    valueType * C = m_DE_blk;
+    for ( m_nblk = 1; m_nblk < nblock; ++m_nblk ) {
       C += nxnx2;
       valueType * B1 = C - nxn + n_m_row00;
       LU_top_bottom(
@@ -251,28 +251,28 @@ namespace alglin {
     //          row00       colNN
     */
 
-    swapRC = swapRC_blks + ( col00 + nblock*n );
+    swapRC = m_swapRC_blks + ( col00 + nblock*n );
 
     if ( nblock == 0 ) {
-      valueType * B1 = this->block0 + (row0+1) * col00;
+      valueType * B1 = m_block0 + (row0+1) * col00;
       LU_top_bottom(
         col00, row00, n,
         B1, row0,
-        rowN, this->blockN, rowN,
+        rowN, m_blockN, rowN,
         swapRC
       );
     } else {
-      valueType * B1 = this->DE_blk + nblock * nxnx2 - nxn + n_m_row00;
+      valueType * B1 = m_DE_blk + nblock * nxnx2 - nxn + n_m_row00;
       LU_top_bottom(
         n_m_row00, row00, n,
         B1, n,
-        rowN, this->blockN, rowN,
+        rowN, m_blockN, rowN,
         swapRC
       );
     }
 
     // fattorizzazione ultimo blocco
-    valueType * D0 = this->blockN + row00 * rowN;
+    valueType * D0 = m_blockN + row00 * rowN;
     this->la_factorization->factorize(
       "DiazLU::factorize", rowN, rowN, D0, rowN
     );
@@ -312,7 +312,7 @@ namespace alglin {
     if ( do_permute ) std::rotate( in_out, in_out + neq - row0, in_out + neq );
 
     // applico permutazione alla RHS
-    integer const * swapR = swapRC_blks;
+    integer const * swapR = m_swapRC_blks;
     valueType * io = in_out;
     for ( integer k = 0; k < col00; ++k ) {
       integer k1 = swapR[k]; // 0 based
@@ -320,7 +320,7 @@ namespace alglin {
     }
     io    += row0;
     swapR += row0;
-    for ( nblk = 0; nblk < nblock; ++nblk )  {
+    for ( m_nblk = 0; m_nblk < nblock; ++m_nblk )  {
       for ( integer k = 0; k < n_m_row00; ++k ) {
         integer k1 = swapR[k]; // 0 based
         if ( k1 > k ) std::swap( io[k], io[k1] );
@@ -331,14 +331,16 @@ namespace alglin {
 
     // primo blocco
     io = in_out;
-    trsv( LOWER, NO_TRANSPOSE, UNIT,
-          row0,
-          this->block0, row0, io, 1 );
+    trsv(
+      LOWER, NO_TRANSPOSE, UNIT,
+      row0,
+      m_block0, row0, io, 1
+    );
 
     io += row0;
     // blocchi intermedi
-    nblk = 0;
-    while ( nblk < nblock ) {
+    m_nblk = 0;
+    while ( m_nblk < nblock ) {
 
       /*
       //
@@ -350,7 +352,7 @@ namespace alglin {
       */
 
       valueType * io1 = io - row00;
-      valueType * M   = this->DE_blk + nblk * nxnx2;
+      valueType * M   = m_DE_blk + m_nblk * nxnx2;
       valueType * L   = M + row00 * n;
 
       // io -= M*io1
@@ -365,7 +367,7 @@ namespace alglin {
       trsv( LOWER, NO_TRANSPOSE, UNIT, n, L, n, io, 1 );
 
       io += n;
-      ++nblk;
+      ++m_nblk;
     }
 
     // soluzione ultimo blocco
@@ -373,15 +375,15 @@ namespace alglin {
     gemv(
       NO_TRANSPOSE,
       rowN, ncol,
-      -1, this->blockN, rowN,
+      -1, m_blockN, rowN,
       io-ncol, 1,
       1, io, 1
     );
 
     this->la_factorization->solve(io);
 
-    while ( nblk > 0 ) {
-      --nblk;
+    while ( m_nblk > 0 ) {
+      --m_nblk;
       io -= n;
 
       /*
@@ -393,7 +395,7 @@ namespace alglin {
       */
 
       valueType * io1 = io + n;
-      valueType * U   = this->DE_blk + nblk * nxnx2 + row00 * n;
+      valueType * U   = m_DE_blk + m_nblk * nxnx2 + row00 * n;
       valueType * M   = U + nxn;
 
       gemv(
@@ -414,7 +416,7 @@ namespace alglin {
     gemv(
       NO_TRANSPOSE,
       row0, col0-row0,
-      -1, this->block0+row0*row0, row0,
+      -1, m_block0+row0*row0, row0,
       io+row0, 1,
       1, io, 1
     );
@@ -422,18 +424,18 @@ namespace alglin {
     trsv(
       UPPER, NO_TRANSPOSE, NON_UNIT,
       row0,
-      this->block0, row0, io, 1
+      m_block0, row0, io, 1
     );
 
     // applico permutazione alla Soluzione
-    integer const * swapC = swapRC_blks+(nblock*n+col00);
+    integer const * swapC = m_swapRC_blks+(nblock*n+col00);
     io = in_out + nblock*n + col00;
     integer k = row00;
     while ( k > 0 ) {
       integer k1 = swapC[--k]; // 0 based
       if ( k1 > k ) std::swap( io[k], io[k1] );
     }
-    for ( nblk = 0; nblk < nblock; ++nblk )  {
+    for ( m_nblk = 0; m_nblk < nblock; ++m_nblk )  {
       io    -= n;
       swapC -= n;
       k      = row00;
@@ -483,7 +485,7 @@ namespace alglin {
     }
 
     // applico permutazione alla RHS
-    integer const * swapR = swapRC_blks;
+    integer const * swapR = m_swapRC_blks;
     for ( integer k = 0; k < col00; ++k ) {
       integer k1 = swapR[k]; // 0 based
       if ( k1 > k )
@@ -491,7 +493,7 @@ namespace alglin {
     }
     io    += row0;
     swapR += row0;
-    for ( nblk = 0; nblk < nblock; ++nblk )  {
+    for ( m_nblk = 0; m_nblk < nblock; ++m_nblk )  {
       for ( integer k = 0; k < n_m_row00; ++k ) {
         integer k1 = swapR[k]; // 0 based
         if ( k1 > k )
@@ -506,14 +508,14 @@ namespace alglin {
     trsm(
       LEFT, LOWER, NO_TRANSPOSE, UNIT,
       row0, nrhs,
-      1.0, this->block0, row0,
+      1.0, m_block0, row0,
       io, ldRhs
     );
 
     io += row0;
     // blocchi intermedi
-    nblk = 0;
-    while ( nblk < nblock ) {
+    m_nblk = 0;
+    while ( m_nblk < nblock ) {
 
       /*
       //
@@ -525,7 +527,7 @@ namespace alglin {
       */
 
       valueType * io1 = io - row00;
-      valueType * M   = this->DE_blk + nblk * nxnx2;
+      valueType * M   = m_DE_blk + m_nblk * nxnx2;
       valueType * L   = M + row00 * n;
 
       // io -= M*io1
@@ -546,7 +548,7 @@ namespace alglin {
       );
 
       io += n;
-      ++nblk;
+      ++m_nblk;
     }
 
     // soluzione ultimo blocco
@@ -555,15 +557,15 @@ namespace alglin {
       NO_TRANSPOSE,
       NO_TRANSPOSE,
       rowN, nrhs, ncol,
-      -1, this->blockN, rowN,
+      -1, m_blockN, rowN,
       io-ncol, ldRhs,
       1, io, ldRhs
     );
 
     this->la_factorization->solve(nrhs,io,ldRhs);
 
-    while ( nblk > 0 ) {
-      --nblk;
+    while ( m_nblk > 0 ) {
+      --m_nblk;
       io -= n;
 
       /*
@@ -575,7 +577,7 @@ namespace alglin {
       */
 
       valueType * io1 = io + n;
-      valueType * U   = this->DE_blk + nblk * nxnx2 + row00 * n;
+      valueType * U   = m_DE_blk + m_nblk * nxnx2 + row00 * n;
       valueType * M   = U + nxn;
 
       gemm(
@@ -603,7 +605,7 @@ namespace alglin {
       NO_TRANSPOSE,
       NO_TRANSPOSE,
       row0, nrhs, col0-row0,
-      -1, this->block0+row0*row0, row0,
+      -1, m_block0+row0*row0, row0,
       io+row0, ldRhs,
       1, io, ldRhs
     );
@@ -611,12 +613,12 @@ namespace alglin {
     trsm(
       LEFT, UPPER, NO_TRANSPOSE, NON_UNIT,
       row0, nrhs,
-      1.0, this->block0, row0,
+      1.0, m_block0, row0,
       io, ldRhs
     );
 
     // applico permutazione alla Soluzione
-    integer const * swapC = swapRC_blks+(nblock*n+col00);
+    integer const * swapC = m_swapRC_blks+(nblock*n+col00);
     io = in_out + nblock*n + col00;
     integer k = row00;
     while ( k > 0 ) {
@@ -624,7 +626,7 @@ namespace alglin {
       if ( k1 > k )
         swap( nrhs, io+k, ldRhs, io+k1, ldRhs );
     }
-    for ( nblk = 0; nblk < nblock; ++nblk )  {
+    for ( m_nblk = 0; m_nblk < nblock; ++m_nblk )  {
       io    -= n;
       swapC -= n;
       k      = row00;

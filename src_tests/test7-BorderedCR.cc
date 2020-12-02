@@ -88,6 +88,7 @@ main() {
   //BCR.select_last_QRP();
   //BCR.select_last_LSS();
   //BCR.select_last_LSY();
+  //BCR.select_last_PINV();
 
   for ( int i = 0; i < (n+qr); ++i ) {
     for ( int j = 0; j < (2*n+qx+nx); ++j ) {

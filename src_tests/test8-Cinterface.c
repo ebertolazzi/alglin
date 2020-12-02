@@ -33,8 +33,8 @@ main() {
 
   ABD_intType ldTOP = 2;
   ABD_realType const TOP[] = {
-    1, 2,
-    2, 3,
+    1,  2,
+    2,  3,
     3, -1
   };
 

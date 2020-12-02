@@ -31,7 +31,9 @@ namespace alglin {
    |
   \*/
 
-  static std::map<ABD_intType,DiazLU<ABD_realType> > abd_database;
+  typedef std::map<ABD_intType,DiazLU<ABD_realType> > MAP_DIAZ;
+
+  static MAP_DIAZ *  abd_database   = new MAP_DIAZ(); // workaround da indagare
   static std::string abd_last_error = "no error";
 
   extern "C"
@@ -49,7 +51,7 @@ namespace alglin {
     ABD_realType const BOTTOM[], ABD_intType ldBOTTOM
   ) {
     try {
-      DiazLU<ABD_realType> & lu = abd_database[mat_id]; // find or create
+      DiazLU<ABD_realType> & lu = (*abd_database)[mat_id]; // find or create
       lu.allocateTopBottom( nblock, n, row0, col0, rowN, colN, 0 );
       lu.loadTopBottom( TOP, ldTOP, BOTTOM, ldBOTTOM );
       lu.loadBlocks( DE, ldDE );
@@ -70,8 +72,8 @@ namespace alglin {
   int
   ABD_solve( ABD_intType mat_id, ABD_realType rhs_sol[] ) {
     try {
-      std::map<ABD_intType,DiazLU<ABD_realType> >::const_iterator it = abd_database.find(mat_id);
-      if ( it == abd_database.end() ) {
+      MAP_DIAZ::const_iterator it = abd_database->find(mat_id);
+      if ( it == abd_database->end() ) {
         abd_last_error = "ABD_solve mat_id do not correspond to any factorization";
         return -3;
       }
@@ -97,8 +99,8 @@ namespace alglin {
     ABD_intType  ldRhs
   )  {
     try {
-      std::map<ABD_intType,DiazLU<ABD_realType> >::const_iterator it = abd_database.find(mat_id);
-      if ( it == abd_database.end() ) {
+      MAP_DIAZ::const_iterator it = abd_database->find(mat_id);
+      if ( it == abd_database->end() ) {
         abd_last_error = "ABD_solve_nrhs mat_id do not correspond to any factorization";
         return -3;
       }
@@ -118,7 +120,7 @@ namespace alglin {
   extern "C"
   int
   ABD_free( ABD_intType mat_id ) {
-    abd_database.erase(mat_id);
+    abd_database->erase(mat_id);
     return 0;
   }
 
@@ -146,7 +148,9 @@ namespace alglin {
    |
   \*/
 
-  static std::map<BABD_intType,BorderedCR<BABD_realType> > babd_database;
+  typedef std::map<BABD_intType,BorderedCR<BABD_realType> > MAP_BABD;
+
+  static MAP_BABD *  babd_database   = new MAP_BABD();
   static std::string babd_last_error = "no error";
 
   extern "C"
@@ -165,7 +169,7 @@ namespace alglin {
     BABD_realType const Hq[], BABD_intType ldHq
   ) {
     try {
-      BorderedCR<BABD_realType> & lu = babd_database[mat_id]; // find or create
+      BorderedCR<BABD_realType> & lu = (*babd_database)[mat_id]; // find or create
       lu.allocate( nblock, n, qr, qx, 0, 0 );
       switch ( mat_fact ) {
         case 0: lu.select_LU();  break;
@@ -219,7 +223,7 @@ namespace alglin {
     BABD_realType const D[],  BABD_intType ldD    // nr x nx
   ) {
     try {
-      BorderedCR<BABD_realType> & lu = babd_database[mat_id]; // find or create
+      BorderedCR<BABD_realType> & lu = (*babd_database)[mat_id]; // find or create
       lu.allocate( nblock, n, qr, qx, nr, nx );
       lu.loadBottom( H0, ldH0, HN, ldHN, Hq, ldHq, B+(nblock*n), ldB );
       switch ( mat_fact ) {
@@ -262,8 +266,8 @@ namespace alglin {
   int
   BABD_solve( BABD_intType mat_id, BABD_realType rhs_sol[] ) {
     try {
-      std::map<BABD_intType,BorderedCR<BABD_realType> >::const_iterator it = babd_database.find(mat_id);
-      if ( it == babd_database.end() ) {
+      MAP_BABD::const_iterator it = babd_database->find(mat_id);
+      if ( it == babd_database->end() ) {
         babd_last_error = "BABD_solve mat_id do not correspond to any factorization";
         return -3;
       }
@@ -289,8 +293,8 @@ namespace alglin {
     BABD_intType  ldRhs
   ) {
     try {
-      std::map<BABD_intType,BorderedCR<BABD_realType> >::const_iterator it = babd_database.find(mat_id);
-      if ( it == babd_database.end() ) {
+      MAP_BABD::const_iterator it = babd_database->find(mat_id);
+      if ( it == babd_database->end() ) {
         abd_last_error = "BABD_solve_nrhs mat_id do not correspond to any factorization";
         return -3;
       }
@@ -311,7 +315,7 @@ namespace alglin {
   extern "C"
   int
   BABD_free( BABD_intType mat_id ) {
-    babd_database.erase(mat_id);
+    babd_database->erase(mat_id);
     return 0;
   }
 

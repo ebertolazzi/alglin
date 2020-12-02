@@ -403,28 +403,28 @@ namespace Simplex {
   class AuxProblem : public StandardProblemBase {
   private:
 
-    StandardProblemBase *pBase;
+    StandardProblemBase * m_problem_base;
 
-    alglin::Malloc<valueType> baseReals;
-    alglin::Malloc<integer>   baseInteger;
+    alglin::Malloc<valueType> m_baseReals;
+    alglin::Malloc<integer>   m_baseInteger;
 
-    valueType * d;
-    valueType * values;
+    valueType * m_d;
+    valueType * m_values;
 
     integer n;
     integer m;
-    integer nz;
-    integer nw;
-    integer np;
-    integer *map_z;
-    integer *map_w;
-    integer *map_p;
-    integer *map_case;
-    integer *i_row;
+    integer m_nz;
+    integer m_nw;
+    integer m_np;
+    integer * m_map_z;
+    integer * m_map_w;
+    integer * m_map_p;
+    integer * m_map_case;
+    integer * m_i_row;
 
-    valueType b_max_abs;
-    valueType c_max_abs;
-    valueType A_max_abs;
+    valueType m_b_max_abs;
+    valueType m_c_max_abs;
+    valueType m_A_max_abs;
 
   public:
 
@@ -432,8 +432,8 @@ namespace Simplex {
     explicit
     AuxProblem()
     : StandardProblemBase()
-    , baseReals("Simplex::AuxProblem_reals")
-    , baseInteger("Simplex::AuxProblem_integers")
+    , m_baseReals("Simplex::AuxProblem_reals")
+    , m_baseInteger("Simplex::AuxProblem_integers")
     {}
 
     SIMPLEX_VIRTUAL
@@ -444,17 +444,17 @@ namespace Simplex {
     void
     setup( StandardProblemBase * _pBase );
 
-    SIMPLEX_VIRTUAL integer dim_x() const { return nz+nw+np+m; }
+    SIMPLEX_VIRTUAL integer dim_x() const { return m_nz+m_nw+m_np+m; }
     SIMPLEX_VIRTUAL integer dim_g() const { return m; }
 
-    SIMPLEX_API_DLL valueType get_b_max_abs() const { return b_max_abs; }
-    SIMPLEX_API_DLL valueType get_c_max_abs() const { return c_max_abs; }
-    SIMPLEX_API_DLL valueType get_A_max_abs() const { return A_max_abs; }
+    SIMPLEX_API_DLL valueType get_b_max_abs() const { return m_b_max_abs; }
+    SIMPLEX_API_DLL valueType get_c_max_abs() const { return m_c_max_abs; }
+    SIMPLEX_API_DLL valueType get_A_max_abs() const { return m_A_max_abs; }
 
     SIMPLEX_VIRTUAL
     void
     load_c( valueType c[] ) const {
-      integer nn = nz+nw+np;
+      integer nn = m_nz+m_nw+m_np;
       alglin::zero( nn, c, 1 );
       alglin::fill( m, c + nn, 1, 1.0 );
     }
@@ -463,7 +463,7 @@ namespace Simplex {
     void
     load_b( valueType b[] ) const {
       for ( integer i = 0; i < m; ++i )
-        b[i] = std::abs(d[i]);
+        b[i] = std::abs(m_d[i]);
     }
 
     SIMPLEX_VIRTUAL integer load_A_column( integer j_col, valueType values[], integer i_row[] ) const;

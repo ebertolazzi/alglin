@@ -89,11 +89,11 @@ namespace alglin {
     DiazLU( DiazLU const & );
     DiazLU const & operator = ( DiazLU const & );
 
-    integer NB;
+    integer m_NB;
 
-    mutable integer nblk;
+    mutable integer m_nblk;
 
-    integer * swapRC_blks;
+    integer * m_swapRC_blks;
 
     void
     LU_left_right(
@@ -131,10 +131,19 @@ namespace alglin {
 
   public:
 
-    using BlockBidiagonal<valueType>::factorize;
-    using BlockBidiagonal<valueType>::dump_ccoord;
+    using BlockBidiagonal<t_Value>::m_baseInteger;
+    using BlockBidiagonal<t_Value>::m_DE_blk;
+    using BlockBidiagonal<t_Value>::m_H0Nq;
+    using BlockBidiagonal<t_Value>::m_block0;
+    using BlockBidiagonal<t_Value>::m_blockN;
+    using BlockBidiagonal<t_Value>::m_Bmat;
+    using BlockBidiagonal<t_Value>::m_Cmat;
+    using BlockBidiagonal<t_Value>::m_Dmat;
 
-    explicit UTILS_CONSTEXPR DiazLU() : NB(25) {}
+    using BlockBidiagonal<t_Value>::factorize;
+    using BlockBidiagonal<t_Value>::dump_ccoord;
+
+    explicit UTILS_CONSTEXPR DiazLU() : m_NB(25) {}
 
     virtual
     ~DiazLU() UTILS_OVERRIDE
@@ -175,7 +184,7 @@ namespace alglin {
         _rowN, _colN,
         _nb, 0, inv
       );
-      swapRC_blks = this->baseInteger(size_t(inv));
+      m_swapRC_blks = m_baseInteger(size_t(inv));
     }
 
     virtual

@@ -87,14 +87,16 @@ namespace alglin {
     BlockLU( BlockLU const & );
     BlockLU const & operator = ( BlockLU const & );
 
-    mutable integer nblk;
+    mutable integer m_nblk;
 
-    integer * swap0;
-    integer * swapR_blks;
-    integer   Work_lda, F_size, F_lda;
-    t_Value * Work_mat;
-    t_Value * Work_mat1;
-    t_Value * F_mat;
+    integer * m_swap0;
+    integer * m_swapR_blks;
+    integer   m_Work_lda;
+    integer   m_F_size;
+    integer   m_F_lda;
+    t_Value * m_Work_mat;
+    t_Value * m_Work_mat1;
+    t_Value * m_F_mat;
 
     //! solve linear sistem using internal factorized matrix
     void
@@ -111,8 +113,19 @@ namespace alglin {
 
   public:
 
-    using BlockBidiagonal<valueType>::factorize;
-    using BlockBidiagonal<valueType>::dump_ccoord;
+    using BlockBidiagonal<t_Value>::factorize;
+    using BlockBidiagonal<t_Value>::dump_ccoord;
+
+    using BlockBidiagonal<t_Value>::m_baseInteger;
+    using BlockBidiagonal<t_Value>::m_baseValue;
+
+    using BlockBidiagonal<t_Value>::m_DE_blk;
+    using BlockBidiagonal<t_Value>::m_H0Nq;
+    using BlockBidiagonal<t_Value>::m_block0;
+    using BlockBidiagonal<t_Value>::m_blockN;
+    using BlockBidiagonal<t_Value>::m_Bmat;
+    using BlockBidiagonal<t_Value>::m_Cmat;
+    using BlockBidiagonal<t_Value>::m_Dmat;
 
     explicit BlockLU() {}
     // ~BlockLU() UTILS_OVERRIDE {}

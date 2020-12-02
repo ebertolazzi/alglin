@@ -48,77 +48,77 @@ namespace Simplex {
   void
   AuxProblem::setup( StandardProblemBase * _pBase ) {
 
-    pBase = _pBase;
+    m_problem_base = _pBase;
 
-    n = pBase->dim_x();
-    m = pBase->dim_g();
+    n = m_problem_base->dim_x();
+    m = m_problem_base->dim_g();
 
     // compute size of variable z, w, and p
-    nz = nw = np = 0;
+    m_nz = m_nw = m_np = 0;
     for ( integer i = 0; i < n; ++i ) {
       integer icase = 0;
-      if ( pBase->Upper_is_free(i) ) icase  = 1;
-      if ( pBase->Lower_is_free(i) ) icase += 2;
+      if ( m_problem_base->Upper_is_free(i) ) icase  = 1;
+      if ( m_problem_base->Lower_is_free(i) ) icase += 2;
       switch ( icase ) {
-      case 0: ++nz; ++nw; break; // l <= x <= u
-      case 1: ++nz;       break; // l <= x
-      case 2: ++nw;       break; // x <= u
-      case 3: ++np;       break;
+      case 0: ++m_nz; ++m_nw; break; // l <= x <= u
+      case 1: ++m_nz;         break; // l <= x
+      case 2: ++m_nw;         break; // x <= u
+      case 3: ++m_np;         break;
       }
     }
     // allocate memory
-    baseInteger.allocate( size_t(nz+nw+np+n+m) );
-    map_z    = baseInteger( size_t(nz) );
-    map_w    = baseInteger( size_t(nw) );
-    map_p    = baseInteger( size_t(np) );
-    map_case = baseInteger( size_t(n)  );
-    i_row    = baseInteger( size_t(m)  );
+    m_baseInteger.allocate( size_t(m_nz+m_nw+m_np+n+m) );
+    m_map_z    = m_baseInteger( size_t(m_nz) );
+    m_map_w    = m_baseInteger( size_t(m_nw) );
+    m_map_p    = m_baseInteger( size_t(m_np) );
+    m_map_case = m_baseInteger( size_t(n)  );
+    m_i_row    = m_baseInteger( size_t(m)  );
 
-    baseReals.allocate( size_t(2*m) );
-    d      = baseReals( size_t(m) );
-    values = baseReals( size_t(m) );
+    m_baseReals.allocate( size_t(2*m) );
+    m_d      = m_baseReals( size_t(m) );
+    m_values = m_baseReals( size_t(m) );
 
     // fill mapping and vector q
-    nz = nw = np = 0;
-    pBase->load_b( d );
+    m_nz = m_nw = m_np = 0;
+    m_problem_base->load_b( m_d );
     for ( integer i = 0; i < n;  ++i ) {
       valueType q = 0;
       integer icase = 0;
-      if ( pBase->Upper_is_free(i) ) icase  = 1;
-      if ( pBase->Lower_is_free(i) ) icase += 2;
-      map_case[i] = icase;
+      if ( m_problem_base->Upper_is_free(i) ) icase  = 1;
+      if ( m_problem_base->Lower_is_free(i) ) icase += 2;
+      m_map_case[i] = icase;
       switch ( icase ) {
       case 0: // l <= x <= u
-        map_z[nz++] = i;
-        map_w[nw++] = i;
-        q = (pBase->Upper(i) + pBase->Lower(i))/2;
+        m_map_z[m_nz++] = i;
+        m_map_w[m_nw++] = i;
+        q = (m_problem_base->Upper(i) + m_problem_base->Lower(i))/2;
         break;
       case 1: // l <= x
-        map_z[nz++] = i;
-        q = pBase->Lower(i);
+        m_map_z[m_nz++] = i;
+        q = m_problem_base->Lower(i);
         break;
       case 2: // x <= u
-        map_w[nw++] = i;
-        q = pBase->Upper(i);
+        m_map_w[m_nw++] = i;
+        q = m_problem_base->Upper(i);
         break;
       case 3:
-        map_p[np++] = i;
+        m_map_p[m_np++] = i;
         break;
       }
-      integer nnz = pBase->load_A_column( i, values, i_row );
+      integer nnz = m_problem_base->load_A_column( i, m_values, m_i_row );
       for ( integer k = 0; k < nnz; ++k )
-        d[i_row[k]] -= q*values[k];
+        m_d[m_i_row[k]] -= q*m_values[k];
     }
 
-    b_max_abs = alglin::absmax( m, d, 1);
-    c_max_abs = 1;
-    A_max_abs = pBase->get_A_max_abs();
+    m_b_max_abs = alglin::absmax( m, m_d, 1);
+    m_c_max_abs = 1;
+    m_A_max_abs = m_problem_base->get_A_max_abs();
 
   }
 
   bool
   AuxProblem::Lower_is_free( integer i ) const
-  { return i >= nz+nw && i < nz+nw+np; }
+  { return i >= m_nz+m_nw && i < m_nz+m_nw+m_np; }
 
   bool
   AuxProblem::Upper_is_free( integer   ) const
@@ -136,10 +136,10 @@ namespace Simplex {
 
   void
   AuxProblem::feasible_point( valueType x[], integer IB[] ) const {
-    integer nn = nz+nw+np;
+    integer nn = m_nz+m_nw+m_np;
     alglin::zero( nn, x, 1 );
     for ( integer i = 0; i < m; ++i ) {
-      x[nn+i] = std::abs(d[i]);
+      x[nn+i] = std::abs(m_d[i]);
       IB[i] = nn+i;
     }
   }
@@ -166,26 +166,27 @@ namespace Simplex {
     integer nww = 0;
     integer npp = 0;
     valueType const * z = x;
-    valueType const * w = z+nz;
-    valueType const * p = w+nw;
+    valueType const * w = z+m_nz;
+    valueType const * p = w+m_nw;
     for ( integer i = 0; i < n;  ++i ) {
       integer icase = 0;
-      if ( pBase->Upper_is_free(i) ) icase  = 1;
-      if ( pBase->Lower_is_free(i) ) icase += 2;
+      if ( m_problem_base->Upper_is_free(i) ) icase  = 1;
+      if ( m_problem_base->Lower_is_free(i) ) icase += 2;
       switch ( icase ) {
       case 0: // l <= x <= u
-        xo[i] = (z[map_z[nzz]]-w[map_w[nww]]+(pBase->Upper(i)+pBase->Lower(i)))/2;
+        xo[i] = ( z[m_map_z[nzz]] - w[m_map_w[nww]] +
+                  (m_problem_base->Upper(i)+m_problem_base->Lower(i)) )/2;
         IBo[ib++] = i;
         ++nzz; ++nww;
         break;
       case 1: // l <= x
-        xo[i] = pBase->Lower(i) + z[map_z[nzz++]];
+        xo[i] = m_problem_base->Lower(i) + z[m_map_z[nzz++]];
         break;
       case 2: // x <= u
-        xo[i] = pBase->Upper(i) - w[map_w[nww++]];
+        xo[i] = m_problem_base->Upper(i) - w[m_map_w[nww++]];
         break;
       case 3:
-        xo[i] = p[map_p[npp++]];
+        xo[i] = p[m_map_p[npp++]];
         break;
       }
     }
@@ -194,27 +195,27 @@ namespace Simplex {
   integer
   AuxProblem::load_A_column( integer jcol, valueType vals[], integer irow[] ) const {
     integer nnz;
-    if ( jcol < nz ) { // Z matrix
-      integer j = map_z[jcol];
-      nnz = pBase->load_A_column( j, vals, irow );
+    if ( jcol < m_nz ) { // Z matrix
+      integer j = m_map_z[jcol];
+      nnz = m_problem_base->load_A_column( j, vals, irow );
       for ( integer i = 0; i < nnz; ++i )
-        if ( d[irow[i]] < 0 ) vals[i] = -vals[i];
+        if ( m_d[irow[i]] < 0 ) vals[i] = -vals[i];
     } else {
-      jcol -= nz;
-      if ( jcol < nw ) { // W matrix
-        integer j = map_w[jcol];
-        nnz = pBase->load_A_column( j, vals, irow );
+      jcol -= m_nz;
+      if ( jcol < m_nw ) { // W matrix
+        integer j = m_map_w[jcol];
+        nnz = m_problem_base->load_A_column( j, vals, irow );
         for ( integer i = 0; i < nnz; ++i )
-          if ( d[irow[i]] >= 0 ) vals[i] = -vals[i]; // reverse sign
+          if ( m_d[irow[i]] >= 0 ) vals[i] = -vals[i]; // reverse sign
       } else {
-        jcol -= nw;
-        if ( jcol < np ) { // P matrix
-          integer j = map_z[jcol];
-          nnz = pBase->load_A_column( j, vals, irow );
+        jcol -= m_nw;
+        if ( jcol < m_np ) { // P matrix
+          integer j = m_map_z[jcol];
+          nnz = m_problem_base->load_A_column( j, vals, irow );
           for ( integer i = 0; i < nnz; ++i )
-            if ( d[irow[i]] < 0 ) vals[i] = -vals[i];
+            if ( m_d[irow[i]] < 0 ) vals[i] = -vals[i];
         } else { // I matrix
-          jcol   -= np;
+          jcol   -= m_np;
           nnz     = 1;
           vals[0] = 1;
           irow[0] = jcol;
@@ -227,9 +228,9 @@ namespace Simplex {
   void
   AuxProblem::subtract_Ax( valueType const x[], valueType res[] ) const {
     for ( integer i = 0; i < dim_x(); ++i ) {
-      integer nnz = load_A_column( i, values, i_row );
+      integer nnz = load_A_column( i, m_values, m_i_row );
       for ( integer k = 0; k < nnz; ++k )
-        res[i_row[k]] -= x[i]*values[k];
+        res[m_i_row[k]] -= x[i]*m_values[k];
     }
   }
 

@@ -71,8 +71,8 @@ namespace alglin {
 
   protected:
 
-    Malloc<valueType> baseValue;
-    Malloc<integer>   baseInteger;
+    Malloc<valueType> m_baseValue;
+    Malloc<integer>   m_baseInteger;
 
     integer nblock; //!< total number of blocks
     integer n;      //!< size of square blocks
@@ -135,13 +135,13 @@ namespace alglin {
     //
     */
 
-    valueType * DE_blk;
-    valueType * H0Nq;
-    valueType * block0;
-    valueType * blockN;
-    valueType * Bmat;
-    valueType * Cmat;
-    valueType * Dmat;
+    valueType * m_DE_blk;
+    valueType * m_H0Nq;
+    valueType * m_block0;
+    valueType * m_blockN;
+    valueType * m_Bmat;
+    valueType * m_Cmat;
+    valueType * m_Dmat;
 
   private:
 
@@ -154,8 +154,8 @@ namespace alglin {
 
     explicit
     BlockBidiagonal()
-    : baseValue("BlockBidiagonal_values")
-    , baseInteger("BlockBidiagonal_integers")
+    : m_baseValue("BlockBidiagonal_values")
+    , m_baseInteger("BlockBidiagonal_integers")
     , nblock(0)
     , n(0)
     , q(0)
@@ -173,13 +173,13 @@ namespace alglin {
     , numCyclicOMEGA(0)
     , la_factorization(&la_lu)
     , bb_factorization(&bb_lu)
-    , DE_blk(nullptr)
-    , H0Nq(nullptr)
-    , block0(nullptr)
-    , blockN(nullptr)
-    , Bmat(nullptr)
-    , Cmat(nullptr)
-    , Dmat(nullptr)
+    , m_DE_blk(nullptr)
+    , m_H0Nq(nullptr)
+    , m_block0(nullptr)
+    , m_blockN(nullptr)
+    , m_Bmat(nullptr)
+    , m_Cmat(nullptr)
+    , m_Dmat(nullptr)
     {}
 
     virtual ~BlockBidiagonal()
@@ -227,35 +227,35 @@ namespace alglin {
     // filling bidiagonal part of the matrix
     void
     loadBlocks( valueType const AdAu[], integer ldA )
-    { gecopy( n, nblock * nx2, AdAu, ldA, DE_blk, n ); }
+    { gecopy( n, nblock * nx2, AdAu, ldA, m_DE_blk, n ); }
 
     void
     loadBlock( integer nbl, valueType const AdAu[], integer ldA )
-    { gecopy( n, nx2, AdAu, ldA, DE_blk + nbl*nxnx2, n ); }
+    { gecopy( n, nx2, AdAu, ldA, m_DE_blk + nbl*nxnx2, n ); }
 
     void
     loadBlockLeft( integer nbl, valueType const Ad[], integer ldA )
-    { gecopy( n, n, Ad, ldA, DE_blk + nbl*nxnx2, n ); }
+    { gecopy( n, n, Ad, ldA, m_DE_blk + nbl*nxnx2, n ); }
 
     void
     loadBlockRight( integer nbl, valueType const Au[], integer ldA )
-    { gecopy( n, n, Au, ldA, DE_blk + nbl*nxnx2 + nxn, n ); }
+    { gecopy( n, n, Au, ldA, m_DE_blk + nbl*nxnx2 + nxn, n ); }
 
     // Border Bottom blocks
     void
     setZeroBottomBlocks()
-    { alglin::zero( nb*neq, Cmat, 1 ); }
+    { alglin::zero( nb*neq, m_Cmat, 1 ); }
 
     void
     loadBottomBlocks( valueType const C[], integer ldC )
-    { gecopy( nb, neq, C, ldC, Cmat, nb ); }
+    { gecopy( nb, neq, C, ldC, m_Cmat, nb ); }
 
     void
     loadBottomBlock( integer nbl, valueType const C[], integer ldC ) {
       UTILS_ASSERT(
         ldC >= nb, "loadBottomBlock( {}, C, ldC = {} ) bad ldC\n", nbl, ldC
       );
-      valueType * CC = Cmat + nbl*nxnb;
+      valueType * CC = m_Cmat + nbl*nxnb;
       gecopy( nb, n, C, ldC, CC, nb );
     }
 
@@ -264,7 +264,7 @@ namespace alglin {
       UTILS_ASSERT(
         ldC >= nb, "addtoBottomBlock( {}, C, ldC = {} ) bad ldC\n", nbl, ldC
       );
-      valueType * CC = Cmat + nbl*nxnb;
+      valueType * CC = m_Cmat + nbl*nxnb;
       geadd( nb, n, 1.0, C, ldC, 1.0, CC, nb, CC, nb );
     }
 
@@ -274,69 +274,69 @@ namespace alglin {
       UTILS_ASSERT(
         ldC >= nb, "addtoBottomBlock2( {}, C, ldC = {} ) bad ldC\n", nbl, ldC
       );
-      valueType * CC = Cmat + nbl*nxnb;
+      valueType * CC = m_Cmat + nbl*nxnb;
       geadd( nb, nx2, 1.0, C, ldC, 1.0, CC, nb, CC, nb );
     }
 
     void
     loadBottomLastBlock( valueType const C[], integer ldC )
-    { gecopy( nb, q, C, ldC, Cmat + (nblock+1)*nxnb, nb ); }
+    { gecopy( nb, q, C, ldC, m_Cmat + (nblock+1)*nxnb, nb ); }
 
     // Border Right blocks
     void
     setZeroRightBlocks()
-    { alglin::zero( neq*nb, Bmat, 1 ); }
+    { alglin::zero( neq*nb, m_Bmat, 1 ); }
 
     void
     loadRightBlocks( valueType const B[], integer ldB )
-    { gecopy( neq, nb, B, ldB, Bmat, neq ); }
+    { gecopy( neq, nb, B, ldB, m_Bmat, neq ); }
 
     void
     loadRightBlock( integer nbl, valueType const B[], integer ldB )
-    { alglin::gecopy( n, nb, B, ldB, Bmat + nbl*n, neq ); }
+    { alglin::gecopy( n, nb, B, ldB, m_Bmat + nbl*n, neq ); }
 
     void
     loadRightLastBlock( valueType const B[], integer ldB )
-    { alglin::gecopy( n+q, nb, B, ldB, Bmat + neq-n-q, neq ); }
+    { alglin::gecopy( n+q, nb, B, ldB, m_Bmat + neq-n-q, neq ); }
 
     // Border RBblock
     void
     setZeroRBblock()
-    { alglin::zero( nb*nb, Dmat, 1 ); }
+    { alglin::zero( nb*nb, m_Dmat, 1 ); }
 
     void
     loadRBblock( valueType const D[], integer ldD )
-    { alglin::gecopy( nb, nb, D, ldD, Dmat, nb ); }
+    { alglin::gecopy( nb, nb, D, ldD, m_Dmat, nb ); }
 
     // final blocks after cyclic reduction
     valueType const *
     getPointer_LR() const
-    { return DE_blk; }
+    { return m_DE_blk; }
 
     void
     getBlock_LR( valueType LR[], integer ldA ) const
-    { gecopy( n, nx2, DE_blk, n, LR, ldA ); }
+    { gecopy( n, nx2, m_DE_blk, n, LR, ldA ); }
 
     void
     getBlock_L( valueType L[], integer ldA ) const
-    { gecopy( n, n, DE_blk, n, L, ldA ); }
+    { gecopy( n, n, m_DE_blk, n, L, ldA ); }
 
     void
     getBlock_R( valueType R[], integer ldA ) const
-    { gecopy( n, n, DE_blk+nxn, n, R, ldA ); }
+    { gecopy( n, n, m_DE_blk+nxn, n, R, ldA ); }
 
     // BC blocks
     void
     getBlock_H0( valueType H0[], integer ld0 ) const
-    { gecopy( n+q, n, H0Nq, n+q, H0, ld0 ); }
+    { gecopy( n+q, n, m_H0Nq, n+q, H0, ld0 ); }
 
     void
     getBlock_HN( valueType HN[], integer ldN ) const
-    { gecopy( n+q, n, H0Nq+n*(n+q), n+q, HN, ldN ); }
+    { gecopy( n+q, n, m_H0Nq+n*(n+q), n+q, HN, ldN ); }
 
     void
     getBlock_Hq( valueType Hq[], integer ldQ ) const
-    { gecopy( n+q, q, H0Nq+nx2*(n+q), n+q, Hq, ldQ ); }
+    { gecopy( n+q, q, m_H0Nq+nx2*(n+q), n+q, Hq, ldQ ); }
 
     virtual
     void

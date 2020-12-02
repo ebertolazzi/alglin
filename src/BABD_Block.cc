@@ -45,15 +45,15 @@ namespace alglin {
     // fill matrix
     integer nm = n+m;
     for ( integer k = 0; k < nblock; ++k ) {
-      valueType const * Ad = this->DE_blk + k*nxnx2;
+      valueType const * Ad = m_DE_blk + k*nxnx2;
       valueType const * Au = Ad + nxn;
       gecopy( n, n, Ad, n, AdH_blk + k*nm*n, nm );
       gecopy( n, n, Au, n, Au_blk  + k*nxn,  n  );
     }
 
-    gecopy( m, n, this->H0Nq,       m, AdH_blk + n,  nm );
-    gecopy( m, n, this->H0Nq+n*m,   m, DD_blk,       m  );
-    gecopy( m, q, this->H0Nq+nx2*m, m, DD_blk + m*n, m  );
+    gecopy( m, n, m_H0Nq,       m, AdH_blk + n,  nm );
+    gecopy( m, n, m_H0Nq+n*m,   m, DD_blk,       m  );
+    gecopy( m, q, m_H0Nq+nx2*m, m, DD_blk + m*n, m  );
 
     integer rowFF = (nblock-1)*n;
     integer INFO;

@@ -47,28 +47,27 @@ namespace alglin {
 
     typedef double valueType;
 
-    Malloc<valueType> baseValue;
-    Malloc<int>       baseInteger;
+    Malloc<valueType> m_baseValue;
+    Malloc<int>       m_baseInteger;
 
     BABD_SuperLU(BABD_SuperLU const &);
     BABD_SuperLU const & operator = (BABD_SuperLU const &);
 
-    integer nblock; //!< total number of blocks
-    integer n;      //!< size of square blocks
-    integer m;      //!< number final rows (m>=n)
-    integer nnz;    //!< total number of non zeros
-    integer neq;
+    integer n;        //!< size of square blocks
+    integer m;        //!< number final rows (m>=n)
+    integer m_nblock; //!< total number of blocks
+    integer m_nnz;    //!< total number of non zeros
+    integer m_neq;
 
-    //int               info;
-    //mem_usage_t       mem_usage;
-    int         *perm_r; // row permutations from partial pivoting
-    int         *perm_c; // column permutation vector
-    int         *etree;
-    valueType   one_norm_A, inf_norm_A;
+    int     * m_perm_r; // row permutations from partial pivoting
+    int     * m_perm_c; // column permutation vector
+    int     * m_etree;
+    valueType m_one_norm_A;
+    valueType m_inf_norm_A;
 
-    superlu_options_t     slu_options;
-    mutable SuperLUStat_t slu_stats;
-    mutable SuperMatrix   A, L, U; // messo mutable per zittire warning
+    superlu_options_t     m_slu_options;
+    mutable SuperLUStat_t m_slu_stats;
+    mutable SuperMatrix   m_A, m_L, m_U; // messo mutable per zittire warning
 
     //! factorize the matrix
     void factorize();
