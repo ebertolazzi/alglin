@@ -227,7 +227,7 @@ test2() {
     1,
     rhs+N, 1
   );
-  std::copy( rhs, rhs + N+M, rhs+N+M );
+  std::copy_n( rhs, N+M, rhs+N+M );
   for ( integer i = 0; i < N+M; ++i )
     fmt::print("rhs[{}] = {}\n",i,rhs[i]);
   //kkt.solve( rhs );
@@ -308,7 +308,7 @@ test3() {
     rhs+N, 1
   );
 
-  std::copy( rhs, rhs+N+M, rhs+N+M );
+  std::copy_n( rhs, N+M, rhs+N+M );
 
   for ( integer i = 0; i < N+M; ++i )
     fmt::print("rhs[{}] = {}\n",i,rhs[i]);
@@ -403,7 +403,7 @@ test4() {
     rhs+N, 1
   );
 
-  std::copy( rhs, rhs+N+M, rhs+N+M );
+  std::copy_n( rhs, N+M, rhs+N+M );
 
   for ( integer i = 0; i < N+M; ++i )
     fmt::print("rhs[{}] = {}\n",i,rhs[i]);

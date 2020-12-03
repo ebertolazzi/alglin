@@ -135,8 +135,8 @@ main() {
       );
 
       for ( alglin::integer i = 0; i < N+NB; ++i ) x[i] = 1+(i%4);
-      std::copy( x, x+N+NB, xref  );
-      std::copy( x, x+N+NB, xref1 );
+      std::copy_n( x, N+NB, xref  );
+      std::copy_n( x, N+NB, xref1 );
       LU.Mv( x, rhs );
 
       TIC;
@@ -144,7 +144,7 @@ main() {
       TOC;
       fmt::print("(Block {}) Factorize = {:.5} [ms]\n", kind[test], tm.elapsed_ms());
 
-      std::copy( rhs, rhs+N+NB, x );
+      std::copy_n( rhs, N+NB, x );
       TIC;
       LU.solve_bordered( x );
       TOC;
@@ -155,7 +155,7 @@ main() {
       fmt::print("\nCheck |err|_inf = {:.5}\n\n",err);
       UTILS_ASSERT0( err < 1e-8, "test failed!\n" );
 
-      for ( alglin::integer i = 0; i < 10; ++i ) std::copy( rhs, rhs+N+NB, x+i*(N+NB) );
+      for ( alglin::integer i = 0; i < 10; ++i ) std::copy_n( rhs, N+NB, x+i*(N+NB) );
       TIC;
       LU.solve_bordered( 1, x, N+NB );
       TOC;

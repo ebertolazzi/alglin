@@ -33,8 +33,8 @@ namespace alglin {
 
   typedef std::map<ABD_intType,DiazLU<ABD_realType> > MAP_DIAZ;
 
-  static MAP_DIAZ *  abd_database   = new MAP_DIAZ(); // workaround da indagare
-  static std::string abd_last_error = "no error";
+  static MAP_DIAZ    * abd_database   = new MAP_DIAZ(); // workaround da indagare
+  static std::string * abd_last_error = new std::string("no error");
 
   extern "C"
   int
@@ -58,11 +58,11 @@ namespace alglin {
       lu.factorize();
     }
     catch ( std::exception const & err ) {
-      abd_last_error = err.what();
+      (*abd_last_error) = err.what();
       return -1;
     }
     catch ( ... ) {
-      abd_last_error = "ABD_factorize unknown error";
+      (*abd_last_error) = "ABD_factorize unknown error";
       return -2;
     }
     return 0;
@@ -74,17 +74,17 @@ namespace alglin {
     try {
       MAP_DIAZ::const_iterator it = abd_database->find(mat_id);
       if ( it == abd_database->end() ) {
-        abd_last_error = "ABD_solve mat_id do not correspond to any factorization";
+        (*abd_last_error) = "ABD_solve mat_id do not correspond to any factorization";
         return -3;
       }
       it->second.solve_ABD( rhs_sol );
     }
     catch ( std::exception const & err ) {
-      abd_last_error = err.what();
+      (*abd_last_error) = err.what();
       return -1;
     }
     catch ( ... ) {
-      abd_last_error = "ABD_solve unknown error";
+      (*abd_last_error) = "ABD_solve unknown error";
       return -2;
     }
     return 0;
@@ -101,17 +101,17 @@ namespace alglin {
     try {
       MAP_DIAZ::const_iterator it = abd_database->find(mat_id);
       if ( it == abd_database->end() ) {
-        abd_last_error = "ABD_solve_nrhs mat_id do not correspond to any factorization";
+        (*abd_last_error) = "ABD_solve_nrhs mat_id do not correspond to any factorization";
         return -3;
       }
       it->second.solve_ABD( nrhs, rhs_sol, ldRhs );
     }
     catch ( std::exception const & err ) {
-      abd_last_error = err.what();
+      (*abd_last_error) = err.what();
       return -1;
     }
     catch ( ... ) {
-      abd_last_error = "ABD_factorize unknown error";
+      (*abd_last_error) = "ABD_factorize unknown error";
       return -2;
     }
     return 0;
@@ -127,15 +127,15 @@ namespace alglin {
   extern "C"
   char const *
   ABD_get_last_error( )
-  { return abd_last_error.c_str(); }
+  { return abd_last_error->c_str(); }
 
   extern "C"
   void
   ABD_get_last_error_f90( char res[], long len ) {
     #ifdef UTILS_OS_WINDOWS
-    errno_t e = strncpy_s( res, len, abd_last_error.c_str(), abd_last_error.length() );
+    errno_t e = strncpy_s( res, len, abd_last_error->c_str(), abd_last_error->length() );
     #else
-    strncpy( res, abd_last_error.c_str(), size_t(len) );
+    strncpy( res, abd_last_error->c_str(), size_t(len) );
     #endif
   }
 
@@ -150,8 +150,8 @@ namespace alglin {
 
   typedef std::map<BABD_intType,BorderedCR<BABD_realType> > MAP_BABD;
 
-  static MAP_BABD *  babd_database   = new MAP_BABD();
-  static std::string babd_last_error = "no error";
+  static MAP_BABD    * babd_database   = new MAP_BABD();
+  static std::string * babd_last_error = new std::string("no error");
 
   extern "C"
   int
@@ -191,11 +191,11 @@ namespace alglin {
       lu.factorize();
     }
     catch ( std::exception const & err ) {
-      babd_last_error = err.what();
+      (*babd_last_error) = err.what();
       return -1;
     }
     catch ( ... ) {
-      babd_last_error = "BABD_factorize unknown error";
+      (*babd_last_error) = "BABD_factorize unknown error";
       return -2;
     }
     return 0;
@@ -251,11 +251,11 @@ namespace alglin {
       lu.factorize();
     }
     catch ( std::exception const & err ) {
-      abd_last_error = err.what();
+      (*abd_last_error) = err.what();
       return -1;
     }
     catch ( ... ) {
-      abd_last_error = "BABD_factorize unknown error";
+      (*abd_last_error) = "BABD_factorize unknown error";
       return -2;
     }
     return 0;
@@ -268,17 +268,17 @@ namespace alglin {
     try {
       MAP_BABD::const_iterator it = babd_database->find(mat_id);
       if ( it == babd_database->end() ) {
-        babd_last_error = "BABD_solve mat_id do not correspond to any factorization";
+        (*babd_last_error) = "BABD_solve mat_id do not correspond to any factorization";
         return -3;
       }
       it->second.solve( rhs_sol );
     }
     catch ( std::exception const & err ) {
-      babd_last_error = err.what();
+      (*babd_last_error) = err.what();
       return -1;
     }
     catch ( ... ) {
-      babd_last_error = "BABD_solve unknown error";
+      (*babd_last_error) = "BABD_solve unknown error";
       return -2;
     }
     return 0;
@@ -295,17 +295,17 @@ namespace alglin {
     try {
       MAP_BABD::const_iterator it = babd_database->find(mat_id);
       if ( it == babd_database->end() ) {
-        abd_last_error = "BABD_solve_nrhs mat_id do not correspond to any factorization";
+        (*abd_last_error) = "BABD_solve_nrhs mat_id do not correspond to any factorization";
         return -3;
       }
       it->second.solve( nrhs, rhs_sol, ldRhs );
     }
     catch ( std::exception const & err ) {
-      babd_last_error = err.what();
+      (*babd_last_error) = err.what();
       return -1;
     }
     catch ( ... ) {
-      babd_last_error = "BABD_factorize unknown error";
+      (*babd_last_error) = "BABD_factorize unknown error";
       return -2;
     }
     return 0;
@@ -322,15 +322,15 @@ namespace alglin {
   extern "C"
   char const *
   BABD_get_last_error( )
-  { return babd_last_error.c_str(); }
+  { return babd_last_error->c_str(); }
 
   extern "C"
   void
   BABD_get_last_error_f90( char res[], long len ) {
     #ifdef UTILS_OS_WINDOWS
-    errno_t e = strncpy_s( res, len, babd_last_error.c_str(), babd_last_error.length() );
+    errno_t e = strncpy_s( res, len, babd_last_error->c_str(), babd_last_error->length() );
     #else
-    strncpy( res, babd_last_error.c_str(), size_t(len) );
+    strncpy( res, babd_last_error->c_str(), size_t(len) );
     #endif
   }
 

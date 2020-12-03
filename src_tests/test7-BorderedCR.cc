@@ -126,7 +126,7 @@ main() {
   }
 
   for ( alglin::integer i = 0; i < N; ++i ) x[i] = 1+ (i % 100);
-  std::copy( x, x+N, xref );
+  std::copy_n( x, N, xref );
   BCR.Mv( x, rhs );
   BCR_SAVED.dup( BCR );
 
@@ -159,29 +159,29 @@ main() {
   tm.toc();
   fmt::print("\nFactorize = {:.5} [ms]\n\n", tm.elapsed_ms());
 
-  std::copy( rhs, rhs+N, x );
-  std::copy( rhs, rhs+N, x+N );
+  std::copy_n( rhs, N, x );
+  std::copy_n( rhs, N, x+N );
   tm.tic();
   int ns = 1;
   BCR.solve( x );
   #if 1
-  std::copy( rhs, rhs+N, x );
+  std::copy_n( rhs, N, x );
   BCR.solve( x ); ++ns;
-  std::copy( rhs, rhs+N, x );
+  std::copy_n( rhs, N, x );
   BCR.solve( x ); ++ns;
-  std::copy( rhs, rhs+N, x );
+  std::copy_n( rhs, N, x );
   BCR.solve( x ); ++ns;
-  std::copy( rhs, rhs+N, x );
+  std::copy_n( rhs, N, x );
   BCR.solve( x ); ++ns;
-  std::copy( rhs, rhs+N, x );
+  std::copy_n( rhs, N, x );
   BCR.solve( x ); ++ns;
-  std::copy( rhs, rhs+N, x );
+  std::copy_n( rhs, N, x );
   BCR.solve( x ); ++ns;
-  std::copy( rhs, rhs+N, x );
+  std::copy_n( rhs, N, x );
   BCR.solve( x ); ++ns;
-  std::copy( rhs, rhs+N, x );
+  std::copy_n( rhs, N, x );
   BCR.solve( x ); ++ns;
-  std::copy( rhs, rhs+N, x );
+  std::copy_n( rhs, N, x );
   BCR.solve( x ); ++ns;
   #endif
   tm.toc();
@@ -196,30 +196,30 @@ main() {
   fmt::print("Check |err|_1/N = {:.5}\n",err);
   UTILS_ASSERT0( err < 1e-8, "test failed!\n" );
 
-  std::copy( rhs, rhs+2*N, x );
+  std::copy_n( rhs, 2*N, x );
   tm.tic();
   ns = 1;
   BCR.solve( 2, x, N );
   #if 1
-  std::copy( rhs, rhs+2*N, x );
+  std::copy_n( rhs, 2*N, x );
   BCR.solve( 2, x, N ); ++ns;
-  std::copy( rhs, rhs+2*N, x );
+  std::copy_n( rhs, 2*N, x );
   BCR.solve( 2, x, N ); ++ns;
-  std::copy( rhs, rhs+2*N, x );
+  std::copy_n( rhs, 2*N, x );
   BCR.solve( 2, x, N ); ++ns;
-  std::copy( rhs, rhs+2*N, x );
+  std::copy_n( rhs, 2*N, x );
   BCR.solve( 2, x, N ); ++ns;
-  std::copy( rhs, rhs+2*N, x );
+  std::copy_n( rhs, 2*N, x );
   BCR.solve( 2, x, N ); ++ns;
-  std::copy( rhs, rhs+2*N, x );
+  std::copy_n( rhs, 2*N, x );
   BCR.solve( 2, x, N ); ++ns;
-  std::copy( rhs, rhs+2*N, x );
+  std::copy_n( rhs, 2*N, x );
   BCR.solve( 2, x, N ); ++ns;
-  std::copy( rhs, rhs+2*N, x );
+  std::copy_n( rhs, 2*N, x );
   BCR.solve( 2, x, N ); ++ns;
-  std::copy( rhs, rhs+2*N, x );
+  std::copy_n( rhs, 2*N, x );
   BCR.solve( 2, x, N ); ++ns;
-  std::copy( rhs, rhs+2*N, x );
+  std::copy_n( rhs, 2*N, x );
   BCR.solve( 2, x, N ); ++ns;
   #endif
   tm.toc();
@@ -246,9 +246,9 @@ main() {
 
   fmt::print("\n\ncheck residual\n\n");
 
-  std::copy( rhs, rhs+N, resid );
+  std::copy_n( rhs, N, resid );
   alglin::scal( N, -1.0, resid, 1 );
-  std::copy( rhs, rhs+N, x );
+  std::copy_n( rhs, N, x );
   BCR.solve( x );
   BCR_SAVED.addMv( x, resid );
 

@@ -106,8 +106,8 @@ namespace alglin {
       SLU_NC, SLU_D, SLU_GE
     );
 
-    std::fill( sumR, sumR+m_neq, 0 );
-    std::fill( sumC, sumC+m_neq, 0 );
+    std::fill_n( sumR, m_neq, 0 );
+    std::fill_n( sumC, m_neq, 0 );
     for ( integer j = 0; j < m_neq; ++j ) {
       for ( integer ii = colptr[j]; ii < colptr[j+1]; ++ii ) {
         integer i = rowind[ii];

@@ -85,7 +85,7 @@
   cout << "N = " << N << '\n';
 
   for ( alglin::integer i = 0; i < N; ++i ) x[i] = i;
-  std::copy( x, x+N, xref );
+  std::copy_n( x, N, xref );
   alglin::babd_mv<valueType>( nblk, n, q, AdAu, H0, HN, Hq,
                               1.0, x, 1, 0, rhs, 1 );
 

@@ -135,8 +135,8 @@ main() {
       );
 
       for ( alglin::integer i = 0; i < N+NB; ++i ) x[i] = 1+(i%4);
-      std::copy( x, x+N+NB, xref  );
-      std::copy( x, x+N+NB, xref1 );
+      std::copy_n( x, N+NB, xref  );
+      std::copy_n( x, N+NB, xref1 );
       LU.Mv( x, rhs );
 
       tm.tic();
@@ -147,7 +147,7 @@ main() {
         kind[test], tm.elapsed_ms()
       );
 
-      std::copy( rhs, rhs+N+NB, x );
+      std::copy_n( rhs, N+NB, x );
       tm.tic();
       LU.solve_bordered( x );
       tm.toc();
@@ -162,7 +162,7 @@ main() {
       UTILS_ASSERT0( err < 1e-8, "test failed!\n" );
 
       for ( alglin::integer i = 0; i < 10; ++i )
-        std::copy( rhs, rhs+N+NB, x+i*(N+NB) );
+        std::copy_n( rhs, N+NB, x+i*(N+NB) );
       tm.tic();
       LU.solve_bordered( 1, x, N+NB );
       tm.toc();
