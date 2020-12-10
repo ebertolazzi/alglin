@@ -33,7 +33,7 @@ namespace alglin {
   */
   //! LU decomposition of a BABD matrix
   /*!
-   * 
+   *
    * \date     May 30, 2006
    * \version  1.0
    * \note     first release May 30, 2006
@@ -53,6 +53,20 @@ namespace alglin {
     typedef t_Value valueType;
 
   private:
+
+    using BlockBidiagonal<t_Value>::m_n;
+    using BlockBidiagonal<t_Value>::m_q;
+    using BlockBidiagonal<t_Value>::m_nx2;
+    using BlockBidiagonal<t_Value>::m_nxnx2;
+    using BlockBidiagonal<t_Value>::m_nxn;
+    using BlockBidiagonal<t_Value>::m_nblock;
+
+    using BlockBidiagonal<t_Value>::m_numInitialBC;
+    using BlockBidiagonal<t_Value>::m_numFinalBC;
+    using BlockBidiagonal<t_Value>::m_numCyclicBC;
+    using BlockBidiagonal<t_Value>::m_numInitialOMEGA;
+    using BlockBidiagonal<t_Value>::m_numFinalOMEGA;
+    using BlockBidiagonal<t_Value>::m_numCyclicOMEGA;
 
     using BlockBidiagonal<t_Value>::m_DE_blk;
     using BlockBidiagonal<t_Value>::m_H0Nq;
@@ -118,7 +132,7 @@ namespace alglin {
     //  +-----+-----+---......---+-----+-----+
     //
     */
-    valueType * AdH_blk;
+    valueType * m_AdH_blk;
 
     /*!
     //
@@ -133,7 +147,7 @@ namespace alglin {
     //  +-----+-----+-----+----.........-----+------+
     //
     */
-    valueType * Au_blk;
+    valueType * m_Au_blk;
 
     /*!
     //
@@ -146,8 +160,8 @@ namespace alglin {
     //  !     |     !
     //  +=====+=====+
     //
-    */    
-    valueType * DD_blk;
+    */
+    valueType * m_DD_blk;
 
     /*!
     //
@@ -171,10 +185,10 @@ namespace alglin {
     //  +-----+-----+   /
     //
     */
-    valueType * FF_blk;
+    valueType * m_FF_blk;
 
     // pivot vector
-    integer * ipiv_blk;
+    integer * m_ipiv_blk;
 
   public:
 

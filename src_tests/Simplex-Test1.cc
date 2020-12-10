@@ -13,21 +13,6 @@
  |      Universitaet der Bundeswehr Muenchen                                |
  |      email: matthias.gerdts@unibw.de                                     |
  |                                                                          |
- |  Licensed under the EUPL, Version 1.1 or – as soon they will be          |
- |  approved by the European Commission - subsequent versions of the EUPL   |
- |  (the "Licence"); You may not use this work except in compliance with    |
- |  the Licence.                                                            |
- |  You may obtain a copy of the Licence at:                                |
- |                                                                          |
- |  http://ec.europa.eu/idabc/eupl5                                         |
- |                                                                          |
- |  Unless required by applicable law or agreed to in writing, software     |
- |  distributed under the Licence is distributed on an "AS IS" basis,       |
- |  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or         |
- |  implied.                                                                |
- |  See the Licence for the specific language governing permissions and     |
- |  limitations under the Licence.                                          |
- |                                                                          |
 \*--------------------------------------------------------------------------*/
 
 #include "Alglin.hh"
@@ -62,33 +47,26 @@ main() {
     Simplex::valueType xd[100], xdd[100];
     Simplex::integer   IBd[100];
 
-    std::cout << "\n\n\n\n\n\n\n\n\n\n";
+    fmt::print( "\n\n\n\n\n\n\n\n\n\n" );
 
     simplex_problem_aux.feasible_point( xd, IBd );
     simplex.solve( &simplex_problem_aux, xd, IBd );
     simplex_problem_aux.to_primal( xd, xdd, IBd );
 
-    std::cout
-      << "xdd = "
-      << xdd[0] << " "
-      << xdd[1] << " "
-      << xdd[2] << " "
-      << xdd[3] << " "
-      << xdd[4] << "\n";
-   std::cout
-      << "IBd = "
-      << IBd[0] << " "
-      << IBd[1] << " "
-      << IBd[2] << "\n";
+    fmt::print(
+      "xdd = {} {} {} {} {}\n",
+      xdd[0], xdd[1], xdd[2], xdd[3], xdd[4]
+    );
+    fmt::print( "IBd = {} {} {}\n", IBd[0], IBd[1], IBd[2]);
     simplex.solve( &simplex_problem, xdd, IBd );
   }
   catch ( std::exception const & err ) {
-    std::cerr << "Error: " << err.what();
+    fmt::print( "Error: {}\n", err.what() );
   }
   catch (...) {
-    std::cerr << "Unknwn error\n";
+     fmt::print( "Unknwn error\n" );
   }
 
-  std::cout << "\nAll Done Folks!\n";
+  fmt::print( "\nAll Done Folks!\n" );
   return 0;
 }

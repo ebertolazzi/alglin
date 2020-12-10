@@ -116,8 +116,20 @@ namespace alglin {
     using BlockBidiagonal<t_Value>::factorize;
     using BlockBidiagonal<t_Value>::dump_ccoord;
 
+    using BlockBidiagonal<t_Value>::m_n;
+    using BlockBidiagonal<t_Value>::m_nxnx2;
+    using BlockBidiagonal<t_Value>::m_nxn;
+    using BlockBidiagonal<t_Value>::m_nblock;
+
     using BlockBidiagonal<t_Value>::m_baseInteger;
     using BlockBidiagonal<t_Value>::m_baseValue;
+
+    using BlockBidiagonal<t_Value>::m_numInitialBC;
+    using BlockBidiagonal<t_Value>::m_numFinalBC;
+    using BlockBidiagonal<t_Value>::m_numCyclicBC;
+    using BlockBidiagonal<t_Value>::m_numInitialOMEGA;
+    using BlockBidiagonal<t_Value>::m_numFinalOMEGA;
+    using BlockBidiagonal<t_Value>::m_numCyclicOMEGA;
 
     using BlockBidiagonal<t_Value>::m_DE_blk;
     using BlockBidiagonal<t_Value>::m_H0Nq;
@@ -126,6 +138,9 @@ namespace alglin {
     using BlockBidiagonal<t_Value>::m_Bmat;
     using BlockBidiagonal<t_Value>::m_Cmat;
     using BlockBidiagonal<t_Value>::m_Dmat;
+
+    using BlockBidiagonal<t_Value>::m_la_matrix;
+    using BlockBidiagonal<t_Value>::m_la_factorization;
 
     explicit BlockLU() {}
     // ~BlockLU() UTILS_OVERRIDE {}

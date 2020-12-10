@@ -132,6 +132,19 @@ namespace alglin {
   public:
 
     using BlockBidiagonal<t_Value>::m_baseInteger;
+
+    using BlockBidiagonal<t_Value>::m_n;
+    using BlockBidiagonal<t_Value>::m_nxnx2;
+    using BlockBidiagonal<t_Value>::m_nxn;
+    using BlockBidiagonal<t_Value>::m_nblock;
+
+    using BlockBidiagonal<t_Value>::m_numInitialBC;
+    using BlockBidiagonal<t_Value>::m_numFinalBC;
+    using BlockBidiagonal<t_Value>::m_numCyclicBC;
+    using BlockBidiagonal<t_Value>::m_numInitialOMEGA;
+    using BlockBidiagonal<t_Value>::m_numFinalOMEGA;
+    using BlockBidiagonal<t_Value>::m_numCyclicOMEGA;
+
     using BlockBidiagonal<t_Value>::m_DE_blk;
     using BlockBidiagonal<t_Value>::m_H0Nq;
     using BlockBidiagonal<t_Value>::m_block0;
@@ -142,6 +155,8 @@ namespace alglin {
 
     using BlockBidiagonal<t_Value>::factorize;
     using BlockBidiagonal<t_Value>::dump_ccoord;
+
+    using BlockBidiagonal<t_Value>::m_la_factorization;
 
     explicit UTILS_CONSTEXPR DiazLU() : m_NB(25) {}
 

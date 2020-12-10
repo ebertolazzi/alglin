@@ -74,43 +74,43 @@ namespace alglin {
       _numFinalOMEGA, _numCyclicOMEGA
     );
 
-    q = _numInitialOMEGA + _numFinalOMEGA + _numCyclicOMEGA;
+    m_q = _numInitialOMEGA + _numFinalOMEGA + _numCyclicOMEGA;
 
     UTILS_ASSERT(
-      _numInitialBC + _numFinalBC + _numCyclicBC == _n+q,
+      _numInitialBC + _numFinalBC + _numCyclicBC == _n+m_q,
       "Bad BC specification:"
       "\nnumInitialBC    = {}"
       "\nnumFinalBC      = {}"
       "\nnumCyclicBC     = {}"
       "\nnumInitialOMEGA + numFinalOMEGA + numCyclicOMEGA must be = {}\n",
-      _numInitialBC, _numFinalBC, _numCyclicBC, _n+q
+      _numInitialBC, _numFinalBC, _numCyclicBC, _n+m_q
     );
 
-    numInitialBC    = _numInitialBC;
-    numFinalBC      = _numFinalBC;
-    numCyclicBC     = _numCyclicBC;
-    numInitialOMEGA = _numInitialOMEGA;
-    numFinalOMEGA   = _numFinalOMEGA;
-    numCyclicOMEGA  = _numCyclicOMEGA;
+    m_numInitialBC    = _numInitialBC;
+    m_numFinalBC      = _numFinalBC;
+    m_numCyclicBC     = _numCyclicBC;
+    m_numInitialOMEGA = _numInitialOMEGA;
+    m_numFinalOMEGA   = _numFinalOMEGA;
+    m_numCyclicOMEGA  = _numCyclicOMEGA;
 
-    nblock = _nblock;
-    n      = _n;
-    nb     = _nb;
-    neq    = (nblock+1)*n+q;
-    nx2    = n*2;
-    nxn    = n*n;
-    nxnx2  = nxn*2;
-    nxnb   = n*nb;
-    integer DE_size   = nblock*nxnx2;
-    integer H0Nq_size = (n+q)*(nx2+q);
-    integer BC_size   = nb*neq;
-    m_baseValue.allocate(size_t(DE_size+H0Nq_size+2*BC_size+nb*nb+num_extra_r));
+    m_nblock = _nblock;
+    m_n      = _n;
+    m_nb     = _nb;
+    m_neq    = (m_nblock+1)*m_n+m_q;
+    m_nx2    = m_n*2;
+    m_nxn    = m_n*m_n;
+    m_nxnx2  = m_nxn*2;
+    m_nxnb   = m_n*m_nb;
+    integer DE_size   = m_nblock*m_nxnx2;
+    integer H0Nq_size = (m_n+m_q)*(m_nx2+m_q);
+    integer BC_size   = m_nb*m_neq;
+    m_baseValue.allocate(size_t(DE_size+H0Nq_size+2*BC_size+m_nb*m_nb+num_extra_r));
     m_baseInteger.allocate(size_t(num_extra_i));
     m_DE_blk = m_baseValue(size_t(DE_size));
     m_H0Nq   = m_baseValue(size_t(H0Nq_size));
     m_Bmat   = m_baseValue(size_t(BC_size));
     m_Cmat   = m_baseValue(size_t(BC_size));
-    m_Dmat   = m_baseValue(size_t(nb*nb));
+    m_Dmat   = m_baseValue(size_t(m_nb*m_nb));
     m_block0 = nullptr;
     m_blockN = nullptr;
   }
@@ -131,7 +131,7 @@ namespace alglin {
     valueType const Hq[], integer ldQ
   ) {
 
-    if ( numCyclicBC == 0 && numCyclicOMEGA == 0 ) {
+    if ( m_numCyclicBC == 0 && m_numCyclicOMEGA == 0 ) {
       /*\
        |  +----+-----+---+
        |  | H0 | HN  |Hq |
@@ -142,25 +142,25 @@ namespace alglin {
        |  |blk0|  0   |    :blk0|
        |  +----+------+---------+
       \*/
-      integer row0  = numInitialBC;
-      integer rowN  = numFinalBC;
-      integer col00 = numInitialOMEGA;
-      integer colNN = numFinalOMEGA;
+      integer row0  = m_numInitialBC;
+      integer rowN  = m_numFinalBC;
+      integer col00 = m_numInitialOMEGA;
+      integer colNN = m_numFinalOMEGA;
 
       m_block0 = m_H0Nq;
-      m_blockN = m_H0Nq+row0*(n+col00);
+      m_blockN = m_H0Nq+row0*(m_n+col00);
 
-      gecopy( rowN, n,     HN, ldN, m_blockN,        rowN );
-      gecopy( rowN, colNN, Hq, ldQ, m_blockN+n*rowN, rowN );
+      gecopy( rowN, m_n,   HN, ldN, m_blockN,          rowN );
+      gecopy( rowN, colNN, Hq, ldQ, m_blockN+m_n*rowN, rowN );
 
       gecopy( row0, col00, Hq+rowN+colNN*ldQ, ldQ, m_block0,            row0 );
-      gecopy( row0, n,     H0+rowN,           ld0, m_block0+col00*row0, row0 );
+      gecopy( row0, m_n,   H0+rowN,           ld0, m_block0+col00*row0, row0 );
 
     } else {
-      integer m = n + q;
-      gecopy( m, n, H0, ld0, m_H0Nq,       m );
-      gecopy( m, n, HN, ldN, m_H0Nq+m*n,   m );
-      gecopy( m, q, Hq, ldQ, m_H0Nq+2*m*n, m );
+      integer m = m_n + m_q;
+      gecopy( m, m_n, H0, ld0, m_H0Nq,         m );
+      gecopy( m, m_n, HN, ldN, m_H0Nq+m*m_n,   m );
+      gecopy( m, m_q, Hq, ldQ, m_H0Nq+2*m*m_n, m );
     }
 
   }
@@ -209,16 +209,16 @@ namespace alglin {
   ) {
 
     UTILS_ASSERT(
-      numCyclicBC == 0 && numCyclicOMEGA == 0,
+      m_numCyclicBC == 0 && m_numCyclicOMEGA == 0,
       "in loadTopBottom numCyclicBC = {} and numCyclicOMEGA = {} "
       "must be both zero!\n",
-      numCyclicBC, numCyclicOMEGA
+      m_numCyclicBC, m_numCyclicOMEGA
     );
 
-    integer row0 = numInitialBC;
-    integer rowN = numFinalBC;
-    integer col0 = n + numInitialOMEGA;
-    integer colN = n + numFinalOMEGA;
+    integer row0 = m_numInitialBC;
+    integer rowN = m_numFinalBC;
+    integer col0 = m_n + m_numInitialOMEGA;
+    integer colN = m_n + m_numFinalOMEGA;
 
     m_block0 = m_H0Nq;
     m_blockN = m_H0Nq+row0*col0;
@@ -253,11 +253,11 @@ namespace alglin {
     // / S  R  0  \ /x(0)\  = b(0)
     // \ H0 HN Hq / \x(N)/  = b(N)
     */
-    integer m  = n+q;
-    integer mn = m+n;
+    integer m  = m_n+m_q;
+    integer mn = m+m_n;
 
-    la_matrix.setup( mn, mn );
-    if ( this->numCyclicBC == 0 && this->numCyclicOMEGA == 0 ) {
+    m_la_matrix.setup( mn, mn );
+    if ( m_numCyclicBC == 0 && m_numCyclicOMEGA == 0 ) {
       /*\
        |  +----+-----+---+
        |  | H0 | HN  |Hq |
@@ -268,23 +268,23 @@ namespace alglin {
        |  |blk0|  0   |    :blk0|
        |  +----+------+---------+
       \*/
-      integer row0  = numInitialBC;
-      integer rowN  = numFinalBC;
-      integer col00 = numInitialOMEGA;
-      integer colNN = numFinalOMEGA;
-      la_matrix.load_block( n, nx2, m_DE_blk, n );
-      la_matrix.zero_block( m, mn, n, 0 );
-      la_matrix.load_block( rowN, n+colNN, m_blockN, rowN, n, n );
-      la_matrix.load_block( row0, n,       m_block0+col00*row0, row0, n+rowN, 0 );
-      la_matrix.load_block( row0, col00,   m_block0,            row0, n+rowN, nx2+colNN );
+      integer row0  = m_numInitialBC;
+      integer rowN  = m_numFinalBC;
+      integer col00 = m_numInitialOMEGA;
+      integer colNN = m_numFinalOMEGA;
+      m_la_matrix.load_block( m_n, m_nx2, m_DE_blk, m_n );
+      m_la_matrix.zero_block( m, mn, m_n, 0 );
+      m_la_matrix.load_block( rowN, m_n+colNN, m_blockN,            rowN, m_n,      m_n );
+      m_la_matrix.load_block( row0, m_n,       m_block0+col00*row0, row0, m_n+rowN, 0 );
+      m_la_matrix.load_block( row0, col00,     m_block0,            row0, m_n+rowN, m_nx2+colNN );
     } else {
-      la_matrix.load_block( n, nx2, m_DE_blk, n );
-      la_matrix.load_block( m, mn, m_H0Nq, m, n, 0 );
-      if ( m > n ) la_matrix.zero_block( n, q, 0, nx2 );
+      m_la_matrix.load_block( m_n, m_nx2, m_DE_blk, m_n );
+      m_la_matrix.load_block( m,   mn,    m_H0Nq,   m, m_n, 0 );
+      if ( m > m_n ) m_la_matrix.zero_block( m_n, m_q, 0, m_nx2 );
     }
 
     // fattorizzazione ultimo blocco
-    this->la_factorization->factorize( "BlockBidiagonal::last_block_factorize", la_matrix );
+    m_la_factorization->factorize( "BlockBidiagonal::last_block_factorize", m_la_matrix );
   }
 
   /*\
@@ -300,25 +300,25 @@ namespace alglin {
   BlockBidiagonal<t_Value>::factorize_bordered() {
 
     this->factorize(); // factorize top left block
-    if ( nb > 0 ) {
+    if ( m_nb > 0 ) {
       // Compute aux matrix
       // Z = A^(-1)*B
       // W = C*Z - D
       valueType * Zmat = m_Bmat;
-      this->solve( nb, Zmat, neq );
+      this->solve( m_nb, Zmat, m_neq );
       gemm(
         NO_TRANSPOSE,
         NO_TRANSPOSE,
-        nb, nb, neq,
+        m_nb, m_nb, m_neq,
         1,
-        m_Cmat, nb,
-        Zmat, neq,
+        m_Cmat, m_nb,
+        Zmat, m_neq,
         -1,
-        m_Dmat, nb
+        m_Dmat, m_nb
       );
-      bb_factorization->factorize(
+      m_bb_factorization->factorize(
         "BlockBidiagonal::factorize_bordered",
-        nb, nb, m_Dmat, nb
+        m_nb, m_nb, m_Dmat, m_nb
       );
     }
   }
@@ -328,24 +328,24 @@ namespace alglin {
   BlockBidiagonal<t_Value>::solve_bordered( valueType xb[] ) const {
     // a' = A^(-1)*a
     this->solve( xb );
-    if ( nb > 0 ) {
+    if ( m_nb > 0 ) {
       // b' = C*a' - b
       gemv(
         NO_TRANSPOSE,
-        nb, neq,
-        1, m_Cmat, nb,
+        m_nb, m_neq,
+        1, m_Cmat, m_nb,
         xb, 1,
-        -1, xb+neq, 1
+        -1, xb+m_neq, 1
       );
       // y = W^(-1) * b'
-      bb_factorization->solve( xb+neq );
+      m_bb_factorization->solve( xb+m_neq );
       // x = a' - Z*y
       valueType * Zmat = m_Bmat;
       gemv(
         NO_TRANSPOSE,
-        neq, nb,
-        -1, Zmat, neq,
-        xb+neq, 1,
+        m_neq, m_nb,
+        -1, Zmat, m_neq,
+        xb+m_neq, 1,
         1, xb, 1
       );
     }
@@ -360,26 +360,26 @@ namespace alglin {
   ) const {
     // a' = A^(-1)*a
     this->solve( nrhs, xb, ldRhs );
-    if ( nb > 0 ) {
+    if ( m_nb > 0 ) {
       // b' = C*a' - b
       gemm(
         NO_TRANSPOSE,
         NO_TRANSPOSE,
-        nb, nrhs, neq,
-        1, m_Cmat, nb,
+        m_nb, nrhs, m_neq,
+        1, m_Cmat, m_nb,
         xb, ldRhs,
-        -1, xb+neq, ldRhs
+        -1, xb+m_neq, ldRhs
       );
       // y = W^(-1) * b'
-      bb_factorization->solve( nrhs, xb+neq, ldRhs );
+      m_bb_factorization->solve( nrhs, xb+m_neq, ldRhs );
       // x = a' - Z*y
       valueType * Zmat = m_Bmat;
       gemm(
         NO_TRANSPOSE,
         NO_TRANSPOSE,
-        neq, nrhs, nb,
-        -1, Zmat, neq,
-        xb+neq, ldRhs,
+        m_neq, nrhs, m_nb,
+        -1, Zmat, m_neq,
+        xb+m_neq, ldRhs,
         1, xb, ldRhs
       );
     }
@@ -425,14 +425,14 @@ namespace alglin {
   BlockBidiagonal<t_Value>::dump_to_Maple( ostream_type & stream ) const {
 
     stream << "interface( rtablesize = 40 );\n";
-    for ( integer row = 0; row < nblock; ++row ) {
-      valueType const * Ad = m_DE_blk + 2*row*n*n;
-      valueType const * Au = Ad + n*n;
-      dumpOneMatrix( stream, "Ad", Ad, n, n );
-      dumpOneMatrix( stream, "Au", Au, n, n );
+    for ( integer row = 0; row < m_nblock; ++row ) {
+      valueType const * Ad = m_DE_blk + 2*row*m_n*m_n;
+      valueType const * Au = Ad + m_n*m_n;
+      dumpOneMatrix( stream, "Ad", Ad, m_n, m_n );
+      dumpOneMatrix( stream, "Au", Au, m_n, m_n );
     }
 
-    dumpOneMatrix( stream, "H0Nq", m_H0Nq, n+q, 2*n+q );
+    dumpOneMatrix( stream, "H0Nq", m_H0Nq, m_n+m_q, 2*m_n+m_q );
 
     stream << "with(LinearAlgebra):\n";
     stream << "Determinant(Ad);\n";
@@ -448,25 +448,25 @@ namespace alglin {
     valueType const x[],
     valueType       res[]
   ) const {
-    alglin::zero( neq+nb, res, 1 );
-    if ( numCyclicBC == 0 && numCyclicOMEGA == 0 ) {
-      integer row0  = numInitialBC;
-      integer rowN  = numFinalBC;
-      integer col00 = numInitialOMEGA;
-      integer colNN = numFinalOMEGA;
+    alglin::zero( m_neq+m_nb, res, 1 );
+    if ( m_numCyclicBC == 0 && m_numCyclicOMEGA == 0 ) {
+      integer row0  = m_numInitialBC;
+      integer rowN  = m_numFinalBC;
+      integer col00 = m_numInitialOMEGA;
+      integer colNN = m_numFinalOMEGA;
 
-      valueType const * xe   = x+neq-(n+colNN+col00);
-      valueType       * rese = res+neq-(row0+rowN);
+      valueType const * xe   = x+m_neq-(m_n+colNN+col00);
+      valueType       * rese = res+m_neq-(row0+rowN);
 
       gemv(
-        NO_TRANSPOSE, rowN, n+colNN,
+        NO_TRANSPOSE, rowN, m_n+colNN,
         1.0, m_blockN, rowN,
         xe, 1,
         1.0, rese, 1
       );
 
       gemv(
-        NO_TRANSPOSE, row0, n,
+        NO_TRANSPOSE, row0, m_n,
         1.0, m_block0+col00*row0, row0,
         x, 1,
         1.0, rese+rowN, 1
@@ -475,32 +475,32 @@ namespace alglin {
       gemv(
         NO_TRANSPOSE, row0, col00,
         1.0, m_block0, row0,
-        xe+n+colNN, 1,
+        xe+m_n+colNN, 1,
         1.0, rese+rowN, 1
       );
     } else {
-      integer m = n+q;
-      valueType const * xe   = x+neq-(n+numInitialOMEGA+numFinalOMEGA+numCyclicOMEGA);
-      valueType       * rese = res+neq-(numInitialBC+numFinalBC+numCyclicBC);
+      integer m = m_n+m_q;
+      valueType const * xe   = x+m_neq-(m_n+m_numInitialOMEGA+m_numFinalOMEGA+m_numCyclicOMEGA);
+      valueType       * rese = res+m_neq-(m_numInitialBC+m_numFinalBC+m_numCyclicBC);
 
       gemv(
-        NO_TRANSPOSE, m, n,
+        NO_TRANSPOSE, m, m_n,
         1.0, m_H0Nq, m,
         x, 1,
         1.0, rese, 1
       );
 
       gemv(
-        NO_TRANSPOSE, m, n,
-        1.0, m_H0Nq+m*n, m,
+        NO_TRANSPOSE, m, m_n,
+        1.0, m_H0Nq+m*m_n, m,
         xe, 1,
         1.0, rese, 1
       );
 
       gemv(
-        NO_TRANSPOSE, m, q,
-        1.0, m_H0Nq+m*nx2, m,
-        xe+n, 1,
+        NO_TRANSPOSE, m, m_q,
+        1.0, m_H0Nq+m*m_nx2, m,
+        xe+m_n, 1,
         1.0, rese, 1
       );
     }
@@ -509,35 +509,35 @@ namespace alglin {
     t_Value const * xx = x;
     t_Value *       yy = res;
     t_Value const * DE = m_DE_blk;
-    for ( integer i = 0; i < nblock; ++i ) {
+    for ( integer i = 0; i < m_nblock; ++i ) {
       gemv(
-        NO_TRANSPOSE, n, nx2,
-        1.0, DE, n,
+        NO_TRANSPOSE, m_n, m_nx2,
+        1.0, DE, m_n,
         xx, 1,
         1.0, yy, 1
       );
-      xx += n;
-      yy += n;
-      DE += nxnx2;
+      xx += m_n;
+      yy += m_n;
+      DE += m_nxnx2;
     }
-    if ( nb > 0 ) {
+    if ( m_nb > 0 ) {
       gemv(
-        NO_TRANSPOSE, neq, nb,
-        1.0, m_Bmat, neq,
-        x+neq, 1,
+        NO_TRANSPOSE, m_neq, m_nb,
+        1.0, m_Bmat, m_neq,
+        x+m_neq, 1,
         1.0, res, 1
       );
       gemv(
-        NO_TRANSPOSE, nb, neq,
-        1.0, m_Cmat, nb,
+        NO_TRANSPOSE, m_nb, m_neq,
+        1.0, m_Cmat, m_nb,
         x, 1,
-        1.0, res+neq, 1
+        1.0, res+m_neq, 1
       );
       gemv(
-        NO_TRANSPOSE, nb, nb,
-        1.0, m_Dmat, nb,
-        x+neq, 1,
-        1.0, res+neq, 1
+        NO_TRANSPOSE, m_nb, m_nb,
+        1.0, m_Dmat, m_nb,
+        x+m_neq, 1,
+        1.0, res+m_neq, 1
       );
     }
   }
@@ -555,79 +555,94 @@ namespace alglin {
   template <typename t_Value>
   void
   BlockBidiagonal<t_Value>::dump_ccoord( ostream_type & stream ) const {
-    integer nnz = nblock*nxnx2 + 2*(nblock+1)*n*nb + nb*nb;
+    integer nnz = m_nblock*m_nxnx2 + 2*(m_nblock+1)*m_n*m_nb + m_nb*m_nb;
 
     // BC
     integer ii;
-    if ( numCyclicBC == 0 && numCyclicOMEGA == 0 ) {
+    if ( m_numCyclicBC == 0 && m_numCyclicOMEGA == 0 ) {
 
-      integer row0  = numInitialBC;
-      integer rowN  = numFinalBC;
-      integer col00 = numInitialOMEGA;
-      integer colNN = numFinalOMEGA;
+      integer row0  = m_numInitialBC;
+      integer rowN  = m_numFinalBC;
+      integer col00 = m_numInitialOMEGA;
+      integer colNN = m_numFinalOMEGA;
 
-      nnz += row0 * ( n + col00 ) + rowN * ( n + colNN );
-      stream << nnz << '\n';
+      nnz += row0 * ( m_n + col00 ) + rowN * ( m_n + colNN );
+      fmt::print( stream, "{}\n", nnz );
 
-      ii = nblock*n;
+      ii = m_nblock*m_n;
       for ( integer i = 0; i < rowN; ++i )
-        for ( integer j = 0; j < n+colNN; ++j )
-          stream
-            << ii+i << '\t'
-            << ii+j << '\t'
-            << m_blockN[i+j*rowN] << '\n';
+        for ( integer j = 0; j < m_n+colNN; ++j )
+          fmt::print(
+            stream, "{}\t{}\t{}\n", ii+i, ii+j,
+            m_blockN[i+j*rowN]
+          );
 
       for ( integer i = 0; i < row0; ++i )
-        for ( integer j = 0; j < n; ++j )
-          stream
-            << ii+rowN+i << '\t'
-            << j         << '\t'
-            << m_block0[i+(j+col00)*row0] << '\n';
+        for ( integer j = 0; j < m_n; ++j )
+          fmt::print(
+            stream, "{}\t{}\t{}\n",
+            ii+rowN+i, j, m_block0[i+(j+col00)*row0]
+          );
 
       for ( integer i = 0; i < row0; ++i )
         for ( integer j = 0; j < col00; ++j )
-          stream
-            << ii+rowN+i    << '\t'
-            << ii+n+colNN+j << '\t'
-            << m_block0[i+j*row0] << '\n';
+          fmt::print(
+            stream, "{}\t{}\t{}\n",
+            ii+rowN+i, ii+m_n+colNN+j, m_block0[i+j*row0]
+          );
 
     } else {
 
-      nnz += (n+q)*(2*n+q);
+      integer nq = m_n+m_q;
+      nnz += nq*(2*nq);
       stream << nnz << '\n';
 
       valueType * H0 = m_H0Nq;
-      ii = nblock*n;
-      for ( integer i = 0; i < n+q; ++i )
-        for ( integer j = 0; j < n; ++j )
-          stream << ii+i << '\t' << j << '\t' << H0[i+j*(n+q)] << '\n';
+      ii = m_nblock*m_n;
+      for ( integer i = 0; i < nq; ++i )
+        for ( integer j = 0; j < m_n; ++j )
+          fmt::print(
+            stream, "{}\t{}\t{}\n",
+            ii+i, j, H0[i+j*nq]
+          );
 
-      valueType * HNq = m_H0Nq+n*(n+q);
-      for ( integer i = 0; i < n+q; ++i )
-        for ( integer j = 0; j < n+q; ++j )
-          stream << ii+i << '\t' << ii+j << '\t' << HNq[i+j*(n+q)] << '\n';
+      valueType * HNq = m_H0Nq+m_n*nq;
+      for ( integer i = 0; i < nq; ++i )
+        for ( integer j = 0; j < nq; ++j )
+          fmt::print(
+            stream, "{}\t{}\t{}\n",
+            ii+i, ii+j, HNq[i+j*nq]
+          );
     }
 
     // bidiagonal
-    for ( integer k = 0; k < nblock; ++k ) {
-      ii = k*n;
-      valueType * DE = m_DE_blk + k * nxnx2;
-      for ( integer i = 0; i < n; ++i )
-        for ( integer j = 0; j < nx2; ++j )
-          stream << ii+i << '\t' << ii+j << '\t' << DE[i+j*n] << '\n';
+    for ( integer k = 0; k < m_nblock; ++k ) {
+      ii = k*m_n;
+      valueType * DE = m_DE_blk + k * m_nxnx2;
+      for ( integer i = 0; i < m_n; ++i )
+        for ( integer j = 0; j < m_nx2; ++j )
+          fmt::print(
+            stream, "{}\t{}\t{}\n",
+            ii+i, ii+j, DE[i+j*m_n]
+          );
     }
 
     // border
-    ii = n*(nblock+1)+q;
-    for ( integer i = 0; i < nb; ++i )
+    ii = m_n*(m_nblock+1)+m_q;
+    for ( integer i = 0; i < m_nb; ++i )
       for ( integer j = 0; j < ii; ++j )
-        stream
-          << ii+i << '\t' << j << '\t' << m_Cmat[i+j*nb] << '\n'
-          << j << '\t' << ii+i << '\t' << m_Bmat[j+i*ii] << '\n';
+          fmt::print(
+            stream, "{}\t{}\t{}\n{}\t{}\t{}\n",
+            ii+i, j, m_Cmat[i+j*m_nb],
+            j, ii+i, m_Bmat[j+i*ii]
+          );
 
-    for ( integer i = 0; i < nb; ++i )
-      for ( integer j = 0; j < nb; ++j )
-        stream << ii+i << '\t' << ii+j << '\t' << m_Dmat[i+j*nb] << '\n';
+    for ( integer i = 0; i < m_nb; ++i )
+      for ( integer j = 0; j < m_nb; ++j )
+        fmt::print(
+          stream, "{}\t{}\t{}\n",
+          ii+i, ii+j, m_Dmat[i+j*m_nb]
+        );
 
   }
 
@@ -642,15 +657,15 @@ namespace alglin {
   template <typename t_Value>
   integer
   BlockBidiagonal<t_Value>::sparseNnz() const {
-    integer nnz = nblock*nxnx2 + 2*(nblock+1)*n*nb + nb*nb;
-    if ( numCyclicBC == 0 && numCyclicOMEGA == 0 ) {
-      integer row0  = numInitialBC;
-      integer rowN  = numFinalBC;
-      integer col00 = numInitialOMEGA;
-      integer colNN = numFinalOMEGA;
-      nnz += row0 * ( n + col00 ) + rowN * ( n + colNN );
+    integer nnz = m_nblock*m_nxnx2 + 2*(m_nblock+1)*m_n*m_nb + m_nb*m_nb;
+    if ( m_numCyclicBC == 0 && m_numCyclicOMEGA == 0 ) {
+      integer row0  = m_numInitialBC;
+      integer rowN  = m_numFinalBC;
+      integer col00 = m_numInitialOMEGA;
+      integer colNN = m_numFinalOMEGA;
+      nnz += row0 * ( m_n + col00 ) + rowN * ( m_n + colNN );
     } else {
-      nnz += (n+q)*(2*n+q);
+      nnz += (m_n+m_q)*(2*m_n+m_q);
     }
     return nnz;
   }
@@ -662,16 +677,16 @@ namespace alglin {
 
     // BC
     integer ii;
-    if ( numCyclicBC == 0 && numCyclicOMEGA == 0 ) {
+    if ( m_numCyclicBC == 0 && m_numCyclicOMEGA == 0 ) {
 
-      integer row0  = numInitialBC;
-      integer rowN  = numFinalBC;
-      integer col00 = numInitialOMEGA;
-      integer colNN = numFinalOMEGA;
+      integer row0  = m_numInitialBC;
+      integer rowN  = m_numFinalBC;
+      integer col00 = m_numInitialOMEGA;
+      integer colNN = m_numFinalOMEGA;
 
-      ii = nblock*n;
+      ii = m_nblock*m_n;
       for ( integer i = 0; i < rowN; ++i ) {
-        for ( integer j = 0; j < n+colNN; ++j ) {
+        for ( integer j = 0; j < m_n+colNN; ++j ) {
           I[kkk] = ii+i;
           J[kkk] = ii+j;
           ++kkk;
@@ -679,7 +694,7 @@ namespace alglin {
       }
 
       for ( integer i = 0; i < row0; ++i ) {
-        for ( integer j = 0; j < n; ++j ) {
+        for ( integer j = 0; j < m_n; ++j ) {
           I[kkk] = ii+rowN+i;
           J[kkk] = j;
           ++kkk;
@@ -689,24 +704,26 @@ namespace alglin {
       for ( integer i = 0; i < row0; ++i ) {
         for ( integer j = 0; j < col00; ++j ) {
           I[kkk] = ii+rowN+i;
-          J[kkk] = ii+n+colNN+j;
+          J[kkk] = ii+m_n+colNN+j;
           ++kkk;
         }
       }
 
     } else {
 
-      ii = nblock*n;
-      for ( integer i = 0; i < n+q; ++i ) {
-        for ( integer j = 0; j < n; ++j ) {
+      integer nq = m_n + m_q;
+
+      ii = m_nblock*m_n;
+      for ( integer i = 0; i < nq; ++i ) {
+        for ( integer j = 0; j < m_n; ++j ) {
           I[kkk] = ii+i;
           J[kkk] = j;
           ++kkk;
         }
       }
 
-      for ( integer i = 0; i < n+q; ++i ) {
-        for ( integer j = 0; j < n+q; ++j ) {
+      for ( integer i = 0; i < nq; ++i ) {
+        for ( integer j = 0; j < nq; ++j ) {
           I[kkk] = ii+i;
           J[kkk] = ii+j;
           ++kkk;
@@ -715,10 +732,10 @@ namespace alglin {
     }
 
     // bidiagonal
-    for ( integer k = 0; k < nblock; ++k ) {
-      ii = k*n;
-      for ( integer i = 0; i < n; ++i ) {
-        for ( integer j = 0; j < nx2; ++j ) {
+    for ( integer k = 0; k < m_nblock; ++k ) {
+      ii = k*m_n;
+      for ( integer i = 0; i < m_n; ++i ) {
+        for ( integer j = 0; j < m_nx2; ++j ) {
           I[kkk] = ii+i;
           J[kkk] = ii+j;
           ++kkk;
@@ -727,8 +744,8 @@ namespace alglin {
     }
 
     // border
-    ii = n*(nblock+1)+q;
-    for ( integer i = 0; i < nb; ++i ) {
+    ii = m_n*(m_nblock+1)+m_q;
+    for ( integer i = 0; i < m_nb; ++i ) {
       for ( integer j = 0; j < ii; ++j ) {
         I[kkk] = ii+i;
         J[kkk] = j;
@@ -739,8 +756,8 @@ namespace alglin {
       }
     }
 
-    for ( integer i = 0; i < nb; ++i ) {
-      for ( integer j = 0; j < nb; ++j ) {
+    for ( integer i = 0; i < m_nb; ++i ) {
+      for ( integer j = 0; j < m_nb; ++j ) {
         I[kkk] = ii+i;
         J[kkk] = ii+j;
         ++kkk;
@@ -761,20 +778,20 @@ namespace alglin {
 
     // BC
     integer ii;
-    if ( numCyclicBC == 0 && numCyclicOMEGA == 0 ) {
+    if ( m_numCyclicBC == 0 && m_numCyclicOMEGA == 0 ) {
 
-      integer row0  = numInitialBC;
-      integer rowN  = numFinalBC;
-      integer col00 = numInitialOMEGA;
-      integer colNN = numFinalOMEGA;
+      integer row0  = m_numInitialBC;
+      integer rowN  = m_numFinalBC;
+      integer col00 = m_numInitialOMEGA;
+      integer colNN = m_numFinalOMEGA;
 
-      ii = nblock*n;
+      ii = m_nblock*m_n;
       for ( integer i = 0; i < rowN; ++i )
-        for ( integer j = 0; j < n+colNN; ++j )
+        for ( integer j = 0; j < m_n+colNN; ++j )
           V[kkk++] = m_blockN[i+j*rowN];
 
       for ( integer i = 0; i < row0; ++i )
-        for ( integer j = 0; j < n; ++j )
+        for ( integer j = 0; j < m_n; ++j )
           V[kkk++] = m_block0[i+(j+col00)*row0];
 
       for ( integer i = 0; i < row0; ++i )
@@ -783,39 +800,41 @@ namespace alglin {
 
     } else {
 
-      valueType * H0 = m_H0Nq;
-      ii = nblock*n;
-      for ( integer i = 0; i < n+q; ++i )
-        for ( integer j = 0; j < n; ++j )
-          V[kkk++] = H0[i+j*(n+q)];
+      integer nq = m_n + m_q;
 
-      valueType * HNq = m_H0Nq+n*(n+q);
-      for ( integer i = 0; i < n+q; ++i )
-        for ( integer j = 0; j < n+q; ++j )
-          V[kkk++] = HNq[i+j*(n+q)];
+      valueType * H0 = m_H0Nq;
+      ii = m_nblock*m_n;
+      for ( integer i = 0; i < nq; ++i )
+        for ( integer j = 0; j < m_n; ++j )
+          V[kkk++] = H0[i+j*nq];
+
+      valueType * HNq = m_H0Nq+m_n*nq;
+      for ( integer i = 0; i < nq; ++i )
+        for ( integer j = 0; j < nq; ++j )
+          V[kkk++] = HNq[i+j*nq];
     }
 
     // bidiagonal
-    for ( integer k = 0; k < nblock; ++k ) {
-      ii = k*n;
-      valueType * DE = m_DE_blk + k * nxnx2;
-      for ( integer i = 0; i < n; ++i )
-        for ( integer j = 0; j < nx2; ++j )
-          V[kkk++] = DE[i+j*n];
+    for ( integer k = 0; k < m_nblock; ++k ) {
+      ii = k*m_n;
+      valueType * DE = m_DE_blk + k * m_nxnx2;
+      for ( integer i = 0; i < m_n; ++i )
+        for ( integer j = 0; j < m_nx2; ++j )
+          V[kkk++] = DE[i+j*m_n];
     }
 
     // border
-    ii = n*(nblock+1)+q;
-    for ( integer i = 0; i < nb; ++i ) {
+    ii = m_n*(m_nblock+1)+m_q;
+    for ( integer i = 0; i < m_nb; ++i ) {
       for ( integer j = 0; j < ii; ++j ) {
-        V[kkk++] = m_Cmat[i+j*nb];
+        V[kkk++] = m_Cmat[i+j*m_nb];
         V[kkk++] = m_Bmat[j+i*ii];
       }
     }
 
-    for ( integer i = 0; i < nb; ++i )
-      for ( integer j = 0; j < nb; ++j )
-        V[kkk++] = m_Dmat[i+j*nb];
+    for ( integer i = 0; i < m_nb; ++i )
+      for ( integer j = 0; j < m_nb; ++j )
+        V[kkk++] = m_Dmat[i+j*m_nb];
 
     UTILS_ASSERT(
       kkk == sparseNnz(),

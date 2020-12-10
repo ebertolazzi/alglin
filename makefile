@@ -43,6 +43,7 @@ all: lib
 	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test5-ABD-Diaz            src_tests/test5-ABD-Diaz.cc            $(LIBS) $(LIBSGCC)
 	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test6-ABD-Block           src_tests/test6-ABD-Block.cc           $(LIBS) $(LIBSGCC)
 	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test7-BorderedCR          src_tests/test7-BorderedCR.cc          $(LIBS) $(LIBSGCC)
+	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test7b-BorderedCR         src_tests/test7b-BorderedCR.cc         $(LIBS) $(LIBSGCC)
 	$(CC)  $(INC) $(DEFS) $(CXXFLAGS) -o bin/test8-Cinterface          src_tests/test8-Cinterface.c           $(LIBS) $(LIBSGCC)
 	$(CC)  $(INC) $(DEFS) $(CXXFLAGS) -o bin/test9-Cinterface          src_tests/test9-Cinterface.c           $(LIBS) $(LIBSGCC)
 	$(CXX) $(INC) $(DEFS) $(CXXFLAGS) -o bin/test12-BandedMatrix       src_tests/test12-BandedMatrix.cc       $(LIBS) $(LIBSGCC)

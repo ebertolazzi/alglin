@@ -38,13 +38,13 @@ test( int nth ) {
   int ms = generator() % 2000;
 
   mtx.lock();
-  cout << "Thread N." << nth << " ms = " << ms << "\n";
+  fmt::print( "Thread N.{} ms = {}\n", nth, ms );
   mtx.unlock();
 
   Utils::sleep_for_milliseconds( ms );
 
   mtx.lock();
-  cout << "Thread N." << nth << " done_and_wait\n";
+  fmt::print( "Thread N.{} done_and_wait\n", nth );
   mtx.unlock();
 
   bar.count_down_and_wait();
@@ -52,13 +52,13 @@ test( int nth ) {
   ms = generator() % 2000;
 
   mtx.lock();
-  cout << "Thread N." << nth << " second part ms = " << ms << "\n";
+  fmt::print( "Thread N.{} second part ms = {}\n", nth, ms );
   mtx.unlock();
 
    Utils::sleep_for_milliseconds( ms );
 
   mtx.lock();
-  cout << "Thread N." << nth << " done second part\n";
+  fmt::print( "Thread N.{} done second part\n", nth );
   mtx.unlock();
   bar.count_down_and_wait();
 }
@@ -76,11 +76,10 @@ main() {
   for ( int nt = 0; nt < usedThread; ++nt ) {
     threads[nt].join();
     mtx.lock();
-    cout << "Thread N." << nt << " joined\n";
+    fmt::print( "Thread N.{} joined\n", nt );
     mtx.unlock();
   }
 
-  cout << "All done!\n";
-
+  fmt::print( "All done!\n" );
   return 0;
 }

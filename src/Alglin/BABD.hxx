@@ -60,15 +60,15 @@ namespace alglin {
     BABD( BABD<t_Value> const & );
     BABD<t_Value> const & operator = ( BABD<t_Value> const & );
 
-    DiazLU<t_Value>       diaz_LU;
-    BorderedCR<t_Value>   bordered;
+    DiazLU<t_Value>            m_diaz_LU;
+    BorderedCR<t_Value>        m_bordered;
 
-    BlockBidiagonal<t_Value> * babd_solver;
+    BlockBidiagonal<t_Value> * m_babd_solver;
 
   public:
 
     explicit UTILS_CONSTEXPR BABD()
-    : babd_solver(&bordered)
+    : m_babd_solver(&m_bordered)
     {}
 
     ~BABD() {}
@@ -76,70 +76,70 @@ namespace alglin {
     // filling bidiagonal part of the matrix
     void
     loadBlocks( valueType const AdAu[], integer ldA )
-    { babd_solver->loadBlocks( AdAu, ldA ); }
+    { m_babd_solver->loadBlocks( AdAu, ldA ); }
 
     void
     loadBlock( integer nbl, valueType const AdAu[], integer ldA )
-    { babd_solver->loadBlock( nbl, AdAu, ldA ); }
+    { m_babd_solver->loadBlock( nbl, AdAu, ldA ); }
 
     void
     loadBlockLeft( integer nbl, valueType const Ad[], integer ldA )
-    { babd_solver->loadBlockLeft( nbl, Ad, ldA ); }
+    { m_babd_solver->loadBlockLeft( nbl, Ad, ldA ); }
 
     void
     loadBlockRight( integer nbl, valueType const Au[], integer ldA )
-    { babd_solver->loadBlockRight( nbl, Au, ldA ); }
+    { m_babd_solver->loadBlockRight( nbl, Au, ldA ); }
 
     // Border Bottom blocks
     void
     setZeroBottomBlocks()
-    {  babd_solver->setZeroBottomBlocks(); }
+    { m_babd_solver->setZeroBottomBlocks(); }
 
     void
     loadBottomBlocks( valueType const C[], integer ldC )
-    {  babd_solver->loadBottomBlocks( C, ldC ); }
+    { m_babd_solver->loadBottomBlocks( C, ldC ); }
 
     void
     loadBottomBlock( integer nbl, valueType const C[], integer ldC )
-    { babd_solver->loadBottomBlock( nbl, C, ldC ); }
+    { m_babd_solver->loadBottomBlock( nbl, C, ldC ); }
 
     void
     addtoBottomBlock( integer nbl, valueType const C[], integer ldC )
-    { babd_solver->addtoBottomBlock( nbl, C, ldC ); }
+    { m_babd_solver->addtoBottomBlock( nbl, C, ldC ); }
 
     void
     addtoBottomBlock2( integer nbl, valueType const C[], integer ldC )
-    { babd_solver->addtoBottomBlock2( nbl, C, ldC ); }
+    { m_babd_solver->addtoBottomBlock2( nbl, C, ldC ); }
 
     void
     loadBottomLastBlock( valueType const C[], integer ldC )
-    { babd_solver->loadBottomLastBlock( C, ldC ); }
+    { m_babd_solver->loadBottomLastBlock( C, ldC ); }
 
     // Border Right blocks
     void
     setZeroRightBlocks()
-    { babd_solver->setZeroRightBlocks(); }
+    { m_babd_solver->setZeroRightBlocks(); }
 
     void
     loadRightBlocks( valueType const B[], integer ldB )
-    { babd_solver->loadRightBlocks( B, ldB ); }
+    { m_babd_solver->loadRightBlocks( B, ldB ); }
 
     void
     loadRightBlock( integer nbl, valueType const B[], integer ldB )
-    { babd_solver->loadRightBlock( nbl, B, ldB ); }
+    { m_babd_solver->loadRightBlock( nbl, B, ldB ); }
 
     void
     loadRightLastBlock( valueType const B[], integer ldB )
-    { babd_solver->loadRightLastBlock( B, ldB ); }
+    { m_babd_solver->loadRightLastBlock( B, ldB ); }
 
     // Border RBblock
     void
     setZeroRBblock()
-    { babd_solver->setZeroRBblock(); }
+    { m_babd_solver->setZeroRBblock(); }
 
     void
     loadRBblock( valueType const D[], integer ldD )
-    { babd_solver->loadRBblock( D, ldD ); }
+    { m_babd_solver->loadRBblock( D, ldD ); }
 
     // Bottom BC
     void
@@ -148,7 +148,7 @@ namespace alglin {
       valueType const HN[], integer ldN,
       valueType const Hq[], integer ldQ
     ) {
-      babd_solver->loadBottom( H0, ld0, HN, ldN, Hq, ldQ );
+      m_babd_solver->loadBottom( H0, ld0, HN, ldN, Hq, ldQ );
     }
 
     void
@@ -163,7 +163,7 @@ namespace alglin {
       valueType const _blockN[],
       integer         _ldN
     ) {
-      babd_solver->loadTopBottom(
+      m_babd_solver->loadTopBottom(
         _row0, _col0, _block0, _ld0,
         _rowN, _colN, _blockN, _ldN
       );
@@ -171,26 +171,26 @@ namespace alglin {
 
     void
     selectLastBlockSolver( LASTBLOCK_Choice choice )
-    { babd_solver->selectLastBlockSolver( choice ); }
+    { m_babd_solver->selectLastBlockSolver( choice ); }
 
     void
     selectLastBorderBlockSolver( LASTBLOCK_Choice choice )
-    { babd_solver->selectLastBorderBlockSolver( choice ); }
+    { m_babd_solver->selectLastBorderBlockSolver( choice ); }
 
     void
     allocate( integer nblk, integer n, integer q, integer nb )
-    { babd_solver->allocate( nblk, n, q, nb ); }
+    { m_babd_solver->allocate( nblk, n, q, nb ); }
 
     void
     selectSolver( BABD_Choice choice ) {
       switch ( choice ) {
         case BABD_DIAZ:
-          babd_solver = &diaz_LU;
+          m_babd_solver = &m_diaz_LU;
           break;
         case BABD_CYCLIC_REDUCTION_LU:
         case BABD_CYCLIC_REDUCTION_QR:
         case BABD_CYCLIC_REDUCTION_QRP:
-          babd_solver = &bordered;
+          m_babd_solver = &m_bordered;
           break;
       };
     }
@@ -216,7 +216,7 @@ namespace alglin {
       valueType HN[], integer ldN,
       valueType Hq[], integer ldq
     ) {
-      babd_solver->loadBC(
+      m_babd_solver->loadBC(
         numInitialBC,  numFinalBC,  numCyclicBC,
         numInitialOMEGA, numFinalOMEGA, numCyclicOMEGA,
         H0, ld0, HN, ldN, Hq, ldq
@@ -232,11 +232,11 @@ namespace alglin {
     \*/
     void
     factorize()
-    { babd_solver->factorize(); }
+    { m_babd_solver->factorize(); }
 
     void
     factorize_bordered()
-    { babd_solver->factorize_bordered(); }
+    { m_babd_solver->factorize_bordered(); }
 
     /*\
      |             _
@@ -248,15 +248,15 @@ namespace alglin {
     //! solve linear sistem using internal factorized matrix
     void
     solve( valueType in_out[] ) const
-    { babd_solver->solve( in_out ); }
+    { m_babd_solver->solve( in_out ); }
 
     void
     solve( integer nrhs, valueType in_out[], integer ldIO ) const
-    { babd_solver->solve( nrhs, in_out, ldIO ); }
+    { m_babd_solver->solve( nrhs, in_out, ldIO ); }
 
     void
     solve_bordered( valueType in_out[] ) const
-    { babd_solver->solve_bordered( in_out ); }
+    { m_babd_solver->solve_bordered( in_out ); }
 
     void
     solve_bordered(
@@ -264,7 +264,7 @@ namespace alglin {
       valueType rhs[],
       integer   ldRhs
     ) const {
-      babd_solver->solve_bordered( nrhs, rhs, ldRhs );
+      m_babd_solver->solve_bordered( nrhs, rhs, ldRhs );
     }
 
     /*\
@@ -278,11 +278,11 @@ namespace alglin {
 
     void
     dump_to_Maple( ostream_type & stream ) const
-    { babd_solver->dump_to_Maple( stream ); }
+    { m_babd_solver->dump_to_Maple( stream ); }
 
     void
     dump_ccoord( ostream_type & stream ) const
-    { babd_solver->dump_ccoord( stream ); }
+    { m_babd_solver->dump_ccoord( stream ); }
 
     /*\
      |   ___ _ __   __ _ _ __ ___  ___
@@ -294,15 +294,15 @@ namespace alglin {
 
     integer
     sparseNnz() const
-    { return babd_solver->sparseNnz(); }
+    { return m_babd_solver->sparseNnz(); }
 
     void
     sparsePattern( integer I[], integer J[] ) const
-    { babd_solver->sparsePattern(I,J); }
+    { m_babd_solver->sparsePattern(I,J); }
 
     void
     sparseValues( valueType vals[] ) const
-    { babd_solver->sparseValues(vals); }
+    { m_babd_solver->sparseValues(vals); }
 
   };
 }

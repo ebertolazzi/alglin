@@ -13,21 +13,6 @@
  |      Universitaet der Bundeswehr Muenchen                                |
  |      email: matthias.gerdts@unibw.de                                     |
  |                                                                          |
- |  Licensed under the EUPL, Version 1.1 or – as soon they will be          |
- |  approved by the European Commission - subsequent versions of the EUPL   |
- |  (the "Licence"); You may not use this work except in compliance with    |
- |  the Licence.                                                            |
- |  You may obtain a copy of the Licence at:                                |
- |                                                                          |
- |  http://ec.europa.eu/idabc/eupl5                                         |
- |                                                                          |
- |  Unless required by applicable law or agreed to in writing, software     |
- |  distributed under the Licence is distributed on an "AS IS" basis,       |
- |  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or         |
- |  implied.                                                                |
- |  See the Licence for the specific language governing permissions and     |
- |  limitations under the Licence.                                          |
- |                                                                          |
 \*--------------------------------------------------------------------------*/
 
 #include "Alglin.hh"
@@ -48,7 +33,7 @@ main() {
   Simplex::valueType U[]  = { infinity, infinity, infinity, 40, infinity, infinity };
   //Simplex::valueType x[]  = { 0, 0, 0, 0, 0, 1 };
   //Simplex::integer   IB[] = { 0, 1, 2 };
-  
+
   Simplex::Problem        simplex_problem;
   Simplex::AuxProblem     simplex_problem_aux;
   Simplex::StandardSolver simplex("simplex");
@@ -62,9 +47,9 @@ main() {
 
     Simplex::StandardProblemAdaptor simplex_problem_adaptor(simplex_problem);
 
-    std::cout << "simplex_problem\n";
+    fmt::print( "simplex_problem\n" );
     simplex_problem.info(std::cout);
-    std::cout << "\n\nsimplex_problem_adaptor\n";
+    fmt::print( "\n\nsimplex_problem_adaptor\n" );
     simplex_problem_adaptor.info(std::cout);
 
     simplex_problem_aux.setup( &simplex_problem_adaptor );
@@ -72,18 +57,18 @@ main() {
     simplex_problem_aux.feasible_point( xd, IBd );
     simplex.solve( &simplex_problem_aux, xd, IBd );
 
-    std::cout << "\n\n\n\n\n\n\n\n\n\n";
+    fmt::print( "\n\n\n\n\n\n\n\n\n\n" );
 
     simplex_problem_aux.to_primal( xd, xdd, IBd );
     simplex.solve( &simplex_problem_adaptor, xdd, IBd );
   }
   catch ( std::exception const & err ) {
-    std::cerr << "Error: " << err.what();
+    fmt::print( "Error: {}\n", err.what() );
   }
   catch (...) {
-    std::cerr << "Unknwn error\n";
+    fmt::print( "Unknwn error\n" );
   }
 
-  std::cout << "\nAll Done Folks!\n";
+  fmt::print( "\nAll Done Folks!\n" );
   return 0;
 }

@@ -169,18 +169,18 @@ namespace alglin {
   DiazLU<t_Value>::factorize() {
 
     UTILS_ASSERT0(
-      this->numCyclicOMEGA == 0 && this->numCyclicBC == 0,
+      m_numCyclicOMEGA == 0 && m_numCyclicBC == 0,
       "DiazLU cannot manage cyclic BC\n"
     );
 
-    integer const & n      = this->n;
-    integer const & nxnx2  = this->nxnx2;
-    integer const & nxn    = this->nxn;
-    integer const & nblock = this->nblock;
+    integer const & n      = m_n;
+    integer const & nxnx2  = m_nxnx2;
+    integer const & nxn    = m_nxn;
+    integer const & nblock = m_nblock;
 
-    integer const & col00  = this->numInitialOMEGA;
-    integer const & row0   = this->numInitialBC;
-    integer const & rowN   = this->numFinalBC;
+    integer const & col00  = m_numInitialOMEGA;
+    integer const & row0   = m_numInitialBC;
+    integer const & rowN   = m_numFinalBC;
 
     integer const col0      = n + col00;
     integer const row00     = row0 - col00;
@@ -273,7 +273,7 @@ namespace alglin {
 
     // fattorizzazione ultimo blocco
     valueType * D0 = m_blockN + row00 * rowN;
-    this->la_factorization->factorize(
+    m_la_factorization->factorize(
       "DiazLU::factorize", rowN, rowN, D0, rowN
     );
   }
@@ -294,14 +294,14 @@ namespace alglin {
     valueType in_out[]
   ) const {
   
-    integer const & n      = this->n;
-    integer const & nxnx2  = this->nxnx2;
-    integer const & nxn    = this->nxn;
-    integer const & nblock = this->nblock;
-    integer const & col00  = this->numInitialOMEGA;
-    integer const & colNN  = this->numFinalOMEGA;
-    integer const & row0   = this->numInitialBC;
-    integer const & rowN   = this->numFinalBC;
+    integer const & n      = m_n;
+    integer const & nxnx2  = m_nxnx2;
+    integer const & nxn    = m_nxn;
+    integer const & nblock = m_nblock;
+    integer const & col00  = m_numInitialOMEGA;
+    integer const & colNN  = m_numFinalOMEGA;
+    integer const & row0   = m_numInitialBC;
+    integer const & rowN   = m_numFinalBC;
 
     integer const col0      = n + col00;
     integer const colN      = n + colNN;
@@ -380,7 +380,7 @@ namespace alglin {
       1, io, 1
     );
 
-    this->la_factorization->solve(io);
+    m_la_factorization->solve(io);
 
     while ( m_nblk > 0 ) {
       --m_nblk;
@@ -457,15 +457,15 @@ namespace alglin {
     valueType in_out[],
     integer   ldRhs
   ) const {
-  
-    integer const & n      = this->n;
-    integer const & nxnx2  = this->nxnx2;
-    integer const & nxn    = this->nxn;
-    integer const & nblock = this->nblock;
-    integer const & col00  = this->numInitialOMEGA;
-    integer const & colNN  = this->numFinalOMEGA;
-    integer const & row0   = this->numInitialBC;
-    integer const & rowN   = this->numFinalBC;
+
+    integer const & n      = m_n;
+    integer const & nxnx2  = m_nxnx2;
+    integer const & nxn    = m_nxn;
+    integer const & nblock = m_nblock;
+    integer const & col00  = m_numInitialOMEGA;
+    integer const & colNN  = m_numFinalOMEGA;
+    integer const & row0   = m_numInitialBC;
+    integer const & rowN   = m_numFinalBC;
 
     integer const col0      = n + col00;
     integer const colN      = n + colNN;
@@ -562,7 +562,7 @@ namespace alglin {
       1, io, ldRhs
     );
 
-    this->la_factorization->solve(nrhs,io,ldRhs);
+    m_la_factorization->solve(nrhs,io,ldRhs);
 
     while ( m_nblk > 0 ) {
       --m_nblk;

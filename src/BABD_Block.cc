@@ -35,33 +35,33 @@ namespace alglin {
   void
   BBlockLU<t_Value>::factorize() {
 
-    integer const & nblock = this->nblock;
-    integer const & n      = this->n;
-    integer const & q      = this->q;
-    integer const & nx2    = this->nx2;
-    integer const & nxn    = this->nxn;
-    integer const & nxnx2  = this->nxnx2;
+    integer const & nblock = m_nblock;
+    integer const & n      = m_n;
+    integer const & q      = m_q;
+    integer const & nx2    = m_nx2;
+    integer const & nxn    = m_nxn;
+    integer const & nxnx2  = m_nxnx2;
 
     // fill matrix
     integer nm = n+m;
     for ( integer k = 0; k < nblock; ++k ) {
       valueType const * Ad = m_DE_blk + k*nxnx2;
       valueType const * Au = Ad + nxn;
-      gecopy( n, n, Ad, n, AdH_blk + k*nm*n, nm );
-      gecopy( n, n, Au, n, Au_blk  + k*nxn,  n  );
+      gecopy( n, n, Ad, n, m_AdH_blk + k*nm*n, nm );
+      gecopy( n, n, Au, n, m_Au_blk  + k*nxn,  n  );
     }
 
-    gecopy( m, n, m_H0Nq,       m, AdH_blk + n,  nm );
-    gecopy( m, n, m_H0Nq+n*m,   m, DD_blk,       m  );
-    gecopy( m, q, m_H0Nq+nx2*m, m, DD_blk + m*n, m  );
+    gecopy( m, n, m_H0Nq,       m, m_AdH_blk + n,  nm );
+    gecopy( m, n, m_H0Nq+n*m,   m, m_DD_blk,       m  );
+    gecopy( m, q, m_H0Nq+nx2*m, m, m_DD_blk + m*n, m  );
 
     integer rowFF = (nblock-1)*n;
     integer INFO;
 
-    integer   * ipivk = ipiv_blk;
-    valueType * AdH   = AdH_blk;
-    valueType * Au    = Au_blk;
-    valueType * FF    = FF_blk;
+    integer   * ipivk = m_ipiv_blk;
+    valueType * AdH   = m_AdH_blk;
+    valueType * Au    = m_Au_blk;
+    valueType * FF    = m_FF_blk;
 
     for ( integer k = 0;
           k < nblock-1;
@@ -80,8 +80,8 @@ namespace alglin {
             swap( n, Au + i, n,     Au + ip, n     );
             swap( m, FF + i, rowFF, FF + ip, rowFF ); // last column block
           } else {
-            swap( n, Au + i, n,     CC     + (ip-n), nm );
-            swap( m, FF + i, rowFF, DD_blk + (ip-n), m  ); // last column block
+            swap( n, Au + i, n,     CC       + (ip-n), nm );
+            swap( m, FF + i, rowFF, m_DD_blk + (ip-n), m  ); // last column block
           }
         }
       }
@@ -104,7 +104,7 @@ namespace alglin {
       trsm( LEFT, LOWER, NO_TRANSPOSE, UNIT, n, m, 1, AdH, nm, FF, rowFF );
 
       gemm( NO_TRANSPOSE, NO_TRANSPOSE, m, n, n, -1, H, nm, Au, n, 1, CC, nm );
-      gemm( NO_TRANSPOSE, NO_TRANSPOSE, m, m, n, -1, H, nm, FF, rowFF, 1, DD_blk, m );
+      gemm( NO_TRANSPOSE, NO_TRANSPOSE, m, m, n, -1, H, nm, FF, rowFF, 1, m_DD_blk, m );
     }
 
     // factorize last two block
@@ -117,7 +117,7 @@ namespace alglin {
         if ( ip < n ) { // exchange row
           swap( m, Au + i, n, Au + ip, n ); // last column block
         } else {
-          swap( m, Au + i, n, DD_blk + (ip-n), m ); // last column block
+          swap( m, Au + i, n, m_DD_blk + (ip-n), m ); // last column block
         }
       }
     }
@@ -137,11 +137,11 @@ namespace alglin {
     //
     valueType * H = AdH + n;
     trsm( LEFT, LOWER, NO_TRANSPOSE, UNIT, n, m, 1, AdH, nm, Au, n );
-    gemm( NO_TRANSPOSE, NO_TRANSPOSE, m, m, n, -1, H, nm, Au, n, 1, DD_blk, m );
-    
+    gemm( NO_TRANSPOSE, NO_TRANSPOSE, m, m, n, -1, H, nm, Au, n, 1, m_DD_blk, m );
+
     // factorize last block
     ipivk += n;
-    INFO = getrf( m, m, DD_blk, m, ipivk ); // LU factorization
+    INFO = getrf( m, m, m_DD_blk, m, ipivk ); // LU factorization
     UTILS_ASSERT0( INFO==0, "BlockLU::factorize(), singular matrix\n" );
   }
 
@@ -156,8 +156,8 @@ namespace alglin {
   void
   BBlockLU<t_Value>::solve( valueType y[] ) const {
 
-    integer const & n      = this->n;
-    integer const & nblock = this->nblock;
+    integer const & n      = m_n;
+    integer const & nblock = m_nblock;
 
     // solve L
     integer     nm    = n+m;
@@ -165,8 +165,8 @@ namespace alglin {
     valueType * ye    = y + nblock * n;
 
     for ( integer k = 0; k < nblock; ++k ) {
-      integer   const * ipivk = ipiv_blk + k * n;
-      valueType const * AdH   = AdH_blk  + k * (nm*n);
+      integer   const * ipivk = m_ipiv_blk + k * n;
+      valueType const * AdH   = m_AdH_blk  + k * (nm*n);
       valueType       * yk    = y        + k * n;
 
       // apply permutation
@@ -181,20 +181,20 @@ namespace alglin {
       gemv( NO_TRANSPOSE, m, n, -1, AdH + n, nm, yk, 1, 1, ye, 1 );
     }
 
-    integer const * ipive = ipiv_blk + nblock * n;
-    integer            ok = getrs( NO_TRANSPOSE, m, 1, DD_blk, m, ipive, ye, m );
+    integer const * ipive = m_ipiv_blk + nblock * n;
+    integer            ok = getrs( NO_TRANSPOSE, m, 1, m_DD_blk, m, ipive, ye, m );
 
     UTILS_ASSERT0( ok == 0, "BlockLU::solve(...) failed\n" );
 
-    if ( rowFF > 0 ) gemv( NO_TRANSPOSE, rowFF, m, -1, FF_blk, rowFF, ye, 1, 1, y, 1 );
-    if (     m > n ) gemv( NO_TRANSPOSE, n, m-n, -1, Au_blk + nblock*n*n, n, ye+n, 1, 1, ye-n, 1 );
+    if ( rowFF > 0 ) gemv( NO_TRANSPOSE, rowFF, m, -1, m_FF_blk, rowFF, ye, 1, 1, y, 1 );
+    if (     m > n ) gemv( NO_TRANSPOSE, n, m-n, -1, m_Au_blk + nblock*n*n, n, ye+n, 1, 1, ye-n, 1 );
 
     integer k = nblock;
     do {
       --k;
-      valueType const * AdH = AdH_blk + k*nm*n;
-      valueType const * Au  = Au_blk  + k*n*n;
-      valueType       * yk  = y       + k*n;
+      valueType const * AdH = m_AdH_blk + k*nm*n;
+      valueType const * Au  = m_Au_blk  + k*n*n;
+      valueType       * yk  = y         + k*n;
 
       gemv( NO_TRANSPOSE, n, n, -1, Au, n, yk + n, 1, 1, yk, 1 );
       trsv( UPPER, NO_TRANSPOSE, NON_UNIT, n, AdH, nm, yk, 1 );

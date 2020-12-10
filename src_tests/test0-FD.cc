@@ -46,7 +46,7 @@ fun_jac( doublereal const x[4], doublereal jac[4*4] ) {
   jac[0+1*4] = x[2];
   jac[0+2*4] = x[1];
   jac[0+3*4] = 0;
-  
+
   jac[1+0*4] = x[2];
   jac[1+1*4] = -sin(x[1]);
   jac[1+2*4] = x[0];

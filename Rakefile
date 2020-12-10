@@ -33,6 +33,7 @@ TESTS = [
   "test5-ABD-Diaz",
   "test6-ABD-Block",
   "test7-BorderedCR",
+  "test7b-BorderedCR",
   "test8-Cinterface",
   "test12-BandedMatrix",
   "test13-BFGS",

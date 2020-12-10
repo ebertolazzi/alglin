@@ -76,23 +76,23 @@ namespace alglin {
   BlockLU<t_Value>::factorize() {
 
     UTILS_ASSERT0(
-      this->numCyclicOMEGA == 0 && this->numCyclicBC == 0,
+      m_numCyclicOMEGA == 0 && m_numCyclicBC == 0,
       "BlockLU cannot manage cyclic BC\n"
     );
 
-    integer const & n      = this->n;
-    integer const & nxnx2  = this->nxnx2;
-    integer const & nxn    = this->nxn;
-    integer const & nblock = this->nblock;
+    integer const & n      = m_n;
+    integer const & nxnx2  = m_nxnx2;
+    integer const & nxn    = m_nxn;
+    integer const & nblock = m_nblock;
 
-    integer const & col00  = this->numInitialOMEGA;
-    integer const & colNN  = this->numFinalOMEGA;
-    integer const & row0   = this->numInitialBC;
-    integer const & rowN   = this->numFinalBC;
+    integer const & col00  = m_numInitialOMEGA;
+    integer const & colNN  = m_numFinalOMEGA;
+    integer const & row0   = m_numInitialBC;
+    integer const & rowN   = m_numFinalBC;
 
     integer const row00     = row0 - col00;
     integer const n_m_row00 = n - row00;
-    
+
     if ( nblock > 0 ) {
 
       /*
@@ -300,20 +300,20 @@ namespace alglin {
       */
 
       // fattorizzazione ultimo blocco
-      valueType * B = m_DE_blk + nxnx2 * nblock - nxn;
+      valueType * B = m_DE_blk + m_nxnx2 * m_nblock - m_nxn;
       integer N = row00+rowN;
-      this->la_matrix.setup( N, N );
-      this->la_matrix.zero_block(row00,N-n,0,n);
-      this->la_matrix.load_block(row00,n,B+n_m_row00,n,0,0);
-      this->la_matrix.load_block(rowN,N,m_blockN,rowN,row00,0);
-      this->la_factorization->factorize( "BlockLU::factorize", this->la_matrix );
+      m_la_matrix.setup( N, N );
+      m_la_matrix.zero_block(row00,N-n,0,n);
+      m_la_matrix.load_block(row00,n,B+n_m_row00,n,0,0);
+      m_la_matrix.load_block(rowN,N,m_blockN,rowN,row00,0);
+      m_la_factorization->factorize( "BlockLU::factorize", m_la_matrix );
     } else { // case nblock == 0
       integer N = row0+rowN;
-      this->la_matrix.setup( N, N );
-      this->la_matrix.zero_block(N,N,0,0);
-      this->la_matrix.load_block(row0,n+col00,m_block0,row0,0,0);
-      this->la_matrix.load_block(rowN,n+colNN,m_blockN,rowN,row0,col00);
-      this->la_factorization->factorize( "BlockLU::factorize[nblock=0]", this->la_matrix );
+      m_la_matrix.setup( N, N );
+      m_la_matrix.zero_block(N,N,0,0);
+      m_la_matrix.load_block(row0,n+col00,m_block0,row0,0,0);
+      m_la_matrix.load_block(rowN,n+colNN,m_blockN,rowN,row0,col00);
+      m_la_factorization->factorize( "BlockLU::factorize[nblock=0]", m_la_matrix );
     }
   }
 
@@ -332,13 +332,13 @@ namespace alglin {
     valueType in_out[]
   ) const {
 
-    integer const & n      = this->n;
-    integer const & nxnx2  = this->nxnx2;
-    integer const & nxn    = this->nxn;
-    integer const & nblock = this->nblock;
-    integer const & col00  = this->numInitialOMEGA;
-    integer const & row0   = this->numInitialBC;
-    integer const & rowN   = this->numFinalBC;
+    integer const & n      = m_n;
+    integer const & nxnx2  = m_nxnx2;
+    integer const & nxn    = m_nxn;
+    integer const & nblock = m_nblock;
+    integer const & col00  = m_numInitialOMEGA;
+    integer const & row0   = m_numInitialBC;
+    integer const & rowN   = m_numFinalBC;
 
     integer const row00     = row0 - col00;
     integer const n_m_row00 = n - row00;
@@ -487,8 +487,8 @@ namespace alglin {
       */
 
       // risolvo ultimo blocco
-      this->la_factorization->solve( io );
-    
+      m_la_factorization->solve( io );
+
       /*
       //             _             _   _
       //   ___  ___ | |_   _____  | | | |
@@ -605,13 +605,13 @@ namespace alglin {
         trsv( UPPER, NO_TRANSPOSE, NON_UNIT, col00, m_block0, row0, io, 1 );
       }
     } else {  // case nblock = 0
-      this->la_factorization->solve( in_out );
+      m_la_factorization->solve( in_out );
     }
 
     // permuto le x
     if ( do_permute ) std::rotate( in_out, in_out + col00, in_out + neq );
   }
- 
+
   /*\
    |   ____        _
    |  / ___|  ___ | |_   _____
@@ -629,13 +629,13 @@ namespace alglin {
     integer   ldRhs
   ) const {
 
-    integer const & n      = this->n;
-    integer const & nxnx2  = this->nxnx2;
-    integer const & nxn    = this->nxn;
-    integer const & nblock = this->nblock;
-    integer const & col00  = this->numInitialOMEGA;
-    integer const & row0   = this->numInitialBC;
-    integer const & rowN   = this->numFinalBC;
+    integer const & n      = m_n;
+    integer const & nxnx2  = m_nxnx2;
+    integer const & nxn    = m_nxn;
+    integer const & nblock = m_nblock;
+    integer const & col00  = m_numInitialOMEGA;
+    integer const & row0   = m_numInitialBC;
+    integer const & rowN   = m_numFinalBC;
 
     integer const row00     = row0 - col00;
     integer const n_m_row00 = n - row00;
@@ -798,8 +798,8 @@ namespace alglin {
       */
 
       // risolvo ultimo blocco
-      this->la_factorization->solve( nrhs, io, ldRhs );
-    
+      m_la_factorization->solve( nrhs, io, ldRhs );
+
       /*
       //             _             _   _
       //   ___  ___ | |_   _____  | | | |
@@ -917,7 +917,7 @@ namespace alglin {
         );
       }
     } else {  // case nblock = 0
-      this->la_factorization->solve( nrhs, in_out, ldRhs );
+      m_la_factorization->solve( nrhs, in_out, ldRhs );
     }
 
     // permuto le x

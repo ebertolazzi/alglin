@@ -74,29 +74,29 @@ namespace alglin {
     Malloc<valueType> m_baseValue;
     Malloc<integer>   m_baseInteger;
 
-    integer nblock; //!< total number of blocks
-    integer n;      //!< size of square blocks
-    integer q;      //!< extra BC
-    integer nb;     //!< border size
+    integer m_nblock; //!< total number of blocks
+    integer m_n;      //!< size of square blocks
+    integer m_q;      //!< extra BC
+    integer m_nb;     //!< border size
 
     // some derived constants
-    integer neq;
-    integer nx2;
-    integer nxn;
-    integer nxnx2;
-    integer nxnb;
+    integer m_neq;
+    integer m_nx2;
+    integer m_nxn;
+    integer m_nxnx2;
+    integer m_nxnb;
 
-    integer numInitialBC;
-    integer numFinalBC;
-    integer numCyclicBC;
-    integer numInitialOMEGA;
-    integer numFinalOMEGA;
-    integer numCyclicOMEGA;
+    integer m_numInitialBC;
+    integer m_numFinalBC;
+    integer m_numCyclicBC;
+    integer m_numInitialOMEGA;
+    integer m_numFinalOMEGA;
+    integer m_numCyclicOMEGA;
 
-    Matrix<t_Value> la_matrix;
-    Matrix<t_Value> bb_matrix;
-    LinearSystemSolver<t_Value> * la_factorization;
-    LinearSystemSolver<t_Value> * bb_factorization;
+    Matrix<t_Value>               m_la_matrix;
+    Matrix<t_Value>               m_bb_matrix;
+    LinearSystemSolver<t_Value> * m_la_factorization;
+    LinearSystemSolver<t_Value> * m_bb_factorization;
 
     /*
     //
@@ -145,10 +145,10 @@ namespace alglin {
 
   private:
 
-    LU<t_Value>  la_lu,  bb_lu;
-    QR<t_Value>  la_qr,  bb_qr;
-    QRP<t_Value> la_qrp, bb_qrp;
-    SVD<t_Value> la_svd, bb_svd;
+    LU<t_Value>  m_la_lu,  m_bb_lu;
+    QR<t_Value>  m_la_qr,  m_bb_qr;
+    QRP<t_Value> m_la_qrp, m_bb_qrp;
+    SVD<t_Value> m_la_svd, m_bb_svd;
 
   public:
 
@@ -156,23 +156,23 @@ namespace alglin {
     BlockBidiagonal()
     : m_baseValue("BlockBidiagonal_values")
     , m_baseInteger("BlockBidiagonal_integers")
-    , nblock(0)
-    , n(0)
-    , q(0)
-    , nb(0)
-    , neq(0)
-    , nx2(0)
-    , nxn(0)
-    , nxnx2(0)
-    , nxnb(0)
-    , numInitialBC(0)
-    , numFinalBC(0)
-    , numCyclicBC(0)
-    , numInitialOMEGA(0)
-    , numFinalOMEGA(0)
-    , numCyclicOMEGA(0)
-    , la_factorization(&la_lu)
-    , bb_factorization(&bb_lu)
+    , m_nblock(0)
+    , m_n(0)
+    , m_q(0)
+    , m_nb(0)
+    , m_neq(0)
+    , m_nx2(0)
+    , m_nxn(0)
+    , m_nxnx2(0)
+    , m_nxnb(0)
+    , m_numInitialBC(0)
+    , m_numFinalBC(0)
+    , m_numCyclicBC(0)
+    , m_numInitialOMEGA(0)
+    , m_numFinalOMEGA(0)
+    , m_numCyclicOMEGA(0)
+    , m_la_factorization(&m_la_lu)
+    , m_bb_factorization(&m_bb_lu)
     , m_DE_blk(nullptr)
     , m_H0Nq(nullptr)
     , m_block0(nullptr)
@@ -227,86 +227,86 @@ namespace alglin {
     // filling bidiagonal part of the matrix
     void
     loadBlocks( valueType const AdAu[], integer ldA )
-    { gecopy( n, nblock * nx2, AdAu, ldA, m_DE_blk, n ); }
+    { gecopy( m_n, m_nblock * m_nx2, AdAu, ldA, m_DE_blk, m_n ); }
 
     void
     loadBlock( integer nbl, valueType const AdAu[], integer ldA )
-    { gecopy( n, nx2, AdAu, ldA, m_DE_blk + nbl*nxnx2, n ); }
+    { gecopy( m_n, m_nx2, AdAu, ldA, m_DE_blk + nbl*m_nxnx2, m_n ); }
 
     void
     loadBlockLeft( integer nbl, valueType const Ad[], integer ldA )
-    { gecopy( n, n, Ad, ldA, m_DE_blk + nbl*nxnx2, n ); }
+    { gecopy( m_n, m_n, Ad, ldA, m_DE_blk + nbl*m_nxnx2, m_n ); }
 
     void
     loadBlockRight( integer nbl, valueType const Au[], integer ldA )
-    { gecopy( n, n, Au, ldA, m_DE_blk + nbl*nxnx2 + nxn, n ); }
+    { gecopy( m_n, m_n, Au, ldA, m_DE_blk + nbl*m_nxnx2 + m_nxn, m_n ); }
 
     // Border Bottom blocks
     void
     setZeroBottomBlocks()
-    { alglin::zero( nb*neq, m_Cmat, 1 ); }
+    { alglin::zero( m_nb*m_neq, m_Cmat, 1 ); }
 
     void
     loadBottomBlocks( valueType const C[], integer ldC )
-    { gecopy( nb, neq, C, ldC, m_Cmat, nb ); }
+    { gecopy( m_nb, m_neq, C, ldC, m_Cmat, m_nb ); }
 
     void
     loadBottomBlock( integer nbl, valueType const C[], integer ldC ) {
       UTILS_ASSERT(
-        ldC >= nb, "loadBottomBlock( {}, C, ldC = {} ) bad ldC\n", nbl, ldC
+        ldC >= m_nb, "loadBottomBlock( {}, C, ldC = {} ) bad ldC\n", nbl, ldC
       );
-      valueType * CC = m_Cmat + nbl*nxnb;
-      gecopy( nb, n, C, ldC, CC, nb );
+      valueType * CC = m_Cmat + nbl*m_nxnb;
+      gecopy( m_nb, m_n, C, ldC, CC, m_nb );
     }
 
     void
     addtoBottomBlock( integer nbl, valueType const C[], integer ldC ) {
       UTILS_ASSERT(
-        ldC >= nb, "addtoBottomBlock( {}, C, ldC = {} ) bad ldC\n", nbl, ldC
+        ldC >= m_nb, "addtoBottomBlock( {}, C, ldC = {} ) bad ldC\n", nbl, ldC
       );
-      valueType * CC = m_Cmat + nbl*nxnb;
-      geadd( nb, n, 1.0, C, ldC, 1.0, CC, nb, CC, nb );
+      valueType * CC = m_Cmat + nbl*m_nxnb;
+      geadd( m_nb, m_n, 1.0, C, ldC, 1.0, CC, m_nb, CC, m_nb );
     }
 
     // add to bottom block nbl and nbl+1
     void
     addtoBottomBlock2( integer nbl, valueType const C[], integer ldC ) {
       UTILS_ASSERT(
-        ldC >= nb, "addtoBottomBlock2( {}, C, ldC = {} ) bad ldC\n", nbl, ldC
+        ldC >= m_nb, "addtoBottomBlock2( {}, C, ldC = {} ) bad ldC\n", nbl, ldC
       );
-      valueType * CC = m_Cmat + nbl*nxnb;
-      geadd( nb, nx2, 1.0, C, ldC, 1.0, CC, nb, CC, nb );
+      valueType * CC = m_Cmat + nbl*m_nxnb;
+      geadd( m_nb, m_nx2, 1.0, C, ldC, 1.0, CC, m_nb, CC, m_nb );
     }
 
     void
     loadBottomLastBlock( valueType const C[], integer ldC )
-    { gecopy( nb, q, C, ldC, m_Cmat + (nblock+1)*nxnb, nb ); }
+    { gecopy( m_nb, m_q, C, ldC, m_Cmat + (m_nblock+1)*m_nxnb, m_nb ); }
 
     // Border Right blocks
     void
     setZeroRightBlocks()
-    { alglin::zero( neq*nb, m_Bmat, 1 ); }
+    { alglin::zero( m_neq*m_nb, m_Bmat, 1 ); }
 
     void
     loadRightBlocks( valueType const B[], integer ldB )
-    { gecopy( neq, nb, B, ldB, m_Bmat, neq ); }
+    { gecopy( m_neq, m_nb, B, ldB, m_Bmat, m_neq ); }
 
     void
     loadRightBlock( integer nbl, valueType const B[], integer ldB )
-    { alglin::gecopy( n, nb, B, ldB, m_Bmat + nbl*n, neq ); }
+    { alglin::gecopy( m_n, m_nb, B, ldB, m_Bmat + nbl*m_n, m_neq ); }
 
     void
     loadRightLastBlock( valueType const B[], integer ldB )
-    { alglin::gecopy( n+q, nb, B, ldB, m_Bmat + neq-n-q, neq ); }
+    { alglin::gecopy( m_n+m_q, m_nb, B, ldB, m_Bmat + m_neq-m_n-m_q, m_neq ); }
 
     // Border RBblock
     void
     setZeroRBblock()
-    { alglin::zero( nb*nb, m_Dmat, 1 ); }
+    { alglin::zero( m_nb*m_nb, m_Dmat, 1 ); }
 
     void
     loadRBblock( valueType const D[], integer ldD )
-    { alglin::gecopy( nb, nb, D, ldD, m_Dmat, nb ); }
+    { alglin::gecopy( m_nb, m_nb, D, ldD, m_Dmat, m_nb ); }
 
     // final blocks after cyclic reduction
     valueType const *
@@ -315,28 +315,28 @@ namespace alglin {
 
     void
     getBlock_LR( valueType LR[], integer ldA ) const
-    { gecopy( n, nx2, m_DE_blk, n, LR, ldA ); }
+    { gecopy( m_n, m_nx2, m_DE_blk, m_n, LR, ldA ); }
 
     void
     getBlock_L( valueType L[], integer ldA ) const
-    { gecopy( n, n, m_DE_blk, n, L, ldA ); }
+    { gecopy( m_n, m_n, m_DE_blk, m_n, L, ldA ); }
 
     void
     getBlock_R( valueType R[], integer ldA ) const
-    { gecopy( n, n, m_DE_blk+nxn, n, R, ldA ); }
+    { gecopy( m_n, m_n, m_DE_blk+m_nxn, m_n, R, ldA ); }
 
     // BC blocks
     void
     getBlock_H0( valueType H0[], integer ld0 ) const
-    { gecopy( n+q, n, m_H0Nq, n+q, H0, ld0 ); }
+    { gecopy( m_n+m_q, m_n, m_H0Nq, m_n+m_q, H0, ld0 ); }
 
     void
     getBlock_HN( valueType HN[], integer ldN ) const
-    { gecopy( n+q, n, m_H0Nq+n*(n+q), n+q, HN, ldN ); }
+    { integer nq = m_n + m_q; gecopy( nq, m_n, m_H0Nq+m_n*nq, nq, HN, ldN ); }
 
     void
     getBlock_Hq( valueType Hq[], integer ldQ ) const
-    { gecopy( n+q, q, m_H0Nq+nx2*(n+q), n+q, Hq, ldQ ); }
+    { integer nq = m_n + m_q; gecopy( nq, m_q, m_H0Nq+m_nx2*nq, nq, Hq, ldQ ); }
 
     virtual
     void
@@ -400,32 +400,32 @@ namespace alglin {
     void
     selectLastBlockSolver( LASTBLOCK_Choice choice ) {
       switch ( choice ) {
-        case LASTBLOCK_LU:  la_factorization = &la_lu;  break;
-        case LASTBLOCK_QR:  la_factorization = &la_qr;  break;
-        case LASTBLOCK_QRP: la_factorization = &la_qrp; break;
-        case LASTBLOCK_SVD: la_factorization = &la_svd; break;
+        case LASTBLOCK_LU:  m_la_factorization = &m_la_lu;  break;
+        case LASTBLOCK_QR:  m_la_factorization = &m_la_qr;  break;
+        case LASTBLOCK_QRP: m_la_factorization = &m_la_qrp; break;
+        case LASTBLOCK_SVD: m_la_factorization = &m_la_svd; break;
       }
     }
 
-    void selectLastBlockSolver_LU()  { la_factorization = &la_lu; }
-    void selectLastBlockSolver_QR()  { la_factorization = &la_qr; }
-    void selectLastBlockSolver_QRP() { la_factorization = &la_qrp; }
-    void selectLastBlockSolver_SVD() { la_factorization = &la_svd; }
+    void selectLastBlockSolver_LU()  { m_la_factorization = &m_la_lu; }
+    void selectLastBlockSolver_QR()  { m_la_factorization = &m_la_qr; }
+    void selectLastBlockSolver_QRP() { m_la_factorization = &m_la_qrp; }
+    void selectLastBlockSolver_SVD() { m_la_factorization = &m_la_svd; }
 
     void
     selectLastBorderBlockSolver( LASTBLOCK_Choice choice ) {
       switch ( choice ) {
-        case LASTBLOCK_LU:  bb_factorization = &bb_lu;  break;
-        case LASTBLOCK_QR:  bb_factorization = &bb_qr;  break;
-        case LASTBLOCK_QRP: bb_factorization = &bb_qrp; break;
-        case LASTBLOCK_SVD: bb_factorization = &bb_svd; break;
+        case LASTBLOCK_LU:  m_bb_factorization = &m_bb_lu;  break;
+        case LASTBLOCK_QR:  m_bb_factorization = &m_bb_qr;  break;
+        case LASTBLOCK_QRP: m_bb_factorization = &m_bb_qrp; break;
+        case LASTBLOCK_SVD: m_bb_factorization = &m_bb_svd; break;
       }
     }
 
-    void selectLastBorderBlockSolver_LU()  { la_factorization = &la_lu;  }
-    void selectLastBorderBlockSolver_QR()  { la_factorization = &la_qr;  }
-    void selectLastBorderBlockSolver_QRP() { la_factorization = &la_qrp; }
-    void selectLastBorderBlockSolver_SVD() { la_factorization = &la_svd; }
+    void selectLastBorderBlockSolver_LU()  { m_la_factorization = &m_la_lu;  }
+    void selectLastBorderBlockSolver_QR()  { m_la_factorization = &m_la_qr;  }
+    void selectLastBorderBlockSolver_QRP() { m_la_factorization = &m_la_qrp; }
+    void selectLastBorderBlockSolver_SVD() { m_la_factorization = &m_la_svd; }
 
     void
     last_block_factorize();
@@ -454,12 +454,13 @@ namespace alglin {
       valueType const HN[],
       valueType const Hq[]
     ) {
-      this->loadBlocks( AdAu, n );
-      this->loadBottom( H0, n+q, HN, n+q, Hq, n+q );
-      if ( nb > 0 ) {
-        this->loadRightBlocks( B, neq );
-        this->loadBottomBlocks( C, nb );
-        this->loadRBblock( D, nb );
+      this->loadBlocks( AdAu, m_n );
+      integer nq = m_n + m_q;
+      this->loadBottom( H0, nq, HN, nq, Hq, nq );
+      if ( m_nb > 0 ) {
+        this->loadRightBlocks( B, m_neq );
+        this->loadBottomBlocks( C, m_nb );
+        this->loadRBblock( D, m_nb );
         this->factorize_bordered();
       } else {
         this->factorize();
@@ -474,9 +475,10 @@ namespace alglin {
       valueType const HN[],
       valueType const Hq[]
     ) {
-      UTILS_ASSERT0( nb == 0, "factorize nb > 0 and no border assigned\n" );
-      this->loadBlocks( AdAu, n );
-      this->loadBottom( H0, n+q, HN, n+q, Hq, n+q );
+      UTILS_ASSERT0( m_nb == 0, "factorize nb > 0 and no border assigned\n" );
+      integer nq = m_n + m_q;
+      this->loadBlocks( AdAu, m_n );
+      this->loadBottom( H0, nq, HN, nq, Hq, nq );
       this->factorize();
     }
 
