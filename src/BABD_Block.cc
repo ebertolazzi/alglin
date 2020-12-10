@@ -36,8 +36,8 @@ namespace alglin {
   BBlockLU<t_Value>::factorize() {
 
     integer const & nblock = m_number_of_blocks;
+    integer const & n      = m_block_size;
 
-    integer const & n      = m_n;
     integer const & q      = m_q;
     integer const & nx2    = m_nx2;
     integer const & nxn    = m_nxn;
@@ -158,7 +158,7 @@ namespace alglin {
   BBlockLU<t_Value>::solve( valueType y[] ) const {
 
     integer const & nblock = m_number_of_blocks;
-    integer const & n      = m_n;
+    integer const & n      = m_block_size;
 
     // solve L
     integer     nm    = n+m;

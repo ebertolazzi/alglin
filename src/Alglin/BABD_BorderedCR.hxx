@@ -120,9 +120,9 @@ namespace alglin {
     Malloc<int>       m_superluInteger;
 
     integer m_number_of_blocks;   //!< total number of blocks
-    integer m_block_size;      //!< size of square blocks
-    integer m_qr, m_qx; //!< extra BC
-    integer m_nr, m_nx; //!< border size
+    integer m_block_size;         //!< size of square blocks
+    integer m_qr, m_qx;           //!< extra BC
+    integer m_nr, m_nx;           //!< border size
 
     // some derived constants
     integer n_x_2;

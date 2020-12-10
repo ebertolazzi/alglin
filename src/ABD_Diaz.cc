@@ -174,8 +174,8 @@ namespace alglin {
     );
 
     integer const & nblock = m_number_of_blocks;
+    integer const & n      = m_block_size;
 
-    integer const & n      = m_n;
     integer const & nxnx2  = m_nxnx2;
     integer const & nxn    = m_nxn;
 
@@ -296,8 +296,8 @@ namespace alglin {
   ) const {
 
     integer const & nblock = m_number_of_blocks;
+    integer const & n      = m_block_size;
 
-    integer const & n      = m_n;
     integer const & nxnx2  = m_nxnx2;
     integer const & nxn    = m_nxn;
     integer const & col00  = m_numInitialOMEGA;
@@ -461,8 +461,8 @@ namespace alglin {
   ) const {
 
     integer const & nblock = m_number_of_blocks;
+    integer const & n      = m_block_size;
 
-    integer const & n      = m_n;
     integer const & nxnx2  = m_nxnx2;
     integer const & nxn    = m_nxn;
     integer const & col00  = m_numInitialOMEGA;
