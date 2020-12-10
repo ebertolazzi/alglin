@@ -37,8 +37,8 @@ namespace alglin {
 
     integer const & nblock = m_number_of_blocks;
     integer const & n      = m_block_size;
+    integer const & q      = m_extra_bc;
 
-    integer const & q      = m_q;
     integer const & nx2    = m_nx2;
     integer const & nxn    = m_nxn;
     integer const & nxnx2  = m_nxnx2;

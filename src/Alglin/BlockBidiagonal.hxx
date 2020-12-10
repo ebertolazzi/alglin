@@ -76,7 +76,7 @@ namespace alglin {
 
     integer m_number_of_blocks; //!< total number of blocks
     integer m_block_size;       //!< size of square blocks
-    integer m_q;                //!< extra BC
+    integer m_extra_bc;         //!< extra BC
     integer m_border_size;      //!< border size
 
     // some derived constants
@@ -158,7 +158,7 @@ namespace alglin {
     , m_baseInteger("BlockBidiagonal_integers")
     , m_number_of_blocks(0)
     , m_block_size(0)
-    , m_q(0)
+    , m_extra_bc(0)
     , m_border_size(0)
     , m_neq(0)
     , m_nx2(0)
@@ -300,7 +300,8 @@ namespace alglin {
     loadBottomLastBlock( valueType const C[], integer ldC ) {
       integer const & nblock = m_number_of_blocks;
       integer const & nb     = m_border_size;
-      gecopy( nb, m_q, C, ldC, m_Cmat + (nblock+1)*m_nxnb, nb );
+      integer const & q      = m_extra_bc;
+      gecopy( nb, q, C, ldC, m_Cmat + (nblock+1)*m_nxnb, nb );
     }
 
     // Border Right blocks
@@ -326,8 +327,9 @@ namespace alglin {
     void
     loadRightLastBlock( valueType const B[], integer ldB ) {
       integer const & n  = m_block_size;
+      integer const & q  = m_extra_bc;
       integer const & nb = m_border_size;
-      alglin::gecopy( n+m_q, nb, B, ldB, m_Bmat + m_neq-n-m_q, m_neq );
+      alglin::gecopy( n+q, nb, B, ldB, m_Bmat + m_neq-n-q, m_neq );
     }
 
     // Border RBblock
@@ -370,21 +372,24 @@ namespace alglin {
     void
     getBlock_H0( valueType H0[], integer ld0 ) const {
       integer const & n = m_block_size;
-      gecopy( n+m_q, n, m_H0Nq, n+m_q, H0, ld0 );
+      integer const & q = m_extra_bc;
+      gecopy( n+q, n, m_H0Nq, n+q, H0, ld0 );
     }
 
     void
     getBlock_HN( valueType HN[], integer ldN ) const {
       integer const & n = m_block_size;
-      integer nq = n + m_q;
+      integer const & q = m_extra_bc;
+      integer nq = n + q;
       gecopy( nq, n, m_H0Nq+n*nq, nq, HN, ldN );
     }
 
     void
     getBlock_Hq( valueType Hq[], integer ldQ ) const {
       integer const & n = m_block_size;
-      integer nq = n + m_q;
-      gecopy( nq, m_q, m_H0Nq+m_nx2*nq, nq, Hq, ldQ );
+      integer const & q = m_extra_bc;
+      integer nq = n + q;
+      gecopy( nq, q, m_H0Nq+m_nx2*nq, nq, Hq, ldQ );
     }
 
     virtual
@@ -505,9 +510,10 @@ namespace alglin {
     ) {
       integer const & n  = m_block_size;
       integer const & nb = m_border_size;
+      integer const & q  = m_extra_bc;
 
       this->loadBlocks( AdAu, n );
-      integer nq = n + m_q;
+      integer nq = n + q;
       this->loadBottom( H0, nq, HN, nq, Hq, nq );
       if ( nb > 0 ) {
         this->loadRightBlocks( B, m_neq );
@@ -528,10 +534,11 @@ namespace alglin {
       valueType const Hq[]
     ) {
       integer const & n  = m_block_size;
+      integer const & q  = m_extra_bc;
       integer const & nb = m_border_size;
 
       UTILS_ASSERT0( nb == 0, "factorize nb > 0 and no border assigned\n" );
-      integer nq = n + m_q;
+      integer nq = n + q;
       this->loadBlocks( AdAu, n );
       this->loadBottom( H0, nq, HN, nq, Hq, nq );
       this->factorize();

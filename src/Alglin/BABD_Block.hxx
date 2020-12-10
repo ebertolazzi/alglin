@@ -56,8 +56,8 @@ namespace alglin {
 
     using BlockBidiagonal<t_Value>::m_number_of_blocks;
     using BlockBidiagonal<t_Value>::m_block_size;
+    using BlockBidiagonal<t_Value>::m_extra_bc;
 
-    using BlockBidiagonal<t_Value>::m_q;
     using BlockBidiagonal<t_Value>::m_nx2;
     using BlockBidiagonal<t_Value>::m_nxnx2;
     using BlockBidiagonal<t_Value>::m_nxn;

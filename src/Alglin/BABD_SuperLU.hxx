@@ -53,10 +53,10 @@ namespace alglin {
     BABD_SuperLU(BABD_SuperLU const &);
     BABD_SuperLU const & operator = (BABD_SuperLU const &);
 
-    integer n;        //!< size of square blocks
-    integer m;        //!< number final rows (m>=n)
     integer m_number_of_blocks; //!< total number of blocks
-    integer m_nnz;    //!< total number of non zeros
+    integer m_block_size;       //!< size of square blocks
+    integer m;                  //!< number final rows (m>=m_block_size)
+    integer m_nnz;              //!< total number of non zeros
     integer m_neq;
 
     int     * m_perm_r; // row permutations from partial pivoting
@@ -67,7 +67,9 @@ namespace alglin {
 
     superlu_options_t     m_slu_options;
     mutable SuperLUStat_t m_slu_stats;
-    mutable SuperMatrix   m_A, m_L, m_U; // messo mutable per zittire warning
+    mutable SuperMatrix   m_A; // messo mutable per zittire warning
+    mutable SuperMatrix   m_L; // messo mutable per zittire warning
+    mutable SuperMatrix   m_U; // messo mutable per zittire warning
 
     //! factorize the matrix
     void factorize();

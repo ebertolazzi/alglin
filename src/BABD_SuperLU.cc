@@ -43,7 +43,7 @@ namespace alglin {
   void
   BABD_SuperLU::factorize(
     integer         nblock,
-    integer         _n,
+    integer         n,
     integer         q,
     valueType const AdAu[],
     valueType const H0[],
@@ -52,10 +52,10 @@ namespace alglin {
   ) {
 
     m_number_of_blocks = nblock;
-    n        = _n;
-    m        = _n+q;
-    m_nnz    = 2*nblock*n*n + (n+m)*m;
-    m_neq    = nblock*n + m;
+    m_block_size       = n;
+    m                  = n+q;
+    m_nnz              = 2*nblock*n*n + (n+m)*m;
+    m_neq              = nblock*n + m;
 
     m_baseInteger.allocate( size_t(2*m_nnz+4*m_neq+1) );
     m_baseValue.allocate( size_t(m_nnz+2*m_neq ));

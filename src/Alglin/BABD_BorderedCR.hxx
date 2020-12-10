@@ -119,10 +119,10 @@ namespace alglin {
     Malloc<valueType> m_superluValue;
     Malloc<int>       m_superluInteger;
 
-    integer m_number_of_blocks;   //!< total number of blocks
-    integer m_block_size;         //!< size of square blocks
-    integer m_qr, m_qx;           //!< extra BC
-    integer m_nr, m_nx;           //!< border size
+    integer m_number_of_blocks; //!< total number of blocks
+    integer m_block_size;       //!< size of square blocks
+    integer m_qr, m_qx;         //!< extra BC
+    integer m_nr, m_nx;         //!< border size
 
     // some derived constants
     integer n_x_2;
@@ -142,7 +142,10 @@ namespace alglin {
 
     superlu_options_t     slu_options;
     mutable SuperLUStat_t slu_stats;
-    mutable SuperMatrix   slu_A, slu_AC, slu_L, slu_U; // messo mutable per zittire warning
+    mutable SuperMatrix   slu_A;  // messo mutable per zittire warning
+    mutable SuperMatrix   slu_AC; // messo mutable per zittire warning
+    mutable SuperMatrix   slu_L;  // messo mutable per zittire warning
+    mutable SuperMatrix   slu_U;  // messo mutable per zittire warning
 
     #if defined(SUPERLU_MAJOR_VERSION) && SUPERLU_MAJOR_VERSION >= 5
     mutable GlobalLU_t    slu_glu;
