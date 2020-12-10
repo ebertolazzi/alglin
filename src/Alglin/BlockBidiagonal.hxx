@@ -77,7 +77,7 @@ namespace alglin {
     integer m_number_of_blocks; //!< total number of blocks
     integer m_block_size;       //!< size of square blocks
     integer m_q;                //!< extra BC
-    integer m_nb;               //!< border size
+    integer m_border_size;      //!< border size
 
     // some derived constants
     integer m_neq;
@@ -159,7 +159,7 @@ namespace alglin {
     , m_number_of_blocks(0)
     , m_block_size(0)
     , m_q(0)
-    , m_nb(0)
+    , m_border_size(0)
     , m_neq(0)
     , m_nx2(0)
     , m_nxn(0)
@@ -252,78 +252,96 @@ namespace alglin {
 
     // Border Bottom blocks
     void
-    setZeroBottomBlocks()
-    { alglin::zero( m_nb*m_neq, m_Cmat, 1 ); }
+    setZeroBottomBlocks() {
+      integer const & nb = m_border_size;
+      alglin::zero( nb*m_neq, m_Cmat, 1 );
+    }
 
     void
-    loadBottomBlocks( valueType const C[], integer ldC )
-    { gecopy( m_nb, m_neq, C, ldC, m_Cmat, m_nb ); }
+    loadBottomBlocks( valueType const C[], integer ldC ) {
+      integer const & nb = m_border_size;
+      gecopy( nb, m_neq, C, ldC, m_Cmat, nb );
+    }
 
     void
     loadBottomBlock( integer nbl, valueType const C[], integer ldC ) {
-      integer const & n = m_block_size;
+      integer const & n  = m_block_size;
+      integer const & nb = m_border_size;
       UTILS_ASSERT(
-        ldC >= m_nb, "loadBottomBlock( {}, C, ldC = {} ) bad ldC\n", nbl, ldC
+        ldC >= nb, "loadBottomBlock( {}, C, ldC = {} ) bad ldC\n", nbl, ldC
       );
       valueType * CC = m_Cmat + nbl*m_nxnb;
-      gecopy( m_nb, n, C, ldC, CC, m_nb );
+      gecopy( nb, n, C, ldC, CC, nb );
     }
 
     void
     addtoBottomBlock( integer nbl, valueType const C[], integer ldC ) {
-      integer const & n = m_block_size;
+      integer const & n  = m_block_size;
+      integer const & nb = m_border_size;
       UTILS_ASSERT(
-        ldC >= m_nb, "addtoBottomBlock( {}, C, ldC = {} ) bad ldC\n", nbl, ldC
+        ldC >= nb, "addtoBottomBlock( {}, C, ldC = {} ) bad ldC\n", nbl, ldC
       );
       valueType * CC = m_Cmat + nbl*m_nxnb;
-      geadd( m_nb, n, 1.0, C, ldC, 1.0, CC, m_nb, CC, m_nb );
+      geadd( nb, n, 1.0, C, ldC, 1.0, CC, nb, CC, nb );
     }
 
     // add to bottom block nbl and nbl+1
     void
     addtoBottomBlock2( integer nbl, valueType const C[], integer ldC ) {
+      integer const & nb = m_border_size;
       UTILS_ASSERT(
-        ldC >= m_nb, "addtoBottomBlock2( {}, C, ldC = {} ) bad ldC\n", nbl, ldC
+        ldC >= nb, "addtoBottomBlock2( {}, C, ldC = {} ) bad ldC\n", nbl, ldC
       );
       valueType * CC = m_Cmat + nbl*m_nxnb;
-      geadd( m_nb, m_nx2, 1.0, C, ldC, 1.0, CC, m_nb, CC, m_nb );
+      geadd( nb, m_nx2, 1.0, C, ldC, 1.0, CC, nb, CC, nb );
     }
 
     void
     loadBottomLastBlock( valueType const C[], integer ldC ) {
       integer const & nblock = m_number_of_blocks;
-      gecopy( m_nb, m_q, C, ldC, m_Cmat + (nblock+1)*m_nxnb, m_nb );
+      integer const & nb     = m_border_size;
+      gecopy( nb, m_q, C, ldC, m_Cmat + (nblock+1)*m_nxnb, nb );
     }
 
     // Border Right blocks
     void
-    setZeroRightBlocks()
-    { alglin::zero( m_neq*m_nb, m_Bmat, 1 ); }
+    setZeroRightBlocks() {
+      integer const & nb = m_border_size;
+      alglin::zero( m_neq*nb, m_Bmat, 1 );
+    }
 
     void
-    loadRightBlocks( valueType const B[], integer ldB )
-    { gecopy( m_neq, m_nb, B, ldB, m_Bmat, m_neq ); }
+    loadRightBlocks( valueType const B[], integer ldB ) {
+      integer const & nb = m_border_size;
+      gecopy( m_neq, nb, B, ldB, m_Bmat, m_neq );
+    }
 
     void
     loadRightBlock( integer nbl, valueType const B[], integer ldB ) {
-      integer const & n = m_block_size;
-      alglin::gecopy( n, m_nb, B, ldB, m_Bmat + nbl*n, m_neq );
+      integer const & n  = m_block_size;
+      integer const & nb = m_border_size;
+      alglin::gecopy( n, nb, B, ldB, m_Bmat + nbl*n, m_neq );
     }
 
     void
     loadRightLastBlock( valueType const B[], integer ldB ) {
-      integer const & n = m_block_size;
-      alglin::gecopy( n+m_q, m_nb, B, ldB, m_Bmat + m_neq-n-m_q, m_neq );
+      integer const & n  = m_block_size;
+      integer const & nb = m_border_size;
+      alglin::gecopy( n+m_q, nb, B, ldB, m_Bmat + m_neq-n-m_q, m_neq );
     }
 
     // Border RBblock
     void
-    setZeroRBblock()
-    { alglin::zero( m_nb*m_nb, m_Dmat, 1 ); }
+    setZeroRBblock() {
+      integer const & nb = m_border_size;
+      alglin::zero( nb*nb, m_Dmat, 1 );
+    }
 
     void
-    loadRBblock( valueType const D[], integer ldD )
-    { alglin::gecopy( m_nb, m_nb, D, ldD, m_Dmat, m_nb ); }
+    loadRBblock( valueType const D[], integer ldD ) {
+      integer const & nb = m_border_size;
+      alglin::gecopy( nb, nb, D, ldD, m_Dmat, nb );
+    }
 
     // final blocks after cyclic reduction
     valueType const *
@@ -485,14 +503,16 @@ namespace alglin {
       valueType const HN[],
       valueType const Hq[]
     ) {
-      integer const & n = m_block_size;
+      integer const & n  = m_block_size;
+      integer const & nb = m_border_size;
+
       this->loadBlocks( AdAu, n );
       integer nq = n + m_q;
       this->loadBottom( H0, nq, HN, nq, Hq, nq );
-      if ( m_nb > 0 ) {
+      if ( nb > 0 ) {
         this->loadRightBlocks( B, m_neq );
-        this->loadBottomBlocks( C, m_nb );
-        this->loadRBblock( D, m_nb );
+        this->loadBottomBlocks( C, nb );
+        this->loadRBblock( D, nb );
         this->factorize_bordered();
       } else {
         this->factorize();
@@ -507,8 +527,10 @@ namespace alglin {
       valueType const HN[],
       valueType const Hq[]
     ) {
-      integer const & n = m_block_size;
-      UTILS_ASSERT0( m_nb == 0, "factorize nb > 0 and no border assigned\n" );
+      integer const & n  = m_block_size;
+      integer const & nb = m_border_size;
+
+      UTILS_ASSERT0( nb == 0, "factorize nb > 0 and no border assigned\n" );
       integer nq = n + m_q;
       this->loadBlocks( AdAu, n );
       this->loadBottom( H0, nq, HN, nq, Hq, nq );

@@ -45,7 +45,7 @@ namespace alglin {
   BlockBidiagonal<t_Value>::allocate(
     integer nblock,
     integer n,
-    integer _nb,
+    integer nb,
     // ----------------------
     integer _numInitialBC,
     integer _numFinalBC,
@@ -95,22 +95,23 @@ namespace alglin {
 
     m_number_of_blocks = nblock;
     m_block_size       = n;
-    m_nb     = _nb;
+    m_border_size      = nb;
+
     m_neq    = (nblock+1)*n+m_q;
     m_nx2    = n*2;
     m_nxn    = n*n;
     m_nxnx2  = m_nxn*2;
-    m_nxnb   = n*m_nb;
+    m_nxnb   = n*nb;
     integer DE_size   = nblock*m_nxnx2;
     integer H0Nq_size = (n+m_q)*(m_nx2+m_q);
-    integer BC_size   = m_nb*m_neq;
-    m_baseValue.allocate(size_t(DE_size+H0Nq_size+2*BC_size+m_nb*m_nb+num_extra_r));
+    integer BC_size   = nb*m_neq;
+    m_baseValue.allocate(size_t(DE_size+H0Nq_size+2*BC_size+nb*nb+num_extra_r));
     m_baseInteger.allocate(size_t(num_extra_i));
     m_DE_blk = m_baseValue(size_t(DE_size));
     m_H0Nq   = m_baseValue(size_t(H0Nq_size));
     m_Bmat   = m_baseValue(size_t(BC_size));
     m_Cmat   = m_baseValue(size_t(BC_size));
-    m_Dmat   = m_baseValue(size_t(m_nb*m_nb));
+    m_Dmat   = m_baseValue(size_t(nb*nb));
     m_block0 = nullptr;
     m_blockN = nullptr;
   }
@@ -302,27 +303,28 @@ namespace alglin {
   template <typename t_Value>
   void
   BlockBidiagonal<t_Value>::factorize_bordered() {
+    integer const & nb = m_border_size;
 
     this->factorize(); // factorize top left block
-    if ( m_nb > 0 ) {
+    if ( nb > 0 ) {
       // Compute aux matrix
       // Z = A^(-1)*B
       // W = C*Z - D
       valueType * Zmat = m_Bmat;
-      this->solve( m_nb, Zmat, m_neq );
+      this->solve( nb, Zmat, m_neq );
       gemm(
         NO_TRANSPOSE,
         NO_TRANSPOSE,
-        m_nb, m_nb, m_neq,
+        nb, nb, m_neq,
         1,
-        m_Cmat, m_nb,
+        m_Cmat, nb,
         Zmat, m_neq,
         -1,
-        m_Dmat, m_nb
+        m_Dmat, nb
       );
       m_bb_factorization->factorize(
         "BlockBidiagonal::factorize_bordered",
-        m_nb, m_nb, m_Dmat, m_nb
+        nb, nb, m_Dmat, nb
       );
     }
   }
@@ -330,14 +332,15 @@ namespace alglin {
   template <typename t_Value>
   void
   BlockBidiagonal<t_Value>::solve_bordered( valueType xb[] ) const {
+    integer const & nb = m_border_size;
     // a' = A^(-1)*a
     this->solve( xb );
-    if ( m_nb > 0 ) {
+    if ( nb > 0 ) {
       // b' = C*a' - b
       gemv(
         NO_TRANSPOSE,
-        m_nb, m_neq,
-        1, m_Cmat, m_nb,
+        nb, m_neq,
+        1, m_Cmat, nb,
         xb, 1,
         -1, xb+m_neq, 1
       );
@@ -347,7 +350,7 @@ namespace alglin {
       valueType * Zmat = m_Bmat;
       gemv(
         NO_TRANSPOSE,
-        m_neq, m_nb,
+        m_neq, nb,
         -1, Zmat, m_neq,
         xb+m_neq, 1,
         1, xb, 1
@@ -362,15 +365,16 @@ namespace alglin {
     valueType xb[],
     integer   ldRhs
   ) const {
+    integer const & nb = m_border_size;
     // a' = A^(-1)*a
     this->solve( nrhs, xb, ldRhs );
-    if ( m_nb > 0 ) {
+    if ( nb > 0 ) {
       // b' = C*a' - b
       gemm(
         NO_TRANSPOSE,
         NO_TRANSPOSE,
-        m_nb, nrhs, m_neq,
-        1, m_Cmat, m_nb,
+        nb, nrhs, m_neq,
+        1, m_Cmat, nb,
         xb, ldRhs,
         -1, xb+m_neq, ldRhs
       );
@@ -381,7 +385,7 @@ namespace alglin {
       gemm(
         NO_TRANSPOSE,
         NO_TRANSPOSE,
-        m_neq, nrhs, m_nb,
+        m_neq, nrhs, nb,
         -1, Zmat, m_neq,
         xb+m_neq, ldRhs,
         1, xb, ldRhs
@@ -458,8 +462,9 @@ namespace alglin {
 
     integer const & nblock = m_number_of_blocks;
     integer const & n      = m_block_size;
+    integer const & nb     = m_border_size;
 
-    alglin::zero( m_neq+m_nb, res, 1 );
+    alglin::zero( m_neq+nb, res, 1 );
     if ( m_numCyclicBC == 0 && m_numCyclicOMEGA == 0 ) {
       integer row0  = m_numInitialBC;
       integer rowN  = m_numFinalBC;
@@ -531,22 +536,22 @@ namespace alglin {
       yy += n;
       DE += m_nxnx2;
     }
-    if ( m_nb > 0 ) {
+    if ( nb > 0 ) {
       gemv(
-        NO_TRANSPOSE, m_neq, m_nb,
+        NO_TRANSPOSE, m_neq, nb,
         1.0, m_Bmat, m_neq,
         x+m_neq, 1,
         1.0, res, 1
       );
       gemv(
-        NO_TRANSPOSE, m_nb, m_neq,
-        1.0, m_Cmat, m_nb,
+        NO_TRANSPOSE, nb, m_neq,
+        1.0, m_Cmat, nb,
         x, 1,
         1.0, res+m_neq, 1
       );
       gemv(
-        NO_TRANSPOSE, m_nb, m_nb,
-        1.0, m_Dmat, m_nb,
+        NO_TRANSPOSE, nb, nb,
+        1.0, m_Dmat, nb,
         x+m_neq, 1,
         1.0, res+m_neq, 1
       );
@@ -568,8 +573,9 @@ namespace alglin {
   BlockBidiagonal<t_Value>::dump_ccoord( ostream_type & stream ) const {
     integer const & nblock = m_number_of_blocks;
     integer const & n      = m_block_size;
+    integer const & nb     = m_border_size;
 
-    integer nnz = nblock*m_nxnx2 + 2*(nblock+1)*n*m_nb + m_nb*m_nb;
+    integer nnz = nblock*m_nxnx2 + 2*(nblock+1)*n*nb + nb*nb;
 
     // BC
     integer ii;
@@ -643,19 +649,19 @@ namespace alglin {
 
     // border
     ii = n*(nblock+1)+m_q;
-    for ( integer i = 0; i < m_nb; ++i )
+    for ( integer i = 0; i < nb; ++i )
       for ( integer j = 0; j < ii; ++j )
           fmt::print(
             stream, "{}\t{}\t{}\n{}\t{}\t{}\n",
-            ii+i, j, m_Cmat[i+j*m_nb],
+            ii+i, j, m_Cmat[i+j*nb],
             j, ii+i, m_Bmat[j+i*ii]
           );
 
-    for ( integer i = 0; i < m_nb; ++i )
-      for ( integer j = 0; j < m_nb; ++j )
+    for ( integer i = 0; i < nb; ++i )
+      for ( integer j = 0; j < nb; ++j )
         fmt::print(
           stream, "{}\t{}\t{}\n",
-          ii+i, ii+j, m_Dmat[i+j*m_nb]
+          ii+i, ii+j, m_Dmat[i+j*nb]
         );
 
   }
@@ -673,8 +679,9 @@ namespace alglin {
   BlockBidiagonal<t_Value>::sparseNnz() const {
     integer const & nblock = m_number_of_blocks;
     integer const & n      = m_block_size;
+    integer const & nb     = m_border_size;
 
-    integer nnz = nblock*m_nxnx2 + 2*(nblock+1)*n*m_nb + m_nb*m_nb;
+    integer nnz = nblock*m_nxnx2 + 2*(nblock+1)*n*nb + nb*nb;
     if ( m_numCyclicBC == 0 && m_numCyclicOMEGA == 0 ) {
       integer row0  = m_numInitialBC;
       integer rowN  = m_numFinalBC;
@@ -692,6 +699,7 @@ namespace alglin {
   BlockBidiagonal<t_Value>::sparsePattern( integer I[], integer J[] ) const {
     integer const & nblock = m_number_of_blocks;
     integer const & n      = m_block_size;
+    integer const & nb     = m_border_size;
     integer kkk = 0;
 
     // BC
@@ -764,7 +772,7 @@ namespace alglin {
 
     // border
     ii = n*(nblock+1)+m_q;
-    for ( integer i = 0; i < m_nb; ++i ) {
+    for ( integer i = 0; i < nb; ++i ) {
       for ( integer j = 0; j < ii; ++j ) {
         I[kkk] = ii+i;
         J[kkk] = j;
@@ -775,8 +783,8 @@ namespace alglin {
       }
     }
 
-    for ( integer i = 0; i < m_nb; ++i ) {
-      for ( integer j = 0; j < m_nb; ++j ) {
+    for ( integer i = 0; i < nb; ++i ) {
+      for ( integer j = 0; j < nb; ++j ) {
         I[kkk] = ii+i;
         J[kkk] = ii+j;
         ++kkk;
@@ -795,6 +803,7 @@ namespace alglin {
   BlockBidiagonal<t_Value>::sparseValues( valueType V[] ) const {
     integer const & nblock = m_number_of_blocks;
     integer const & n      = m_block_size;
+    integer const & nb     = m_border_size;
     integer kkk = 0;
 
     // BC
@@ -846,16 +855,16 @@ namespace alglin {
 
     // border
     ii = n*(nblock+1)+m_q;
-    for ( integer i = 0; i < m_nb; ++i ) {
+    for ( integer i = 0; i < nb; ++i ) {
       for ( integer j = 0; j < ii; ++j ) {
-        V[kkk++] = m_Cmat[i+j*m_nb];
+        V[kkk++] = m_Cmat[i+j*nb];
         V[kkk++] = m_Bmat[j+i*ii];
       }
     }
 
-    for ( integer i = 0; i < m_nb; ++i )
-      for ( integer j = 0; j < m_nb; ++j )
-        V[kkk++] = m_Dmat[i+j*m_nb];
+    for ( integer i = 0; i < nb; ++i )
+      for ( integer j = 0; j < nb; ++j )
+        V[kkk++] = m_Dmat[i+j*nb];
 
     UTILS_ASSERT(
       kkk == sparseNnz(),
