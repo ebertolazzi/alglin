@@ -106,9 +106,10 @@ namespace alglin {
 
   private:
 
-    //BorderedCR() = delete;
-    //BorderedCR( BorderedCR const & ) = delete;
-    //BorderedCR const & operator = ( BorderedCR const & ) = delete;
+    // block copy constructor
+    BorderedCR() = delete;
+    BorderedCR( BorderedCR const & ) = delete;
+    BorderedCR const & operator = ( BorderedCR const & ) = delete;
 
   protected:
 
@@ -118,7 +119,7 @@ namespace alglin {
     Malloc<valueType> m_superluValue;
     Malloc<int>       m_superluInteger;
 
-    integer m_nblock;   //!< total number of blocks
+    integer m_number_of_blocks;   //!< total number of blocks
     integer m_dim;      //!< size of square blocks
     integer m_qr, m_qx; //!< extra BC
     integer m_nr, m_nx; //!< border size
@@ -414,12 +415,12 @@ namespace alglin {
     //! \brief Number of rows of the linear system
     integer
     numRows() const
-    { return m_dim * (m_nblock+1) + m_qx + m_nx; }
+    { return m_dim * (m_number_of_blocks+1) + m_qx + m_nx; }
 
     //! \brief Number of columns of the linear system
     integer
     numCols() const
-    { return m_dim * (m_nblock+1) + m_qr + m_nr; }
+    { return m_dim * (m_number_of_blocks+1) + m_qr + m_nr; }
 
     /*!
      | \name Filling all or part of the linear system with zero
@@ -814,7 +815,8 @@ namespace alglin {
 
     integer
     sparseNnz() const {
-      return m_nblock*(2*n_x_n+n_x_nx+nr_x_n) + nr_x_n +
+      integer const & nblock = m_number_of_blocks;
+      return nblock*(2*n_x_n+n_x_nx+nr_x_n) + nr_x_n +
              m_nr*(m_qx+m_nx) + (m_dim+m_qr)*(2*m_dim+m_qx+m_nx);
     }
 

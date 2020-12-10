@@ -42,7 +42,7 @@ namespace alglin {
   \*/
   void
   BABD_SuperLU::factorize(
-    integer         _nblock,
+    integer         nblock,
     integer         _n,
     integer         q,
     valueType const AdAu[],
@@ -51,11 +51,11 @@ namespace alglin {
     valueType const Hq[]
   ) {
 
-    m_nblock = _nblock;
+    m_number_of_blocks = nblock;
     n        = _n;
     m        = _n+q;
-    m_nnz    = 2*m_nblock*n*n + (n+m)*m;
-    m_neq    = m_nblock*n + m;
+    m_nnz    = 2*nblock*n*n + (n+m)*m;
+    m_neq    = nblock*n + m;
 
     m_baseInteger.allocate( size_t(2*m_nnz+4*m_neq+1) );
     m_baseValue.allocate( size_t(m_nnz+2*m_neq ));
@@ -77,17 +77,17 @@ namespace alglin {
 
     integer kk = 0;
     integer jj = 0;
-    integer ee = m_nblock*n;
+    integer ee = nblock*n;
     colptr[0] = 0;
-    for ( integer k = 0; k <= m_nblock; ++k ) {
+    for ( integer k = 0; k <= nblock; ++k ) {
       valueType const * Ad = AdAu + 2*n*n*k;
       valueType const * Au = Ad - n*n;
       integer ii = k*n;
       for ( integer j = 0; j < n; ++j ) {
-        if ( k > 0         ) for ( integer i = 0; i < n; ++i ) { rowind[kk] = i+ii-n; values[kk] = Au[i+j*n]; ++kk; }
-        if ( k < m_nblock  ) for ( integer i = 0; i < n; ++i ) { rowind[kk] = i+ii; values[kk] = Ad[i+j*n]; ++kk; }
-        if ( k == 0        ) for ( integer i = 0; i < m; ++i ) { rowind[kk] = i+ee; values[kk] = H0[i+j*m]; ++kk; }
-        if ( k == m_nblock ) for ( integer i = 0; i < m; ++i ) { rowind[kk] = i+ee; values[kk] = HN[i+j*m]; ++kk; }
+        if ( k > 0       ) for ( integer i = 0; i < n; ++i ) { rowind[kk] = i+ii-n; values[kk] = Au[i+j*n]; ++kk; }
+        if ( k < nblock  ) for ( integer i = 0; i < n; ++i ) { rowind[kk] = i+ii; values[kk] = Ad[i+j*n]; ++kk; }
+        if ( k == 0      ) for ( integer i = 0; i < m; ++i ) { rowind[kk] = i+ee; values[kk] = H0[i+j*m]; ++kk; }
+        if ( k == nblock ) for ( integer i = 0; i < m; ++i ) { rowind[kk] = i+ee; values[kk] = HN[i+j*m]; ++kk; }
         colptr[++jj] = kk;
       }
     }

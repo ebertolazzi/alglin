@@ -31,8 +31,10 @@ namespace alglin {
    |
   \*/
 
-  typedef std::map<ABD_intType,DiazLU<ABD_realType> > MAP_DIAZ;
+  typedef std::map<ABD_intType,std::shared_ptr<DiazLU<ABD_realType> > > MAP_DIAZ;
+  using Utils::ThreadPool;
 
+  static ThreadPool  * TP             = new ThreadPool( std::thread::hardware_concurrency() );
   static MAP_DIAZ    * abd_database   = new MAP_DIAZ(); // workaround da indagare
   static std::string * abd_last_error = new std::string("no error");
 
@@ -51,11 +53,18 @@ namespace alglin {
     ABD_realType const BOTTOM[], ABD_intType ldBOTTOM
   ) {
     try {
-      DiazLU<ABD_realType> & lu = (*abd_database)[mat_id]; // find or create
-      lu.allocateTopBottom( nblock, n, row0, col0, rowN, colN, 0 );
-      lu.loadTopBottom( TOP, ldTOP, BOTTOM, ldBOTTOM );
-      lu.loadBlocks( DE, ldDE );
-      lu.factorize();
+      MAP_DIAZ::iterator lu = abd_database->find(mat_id); // find or create
+      if ( lu == abd_database->end() ) {
+        MAP_DIAZ::mapped_type ptr( new DiazLU<ABD_realType>() );
+        MAP_DIAZ::value_type  P( mat_id, ptr );
+        pair<MAP_DIAZ::iterator,bool> res = abd_database->insert( P );
+        lu = res.first;
+      }
+
+      lu->second->allocateTopBottom( nblock, n, row0, col0, rowN, colN, 0 );
+      lu->second->loadTopBottom( TOP, ldTOP, BOTTOM, ldBOTTOM );
+      lu->second->loadBlocks( DE, ldDE );
+      lu->second->factorize();
     }
     catch ( std::exception const & err ) {
       (*abd_last_error) = err.what();
@@ -77,7 +86,7 @@ namespace alglin {
         (*abd_last_error) = "ABD_solve mat_id do not correspond to any factorization";
         return -3;
       }
-      it->second.solve_ABD( rhs_sol );
+      it->second->solve_ABD( rhs_sol );
     }
     catch ( std::exception const & err ) {
       (*abd_last_error) = err.what();
@@ -104,7 +113,7 @@ namespace alglin {
         (*abd_last_error) = "ABD_solve_nrhs mat_id do not correspond to any factorization";
         return -3;
       }
-      it->second.solve_ABD( nrhs, rhs_sol, ldRhs );
+      it->second->solve_ABD( nrhs, rhs_sol, ldRhs );
     }
     catch ( std::exception const & err ) {
       (*abd_last_error) = err.what();
@@ -148,7 +157,7 @@ namespace alglin {
    |
   \*/
 
-  typedef std::map<BABD_intType,BorderedCR<BABD_realType> > MAP_BABD;
+  typedef std::map<BABD_intType,std::shared_ptr<BorderedCR<BABD_realType> > > MAP_BABD;
 
   static MAP_BABD    * babd_database   = new MAP_BABD();
   static std::string * babd_last_error = new std::string("no error");
@@ -169,26 +178,34 @@ namespace alglin {
     BABD_realType const Hq[], BABD_intType ldHq
   ) {
     try {
-      BorderedCR<BABD_realType> & lu = (*babd_database)[mat_id]; // find or create
-      lu.allocate( nblock, n, qr, qx, 0, 0 );
+
+      MAP_BABD::iterator lu = babd_database->find(mat_id); // find or create
+      if ( lu == babd_database->end() ) {
+        MAP_BABD::mapped_type ptr( new BorderedCR<BABD_realType>( TP ) );
+        MAP_BABD::value_type  P( mat_id, ptr );
+        pair<MAP_BABD::iterator,bool> res = babd_database->insert( P );
+        lu = res.first;
+      }
+
+      lu->second->allocate( nblock, n, qr, qx, 0, 0 );
       switch ( mat_fact ) {
-        case 0: lu.select_LU();  break;
-        case 1: lu.select_QR();  break;
-        case 2: lu.select_QRP(); break;
+        case 0: lu->second->select_LU();  break;
+        case 1: lu->second->select_QR();  break;
+        case 2: lu->second->select_QRP(); break;
       }
       switch ( last_block_fact ) {
-        case 0: lu.select_last_LU();   break;
-        case 1: lu.select_last_LUPQ(); break;
-        case 2: lu.select_last_QR();   break;
-        case 3: lu.select_last_QRP();  break;
-        case 4: lu.select_last_SVD();  break;
-        case 5: lu.select_last_LSS();  break;
-        case 6: lu.select_last_LSY();  break;
+        case 0: lu->second->select_last_LU();   break;
+        case 1: lu->second->select_last_LUPQ(); break;
+        case 2: lu->second->select_last_QR();   break;
+        case 3: lu->second->select_last_QRP();  break;
+        case 4: lu->second->select_last_SVD();  break;
+        case 5: lu->second->select_last_LSS();  break;
+        case 6: lu->second->select_last_LSY();  break;
       }
-      lu.loadBottom( H0, ldH0, HN, ldHN, Hq, ldHq, nullptr, 0 );
+      lu->second->loadBottom( H0, ldH0, HN, ldHN, Hq, ldHq, nullptr, 0 );
       for ( BABD_intType nbl = 0; nbl < nblock; ++nbl )
-        lu.loadDE( nbl, DE + 2*nbl*n*ldDE, ldDE );
-      lu.factorize();
+        lu->second->loadDE( nbl, DE + 2*nbl*n*ldDE, ldDE );
+      lu->second->factorize();
     }
     catch ( std::exception const & err ) {
       (*babd_last_error) = err.what();
@@ -223,32 +240,39 @@ namespace alglin {
     BABD_realType const D[],  BABD_intType ldD    // nr x nx
   ) {
     try {
-      BorderedCR<BABD_realType> & lu = (*babd_database)[mat_id]; // find or create
-      lu.allocate( nblock, n, qr, qx, nr, nx );
-      lu.loadBottom( H0, ldH0, HN, ldHN, Hq, ldHq, B+(nblock*n), ldB );
+
+      MAP_BABD::iterator lu = babd_database->find(mat_id); // find or create
+      if ( lu == babd_database->end() ) {
+        MAP_BABD::mapped_type ptr( new BorderedCR<BABD_realType>( TP ) );
+        MAP_BABD::value_type  P( mat_id, ptr );
+        pair<MAP_BABD::iterator,bool> res = babd_database->insert( P );
+        lu = res.first;
+      }
+      lu->second->allocate( nblock, n, qr, qx, nr, nx );
+      lu->second->loadBottom( H0, ldH0, HN, ldHN, Hq, ldHq, B+(nblock*n), ldB );
       switch ( mat_fact ) {
-        case 0: lu.select_LU(); break;
-        case 1: lu.select_QR(); break;
-        case 2: lu.select_QRP(); break;
+        case 0: lu->second->select_LU(); break;
+        case 1: lu->second->select_QR(); break;
+        case 2: lu->second->select_QRP(); break;
       }
       switch ( last_block_fact ) {
-        case 0: lu.select_last_LU();   break;
-        case 1: lu.select_last_LUPQ(); break;
-        case 2: lu.select_last_QR();   break;
-        case 3: lu.select_last_QRP();  break;
-        case 4: lu.select_last_SVD();  break;
-        case 5: lu.select_last_LSS();  break;
-        case 6: lu.select_last_LSY();  break;
+        case 0: lu->second->select_last_LU();   break;
+        case 1: lu->second->select_last_LUPQ(); break;
+        case 2: lu->second->select_last_QR();   break;
+        case 3: lu->second->select_last_QRP();  break;
+        case 4: lu->second->select_last_SVD();  break;
+        case 5: lu->second->select_last_LSS();  break;
+        case 6: lu->second->select_last_LSY();  break;
       }
       for ( BABD_intType nbl = 0; nbl < nblock; ++nbl ) {
-        lu.loadB( nbl, B + nbl*n, ldB );
-        lu.loadC( nbl, C + nbl*n*ldC, ldC );
-        lu.loadDE( nbl, DE + 2*nbl*n*ldDE, ldDE );
+        lu->second->loadB( nbl, B + nbl*n, ldB );
+        lu->second->loadC( nbl, C + nbl*n*ldC, ldC );
+        lu->second->loadDE( nbl, DE + 2*nbl*n*ldDE, ldDE );
       }
-      lu.loadC( nblock, C + nblock*n*ldC, ldC );
-      lu.loadCq( C + (nblock+1)*n*ldC, ldC );
-      lu.loadF( D, ldD );
-      lu.factorize();
+      lu->second->loadC( nblock, C + nblock*n*ldC, ldC );
+      lu->second->loadCq( C + (nblock+1)*n*ldC, ldC );
+      lu->second->loadF( D, ldD );
+      lu->second->factorize();
     }
     catch ( std::exception const & err ) {
       (*abd_last_error) = err.what();
@@ -271,7 +295,7 @@ namespace alglin {
         (*babd_last_error) = "BABD_solve mat_id do not correspond to any factorization";
         return -3;
       }
-      it->second.solve( rhs_sol );
+      it->second->solve( rhs_sol );
     }
     catch ( std::exception const & err ) {
       (*babd_last_error) = err.what();
@@ -298,7 +322,7 @@ namespace alglin {
         (*abd_last_error) = "BABD_solve_nrhs mat_id do not correspond to any factorization";
         return -3;
       }
-      it->second.solve( nrhs, rhs_sol, ldRhs );
+      it->second->solve( nrhs, rhs_sol, ldRhs );
     }
     catch ( std::exception const & err ) {
       (*babd_last_error) = err.what();

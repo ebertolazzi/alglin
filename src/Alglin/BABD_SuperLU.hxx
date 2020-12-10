@@ -55,7 +55,7 @@ namespace alglin {
 
     integer n;        //!< size of square blocks
     integer m;        //!< number final rows (m>=n)
-    integer m_nblock; //!< total number of blocks
+    integer m_number_of_blocks; //!< total number of blocks
     integer m_nnz;    //!< total number of non zeros
     integer m_neq;
 

@@ -173,10 +173,11 @@ namespace alglin {
       "DiazLU cannot manage cyclic BC\n"
     );
 
+    integer const & nblock = m_number_of_blocks;
+
     integer const & n      = m_n;
     integer const & nxnx2  = m_nxnx2;
     integer const & nxn    = m_nxn;
-    integer const & nblock = m_nblock;
 
     integer const & col00  = m_numInitialOMEGA;
     integer const & row0   = m_numInitialBC;
@@ -293,11 +294,12 @@ namespace alglin {
     bool      do_permute,
     valueType in_out[]
   ) const {
-  
+
+    integer const & nblock = m_number_of_blocks;
+
     integer const & n      = m_n;
     integer const & nxnx2  = m_nxnx2;
     integer const & nxn    = m_nxn;
-    integer const & nblock = m_nblock;
     integer const & col00  = m_numInitialOMEGA;
     integer const & colNN  = m_numFinalOMEGA;
     integer const & row0   = m_numInitialBC;
@@ -458,10 +460,11 @@ namespace alglin {
     integer   ldRhs
   ) const {
 
+    integer const & nblock = m_number_of_blocks;
+
     integer const & n      = m_n;
     integer const & nxnx2  = m_nxnx2;
     integer const & nxn    = m_nxn;
-    integer const & nblock = m_nblock;
     integer const & col00  = m_numInitialOMEGA;
     integer const & colNN  = m_numFinalOMEGA;
     integer const & row0   = m_numInitialBC;

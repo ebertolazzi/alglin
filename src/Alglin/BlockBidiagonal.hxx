@@ -74,7 +74,7 @@ namespace alglin {
     Malloc<valueType> m_baseValue;
     Malloc<integer>   m_baseInteger;
 
-    integer m_nblock; //!< total number of blocks
+    integer m_number_of_blocks; //!< total number of blocks
     integer m_n;      //!< size of square blocks
     integer m_q;      //!< extra BC
     integer m_nb;     //!< border size
@@ -156,7 +156,7 @@ namespace alglin {
     BlockBidiagonal()
     : m_baseValue("BlockBidiagonal_values")
     , m_baseInteger("BlockBidiagonal_integers")
-    , m_nblock(0)
+    , m_number_of_blocks(0)
     , m_n(0)
     , m_q(0)
     , m_nb(0)
@@ -226,8 +226,10 @@ namespace alglin {
 
     // filling bidiagonal part of the matrix
     void
-    loadBlocks( valueType const AdAu[], integer ldA )
-    { gecopy( m_n, m_nblock * m_nx2, AdAu, ldA, m_DE_blk, m_n ); }
+    loadBlocks( valueType const AdAu[], integer ldA ) {
+      integer const & nblock = m_number_of_blocks;
+      gecopy( m_n, nblock * m_nx2, AdAu, ldA, m_DE_blk, m_n );
+    }
 
     void
     loadBlock( integer nbl, valueType const AdAu[], integer ldA )
@@ -279,8 +281,10 @@ namespace alglin {
     }
 
     void
-    loadBottomLastBlock( valueType const C[], integer ldC )
-    { gecopy( m_nb, m_q, C, ldC, m_Cmat + (m_nblock+1)*m_nxnb, m_nb ); }
+    loadBottomLastBlock( valueType const C[], integer ldC ) {
+      integer const & nblock = m_number_of_blocks;
+      gecopy( m_nb, m_q, C, ldC, m_Cmat + (nblock+1)*m_nxnb, m_nb );
+    }
 
     // Border Right blocks
     void

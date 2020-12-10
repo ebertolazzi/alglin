@@ -80,10 +80,11 @@ namespace alglin {
       "BlockLU cannot manage cyclic BC\n"
     );
 
+    integer const & nblock = m_number_of_blocks;
+
     integer const & n      = m_n;
     integer const & nxnx2  = m_nxnx2;
     integer const & nxn    = m_nxn;
-    integer const & nblock = m_nblock;
 
     integer const & col00  = m_numInitialOMEGA;
     integer const & colNN  = m_numFinalOMEGA;
@@ -300,7 +301,7 @@ namespace alglin {
       */
 
       // fattorizzazione ultimo blocco
-      valueType * B = m_DE_blk + m_nxnx2 * m_nblock - m_nxn;
+      valueType * B = m_DE_blk + m_nxnx2 * nblock - m_nxn;
       integer N = row00+rowN;
       m_la_matrix.setup( N, N );
       m_la_matrix.zero_block(row00,N-n,0,n);
@@ -332,10 +333,11 @@ namespace alglin {
     valueType in_out[]
   ) const {
 
+    integer const & nblock = m_number_of_blocks;
+
     integer const & n      = m_n;
     integer const & nxnx2  = m_nxnx2;
     integer const & nxn    = m_nxn;
-    integer const & nblock = m_nblock;
     integer const & col00  = m_numInitialOMEGA;
     integer const & row0   = m_numInitialBC;
     integer const & rowN   = m_numFinalBC;
@@ -629,10 +631,11 @@ namespace alglin {
     integer   ldRhs
   ) const {
 
+    integer const & nblock = m_number_of_blocks;
+
     integer const & n      = m_n;
     integer const & nxnx2  = m_nxnx2;
     integer const & nxn    = m_nxn;
-    integer const & nblock = m_nblock;
     integer const & col00  = m_numInitialOMEGA;
     integer const & row0   = m_numInitialBC;
     integer const & rowN   = m_numFinalBC;

@@ -27,7 +27,7 @@ namespace alglin {
   , m_baseInteger("BorderedCR_integers")
   , m_superluValue("BorderedCR_superluValue")
   , m_superluInteger("BorderedCR_superluInteger")
-  , m_nblock(0)
+  , m_number_of_blocks(0)
   , m_dim(0)
   , m_qr(0)
   , m_qx(0)
@@ -75,7 +75,7 @@ namespace alglin {
   template <typename t_Value>
   void
   BorderedCR<t_Value>::allocate(
-    integer _nblock,
+    integer nblock,
     integer _n,
     integer _qr,
     integer _qx,
@@ -83,11 +83,11 @@ namespace alglin {
     integer _nx
   ) {
 
-    if ( m_nblock == _nblock && m_dim == _n  &&
+    if ( m_number_of_blocks == nblock && m_dim == _n  &&
          m_qr     == _qr     && m_qx  == _qx &&
          m_nr     == _nr     && m_nx  == _nx ) return;
 
-    m_nblock = _nblock;
+    m_number_of_blocks = nblock;
     m_dim    = _n;
     m_qr     = _qr;
     m_qx     = _qx;
@@ -136,29 +136,29 @@ namespace alglin {
     );
     if ( m_LworkQR < integer(tmp) ) m_LworkQR = integer(tmp);
 
-    integer nnz = m_nblock*(n_x_nx+2*n_x_n+Tsize+m_dim) +
-                  (m_nblock+1)*nr_x_n +
+    integer nnz = nblock*(n_x_nx+2*n_x_n+Tsize+m_dim) +
+                  (nblock+1)*nr_x_n +
                   nr_x_qx +
                   Nr*Nc + (m_dim+m_qr)*Nc +
                   m_Lwork + (m_LworkT+m_LworkQR+nr_x_nx+m_nr)*m_usedThread;
-    integer innz = m_nblock*m_dim + (3+m_dim)*m_usedThread;
+    integer innz = nblock*m_dim + (3+m_dim)*m_usedThread;
 
     m_baseValue.allocate(size_t(nnz));
     m_baseInteger.allocate(size_t(innz));
 
-    m_Bmat  = m_baseValue( size_t(m_nblock*n_x_nx) );
-    m_Cmat  = m_baseValue( size_t((m_nblock+1)*nr_x_n) );
+    m_Bmat  = m_baseValue( size_t(nblock*n_x_nx) );
+    m_Cmat  = m_baseValue( size_t((nblock+1)*nr_x_n) );
     m_Cqmat = m_baseValue( size_t(nr_x_qx) );
-    m_Dmat  = m_baseValue( size_t(m_nblock*n_x_n) );
-    m_Emat  = m_baseValue( size_t(m_nblock*n_x_n) );
+    m_Dmat  = m_baseValue( size_t(nblock*n_x_n) );
+    m_Emat  = m_baseValue( size_t(nblock*n_x_n) );
 
-    m_Tmat  = m_baseValue( size_t(m_nblock*Tsize) );
-    m_Ttau  = m_baseValue( size_t(m_nblock*m_dim) );
+    m_Tmat  = m_baseValue( size_t(nblock*Tsize) );
+    m_Ttau  = m_baseValue( size_t(nblock*m_dim) );
     m_Hmat  = m_baseValue( size_t(Nr*Nc) );
     m_H0Nqp = m_baseValue( size_t((m_dim+m_qr)*Nc) );
 
     m_Work = m_baseValue( size_t(m_Lwork) );
-    m_Perm = m_baseInteger( size_t(m_nblock*m_dim) );
+    m_Perm = m_baseInteger( size_t(nblock*m_dim) );
     iBlock = m_baseInteger( size_t(2*m_usedThread) );
     kBlock = m_baseInteger( size_t(m_usedThread) );
 
@@ -192,11 +192,11 @@ namespace alglin {
   BorderedCR<t_Value>::dup( BorderedCR const & M ) {
     m_usedThread = M.m_usedThread;
     m_TP         = M.m_TP;
-    allocate( M.m_nblock, M.m_dim, M.m_qr, M.m_qx, M.m_nr, M.m_nx );
-    alglin::copy( m_nblock*n_x_nx,     M.m_Bmat,    1, m_Bmat,    1 );
-    alglin::copy( (m_nblock+1)*nr_x_n, M.m_Cmat,    1, m_Cmat,    1 );
-    alglin::copy( m_nblock*n_x_n,      M.m_Dmat,    1, m_Dmat,    1 );
-    alglin::copy( m_nblock*n_x_n,      M.m_Emat,    1, m_Emat,    1 );
+    allocate( M.m_number_of_blocks, M.m_dim, M.m_qr, M.m_qx, M.m_nr, M.m_nx );
+    alglin::copy( m_number_of_blocks*n_x_nx,     M.m_Bmat,    1, m_Bmat,    1 );
+    alglin::copy( (m_number_of_blocks+1)*nr_x_n, M.m_Cmat,    1, m_Cmat,    1 );
+    alglin::copy( m_number_of_blocks*n_x_n,      M.m_Dmat,    1, m_Dmat,    1 );
+    alglin::copy( m_number_of_blocks*n_x_n,      M.m_Emat,    1, m_Emat,    1 );
     alglin::copy( nr_x_nx,             M.m_Fmat[0], 1, m_Fmat[0], 1 );
     alglin::copy( (m_dim+m_qr)*Nc,     M.m_H0Nqp,   1, m_H0Nqp,   1 );
     alglin::copy( nr_x_qx,             M.m_Cqmat,   1, m_Cqmat,   1 );
@@ -222,7 +222,7 @@ namespace alglin {
       "qx     = {}\n"
       "nr     = {}\n"
       "nx     = {}\n",
-      numRows(), numCols(), m_nblock,
+      numRows(), numCols(), m_number_of_blocks,
       m_dim, m_qr, m_qx, m_nr, m_nx
     );
   }
@@ -230,17 +230,17 @@ namespace alglin {
   template <typename t_Value>
   void
   BorderedCR<t_Value>::zeroD()
-  { alglin::zero( m_nblock*n_x_n, m_Dmat, 1 ); }
+  { alglin::zero( m_number_of_blocks*n_x_n, m_Dmat, 1 ); }
 
   template <typename t_Value>
   void
   BorderedCR<t_Value>::zeroE()
-  { alglin::zero( m_nblock*n_x_n, m_Emat, 1 ); }
+  { alglin::zero( m_number_of_blocks*n_x_n, m_Emat, 1 ); }
 
   template <typename t_Value>
   void
   BorderedCR<t_Value>::zeroB()
-  { alglin::zero( m_nblock*n_x_nx, m_Bmat, 1 ); }
+  { alglin::zero( m_number_of_blocks*n_x_nx, m_Bmat, 1 ); }
 
   template <typename t_Value>
   void
@@ -255,7 +255,7 @@ namespace alglin {
   template <typename t_Value>
   void
   BorderedCR<t_Value>::zeroC()
-  { alglin::zero( (m_nblock+1)*nr_x_n, m_Cmat, 1 ); }
+  { alglin::zero( (m_number_of_blocks+1)*nr_x_n, m_Cmat, 1 ); }
 
   template <typename t_Value>
   void
@@ -360,10 +360,10 @@ namespace alglin {
     valueType const F[],  integer ldF
   ) {
     // (n+qr) x ( n + n + qx + nx )
-    gecopy( m_nr, m_dim,  C0, ld0,  m_Cmat,                m_nr );
-    gecopy( m_nr, m_dim,  CN, ldN,  m_Cmat+m_nblock*n_x_n, m_nr );
-    gecopy( m_nr, m_qx,   Cq, ldCq, m_Cqmat,               m_nr );
-    gecopy( m_nr, m_nx,   F,  ldF,  m_Fmat[0],             m_nr );
+    gecopy( m_nr, m_dim,  C0, ld0,  m_Cmat,                          m_nr );
+    gecopy( m_nr, m_dim,  CN, ldN,  m_Cmat+m_number_of_blocks*n_x_n, m_nr );
+    gecopy( m_nr, m_qx,   Cq, ldCq, m_Cqmat,                         m_nr );
+    gecopy( m_nr, m_nx,   F,  ldF,  m_Fmat[0],                       m_nr );
   }
 
   template <typename t_Value>
@@ -411,10 +411,11 @@ namespace alglin {
   template <typename t_Value>
   void
   BorderedCR<t_Value>::loadBottom2( MatrixWrapper<valueType> const & H ) {
+    integer const & nblock = m_number_of_blocks;
     valueType const * ptr = H.data();
     integer           ld  = H.lDim();
-    this->loadC(  0,        ptr, ld ); ptr += nr_x_n;
-    this->loadC(  m_nblock, ptr, ld ); ptr += nr_x_n;
+    this->loadC(  0,      ptr, ld ); ptr += nr_x_n;
+    this->loadC(  nblock, ptr, ld ); ptr += nr_x_n;
     this->loadCq( ptr, ld ); ptr += m_nr * m_qx;
     this->loadF(  ptr, ld );
   }
@@ -695,12 +696,14 @@ namespace alglin {
   template <typename t_Value>
   void
   BorderedCR<t_Value>::factorize_CR() {
+    integer const & nblock = m_number_of_blocks;
+
     if ( m_usedThread > 1 ) {
       iBlock[0] = 0;
-      iBlock[1] = static_cast<integer>(m_nblock/m_usedThread);
+      iBlock[1] = static_cast<integer>(nblock/m_usedThread);
       for ( integer nt = 1; nt < m_usedThread; ++nt ) {
         iBlock[2*nt+0]  = iBlock[2*nt-1]+1;
-        iBlock[2*nt+1]  = static_cast<integer>(((nt+1)*m_nblock)/m_usedThread);
+        iBlock[2*nt+1]  = static_cast<integer>(((nt+1)*nblock)/m_usedThread);
       }
       // launch thread
       for ( integer nt = 1; nt < m_usedThread; ++nt ) {
@@ -719,7 +722,7 @@ namespace alglin {
       factorize_reduced();
     } else {
       iBlock[0] = 0;
-      iBlock[1] = m_nblock;
+      iBlock[1] = nblock;
       factorize_block(0);
     }
     UTILS_ASSERT0(
@@ -1108,6 +1111,7 @@ namespace alglin {
   template <typename t_Value>
   bool
   BorderedCR<t_Value>::load_and_factorize_last() {
+    integer const & nblock = m_number_of_blocks;
     /*
     //    n   n  qx  nx
     //  +---+---+---+---+
@@ -1120,7 +1124,7 @@ namespace alglin {
     //  | C | C |Cq | F | nr
     //  +---+---+---+---+
     */
-    valueType * Cnb = m_Cmat + m_nblock*nr_x_n;
+    valueType * Cnb = m_Cmat + nblock*nr_x_n;
     valueType * W0  = m_Hmat;
     valueType * WN  = W0+m_dim*Nr;
     valueType * Wq  = WN+m_dim*Nr;
@@ -1182,7 +1186,8 @@ namespace alglin {
   template <typename t_Value>
   bool
   BorderedCR<t_Value>::solve_last( valueType x[] ) const {
-    valueType * X = x + (m_nblock-1)*m_dim;
+    integer const & nblock = m_number_of_blocks;
+    valueType * X = x + (nblock-1)*m_dim;
     swap( m_dim, X, 1, x, 1 ); // uso x stesso come temporaneo
     bool ok = false;
     switch ( m_last_selected ) {
@@ -1208,7 +1213,8 @@ namespace alglin {
     valueType x[],
     integer   ldX
   ) const {
-    valueType * X = x + (m_nblock-1)*m_dim;
+    integer const & nblock = m_number_of_blocks;
+    valueType * X = x + (nblock-1)*m_dim;
     for ( integer i = 0; i < nrhs; ++i ) swap( m_dim, X+i*ldX, 1, x+i*ldX, 1 );
     bool ok = false;
     switch ( m_last_selected ) {
@@ -1238,7 +1244,8 @@ namespace alglin {
   template <typename t_Value>
   bool
   BorderedCR<t_Value>::solve_CR( valueType x[] ) const {
-    valueType * xb = x + (m_nblock+1)*m_dim + m_qr; // deve essere b!
+    integer const & nblock = m_number_of_blocks;
+    valueType * xb = x + (nblock+1)*m_dim + m_qr; // deve essere b!
     if ( m_usedThread > 1 ) {
       if ( m_nr > 0 ) {
         for ( integer nt = 1; nt < m_usedThread; ++nt ) {
@@ -1374,7 +1381,8 @@ namespace alglin {
     valueType x[],
     integer   ldX
   ) const {
-    valueType * xb = x + (m_nblock+1)*m_dim + m_qr;
+    integer const & nblock = m_number_of_blocks;
+    valueType * xb = x + (nblock+1)*m_dim + m_qr;
     integer iblock = iBlock[2*nth+0];
     integer eblock = iBlock[2*nth+1];
     integer nblk   = eblock - iblock;
@@ -1455,7 +1463,8 @@ namespace alglin {
     valueType x[],
     integer   ldX
   ) const {
-    valueType * xb = x + (m_nblock+1)*m_dim + m_qr;
+    integer const & nblock = m_number_of_blocks;
+    valueType * xb = x + (nblock+1)*m_dim + m_qr;
     integer nblk = 2*m_usedThread-1;
     integer k = 1;
     while ( k < nblk ) {
@@ -1495,7 +1504,8 @@ namespace alglin {
   template <typename t_Value>
   void
   BorderedCR<t_Value>::backward( integer nth, valueType x[] ) const {
-    valueType * xn = x + (m_nblock+1)*m_dim + m_qx;
+    integer const & nblock = m_number_of_blocks;
+    valueType * xn = x + (nblock+1)*m_dim + m_qx;
     integer iblock = iBlock[2*nth+0];
     integer eblock = iBlock[2*nth+1];
     valueType * x0 = x      + iblock*m_dim;
@@ -1559,7 +1569,8 @@ namespace alglin {
     valueType x[],
     integer   ldX
   ) const {
-    valueType * xn = x + (m_nblock+1)*m_dim + m_qx;
+    integer const & nblock = m_number_of_blocks;
+    valueType * xn = x + (nblock+1)*m_dim + m_qx;
     integer iblock = iBlock[2*nth+0];
     integer eblock = iBlock[2*nth+1];
     valueType * x0 = x      + iblock*m_dim;
@@ -1627,7 +1638,8 @@ namespace alglin {
   template <typename t_Value>
   void
   BorderedCR<t_Value>::backward_reduced( valueType x[] ) const {
-    valueType * xn = x + (m_nblock+1)*m_dim + m_qx;
+    integer const & nblock = m_number_of_blocks;
+    valueType * xn = x + (nblock+1)*m_dim + m_qx;
     integer nblk = 2*m_usedThread-1;
     integer k = 1;
     while ( k < nblk ) k *= 2;
@@ -1680,7 +1692,8 @@ namespace alglin {
     valueType x[],
     integer   ldX
   ) const {
-    valueType * xn = x + (m_nblock+1)*m_dim + m_qx;
+    integer const & nblock = m_number_of_blocks;
+    valueType * xn = x + (nblock+1)*m_dim + m_qx;
     integer nblk = 2*m_usedThread-1;
     integer k = 1;
     while ( k < nblk ) k *= 2;
@@ -1753,16 +1766,17 @@ namespace alglin {
   template <typename t_Value>
   void
   BorderedCR<t_Value>::addMv( valueType const x[], valueType res[] ) const {
+    integer const & nblock = m_number_of_blocks;
     // internal blocks block
     t_Value const * D  = m_Dmat;
     t_Value const * E  = m_Emat;
     t_Value const * B  = m_Bmat;
     t_Value const * xx = x;
-    t_Value const * xe = x  + m_nblock*m_dim;
+    t_Value const * xe = x  + nblock*m_dim;
     t_Value const * xq = xe + m_dim;
     t_Value const * xb = xq + m_qx;
     t_Value *       yy = res;
-    for ( integer i = 0; i < m_nblock; ++i ) {
+    for ( integer i = 0; i < nblock; ++i ) {
       alglin::gemv(
         NO_TRANSPOSE, m_dim, m_dim,
         1.0, D, m_dim, xx, 1, 1.0, yy, 1
@@ -1797,7 +1811,7 @@ namespace alglin {
       );
       t_Value const * C = m_Cmat;
       xx = x;
-      for ( integer i = 0; i <= m_nblock; ++i ) {
+      for ( integer i = 0; i <= nblock; ++i ) {
         alglin::gemv(
           NO_TRANSPOSE, m_nr, m_dim,
           1.0, C, m_nr, xx, 1, 1.0, yy, 1
@@ -1826,8 +1840,9 @@ namespace alglin {
   BorderedCR<t_Value>::patternB(
     integer nbl, integer I[], integer J[], integer offs
   ) const {
+    integer const & nblock = m_number_of_blocks;
     integer i0 = nbl*m_dim + offs;
-    integer j0 = (m_nblock+1)*m_dim + m_qx + offs;
+    integer j0 = (nblock+1)*m_dim + m_qx + offs;
     for ( integer ij = 0; ij < n_x_nx; ++ij ) {
       I[ij] = i0 + (ij % m_dim);
       J[ij] = j0 + integer(ij/m_dim);
@@ -1847,7 +1862,8 @@ namespace alglin {
   BorderedCR<t_Value>::patternC(
     integer nbl, integer I[], integer J[], integer offs
   ) const {
-    integer i0 = (m_nblock+1)*m_dim + m_qr + offs;
+    integer const & nblock = m_number_of_blocks;
+    integer i0 = (nblock+1)*m_dim + m_qr + offs;
     integer j0 = nbl*m_dim + offs;
     for ( integer ij = 0; ij < nr_x_n; ++ij ) {
       I[ij] = i0 + (ij % m_nr);
@@ -1910,8 +1926,9 @@ namespace alglin {
   BorderedCR<t_Value>::patternF(
     integer I[], integer J[], integer offs
   ) const {
-    integer i0 = (m_nblock+1)*m_dim + m_qr + offs;
-    integer j0 = (m_nblock+1)*m_dim + m_qx + offs;
+    integer const & nblock = m_number_of_blocks;
+    integer i0 = (nblock+1)*m_dim + m_qr + offs;
+    integer j0 = (nblock+1)*m_dim + m_qx + offs;
     for ( integer ij = 0; ij < nr_x_nx; ++ij ) {
       I[ij] = i0 + (ij % m_nr);
       J[ij] = j0 + integer(ij/m_nr);
@@ -1931,8 +1948,9 @@ namespace alglin {
   BorderedCR<t_Value>::patternCq(
     integer I[], integer J[], integer offs
   ) const {
-    integer i0 = (m_nblock+1)*m_dim + m_qr + offs;
-    integer j0 = (m_nblock+1)*m_dim + offs;
+    integer const & nblock = m_number_of_blocks;
+    integer i0 = (nblock+1)*m_dim + m_qr + offs;
+    integer j0 = (nblock+1)*m_dim + offs;
     for ( integer ij = 0; ij < nr_x_qx; ++ij ) {
       I[ij] = i0 + (ij % m_nr);
       J[ij] = j0 + integer(ij/m_nr);
@@ -1950,9 +1968,10 @@ namespace alglin {
   template <typename t_Value>
   integer
   BorderedCR<t_Value>::patternH( integer I[], integer J[], integer offs ) const {
+    integer const & nblock = m_number_of_blocks;
     integer nqr = m_dim + m_qr;
     integer nnz = nqr * Nc;
-    integer i0 = m_nblock*m_dim + offs;
+    integer i0 = nblock*m_dim + offs;
     integer j0 = i0 - m_dim;
     for ( integer ij = 0; ij < nnz; ++ij ) {
       I[ij] = i0 + (ij % nqr);
@@ -1977,8 +1996,9 @@ namespace alglin {
     integer J[],
     integer offs
   ) const {
+    integer const & nblock = m_number_of_blocks;
     integer kkk = 0;
-    for ( integer nbl = 0; nbl < m_nblock; ++nbl ) {
+    for ( integer nbl = 0; nbl < nblock; ++nbl ) {
       kkk += this->patternD( nbl, I+kkk, J+kkk, offs );
       kkk += this->patternE( nbl, I+kkk, J+kkk, offs );
       kkk += this->patternB( nbl, I+kkk, J+kkk, offs );
@@ -1988,7 +2008,7 @@ namespace alglin {
     kkk += this->patternH( I+kkk, J+kkk, offs );
 
     // C
-    for ( integer nbl = 0; nbl <= m_nblock; ++nbl )
+    for ( integer nbl = 0; nbl <= nblock; ++nbl )
       kkk += this->patternC( nbl, I+kkk, J+kkk, offs );
 
     // F
@@ -2010,8 +2030,9 @@ namespace alglin {
   template <typename t_Value>
   void
   BorderedCR<t_Value>::sparseValues( valueType V[] ) const {
+    integer const & nblock = m_number_of_blocks;
     integer kkk = 0;
-    for ( integer nbl = 0; nbl < m_nblock; ++nbl ) {
+    for ( integer nbl = 0; nbl < nblock; ++nbl ) {
       kkk += this->valuesD( nbl, V+kkk );
       kkk += this->valuesE( nbl, V+kkk );
       kkk += this->valuesB( nbl, V+kkk );
@@ -2021,7 +2042,7 @@ namespace alglin {
     kkk += this->valuesH( V+kkk );
 
     // C
-    for ( integer nbl = 0; nbl <= m_nblock; ++nbl )
+    for ( integer nbl = 0; nbl <= nblock; ++nbl )
       kkk += this->valuesC( nbl, V+kkk );
 
     // F
@@ -2048,7 +2069,8 @@ namespace alglin {
     integer   const M_col[], integer c_offs,
     integer         M_nnz
   ) {
-    integer const rH   = m_dim*m_nblock;
+    integer const & nblock = m_number_of_blocks;
+    integer const rH   = m_dim*nblock;
     integer const rC   = rH + m_dim+m_qr;
     integer const nrow = rC + m_nr;
 
@@ -2331,10 +2353,11 @@ namespace alglin {
   template <typename t_Value>
   void
   BorderedCR<t_Value>::factorize_SuperLU() {
+    integer const & nblock = m_number_of_blocks;
 
     int neq = int(this->numRows());
-    int nnz = m_nblock * ( 2 * n_x_n + m_nx * m_dim ) +
-              ( m_dim * (m_nblock+1) + (m_qx+m_nx) ) * m_nr +
+    int nnz = nblock * ( 2 * n_x_n + m_nx * m_dim ) +
+              ( m_dim * (nblock+1) + (m_qx+m_nx) ) * m_nr +
               ( m_dim+m_qr ) * ( n_x_2+m_qx+m_nx );
 
     m_superluInteger.allocate( size_t(nnz+5*neq+1) );
@@ -2354,7 +2377,7 @@ namespace alglin {
     int       * colptr = m_superluInteger( size_t(neq+1) );
 
     // fill matrix
-    int row1 = m_dim*m_nblock;
+    int row1 = m_dim*nblock;
     int row2 = row1+m_dim+m_qr;
     int kk   = 0;
     int jj   = 0;
@@ -2378,7 +2401,7 @@ namespace alglin {
       colptr[++jj] = kk;
     }
 
-    for ( int nbl = 1; nbl < m_nblock; ++nbl ) {
+    for ( int nbl = 1; nbl < nblock; ++nbl ) {
       int rown = nbl*m_dim;
       for ( int j = 0; j < m_dim; ++j ) {
         for ( int i = 0; i < m_dim; ++i ) {
@@ -2402,7 +2425,7 @@ namespace alglin {
 
     for ( int j = 0; j < m_dim; ++j ) {
       for ( int i = 0; i < m_dim; ++i ) {
-        values[kk] = E( m_nblock-1, i, j );
+        values[kk] = E( nblock-1, i, j );
         rowind[kk] = i+row1-m_dim;
         ++kk;
       }
@@ -2412,7 +2435,7 @@ namespace alglin {
         ++kk;
       }
       for ( int i = 0; i < m_nr; ++i ) {
-        values[kk] = C( m_nblock, i, j );
+        values[kk] = C( nblock, i, j );
         rowind[kk] = i+row2;
         ++kk;
       }
@@ -2434,7 +2457,7 @@ namespace alglin {
     }
 
     for ( int j = 0; j < m_nx; ++j ) {
-      for ( int nbl = 0; nbl < m_nblock; ++nbl ) {
+      for ( int nbl = 0; nbl < nblock; ++nbl ) {
         for ( int i = 0; i < m_dim; ++i ) {
           values[kk] = B( nbl, i, j );
           rowind[kk] = i+nbl*m_dim;

@@ -86,8 +86,8 @@ namespace alglin {
 
   private:
 
-    DiazLU( DiazLU const & );
-    DiazLU const & operator = ( DiazLU const & );
+    DiazLU( DiazLU const & ) = delete;
+    DiazLU const & operator = ( DiazLU const & ) = delete;
 
     integer m_NB;
 
@@ -133,10 +133,10 @@ namespace alglin {
 
     using BlockBidiagonal<t_Value>::m_baseInteger;
 
+    using BlockBidiagonal<t_Value>::m_number_of_blocks;
     using BlockBidiagonal<t_Value>::m_n;
     using BlockBidiagonal<t_Value>::m_nxnx2;
     using BlockBidiagonal<t_Value>::m_nxn;
-    using BlockBidiagonal<t_Value>::m_nblock;
 
     using BlockBidiagonal<t_Value>::m_numInitialBC;
     using BlockBidiagonal<t_Value>::m_numFinalBC;
