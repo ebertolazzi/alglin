@@ -120,7 +120,7 @@ namespace alglin {
     Malloc<int>       m_superluInteger;
 
     integer m_number_of_blocks;   //!< total number of blocks
-    integer m_dim;      //!< size of square blocks
+    integer m_block_size;      //!< size of square blocks
     integer m_qr, m_qx; //!< extra BC
     integer m_nr, m_nx; //!< border size
 
@@ -414,13 +414,19 @@ namespace alglin {
 
     //! \brief Number of rows of the linear system
     integer
-    numRows() const
-    { return m_dim * (m_number_of_blocks+1) + m_qx + m_nx; }
+    numRows() const {
+      integer const & nblk = m_number_of_blocks;
+      integer const & n    = m_block_size;
+      return n * (nblk+1) + m_qx + m_nx;
+    }
 
     //! \brief Number of columns of the linear system
     integer
-    numCols() const
-    { return m_dim * (m_number_of_blocks+1) + m_qr + m_nr; }
+    numCols() const {
+      integer const & nblk = m_number_of_blocks;
+      integer const & n    = m_block_size;
+      return n * (nblk+1) + m_qr + m_nr;
+    }
 
     /*!
      | \name Filling all or part of the linear system with zero
@@ -648,11 +654,11 @@ namespace alglin {
 
     t_Value &
     B( integer nbl, integer i, integer j )
-    { return m_Bmat[ nbl*n_x_nx + i + j*m_dim ]; }
+    { return m_Bmat[ nbl*n_x_nx + i + j*m_block_size ]; }
 
     t_Value const &
     B( integer nbl, integer i, integer j ) const
-    { return m_Bmat[ nbl*n_x_nx + i + j*m_dim ]; }
+    { return m_Bmat[ nbl*n_x_nx + i + j*m_block_size ]; }
 
     t_Value &
     C( integer nbl, integer i, integer j )
@@ -664,19 +670,19 @@ namespace alglin {
 
     t_Value &
     D( integer nbl, integer i, integer j )
-    { return m_Dmat[ nbl*n_x_n + i + j*m_dim]; }
+    { return m_Dmat[ nbl*n_x_n + i + j*m_block_size]; }
 
     t_Value const &
     D( integer nbl, integer i, integer j ) const
-    { return m_Dmat[ nbl*n_x_n + i + j*m_dim]; }
+    { return m_Dmat[ nbl*n_x_n + i + j*m_block_size]; }
 
     t_Value &
     E( integer nbl, integer i, integer j )
-    { return m_Emat[ nbl*n_x_n + i + j*m_dim]; }
+    { return m_Emat[ nbl*n_x_n + i + j*m_block_size]; }
 
     t_Value const &
     E( integer nbl, integer i, integer j ) const
-    { return m_Emat[ nbl*n_x_n + i + j*m_dim]; }
+    { return m_Emat[ nbl*n_x_n + i + j*m_block_size]; }
 
     t_Value &
     F( integer i, integer j )
@@ -696,28 +702,28 @@ namespace alglin {
 
     t_Value &
     H( integer i, integer j )
-    { return m_H0Nqp[ i + j*(m_dim+m_qr) ]; }
+    { return m_H0Nqp[ i + j*(m_block_size+m_qr) ]; }
 
     t_Value const &
     H( integer i, integer j ) const
-    { return m_H0Nqp[ i + j*(m_dim+m_qr) ]; }
+    { return m_H0Nqp[ i + j*(m_block_size+m_qr) ]; }
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     void
     B( integer nbl, MatrixWrapper<valueType> & B_wrap )
-    { B_wrap.setup( m_Bmat + nbl*n_x_nx, m_dim, m_nx, m_dim ); }
+    { B_wrap.setup( m_Bmat + nbl*n_x_nx, m_block_size, m_nx, m_block_size ); }
 
     void
     C( integer nbl, MatrixWrapper<valueType> & C_wrap )
-    { C_wrap.setup( m_Cmat + nbl*nr_x_n, m_nr, m_dim, m_nr ); }
+    { C_wrap.setup( m_Cmat + nbl*nr_x_n, m_nr, m_block_size, m_nr ); }
 
     void
     D( integer nbl, MatrixWrapper<valueType> & D_wrap )
-    { D_wrap.setup( m_Dmat + nbl*n_x_n, m_dim, m_dim, m_dim ); }
+    { D_wrap.setup( m_Dmat + nbl*n_x_n, m_block_size, m_block_size, m_block_size ); }
 
     void
     E( integer nbl, MatrixWrapper<valueType> & E_wrap )
-    { E_wrap.setup( m_Emat + nbl*n_x_n, m_dim, m_dim, m_dim ); }
+    { E_wrap.setup( m_Emat + nbl*n_x_n, m_block_size, m_block_size, m_block_size ); }
 
     void
     F( MatrixWrapper<valueType> & F_wrap )
@@ -729,7 +735,7 @@ namespace alglin {
 
     void
     H( MatrixWrapper<valueType> & H_wrap ) const
-    { H_wrap.setup( m_H0Nqp, m_dim + m_qr, Nc, m_dim + m_qr ); }
+    { H_wrap.setup( m_H0Nqp, m_block_size + m_qr, Nc, m_block_size + m_qr ); }
 
     /*!
      | @}
@@ -816,8 +822,9 @@ namespace alglin {
     integer
     sparseNnz() const {
       integer const & nblock = m_number_of_blocks;
+      integer const & n      = m_block_size;
       return nblock*(2*n_x_n+n_x_nx+nr_x_n) + nr_x_n +
-             m_nr*(m_qx+m_nx) + (m_dim+m_qr)*(2*m_dim+m_qx+m_nx);
+             m_nr*(m_qx+m_nx) + (n+m_qr)*(2*n+m_qx+m_nx);
     }
 
     void
