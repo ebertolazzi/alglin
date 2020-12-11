@@ -153,19 +153,19 @@ namespace alglin {
 
     void
     loadTopBottom(
-      integer         _row0,
-      integer         _col0,
-      valueType const _block0[],
-      integer         _ld0,
+      integer         row0,
+      integer         col0,
+      valueType const block0[],
+      integer         ld0,
       // ----------------------------
-      integer         _rowN,
-      integer         _colN,
-      valueType const _blockN[],
-      integer         _ldN
+      integer         rowN,
+      integer         colN,
+      valueType const blockN[],
+      integer         ldN
     ) {
       m_babd_solver->loadTopBottom(
-        _row0, _col0, _block0, _ld0,
-        _rowN, _colN, _blockN, _ldN
+        row0, col0, block0, ld0,
+        rowN, colN, blockN, ldN
       );
     }
 
@@ -217,7 +217,7 @@ namespace alglin {
       valueType Hq[], integer ldq
     ) {
       m_babd_solver->loadBC(
-        numInitialBC,  numFinalBC,  numCyclicBC,
+        numInitialBC,    numFinalBC,    numCyclicBC,
         numInitialOMEGA, numFinalOMEGA, numCyclicOMEGA,
         H0, ld0, HN, ldN, Hq, ldq
       );

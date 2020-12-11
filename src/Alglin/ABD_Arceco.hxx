@@ -1,6 +1,6 @@
 /*--------------------------------------------------------------------------*\
  |                                                                          |
- |  Copyright (C) 2017                                                      |
+ |  Copyright (C) 2020                                                      |
  |                                                                          |
  |         , __                 , __                                        |
  |        /|/  \               /|/  \                                       |
@@ -50,9 +50,9 @@ namespace alglin {
    *  This class is an implementation of the Alternate Row and
    *  Column Elimination in the C++ language.
    *  Being almost block diagonal, the matrix is given by the
-   *  3-tuple (numberOfBlocks,matrixStructure,array), where
+   *  3-tuple (numberOfBlocks,m_matrix_structure,array), where
    *  numberOfBlocks is the number of the blocks forming the matrix,
-   *  matrixStructure is an array which describes the structure
+   *  m_matrix_structure is an array which describes the structure
    *  of the matrix, and array contains the data of the matrix.
   \*/
   template <typename t_Value>
@@ -66,11 +66,11 @@ namespace alglin {
     ArcecoLU(ArcecoLU<t_Value> const &);
     ArcecoLU<t_Value> const &operator = (ArcecoLU<t_Value> const &);
 
-    integer   * matrixStructure; //!< structure of the matrix
-    integer   * pivot_array;     //!< permutation array
-    valueType * array;           //!< the matrix data
+    integer   * m_matrix_structure; //!< structure of the matrix
+    integer   * m_pivot_array;     //!< permutation array
+    valueType * m_array;           //!< the matrix data
 
-    integer m_numberOfBlocks;  //!< total number of blocks of the matrix A
+    integer m_number_of_blocks;  //!< total number of blocks of the matrix A
 
     /*!
      *  RowElimination performs numRowsPivot row elimination on the matrix block.
@@ -172,15 +172,15 @@ namespace alglin {
 
     integer
     numRows( integer numBlock ) const
-    { return matrixStructure[numBlock*3+0]; }
+    { return m_matrix_structure[numBlock*3+0]; }
 
     integer
     numCols( integer numBlock ) const
-    { return matrixStructure[numBlock*3+1]; }
+    { return m_matrix_structure[numBlock*3+1]; }
 
     integer
     numOverlap( integer numBlock ) const
-    { return matrixStructure[numBlock*3+2]; }
+    { return m_matrix_structure[numBlock*3+2]; }
 
   public:
 
@@ -237,17 +237,17 @@ namespace alglin {
     //! factorize the matrix
     void
     factorize(
-      integer         _row0,
-      integer         _col0,
-      valueType const _block0[],
+      integer         row0,
+      integer         col0,
+      valueType const block0[],
       // ----------------
-      integer         _numBlock,
-      integer         _dimBlock,
-      valueType const _blocks[],
+      integer         numBlock,
+      integer         dimBlock,
+      valueType const blocks[],
       // ----------------
-      integer         _rowN,
-      integer         _colN,
-      valueType const _blockN[]
+      integer         rowN,
+      integer         colN,
+      valueType const blockN[]
     );
 
     /*!

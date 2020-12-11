@@ -51,29 +51,27 @@ namespace alglin {
     valueType const Hq[]
   ) {
 
-    m_number_of_blocks = nblock;
-    m_block_size       = n;
-    m                  = n+q;
-    m_nnz              = 2*nblock*n*n + (n+m)*m;
-    m_neq              = nblock*n + m;
+    integer m   = n+q;
+    integer nnz = 2*nblock*n*n + (n+m)*m;
+    integer neq = (nblock+1)*n+q;
 
-    m_baseInteger.allocate( size_t(2*m_nnz+4*m_neq+1) );
-    m_baseValue.allocate( size_t(m_nnz+2*m_neq ));
+    m_baseInteger.allocate( size_t(2*nnz+4*neq+1) );
+    m_baseValue.allocate( size_t(nnz+2*neq ));
 
     set_default_options(&m_slu_options);
 
     // Initialize the statistics variables.
     StatInit(&m_slu_stats);
 
-    m_perm_r = m_baseInteger( size_t(m_neq) ); /* row permutations from partial pivoting */
-    m_perm_c = m_baseInteger( size_t(m_neq) ); /* column permutation vector */
-    m_etree  = m_baseInteger( size_t(m_neq) );
+    m_perm_r = m_baseInteger( size_t(neq) ); /* row permutations from partial pivoting */
+    m_perm_c = m_baseInteger( size_t(neq) ); /* column permutation vector */
+    m_etree  = m_baseInteger( size_t(neq) );
 
-    double * values = m_baseValue( size_t(m_nnz) );
-    double * sumR   = m_baseValue( size_t(m_neq) );
-    double * sumC   = m_baseValue( size_t(m_neq) );
-    int    * rowind = m_baseInteger( size_t(m_nnz) );
-    int    * colptr = m_baseInteger( size_t(m_neq+1) );
+    double * values = m_baseValue( size_t(nnz) );
+    double * sumR   = m_baseValue( size_t(neq) );
+    double * sumC   = m_baseValue( size_t(neq) );
+    int    * rowind = m_baseInteger( size_t(nnz) );
+    int    * colptr = m_baseInteger( size_t(neq+1) );
 
     integer kk = 0;
     integer jj = 0;
@@ -96,19 +94,19 @@ namespace alglin {
       colptr[++jj] = kk;
     }
 
-    UTILS_ASSERT0( jj == m_neq, "SuperLU::factorize -- bad matrix format\n" );
+    UTILS_ASSERT0( jj == neq, "SuperLU::factorize -- bad matrix format\n" );
 
     // Create matrix A in the format expected by SuperLU.
     //cout << "Create matrix A in the format expected by SuperLU.\n";
     dCreate_CompCol_Matrix(
-      &m_A, m_neq, m_neq, m_nnz,
+      &m_A, neq, neq, nnz,
       values, rowind, colptr,
       SLU_NC, SLU_D, SLU_GE
     );
 
-    std::fill_n( sumR, m_neq, 0 );
-    std::fill_n( sumC, m_neq, 0 );
-    for ( integer j = 0; j < m_neq; ++j ) {
+    std::fill_n( sumR, neq, 0 );
+    std::fill_n( sumC, neq, 0 );
+    for ( integer j = 0; j < neq; ++j ) {
       for ( integer ii = colptr[j]; ii < colptr[j+1]; ++ii ) {
         integer i = rowind[ii];
         double absAij = std::abs(values[ii]);
@@ -116,8 +114,8 @@ namespace alglin {
         sumC[j] += absAij;
       }
     }
-    m_one_norm_A = *std::max_element( sumC, sumC+m_neq );
-    m_inf_norm_A = *std::max_element( sumR, sumR+m_neq );
+    m_one_norm_A = *std::max_element( sumC, sumC+neq );
+    m_inf_norm_A = *std::max_element( sumR, sumR+neq );
 
     #if 0
     ofstream file("Jac.txt");

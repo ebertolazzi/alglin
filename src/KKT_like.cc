@@ -27,17 +27,17 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  KKT<t_Value>::allocate( integer _n, integer _m ) {
+  KKT<t_Value>::allocate( integer n, integer m ) {
     UTILS_ASSERT(
-      _n > 0 && _m > 0, "KKT::allocate( {}, {} ) bad dimension\n", _n, _m
+      n > 0 && m > 0, "KKT::allocate( {}, {} ) bad dimension\n", n, m
     );
-    if ( n != _n || m != _m ) {
-      n = _n;
-      m = _m;
-      allocReals.allocate( size_t(2*n*m) );
-      Zmat = allocReals( size_t(n*m) );
-      Cmat = allocReals( size_t(n*m) );
-      W_LU.allocate(m,m);
+    if ( n != m_dim1 || m != m_dim2 ) {
+      m_dim1 = n;
+      m_dim2 = m;
+      m_allocReals.allocate( size_t(2*n*m) );
+      m_Zmat = m_allocReals( size_t(n*m) );
+      m_Cmat = m_allocReals( size_t(n*m) );
+      m_W_LU.allocate(m,m);
     }
   }
 
@@ -46,7 +46,7 @@ namespace alglin {
   template <typename t_Value>
   void
   KKT<t_Value>::load_A( LSS const * Asystem ) {
-    pAsolver = Asystem;
+    m_Asolver = Asystem;
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -60,13 +60,14 @@ namespace alglin {
     integer         A_nnz,
     bool            is_symmetric
   ) {
-    pAsolver = &A_LU;
-    A_LU_working.setup(n,n);
+    integer const & n = m_dim1;
+    m_Asolver = &m_A_LU;
+    m_A_LU_working.setup(n,n);
     if ( is_symmetric )
-      A_LU_working.load_symmetric( r_offs, c_offs, A_row, A_col, A_values, A_nnz );
+      m_A_LU_working.load_symmetric( r_offs, c_offs, A_row, A_col, A_values, A_nnz );
     else
-      A_LU_working.load( r_offs, c_offs, A_row, A_col, A_values, A_nnz );
-    A_LU.factorize( "KKT::load_A", A_LU_working );
+      m_A_LU_working.load( r_offs, c_offs, A_row, A_col, A_values, A_nnz );
+    m_A_LU.factorize( "KKT::load_A", m_A_LU_working );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -78,18 +79,19 @@ namespace alglin {
     integer         ldA,
     bool            transposed
   ) {
+    integer const & n = m_dim1;
     UTILS_ASSERT(
       ldA >= n, "KKT::load_A bad ldA = {} must be >= {}\n", ldA, n
     );
-    pAsolver = &A_LU;
-    A_LU_working.setup(n,n);
+    m_Asolver = &m_A_LU;
+    m_A_LU_working.setup(n,n);
     if ( transposed ) {
       for ( integer i = 0; i < n; ++i )
-        A_LU_working.load_row(A+i*ldA,i);
+        m_A_LU_working.load_row(A+i*ldA,i);
     } else {
-      A_LU_working.load_block(n,n,A,ldA);
+      m_A_LU_working.load_block(n,n,A,ldA);
     }
-    A_LU.factorize( "KKT::load_A\n", A_LU_working );
+    m_A_LU.factorize( "KKT::load_A\n", m_A_LU_working );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -103,7 +105,9 @@ namespace alglin {
     integer   const B_col[], integer c_offs,
     integer         B_nnz
   ) {
-     gezero( n, m, Zmat, n );
+    integer const & n = m_dim1;
+    integer const & m = m_dim2;
+     gezero( n, m, m_Zmat, n );
      for ( integer k = 0; k < B_nnz; ++k ) {
        integer i = B_row[k]+r_offs;
        integer j = B_col[k]+c_offs;
@@ -111,7 +115,7 @@ namespace alglin {
          i >= 0 && i < n && j >= 0 && j < m,
          "KKT::load_B bad index (i,j) = ({},{}) at position {}\n", i, j, k
        );
-       Zmat[ i + n * j ] += B_values[k];
+       m_Zmat[ i + n * j ] += B_values[k];
      }
   }
 
@@ -125,15 +129,20 @@ namespace alglin {
     integer         ldB,
     bool            transposed
   ) {
+    integer const & n = m_dim1;
+    integer const & m = m_dim2;
     if ( transposed ) {
       UTILS_ASSERT(
         ldB >= m, "KKT::load_B bad ldB = {} must be >= {}\n", ldB,  m
       );
       for ( integer i = 0; i < n; ++i )
-        copy( m, B+i, n, Zmat+i*n, 1 );
+        copy( m, B+i, n, m_Zmat+i*n, 1 );
     } else {
-      integer info = gecopy( n, m, B, ldB, Zmat, n );
-      UTILS_ASSERT( info == 0, "KKT::load_B bad call gecopy, info = {}\n", info );
+      integer info = gecopy( n, m, B, ldB, m_Zmat, n );
+      UTILS_ASSERT(
+        info == 0,
+        "KKT::load_B bad call gecopy, info = {}\n", info
+      );
     }
   }
 
@@ -148,7 +157,9 @@ namespace alglin {
     integer   const C_col[], integer c_offs,
     integer         C_nnz
   ) {
-    gezero( m, n, Cmat, m );
+    integer const & n = m_dim1;
+    integer const & m = m_dim2;
+    gezero( m, n, m_Cmat, m );
     for ( integer k = 0; k < C_nnz; ++k ) {
       integer i = C_row[k]+r_offs;
       integer j = C_col[k]+c_offs;
@@ -156,7 +167,7 @@ namespace alglin {
         i >= 0 && i < m && j >= 0 && j < n,
         "KKT::load_C bad index (i,j) = ({},{}) at position {}\n", i, j, k
       );
-      Cmat[ i + m * j ] += C_values[k];
+      m_Cmat[ i + m * j ] += C_values[k];
     }
   }
 
@@ -170,14 +181,16 @@ namespace alglin {
     integer         ldC,
     bool            transposed
   ) {
+    integer const & n = m_dim1;
+    integer const & m = m_dim2;
     if ( transposed ) {
       UTILS_ASSERT(
         ldC >= n, "KKT::load_C bad ldC = {} must be >= {}\n", ldC, n
       );
       for ( integer i = 0; i < m; ++i )
-        copy( n, C+i, m, Cmat+i*m, 1 );
+        copy( n, C+i, m, m_Cmat+i*m, 1 );
     } else {
-      integer info = gecopy( m, n, C, ldC, Cmat, m );
+      integer info = gecopy( m, n, C, ldC, m_Cmat, m );
       UTILS_ASSERT(
         info == 0, "KKT::load_C bad call gecopy, info = {}\n", info
       );
@@ -196,8 +209,9 @@ namespace alglin {
     integer         D_nnz,
     bool            is_symmetric_D
   ) {
-    W_LU_working.setup(m,m);
-    W_LU_working.zero_fill();
+    integer const & m = m_dim2;
+    m_W_LU_working.setup(m,m);
+    m_W_LU_working.zero_fill();
     for ( integer k = 0; k < D_nnz; ++k ) {
       integer i = D_row[k]+r_offs;
       integer j = D_col[k]+c_offs;
@@ -205,8 +219,8 @@ namespace alglin {
         i >= 0 && i < m && j >= 0 && j < m,
         "KKT::load_D bad index (i,j) = ({},{}) at position {}\n", i, j, k
       );
-      W_LU_working(i,j) += D_values[k];
-      if ( is_symmetric_D && i != j ) W_LU_working(j,i) += D_values[k];
+      m_W_LU_working(i,j) += D_values[k];
+      if ( is_symmetric_D && i != j ) m_W_LU_working(j,i) += D_values[k];
      }
   }
 
@@ -220,10 +234,11 @@ namespace alglin {
     integer         ldD,
     bool            transposed
   ) {
+    integer const & m = m_dim2;
     UTILS_ASSERT( ldD >= m, "KKT::load_D bad ldD = {} must be >= {}\n", ldD, m );
-    W_LU_working.setup(m,m);
-    if ( transposed ) W_LU_working.load_transposed( D, ldD );
-    else              W_LU_working.load( D, ldD );
+    m_W_LU_working.setup(m,m);
+    if ( transposed ) m_W_LU_working.load_transposed( D, ldD );
+    else              m_W_LU_working.load( D, ldD );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -231,21 +246,23 @@ namespace alglin {
   template <typename t_Value>
   void
   KKT<t_Value>::factorize() {
+    integer const & n = m_dim1;
+    integer const & m = m_dim2;
     // Compute aux matrix
     // Z = A^(-1)*B
     // W = C*Z - D
-    pAsolver->solve( m, Zmat, n );
+    m_Asolver->solve( m, m_Zmat, n );
     gemm(
       NO_TRANSPOSE,
       NO_TRANSPOSE,
       m, m, n,
       1,
-      Cmat, m,
-      Zmat, n,
+      m_Cmat, m,
+      m_Zmat, n,
       -1,
-      W_LU_working.data(), m
+      m_W_LU_working.data(), m
     );
-    W_LU.factorize( "KKT<::factorize<W>", W_LU_working );
+    m_W_LU.factorize( "KKT<::factorize<W>", m_W_LU_working );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -253,8 +270,8 @@ namespace alglin {
   template <typename t_Value>
   void
   KKT<t_Value>::load(
-    integer         _n,
-    integer         _m,
+    integer         n,
+    integer         m,
     // -----------------------
     valueType const A_values[],
     integer   const A_row[], integer Ar_offs,
@@ -278,7 +295,7 @@ namespace alglin {
     integer         D_nnz,
     bool            D_is_symmetric
   ) {
-    allocate( _n, _m );
+    allocate( n, m );
     load_A( A_values, A_row, Ar_offs, A_col, Ac_offs, A_nnz, A_is_symmetric );
     load_B( B_values, B_row, Br_offs, B_col, Bc_offs, B_nnz );
     load_C( C_values, C_row, Cr_offs, C_col, Cc_offs, C_nnz );
@@ -290,8 +307,8 @@ namespace alglin {
   template <typename t_Value>
   void
   KKT<t_Value>::load(
-    integer         _n,
-    integer         _m,
+    integer         n,
+    integer         m,
     // -----------------------
     valueType const A_values[],
     integer         ldA,
@@ -309,7 +326,7 @@ namespace alglin {
     integer         ldD,
     bool            D_transposed
   ) {
-    allocate( _n, _m );
+    allocate( n, m );
     load_A( A_values, ldA, A_transposed );
     load_B( B_values, ldB, B_transposed );
     load_C( C_values, ldC, C_transposed );
@@ -321,8 +338,8 @@ namespace alglin {
   template <typename t_Value>
   void
   KKT<t_Value>::load(
-    integer _n,
-    integer _m,
+    integer n,
+    integer m,
     // -----------------------
     LSS const * Asystem,
     // -----------------------
@@ -342,7 +359,7 @@ namespace alglin {
     integer         D_nnz,
     bool            D_is_symmetric
   ) {
-    allocate( _n, _m );
+    allocate( n, m );
     load_A( Asystem );
     load_B( B_values, B_row, Br_offs, B_col, Bc_offs, B_nnz );
     load_C( C_values, C_row, Cr_offs, C_col, Cc_offs, C_nnz );
@@ -354,8 +371,8 @@ namespace alglin {
   template <typename t_Value>
   void
   KKT<t_Value>::load(
-    integer _n,
-    integer _m,
+    integer n,
+    integer m,
     // -----------------------
     LSS const * Asystem,
     // -----------------------
@@ -371,7 +388,7 @@ namespace alglin {
     integer         ldD,
     bool            D_transposed
   ) {
-    allocate( _n, _m );
+    allocate( n, m );
     load_A( Asystem );
     load_B( B_values, ldB, B_transposed );
     load_C( C_values, ldC, C_transposed );
@@ -383,10 +400,10 @@ namespace alglin {
   template <typename t_Value>
   void
   KKT<t_Value>::load_banded(
-    integer         _n,
-    integer         _m,
-    integer         _nL,
-    integer         _nU,
+    integer         n,
+    integer         m,
+    integer         nL,
+    integer         nU,
     // -----------------------
     valueType const M_values[],
     integer   const M_row[], integer r_offs,
@@ -394,14 +411,14 @@ namespace alglin {
     integer         M_nnz,
     bool            M_is_symmetric
   ) {
-    allocate( _n, _m );
-    A_banded_LU.setup( _n, _n, _nL, _nU );
+    allocate( n, m );
+    m_A_banded_LU.setup( n, n, nL, nU );
     this->load(
       M_values, M_row, r_offs, M_col, c_offs, M_nnz, M_is_symmetric,
-      A_banded_LU
+      m_A_banded_LU
     );
-    pAsolver = &A_banded_LU;
-    A_banded_LU.factorize( "KKT::load_banded" );
+    m_Asolver = &m_A_banded_LU;
+    m_A_banded_LU.factorize( "KKT::load_banded" );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -409,10 +426,10 @@ namespace alglin {
   template <typename t_Value>
   void
   KKT<t_Value>::load_triblock(
-    integer         _n,
-    integer         _m,
+    integer         n,
+    integer         m,
     // ---- BLOCK TRIDIAGONAL STRUCTURE ----
-    integer         _nblocks,
+    integer         nblocks,
     integer const   rBlocks[],
     // -----------------------
     valueType const M_values[],
@@ -421,14 +438,14 @@ namespace alglin {
     integer         M_nnz,
     bool            M_is_symmetric
   ) {
-    allocate( _n, _m );
-    A_strid_LDL.setup( _nblocks, rBlocks );
+    allocate( n, m );
+    m_A_strid_LDL.setup( nblocks, rBlocks );
     this->load(
       M_values, M_row, r_offs, M_col, c_offs, M_nnz, M_is_symmetric,
-      A_strid_LDL
+      m_A_strid_LDL
     );
-    pAsolver = &A_strid_LDL;
-    A_strid_LDL.factorize( "KKT::load_triblock" );
+    m_Asolver = &m_A_strid_LDL;
+    m_A_strid_LDL.factorize( "KKT::load_triblock" );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -436,11 +453,11 @@ namespace alglin {
   template <typename t_Value>
   void
   KKT<t_Value>::load_triblock(
-    integer _n,
-    integer _m,
+    integer n,
+    integer m,
     // ---- BLOCK TRIDIAGONAL STRUCTURE ----
-    integer _nblocks,
-    integer _block_size,
+    integer nblocks,
+    integer block_size,
     // -----------------------
     valueType const M_values[],
     integer   const M_row[], integer r_offs,
@@ -448,14 +465,14 @@ namespace alglin {
     integer         M_nnz,
     bool            M_is_symmetric
   ) {
-    allocate( _n, _m );
-    A_strid_LDL.setup( _nblocks, _block_size );
+    allocate( n, m );
+    m_A_strid_LDL.setup( nblocks, block_size );
     this->load(
       M_values, M_row, r_offs, M_col, c_offs, M_nnz, M_is_symmetric,
-      A_strid_LDL
+      m_A_strid_LDL
     );
-    pAsolver = &A_strid_LDL;
-    A_strid_LDL.factorize( "KKT::load_triblock" );
+    m_Asolver = &m_A_strid_LDL;
+    m_A_strid_LDL.factorize( "KKT::load_triblock" );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -463,23 +480,25 @@ namespace alglin {
   template <typename t_Value>
   bool
   KKT<t_Value>::solve( valueType xb[] ) const {
+    integer const & n = m_dim1;
+    integer const & m = m_dim2;
     // a' = A^(-1)*a
-    pAsolver->solve( xb );
+    m_Asolver->solve( xb );
     // b' = C*a' - b
     gemv(
       NO_TRANSPOSE,
       m, n,
-      1, Cmat, m,
+      1, m_Cmat, m,
       xb, 1,
       -1, xb+n, 1
     );
     // y = W^(-1) * b'
-    W_LU.solve( xb+n );
+    m_W_LU.solve( xb+n );
     // x = a' - Z*y
     gemv(
       NO_TRANSPOSE,
       n, m,
-      -1, Zmat, n,
+      -1, m_Zmat, n,
       xb+n, 1,
       1, xb, 1
     );
@@ -491,26 +510,28 @@ namespace alglin {
   template <typename t_Value>
   bool
   KKT<t_Value>::t_solve( valueType xb[] ) const {
+    integer const & n = m_dim1;
+    integer const & m = m_dim2;
     // b' = Z^T*a -b
     gemv(
       TRANSPOSE,
       n, m,
-      1, Zmat, n,
+      1, m_Zmat, n,
       xb, 1,
       -1, xb+n, 1
     );
     // y  = W^(-T)*b'
-    W_LU.t_solve( xb+n );
+    m_W_LU.t_solve( xb+n );
     // a' = a - C^T*y
     gemv(
       TRANSPOSE,
       m, n,
-      -1, Cmat, m,
+      -1, m_Cmat, m,
       xb+n, 1,
       1, xb, 1
     );
     // x = A^(-T) a'
-    pAsolver->t_solve( xb );
+    m_Asolver->t_solve( xb );
     return true;
   }
 
@@ -519,25 +540,27 @@ namespace alglin {
   template <typename t_Value>
   bool
   KKT<t_Value>::solve( integer nrhs, valueType B[], integer ldB ) const {
+    integer const & n = m_dim1;
+    integer const & m = m_dim2;
     // a' = A^(-1)*a
-    pAsolver->solve( nrhs, B, ldB );
+    m_Asolver->solve( nrhs, B, ldB );
     // b' = C*a' - b
     gemm(
       NO_TRANSPOSE,
       NO_TRANSPOSE,
       m, nrhs, n,
-      1, Cmat, m,
+      1, m_Cmat, m,
       B, ldB,
       -1, B+n, ldB
     );
     // y = W^(-1) * b'
-    W_LU.solve( nrhs, B+n, ldB );
+    m_W_LU.solve( nrhs, B+n, ldB );
     // x = a' - Z*y
     gemm(
       NO_TRANSPOSE,
       NO_TRANSPOSE,
       n, nrhs, m,
-      -1, Zmat, n,
+      -1, m_Zmat, n,
       B+n, ldB,
       1, B, ldB
     );
@@ -549,32 +572,33 @@ namespace alglin {
   template <typename t_Value>
   bool
   KKT<t_Value>::t_solve( integer nrhs, valueType B[], integer ldB ) const {
+    integer const & n = m_dim1;
+    integer const & m = m_dim2;
     // b' = Z^T*a -b
     gemm(
       TRANSPOSE,
       NO_TRANSPOSE,
       m, nrhs, n,
-      1, Zmat, n,
+      1, m_Zmat, n,
       B, ldB,
       -1, B+n, ldB
     );
     // y  = W^(-T)*b'
-    W_LU.t_solve( nrhs, B+n, ldB );
+    m_W_LU.t_solve( nrhs, B+n, ldB );
     // a' = a - C^T*y
     gemm(
       TRANSPOSE,
       NO_TRANSPOSE,
       n, nrhs, m,
-      -1, Cmat, m,
+      -1, m_Cmat, m,
       B+n, ldB,
       1, B, ldB
     );
     // x = A^(-T) a'
-    pAsolver->t_solve( nrhs, B, ldB );
+    m_Asolver->t_solve( nrhs, B, ldB );
     return true;
   }
 
   template class KKT<float>;
   template class KKT<double>;
-
 }

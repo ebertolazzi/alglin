@@ -50,14 +50,8 @@ namespace alglin {
     Malloc<valueType> m_baseValue;
     Malloc<int>       m_baseInteger;
 
-    BABD_SuperLU(BABD_SuperLU const &);
-    BABD_SuperLU const & operator = (BABD_SuperLU const &);
-
-    integer m_number_of_blocks; //!< total number of blocks
-    integer m_block_size;       //!< size of square blocks
-    integer m;                  //!< number final rows (m>=m_block_size)
-    integer m_nnz;              //!< total number of non zeros
-    integer m_neq;
+    BABD_SuperLU(BABD_SuperLU const &) = delete;
+    BABD_SuperLU const & operator = (BABD_SuperLU const &) = delete;
 
     int     * m_perm_r; // row permutations from partial pivoting
     int     * m_perm_c; // column permutation vector
@@ -91,7 +85,7 @@ namespace alglin {
       \param Hq   pointer to the block \f$ H_q \f$
       \code
       Matrix structure
-      
+
                       n * nblock
         ________________^_________________
        /                                  \
@@ -102,10 +96,10 @@ namespace alglin {
       |  0  | Ad  | Au  |  0               |  0  |  0  | n   |
       +-----+-----+-----+-----+       -----+-----+-----+     |
       |  0  |  0  | Ad  | Au  |            |  0  |  0  | n   |
-      +-----+-----+-----+-----+       -----+-----+-----+     |   
+      +-----+-----+-----+-----+       -----+-----+-----+     |
       |                                                :     |
       :                                                :      > n * nblock
-      :                                                :     | 
+      :                                                :     |
       :                                                :     |
       :                                                :     |
       :                              +-----+-----+-----+     |

@@ -1,6 +1,6 @@
 /*--------------------------------------------------------------------------*\
  |                                                                          |
- |  Copyright (C) 2017                                                       |
+ |  Copyright (C) 2020                                                       |
  |                                                                          |
  |         , __                 , __                                        |
  |        /|/  \               /|/  \                                       |
@@ -77,12 +77,8 @@ namespace alglin {
     using BlockBidiagonal<t_Value>::m_Cmat;
     using BlockBidiagonal<t_Value>::m_Dmat;
 
-    BBlockLU(BBlockLU const &);
-    BBlockLU const & operator = (BBlockLU const &);
-
-    integer m;   //!< number final rows (m>=n)
-    integer N;   //!< n * (nblock+1) + q
-    integer nnz; //!< total number of non zeros
+    BBlockLU( BBlockLU const & ) = delete;
+    BBlockLU const & operator = ( BBlockLU const & ) = delete;
 
     /*!
     //

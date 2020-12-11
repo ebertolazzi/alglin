@@ -93,29 +93,34 @@ namespace alglin {
 
     typedef LinearSystemSolver<t_Value> LSS;
 
-    Malloc<valueType> allocReals;
+    Malloc<valueType> m_allocReals;
 
     // solver for A block
-    LSS const * pAsolver;
+    LSS const * m_Asolver;
 
-    Matrix<t_Value> A_LU_working;
-    Matrix<t_Value> A_banded_working;
-    Matrix<t_Value> A_strid_working;
+    Matrix<t_Value> m_A_LU_working;
+    Matrix<t_Value> m_A_banded_working;
+    Matrix<t_Value> m_A_strid_working;
 
-    LU<t_Value>                         A_LU;
-    BandedLU<valueType>                 A_banded_LU;
-    BlockTridiagonalSymmetic<valueType> A_strid_LDL;
+    LU<t_Value>                         m_A_LU;
+    BandedLU<valueType>                 m_A_banded_LU;
+    BlockTridiagonalSymmetic<valueType> m_A_strid_LDL;
 
     // sover for D block
-    Matrix<t_Value> W_LU_working;
-    LU<t_Value>     W_LU;
+    Matrix<t_Value> m_W_LU_working;
+    LU<t_Value>     m_W_LU;
 
-    valueType * Zmat;
-    valueType * Cmat;
+    valueType * m_Zmat;
+    valueType * m_Cmat;
 
   private:
 
     /*
+    //
+    //  n = m_dim1
+    //  m = m_dim2
+    //
+    //
     // A is n x n
     // B is n x m
     // C is m x n
@@ -123,12 +128,14 @@ namespace alglin {
     // m << n
     */
 
-    integer n;
-    integer m;
+    integer m_dim1;
+    integer m_dim2;
 
     /*
     //
     //  Matrix structure
+    //  n = m_dim1
+    //  m = m_dim2
     //
     //     n     m
     //  +-----+-----+
@@ -148,14 +155,16 @@ namespace alglin {
       bool            M_is_symmetric,
       MATRIX        & mat
     ) {
-      integer mn = m+n;
+      integer const & n  = m_dim1;
+      integer const & m  = m_dim2;
+      integer         mn = m+n;
 
       mat.zero();
-      gezero( n, m, this->Zmat, n );
-      gezero( m, n, this->Cmat, m );
+      gezero( n, m, m_Zmat, n );
+      gezero( m, n, m_Cmat, m );
 
-      W_LU_working.setup( m, m );
-      W_LU_working.zero_fill();
+      m_W_LU_working.setup( m, m );
+      m_W_LU_working.zero_fill();
 
       // load elements
       for ( integer k = 0; k < M_nnz; ++k ) {
@@ -173,19 +182,19 @@ namespace alglin {
           break;
         case 1: // C
           i -= n;
-          this->Cmat[ i + m * j ] += v;
-          if ( M_is_symmetric ) this->Zmat[ j + n * i ] += v;
+          m_Cmat[ i + m * j ] += v;
+          if ( M_is_symmetric ) m_Zmat[ j + n * i ] += v;
           break;
         case 2: // B
           j -= n;
-          this->Zmat[ i + n * j ] += v;
-          if ( M_is_symmetric ) this->Cmat[ j + m * i ] += v;
+          m_Zmat[ i + n * j ] += v;
+          if ( M_is_symmetric ) m_Cmat[ j + m * i ] += v;
           break;
         case 3: // D
           i -= n;
           j -= n;
-          W_LU_working(i,j) += v;
-          if ( M_is_symmetric && i != j ) W_LU_working(j,i) += v;
+          m_W_LU_working(i,j) += v;
+          if ( M_is_symmetric && i != j ) m_W_LU_working(j,i) += v;
           break;
         }
       }
@@ -197,9 +206,9 @@ namespace alglin {
 
     explicit
     KKT()
-    : allocReals("KKT-reals")
-    , n(0)
-    , m(0)
+    : m_allocReals("KKT-reals")
+    , m_dim1(0)
+    , m_dim2(0)
     {}
 
     ~KKT() UTILS_OVERRIDE
@@ -337,8 +346,8 @@ namespace alglin {
 
     //! load matrix in the class
     /*!
-     *  \param _n  number of row and column of the first block
-     *  \param _m  number of rows of block `C` and columns of block `B`
+     *  \param n  number of row and column of the first block
+     *  \param m  number of rows of block `C` and columns of block `B`
      *
      *  \param[in] A_values elements `Aij` of the matrix `A`
      *  \param[in] A_row    row index of the corresponding element in `A_values`
@@ -373,8 +382,8 @@ namespace alglin {
 
     void
     load(
-      integer _n,
-      integer _m,
+      integer n,
+      integer m,
       // -----------------------
       valueType const A_values[],
       integer   const A_row[], integer Ar_offs,
@@ -401,8 +410,8 @@ namespace alglin {
 
     //! load matrix in the class
     /*!
-     *  \param _n           # of row and column of the first block
-     *  \param _m           # of rows of block C and columns o B
+     *  \param n            # of row and column of the first block
+     *  \param m            # of rows of block C and columns o B
      *
      *  \param A_values     elements `Aij` of the matrix `A`
      *  \param ldA          leading dimension of matrix `A`
@@ -423,8 +432,8 @@ namespace alglin {
 
     void
     load(
-      integer _n,
-      integer _m,
+      integer n,
+      integer m,
       // -----------------------
       valueType const A_values[],
       integer         ldA,
@@ -445,8 +454,8 @@ namespace alglin {
 
     //! load matrix in the class
     /*!
-     *  \param[in] _n number row and column of the first block
-     *  \param[in] _m number of rows of block `C` and columns of block `B`
+     *  \param[in] n number row and column of the first block
+     *  \param[in] m number of rows of block `C` and columns of block `B`
      *
      *  \param[in] Asystem  pointer to a class with `solve` and `t_solve` method
      *
@@ -475,8 +484,8 @@ namespace alglin {
 
     void
     load(
-      integer _n,
-      integer _m,
+      integer n,
+      integer m,
       // -----------------------
       LSS const *   Asystem,
       // -----------------------
@@ -499,8 +508,8 @@ namespace alglin {
 
     //! load matrix in the class
     /*!
-     *  \param _n number of row and column of the first block
-     *  \param _m number of rows of block `C` and columns of block `B`
+     *  \param n number of row and column of the first block
+     *  \param m number of rows of block `C` and columns of block `B`
      *
      *  \param Asystem  pointer to a class with `solve` and `t_solve` method
      *
@@ -519,8 +528,8 @@ namespace alglin {
 
     void
     load(
-      integer _n,
-      integer _m,
+      integer n,
+      integer m,
       // -----------------------
       LSS const * Asystem,
       // -----------------------
@@ -539,10 +548,10 @@ namespace alglin {
 
     //! load matrix in the class
     /*!
-     *  \param _n  number of row and column of the first block
-     *  \param _m  number of rows of block `C` and columns of block `B`
-     *  \param _nL number of extra lower diagonals
-     *  \param _nU number of extra upper diagonals
+     *  \param n  number of row and column of the first block
+     *  \param m  number of rows of block `C` and columns of block `B`
+     *  \param nL number of extra lower diagonals
+     *  \param nU number of extra upper diagonals
      *
      *  \param[in] M_values elements `Aij` of the matrix `A`
      *  \param[in] M_row    row index of the corresponding element in `A_values`
@@ -555,10 +564,10 @@ namespace alglin {
 
     void
     load_banded(
-      integer _n,
-      integer _m,
-      integer _nL,
-      integer _nU,
+      integer n,
+      integer m,
+      integer nL,
+      integer nU,
       // -----------------------
       valueType const M_values[],
       integer   const M_row[], integer r_offs,
@@ -569,9 +578,9 @@ namespace alglin {
 
     //! load matrix in the class
     /*!
-     *  \param _n       number of row and column of the first block
-     *  \param _m       number of rows of block `C` and columns of block `B`
-     *  \param _nblocks number of blocks for the block tridiagonal matrix `A`
+     *  \param n       number of row and column of the first block
+     *  \param m       number of rows of block `C` and columns of block `B`
+     *  \param nblocks number of blocks for the block tridiagonal matrix `A`
      *  \param rBlocks  index of the initial rows for the diagonal block starts
      *
      *  \param[in] M_values elements `Aij` of the matrix `A`
@@ -585,10 +594,10 @@ namespace alglin {
 
     void
     load_triblock(
-      integer _n,
-      integer _m,
+      integer n,
+      integer m,
       // ---- BLOCK TRIDIAGONAL STRUCTURE ----
-      integer       _nblocks,
+      integer       nblocks,
       integer const rBlocks[],
       // -----------------------
       valueType const M_values[],
@@ -600,10 +609,10 @@ namespace alglin {
 
     //! load matrix in the class
     /*!
-     *  \param _n          number of row and column of the first block
-     *  \param _m          number of rows of block `C` and columns of block `B`
-     *  \param _nblocks    number of blocks for the block tridiagonal matrix `A`
-     *  \param _block_size size of a block
+     *  \param n          number of row and column of the first block
+     *  \param m          number of rows of block `C` and columns of block `B`
+     *  \param nblocks    number of blocks for the block tridiagonal matrix `A`
+     *  \param block_size size of a block
      *
      *  \param[in] M_values elements `Aij` of the matrix `A`
      *  \param[in] M_row    row index of the corresponding element in `A_values`
@@ -616,11 +625,11 @@ namespace alglin {
 
     void
     load_triblock(
-      integer _n,
-      integer _m,
+      integer n,
+      integer m,
       // ---- BLOCK TRIDIAGONAL STRUCTURE ----
-      integer _nblocks,
-      integer _block_size,
+      integer nblocks,
+      integer block_size,
       // -----------------------
       valueType const M_values[],
       integer   const M_row[], integer r_offs,

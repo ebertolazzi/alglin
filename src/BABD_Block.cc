@@ -44,6 +44,7 @@ namespace alglin {
     integer const & nxnx2  = m_nxnx2;
 
     // fill matrix
+    integer m  = n+q;
     integer nm = n+m;
     for ( integer k = 0; k < nblock; ++k ) {
       valueType const * Ad = m_DE_blk + k*nxnx2;
@@ -159,8 +160,10 @@ namespace alglin {
 
     integer const & nblock = m_number_of_blocks;
     integer const & n      = m_block_size;
+    integer const & q      = m_extra_bc;
 
     // solve L
+    integer     m     = n+q;
     integer     nm    = n+m;
     integer     rowFF = (nblock-1) * n;
     valueType * ye    = y + nblock * n;

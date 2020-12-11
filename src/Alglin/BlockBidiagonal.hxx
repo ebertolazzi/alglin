@@ -78,9 +78,9 @@ namespace alglin {
     integer m_block_size;       //!< size of square blocks
     integer m_extra_bc;         //!< extra BC
     integer m_border_size;      //!< border size
+    integer m_neq;
 
     // some derived constants
-    integer m_neq;
     integer m_nx2;
     integer m_nxn;
     integer m_nxnx2;

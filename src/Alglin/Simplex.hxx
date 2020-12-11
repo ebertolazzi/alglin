@@ -307,8 +307,8 @@ namespace Simplex {
     SIMPLEX_API_DLL valueType get_c_max_abs() const { return problem->get_c_max_abs(); }
     SIMPLEX_API_DLL valueType get_A_max_abs() const { return problem->get_A_max_abs(); }
 
-    SIMPLEX_VIRTUAL integer dim_x()  const { return problem->dim_x()+problem->dim_g(); }
-    SIMPLEX_VIRTUAL integer dim_g()  const { return problem->dim_g(); }
+    SIMPLEX_VIRTUAL integer dim_x() const { return problem->dim_x()+problem->dim_g(); }
+    SIMPLEX_VIRTUAL integer dim_g() const { return problem->dim_g(); }
 
     SIMPLEX_VIRTUAL
     void
