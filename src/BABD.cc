@@ -21,26 +21,6 @@
 
 namespace alglin {
 
-  string
-  BABD_Choice_to_string( BABD_Choice c ) {
-    string res = "none";
-    switch ( c ) {
-    case BABD_DIAZ:
-      res = "Diaz";
-      break;
-    case BABD_CYCLIC_REDUCTION_LU:
-      res = "CyclicReduction+LU";
-      break;
-    case BABD_CYCLIC_REDUCTION_QR:
-      res = "CyclicReduction+QR";
-      break;
-    case BABD_CYCLIC_REDUCTION_QRP:
-      res = "CyclicReduction+QRP";
-      break;
-    }
-    return res;
-  }
-
   #if 0
 
   static

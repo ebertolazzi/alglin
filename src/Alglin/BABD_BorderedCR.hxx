@@ -189,7 +189,8 @@ namespace alglin {
     LSY<valueType>  m_last_lsy;
     PINV<valueType> m_last_pinv;
 
-    integer *m_iBlock, *m_kBlock;
+    integer *m_iBlock;
+    integer *m_kBlock;
 
     // used also with a unique thread
     integer                         m_usedThread;
@@ -847,6 +848,47 @@ namespace alglin {
       integer   const M_col[], integer c_offs,
       integer         M_nnz
     );
+
+    /*\
+     |   ___        _                       _
+     |  | _ \___ __| |_ __ _ _ _  __ _ _  _| |__ _ _ _
+     |  |   / -_) _|  _/ _` | ' \/ _` | || | / _` | '_|
+     |  |_|_\___\__|\__\__,_|_||_\__, |\_,_|_\__,_|_|
+     |                           |___/
+    \*/
+    bool
+    mult_inv(
+      valueType const b[],
+      integer         incb,
+      valueType       x[],
+      integer         incx
+    ) const;
+
+    bool
+    t_mult_inv(
+      valueType const b[],
+      integer         incb,
+      valueType       x[],
+      integer         incx
+    ) const;
+
+    bool
+    mult_inv(
+      integer         nrhs,
+      valueType const B[],
+      integer         ldB,
+      valueType       X[],
+      integer         ldX
+    ) const;
+
+    bool
+    t_mult_inv(
+      integer         nrhs,
+      valueType const B[],
+      integer         ldB,
+      valueType       X[],
+      integer         ldX
+    ) const;
 
   };
 

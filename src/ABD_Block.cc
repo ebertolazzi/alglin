@@ -82,8 +82,6 @@ namespace alglin {
 
     integer const & nblock = m_number_of_blocks;
     integer const & n      = m_block_size;
-    integer const & nxn    = m_n_x_n;
-    integer const   nxnx2  = 2*nxn;
 
     integer const & col00  = m_numInitialOMEGA;
     integer const & colNN  = m_numFinalOMEGA;
@@ -153,7 +151,7 @@ namespace alglin {
         info == 0, "BlockLU::factorize, first block, gecopy INFO = {}\n", info
       );
 
-      info = gecopy( n, n, m_DE_blk + nxn, n, m_Work_mat1+row00, m_Work_lda );
+      info = gecopy( n, n, m_DE_blk + n_x_n, n, m_Work_mat1+row00, m_Work_lda );
       UTILS_ASSERT(
         info == 0,
         "BlockLU::factorize, first block, gecopy INFO = {}\n", info
@@ -200,7 +198,7 @@ namespace alglin {
         info == 0, "BlockLU::factorize, first block, gecopy INFO = {}\n", info
       );
 
-      info = gecopy( n, n, m_Work_mat1+row00, m_Work_lda, m_DE_blk + nxn, n );
+      info = gecopy( n, n, m_Work_mat1+row00, m_Work_lda, m_DE_blk + n_x_n, n );
       UTILS_ASSERT(
         info == 0, "BlockLU::factorize, first block, gecopy INFO = {}\n", info
       );
@@ -221,9 +219,9 @@ namespace alglin {
 
       for ( integer k = 1; k < nblock; ++k ) {
 
-        valueType * B    = m_DE_blk + nxnx2 * k;
-        valueType * A    = B - nxn;
-        valueType * C    = B + nxn;
+        valueType * B    = m_DE_blk + (2*k)*n_x_n;
+        valueType * A    = B - n_x_n;
+        valueType * C    = B + n_x_n;
         valueType * F    = m_F_mat + k*m_F_size;
         integer   * swps = m_swapR_blks + k * n;
 
@@ -300,7 +298,7 @@ namespace alglin {
       */
 
       // fattorizzazione ultimo blocco
-      valueType * B = m_DE_blk + (2*nblock-1)*m_n_x_n;
+      valueType * B = m_DE_blk + (2*nblock-1)*n_x_n;
       integer N = row00+rowN;
       m_la_matrix.setup( N, N );
       m_la_matrix.zero_block(row00,N-n,0,n);
@@ -334,8 +332,6 @@ namespace alglin {
 
     integer const & nblock = m_number_of_blocks;
     integer const & n      = m_block_size;
-    integer const & nxn    = m_n_x_n;
-    integer const   nxnx2  = 2*nxn;
 
     integer const & col00  = m_numInitialOMEGA;
     integer const & row0   = m_numInitialBC;
@@ -441,8 +437,8 @@ namespace alglin {
       integer k = 0;
       while ( ++k < nblock ) {
 
-        valueType * B    = m_DE_blk + nxnx2 * k;
-        valueType * A    = B - nxn;
+        valueType * B    = m_DE_blk + (2*k)*n_x_n;
+        valueType * A    = B - n_x_n;
         integer   * swps = m_swapR_blks + k * n;
 
         // apply permutation
@@ -512,11 +508,11 @@ namespace alglin {
       */
       while ( --k > 0 ) {
 
-        valueType * B = m_DE_blk + nxnx2 * k;
-        valueType * C = B + nxn;
-        valueType * A = B - nxn;
+        valueType * B = m_DE_blk + (2*k)*n_x_n;
+        valueType * C = B + n_x_n;
+        valueType * A = B - n_x_n;
         valueType * F = m_F_mat + k*m_F_size;
-      
+
         // copy from
         info = gecopy( row00, n, A + n_m_row00, n, m_Work_mat, m_Work_lda );
         UTILS_ASSERT(
@@ -552,7 +548,7 @@ namespace alglin {
       }
 
       valueType * B = m_DE_blk;
-      valueType * C = B + nxn;
+      valueType * C = B + n_x_n;
 
       // copy from
       info = gecopy( row00, n, block00 + col00, row0, m_Work_mat, m_Work_lda );
@@ -632,8 +628,6 @@ namespace alglin {
 
     integer const & nblock = m_number_of_blocks;
     integer const & n      = m_block_size;
-    integer const & nxn    = m_n_x_n;
-    integer const   nxnx2  = 2*m_n_x_n;
 
     integer const & col00  = m_numInitialOMEGA;
     integer const & row0   = m_numInitialBC;
@@ -753,8 +747,8 @@ namespace alglin {
       integer k = 0;
       while ( ++k < nblock ) {
 
-        valueType * B    = m_DE_blk + nxnx2 * k;
-        valueType * A    = B - nxn;
+        valueType * B    = m_DE_blk + (2*k)*n_x_n;
+        valueType * A    = B - n_x_n;
         integer   * swps = m_swapR_blks + k * n;
 
         // apply permutation
@@ -824,11 +818,11 @@ namespace alglin {
       */
       while ( --k > 0 ) {
 
-        valueType * B = m_DE_blk + nxnx2 * k;
-        valueType * C = B + nxn;
-        valueType * A = B - nxn;
+        valueType * B = m_DE_blk + (2*k)*n_x_n;
+        valueType * C = B + n_x_n;
+        valueType * A = B - n_x_n;
         valueType * F = m_F_mat + k*m_F_size;
-      
+
         // copy from
         info = gecopy( row00, n, A + n_m_row00, n, m_Work_mat, m_Work_lda );
         UTILS_ASSERT(
@@ -867,7 +861,7 @@ namespace alglin {
       }
 
       valueType * B = m_DE_blk;
-      valueType * C = B + nxn;
+      valueType * C = B + n_x_n;
 
       // copy from
       info = gecopy( row00, n, block00 + col00, row0, m_Work_mat, m_Work_lda );

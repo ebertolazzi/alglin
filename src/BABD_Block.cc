@@ -4,7 +4,7 @@
  |                                                                          |
  |         , __                 , __                                        |
  |        /|/  \               /|/  \                                       |
- |         | __/ _   ,_         | __/ _   ,_                                | 
+ |         | __/ _   ,_         | __/ _   ,_                                |
  |         |   \|/  /  |  |   | |   \|/  /  |  |   |                        |
  |         |(__/|__/   |_/ \_/|/|(__/|__/   |_/ \_/|/                       |
  |                           /|                   /|                        |
@@ -39,17 +39,14 @@ namespace alglin {
     integer const & n      = m_block_size;
     integer const & q      = m_extra_bc;
 
-    integer const & nxn    = m_n_x_n;
-    integer const   nxnx2  = 2*nxn;
-
     // fill matrix
     integer m  = n+q;
     integer nm = n+m;
     for ( integer k = 0; k < nblock; ++k ) {
-      valueType const * Ad = m_DE_blk + k*nxnx2;
-      valueType const * Au = Ad + nxn;
-      gecopy( n, n, Ad, n, m_AdH_blk + k*nm*n, nm );
-      gecopy( n, n, Au, n, m_Au_blk  + k*nxn,  n  );
+      valueType const * Ad = m_DE_blk + (2*k)*n_x_n;
+      valueType const * Au = Ad + n_x_n;
+      gecopy( n, n, Ad, n, m_AdH_blk + k*nm*n,  nm );
+      gecopy( n, n, Au, n, m_Au_blk  + k*n_x_n, n  );
     }
 
     gecopy( m, n, m_H0Nq,       m, m_AdH_blk + n,  nm );

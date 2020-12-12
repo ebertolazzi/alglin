@@ -175,8 +175,6 @@ namespace alglin {
 
     integer const & nblock = m_number_of_blocks;
     integer const & n      = m_block_size;
-    integer const & nxn    = m_n_x_n;
-    integer const   nxnx2  = 2*nxn;
 
     integer const & col00  = m_numInitialOMEGA;
     integer const & row0   = m_numInitialBC;
@@ -219,11 +217,11 @@ namespace alglin {
       LU_left_right( n, n_m_row00, row00, n, D, n, swapRC );
       swapRC += n_m_row00;
     }
-    
+
     valueType * C = m_DE_blk;
     for ( m_nblk = 1; m_nblk < nblock; ++m_nblk ) {
-      C += nxnx2;
-      valueType * B1 = C - nxn + n_m_row00;
+      C += 2*n_x_n;
+      valueType * B1 = C - n_x_n + n_m_row00;
       LU_top_bottom(
         n_m_row00, row00,
         n, B1, n,
@@ -262,7 +260,7 @@ namespace alglin {
         swapRC
       );
     } else {
-      valueType * B1 = m_DE_blk + nblock * nxnx2 - nxn + n_m_row00;
+      valueType * B1 = m_DE_blk + (2*nblock-1) * n_x_n + n_m_row00;
       LU_top_bottom(
         n_m_row00, row00, n,
         B1, n,
@@ -296,8 +294,6 @@ namespace alglin {
 
     integer const & nblock = m_number_of_blocks;
     integer const & n      = m_block_size;
-    integer const & nxn    = m_n_x_n;
-    integer const   nxnx2  = 2*nxn;
 
     integer const & col00  = m_numInitialOMEGA;
     integer const & colNN  = m_numFinalOMEGA;
@@ -353,7 +349,7 @@ namespace alglin {
       */
 
       valueType * io1 = io - row00;
-      valueType * M   = m_DE_blk + m_nblk * nxnx2;
+      valueType * M   = m_DE_blk + (2*m_nblk) * n_x_n;
       valueType * L   = M + row00 * n;
 
       // io -= M*io1
@@ -396,8 +392,8 @@ namespace alglin {
       */
 
       valueType * io1 = io + n;
-      valueType * U   = m_DE_blk + m_nblk * nxnx2 + row00 * n;
-      valueType * M   = U + nxn;
+      valueType * U   = m_DE_blk + (2*m_nblk)*n_x_n + row00 * n;
+      valueType * M   = U + n_x_n;
 
       gemv(
         NO_TRANSPOSE,
@@ -409,10 +405,10 @@ namespace alglin {
 
       trsv( UPPER, NO_TRANSPOSE, NON_UNIT, n, U, n, io, 1 );
     }
-    
+
     // primo blocco
     io -= row0;
-  
+
     // soluzione primo blocco
     gemv(
       NO_TRANSPOSE,
@@ -449,7 +445,7 @@ namespace alglin {
     // permuto le x
     if ( do_permute ) std::rotate( in_out, in_out + col00, in_out + neq );
   }
- 
+
   template <typename t_Value>
   void
   DiazLU<t_Value>::solve_internal(
@@ -461,8 +457,6 @@ namespace alglin {
 
     integer const & nblock = m_number_of_blocks;
     integer const & n      = m_block_size;
-    integer const & nxn    = m_n_x_n;
-    integer const   nxnx2  = 2*nxn;
 
     integer const & col00  = m_numInitialOMEGA;
     integer const & colNN  = m_numFinalOMEGA;
@@ -529,7 +523,7 @@ namespace alglin {
       */
 
       valueType * io1 = io - row00;
-      valueType * M   = m_DE_blk + m_nblk * nxnx2;
+      valueType * M   = m_DE_blk + (2*m_nblk) * n_x_n;
       valueType * L   = M + row00 * n;
 
       // io -= M*io1
@@ -579,8 +573,8 @@ namespace alglin {
       */
 
       valueType * io1 = io + n;
-      valueType * U   = m_DE_blk + m_nblk * nxnx2 + row00 * n;
-      valueType * M   = U + nxn;
+      valueType * U   = m_DE_blk + (2*m_nblk) * n_x_n + row00 * n;
+      valueType * M   = U + n_x_n;
 
       gemm(
         NO_TRANSPOSE,
@@ -598,10 +592,10 @@ namespace alglin {
         io, ldRhs
       );
     }
-    
+
     // primo blocco
     io -= row0;
-  
+
     // soluzione primo blocco
     gemm(
       NO_TRANSPOSE,

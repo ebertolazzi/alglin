@@ -62,20 +62,26 @@ main() {
     valueType * blockN = baseValue(size_t(rowN*(dim+colNN)));
     valueType * AdAu   = baseValue(size_t(2*dim*dim));
 
-    valueType * B = baseValue(size_t(N*NB));
-    valueType * C = baseValue(size_t(N*NB));
-    valueType * D = baseValue(size_t(NB*NB));
+    valueType * B      = baseValue(size_t(N*NB));
+    valueType * C      = baseValue(size_t(N*NB));
+    valueType * D      = baseValue(size_t(NB*NB));
 
     valueType * x      = baseValue(size_t(10*(N+NB)));
     valueType * xref   = baseValue(size_t(N+NB));
     valueType * xref1  = baseValue(size_t(N+NB));
     valueType * rhs    = baseValue(size_t(N+NB));
-  
-    alglin::LASTBLOCK_Choice ch[4] = { alglin::LASTBLOCK_LU,
-                                       alglin::LASTBLOCK_QR,
-                                       alglin::LASTBLOCK_QRP,
-                                       alglin::LASTBLOCK_SVD };
-    char const * kind[] = { "LU", "QR", "QRP", "SVD" };
+
+    alglin::BlockBidiagonal<valueType>::BB_LASTBLOCK_Choice ch[] = {
+      alglin::BlockBidiagonal<valueType>::BB_LASTBLOCK_LU,
+      alglin::BlockBidiagonal<valueType>::BB_LASTBLOCK_LUPQ,
+      alglin::BlockBidiagonal<valueType>::BB_LASTBLOCK_QR,
+      alglin::BlockBidiagonal<valueType>::BB_LASTBLOCK_QRP,
+      alglin::BlockBidiagonal<valueType>::BB_LASTBLOCK_SVD,
+      alglin::BlockBidiagonal<valueType>::BB_LASTBLOCK_LSS,
+      alglin::BlockBidiagonal<valueType>::BB_LASTBLOCK_LSY,
+      alglin::BlockBidiagonal<valueType>::BB_LASTBLOCK_PINV
+    };
+    char const * kind[] = { "LU", "LUPQ", "QR", "QRP", "SVD", "LSS", "LSY", "PINV" };
 
     alglin::DiazLU<valueType> LU;
     LU.allocateTopBottom( numBlock, dim, row0, dim+col00, rowN, dim+colNN, NB );
@@ -83,7 +89,7 @@ main() {
     // carico matrice
     Utils::TicToc tm;
 
-    for ( int test = 0; test < 3; ++test ) {
+    for ( int test = 0; test < 8; ++test ) {
       fmt::print("\n\n\ntest N.{} NB = {}\n", test, NB);
       valueType diag = 2*dim;
 
@@ -119,7 +125,7 @@ main() {
           D[i+j*NB] = rand(-1,1)+(i==j?10:0);
 
       LU.loadRightBlocks( B, N );
-      
+
       LU.loadBottomBlocks( C, NB );
       LU.loadRBblock( D, NB );
       LU.loadTopBottom( block0, row0, blockN, rowN );

@@ -135,7 +135,7 @@ namespace alglin {
 
     using BlockBidiagonal<t_Value>::m_number_of_blocks;
     using BlockBidiagonal<t_Value>::m_block_size;
-    using BlockBidiagonal<t_Value>::m_n_x_n;
+    using BlockBidiagonal<t_Value>::n_x_n;
 
     using BlockBidiagonal<t_Value>::m_numInitialBC;
     using BlockBidiagonal<t_Value>::m_numFinalBC;

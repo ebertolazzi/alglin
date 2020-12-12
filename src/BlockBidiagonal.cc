@@ -21,17 +21,6 @@
 
 namespace alglin {
 
-  std::string
-  LastBlock_to_string( LASTBLOCK_Choice c ) {
-    switch ( c ) {
-      case LASTBLOCK_LU:  return "last block LU";
-      case LASTBLOCK_QR:  return "last block QR";
-      case LASTBLOCK_QRP: return "last block QRP";
-      case LASTBLOCK_SVD: return "last block SVD";
-    }
-    return "last block not selected";
-  }
-
   /*\
    |         _ _                 _
    |    __ _| | | ___   ___ __ _| |_ ___
@@ -98,11 +87,11 @@ namespace alglin {
     m_block_size       = n;
     m_border_size      = nb;
     m_num_equations    = (nblock+1)*n+q;
-    m_n_x_n            = n*n;
-    m_n_x_nb           = n*nb;
-    integer DE_size   = 2*nblock*m_n_x_n;
-    integer H0Nq_size = (n+q)*(2*n+q);
-    integer BC_size   = nb*m_num_equations;
+    n_x_n              = n*n;
+    n_x_nb             = n*nb;
+    integer DE_size    = 2*nblock*n_x_n;
+    integer H0Nq_size  = (n+q)*(2*n+q);
+    integer BC_size    = nb*m_num_equations;
     m_baseValue.allocate( size_t(DE_size+H0Nq_size+2*BC_size+nb*nb+num_extra_r) );
     m_baseInteger.allocate( size_t(num_extra_i) );
     m_DE_blk = m_baseValue( size_t(DE_size) );
@@ -542,7 +531,7 @@ namespace alglin {
       );
       xx += n;
       yy += n;
-      DE += 2*m_n_x_n;
+      DE += 2*n_x_n;
     }
     if ( nb > 0 ) {
       gemv(
@@ -583,11 +572,9 @@ namespace alglin {
     integer const & n      = m_block_size;
     integer const & q      = m_extra_bc;
     integer const & nb     = m_border_size;
-    integer const & nxn    = m_n_x_n;
-    integer const   nxnx2  = 2*nxn;
     integer const   nx2    = n*2;
 
-    integer nnz = nblock*nxnx2 + 2*(nblock+1)*n*nb + nb*nb;
+    integer nnz = (2*nblock)*n_x_n+ 2*(nblock+1)*n*nb + nb*nb;
 
     // BC
     integer ii;
@@ -650,7 +637,7 @@ namespace alglin {
     // bidiagonal
     for ( integer k = 0; k < nblock; ++k ) {
       ii = k*n;
-      valueType * DE = m_DE_blk + k * nxnx2;
+      valueType * DE = m_DE_blk + (2*k) * n_x_n;
       for ( integer i = 0; i < n; ++i )
         for ( integer j = 0; j < nx2; ++j )
           fmt::print(
@@ -693,10 +680,8 @@ namespace alglin {
     integer const & n      = m_block_size;
     integer const & q      = m_extra_bc;
     integer const & nb     = m_border_size;
-    integer const & nxn    = m_n_x_n;
-    integer const   nxnx2  = 2*nxn;
 
-    integer nnz = nblock*nxnx2 + 2*(nblock+1)*n*nb + nb*nb;
+    integer nnz = (2*nblock)*n_x_n + 2*(nblock+1)*n*nb + nb*nb;
     if ( m_numCyclicBC == 0 && m_numCyclicOMEGA == 0 ) {
       integer row0  = m_numInitialBC;
       integer rowN  = m_numFinalBC;
@@ -822,8 +807,6 @@ namespace alglin {
     integer const & n      = m_block_size;
     integer const & q      = m_extra_bc;
     integer const & nb     = m_border_size;
-    integer const & nxn    = m_n_x_n;
-    integer const   nxnx2  = 2*nxn;
     integer const   nx2    = n*2;
     integer kkk = 0;
 
@@ -868,7 +851,7 @@ namespace alglin {
     // bidiagonal
     for ( integer k = 0; k < nblock; ++k ) {
       ii = k*n;
-      valueType * DE = m_DE_blk + k * nxnx2;
+      valueType * DE = m_DE_blk + (2*k) * n_x_n;
       for ( integer i = 0; i < n; ++i )
         for ( integer j = 0; j < nx2; ++j )
           V[kkk++] = DE[i+j*n];

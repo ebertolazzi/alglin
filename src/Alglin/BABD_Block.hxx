@@ -4,7 +4,7 @@
  |                                                                          |
  |         , __                 , __                                        |
  |        /|/  \               /|/  \                                       |
- |         | __/ _   ,_         | __/ _   ,_                                | 
+ |         | __/ _   ,_         | __/ _   ,_                                |
  |         |   \|/  /  |  |   | |   \|/  /  |  |   |                        |
  |         |(__/|__/   |_/ \_/|/|(__/|__/   |_/ \_/|/                       |
  |                           /|                   /|                        |
@@ -57,7 +57,7 @@ namespace alglin {
     using BlockBidiagonal<t_Value>::m_number_of_blocks;
     using BlockBidiagonal<t_Value>::m_block_size;
     using BlockBidiagonal<t_Value>::m_extra_bc;
-    using BlockBidiagonal<t_Value>::m_n_x_n;
+    using BlockBidiagonal<t_Value>::n_x_n;
 
     using BlockBidiagonal<t_Value>::m_numInitialBC;
     using BlockBidiagonal<t_Value>::m_numFinalBC;

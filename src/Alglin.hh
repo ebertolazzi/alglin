@@ -26,6 +26,15 @@
 #ifndef ALGLIN_dot_HH
 #define ALGLIN_dot_HH
 
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#endif
+
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wquoted-include-in-framework-header"
+#endif
+
 #include "Alglin_Config.hh"
 
 #include <algorithm>
@@ -54,6 +63,14 @@
 #include "Alglin/Simplex.hxx"
 
 #include "Alglin/BABD.hxx"
+
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
+
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
 
 #endif
 

@@ -25,16 +25,6 @@ namespace alglin {
 
   using namespace ::std;
 
-  //! available LU factorization code
-  typedef enum {
-    BABD_DIAZ                 = 1, // no CR
-    BABD_CYCLIC_REDUCTION_LU  = 2, // LU+QR
-    BABD_CYCLIC_REDUCTION_QR  = 3, // CR+QR
-    BABD_CYCLIC_REDUCTION_QRP = 4  // CR+QR
-  } BABD_Choice;
-
-  extern string BABD_Choice_to_string( BABD_Choice c );
-
   //! LU decomposition of a ABD matrix
   /*!
    *
@@ -53,12 +43,33 @@ namespace alglin {
   \*/
   template <typename t_Value>
   class BABD {
+  public:
+    //! available LU factorization code
+    typedef enum {
+      BABD_DIAZ                 = 1, // no CR
+      BABD_CYCLIC_REDUCTION_LU  = 2, // LU+QR
+      BABD_CYCLIC_REDUCTION_QR  = 3, // CR+QR
+      BABD_CYCLIC_REDUCTION_QRP = 4  // CR+QR
+    } BABD_Choice;
+
+    static
+    string
+    Choice_to_string( BABD_Choice c ) {
+      switch ( c ) {
+      case BABD_DIAZ:                 return "Diaz";
+      case BABD_CYCLIC_REDUCTION_LU:  return "CyclicReduction+LU";
+      case BABD_CYCLIC_REDUCTION_QR:  return "CyclicReduction+QR";
+      case BABD_CYCLIC_REDUCTION_QRP: return "CyclicReduction+QRP";
+      }
+      return "none";
+    }
+
   private:
 
     typedef t_Value valueType;
 
-    BABD( BABD<t_Value> const & );
-    BABD<t_Value> const & operator = ( BABD<t_Value> const & );
+    BABD( BABD<t_Value> const & ) = delete;
+    BABD<t_Value> const & operator = ( BABD<t_Value> const & ) = delete;
 
     DiazLU<t_Value>            m_diaz_LU;
     BorderedCR<t_Value>        m_bordered;
@@ -170,12 +181,18 @@ namespace alglin {
     }
 
     void
-    selectLastBlockSolver( LASTBLOCK_Choice choice )
-    { m_babd_solver->selectLastBlockSolver( choice ); }
+    selectLastBlockSolver(
+      typename BlockBidiagonal<t_Value>::BB_LASTBLOCK_Choice choice
+    ) {
+      m_babd_solver->selectLastBlockSolver( choice );
+    }
 
     void
-    selectLastBorderBlockSolver( LASTBLOCK_Choice choice )
-    { m_babd_solver->selectLastBorderBlockSolver( choice ); }
+    selectLastBorderBlockSolver(
+      typename BlockBidiagonal<t_Value>::BB_LASTBLOCK_Choice choice
+    ) {
+      m_babd_solver->selectLastBorderBlockSolver( choice );
+    }
 
     void
     allocate( integer nblk, integer n, integer q, integer nb )

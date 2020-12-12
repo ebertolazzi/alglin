@@ -41,8 +41,8 @@ template <int N>
 void
 testMM() {
 
-  int     N_TIMES = (1000000/N);
-  double  to_ps   = 1000000.0/N_TIMES;
+  int     N_TIMES = (10000/N);
+  double  to_ps   = 10000.0/N_TIMES;
 
   typedef Eigen::Matrix<valueType,N,N> matN_t;
 
