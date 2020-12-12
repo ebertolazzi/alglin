@@ -33,62 +33,21 @@ rand( valueType xmin, valueType xmax ) {
   return xmin + (xmax-xmin)*random;
 }
 
-int
-main() {
-
-  alglin::integer nth = std::thread::hardware_concurrency();
-
-  #ifdef LAPACK_WRAPPER_USE_OPENBLAS
-  openblas_set_num_threads(1);
-  goto_set_num_threads(1);
-  #endif
-
-  Utils::ThreadPool TP(nth);
-
-  alglin::BorderedCR<double> BCR(&TP), BCR_SAVED(&TP);
-  //alglin::BorderedCR<double> BCR(nullptr), BCR_SAVED(nullptr);
-  //alglin::BorderedCR_eigen3<double> BCR(&TP), BCR_SAVED(&TP);
-
-  #define NSIZE 8
-  //#define NSIZE 40
-
-  alglin::integer n      = NSIZE;
-  alglin::integer nblock = 10000;
-  //salglin::integer nblock = 200;
-  alglin::integer qx     = 4;// 4+1;
-  alglin::integer qr     = 4;// 4;
-  alglin::integer nx     = 1;// 2-1;
-  alglin::integer nr     = 1;//2;
-  alglin::integer N      = (nblock+1)*n+nx+qx;
+static
+void
+fill_matrix(
+  alglin::BorderedCR<double> & BCR,
+  alglin::integer nblock,
+  alglin::integer n,
+  alglin::integer nr,
+  alglin::integer nx,
+  alglin::integer qr,
+  alglin::integer qx
+) {
 
   BCR.allocate( nblock, n, qr, qx, nr, nx );
 
-  alglin::Malloc<valueType>       baseValue("real");
-  alglin::Malloc<alglin::integer> baseIndex("integer");
-
-  baseValue.allocate( size_t(7*N) );
-
   valueType diag = 1.01*n;
-
-  valueType * x     = baseValue(size_t(2*N)); // extra space per multiple rhs
-  valueType * xref  = baseValue(size_t(N));
-  valueType * xref1 = baseValue(size_t(N));
-  valueType * rhs   = baseValue(size_t(2*N));
-  valueType * resid = baseValue(size_t(N));
-
-  BCR.select_LU();
-  //BCR.select_QR();
-  //BCR.select_QRP();
-  //BCR.select_SUPERLU();
-
-  BCR.select_last_LU();
-  //BCR.select_last_LUPQ();
-  //BCR.select_last_SVD();
-  //BCR.select_last_QR();
-  //BCR.select_last_QRP();
-  //BCR.select_last_LSS();
-  //BCR.select_last_LSY();
-  //BCR.select_last_PINV();
 
   for ( int i = 0; i < (n+qr); ++i ) {
     for ( int j = 0; j < (2*n+qx+nx); ++j ) {
@@ -124,22 +83,79 @@ main() {
       BCR.C(nblock,j,i) = 1;
     }
   }
+}
+
+int
+main() {
+
+  alglin::integer nth = std::thread::hardware_concurrency();
+
+  #ifdef LAPACK_WRAPPER_USE_OPENBLAS
+  openblas_set_num_threads(1);
+  goto_set_num_threads(1);
+  #endif
+
+  Utils::ThreadPool TP(nth);
+
+  alglin::BorderedCR<double> BCR(&TP), BCR_SAVED(&TP);
+
+  #define NSIZE 8
+
+  alglin::integer n      = NSIZE;
+  alglin::integer nblock = 10000;
+  alglin::integer qx     = 4;// 4+1;
+  alglin::integer qr     = 4;// 4;
+  alglin::integer nx     = 1;// 2-1;
+  alglin::integer nr     = 1;//2;
+  alglin::integer N      = (nblock+1)*n+nx+qx;
+
+  fill_matrix( BCR, nblock, n, nr, nx, qr, qx );
+
+  alglin::Malloc<valueType>       baseValue("real");
+  alglin::Malloc<alglin::integer> baseIndex("integer");
+
+  baseValue.allocate( size_t(7*N) );
+  valueType * x     = baseValue(size_t(2*N)); // extra space per multiple rhs
+  valueType * xref  = baseValue(size_t(N));
+  valueType * xref1 = baseValue(size_t(N));
+  valueType * rhs   = baseValue(size_t(2*N));
+  valueType * resid = baseValue(size_t(N));
+
+  BCR.select_LU();
+  //BCR.select_QR();
+  //BCR.select_QRP();
+  //BCR.select_SUPERLU();
+
+  BCR.select_last_LU();
+  //BCR.select_last_LUPQ();
+  //BCR.select_last_SVD();
+  //BCR.select_last_QR();
+  //BCR.select_last_QRP();
+  //BCR.select_last_LSS();
+  //BCR.select_last_LSY();
+  //BCR.select_last_PINV();
 
   for ( alglin::integer i = 0; i < N; ++i ) x[i] = 1+ (i % 100);
   std::copy_n( x, N, xref );
   BCR.Mv( x, rhs );
   BCR_SAVED.dup( BCR );
 
-  cout << "nthread (avilable)= " << std::thread::hardware_concurrency() << '\n';
-  cout << "nthread (used)    = " << nth << '\n';
+  fmt::print(
+    "nthread (avilable) = {}\n"
+    "nthread (used)     = {}\n",
+    std::thread::hardware_concurrency(), nth
+  );
 
-  cout << "N      = " << N      << '\n'
-       << "nblock = " << nblock << '\n'
-       << "n      = " << n      << '\n'
-       << "nr     = " << nr     << '\n'
-       << "nx     = " << nx     << '\n'
-       << "qr     = " << qr     << '\n'
-       << "qx     = " << qx     << '\n';
+  fmt::print(
+    "N      = {}\n"
+    "nblock = {}\n"
+    "n      = {}\n"
+    "nr     = {}\n"
+    "nx     = {}\n"
+    "qr     = {}\n"
+    "qx     = {}\n",
+    N, nblock, n, nr, nx, qr, qx
+  );
 
   /*
   ofstream file("mat.txt");

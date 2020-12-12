@@ -33,64 +33,21 @@ rand( valueType xmin, valueType xmax ) {
   return xmin + (xmax-xmin)*random;
 }
 
-int
-main() {
-
-  try {
-
-  alglin::integer nth = std::thread::hardware_concurrency();
-
-  #ifdef LAPACK_WRAPPER_USE_OPENBLAS
-  openblas_set_num_threads(1);
-  goto_set_num_threads(1);
-  #endif
-
-  Utils::ThreadPool TP(nth);
-
-  alglin::BorderedCR<double> BCR(&TP), BCR_SAVED(&TP);
-  //alglin::BorderedCR<double> BCR(nullptr), BCR_SAVED(nullptr);
-  //alglin::BorderedCR_eigen3<double> BCR(&TP), BCR_SAVED(&TP);
-
-  #define NSIZE 8
-  //#define NSIZE 40
-
-  alglin::integer n      = NSIZE;
-  alglin::integer nblock = 10000;
-  //salglin::integer nblock = 200;
-  alglin::integer qx     = 4;// 4+1;
-  alglin::integer qr     = 4;// 4;
-  alglin::integer nx     = 1;// 2-1;
-  alglin::integer nr     = 1+1;//2;
-  alglin::integer N      = (nblock+1)*n+nx+qx;
+static
+void
+fill_matrix(
+  alglin::BorderedCR<double> & BCR,
+  alglin::integer nblock,
+  alglin::integer n,
+  alglin::integer nr,
+  alglin::integer nx,
+  alglin::integer qr,
+  alglin::integer qx
+) {
 
   BCR.allocate( nblock, n, qr, qx, nr, nx );
 
-  alglin::Malloc<valueType>       baseValue("real");
-  alglin::Malloc<alglin::integer> baseIndex("integer");
-
-  baseValue.allocate( size_t(7*N) );
-
   valueType diag = 1.01*n;
-
-  valueType * x     = baseValue(size_t(2*N)); // extra space per multiple rhs
-  valueType * xref  = baseValue(size_t(N));
-  valueType * xref1 = baseValue(size_t(N));
-  valueType * rhs   = baseValue(size_t(2*N));
-  valueType * resid = baseValue(size_t(N));
-
-  BCR.select_LU();
-  //BCR.select_QR();
-  //BCR.select_QRP();
-  //BCR.select_SUPERLU();
-
-  //BCR.select_last_LU();
-  //BCR.select_last_LUPQ();
-  //BCR.select_last_SVD();
-  //BCR.select_last_QR();
-  //BCR.select_last_QRP();
-  //BCR.select_last_LSS();
-  //BCR.select_last_LSY();
-  BCR.select_last_PINV();
 
   for ( int i = 0; i < (n+qr); ++i ) {
     for ( int j = 0; j < (2*n+qx+nx); ++j ) {
@@ -126,54 +83,159 @@ main() {
       BCR.C(nblock,j,i) = 1;
     }
   }
+}
 
-  for ( alglin::integer i = 0; i < N; ++i ) x[i] = 1+ (i % 100);
-  std::copy_n( x, N, xref );
-  BCR.Mv( x, rhs );
-  BCR_SAVED.dup( BCR );
+int
+main() {
 
-  cout << "nthread (avilable)= " << std::thread::hardware_concurrency() << '\n';
-  cout << "nthread (used)    = " << nth << '\n';
+  try {
 
-  cout << "N      = " << N      << '\n'
-       << "nblock = " << nblock << '\n'
-       << "n      = " << n      << '\n'
-       << "nr     = " << nr     << '\n'
-       << "nx     = " << nx     << '\n'
-       << "qr     = " << qr     << '\n'
-       << "qx     = " << qx     << '\n';
+    alglin::integer nth = std::thread::hardware_concurrency();
 
-  Utils::TicToc tm;
-  tm.tic();
-  BCR.factorize();
-  tm.toc();
-  fmt::print("\nFactorize = {:.5} [ms]\n\n", tm.elapsed_ms());
+    #ifdef LAPACK_WRAPPER_USE_OPENBLAS
+    openblas_set_num_threads(1);
+    goto_set_num_threads(1);
+    #endif
 
-  std::copy_n( rhs, N, x );
-  std::copy_n( rhs, N, x+N );
-  tm.tic();
-  int ns = 1;
-  BCR.solve( x );
-  tm.toc();
-  fmt::print("\nSolve = {:.5} [ms]\n\n", tm.elapsed_ms()/ns);
+    for ( alglin::integer iii=0; iii< 4; ++iii ) {
+      for ( alglin::integer jjj=0; jjj< 8; ++jjj ) {
 
-  alglin::copy( N, xref, 1, xref1, 1 );
-  alglin::axpy( N, -1.0, x, 1, xref1, 1 );
-  valueType err = alglin::absmax( N, xref1, 1 );
-  fmt::print("Check |err|_inf = {:.5}\n",err);
-  UTILS_ASSERT0( err < 1e-8, "test failed!\n" );
-  err = alglin::asum( N, xref1, 1 )/N;
-  fmt::print("Check |err|_1/N = {:.5}\n",err);
-  UTILS_ASSERT0( err < 1e-8, "test failed!\n" );
+        Utils::ThreadPool          TP(nth);
+        alglin::BorderedCR<double> BCR(&TP);
+        alglin::BorderedCR<double> BCR_SAVED(&TP);
 
-  fmt::print("All done!\n");
+        #define NSIZE 8
 
+        alglin::integer n      = NSIZE;
+        alglin::integer nblock = 100;
+        alglin::integer qx     = 4;// 4+1;
+        alglin::integer qr     = 4;// 4;
+        alglin::integer nx     = 1;// 2-1;
+        alglin::integer nr     = 1;//2;
+        alglin::integer N      = (nblock+1)*n+nx+qx;
+
+        fill_matrix( BCR, nblock, n, nr, nx, qr, qx );
+
+        alglin::Malloc<valueType>       baseValue("real");
+        alglin::Malloc<alglin::integer> baseIndex("integer");
+
+        baseValue.allocate( size_t(5*N) );
+
+        valueType * x     = baseValue(size_t(N)); // extra space per multiple rhs
+        valueType * xref  = baseValue(size_t(N));
+        valueType * xref1 = baseValue(size_t(N));
+        valueType * rhs   = baseValue(size_t(N));
+        valueType * resid = baseValue(size_t(N));
+
+        std::cout << "\n\n\n\n\n\n";
+
+        switch ( iii ) {
+        case 0:
+          BCR.select_LU();
+          fmt::print("use LU\n");
+          break;
+        case 1:
+          BCR.select_QR();
+          fmt::print("use QR\n");
+          break;
+        case 2:
+          BCR.select_QRP();
+          fmt::print("use QRP\n");
+          break;
+        case 3:
+          BCR.select_SUPERLU();
+          fmt::print("use SUPERLU\n");
+          break;
+        }
+
+        switch ( jjj ) {
+        case 0:
+          BCR.select_last_LU();
+          fmt::print("use last LU\n");
+          break;
+        case 1:
+          BCR.select_last_LUPQ();
+          fmt::print("use last LUPQ\n");
+          break;
+        case 2:
+          BCR.select_last_SVD();
+          fmt::print("use last SVD\n");
+          break;
+        case 3:
+          BCR.select_last_QR();
+          fmt::print("use last QR\n");
+          break;
+        case 4:
+          BCR.select_last_QRP();
+          fmt::print("use last QRP\n");
+          break;
+        case 5:
+          BCR.select_last_LSS();
+          fmt::print("use last LSS\n");
+          break;
+        case 6:
+          BCR.select_last_LSY();
+          fmt::print("use last LSY\n");
+          break;
+        case 7:
+          BCR.select_last_PINV();
+          fmt::print("use last PINV\n");
+          break;
+        }
+
+        for ( alglin::integer i = 0; i < N; ++i ) x[i] = 1+ (i % 100);
+        std::copy_n( x, N, xref );
+        BCR.Mv( x, rhs );
+        BCR_SAVED.dup( BCR );
+
+        fmt::print(
+          "nthread (avilable) = {}\n"
+          "nthread (used)     = {}\n",
+          std::thread::hardware_concurrency(), nth
+        );
+
+        fmt::print(
+          "N      = {}\n"
+          "nblock = {}\n"
+          "n      = {}\n"
+          "nr     = {}\n"
+          "nx     = {}\n"
+          "qr     = {}\n"
+          "qx     = {}\n",
+          N, nblock, n, nr, nx, qr, qx
+        );
+
+        Utils::TicToc tm;
+        tm.tic();
+        BCR.factorize();
+        tm.toc();
+        fmt::print("\nFactorize = {:.5} [ms]\n\n", tm.elapsed_ms());
+
+        std::copy_n( rhs, N, x );
+        tm.tic();
+        BCR.solve( x );
+        tm.toc();
+        fmt::print("\nSolve = {:.5} [ms]\n\n", tm.elapsed_ms() );
+
+        alglin::copy( N, xref, 1, xref1, 1 );
+        alglin::axpy( N, -1.0, x, 1, xref1, 1 );
+        valueType err = alglin::absmax( N, xref1, 1 );
+        fmt::print("Check |err|_inf = {:.5}\n",err);
+        UTILS_ASSERT0( err < 1e-8, "test failed!\n" );
+
+        err = alglin::asum( N, xref1, 1 )/N;
+        fmt::print("Check |err|_1/N = {:.5}\n",err);
+        UTILS_ASSERT0( err < 1e-8, "test failed!\n" );
+
+        fmt::print("All done!\n");
+      }
+    }
   }
   catch ( std::exception const & err ) {
     std::cerr << "Error: " << err.what();
   }
   catch (...) {
-    std::cerr << "Unknwn error\n";
+    std::cerr << "Unknown error\n";
   }
 
   return 0;

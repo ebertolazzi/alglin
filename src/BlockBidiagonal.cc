@@ -47,22 +47,22 @@ namespace alglin {
     integer n,
     integer nb,
     // ----------------------
-    integer _numInitialBC,
-    integer _numFinalBC,
-    integer _numCyclicBC,
+    integer numInitialBC,
+    integer numFinalBC,
+    integer numCyclicBC,
     // ----------------------
-    integer _numInitialOMEGA,
-    integer _numFinalOMEGA,
-    integer _numCyclicOMEGA,
+    integer numInitialOMEGA,
+    integer numFinalOMEGA,
+    integer numCyclicOMEGA,
     // ----------------------
     integer num_extra_r,
     integer num_extra_i
   ) {
 
     UTILS_ASSERT(
-      _numInitialBC  >= 0 && _numFinalBC      >= 0 &&
-      _numCyclicBC   >= 0 && _numInitialOMEGA >= 0 &&
-      _numFinalOMEGA >= 0 && _numCyclicOMEGA  >= 0,
+      numInitialBC  >= 0 && numFinalBC      >= 0 &&
+      numCyclicBC   >= 0 && numInitialOMEGA >= 0 &&
+      numFinalOMEGA >= 0 && numCyclicOMEGA  >= 0,
       "Bad BC specification:"
       "\nnumInitialBC    = {}"
       "\nnumFinalBC      = {}"
@@ -70,29 +70,29 @@ namespace alglin {
       "\nnumInitialOMEGA = {}"
       "\nnumFinalOMEGA   = {}"
       "\nnumCyclicOMEGA  = {}\n",
-      _numInitialBC, _numFinalBC, _numCyclicBC, _numInitialOMEGA,
-      _numFinalOMEGA, _numCyclicOMEGA
+      numInitialBC,    numFinalBC,    numCyclicBC,
+      numInitialOMEGA, numFinalOMEGA, numCyclicOMEGA
     );
 
-    m_extra_bc = _numInitialOMEGA + _numFinalOMEGA + _numCyclicOMEGA;
+    m_extra_bc = numInitialOMEGA + numFinalOMEGA + numCyclicOMEGA;
     integer const & q = m_extra_bc;
 
     UTILS_ASSERT(
-      _numInitialBC + _numFinalBC + _numCyclicBC == n+q,
+      numInitialBC + numFinalBC + numCyclicBC == n+q,
       "Bad BC specification:"
       "\nnumInitialBC    = {}"
       "\nnumFinalBC      = {}"
       "\nnumCyclicBC     = {}"
       "\nnumInitialOMEGA + numFinalOMEGA + numCyclicOMEGA must be = {}\n",
-      _numInitialBC, _numFinalBC, _numCyclicBC, n+q
+      numInitialBC, numFinalBC, numCyclicBC, n+q
     );
 
-    m_numInitialBC    = _numInitialBC;
-    m_numFinalBC      = _numFinalBC;
-    m_numCyclicBC     = _numCyclicBC;
-    m_numInitialOMEGA = _numInitialOMEGA;
-    m_numFinalOMEGA   = _numFinalOMEGA;
-    m_numCyclicOMEGA  = _numCyclicOMEGA;
+    m_numInitialBC    = numInitialBC;
+    m_numFinalBC      = numFinalBC;
+    m_numCyclicBC     = numCyclicBC;
+    m_numInitialOMEGA = numInitialOMEGA;
+    m_numFinalOMEGA   = numFinalOMEGA;
+    m_numCyclicOMEGA  = numCyclicOMEGA;
 
     m_number_of_blocks = nblock;
     m_block_size       = n;

@@ -124,6 +124,10 @@ namespace alglin {
     integer m_qr, m_qx;         //!< extra BC
     integer m_nr, m_nx;         //!< border size
 
+    integer m_Nr;
+    integer m_Nc;
+    integer m_Tsize;
+
     // some derived constants
     integer n_x_2;
     integer n_x_n;
@@ -131,30 +135,68 @@ namespace alglin {
     integer nr_x_n;
     integer nr_x_nx;
     integer nr_x_qx;
-    integer Nr;
-    integer Nc;
-    integer Tsize;
 
     // for SuperLU =====================
-    int * slu_perm_r; // row permutations from partial pivoting
-    int * slu_perm_c; // column permutation vector
-    int * slu_etree;
+    int * m_slu_perm_r; // row permutations from partial pivoting
+    int * m_slu_perm_c; // column permutation vector
+    int * m_slu_etree;
 
-    superlu_options_t     slu_options;
-    mutable SuperLUStat_t slu_stats;
-    mutable SuperMatrix   slu_A;  // messo mutable per zittire warning
-    mutable SuperMatrix   slu_AC; // messo mutable per zittire warning
-    mutable SuperMatrix   slu_L;  // messo mutable per zittire warning
-    mutable SuperMatrix   slu_U;  // messo mutable per zittire warning
+    superlu_options_t     m_slu_options;
+    mutable SuperLUStat_t m_slu_stats;
+    mutable SuperMatrix   m_slu_A;  // messo mutable per zittire warning
+    mutable SuperMatrix   m_slu_AC; // messo mutable per zittire warning
+    mutable SuperMatrix   m_slu_L;  // messo mutable per zittire warning
+    mutable SuperMatrix   m_slu_U;  // messo mutable per zittire warning
 
     #if defined(SUPERLU_MAJOR_VERSION) && SUPERLU_MAJOR_VERSION >= 5
-    mutable GlobalLU_t    slu_glu;
+    mutable GlobalLU_t    m_slu_glu;
     #endif
 
     // for SuperLU ===================== END
 
     BORDERED_LAST_Choice m_last_selected;
     BORDERED_Choice      m_selected;
+
+    valueType * m_H0Nqp;
+    valueType * m_Bmat;
+    valueType * m_Cmat;
+    valueType * m_Cqmat;
+    valueType * m_Dmat;
+    valueType * m_Emat;
+
+    std::vector<valueType*> m_Fmat;
+    std::vector<valueType*> m_WorkT;
+    std::vector<valueType*> m_WorkQR;
+
+    // working block
+    valueType * m_Tmat;
+    valueType * m_Ttau;
+    valueType * m_Work;
+    integer   * m_Perm;
+    integer     m_Lwork;
+    integer     m_LworkT;
+    integer     m_LworkQR;
+
+    // last block
+    valueType * m_Hmat;
+
+    LU<valueType>   m_last_lu;
+    LUPQ<valueType> m_last_lupq;
+    QR<valueType>   m_last_qr;
+    QRP<valueType>  m_last_qrp;
+    SVD<valueType>  m_last_svd;
+    LSS<valueType>  m_last_lss;
+    LSY<valueType>  m_last_lsy;
+    PINV<valueType> m_last_pinv;
+
+    integer *m_iBlock, *m_kBlock;
+
+    // used also with a unique thread
+    integer                         m_usedThread;
+    mutable std::vector<integer*>   m_perm_thread;
+    mutable std::vector<valueType*> m_xb_thread;
+    mutable Utils::ThreadPool *     m_TP;
+    mutable Utils::SpinLock         m_spin;
 
     void
     buildT(
@@ -281,73 +323,32 @@ namespace alglin {
       integer   ldRhs
     ) const;
 
-    valueType * m_H0Nqp;
-    valueType * m_Bmat;
-    valueType * m_Cmat;
-    valueType * m_Cqmat;
-    valueType * m_Dmat;
-    valueType * m_Emat;
-
-    std::vector<valueType*> m_Fmat;
-    std::vector<valueType*> m_WorkT;
-    std::vector<valueType*> m_WorkQR;
-
-    // working block
-    valueType * m_Tmat;
-    valueType * m_Ttau;
-    valueType * m_Work;
-    integer   * m_Perm;
-    integer     m_Lwork;
-    integer     m_LworkT;
-    integer     m_LworkQR;
-
-    // last block
-    valueType * m_Hmat;
-
-    LU<valueType>   last_lu;
-    LUPQ<valueType> last_lupq;
-    QR<valueType>   last_qr;
-    QRP<valueType>  last_qrp;
-    SVD<valueType>  last_svd;
-    LSS<valueType>  last_lss;
-    LSY<valueType>  last_lsy;
-    PINV<valueType> last_pinv;
-
-    integer *iBlock, *kBlock;
-
-    // used also with a unique thread
-    integer                         m_usedThread;
-    mutable std::vector<integer*>   m_perm_thread;
-    mutable std::vector<valueType*> m_xb_thread;
-    mutable Utils::ThreadPool *     m_TP;
-    mutable Utils::SpinLock         m_spin;
-
   public:
 
     using LinearSystemSolver<t_Value>::factorize;
 
     explicit
-    BorderedCR( Utils::ThreadPool * _TP = nullptr );
+    BorderedCR( Utils::ThreadPool * TP );
 
     virtual
     ~BorderedCR() UTILS_OVERRIDE
     {}
 
     void
-    setThreadPool( Utils::ThreadPool * _TP = nullptr ) {
-      m_TP         = _TP;
+    setThreadPool( Utils::ThreadPool * TP ) {
+      m_TP         = TP;
       m_usedThread = m_TP == nullptr ? 1 : m_TP->size();
     }
 
     //! load matrix in the class
     void
     allocate(
-      integer _nblock,
-      integer _n,
-      integer _qr,
-      integer _qx,
-      integer _nr,
-      integer _nx
+      integer nblock,
+      integer n,
+      integer qr,
+      integer qx,
+      integer nr,
+      integer nx
     );
 
     void
@@ -738,7 +739,7 @@ namespace alglin {
 
     void
     H( MatrixWrapper<valueType> & H_wrap ) const
-    { H_wrap.setup( m_H0Nqp, m_block_size + m_qr, Nc, m_block_size + m_qr ); }
+    { H_wrap.setup( m_H0Nqp, m_block_size + m_qr, m_Nc, m_block_size + m_qr ); }
 
     /*!
      | @}
@@ -826,8 +827,11 @@ namespace alglin {
     sparseNnz() const {
       integer const & nblock = m_number_of_blocks;
       integer const & n      = m_block_size;
-      return nblock*(2*n_x_n+n_x_nx+nr_x_n) + nr_x_n +
-             m_nr*(m_qx+m_nx) + (n+m_qr)*(2*n+m_qx+m_nx);
+      integer const & nr     = m_nr;
+      integer const & nx     = m_nx;
+      integer const & qr     = m_qr;
+      integer const & qx     = m_qx;
+      return n*nblock*(2*n+nx+nr) + nr*(n+qx+nx) + (n+qr)*(2*n+qx+nx);
     }
 
     void
