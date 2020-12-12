@@ -39,9 +39,8 @@ namespace alglin {
     integer const & n      = m_block_size;
     integer const & q      = m_extra_bc;
 
-    integer const & nx2    = m_nx2;
-    integer const & nxn    = m_nxn;
-    integer const & nxnx2  = m_nxnx2;
+    integer const & nxn    = m_n_x_n;
+    integer const   nxnx2  = 2*nxn;
 
     // fill matrix
     integer m  = n+q;
@@ -55,7 +54,7 @@ namespace alglin {
 
     gecopy( m, n, m_H0Nq,       m, m_AdH_blk + n,  nm );
     gecopy( m, n, m_H0Nq+n*m,   m, m_DD_blk,       m  );
-    gecopy( m, q, m_H0Nq+nx2*m, m, m_DD_blk + m*n, m  );
+    gecopy( m, q, m_H0Nq+2*n*m, m, m_DD_blk + m*n, m  );
 
     integer rowFF = (nblock-1)*n;
     integer INFO;

@@ -78,13 +78,11 @@ namespace alglin {
     integer m_block_size;       //!< size of square blocks
     integer m_extra_bc;         //!< extra BC
     integer m_border_size;      //!< border size
-    integer m_neq;
+    integer m_num_equations;
 
     // some derived constants
-    integer m_nx2;
-    integer m_nxn;
-    integer m_nxnx2;
-    integer m_nxnb;
+    integer m_n_x_n;
+    integer m_n_x_nb;
 
     integer m_numInitialBC;
     integer m_numFinalBC;
@@ -160,11 +158,9 @@ namespace alglin {
     , m_block_size(0)
     , m_extra_bc(0)
     , m_border_size(0)
-    , m_neq(0)
-    , m_nx2(0)
-    , m_nxn(0)
-    , m_nxnx2(0)
-    , m_nxnb(0)
+    , m_num_equations(0)
+    , m_n_x_n(0)
+    , m_n_x_nb(0)
     , m_numInitialBC(0)
     , m_numFinalBC(0)
     , m_numCyclicBC(0)
@@ -188,17 +184,17 @@ namespace alglin {
     //! allocatew and resize the problem
     void
     allocate(
-      integer _nblock,
-      integer _n,
-      integer _nb,
+      integer nblock,
+      integer n,
+      integer nb,
       // ----------------------
-      integer _numInitialBC,
-      integer _numFinalBC,
-      integer _numCyclicBC,
+      integer numInitialBC,
+      integer numFinalBC,
+      integer numCyclicBC,
       // ----------------------
-      integer _numInitialOMEGA,
-      integer _numFinalOMEGA,
-      integer _numCyclicOMEGA,
+      integer numInitialOMEGA,
+      integer numFinalOMEGA,
+      integer numCyclicOMEGA,
       // ----------------------
       integer num_extra_r,
       integer num_extra_i
@@ -206,20 +202,20 @@ namespace alglin {
 
     void
     allocateTopBottom(
-      integer _nblock,
-      integer _n,
-      integer _row0,
-      integer _col0,
-      integer _rowN,
-      integer _colN,
-      integer _nb,
+      integer nblock,
+      integer n,
+      integer row0,
+      integer col0,
+      integer rowN,
+      integer colN,
+      integer nb,
       integer num_extra_r,
       integer num_extra_i
     ) {
       allocate(
-        _nblock, _n, _nb,
-        _row0, _rowN, 0,
-        _col0-_n, _colN-_n, 0,
+        nblock, n, nb,
+        row0, rowN, 0,
+        col0-n, colN-n, 0,
         num_extra_r, num_extra_i
       );
     }
@@ -229,38 +225,40 @@ namespace alglin {
     loadBlocks( valueType const AdAu[], integer ldA ) {
       integer const & nblock = m_number_of_blocks;
       integer const & n      = m_block_size;
-      gecopy( n, nblock * m_nx2, AdAu, ldA, m_DE_blk, n );
+      gecopy( n, 2*n*nblock, AdAu, ldA, m_DE_blk, n );
     }
 
     void
     loadBlock( integer nbl, valueType const AdAu[], integer ldA ) {
       integer const & n = m_block_size;
-      gecopy( n, m_nx2, AdAu, ldA, m_DE_blk + nbl*m_nxnx2, n );
+      gecopy( n, 2*n, AdAu, ldA, m_DE_blk + 2*nbl*m_n_x_n, n );
     }
 
     void
     loadBlockLeft( integer nbl, valueType const Ad[], integer ldA ) {
       integer const & n = m_block_size;
-      gecopy( n, n, Ad, ldA, m_DE_blk + nbl*m_nxnx2, n );
+      gecopy( n, n, Ad, ldA, m_DE_blk + 2*nbl*m_n_x_n, n );
     }
 
     void
     loadBlockRight( integer nbl, valueType const Au[], integer ldA ) {
       integer const & n = m_block_size;
-      gecopy( n, n, Au, ldA, m_DE_blk + nbl*m_nxnx2 + m_nxn, n );
+      gecopy( n, n, Au, ldA, m_DE_blk + (2*nbl+1)*m_n_x_n, n );
     }
 
     // Border Bottom blocks
     void
     setZeroBottomBlocks() {
-      integer const & nb = m_border_size;
-      alglin::zero( nb*m_neq, m_Cmat, 1 );
+      integer const & nb  = m_border_size;
+      integer const & neq = m_num_equations;
+      alglin::zero( nb*neq, m_Cmat, 1 );
     }
 
     void
     loadBottomBlocks( valueType const C[], integer ldC ) {
-      integer const & nb = m_border_size;
-      gecopy( nb, m_neq, C, ldC, m_Cmat, nb );
+      integer const & nb  = m_border_size;
+      integer const & neq = m_num_equations;
+      gecopy( nb, neq, C, ldC, m_Cmat, nb );
     }
 
     void
@@ -270,7 +268,7 @@ namespace alglin {
       UTILS_ASSERT(
         ldC >= nb, "loadBottomBlock( {}, C, ldC = {} ) bad ldC\n", nbl, ldC
       );
-      valueType * CC = m_Cmat + nbl*m_nxnb;
+      valueType * CC = m_Cmat + nbl*m_n_x_nb;
       gecopy( nb, n, C, ldC, CC, nb );
     }
 
@@ -281,19 +279,20 @@ namespace alglin {
       UTILS_ASSERT(
         ldC >= nb, "addtoBottomBlock( {}, C, ldC = {} ) bad ldC\n", nbl, ldC
       );
-      valueType * CC = m_Cmat + nbl*m_nxnb;
+      valueType * CC = m_Cmat + nbl*m_n_x_nb;
       geadd( nb, n, 1.0, C, ldC, 1.0, CC, nb, CC, nb );
     }
 
     // add to bottom block nbl and nbl+1
     void
     addtoBottomBlock2( integer nbl, valueType const C[], integer ldC ) {
+      integer const & n  = m_block_size;
       integer const & nb = m_border_size;
       UTILS_ASSERT(
         ldC >= nb, "addtoBottomBlock2( {}, C, ldC = {} ) bad ldC\n", nbl, ldC
       );
-      valueType * CC = m_Cmat + nbl*m_nxnb;
-      geadd( nb, m_nx2, 1.0, C, ldC, 1.0, CC, nb, CC, nb );
+      valueType * CC = m_Cmat + nbl*m_n_x_nb;
+      geadd( nb, 2*n, 1.0, C, ldC, 1.0, CC, nb, CC, nb );
     }
 
     void
@@ -301,35 +300,39 @@ namespace alglin {
       integer const & nblock = m_number_of_blocks;
       integer const & nb     = m_border_size;
       integer const & q      = m_extra_bc;
-      gecopy( nb, q, C, ldC, m_Cmat + (nblock+1)*m_nxnb, nb );
+      gecopy( nb, q, C, ldC, m_Cmat + (nblock+1)*m_n_x_nb, nb );
     }
 
     // Border Right blocks
     void
     setZeroRightBlocks() {
-      integer const & nb = m_border_size;
-      alglin::zero( m_neq*nb, m_Bmat, 1 );
+      integer const & nb  = m_border_size;
+      integer const & neq = m_num_equations;
+      alglin::zero( neq*nb, m_Bmat, 1 );
     }
 
     void
     loadRightBlocks( valueType const B[], integer ldB ) {
-      integer const & nb = m_border_size;
-      gecopy( m_neq, nb, B, ldB, m_Bmat, m_neq );
+      integer const & nb  = m_border_size;
+      integer const & neq = m_num_equations;
+      gecopy( neq, nb, B, ldB, m_Bmat, neq );
     }
 
     void
     loadRightBlock( integer nbl, valueType const B[], integer ldB ) {
-      integer const & n  = m_block_size;
-      integer const & nb = m_border_size;
-      alglin::gecopy( n, nb, B, ldB, m_Bmat + nbl*n, m_neq );
+      integer const & n   = m_block_size;
+      integer const & nb  = m_border_size;
+      integer const & neq = m_num_equations;
+      alglin::gecopy( n, nb, B, ldB, m_Bmat + nbl*n, neq );
     }
 
     void
     loadRightLastBlock( valueType const B[], integer ldB ) {
-      integer const & n  = m_block_size;
-      integer const & q  = m_extra_bc;
-      integer const & nb = m_border_size;
-      alglin::gecopy( n+q, nb, B, ldB, m_Bmat + m_neq-n-q, m_neq );
+      integer const & n   = m_block_size;
+      integer const & q   = m_extra_bc;
+      integer const & nb  = m_border_size;
+      integer const & neq = m_num_equations;
+      alglin::gecopy( n+q, nb, B, ldB, m_Bmat + neq-n-q, neq );
     }
 
     // Border RBblock
@@ -353,7 +356,7 @@ namespace alglin {
     void
     getBlock_LR( valueType LR[], integer ldA ) const {
       integer const & n = m_block_size;
-      gecopy( n, m_nx2, m_DE_blk, n, LR, ldA );
+      gecopy( n, 2*n, m_DE_blk, n, LR, ldA );
     }
 
     void
@@ -365,7 +368,7 @@ namespace alglin {
     void
     getBlock_R( valueType R[], integer ldA ) const {
       integer const & n = m_block_size;
-      gecopy( n, n, m_DE_blk+m_nxn, n, R, ldA );
+      gecopy( n, n, m_DE_blk+m_n_x_n, n, R, ldA );
     }
 
     // BC blocks
@@ -389,7 +392,7 @@ namespace alglin {
       integer const & n = m_block_size;
       integer const & q = m_extra_bc;
       integer nq = n + q;
-      gecopy( nq, q, m_H0Nq+m_nx2*nq, nq, Hq, ldQ );
+      gecopy( nq, q, m_H0Nq+2*n*nq, nq, Hq, ldQ );
     }
 
     virtual
@@ -508,15 +511,16 @@ namespace alglin {
       valueType const HN[],
       valueType const Hq[]
     ) {
-      integer const & n  = m_block_size;
-      integer const & nb = m_border_size;
-      integer const & q  = m_extra_bc;
+      integer const & n   = m_block_size;
+      integer const & nb  = m_border_size;
+      integer const & q   = m_extra_bc;
+      integer const & neq = m_num_equations;
 
       this->loadBlocks( AdAu, n );
       integer nq = n + q;
       this->loadBottom( H0, nq, HN, nq, Hq, nq );
       if ( nb > 0 ) {
-        this->loadRightBlocks( B, m_neq );
+        this->loadRightBlocks( B, neq );
         this->loadBottomBlocks( C, nb );
         this->loadRBblock( D, nb );
         this->factorize_bordered();

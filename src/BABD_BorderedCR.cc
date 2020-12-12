@@ -77,22 +77,23 @@ namespace alglin {
   BorderedCR<t_Value>::allocate(
     integer nblock,
     integer n,
-    integer _qr,
-    integer _qx,
-    integer _nr,
-    integer _nx
+    integer qr,
+    integer qx,
+    integer nr,
+    integer nx
   ) {
 
     if ( m_number_of_blocks == nblock && m_block_size == n &&
-         m_qr     == _qr     && m_qx  == _qx &&
-         m_nr     == _nr     && m_nx  == _nx ) return;
+         m_qr == qr && m_qx  == qx &&
+         m_nr == nr && m_nx  == nx ) return;
 
     m_number_of_blocks = nblock;
     m_block_size       = n;
-    m_qr     = _qr;
-    m_qx     = _qx;
-    m_nr     = _nr;
-    m_nx     = _nx;
+
+    m_qr     = qr;
+    m_qx     = qx;
+    m_nr     = nr;
+    m_nx     = nx;
     n_x_2    = n*2;
     n_x_n    = n*n;
     nr_x_n   = n*m_nr;

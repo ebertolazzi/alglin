@@ -82,9 +82,8 @@ namespace alglin {
 
     integer const & nblock = m_number_of_blocks;
     integer const & n      = m_block_size;
-
-    integer const & nxnx2  = m_nxnx2;
-    integer const & nxn    = m_nxn;
+    integer const & nxn    = m_n_x_n;
+    integer const   nxnx2  = 2*nxn;
 
     integer const & col00  = m_numInitialOMEGA;
     integer const & colNN  = m_numFinalOMEGA;
@@ -301,7 +300,7 @@ namespace alglin {
       */
 
       // fattorizzazione ultimo blocco
-      valueType * B = m_DE_blk + m_nxnx2 * nblock - m_nxn;
+      valueType * B = m_DE_blk + (2*nblock-1)*m_n_x_n;
       integer N = row00+rowN;
       m_la_matrix.setup( N, N );
       m_la_matrix.zero_block(row00,N-n,0,n);
@@ -335,9 +334,9 @@ namespace alglin {
 
     integer const & nblock = m_number_of_blocks;
     integer const & n      = m_block_size;
+    integer const & nxn    = m_n_x_n;
+    integer const   nxnx2  = 2*nxn;
 
-    integer const & nxnx2  = m_nxnx2;
-    integer const & nxn    = m_nxn;
     integer const & col00  = m_numInitialOMEGA;
     integer const & row0   = m_numInitialBC;
     integer const & rowN   = m_numFinalBC;
@@ -633,9 +632,9 @@ namespace alglin {
 
     integer const & nblock = m_number_of_blocks;
     integer const & n      = m_block_size;
+    integer const & nxn    = m_n_x_n;
+    integer const   nxnx2  = 2*m_n_x_n;
 
-    integer const & nxnx2  = m_nxnx2;
-    integer const & nxn    = m_nxn;
     integer const & col00  = m_numInitialOMEGA;
     integer const & row0   = m_numInitialBC;
     integer const & rowN   = m_numFinalBC;
