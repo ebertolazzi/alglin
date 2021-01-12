@@ -83,6 +83,7 @@ SET( EXELISTCPP
   test6-ABD-Block
   test7-BorderedCR
   test7b-BorderedCR
+  test7c-BorderedCR
   test12-BandedMatrix
   test13-BFGS
   test14-BLOCKTRID

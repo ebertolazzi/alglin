@@ -3,12 +3,12 @@ require_relative "../../Rakefile_common.rb"
 
 task :default => [:install]
 
-VER = "3.3.7"
+VER = "3.3.9"
 
 desc "download Eigen3 libs"
 task :download do
-  filename = VER + ".tar.gz"
-  url_download( "https://bitbucket.org/eigen/eigen/get/#{filename}", filename )
+  url = "https://gitlab.com/libeigen/eigen/-/archive/#{VER}/eigen-#{VER}.tar.gz"
+  url_download( url, VER + ".tar.gz" )
 end
 
 desc "untar Eigen3 #{VER} file"
@@ -19,7 +19,7 @@ task :targz => [:download] do
   else
     extract_tgz( tar_gz_archive, '.' )
     FileUtils.rm_rf 'eigen3'
-    Dir['eigen-eigen-*'].each{ |f| FileUtils.mv f, 'eigen3' }
+    Dir['eigen-*'].each{ |f| FileUtils.mv f, 'eigen3' }
   end
 end
 

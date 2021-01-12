@@ -2067,12 +2067,12 @@ namespace alglin {
     integer const & n      = m_block_size;
     integer nqr = n + m_qr;
     integer nnz = nqr * m_Nc;
-    integer i0 = nblock*n + offs;
+    integer i0 = nblock*n;
     integer j0 = i0 - n;
     for ( integer ij = 0; ij < nnz; ++ij ) {
-      I[ij] = i0 + (ij % nqr);
+      I[ij] = i0 + (ij % nqr) + offs;
       integer j = integer(ij/nqr); if ( j >= n ) j += j0;
-      J[ij] = j;
+      J[ij] = j + offs;
     }
     return nnz;
   }
