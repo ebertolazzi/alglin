@@ -22,7 +22,7 @@
 namespace alglin {
 
   template <typename t_Value>
-  BorderedCR<t_Value>::BorderedCR( Utils::ThreadPool * _TP )
+  BorderedCR<t_Value>::BorderedCR( Utils::ThreadPool * TP )
   : m_baseValue("BorderedCR_values")
   , m_baseInteger("BorderedCR_integers")
   , m_superluValue("BorderedCR_superluValue")
@@ -55,7 +55,7 @@ namespace alglin {
   , m_Perm(nullptr)
   , m_Lwork(0)
   , m_Hmat(nullptr)
-  , m_TP(_TP)
+  , m_TP(TP)
   {
     m_usedThread = m_TP == nullptr ? 1 : m_TP->size();
     #ifdef LAPACK_WRAPPER_USE_OPENBLAS

@@ -4,7 +4,7 @@
  |                                                                          |
  |         , __                 , __                                        |
  |        /|/  \               /|/  \                                       |
- |         | __/ _   ,_         | __/ _   ,_                                | 
+ |         | __/ _   ,_         | __/ _   ,_                                |
  |         |   \|/  /  |  |   | |   \|/  /  |  |   |                        |
  |         |(__/|__/   |_/ \_/|/|(__/|__/   |_/ \_/|/                       |
  |                           /|                   /|                        |
@@ -34,7 +34,7 @@ namespace alglin {
   typedef std::map<ABD_intType,std::shared_ptr<DiazLU<ABD_realType> > > MAP_DIAZ;
   using Utils::ThreadPool;
 
-  static ThreadPool  * TP             = new ThreadPool( std::thread::hardware_concurrency() );
+  static ThreadPool  * TP             = nullptr;
   static MAP_DIAZ    * abd_database   = new MAP_DIAZ(); // workaround da indagare
   static std::string * abd_last_error = new std::string("no error");
 
@@ -181,6 +181,7 @@ namespace alglin {
 
       MAP_BABD::iterator lu = babd_database->find(mat_id); // find or create
       if ( lu == babd_database->end() ) {
+        if ( TP == nullptr ) TP = new ThreadPool( std::thread::hardware_concurrency() );
         MAP_BABD::mapped_type ptr( new BorderedCR<BABD_realType>( TP ) );
         MAP_BABD::value_type  P( mat_id, ptr );
         pair<MAP_BABD::iterator,bool> res = babd_database->insert( P );
@@ -243,6 +244,7 @@ namespace alglin {
 
       MAP_BABD::iterator lu = babd_database->find(mat_id); // find or create
       if ( lu == babd_database->end() ) {
+        if ( TP == nullptr ) TP = new ThreadPool( std::thread::hardware_concurrency() );
         MAP_BABD::mapped_type ptr( new BorderedCR<BABD_realType>( TP ) );
         MAP_BABD::value_type  P( mat_id, ptr );
         pair<MAP_BABD::iterator,bool> res = babd_database->insert( P );
