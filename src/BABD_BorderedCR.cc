@@ -25,6 +25,8 @@ namespace alglin {
   BorderedCR<t_Value>::BorderedCR( Utils::ThreadPool * TP )
   : m_baseValue("BorderedCR_values")
   , m_baseInteger("BorderedCR_integers")
+  , m_basePointer("BorderedCR_pointers")
+  , m_basePointerInteger("BorderedCR_pointer_integers")
   , m_superluValue("BorderedCR_superluValue")
   , m_superluInteger("BorderedCR_superluInteger")
   , m_number_of_blocks(0)
@@ -57,7 +59,7 @@ namespace alglin {
   , m_Hmat(nullptr)
   , m_TP(TP)
   {
-    m_usedThread = m_TP == nullptr ? 1 : m_TP->size();
+    m_available_thread = m_TP == nullptr ? 1 : m_TP->size();
     #ifdef LAPACK_WRAPPER_USE_OPENBLAS
     openblas_set_num_threads(1);
     goto_set_num_threads(1);
@@ -83,9 +85,12 @@ namespace alglin {
     integer nx
   ) {
 
-    if ( m_number_of_blocks == nblock && m_block_size == n &&
-         m_qr == qr && m_qx  == qx &&
-         m_nr == nr && m_nx  == nx ) return;
+    if ( m_number_of_blocks == nblock &&
+         m_block_size       == n      &&
+         m_qr               == qr     &&
+         m_qx               == qx     &&
+         m_nr               == nr     &&
+         m_nx               == nx ) return;
 
     m_number_of_blocks = nblock;
     m_block_size       = n;
@@ -139,11 +144,13 @@ namespace alglin {
 
     integer nnz = nblock*(n*(nx+2*n)+m_Tsize+n) +
                   (nblock+1)*nr*(n+qx) + (n+qr+m_Nr)*m_Nc +
-                  m_Lwork + (m_LworkT+m_LworkQR+nr*(1+nx))*m_usedThread;
-    integer innz = nblock*n + (3+n)*m_usedThread;
+                  m_Lwork + (m_LworkT+m_LworkQR+nr*(1+nx))*m_available_thread;
+    integer innz = nblock*n + (3+n)*m_available_thread;
 
-    m_baseValue.allocate(size_t(nnz));
-    m_baseInteger.allocate(size_t(innz));
+    m_baseValue.allocate( size_t(nnz) );
+    m_baseInteger.allocate( size_t(innz) );
+    m_basePointer.allocate( size_t(4*m_available_thread) );
+    m_basePointerInteger.allocate( size_t(m_available_thread) );
 
     m_Bmat  = m_baseValue( size_t(nblock*n_x_nx) );
     m_Cmat  = m_baseValue( size_t((nblock+1)*nr_x_n) );
@@ -158,22 +165,43 @@ namespace alglin {
 
     m_Work   = m_baseValue( size_t(m_Lwork) );
     m_Perm   = m_baseInteger( size_t(nblock*n) );
-    m_iBlock = m_baseInteger( size_t(2*m_usedThread) );
-    m_kBlock = m_baseInteger( size_t(m_usedThread) );
+    m_iBlock = m_baseInteger( size_t(2*m_available_thread) );
+    m_kBlock = m_baseInteger( size_t(m_available_thread) );
 
-    m_xb_thread.resize( size_t(m_usedThread) );
-    m_perm_thread.resize( size_t(m_usedThread) );
-    m_WorkT.resize( size_t(m_usedThread) );
-    m_WorkQR.resize( size_t(m_usedThread) );
-    m_Fmat.resize( size_t(m_usedThread) );
+    m_perm_thread = m_basePointerInteger( size_t(m_available_thread) );
+    m_xb_thread   = m_basePointer( size_t(m_available_thread) );
+    m_WorkT       = m_basePointer( size_t(m_available_thread) );
+    m_WorkQR      = m_basePointer( size_t(m_available_thread) );
+    m_Fmat        = m_basePointer( size_t(m_available_thread) );
 
     // precompute partition for parallel computation
-    for ( size_t nt = 0; nt < size_t(m_usedThread); ++nt ) {
+    for ( size_t nt = 0; nt < size_t(m_available_thread); ++nt ) {
       m_perm_thread[nt] = m_baseInteger( size_t(n) );
       m_xb_thread[nt]   = m_baseValue( size_t(nr) );
       m_WorkT[nt]       = m_baseValue( size_t(m_LworkT) );
       m_WorkQR[nt]      = m_baseValue( size_t(m_LworkQR) );
       m_Fmat[nt]        = m_baseValue( size_t(nr_x_nx) );
+    }
+
+    // calcolo partizionamento blocchi in modo che ogni thread
+    // abbia almeno 2 blocchi di righe da processare.
+    m_used_thread  = m_available_thread;
+    m_reduced_nblk = 2*m_available_thread;
+    while ( m_reduced_nblk > m_number_of_blocks )
+      { m_reduced_nblk -= 2; --m_used_thread; }
+
+    if ( m_used_thread <= 1 ) {
+      m_used_thread = 1;
+      m_iBlock[0]   = 0;
+      m_iBlock[1]   = m_number_of_blocks;
+    } else {
+      m_iBlock[0] = 0;
+      m_iBlock[1] = static_cast<integer>(m_number_of_blocks/m_used_thread);
+      for ( integer nt = 1; nt < m_used_thread; ++nt ) {
+        m_iBlock[2*nt+0] = m_iBlock[2*nt-1]+1;
+        m_iBlock[2*nt+1] = static_cast<integer>(((nt+1)*m_number_of_blocks)/m_used_thread);
+      }
+      --m_reduced_nblk;
     }
   }
 
@@ -189,8 +217,8 @@ namespace alglin {
   template <typename t_Value>
   void
   BorderedCR<t_Value>::dup( BorderedCR const & M ) {
-    m_usedThread = M.m_usedThread;
-    m_TP         = M.m_TP;
+    m_available_thread = M.m_available_thread;
+    m_TP               = M.m_TP;
     allocate( M.m_number_of_blocks, M.m_block_size, M.m_qr, M.m_qx, M.m_nr, M.m_nx );
 
     integer const & nblk = m_number_of_blocks;
@@ -753,27 +781,20 @@ namespace alglin {
   BorderedCR<t_Value>::factorize_CR() {
     integer const & nblock = m_number_of_blocks;
 
-    if ( m_usedThread > 1 ) {
-      m_iBlock[0] = 0;
-      m_iBlock[1] = static_cast<integer>(nblock/m_usedThread);
-      for ( integer nt = 1; nt < m_usedThread; ++nt ) {
-        m_iBlock[2*nt+0]  = m_iBlock[2*nt-1]+1;
-        m_iBlock[2*nt+1]  = static_cast<integer>(((nt+1)*nblock)/m_usedThread);
-      }
+    if ( m_used_thread > 1 ) {
       // launch thread
-      for ( integer nt = 1; nt < m_usedThread; ++nt ) {
+      for ( integer nt = 1; nt < m_used_thread; ++nt ) {
         // fill zero F(...) only that of the extra threads
         if ( nr_x_nx > 0 ) alglin::zero( nr_x_nx, m_Fmat[size_t(nt)], 1 );
         m_TP->run( nt, &BorderedCR<t_Value>::factorize_block, this, nt );
       }
       factorize_block(0);
       // wait thread
-      if ( m_usedThread > 1 ) { m_TP->wait_all();
-        // accumulate F(...)
-        if ( nr_x_nx > 0 )
-          for ( integer nt = 1; nt < m_usedThread; ++nt )
-            alglin::axpy( nr_x_nx, 1.0, m_Fmat[size_t(nt)], 1, m_Fmat[0], 1 );
-      }
+      m_TP->wait_all();
+      // accumulate F(...)
+      if ( nr_x_nx > 0 )
+        for ( integer nt = 1; nt < m_used_thread; ++nt )
+          alglin::axpy( nr_x_nx, 1.0, m_Fmat[size_t(nt)], 1, m_Fmat[0], 1 );
       factorize_reduced();
     } else {
       m_iBlock[0] = 0;
@@ -1086,11 +1107,10 @@ namespace alglin {
   void
   BorderedCR<t_Value>::factorize_reduced() {
     integer const & n = m_block_size;
-    integer nblk = 2*m_usedThread-1;
     integer k = 1;
-    while ( k < nblk ) {
+    while ( k < m_reduced_nblk ) {
       // -----------------------------------------------------------------------
-      for ( integer jj = k; jj < nblk; jj += 2*k ) {
+      for ( integer jj = k; jj < m_reduced_nblk; jj += 2*k ) {
         integer j  = m_iBlock[jj];
         integer jp = m_iBlock[jj-k];
         valueType * T   = m_Tmat + j*m_Tsize;
@@ -1137,7 +1157,7 @@ namespace alglin {
              1.0, Cjp, m_nr
           );
 
-          integer     jpp = m_iBlock[std::min(jj+k,nblk)];
+          integer     jpp = m_iBlock[std::min(jj+k,m_reduced_nblk)];
           valueType * Cpp = m_Cmat + jpp*nr_x_n;
 
           alglin::gemm(
@@ -1202,10 +1222,10 @@ namespace alglin {
     valueType * Wq  = WN+n*m_Nr;
     valueType * Wp  = Wq+m_qx*m_Nr;
 
-    alglin::gecopy( n,  n,    m_Dmat, n, W0, m_Nr );
-    alglin::gecopy( n,  n,    m_Emat, n, WN, m_Nr );
-    alglin::gezero( n,  m_qx,            Wq, m_Nr );
-    alglin::gecopy( n,  m_nx, m_Bmat, n, Wp, m_Nr );
+    alglin::gecopy( n, n,    m_Dmat, n, W0, m_Nr );
+    alglin::gecopy( n, n,    m_Emat, n, WN, m_Nr );
+    alglin::gezero( n, m_qx,            Wq, m_Nr );
+    alglin::gecopy( n, m_nx, m_Bmat, n, Wp, m_Nr );
 
     alglin::gecopy( n+m_qr, m_Nc, m_H0Nqp, n+m_qr, m_Hmat+n, m_Nr );
 
@@ -1240,7 +1260,10 @@ namespace alglin {
       ok = m_last_lsy.factorize( m_Nr, m_Nc, m_Hmat, m_Nr );
       break;
     case BORDERED_LAST_PINV:
-      ok = m_last_pinv.factorize( m_Nr, m_Nc, m_Hmat, m_Nr );
+      if ( m_Nc > m_Nr )
+        ok = m_last_pinv.t_factorize( m_Nr, m_Nc, m_Hmat, m_Nr );
+      else
+        ok = m_last_pinv.factorize( m_Nr, m_Nc, m_Hmat, m_Nr );
       break;
     }
     return ok;
@@ -1271,7 +1294,10 @@ namespace alglin {
     case BORDERED_LAST_SVD:  ok = m_last_svd.solve( X );  break;
     case BORDERED_LAST_LSS:  ok = m_last_lss.solve( X );  break;
     case BORDERED_LAST_LSY:  ok = m_last_lsy.solve( X );  break;
-    case BORDERED_LAST_PINV: ok = m_last_pinv.solve( X ); break;
+    case BORDERED_LAST_PINV:
+      if ( m_Nc > m_Nr ) ok = m_last_pinv.t_mult_inv( X, 1, X, 1 );
+      else               ok = m_last_pinv.mult_inv( X, 1, X, 1 );
+      break;
     }
     if ( ok ) swap( n, X, 1, x, 1 );
     return ok;
@@ -1289,7 +1315,8 @@ namespace alglin {
     integer const & nblock = m_number_of_blocks;
     integer const & n      = m_block_size;
     valueType * X = x + (nblock-1)*n;
-    for ( integer i = 0; i < nrhs; ++i ) swap( n, X+i*ldX, 1, x+i*ldX, 1 );
+    for ( integer i = 0; i < nrhs; ++i )
+      swap( n, X+i*ldX, 1, x+i*ldX, 1 );
     bool ok = false;
     switch ( m_last_selected ) {
     case BORDERED_LAST_LU:   ok = m_last_lu.solve( nrhs, X, ldX );   break;
@@ -1299,7 +1326,10 @@ namespace alglin {
     case BORDERED_LAST_SVD:  ok = m_last_svd.solve( nrhs, X, ldX );  break;
     case BORDERED_LAST_LSS:  ok = m_last_lss.solve( nrhs, X, ldX );  break;
     case BORDERED_LAST_LSY:  ok = m_last_lsy.solve( nrhs, X, ldX );  break;
-    case BORDERED_LAST_PINV: ok = m_last_pinv.solve( nrhs, X, ldX ); break;
+    case BORDERED_LAST_PINV:
+      if ( m_Nc > m_Nr ) ok = m_last_pinv.t_mult_inv( nrhs, X, ldX, X, ldX );
+      else               ok = m_last_pinv.mult_inv( nrhs, X, ldX, X, ldX );
+      break;
     }
     if ( ok )
       for ( integer i = 0; i < nrhs; ++i )
@@ -1321,9 +1351,9 @@ namespace alglin {
     integer const & nblock = m_number_of_blocks;
     integer const & n      = m_block_size;
     valueType * xb = x + (nblock+1)*n + m_qr; // deve essere b!
-    if ( m_usedThread > 1 ) {
+    if ( m_used_thread > 1 ) {
       if ( m_nr > 0 ) {
-        for ( integer nt = 1; nt < m_usedThread; ++nt ) {
+        for ( integer nt = 1; nt < m_used_thread; ++nt ) {
           alglin::zero( m_nr, m_xb_thread[size_t(nt)], 1 );
           m_TP->run(
             nt, &BorderedCR<t_Value>::forward, this,
@@ -1333,10 +1363,10 @@ namespace alglin {
         alglin::zero( m_nr, m_xb_thread[0], 1 );
         forward(0,x,xb);
         m_TP->wait_all();
-        for ( integer nt = 1; nt < m_usedThread; ++nt )
+        for ( integer nt = 1; nt < m_used_thread; ++nt )
           axpy( m_nr, 1.0, m_xb_thread[size_t(nt)], 1, xb, 1 );
       } else {
-        for ( integer nt = 1; nt < m_usedThread; ++nt )
+        for ( integer nt = 1; nt < m_used_thread; ++nt )
           m_TP->run(
             nt, &BorderedCR<t_Value>::forward, this,
             nt, x, m_xb_thread[size_t(nt)]
@@ -1351,9 +1381,9 @@ namespace alglin {
 
     if ( !solve_last( x ) ) return false;
 
-    if ( m_usedThread > 1 ) {
+    if ( m_used_thread > 1 ) {
       backward_reduced(x);
-      for ( integer nt = 1; nt < m_usedThread; ++nt )
+      for ( integer nt = 1; nt < m_used_thread; ++nt )
         m_TP->run( nt, &BorderedCR<t_Value>::backward, this, nt, x );
       backward(0,x);
       m_TP->wait_all();
@@ -1372,8 +1402,8 @@ namespace alglin {
     valueType rhs[],
     integer   ldRhs
   ) const {
-    if ( m_usedThread > 1 ) {
-      for ( integer nt = 1; nt < m_usedThread; ++nt )
+    if ( m_used_thread > 1 ) {
+      for ( integer nt = 1; nt < m_used_thread; ++nt )
         m_TP->run(
           nt, &BorderedCR<t_Value>::forward_n, this, nt, nrhs, rhs, ldRhs
         );
@@ -1386,9 +1416,9 @@ namespace alglin {
 
     if ( !solve_last( nrhs, rhs, ldRhs ) ) return false;
 
-    if ( m_usedThread > 1 ) {
+    if ( m_used_thread > 1 ) {
       backward_n_reduced( nrhs, rhs, ldRhs );
-      for ( integer nt = 1; nt < m_usedThread; ++nt )
+      for ( integer nt = 1; nt < m_used_thread; ++nt )
         m_TP->run(
           nt, &BorderedCR<t_Value>::backward_n, this, nt, nrhs, rhs, ldRhs
         );
@@ -1515,10 +1545,9 @@ namespace alglin {
   ) const {
     integer const & n = m_block_size;
 
-    integer nblk = 2*m_usedThread-1;
     integer k = 1;
-    while ( k < nblk ) {
-      for ( integer jj = k; jj < nblk; jj += 2*k ) {
+    while ( k < m_reduced_nblk ) {
+      for ( integer jj = k; jj < m_reduced_nblk; jj += 2*k ) {
         integer j  = m_iBlock[jj];
         integer jp = m_iBlock[jj-k];
         valueType const * T   = m_Tmat + j*m_Tsize;
@@ -1551,10 +1580,9 @@ namespace alglin {
     integer const & n      = m_block_size;
 
     valueType * xb = x + (nblock+1)*n + m_qr;
-    integer nblk = 2*m_usedThread-1;
     integer k = 1;
-    while ( k < nblk ) {
-      for ( integer jj = k; jj < nblk; jj += 2*k ) {
+    while ( k < m_reduced_nblk ) {
+      for ( integer jj = k; jj < m_reduced_nblk; jj += 2*k ) {
         integer j  = m_iBlock[jj];
         integer jp = m_iBlock[jj-k];
         valueType const * T   = m_Tmat + j*m_Tsize;
@@ -1728,14 +1756,13 @@ namespace alglin {
     integer const & n      = m_block_size;
 
     valueType * xn = x + (nblock+1)*n + m_qx;
-    integer nblk = 2*m_usedThread-1;
     integer k = 1;
-    while ( k < nblk ) k *= 2;
+    while ( k < m_reduced_nblk ) k *= 2;
     while ( (k/=2) > 0 ) {
-      for ( integer jj = k; jj < nblk; jj += 2*k ) {
+      for ( integer jj = k; jj < m_reduced_nblk; jj += 2*k ) {
         integer     j   = m_iBlock[jj];
         integer     jp  = m_iBlock[jj-k];
-        integer     jpp = m_iBlock[std::min(jj+k,nblk)];
+        integer     jpp = m_iBlock[std::min(jj+k,m_reduced_nblk)];
         valueType * Dj  = m_Dmat + j*n_x_n;
         valueType * Ej  = m_Emat + j*n_x_n;
         valueType * xj  = x + j*n;
@@ -1781,14 +1808,13 @@ namespace alglin {
     integer const & n      = m_block_size;
 
     valueType * xn = x + (nblock+1)*n + m_qx;
-    integer nblk = 2*m_usedThread-1;
     integer k = 1;
-    while ( k < nblk ) k *= 2;
+    while ( k < m_reduced_nblk ) k *= 2;
     while ( (k/=2) > 0 ) {
-      for ( integer jj = k; jj < nblk; jj += 2*k ) {
+      for ( integer jj = k; jj < m_reduced_nblk; jj += 2*k ) {
         integer     j   = m_iBlock[jj];
         integer     jp  = m_iBlock[jj-k];
-        integer     jpp = m_iBlock[std::min(jj+k,nblk)];
+        integer     jpp = m_iBlock[std::min(jj+k,m_reduced_nblk)];
         valueType * Dj  = m_Dmat + j*n_x_n;
         valueType * Ej  = m_Emat + j*n_x_n;
         valueType * xj  = x + j*n;
@@ -2691,6 +2717,67 @@ namespace alglin {
     StatFree(&m_slu_stats);
 
     return info == 0;
+  }
+
+  // ---------------------------------------------------------------------------
+
+  /*\
+   |   __  __   _ _____ _      _   ___
+   |  |  \/  | /_\_   _| |    /_\ | _ )
+   |  | |\/| |/ _ \| | | |__ / _ \| _ \
+   |  |_|  |_/_/ \_\_| |____/_/ \_\___/
+  \*/
+
+  template <typename t_Value>
+  void
+  BorderedCR<t_Value>::printMatlab( ostream_type & stream ) const {
+    integer nnz = this->sparseNnz();
+    Malloc<t_Value> mem(" BorderedCR::printMatlab real");
+    Malloc<integer> memi(" BorderedCR::printMatlab integer");
+    mem.allocate( size_t(nnz) );
+    memi.allocate( size_t(2*nnz) );
+    t_Value * V = mem( size_t(nnz) );
+    integer * I = memi( size_t(nnz) );
+    integer * J = memi( size_t(nnz) );
+
+    this->sparsePattern( I, J, 1 );
+    this->sparseValues( V );
+
+    fmt::print( stream,
+      "I = [ {}",
+      I[0]
+    );
+    for ( integer i = 1; i < nnz; ++i ) {
+      if ( (i % 20) == 0 ) fmt::print( stream, ", ...\n  {}", I[i] );
+      else                 fmt::print( stream, ",  {}", I[i] );
+    }
+    fmt::print( stream, " ];\n\n" );
+
+    fmt::print( stream,
+      "J = [ {}",
+      J[0]
+    );
+    for ( integer i = 1; i < nnz; ++i ) {
+      if ( (i % 20) == 0 ) fmt::print( stream, ", ...\n  {}", J[i] );
+      else                 fmt::print( stream, ",  {}", J[i] );
+    }
+    fmt::print( stream, " ];\n\n" );
+
+    fmt::print( stream,
+      "V = [ {}",
+      V[0]
+    );
+    for ( integer i = 1; i < nnz; ++i ) {
+      if ( (i % 20) == 0 ) fmt::print( stream, ", ...\n  {}", V[i] );
+      else                 fmt::print( stream, ",  {}", V[i] );
+    }
+    fmt::print( stream,
+      " ];\n\n"
+      "nr  = {};\n"
+      "nc  = {};\n\n"
+      "MAT = sparse( I, J, V, nr, nc );\n",
+      this->numRows(), this->numCols()
+    );
   }
 
   // ---------------------------------------------------------------------------

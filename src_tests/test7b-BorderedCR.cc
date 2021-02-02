@@ -97,22 +97,26 @@ main() {
     goto_set_num_threads(1);
     #endif
 
-    for ( alglin::integer iii=0; iii< 4; ++iii ) {
-      for ( alglin::integer jjj=0; jjj< 8; ++jjj ) {
+    for ( alglin::integer iii=0; iii<1; ++iii ) {
+      for ( alglin::integer jjj=7; jjj<8; ++jjj ) {
 
-        Utils::ThreadPool          TP(nth);
-        alglin::BorderedCR<double> BCR(&TP);
-        alglin::BorderedCR<double> BCR_SAVED(&TP);
+        //Utils::ThreadPool          TP(nth);
+        //alglin::BorderedCR<double> BCR(&TP);
+        //alglin::BorderedCR<double> BCR_SAVED(&TP);
+        alglin::BorderedCR<double> BCR(nullptr);
+        alglin::BorderedCR<double> BCR_SAVED(nullptr);
 
-        #define NSIZE 8
+        #define NSIZE 2
 
         alglin::integer n      = NSIZE;
-        alglin::integer nblock = 100;
-        alglin::integer qx     = 4;// 4+1;
-        alglin::integer qr     = 4;// 4;
-        alglin::integer nx     = 1;// 2-1;
-        alglin::integer nr     = 1;//2;
-        alglin::integer N      = (nblock+1)*n+nx+qx;
+        alglin::integer nblock = 4;
+        alglin::integer qx     = 1;// 4+1;
+        alglin::integer qr     = 10;// 4;
+        alglin::integer nx     = 0;// 2-1;
+        alglin::integer nr     = 0;//2;
+        alglin::integer Nr     = (nblock+1)*n+nr+qr;
+        alglin::integer Nc     = (nblock+1)*n+nx+qx;
+        alglin::integer N      = std::max( Nr, Nc );
 
         fill_matrix( BCR, nblock, n, nr, nx, qr, qx );
 
@@ -183,10 +187,17 @@ main() {
           break;
         }
 
-        for ( alglin::integer i = 0; i < N; ++i ) x[i] = 1+ (i % 100);
-        std::copy_n( x, N, xref );
+        for ( alglin::integer i = 0; i < Nc; ++i ) x[i] = 1+(i % 100);
+        std::copy_n( x, Nc, xref );
         BCR.Mv( x, rhs );
         BCR_SAVED.dup( BCR );
+
+        fmt::print(
+          "x = {}"
+          "b = {}",
+          lapack_wrapper::print_matrix( 1, Nc, x, 1 ),
+          lapack_wrapper::print_matrix( 1, Nr, rhs, 1 )
+        );
 
         fmt::print(
           "nthread (avilable) = {}\n"
@@ -195,15 +206,18 @@ main() {
         );
 
         fmt::print(
-          "N      = {}\n"
+          "Nr     = {}\n"
+          "Nc     = {}\n"
           "nblock = {}\n"
           "n      = {}\n"
           "nr     = {}\n"
           "nx     = {}\n"
           "qr     = {}\n"
           "qx     = {}\n",
-          N, nblock, n, nr, nx, qr, qx
+          Nr, Nc, nblock, n, nr, nx, qr, qx
         );
+
+        BCR.printMatlab( std::cout );
 
         Utils::TicToc tm;
         tm.tic();
@@ -211,19 +225,30 @@ main() {
         tm.toc();
         fmt::print("\nFactorize = {:.5} [ms]\n\n", tm.elapsed_ms());
 
-        std::copy_n( rhs, N, x );
+        std::copy_n( rhs, Nr, x );
         tm.tic();
         BCR.solve( x );
         tm.toc();
+
+        fmt::print(
+          "x = {}",
+          lapack_wrapper::print_matrix( 1, Nc, x, 1 )
+        );
+
         fmt::print("\nSolve = {:.5} [ms]\n\n", tm.elapsed_ms() );
 
-        alglin::copy( N, xref, 1, xref1, 1 );
-        alglin::axpy( N, -1.0, x, 1, xref1, 1 );
-        valueType err = alglin::absmax( N, xref1, 1 );
+        BCR_SAVED.Mv( x, resid );
+        alglin::axpy( Nr, -1.0, rhs, 1, resid, 1 );
+        valueType err = alglin::asum( Nr, resid, 1 )/Nr;
+        fmt::print("Check |resid|_1/N = {:.5}\n",err);
+
+        alglin::copy( Nc,    xref, 1, xref1, 1 );
+        alglin::axpy( Nc, -1.0, x, 1, xref1, 1 );
+        err = alglin::absmax( Nc, xref1, 1 );
         fmt::print("Check |err|_inf = {:.5}\n",err);
         UTILS_ASSERT0( err < 1e-8, "test failed!\n" );
 
-        err = alglin::asum( N, xref1, 1 )/N;
+        err = alglin::asum( Nc, xref1, 1 )/Nc;
         fmt::print("Check |err|_1/N = {:.5}\n",err);
         UTILS_ASSERT0( err < 1e-8, "test failed!\n" );
 

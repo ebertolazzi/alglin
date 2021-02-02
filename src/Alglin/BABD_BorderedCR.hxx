@@ -113,11 +113,13 @@ namespace alglin {
 
   protected:
 
-    Malloc<valueType> m_baseValue;
-    Malloc<integer>   m_baseInteger;
+    Malloc<valueType>  m_baseValue;
+    Malloc<integer>    m_baseInteger;
+    Malloc<valueType*> m_basePointer;
+    Malloc<integer*>   m_basePointerInteger;
 
-    Malloc<valueType> m_superluValue;
-    Malloc<int>       m_superluInteger;
+    Malloc<valueType>  m_superluValue;
+    Malloc<int>        m_superluInteger;
 
     integer m_number_of_blocks; //!< total number of blocks
     integer m_block_size;       //!< size of square blocks
@@ -164,9 +166,9 @@ namespace alglin {
     valueType * m_Dmat;
     valueType * m_Emat;
 
-    std::vector<valueType*> m_Fmat;
-    std::vector<valueType*> m_WorkT;
-    std::vector<valueType*> m_WorkQR;
+    valueType** m_Fmat;
+    valueType** m_WorkT;
+    valueType** m_WorkQR;
 
     // working block
     valueType * m_Tmat;
@@ -193,11 +195,13 @@ namespace alglin {
     integer *m_kBlock;
 
     // used also with a unique thread
-    integer                         m_usedThread;
-    mutable std::vector<integer*>   m_perm_thread;
-    mutable std::vector<valueType*> m_xb_thread;
-    mutable Utils::ThreadPool *     m_TP;
-    mutable Utils::SpinLock         m_spin;
+    integer                     m_available_thread;
+    integer                     m_used_thread;
+    integer                     m_reduced_nblk;
+    mutable integer**           m_perm_thread;
+    mutable valueType**         m_xb_thread;
+    mutable Utils::ThreadPool * m_TP;
+    mutable Utils::SpinLock     m_spin;
 
     void
     buildT(
@@ -337,8 +341,8 @@ namespace alglin {
 
     void
     setThreadPool( Utils::ThreadPool * TP ) {
-      m_TP         = TP;
-      m_usedThread = m_TP == nullptr ? 1 : m_TP->size();
+      m_TP               = TP;
+      m_available_thread = m_TP == nullptr ? 1 : m_TP->size();
     }
 
     //! load matrix in the class
@@ -422,7 +426,7 @@ namespace alglin {
     numRows() const {
       integer const & nblk = m_number_of_blocks;
       integer const & n    = m_block_size;
-      return n * (nblk+1) + m_qx + m_nx;
+      return n * (nblk+1) + m_qr + m_nr;
     }
 
     //! \brief Number of columns of the linear system
@@ -430,7 +434,7 @@ namespace alglin {
     numCols() const {
       integer const & nblk = m_number_of_blocks;
       integer const & n    = m_block_size;
-      return n * (nblk+1) + m_qr + m_nr;
+      return n * (nblk+1) + m_qx + m_nx;
     }
 
     /*!
@@ -848,6 +852,16 @@ namespace alglin {
       integer   const M_col[], integer c_offs,
       integer         M_nnz
     );
+
+    /*\
+     |   __  __   _ _____ _      _   ___
+     |  |  \/  | /_\_   _| |    /_\ | _ )
+     |  | |\/| |/ _ \| | | |__ / _ \| _ \
+     |  |_|  |_/_/ \_\_| |____/_/ \_\___/
+    \*/
+
+    void
+    printMatlab( ostream_type & stream ) const;
 
     /*\
      |   ___        _                       _
