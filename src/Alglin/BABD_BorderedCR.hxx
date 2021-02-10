@@ -816,7 +816,12 @@ namespace alglin {
      |
     \*/
     void Mv( valueType const x[], valueType res[] ) const;
-    void addMv( valueType const x[], valueType res[] ) const;
+    void addMv( valueType alpha, valueType const x[], valueType res[] ) const;
+
+    void
+    addMv( valueType const x[], valueType res[] ) const {
+      addMv( 1.0, x, res );
+    }
 
     /*\
      |  ____

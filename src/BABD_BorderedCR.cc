@@ -1284,6 +1284,7 @@ namespace alglin {
     integer const & nblock = m_number_of_blocks;
     integer const & n      = m_block_size;
     valueType * X = x + (nblock-1)*n;
+    // sposto primo blocco rhs in fondo
     swap( n, X, 1, x, 1 ); // uso x stesso come temporaneo
     bool ok = false;
     switch ( m_last_selected ) {
@@ -1315,6 +1316,7 @@ namespace alglin {
     integer const & nblock = m_number_of_blocks;
     integer const & n      = m_block_size;
     valueType * X = x + (nblock-1)*n;
+    // sposto primo blocco rhs in fondo
     for ( integer i = 0; i < nrhs; ++i )
       swap( n, X+i*ldX, 1, x+i*ldX, 1 );
     bool ok = false;
@@ -1873,12 +1875,16 @@ namespace alglin {
   void
   BorderedCR<t_Value>::Mv( valueType const x[], valueType res[] ) const {
     alglin::zero( numRows(), res, 1 );
-    addMv( x, res );
+    addMv( 1.0, x, res );
   }
 
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::addMv( valueType const x[], valueType res[] ) const {
+  BorderedCR<t_Value>::addMv(
+    valueType       alpha,
+    valueType const x[],
+    valueType       res[]
+  ) const {
     integer const & nblock = m_number_of_blocks;
     integer const & n      = m_block_size;
 
@@ -1893,14 +1899,14 @@ namespace alglin {
     t_Value *       yy = res;
     for ( integer i = 0; i < nblock; ++i ) {
       alglin::gemv(
-        NO_TRANSPOSE, n, n, 1.0, D, n, xx, 1, 1.0, yy, 1
+        NO_TRANSPOSE, n, n, alpha, D, n, xx, 1, 1.0, yy, 1
       );
       xx += n;
       alglin::gemv(
-        NO_TRANSPOSE, n, n, 1.0, E, n, xx, 1, 1.0, yy, 1
+        NO_TRANSPOSE, n, n, alpha, E, n, xx, 1, 1.0, yy, 1
       );
       alglin::gemv(
-        NO_TRANSPOSE, n, m_nx, 1.0, B, n, xb, 1, 1.0, yy, 1
+        NO_TRANSPOSE, n, m_nx, alpha, B, n, xb, 1, 1.0, yy, 1
       );
       yy += n;
       D  += n_x_n;
@@ -1910,29 +1916,29 @@ namespace alglin {
 
     integer     m = n+m_qr;
     valueType * H = m_H0Nqp;
-    alglin::gemv( NO_TRANSPOSE, m, n,    1.0, H, m, x,  1, 1.0, yy, 1 ); H += m * n;
-    alglin::gemv( NO_TRANSPOSE, m, n,    1.0, H, m, xe, 1, 1.0, yy, 1 ); H += m * n;
-    alglin::gemv( NO_TRANSPOSE, m, m_qx, 1.0, H, m, xq, 1, 1.0, yy, 1 ); H += m * m_qx;
-    alglin::gemv( NO_TRANSPOSE, m, m_nx, 1.0, H, m, xb, 1, 1.0, yy, 1 );
+    alglin::gemv( NO_TRANSPOSE, m, n,    alpha, H, m, x,  1, 1.0, yy, 1 ); H += m * n;
+    alglin::gemv( NO_TRANSPOSE, m, n,    alpha, H, m, xe, 1, 1.0, yy, 1 ); H += m * n;
+    alglin::gemv( NO_TRANSPOSE, m, m_qx, alpha, H, m, xq, 1, 1.0, yy, 1 ); H += m * m_qx;
+    alglin::gemv( NO_TRANSPOSE, m, m_nx, alpha, H, m, xb, 1, 1.0, yy, 1 );
 
     if ( m_nr > 0 ) {
       yy += m;
       alglin::gemv(
         NO_TRANSPOSE, m_nr, m_nx,
-        1.0, m_Fmat[0], m_nr, xb, 1, 1.0, yy, 1
+        alpha, m_Fmat[0], m_nr, xb, 1, 1.0, yy, 1
       );
       t_Value const * C = m_Cmat;
       xx = x;
       for ( integer i = 0; i <= nblock; ++i ) {
         alglin::gemv(
           NO_TRANSPOSE, m_nr, n,
-          1.0, C, m_nr, xx, 1, 1.0, yy, 1
+          alpha, C, m_nr, xx, 1, 1.0, yy, 1
         );
         xx += n; C += nr_x_n;
       }
       alglin::gemv(
         NO_TRANSPOSE, m_nr, m_qx,
-        1.0, m_Cqmat, m_nr, xx, 1, 1.0, yy, 1
+        alpha, m_Cqmat, m_nr, xx, 1, 1.0, yy, 1
       );
     }
   }
