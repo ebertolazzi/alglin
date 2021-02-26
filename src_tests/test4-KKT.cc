@@ -457,7 +457,7 @@ test5() {
   );
   kkt.factorize();
 
-  valueType x[]   = { 1, 2, 3, 4, 5, -1, -2, -3, -4, -5 };
+  //valueType x[]   = { 1, 2, 3, 4, 5, -1, -2, -3, -4, -5 };
   valueType rhs[] = { -2, -9, -5, -10, 3, -21, 0, 32, 8 };
 
   //kkt.t_solve( 1, rhs, N+M );
@@ -502,7 +502,7 @@ test6() {
   );
   kkt.factorize();
 
-  valueType x[]   = { 1, 2, 3, 4, 5, -1, -2, -3, -4, -5 };
+  //valueType x[]   = { 1, 2, 3, 4, 5, -1, -2, -3, -4, -5 };
   valueType rhs[] = { -2, -9, -5, -10, 3, -21, 0, 32, 8 };
 
   //kkt.t_solve( 1, rhs, N+M );

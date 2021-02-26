@@ -4,6 +4,8 @@ src_no_git
 *.a
 .alglin_config
 .vscode
+.idea
+cmake-build-debug
 vs_20*
 cmake
 DerivedData

@@ -34,7 +34,7 @@ namespace alglin {
     if ( n != m_dim1 || m != m_dim2 ) {
       m_dim1 = n;
       m_dim2 = m;
-      m_allocReals.allocate( size_t(2*n*m) );
+      m_allocReals.reallocate( size_t(2*n*m) );
       m_Zmat = m_allocReals( size_t(n*m) );
       m_Cmat = m_allocReals( size_t(n*m) );
       m_W_LU.allocate(m,m);

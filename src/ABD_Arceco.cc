@@ -155,8 +155,8 @@ namespace alglin {
     integer numEquations = nblk * n + row0 + rowN;
 
     // allocazione dinamica
-    m_baseValue   . allocate( size_t( BLK_size + size0 + sizeN ) );
-    m_baseInteger . allocate( size_t( 3*m_number_of_blocks + numEquations ) );
+    m_baseValue   . reallocate( size_t( BLK_size + size0 + sizeN ) );
+    m_baseInteger . reallocate( size_t( 3*m_number_of_blocks + numEquations ) );
 
     m_array            = m_baseValue( size_t( BLK_size + size0 + sizeN ) );
     m_pivot_array      = m_baseInteger( size_t( numEquations ) );

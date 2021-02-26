@@ -92,8 +92,8 @@ namespace alglin {
     integer DE_size    = 2*nblock*n_x_n;
     integer H0Nq_size  = (n+q)*(2*n+q);
     integer BC_size    = nb*m_num_equations;
-    m_baseValue.allocate( size_t(DE_size+H0Nq_size+2*BC_size+nb*nb+num_extra_r) );
-    m_baseInteger.allocate( size_t(num_extra_i) );
+    m_baseValue.reallocate( size_t(DE_size+H0Nq_size+2*BC_size+nb*nb+num_extra_r) );
+    m_baseInteger.reallocate( size_t(num_extra_i) );
     m_DE_blk = m_baseValue( size_t(DE_size) );
     m_H0Nq   = m_baseValue( size_t(H0Nq_size) );
     m_Bmat   = m_baseValue( size_t(BC_size) );

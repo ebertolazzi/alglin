@@ -147,10 +147,10 @@ namespace alglin {
                   m_Lwork + (m_LworkT+m_LworkQR+nr*(1+nx))*m_available_thread;
     integer innz = nblock*n + (3+n)*m_available_thread;
 
-    m_baseValue.allocate( size_t(nnz) );
-    m_baseInteger.allocate( size_t(innz) );
-    m_basePointer.allocate( size_t(4*m_available_thread) );
-    m_basePointerInteger.allocate( size_t(m_available_thread) );
+    m_baseValue.reallocate( size_t(nnz) );
+    m_baseInteger.reallocate( size_t(innz) );
+    m_basePointer.reallocate( size_t(4*m_available_thread) );
+    m_basePointerInteger.reallocate( size_t(m_available_thread) );
 
     m_Bmat  = m_baseValue( size_t(nblock*n_x_nx) );
     m_Cmat  = m_baseValue( size_t((nblock+1)*nr_x_n) );
@@ -2493,8 +2493,8 @@ namespace alglin {
               ( n * (nblock+1) + (m_qx+m_nx) ) * m_nr +
               ( n+m_qr ) * ( n_x_2+m_qx+m_nx );
 
-    m_superluInteger.allocate( size_t(nnz+5*neq+1) );
-    m_superluValue.allocate( size_t(nnz) );
+    m_superluInteger.reallocate( size_t(nnz+5*neq+1) );
+    m_superluValue.reallocate( size_t(nnz) );
 
     set_default_options(&m_slu_options);
 
@@ -2740,9 +2740,8 @@ namespace alglin {
     integer nnz = this->sparseNnz();
     Malloc<t_Value> mem(" BorderedCR::printMatlab real");
     Malloc<integer> memi(" BorderedCR::printMatlab integer");
-    mem.allocate( size_t(nnz) );
     memi.allocate( size_t(2*nnz) );
-    t_Value * V = mem( size_t(nnz) );
+    t_Value * V = mem.malloc( size_t(nnz) );
     integer * I = memi( size_t(nnz) );
     integer * J = memi( size_t(nnz) );
 

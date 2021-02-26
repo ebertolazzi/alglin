@@ -55,8 +55,8 @@ namespace alglin {
     integer nnz = 2*nblock*n*n + (n+m)*m;
     integer neq = (nblock+1)*n+q;
 
-    m_baseInteger.allocate( size_t(2*nnz+4*neq+1) );
-    m_baseValue.allocate( size_t(nnz+2*neq ));
+    m_baseInteger.reallocate( size_t(2*nnz+4*neq+1) );
+    m_baseValue.reallocate( size_t(nnz+2*neq ));
 
     set_default_options(&m_slu_options);
 

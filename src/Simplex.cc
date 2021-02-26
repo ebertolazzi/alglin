@@ -67,14 +67,14 @@ namespace Simplex {
       }
     }
     // allocate memory
-    m_baseInteger.allocate( size_t(m_nz+m_nw+m_np+n+m) );
+    m_baseInteger.reallocate( size_t(m_nz+m_nw+m_np+n+m) );
     m_map_z    = m_baseInteger( size_t(m_nz) );
     m_map_w    = m_baseInteger( size_t(m_nw) );
     m_map_p    = m_baseInteger( size_t(m_np) );
     m_map_case = m_baseInteger( size_t(n)  );
     m_i_row    = m_baseInteger( size_t(m)  );
 
-    m_baseReals.allocate( size_t(2*m) );
+    m_baseReals.reallocate( size_t(2*m) );
     m_d      = m_baseReals( size_t(m) );
     m_values = m_baseReals( size_t(m) );
 
@@ -426,7 +426,7 @@ namespace Simplex {
     integer nm = n-m;
 
     // memory allocation
-    baseReals.allocate(4*m+2*n);
+    baseReals.reallocate(4*m+2*n);
     valueType * gamma  = baseReals(m);
     valueType * beta   = baseReals(m);
     valueType * ceta   = baseReals(nm);
@@ -434,7 +434,7 @@ namespace Simplex {
     valueType * c      = baseReals(n);
     valueType * values = baseReals(m);
 
-    baseIntegers.allocate(n);
+    baseIntegers.reallocate(n);
     integer * IN    = baseIntegers(nm);
     integer * i_row = baseIntegers(m);
 
