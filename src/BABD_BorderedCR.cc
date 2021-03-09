@@ -45,6 +45,7 @@ namespace alglin {
   , nr_x_qx(0)
   , m_last_selected(BORDERED_LAST_LU)
   , m_selected(BORDERED_LU)
+  , m_last_must_use_PINV(false)
   , m_H0Nqp(nullptr)
   , m_Bmat(nullptr)
   , m_Cmat(nullptr)
@@ -1260,11 +1261,17 @@ namespace alglin {
       ok = m_last_lsy.factorize( m_Nr, m_Nc, m_Hmat, m_Nr );
       break;
     case BORDERED_LAST_PINV:
+      break;
+    }
+    if ( ok ) {
+      m_last_must_use_PINV = false;
+    } else {
+      m_last_must_use_PINV = true;
+      // try to facttorize using PINV
       if ( m_Nc > m_Nr )
         ok = m_last_pinv.t_factorize( m_Nr, m_Nc, m_Hmat, m_Nr );
       else
         ok = m_last_pinv.factorize( m_Nr, m_Nc, m_Hmat, m_Nr );
-      break;
     }
     return ok;
   }
@@ -1287,18 +1294,20 @@ namespace alglin {
     // sposto primo blocco rhs in fondo
     swap( n, X, 1, x, 1 ); // uso x stesso come temporaneo
     bool ok = false;
-    switch ( m_last_selected ) {
-    case BORDERED_LAST_LU:   ok = m_last_lu.solve( X );   break;
-    case BORDERED_LAST_LUPQ: ok = m_last_lupq.solve( X ); break;
-    case BORDERED_LAST_QR:   ok = m_last_qr.solve( X );   break;
-    case BORDERED_LAST_QRP:  ok = m_last_qrp.solve( X );  break;
-    case BORDERED_LAST_SVD:  ok = m_last_svd.solve( X );  break;
-    case BORDERED_LAST_LSS:  ok = m_last_lss.solve( X );  break;
-    case BORDERED_LAST_LSY:  ok = m_last_lsy.solve( X );  break;
-    case BORDERED_LAST_PINV:
+    if ( m_last_must_use_PINV ) {
       if ( m_Nc > m_Nr ) ok = m_last_pinv.t_mult_inv( X, 1, X, 1 );
       else               ok = m_last_pinv.mult_inv( X, 1, X, 1 );
-      break;
+    } else {
+      switch ( m_last_selected ) {
+        case BORDERED_LAST_LU:   ok = m_last_lu.solve( X );   break;
+        case BORDERED_LAST_LUPQ: ok = m_last_lupq.solve( X ); break;
+        case BORDERED_LAST_QR:   ok = m_last_qr.solve( X );   break;
+        case BORDERED_LAST_QRP:  ok = m_last_qrp.solve( X );  break;
+        case BORDERED_LAST_SVD:  ok = m_last_svd.solve( X );  break;
+        case BORDERED_LAST_LSS:  ok = m_last_lss.solve( X );  break;
+        case BORDERED_LAST_LSY:  ok = m_last_lsy.solve( X );  break;
+        case BORDERED_LAST_PINV: break;
+      }
     }
     if ( ok ) swap( n, X, 1, x, 1 );
     return ok;
@@ -1320,18 +1329,20 @@ namespace alglin {
     for ( integer i = 0; i < nrhs; ++i )
       swap( n, X+i*ldX, 1, x+i*ldX, 1 );
     bool ok = false;
-    switch ( m_last_selected ) {
-    case BORDERED_LAST_LU:   ok = m_last_lu.solve( nrhs, X, ldX );   break;
-    case BORDERED_LAST_LUPQ: ok = m_last_lupq.solve( nrhs, X, ldX ); break;
-    case BORDERED_LAST_QR:   ok = m_last_qr.solve( nrhs, X, ldX );   break;
-    case BORDERED_LAST_QRP:  ok = m_last_qrp.solve( nrhs, X, ldX );  break;
-    case BORDERED_LAST_SVD:  ok = m_last_svd.solve( nrhs, X, ldX );  break;
-    case BORDERED_LAST_LSS:  ok = m_last_lss.solve( nrhs, X, ldX );  break;
-    case BORDERED_LAST_LSY:  ok = m_last_lsy.solve( nrhs, X, ldX );  break;
-    case BORDERED_LAST_PINV:
+    if ( m_last_must_use_PINV ) {
       if ( m_Nc > m_Nr ) ok = m_last_pinv.t_mult_inv( nrhs, X, ldX, X, ldX );
       else               ok = m_last_pinv.mult_inv( nrhs, X, ldX, X, ldX );
-      break;
+    } else {
+      switch ( m_last_selected ) {
+        case BORDERED_LAST_LU:   ok = m_last_lu.solve( nrhs, X, ldX );   break;
+        case BORDERED_LAST_LUPQ: ok = m_last_lupq.solve( nrhs, X, ldX ); break;
+        case BORDERED_LAST_QR:   ok = m_last_qr.solve( nrhs, X, ldX );   break;
+        case BORDERED_LAST_QRP:  ok = m_last_qrp.solve( nrhs, X, ldX );  break;
+        case BORDERED_LAST_SVD:  ok = m_last_svd.solve( nrhs, X, ldX );  break;
+        case BORDERED_LAST_LSS:  ok = m_last_lss.solve( nrhs, X, ldX );  break;
+        case BORDERED_LAST_LSY:  ok = m_last_lsy.solve( nrhs, X, ldX );  break;
+        case BORDERED_LAST_PINV: break;
+      }
     }
     if ( ok )
       for ( integer i = 0; i < nrhs; ++i )

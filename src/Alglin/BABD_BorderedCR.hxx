@@ -158,6 +158,7 @@ namespace alglin {
 
     BORDERED_LAST_Choice m_last_selected;
     BORDERED_Choice      m_selected;
+    bool                 m_last_must_use_PINV;
 
     valueType * m_H0Nqp;
     valueType * m_Bmat;
@@ -396,14 +397,14 @@ namespace alglin {
     choice_to_string( BORDERED_LAST_Choice c ) {
       std::string res = "LastBlock not selected";
       switch ( c ) {
-      case BORDERED_LAST_LU:   res = "LastBlock LU";    break;
-      case BORDERED_LAST_LUPQ: res = "LastBlock LUPQ";  break;
-      case BORDERED_LAST_QR:   res = "LastBlock QR";    break;
-      case BORDERED_LAST_QRP:  res = "LastBlock QRP";   break;
-      case BORDERED_LAST_SVD:  res = "LastBlock SVD";   break;
-      case BORDERED_LAST_LSS:  res = "LastBlock LSS";   break;
-      case BORDERED_LAST_LSY:  res = "LastBlock LSY";   break;
-      case BORDERED_LAST_PINV: res = "LastBlock PINV";  break;
+      case BORDERED_LAST_LU:   res = "LastBlock LU";   break;
+      case BORDERED_LAST_LUPQ: res = "LastBlock LUPQ"; break;
+      case BORDERED_LAST_QR:   res = "LastBlock QR";   break;
+      case BORDERED_LAST_QRP:  res = "LastBlock QRP";  break;
+      case BORDERED_LAST_SVD:  res = "LastBlock SVD";  break;
+      case BORDERED_LAST_LSS:  res = "LastBlock LSS";  break;
+      case BORDERED_LAST_LSY:  res = "LastBlock LSY";  break;
+      case BORDERED_LAST_PINV: res = "LastBlock PINV"; break;
       }
       return res;
     }
