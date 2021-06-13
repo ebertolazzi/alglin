@@ -441,7 +441,7 @@ namespace alglin {
       integer /* numInitialOMEGA */,
       integer /* numFinalOMEGA   */,
       integer /* numCyclicOMEGA  */
-    ) UTILS_PURE_VIRTUAL;
+    ) = 0;
 
     virtual
     void
@@ -453,15 +453,15 @@ namespace alglin {
       integer /* rowN   */,
       integer /* colN   */,
       integer /* nb     */
-    ) UTILS_PURE_VIRTUAL;
+    ) = 0;
 
     virtual
     void
-    factorize() UTILS_PURE_VIRTUAL;
+    factorize() = 0;
 
     virtual
     void
-    solve( valueType [] ) const UTILS_PURE_VIRTUAL;
+    solve( valueType [] ) const = 0;
 
     virtual
     void
@@ -469,7 +469,7 @@ namespace alglin {
       integer      /* nrhs  */,
       valueType [] /* rhs   */,
       integer      /* ldRhs */
-    ) const UTILS_PURE_VIRTUAL;
+    ) const = 0;
 
     void
     loadBottom(

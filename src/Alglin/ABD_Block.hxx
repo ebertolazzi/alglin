@@ -142,7 +142,7 @@ namespace alglin {
     using BlockBidiagonal<t_Value>::m_la_factorization;
 
     explicit BlockLU() {}
-    // ~BlockLU() UTILS_OVERRIDE {}
+    // ~BlockLU() override {}
 
     virtual
     void
@@ -158,7 +158,7 @@ namespace alglin {
       integer /* numInitialOMEGA */,
       integer /* numFinalOMEGA   */,
       integer /* numCyclicOMEGA  */
-    ) UTILS_OVERRIDE
+    ) override
     { UTILS_ERROR0("BlockLU::allocate() not defined!\n"); }
 
     virtual
@@ -171,16 +171,16 @@ namespace alglin {
       integer _rowN,
       integer _colN,
       integer _nb
-    ) UTILS_OVERRIDE;
+    ) override;
 
     virtual
     void
-    factorize() UTILS_OVERRIDE;
+    factorize() override;
 
     //! solve linear sistem using internal factorized matrix
     virtual
     void
-    solve( valueType in_out[] ) const UTILS_OVERRIDE
+    solve( valueType in_out[] ) const override
     { solve_internal( true, in_out ); }
 
     //! solve linear sistem using internal factorized matrix
@@ -190,7 +190,7 @@ namespace alglin {
       integer   nrhs,
       valueType in_out[],
       integer   ldRhs
-    ) const UTILS_OVERRIDE {
+    ) const override {
       this->solve_internal( true, nrhs, in_out, ldRhs );
     }
 

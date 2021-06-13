@@ -113,17 +113,17 @@ namespace Simplex {
     ~StandardProblemBase()
     {}
 
-    SIMPLEX_VIRTUAL valueType get_b_max_abs() const UTILS_PURE_VIRTUAL;
-    SIMPLEX_VIRTUAL valueType get_c_max_abs() const UTILS_PURE_VIRTUAL;
-    SIMPLEX_VIRTUAL valueType get_A_max_abs() const UTILS_PURE_VIRTUAL;
+    SIMPLEX_VIRTUAL valueType get_b_max_abs() const = 0;
+    SIMPLEX_VIRTUAL valueType get_c_max_abs() const = 0;
+    SIMPLEX_VIRTUAL valueType get_A_max_abs() const = 0;
 
-    SIMPLEX_VIRTUAL integer dim_x() const UTILS_PURE_VIRTUAL; //!< dimension of x
-    SIMPLEX_VIRTUAL integer dim_g() const UTILS_PURE_VIRTUAL; //!< number of equality constraints
+    SIMPLEX_VIRTUAL integer dim_x() const = 0; //!< dimension of x
+    SIMPLEX_VIRTUAL integer dim_g() const = 0; //!< number of equality constraints
 
-    SIMPLEX_VIRTUAL void load_c( valueType c[] ) const UTILS_PURE_VIRTUAL;
+    SIMPLEX_VIRTUAL void load_c( valueType c[] ) const = 0;
 
     //! fill the vector b with the rhs of the constraints \f$ Ax = b \$f
-    SIMPLEX_VIRTUAL void load_b( valueType b[] ) const UTILS_PURE_VIRTUAL;
+    SIMPLEX_VIRTUAL void load_b( valueType b[] ) const = 0;
 
     /*!
       fill the sparse vector with the column `j_col` of matrix `A` in a sparse form as values
@@ -133,22 +133,22 @@ namespace Simplex {
       \param  i_row  the index of the row of the corresponding nonzeros element
       \return number of nonzeros elements of the column
     \*/
-    SIMPLEX_VIRTUAL integer load_A_column( integer j_col, valueType values[], integer i_row[] ) const UTILS_PURE_VIRTUAL;
+    SIMPLEX_VIRTUAL integer load_A_column( integer j_col, valueType values[], integer i_row[] ) const = 0;
 
     //! subtract to `res` the product `Ax`
-    SIMPLEX_VIRTUAL void subtract_Ax( valueType const x[], valueType res[] ) const UTILS_PURE_VIRTUAL;
+    SIMPLEX_VIRTUAL void subtract_Ax( valueType const x[], valueType res[] ) const = 0;
 
     //! lower bound of `x_i`
-    SIMPLEX_VIRTUAL valueType Lower( integer i ) const UTILS_PURE_VIRTUAL;
+    SIMPLEX_VIRTUAL valueType Lower( integer i ) const = 0;
 
     //! upper bound of `x_i`
-    SIMPLEX_VIRTUAL valueType Upper( integer i ) const UTILS_PURE_VIRTUAL;
+    SIMPLEX_VIRTUAL valueType Upper( integer i ) const = 0;
 
     //! return true if lower bound of `x_i` is unlimited
-    SIMPLEX_VIRTUAL bool Lower_is_free( integer i ) const UTILS_PURE_VIRTUAL;
+    SIMPLEX_VIRTUAL bool Lower_is_free( integer i ) const = 0;
 
     //! return true if upper bound of `x_i` is unlimited
-    SIMPLEX_VIRTUAL bool Upper_is_free( integer i ) const UTILS_PURE_VIRTUAL;
+    SIMPLEX_VIRTUAL bool Upper_is_free( integer i ) const = 0;
 
     SIMPLEX_API_DLL
     void
@@ -204,13 +204,13 @@ namespace Simplex {
     ~ProblemBase()
     {}
 
-    SIMPLEX_VIRTUAL valueType get_c_max_abs() const UTILS_PURE_VIRTUAL;
-    SIMPLEX_VIRTUAL valueType get_A_max_abs() const UTILS_PURE_VIRTUAL;
+    SIMPLEX_VIRTUAL valueType get_c_max_abs() const = 0;
+    SIMPLEX_VIRTUAL valueType get_A_max_abs() const = 0;
 
-    SIMPLEX_VIRTUAL integer dim_x() const UTILS_PURE_VIRTUAL; //!< dimension of x
-    SIMPLEX_VIRTUAL integer dim_g() const UTILS_PURE_VIRTUAL; //!< number of equality constraints
+    SIMPLEX_VIRTUAL integer dim_x() const = 0; //!< dimension of x
+    SIMPLEX_VIRTUAL integer dim_g() const = 0; //!< number of equality constraints
 
-    SIMPLEX_VIRTUAL void load_c( valueType c[] ) const UTILS_PURE_VIRTUAL;
+    SIMPLEX_VIRTUAL void load_c( valueType c[] ) const = 0;
 
     /*!
       fill the sparse vector with the column `j_col` of matrix `A` in a sparse form as values
@@ -220,22 +220,22 @@ namespace Simplex {
       \param  i_row  the index of the row of the corresponding nonzeros element
       \return number of nonzeros elements of the column
     \*/
-    SIMPLEX_VIRTUAL integer load_A_column( integer j_col, valueType values[], integer i_row[] ) const UTILS_PURE_VIRTUAL;
+    SIMPLEX_VIRTUAL integer load_A_column( integer j_col, valueType values[], integer i_row[] ) const = 0;
 
     //! subtract to `res` the product `Ax`
-    SIMPLEX_VIRTUAL void subtract_Ax( valueType const x[], valueType res[] ) const UTILS_PURE_VIRTUAL;
+    SIMPLEX_VIRTUAL void subtract_Ax( valueType const x[], valueType res[] ) const = 0;
 
     //! lower bound of `x_i`
-    SIMPLEX_VIRTUAL valueType Lower( integer i ) const UTILS_PURE_VIRTUAL;
+    SIMPLEX_VIRTUAL valueType Lower( integer i ) const = 0;
 
     //! upper bound of `x_i`
-    SIMPLEX_VIRTUAL valueType Upper( integer i ) const UTILS_PURE_VIRTUAL;
+    SIMPLEX_VIRTUAL valueType Upper( integer i ) const = 0;
 
     //! return true if lower bound of `x_i` is unlimited
-    SIMPLEX_VIRTUAL bool Lower_is_free( integer i ) const UTILS_PURE_VIRTUAL;
+    SIMPLEX_VIRTUAL bool Lower_is_free( integer i ) const = 0;
 
     //! return true if upper bound of `x_i` is unlimited
-    SIMPLEX_VIRTUAL bool Upper_is_free( integer i ) const UTILS_PURE_VIRTUAL;
+    SIMPLEX_VIRTUAL bool Upper_is_free( integer i ) const = 0;
 
     SIMPLEX_API_DLL
     void

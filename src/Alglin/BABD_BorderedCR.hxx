@@ -337,7 +337,7 @@ namespace alglin {
     BorderedCR( Utils::ThreadPool * TP );
 
     virtual
-    ~BorderedCR() UTILS_OVERRIDE
+    ~BorderedCR() override
     {}
 
     void
@@ -778,7 +778,7 @@ namespace alglin {
 
     virtual
     bool
-    solve( valueType x[] ) const UTILS_OVERRIDE {
+    solve( valueType x[] ) const override {
       if ( m_selected == BORDERED_SUPERLU ) {
         return solve_SuperLU( x );
       } else {
@@ -788,7 +788,7 @@ namespace alglin {
 
     virtual
     bool
-    solve( integer nrhs, valueType rhs[], integer ldRhs ) const UTILS_OVERRIDE {
+    solve( integer nrhs, valueType rhs[], integer ldRhs ) const override {
       if ( m_selected == BORDERED_SUPERLU ) {
         return solve_SuperLU( nrhs, rhs, ldRhs );
       } else {
@@ -798,13 +798,13 @@ namespace alglin {
 
     virtual
     bool
-    t_solve( valueType [] ) const UTILS_OVERRIDE {
+    t_solve( valueType [] ) const override {
       UTILS_ERROR0( "BorderedCR::t_solve() not defined\n" );
     }
 
     virtual
     bool
-    t_solve( integer, valueType [], integer ) const UTILS_OVERRIDE {
+    t_solve( integer, valueType [], integer ) const override {
       UTILS_ERROR0( "BorderedCR::t_solve() not defined\n" );
     }
 

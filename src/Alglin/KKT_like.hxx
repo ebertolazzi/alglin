@@ -211,7 +211,7 @@ namespace alglin {
     , m_dim2(0)
     {}
 
-    ~KKT() UTILS_OVERRIDE
+    ~KKT() override
     {}
 
     void
@@ -647,19 +647,19 @@ namespace alglin {
 
     virtual
     bool
-    solve( valueType xb[] ) const UTILS_OVERRIDE;
+    solve( valueType xb[] ) const override;
 
     virtual
     bool
-    t_solve( valueType xb[] ) const UTILS_OVERRIDE;
+    t_solve( valueType xb[] ) const override;
 
     virtual
     bool
-    solve( integer nrhs, valueType B[], integer ldB ) const UTILS_OVERRIDE;
+    solve( integer nrhs, valueType B[], integer ldB ) const override;
 
     virtual
     bool
-    t_solve( integer nrhs, valueType B[], integer ldB ) const UTILS_OVERRIDE;
+    t_solve( integer nrhs, valueType B[], integer ldB ) const override;
 
   };
 

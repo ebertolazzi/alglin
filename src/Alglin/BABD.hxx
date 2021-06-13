@@ -78,7 +78,8 @@ namespace alglin {
 
   public:
 
-    explicit UTILS_CONSTEXPR BABD()
+    explicit constexpr
+    BABD()
     : m_babd_solver(&m_bordered)
     {}
 

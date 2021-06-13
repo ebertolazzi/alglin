@@ -103,15 +103,18 @@ testMM() {
 
   // ===========================================================================
 
-  tm.tic();
-  for ( int i = 0; i < N_TIMES; ++i ) {
-    Eigen::Map<dmat_t> mm1(M1,N,N);
-    Eigen::Map<dmat_t> mm2(M2,N,N);
-    Eigen::Map<dmat_t> mm3(M3,N,N);
-    mm3.noalias() -= mm1*mm2;
-    mm2 = mm3;
+  {
+    Eigen::Map<dmat_t> mm1(NULL,0,0), mm2(NULL,0,0), mm3(NULL,0,0);
+    tm.tic();
+    for ( int i = 0; i < N_TIMES; ++i ) {
+      new (&mm1) Eigen::Map<dmat_t>(M1,N,N);
+      new (&mm2) Eigen::Map<dmat_t>(M2,N,N);
+      new (&mm3) Eigen::Map<dmat_t>(M3,N,N);
+      mm3.noalias() -= mm1*mm2;
+      mm2 = mm3;
+    }
+    tm.toc();
   }
-  tm.toc();
   fmt::print("(MM) MULT = {:8.4} [ps] (eigen map dynamic)\n", to_ps*tm.elapsed_ms() );
 
   // ===========================================================================
@@ -126,15 +129,18 @@ testMM() {
 
   // ===========================================================================
 
-  tm.tic();
-  for ( int i = 0; i < N_TIMES; ++i ) {
-    Eigen::Map<matN_t> mm1(M1);
-    Eigen::Map<matN_t> mm2(M2);
-    Eigen::Map<matN_t> mm3(M3);
-    mm3.noalias() -= mm1*mm2;
-    mm2 = mm3;
+  {
+    Eigen::Map<matN_t> mm1(NULL), mm2(NULL), mm3(NULL);
+    tm.tic();
+    for ( int i = 0; i < N_TIMES; ++i ) {
+      new (&mm1) Eigen::Map<matN_t>(M1);
+      new (&mm2) Eigen::Map<matN_t>(M2);
+      new (&mm3) Eigen::Map<matN_t>(M3);
+      mm3.noalias() -= mm1*mm2;
+      mm2 = mm3;
+    }
+    tm.toc();
   }
-  tm.toc();
   fmt::print("(MM) MULT = {:8.4} [ps] (eigen fixed map)\n", to_ps*tm.elapsed_ms() );
 
   // ===========================================================================
@@ -224,15 +230,19 @@ testMv() {
 
   // ===========================================================================
 
-  tm.tic();
-  for ( int i = 0; i < N_TIMES; ++i ) {
-    Eigen::Map<dmat_t> mm(M,N,N);
-    Eigen::Map<dvec_t> vv(V,N);
-    Eigen::Map<dvec_t> rr(R,N);
-    rr.noalias() -= mm*vv;
-    vv = rr;
+  {
+    Eigen::Map<dmat_t> mm(NULL,0,0);
+    Eigen::Map<dvec_t> vv(NULL,0), rr(R,0);
+    tm.tic();
+    for ( int i = 0; i < N_TIMES; ++i ) {
+      new (&mm) Eigen::Map<dmat_t>(M,N,N);
+      new (&vv) Eigen::Map<dvec_t>(V,N);
+      new (&rr) Eigen::Map<dvec_t>(R,N);
+      rr.noalias() -= mm*vv;
+      vv = rr;
+    }
+    tm.toc();
   }
-  tm.toc();
   fmt::print("(MV) MULT = {:8.4} [ps] (eigen map dynamic)\n", to_ps*tm.elapsed_ms() );
 
   // ===========================================================================
@@ -247,15 +257,19 @@ testMv() {
 
   // ===========================================================================
 
-  tm.tic();
-  for ( int i = 0; i < N_TIMES; ++i ) {
-    Eigen::Map<matN_t> mm(M);
-    Eigen::Map<vecN_t> vv(V);
-    Eigen::Map<vecN_t> rr(R);
-    rr.noalias() -= mm*vv;
-    vv = rr;
+  {
+    Eigen::Map<matN_t> mm(NULL);
+    Eigen::Map<vecN_t> vv(NULL), rr(NULL);
+    tm.tic();
+    for ( int i = 0; i < N_TIMES; ++i ) {
+      new (&mm) Eigen::Map<matN_t>(M);
+      new (&vv) Eigen::Map<vecN_t>(V);
+      new (&rr) Eigen::Map<vecN_t>(R);
+      rr.noalias() -= mm*vv;
+      vv = rr;
+    }
+    tm.toc();
   }
-  tm.toc();
   fmt::print("(MV) MULT = {:8.4} [ps] (eigen fixed map)\n", to_ps*tm.elapsed_ms() );
 
   // ===========================================================================
@@ -350,23 +364,26 @@ testCopy() {
   fmt::print("(MM) COPY = {:8.4} [ps] (eigen dynamic)\n", to_ps*tm.elapsed_ms() );
 
   // ===========================================================================
-
-  tm.tic();
-  for ( int i = 0; i < N_TIMES; ++i ) {
-    Eigen::Map<dmat_t> mm1(M1,N,N);
-    Eigen::Map<dmat_t> mm2(M2,N,N);
-    mm2       = mm1;
-    mm1(0,0) += mm2(0,0);
-    mm2       = mm1;
-    mm1(0,0) += mm2(0,0);
-    mm2       = mm1;
-    mm1(0,0) += mm2(0,0);
-    mm2       = mm1;
-    mm1(0,0) += mm2(0,0);
-    mm2       = mm1;
-    mm1(0,0) += mm2(0,0);
+  {
+    Eigen::Map<dmat_t> mm1(NULL,0,0);
+    Eigen::Map<dmat_t> mm2(NULL,0,0);
+    tm.tic();
+    for ( int i = 0; i < N_TIMES; ++i ) {
+      new (&mm1) Eigen::Map<dmat_t>(M1,N,N);
+      new (&mm2) Eigen::Map<dmat_t>(M2,N,N);
+      mm2       = mm1;
+      mm1(0,0) += mm2(0,0);
+      mm2       = mm1;
+      mm1(0,0) += mm2(0,0);
+      mm2       = mm1;
+      mm1(0,0) += mm2(0,0);
+      mm2       = mm1;
+      mm1(0,0) += mm2(0,0);
+      mm2       = mm1;
+      mm1(0,0) += mm2(0,0);
+    }
+    tm.toc();
   }
-  tm.toc();
   fmt::print("(MM) COPY = {:8.4} [ps] (eigen map dynamic)\n", to_ps*tm.elapsed_ms() );
 
   // ===========================================================================

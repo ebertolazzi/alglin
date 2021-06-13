@@ -157,10 +157,10 @@ namespace alglin {
 
     using BlockBidiagonal<t_Value>::m_la_factorization;
 
-    explicit UTILS_CONSTEXPR DiazLU() : m_NB(25) {}
+    explicit constexpr DiazLU() : m_NB(25) {}
 
     virtual
-    ~DiazLU() UTILS_OVERRIDE
+    ~DiazLU() override
     {}
 
     virtual
@@ -177,7 +177,7 @@ namespace alglin {
       integer /* numInitialOMEGA */,
       integer /* numFinalOMEGA   */,
       integer /* numCyclicOMEGA  */
-    ) UTILS_OVERRIDE
+    ) override
     { UTILS_ERROR0("DiazLU::allocate() not defined!\n"); }
 
     virtual
@@ -190,7 +190,7 @@ namespace alglin {
       integer _rowN,
       integer _colN,
       integer _nb
-    ) UTILS_OVERRIDE {
+    ) override {
       integer inv = _nblock*_n+(_col0+_colN-2*_n);
       BlockBidiagonal<t_Value>::allocateTopBottom(
         _nblock, _n,
@@ -203,18 +203,18 @@ namespace alglin {
 
     virtual
     void
-    factorize() UTILS_OVERRIDE;
+    factorize() override;
 
     //! solve linear sistem using internal factorized matrix
     virtual
     void
-    solve( valueType in_out[] ) const UTILS_OVERRIDE
+    solve( valueType in_out[] ) const override
     { solve_internal( true, in_out ); }
 
     //! solve linear sistem using internal factorized matrix
     virtual
     void
-    solve( integer nrhs, valueType in_out[], integer ldRhs ) const UTILS_OVERRIDE
+    solve( integer nrhs, valueType in_out[], integer ldRhs ) const override
     { solve_internal( true, nrhs, in_out, ldRhs ); }
 
     //! solve linear sistem using internal factorized matrix

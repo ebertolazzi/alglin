@@ -192,17 +192,17 @@ namespace alglin {
     explicit BBlockLU() { }
 
     virtual
-    ~BBlockLU() UTILS_OVERRIDE
+    ~BBlockLU() override
     { }
 
     virtual
     void
-    factorize() UTILS_OVERRIDE;
+    factorize() override;
 
     //! solve linear system previously factorized
     virtual
     void
-    solve( valueType in_out[] ) const UTILS_OVERRIDE;
+    solve( valueType in_out[] ) const override;
 
   };
 
