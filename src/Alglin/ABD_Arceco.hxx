@@ -58,9 +58,9 @@ namespace alglin {
   template <typename t_Value>
   class ArcecoLU {
 
-    typedef t_Value valueType;
+    typedef t_Value real_type;
 
-    Malloc<valueType> m_baseValue;
+    Malloc<real_type> m_baseValue;
     Malloc<integer>   m_baseInteger;
 
     ArcecoLU(ArcecoLU<t_Value> const &);
@@ -68,7 +68,7 @@ namespace alglin {
 
     integer   * m_matrix_structure; //!< structure of the matrix
     integer   * m_pivot_array;     //!< permutation array
-    valueType * m_array;           //!< the matrix data
+    real_type * m_array;           //!< the matrix data
 
     integer m_number_of_blocks;  //!< total number of blocks of the matrix A
 
@@ -82,7 +82,7 @@ namespace alglin {
      */
     void
     rowElimination(
-      valueType block[],
+      real_type block[],
       integer   numRowsBlock,
       integer   numColsBlock,
       integer   numRowsPivot,
@@ -101,10 +101,10 @@ namespace alglin {
      */
     void
     columnElimination(
-      valueType topblk[],
+      real_type topblk[],
       integer   numRowsTopBlock,
       integer   numOverlapCols,
-      valueType botblk[],
+      real_type botblk[],
       integer   numRowsBottomBlock,
       integer   numColsPivot,
       integer   pivot[]
@@ -113,61 +113,61 @@ namespace alglin {
     //! Performs the forward elimination step in the solution phase of solveByRef
     void
     forwardElimination(
-      valueType block[],
+      real_type block[],
       integer   numRowsBlock,
       integer   numRowsPivot,
       integer   pivot[],
-      valueType b[]
+      real_type b[]
     ) const;
 
     //! Performs the forward solution step in the solution phase of solveByRef
     void
     forwardSolution(
-      valueType block[],
+      real_type block[],
       integer   numRowsBlock,
       integer   numColsPivot,
       integer   numOverlapCols,
-      valueType b[]
+      real_type b[]
     ) const;
 
     //! Performs the forward modification step in the solution phase of solve
     void
     forwardModification(
-      valueType block[],
+      real_type block[],
       integer   numRowsBlock,
       integer   numColsPivot,
-      valueType b[]
+      real_type b[]
     ) const;
 
     //! Performs the backward modification step in the solution phase of solve
     void
     backwardModification(
-      valueType block[],
+      real_type block[],
       integer   numRowsBlock,
       integer   numColsBlock,
       integer   numRowsPivot,
-      valueType b[]
+      real_type b[]
     ) const;
 
     //! Performs the backward substitution step in the solution phase of solve
     void
     backwardSolution(
-      valueType block[],
+      real_type block[],
       integer   numRowsBlock,
       integer   numColsBlock,
       integer   numRowsPivot,
-      valueType b[]
+      real_type b[]
     ) const;
 
     //! Performs the backward elimination step in the solution phase of solve
     void
     backwardElimination(
-      valueType block[],
+      real_type block[],
       integer   numRowsBlock,
       integer   numColsPivot,
       integer   numOverlapCols,
       integer   pivot[],
-      valueType b[]
+      real_type b[]
     ) const;
 
     integer
@@ -217,7 +217,7 @@ namespace alglin {
     loadByRef(
       integer   numberOfBlocks,
       integer   matrixStructure[],
-      valueType array[],
+      real_type array[],
       integer   pivot[]
     );
 
@@ -239,15 +239,15 @@ namespace alglin {
     factorize(
       integer         row0,
       integer         col0,
-      valueType const block0[],
+      real_type const block0[],
       // ----------------
       integer         numBlock,
       integer         dimBlock,
-      valueType const blocks[],
+      real_type const blocks[],
       // ----------------
       integer         rowN,
       integer         colN,
-      valueType const blockN[]
+      real_type const blockN[]
     );
 
     /*!
@@ -261,7 +261,7 @@ namespace alglin {
      *  elimination.
      */
     void
-    solve( valueType b[] ) const;
+    solve( real_type b[] ) const;
 
   };
 

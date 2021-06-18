@@ -18,6 +18,7 @@
 \*--------------------------------------------------------------------------*/
 
 #include "Alglin.hh"
+#include <lapack_wrapper/lapack_wrapper_eigen.hh>
 
 using namespace std;
 
@@ -182,7 +183,7 @@ test5() {
   for ( it = e.begin(); it != e.end(); ++it )
     cout << *it << "\n";
 
-  vector<vector< alglin::Eigenvectors<real_type>::complexType > > vecs;
+  vector<vector< alglin::Eigenvectors<real_type>::complex_type > > vecs;
   E.getLeftEigenvector( vecs );
   for ( size_t n = 0; n < 4; ++n ) {
     fmt::print("vL[{}] = ",n);
@@ -223,7 +224,7 @@ test6() {
   for ( it = e.begin(); it != e.end(); ++it )
     cout << *it << "\n";
 
-  vector<vector< alglin::GeneralizedEigenvectors<real_type>::complexType > > vecs;
+  vector<vector< alglin::GeneralizedEigenvectors<real_type>::complex_type > > vecs;
   E.getLeftEigenvector( vecs );
   for ( size_t n = 0; n < 4; ++n ) {
     fmt::print("vL[{}] = ",n);

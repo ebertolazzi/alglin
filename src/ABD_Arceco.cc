@@ -34,7 +34,7 @@ namespace alglin {
   ArcecoLU<t_Value>::loadByRef(
     integer   _numberOfBlocks,
     integer   _matrixStructure[],
-    valueType _array[],
+    real_type _array[],
     integer   _pivot[]
   ) {
     m_number_of_blocks = _numberOfBlocks;
@@ -138,13 +138,13 @@ namespace alglin {
   ArcecoLU<t_Value>::factorize(
     integer         row0,
     integer         col0,
-    valueType const block0[],
+    real_type const block0[],
     integer         nblk,
     integer         n,
-    valueType const blocks[],
+    real_type const blocks[],
     integer         rowN,
     integer         colN,
-    valueType const blockN[]
+    real_type const blockN[]
   ) {
 
     m_number_of_blocks = nblk + 2;
@@ -255,7 +255,7 @@ namespace alglin {
   template <typename t_Value>
   void
   ArcecoLU<t_Value>::rowElimination(
-    valueType block[],
+    real_type block[],
     integer   numRowsBlock,
     integer   numColsBlock,
     integer   numRowsPivot,
@@ -267,9 +267,9 @@ namespace alglin {
     for ( integer j = 0; j < numRowsPivot; ++j ) {
       integer   jplus1 = j + 1;
       integer   jmax   = j;
-      valueType rowmax = std::abs(BLOCK(j,j));
+      real_type rowmax = std::abs(BLOCK(j,j));
       for ( integer i1 = jplus1; i1 < numRowsBlock; ++i1 ) {
-        valueType tempiv = std::abs(BLOCK(i1,j));
+        real_type tempiv = std::abs(BLOCK(i1,j));
         if ( tempiv > rowmax ) { rowmax = tempiv; jmax = i1; }
       }
 
@@ -280,9 +280,9 @@ namespace alglin {
         for ( integer j1 = j; j1 < numColsBlock; ++j1 )
           std::swap( BLOCK(jmax,j1), BLOCK(j,j1) );
 
-      valueType rowpiv = BLOCK(j,j);
+      real_type rowpiv = BLOCK(j,j);
       for ( integer i1 = jplus1; i1 < numRowsBlock; ++i1 ) {
-        valueType rowmlt = ( BLOCK(i1,j) /= rowpiv );
+        real_type rowmlt = ( BLOCK(i1,j) /= rowpiv );
         for ( integer j1 = jplus1; j1 < numColsBlock; ++j1 )
           BLOCK(i1,j1) -= rowmlt * BLOCK(j,j1);
       }
@@ -295,10 +295,10 @@ namespace alglin {
   template <typename t_Value>
   void
   ArcecoLU<t_Value>::columnElimination(
-    valueType topblk[],
+    real_type topblk[],
     integer   numRowsTopBlock,
     integer   numOverlapCols,
-    valueType botblk[],
+    real_type botblk[],
     integer   numRowsBottomBlock,
     integer   numColsPivot,
     integer   pivot[]
@@ -311,9 +311,9 @@ namespace alglin {
       integer jplus1 = j + 1;
       integer i      = numRowsTopBlock - numColsPivot + j;
       integer jmax   = j;
-      valueType colmax = std::abs(TOPBLK(i,j));
+      real_type colmax = std::abs(TOPBLK(i,j));
       for ( integer j1 = jplus1; j1 < numOverlapCols; ++j1 ) {
-        valueType tempiv = std::abs(TOPBLK(i,j1));
+        real_type tempiv = std::abs(TOPBLK(i,j1));
         if ( tempiv > colmax) { colmax = tempiv; jmax = j1; }
       }
 
@@ -324,9 +324,9 @@ namespace alglin {
         for ( integer k = i; k < numRowsTopBlock;    ++k ) std::swap(TOPBLK(k,j),TOPBLK(k,jmax));
         for ( integer k = 0; k < numRowsBottomBlock; ++k ) std::swap(BOTBLK(k,j),BOTBLK(k,jmax));
       }
-      valueType colpiv = TOPBLK(i,j);
+      real_type colpiv = TOPBLK(i,j);
       for ( integer j1 = jplus1; j1 < numOverlapCols; ++j1 ) {
-        valueType colmlt = (TOPBLK(i,j1) /= colpiv);
+        real_type colmlt = (TOPBLK(i,j1) /= colpiv);
         for ( integer k = i+1; k < numRowsTopBlock;    ++k ) TOPBLK(k,j1) -= colmlt * TOPBLK(k,j);
         for ( integer k = 0;   k < numRowsBottomBlock; ++k ) BOTBLK(k,j1) -= colmlt * BOTBLK(k,j);
       }
@@ -346,7 +346,7 @@ namespace alglin {
   \*/
   template <typename t_Value>
   void
-  ArcecoLU<t_Value>::solve( valueType b[] ) const {
+  ArcecoLU<t_Value>::solve( real_type b[] ) const {
     integer indpiv         = 0;
     integer indexa         = 0;
     integer numRowsBlock   = numRows(0);
@@ -469,17 +469,17 @@ namespace alglin {
   template <typename t_Value>
   void
   ArcecoLU<t_Value>::forwardElimination(
-    valueType block[],
+    real_type block[],
     integer   numRowsBlock,
     integer   numRowsPivot,
     integer   pivot[],
-    valueType b[]
+    real_type b[]
   ) const {
-    valueType const * blockI = block;
+    real_type const * blockI = block;
     for ( integer i = 0; i < numRowsPivot; ++i, blockI += numRowsBlock ) {
       integer pivoti = pivot[i];
       if ( pivoti != i ) std::swap(b[pivoti],b[i]);
-      valueType bi = b[i];
+      real_type bi = b[i];
       for ( integer l = i+1; l < numRowsBlock; ++l ) b[l] -= blockI[l] * bi;
     }
   }
@@ -495,16 +495,16 @@ namespace alglin {
   template <typename t_Value>
   void
   ArcecoLU<t_Value>::forwardSolution(
-    valueType block[],
+    real_type block[],
     integer   numRowsBlock,
     integer   numColsPivot,
     integer   /* numOverlapCols */,
-    valueType b[]
+    real_type b[]
   ) const {
     integer     kk      = numRowsBlock - numColsPivot;
-    valueType * blockJS = block + kk;
+    real_type * blockJS = block + kk;
     for ( integer j = 0; j < numColsPivot; ++j, blockJS += numRowsBlock ) {
-      valueType xj = (b[j] /= blockJS[j]);
+      real_type xj = (b[j] /= blockJS[j]);
       for ( integer l = j+1; l < numColsPivot; ++l )
         b[l] -= blockJS[l] * xj;
     }
@@ -520,14 +520,14 @@ namespace alglin {
   template <typename t_Value>
   void
   ArcecoLU<t_Value>::forwardModification(
-    valueType block[],
+    real_type block[],
     integer   numRowsBlock,
     integer   numColsPivot,
-    valueType b[]
+    real_type b[]
   ) const {
-    valueType * blockJ = block;
+    real_type * blockJ = block;
     for ( integer j = 0; j < numColsPivot; ++j, blockJ += numRowsBlock ) {
-      valueType xj = b[j];
+      real_type xj = b[j];
       for ( integer l = 0; l < numRowsBlock; ++l )
         b[numColsPivot + l] -= blockJ[l] * xj;
     }
@@ -548,15 +548,15 @@ namespace alglin {
   template <typename t_Value>
   void
   ArcecoLU<t_Value>::backwardModification(
-    valueType block[],
+    real_type block[],
     integer   numRowsBlock,
     integer   numColsBlock,
     integer   numRowsPivot,
-    valueType b[]
+    real_type b[]
   ) const {
-    valueType * blockJ = block + numRowsPivot * numRowsBlock;
+    real_type * blockJ = block + numRowsPivot * numRowsBlock;
     for ( integer j = numRowsPivot; j < numColsBlock; ++j, blockJ += numRowsBlock ) {
-      valueType xj = b[j];
+      real_type xj = b[j];
       for ( integer l = 0; l < numRowsPivot; ++l )
         b[l] -= blockJ[l] * xj;
     }
@@ -573,15 +573,15 @@ namespace alglin {
   template <typename t_Value>
   void
   ArcecoLU<t_Value>::backwardSolution(
-    valueType block[],
+    real_type block[],
     integer   numRowsBlock,
     integer   /* numColsBlock */,
     integer   numRowsPivot,
-    valueType b[]
+    real_type b[]
   ) const {
     for ( integer j = numRowsPivot - 1; j >= 0; --j ) {
-      valueType * blockJ = block + j * numRowsBlock;
-      valueType xj = (b[j] /= blockJ[j]);
+      real_type * blockJ = block + j * numRowsBlock;
+      real_type xj = (b[j] /= blockJ[j]);
       for ( integer l = 0; l < j; ++l )
         b[l] -= blockJ[l] * xj;
     }
@@ -597,20 +597,20 @@ namespace alglin {
   template <typename t_Value>
   void
   ArcecoLU<t_Value>::backwardElimination(
-    valueType block[],
+    real_type block[],
     integer   numRowsBlock,
     integer   numColsPivot,
     integer   numOverlapCols,
     integer   pivot[],
-    valueType x[]
+    real_type x[]
   ) const {
     integer kk = numRowsBlock - numColsPivot;
     integer j1 = numColsPivot;
     while ( j1 > 0 ) {
-      valueType const * blockS = block + j1-1 + kk + j1 * numRowsBlock;
+      real_type const * blockS = block + j1-1 + kk + j1 * numRowsBlock;
       integer n = numOverlapCols - j1;
       // Kahan summation algorithm
-      valueType dotprd = dot(n,x+j1,1,blockS,numRowsBlock);
+      real_type dotprd = dot(n,x+j1,1,blockS,numRowsBlock);
       x[--j1] -= dotprd;
       integer pivotj = pivot[j1];
       if ( pivotj != j1 ) std::swap( x[pivotj], x[j1] );

@@ -45,9 +45,9 @@ namespace alglin {
   class BABD_SuperLU {
   private:
 
-    typedef double valueType;
+    typedef double real_type;
 
-    Malloc<valueType> m_baseValue;
+    Malloc<real_type> m_baseValue;
     Malloc<int>       m_baseInteger;
 
     BABD_SuperLU(BABD_SuperLU const &) = delete;
@@ -56,8 +56,8 @@ namespace alglin {
     int     * m_perm_r; // row permutations from partial pivoting
     int     * m_perm_c; // column permutation vector
     int     * m_etree;
-    valueType m_one_norm_A;
-    valueType m_inf_norm_A;
+    real_type m_one_norm_A;
+    real_type m_inf_norm_A;
 
     superlu_options_t     m_slu_options;
     mutable SuperLUStat_t m_slu_stats;
@@ -118,17 +118,17 @@ namespace alglin {
       integer         nblk,
       integer         n,
       integer         q,
-      valueType const AdAu[],
-      valueType const H0[],
-      valueType const HN[],
-      valueType const Hq[]
+      real_type const AdAu[],
+      real_type const H0[],
+      real_type const HN[],
+      real_type const Hq[]
     );
 
     //! solve linear sistem using internal factorized matrix
-    void solve( valueType in_out[] ) const;
+    void solve( real_type in_out[] ) const;
 
     //! get condition number
-    void cond( valueType & rcond_1, valueType & rcond_inf ) const;
+    void cond( real_type & rcond_1, real_type & rcond_inf ) const;
   };
 }
 

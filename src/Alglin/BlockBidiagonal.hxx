@@ -53,7 +53,7 @@ namespace alglin {
   class BlockBidiagonal {
   public:
 
-    typedef t_Value valueType;
+    typedef t_Value real_type;
 
     //! available LU factorization code
     typedef enum {
@@ -90,7 +90,7 @@ namespace alglin {
 
   protected:
 
-    Malloc<valueType> m_baseValue;
+    Malloc<real_type> m_baseValue;
     Malloc<integer>   m_baseInteger;
 
     integer m_number_of_blocks; //!< total number of blocks
@@ -152,33 +152,33 @@ namespace alglin {
     //
     */
 
-    valueType * m_DE_blk;
-    valueType * m_H0Nq;
-    valueType * m_block0;
-    valueType * m_blockN;
-    valueType * m_Bmat;
-    valueType * m_Cmat;
-    valueType * m_Dmat;
+    real_type * m_DE_blk;
+    real_type * m_H0Nq;
+    real_type * m_block0;
+    real_type * m_blockN;
+    real_type * m_Bmat;
+    real_type * m_Cmat;
+    real_type * m_Dmat;
 
   private:
 
-    LU<valueType>   m_la_lu;
-    LUPQ<valueType> m_la_lupq;
-    QR<valueType>   m_la_qr;
-    QRP<valueType>  m_la_qrp;
-    SVD<valueType>  m_la_svd;
-    LSS<valueType>  m_la_lss;
-    LSY<valueType>  m_la_lsy;
-    PINV<valueType> m_la_pinv;
+    LU<real_type>   m_la_lu;
+    LUPQ<real_type> m_la_lupq;
+    QR<real_type>   m_la_qr;
+    QRP<real_type>  m_la_qrp;
+    SVD<real_type>  m_la_svd;
+    LSS<real_type>  m_la_lss;
+    LSY<real_type>  m_la_lsy;
+    PINV<real_type> m_la_pinv;
 
-    LU<valueType>   m_bb_lu;
-    LUPQ<valueType> m_bb_lupq;
-    QR<valueType>   m_bb_qr;
-    QRP<valueType>  m_bb_qrp;
-    SVD<valueType>  m_bb_svd;
-    LSS<valueType>  m_bb_lss;
-    LSY<valueType>  m_bb_lsy;
-    PINV<valueType> m_bb_pinv;
+    LU<real_type>   m_bb_lu;
+    LUPQ<real_type> m_bb_lupq;
+    QR<real_type>   m_bb_qr;
+    QRP<real_type>  m_bb_qrp;
+    SVD<real_type>  m_bb_svd;
+    LSS<real_type>  m_bb_lss;
+    LSY<real_type>  m_bb_lsy;
+    PINV<real_type> m_bb_pinv;
 
   public:
 
@@ -254,26 +254,26 @@ namespace alglin {
 
     // filling bidiagonal part of the matrix
     void
-    loadBlocks( valueType const AdAu[], integer ldA ) {
+    loadBlocks( real_type const AdAu[], integer ldA ) {
       integer const & nblock = m_number_of_blocks;
       integer const & n      = m_block_size;
       gecopy( n, 2*n*nblock, AdAu, ldA, m_DE_blk, n );
     }
 
     void
-    loadBlock( integer nbl, valueType const AdAu[], integer ldA ) {
+    loadBlock( integer nbl, real_type const AdAu[], integer ldA ) {
       integer const & n = m_block_size;
       gecopy( n, 2*n, AdAu, ldA, m_DE_blk + 2*nbl*n_x_n, n );
     }
 
     void
-    loadBlockLeft( integer nbl, valueType const Ad[], integer ldA ) {
+    loadBlockLeft( integer nbl, real_type const Ad[], integer ldA ) {
       integer const & n = m_block_size;
       gecopy( n, n, Ad, ldA, m_DE_blk + 2*nbl*n_x_n, n );
     }
 
     void
-    loadBlockRight( integer nbl, valueType const Au[], integer ldA ) {
+    loadBlockRight( integer nbl, real_type const Au[], integer ldA ) {
       integer const & n = m_block_size;
       gecopy( n, n, Au, ldA, m_DE_blk + (2*nbl+1)*n_x_n, n );
     }
@@ -287,48 +287,48 @@ namespace alglin {
     }
 
     void
-    loadBottomBlocks( valueType const C[], integer ldC ) {
+    loadBottomBlocks( real_type const C[], integer ldC ) {
       integer const & nb  = m_border_size;
       integer const & neq = m_num_equations;
       gecopy( nb, neq, C, ldC, m_Cmat, nb );
     }
 
     void
-    loadBottomBlock( integer nbl, valueType const C[], integer ldC ) {
+    loadBottomBlock( integer nbl, real_type const C[], integer ldC ) {
       integer const & n  = m_block_size;
       integer const & nb = m_border_size;
       UTILS_ASSERT(
         ldC >= nb, "loadBottomBlock( {}, C, ldC = {} ) bad ldC\n", nbl, ldC
       );
-      valueType * CC = m_Cmat + nbl*n_x_nb;
+      real_type * CC = m_Cmat + nbl*n_x_nb;
       gecopy( nb, n, C, ldC, CC, nb );
     }
 
     void
-    addtoBottomBlock( integer nbl, valueType const C[], integer ldC ) {
+    addtoBottomBlock( integer nbl, real_type const C[], integer ldC ) {
       integer const & n  = m_block_size;
       integer const & nb = m_border_size;
       UTILS_ASSERT(
         ldC >= nb, "addtoBottomBlock( {}, C, ldC = {} ) bad ldC\n", nbl, ldC
       );
-      valueType * CC = m_Cmat + nbl*n_x_nb;
+      real_type * CC = m_Cmat + nbl*n_x_nb;
       geadd( nb, n, 1.0, C, ldC, 1.0, CC, nb, CC, nb );
     }
 
     // add to bottom block nbl and nbl+1
     void
-    addtoBottomBlock2( integer nbl, valueType const C[], integer ldC ) {
+    addtoBottomBlock2( integer nbl, real_type const C[], integer ldC ) {
       integer const & n  = m_block_size;
       integer const & nb = m_border_size;
       UTILS_ASSERT(
         ldC >= nb, "addtoBottomBlock2( {}, C, ldC = {} ) bad ldC\n", nbl, ldC
       );
-      valueType * CC = m_Cmat + nbl*n_x_nb;
+      real_type * CC = m_Cmat + nbl*n_x_nb;
       geadd( nb, 2*n, 1.0, C, ldC, 1.0, CC, nb, CC, nb );
     }
 
     void
-    loadBottomLastBlock( valueType const C[], integer ldC ) {
+    loadBottomLastBlock( real_type const C[], integer ldC ) {
       integer const & nblock = m_number_of_blocks;
       integer const & nb     = m_border_size;
       integer const & q      = m_extra_bc;
@@ -344,14 +344,14 @@ namespace alglin {
     }
 
     void
-    loadRightBlocks( valueType const B[], integer ldB ) {
+    loadRightBlocks( real_type const B[], integer ldB ) {
       integer const & nb  = m_border_size;
       integer const & neq = m_num_equations;
       gecopy( neq, nb, B, ldB, m_Bmat, neq );
     }
 
     void
-    loadRightBlock( integer nbl, valueType const B[], integer ldB ) {
+    loadRightBlock( integer nbl, real_type const B[], integer ldB ) {
       integer const & n   = m_block_size;
       integer const & nb  = m_border_size;
       integer const & neq = m_num_equations;
@@ -359,7 +359,7 @@ namespace alglin {
     }
 
     void
-    loadRightLastBlock( valueType const B[], integer ldB ) {
+    loadRightLastBlock( real_type const B[], integer ldB ) {
       integer const & n   = m_block_size;
       integer const & q   = m_extra_bc;
       integer const & nb  = m_border_size;
@@ -375,44 +375,44 @@ namespace alglin {
     }
 
     void
-    loadRBblock( valueType const D[], integer ldD ) {
+    loadRBblock( real_type const D[], integer ldD ) {
       integer const & nb = m_border_size;
       alglin::gecopy( nb, nb, D, ldD, m_Dmat, nb );
     }
 
     // final blocks after cyclic reduction
-    valueType const *
+    real_type const *
     getPointer_LR() const
     { return m_DE_blk; }
 
     void
-    getBlock_LR( valueType LR[], integer ldA ) const {
+    getBlock_LR( real_type LR[], integer ldA ) const {
       integer const & n = m_block_size;
       gecopy( n, 2*n, m_DE_blk, n, LR, ldA );
     }
 
     void
-    getBlock_L( valueType L[], integer ldA ) const {
+    getBlock_L( real_type L[], integer ldA ) const {
       integer const & n = m_block_size;
       gecopy( n, n, m_DE_blk, n, L, ldA );
     }
 
     void
-    getBlock_R( valueType R[], integer ldA ) const {
+    getBlock_R( real_type R[], integer ldA ) const {
       integer const & n = m_block_size;
       gecopy( n, n, m_DE_blk+n_x_n, n, R, ldA );
     }
 
     // BC blocks
     void
-    getBlock_H0( valueType H0[], integer ld0 ) const {
+    getBlock_H0( real_type H0[], integer ld0 ) const {
       integer const & n = m_block_size;
       integer const & q = m_extra_bc;
       gecopy( n+q, n, m_H0Nq, n+q, H0, ld0 );
     }
 
     void
-    getBlock_HN( valueType HN[], integer ldN ) const {
+    getBlock_HN( real_type HN[], integer ldN ) const {
       integer const & n = m_block_size;
       integer const & q = m_extra_bc;
       integer nq = n + q;
@@ -420,7 +420,7 @@ namespace alglin {
     }
 
     void
-    getBlock_Hq( valueType Hq[], integer ldQ ) const {
+    getBlock_Hq( real_type Hq[], integer ldQ ) const {
       integer const & n = m_block_size;
       integer const & q = m_extra_bc;
       integer nq = n + q;
@@ -461,29 +461,29 @@ namespace alglin {
 
     virtual
     void
-    solve( valueType [] ) const = 0;
+    solve( real_type [] ) const = 0;
 
     virtual
     void
     solve(
       integer      /* nrhs  */,
-      valueType [] /* rhs   */,
+      real_type [] /* rhs   */,
       integer      /* ldRhs */
     ) const = 0;
 
     void
     loadBottom(
-      valueType const H0[], integer ld0,
-      valueType const HN[], integer ldN,
-      valueType const Hq[], integer ldQ
+      real_type const H0[], integer ld0,
+      real_type const HN[], integer ldN,
+      real_type const Hq[], integer ldQ
     );
 
     // block0 = row0 * col0
     // blockN = rowN * colN
     void
     loadTopBottom(
-      valueType const block0[], integer ld0,
-      valueType const blockN[], integer ldN
+      real_type const block0[], integer ld0,
+      real_type const blockN[], integer ldN
     );
 
     void
@@ -539,25 +539,25 @@ namespace alglin {
     factorize_bordered();
 
     void
-    solve_bordered( valueType [] ) const;
+    solve_bordered( real_type [] ) const;
 
     void
     solve_bordered(
       integer      /* nrhs  */,
-      valueType [] /* rhs   */,
+      real_type [] /* rhs   */,
       integer      /* ldRhs */
     ) const;
 
     // All in one
     void
     factorize(
-      valueType const AdAu[],
-      valueType const B[],
-      valueType const C[],
-      valueType const D[],
-      valueType const H0[],
-      valueType const HN[],
-      valueType const Hq[]
+      real_type const AdAu[],
+      real_type const B[],
+      real_type const C[],
+      real_type const D[],
+      real_type const H0[],
+      real_type const HN[],
+      real_type const Hq[]
     ) {
       integer const & n   = m_block_size;
       integer const & nb  = m_border_size;
@@ -580,10 +580,10 @@ namespace alglin {
     // All in one
     void
     factorize(
-      valueType const AdAu[],
-      valueType const H0[],
-      valueType const HN[],
-      valueType const Hq[]
+      real_type const AdAu[],
+      real_type const H0[],
+      real_type const HN[],
+      real_type const Hq[]
     ) {
       integer const & n  = m_block_size;
       integer const & q  = m_extra_bc;
@@ -598,7 +598,7 @@ namespace alglin {
 
     // aux function
     void
-    Mv( valueType const x[], valueType res[] ) const;
+    Mv( real_type const x[], real_type res[] ) const;
 
     /*\
      |   ____
@@ -630,7 +630,7 @@ namespace alglin {
     sparsePattern( integer I[], integer J[] ) const;
 
     void
-    sparseValues( valueType vals[] ) const;
+    sparseValues( real_type vals[] ) const;
 
   };
 }

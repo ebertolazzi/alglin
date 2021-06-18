@@ -219,10 +219,10 @@ namespace alglin {
 
       for ( integer k = 1; k < nblock; ++k ) {
 
-        valueType * B    = m_DE_blk + (2*k)*n_x_n;
-        valueType * A    = B - n_x_n;
-        valueType * C    = B + n_x_n;
-        valueType * F    = m_F_mat + k*m_F_size;
+        real_type * B    = m_DE_blk + (2*k)*n_x_n;
+        real_type * A    = B - n_x_n;
+        real_type * C    = B + n_x_n;
+        real_type * F    = m_F_mat + k*m_F_size;
         integer   * swps = m_swapR_blks + k * n;
 
         // copy from
@@ -298,7 +298,7 @@ namespace alglin {
       */
 
       // fattorizzazione ultimo blocco
-      valueType * B = m_DE_blk + (2*nblock-1)*n_x_n;
+      real_type * B = m_DE_blk + (2*nblock-1)*n_x_n;
       integer N = row00+rowN;
       m_la_matrix.setup( N, N );
       m_la_matrix.zero_block(row00,N-n,0,n);
@@ -327,7 +327,7 @@ namespace alglin {
   void
   BlockLU<t_Value>::solve_internal(
     bool      do_permute,
-    valueType in_out[]
+    real_type in_out[]
   ) const {
 
     integer const & nblock = m_number_of_blocks;
@@ -346,7 +346,7 @@ namespace alglin {
 
     if ( nblock > 0 ) {
 
-      valueType * io = in_out;
+      real_type * io = in_out;
       /*
       //             _             _
       //   ___  ___ | |_   _____  | |
@@ -392,7 +392,7 @@ namespace alglin {
       //                |            |            |
       //
       */
-      valueType const * block00 = m_block0 + col00*row0;
+      real_type const * block00 = m_block0 + col00*row0;
 
       // apply permutation
       integer info = swaps( 1, io, n, 0, n-1, m_swapR_blks, 1 );
@@ -437,8 +437,8 @@ namespace alglin {
       integer k = 0;
       while ( ++k < nblock ) {
 
-        valueType * B    = m_DE_blk + (2*k)*n_x_n;
-        valueType * A    = B - n_x_n;
+        real_type * B    = m_DE_blk + (2*k)*n_x_n;
+        real_type * A    = B - n_x_n;
         integer   * swps = m_swapR_blks + k * n;
 
         // apply permutation
@@ -508,10 +508,10 @@ namespace alglin {
       */
       while ( --k > 0 ) {
 
-        valueType * B = m_DE_blk + (2*k)*n_x_n;
-        valueType * C = B + n_x_n;
-        valueType * A = B - n_x_n;
-        valueType * F = m_F_mat + k*m_F_size;
+        real_type * B = m_DE_blk + (2*k)*n_x_n;
+        real_type * C = B + n_x_n;
+        real_type * A = B - n_x_n;
+        real_type * F = m_F_mat + k*m_F_size;
 
         // copy from
         info = gecopy( row00, n, A + n_m_row00, n, m_Work_mat, m_Work_lda );
@@ -547,8 +547,8 @@ namespace alglin {
 
       }
 
-      valueType * B = m_DE_blk;
-      valueType * C = B + n_x_n;
+      real_type * B = m_DE_blk;
+      real_type * C = B + n_x_n;
 
       // copy from
       info = gecopy( row00, n, block00 + col00, row0, m_Work_mat, m_Work_lda );
@@ -622,7 +622,7 @@ namespace alglin {
   BlockLU<t_Value>::solve_internal(
     bool      do_permute,
     integer   nrhs,
-    valueType in_out[],
+    real_type in_out[],
     integer   ldRhs
   ) const {
 
@@ -639,7 +639,7 @@ namespace alglin {
     integer neq = nblock*n+row0+rowN;
 
     // permuto le x
-    valueType * io = in_out;
+    real_type * io = in_out;
     if ( do_permute ) {
       for ( integer k = 0; k < nrhs; ++k ) {
         std::rotate( io, io + neq - row0, io + neq );
@@ -699,7 +699,7 @@ namespace alglin {
       //                |            |            |
       //
       */
-      valueType const * block00 = m_block0 + col00*row0;
+      real_type const * block00 = m_block0 + col00*row0;
 
       // apply permutation
       integer info = swaps( nrhs, io, ldRhs, 0, n-1, m_swapR_blks, 1 );
@@ -747,8 +747,8 @@ namespace alglin {
       integer k = 0;
       while ( ++k < nblock ) {
 
-        valueType * B    = m_DE_blk + (2*k)*n_x_n;
-        valueType * A    = B - n_x_n;
+        real_type * B    = m_DE_blk + (2*k)*n_x_n;
+        real_type * A    = B - n_x_n;
         integer   * swps = m_swapR_blks + k * n;
 
         // apply permutation
@@ -818,10 +818,10 @@ namespace alglin {
       */
       while ( --k > 0 ) {
 
-        valueType * B = m_DE_blk + (2*k)*n_x_n;
-        valueType * C = B + n_x_n;
-        valueType * A = B - n_x_n;
-        valueType * F = m_F_mat + k*m_F_size;
+        real_type * B = m_DE_blk + (2*k)*n_x_n;
+        real_type * C = B + n_x_n;
+        real_type * A = B - n_x_n;
+        real_type * F = m_F_mat + k*m_F_size;
 
         // copy from
         info = gecopy( row00, n, A + n_m_row00, n, m_Work_mat, m_Work_lda );
@@ -860,8 +860,8 @@ namespace alglin {
 
       }
 
-      valueType * B = m_DE_blk;
-      valueType * C = B + n_x_n;
+      real_type * B = m_DE_blk;
+      real_type * C = B + n_x_n;
 
       // copy from
       info = gecopy( row00, n, block00 + col00, row0, m_Work_mat, m_Work_lda );

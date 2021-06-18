@@ -114,9 +114,9 @@ namespace alglin {
   template <typename t_Value>
   void
   BlockBidiagonal<t_Value>::loadBottom(
-    valueType const H0[], integer ld0,
-    valueType const HN[], integer ldN,
-    valueType const Hq[], integer ldQ
+    real_type const H0[], integer ld0,
+    real_type const HN[], integer ldN,
+    real_type const Hq[], integer ldQ
   ) {
     integer const & n = m_block_size;
     integer const & q = m_extra_bc;
@@ -194,8 +194,8 @@ namespace alglin {
   template <typename t_Value>
   void
   BlockBidiagonal<t_Value>::loadTopBottom(
-    valueType const block0_in[], integer ld0,
-    valueType const blockN_in[], integer ldN
+    real_type const block0_in[], integer ld0,
+    real_type const blockN_in[], integer ldN
   ) {
     integer const & n = m_block_size;
 
@@ -301,7 +301,7 @@ namespace alglin {
       // Compute aux matrix
       // Z = A^(-1)*B
       // W = C*Z - D
-      valueType * Zmat = m_Bmat;
+      real_type * Zmat = m_Bmat;
       this->solve( nb, Zmat, neq );
       gemm(
         NO_TRANSPOSE,
@@ -322,7 +322,7 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BlockBidiagonal<t_Value>::solve_bordered( valueType xb[] ) const {
+  BlockBidiagonal<t_Value>::solve_bordered( real_type xb[] ) const {
     integer const & nb  = m_border_size;
     integer const & neq = m_num_equations;
     // a' = A^(-1)*a
@@ -339,7 +339,7 @@ namespace alglin {
       // y = W^(-1) * b'
       m_bb_factorization->solve( xb+neq );
       // x = a' - Z*y
-      valueType * Zmat = m_Bmat;
+      real_type * Zmat = m_Bmat;
       gemv(
         NO_TRANSPOSE,
         neq, nb,
@@ -354,7 +354,7 @@ namespace alglin {
   void
   BlockBidiagonal<t_Value>::solve_bordered(
     integer   nrhs,
-    valueType xb[],
+    real_type xb[],
     integer   ldRhs
   ) const {
     integer const & nb  = m_border_size;
@@ -374,7 +374,7 @@ namespace alglin {
       // y = W^(-1) * b'
       m_bb_factorization->solve( nrhs, xb+neq, ldRhs );
       // x = a' - Z*y
-      valueType * Zmat = m_Bmat;
+      real_type * Zmat = m_Bmat;
       gemm(
         NO_TRANSPOSE,
         NO_TRANSPOSE,
@@ -431,8 +431,8 @@ namespace alglin {
 
     stream << "interface( rtablesize = 40 );\n";
     for ( integer row = 0; row < nblock; ++row ) {
-      valueType const * Ad = m_DE_blk + 2*row*n*n;
-      valueType const * Au = Ad + n*n;
+      real_type const * Ad = m_DE_blk + 2*row*n*n;
+      real_type const * Au = Ad + n*n;
       dumpOneMatrix( stream, "Ad", Ad, n, n );
       dumpOneMatrix( stream, "Au", Au, n, n );
     }
@@ -450,8 +450,8 @@ namespace alglin {
   template <typename t_Value>
   void
   BlockBidiagonal<t_Value>::Mv(
-    valueType const x[],
-    valueType       res[]
+    real_type const x[],
+    real_type       res[]
   ) const {
 
     integer const & nblock = m_number_of_blocks;
@@ -468,8 +468,8 @@ namespace alglin {
       integer col00 = m_numInitialOMEGA;
       integer colNN = m_numFinalOMEGA;
 
-      valueType const * xe   = x+neq-(n+colNN+col00);
-      valueType       * rese = res+neq-(row0+rowN);
+      real_type const * xe   = x+neq-(n+colNN+col00);
+      real_type       * rese = res+neq-(row0+rowN);
 
       gemv(
         NO_TRANSPOSE, rowN, n+colNN,
@@ -493,8 +493,8 @@ namespace alglin {
       );
     } else {
       integer m = n+q;
-      valueType const * xe   = x+neq-(n+m_numInitialOMEGA+m_numFinalOMEGA+m_numCyclicOMEGA);
-      valueType       * rese = res+neq-(m_numInitialBC+m_numFinalBC+m_numCyclicBC);
+      real_type const * xe   = x+neq-(n+m_numInitialOMEGA+m_numFinalOMEGA+m_numCyclicOMEGA);
+      real_type       * rese = res+neq-(m_numInitialBC+m_numFinalBC+m_numCyclicBC);
 
       gemv(
         NO_TRANSPOSE, m, n,
@@ -616,7 +616,7 @@ namespace alglin {
       nnz += nq*(2*nq);
       stream << nnz << '\n';
 
-      valueType * H0 = m_H0Nq;
+      real_type * H0 = m_H0Nq;
       ii = nblock*n;
       for ( integer i = 0; i < nq; ++i )
         for ( integer j = 0; j < n; ++j )
@@ -625,7 +625,7 @@ namespace alglin {
             ii+i, j, H0[i+j*nq]
           );
 
-      valueType * HNq = m_H0Nq+n*nq;
+      real_type * HNq = m_H0Nq+n*nq;
       for ( integer i = 0; i < nq; ++i )
         for ( integer j = 0; j < nq; ++j )
           fmt::print(
@@ -637,7 +637,7 @@ namespace alglin {
     // bidiagonal
     for ( integer k = 0; k < nblock; ++k ) {
       ii = k*n;
-      valueType * DE = m_DE_blk + (2*k) * n_x_n;
+      real_type * DE = m_DE_blk + (2*k) * n_x_n;
       for ( integer i = 0; i < n; ++i )
         for ( integer j = 0; j < nx2; ++j )
           fmt::print(
@@ -802,7 +802,7 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BlockBidiagonal<t_Value>::sparseValues( valueType V[] ) const {
+  BlockBidiagonal<t_Value>::sparseValues( real_type V[] ) const {
     integer const & nblock = m_number_of_blocks;
     integer const & n      = m_block_size;
     integer const & q      = m_extra_bc;
@@ -836,13 +836,13 @@ namespace alglin {
 
       integer nq = n + q;
 
-      valueType * H0 = m_H0Nq;
+      real_type * H0 = m_H0Nq;
       ii = nblock*n;
       for ( integer i = 0; i < nq; ++i )
         for ( integer j = 0; j < n; ++j )
           V[kkk++] = H0[i+j*nq];
 
-      valueType * HNq = m_H0Nq+n*nq;
+      real_type * HNq = m_H0Nq+n*nq;
       for ( integer i = 0; i < nq; ++i )
         for ( integer j = 0; j < nq; ++j )
           V[kkk++] = HNq[i+j*nq];
@@ -851,7 +851,7 @@ namespace alglin {
     // bidiagonal
     for ( integer k = 0; k < nblock; ++k ) {
       ii = k*n;
-      valueType * DE = m_DE_blk + (2*k) * n_x_n;
+      real_type * DE = m_DE_blk + (2*k) * n_x_n;
       for ( integer i = 0; i < n; ++i )
         for ( integer j = 0; j < nx2; ++j )
           V[kkk++] = DE[i+j*n];

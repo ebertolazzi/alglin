@@ -23,16 +23,16 @@ main() {
   using Simplex::infinity;
   Simplex::integer m = 3;
   Simplex::integer n = 5;
-  Simplex::valueType A[] = { 1, 40, 6,
+  Simplex::real_type A[] = { 1, 40, 6,
                              1, 120, 12,
                              1, 0, 0,
                              0, 1, 0,
                              0, 0, 1 };
-  Simplex::valueType b[]  = { 40, 2400, 312 };
-  Simplex::valueType c[]  = { -100, -250, 0, 0, 0 };
-  Simplex::valueType L[]  = { 0, 0, 0, 0, 0 };
-  Simplex::valueType U[]  = { infinity, infinity, infinity, infinity, infinity };
-  Simplex::valueType x[]  = { 0, 0, 40, 2400, 312 };
+  Simplex::real_type b[]  = { 40, 2400, 312 };
+  Simplex::real_type c[]  = { -100, -250, 0, 0, 0 };
+  Simplex::real_type L[]  = { 0, 0, 0, 0, 0 };
+  Simplex::real_type U[]  = { infinity, infinity, infinity, infinity, infinity };
+  Simplex::real_type x[]  = { 0, 0, 40, 2400, 312 };
   Simplex::integer   IB[] = { 2, 3, 4 };
 
   Simplex::StandardProblem simplex_problem;
@@ -44,7 +44,7 @@ main() {
     simplex_problem_aux.setup( &simplex_problem );
     simplex.solve( &simplex_problem, x, IB );
 
-    Simplex::valueType xd[100], xdd[100];
+    Simplex::real_type xd[100], xdd[100];
     Simplex::integer   IBd[100];
 
     fmt::print( "\n\n\n\n\n\n\n\n\n\n" );

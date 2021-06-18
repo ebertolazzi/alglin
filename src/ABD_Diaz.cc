@@ -207,28 +207,28 @@ namespace alglin {
 
     // blocchi intermedi (n-1)
     if ( nblock > 0 ) {
-      valueType * B1 = m_block0 + (row0+1)*col00;
+      real_type * B1 = m_block0 + (row0+1)*col00;
       LU_top_bottom( col00, row00,
                      n, B1, row0,
                      n, m_DE_blk, n, swapRC );
       swapRC += row00;
-      valueType * D = m_DE_blk + row00 * n;
+      real_type * D = m_DE_blk + row00 * n;
       //                 NR          NC            L       R
       LU_left_right( n, n_m_row00, row00, n, D, n, swapRC );
       swapRC += n_m_row00;
     }
 
-    valueType * C = m_DE_blk;
+    real_type * C = m_DE_blk;
     for ( m_nblk = 1; m_nblk < nblock; ++m_nblk ) {
       C += 2*n_x_n;
-      valueType * B1 = C - n_x_n + n_m_row00;
+      real_type * B1 = C - n_x_n + n_m_row00;
       LU_top_bottom(
         n_m_row00, row00,
         n, B1, n,
         n,  C, n, swapRC
       );
       swapRC += row00;
-      valueType * D = C + row00 * n;
+      real_type * D = C + row00 * n;
       //                 NR          NC            L       R
       LU_left_right( n, n_m_row00, row00, n, D, n, swapRC );
       swapRC += n_m_row00;
@@ -252,7 +252,7 @@ namespace alglin {
     swapRC = m_swapRC_blks + ( col00 + nblock*n );
 
     if ( nblock == 0 ) {
-      valueType * B1 = m_block0 + (row0+1) * col00;
+      real_type * B1 = m_block0 + (row0+1) * col00;
       LU_top_bottom(
         col00, row00, n,
         B1, row0,
@@ -260,7 +260,7 @@ namespace alglin {
         swapRC
       );
     } else {
-      valueType * B1 = m_DE_blk + (2*nblock-1) * n_x_n + n_m_row00;
+      real_type * B1 = m_DE_blk + (2*nblock-1) * n_x_n + n_m_row00;
       LU_top_bottom(
         n_m_row00, row00, n,
         B1, n,
@@ -270,7 +270,7 @@ namespace alglin {
     }
 
     // fattorizzazione ultimo blocco
-    valueType * D0 = m_blockN + row00 * rowN;
+    real_type * D0 = m_blockN + row00 * rowN;
     m_la_factorization->factorize(
       "DiazLU::factorize", rowN, rowN, D0, rowN
     );
@@ -289,7 +289,7 @@ namespace alglin {
   void
   DiazLU<t_Value>::solve_internal(
     bool      do_permute,
-    valueType in_out[]
+    real_type in_out[]
   ) const {
 
     integer const & nblock = m_number_of_blocks;
@@ -310,7 +310,7 @@ namespace alglin {
 
     // applico permutazione alla RHS
     integer const * swapR = m_swapRC_blks;
-    valueType * io = in_out;
+    real_type * io = in_out;
     for ( integer k = 0; k < col00; ++k ) {
       integer k1 = swapR[k]; // 0 based
       if ( k1 > k ) std::swap( io[k], io[k1] );
@@ -348,9 +348,9 @@ namespace alglin {
       //  row00
       */
 
-      valueType * io1 = io - row00;
-      valueType * M   = m_DE_blk + (2*m_nblk) * n_x_n;
-      valueType * L   = M + row00 * n;
+      real_type * io1 = io - row00;
+      real_type * M   = m_DE_blk + (2*m_nblk) * n_x_n;
+      real_type * L   = M + row00 * n;
 
       // io -= M*io1
       gemv(
@@ -391,9 +391,9 @@ namespace alglin {
       //  row00
       */
 
-      valueType * io1 = io + n;
-      valueType * U   = m_DE_blk + (2*m_nblk)*n_x_n + row00 * n;
-      valueType * M   = U + n_x_n;
+      real_type * io1 = io + n;
+      real_type * U   = m_DE_blk + (2*m_nblk)*n_x_n + row00 * n;
+      real_type * M   = U + n_x_n;
 
       gemv(
         NO_TRANSPOSE,
@@ -451,7 +451,7 @@ namespace alglin {
   DiazLU<t_Value>::solve_internal(
     bool      do_permute,
     integer   nrhs,
-    valueType in_out[],
+    real_type in_out[],
     integer   ldRhs
   ) const {
 
@@ -471,7 +471,7 @@ namespace alglin {
     integer neq = nblock*n+row0+rowN;
 
     // permuto le x
-    valueType * io = in_out;
+    real_type * io = in_out;
     if ( do_permute ) {
       for ( integer k = 0; k < nrhs; ++k ) {
         std::rotate( io, io + neq - row0, io + neq );
@@ -522,9 +522,9 @@ namespace alglin {
       //  row00
       */
 
-      valueType * io1 = io - row00;
-      valueType * M   = m_DE_blk + (2*m_nblk) * n_x_n;
-      valueType * L   = M + row00 * n;
+      real_type * io1 = io - row00;
+      real_type * M   = m_DE_blk + (2*m_nblk) * n_x_n;
+      real_type * L   = M + row00 * n;
 
       // io -= M*io1
       gemm(
@@ -572,9 +572,9 @@ namespace alglin {
       //  row00
       */
 
-      valueType * io1 = io + n;
-      valueType * U   = m_DE_blk + (2*m_nblk) * n_x_n + row00 * n;
-      valueType * M   = U + n_x_n;
+      real_type * io1 = io + n;
+      real_type * U   = m_DE_blk + (2*m_nblk) * n_x_n + row00 * n;
+      real_type * M   = U + n_x_n;
 
       gemm(
         NO_TRANSPOSE,

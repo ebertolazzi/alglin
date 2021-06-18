@@ -25,18 +25,18 @@ main() {
   // Cycling pivot test
   Simplex::integer   m    = 3;
   Simplex::integer   n    = 7;
-  Simplex::valueType A[]  = {  0.5,  0.5,  1,
+  Simplex::real_type A[]  = {  0.5,  0.5,  1,
                               -5.5, -1.5,  0,
                               -2.5, -0.5,  0,
                                  9,    1,  0,
                                  1,    0,  0,
                                  0,    1,  0,
                                  0,    0,  1};
-  Simplex::valueType b[]  = { 0, 0, 1 };
-  Simplex::valueType c[]  = { 10, 57, 9, 24, 0, 0, 0 };
-  Simplex::valueType L[]  = { 0, 0, 0, 0, 0, 0, 0 };
-  Simplex::valueType U[]  = { infinity, infinity, infinity, infinity, infinity, infinity, infinity };
-  Simplex::valueType x[]  = { 0, 0, 0, 0, 0, 0, 1 };
+  Simplex::real_type b[]  = { 0, 0, 1 };
+  Simplex::real_type c[]  = { 10, 57, 9, 24, 0, 0, 0 };
+  Simplex::real_type L[]  = { 0, 0, 0, 0, 0, 0, 0 };
+  Simplex::real_type U[]  = { infinity, infinity, infinity, infinity, infinity, infinity, infinity };
+  Simplex::real_type x[]  = { 0, 0, 0, 0, 0, 0, 1 };
   Simplex::integer   IB[] = { 4, 5, 6 };
   
   Simplex::StandardProblem simplex_problem;
@@ -47,7 +47,7 @@ main() {
     simplex_problem_aux.setup( &simplex_problem );
     simplex.solve( &simplex_problem, x, IB );
 
-    Simplex::valueType xd[100], xdd[100];
+    Simplex::real_type xd[100], xdd[100];
     Simplex::integer   IBd[100];
     
     std::cout << "\n\n\n\n\n\n\n\n\n\n";

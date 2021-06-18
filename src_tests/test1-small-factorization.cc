@@ -20,17 +20,17 @@
 #include "Alglin.hh"
 
 using namespace std;
-typedef double valueType;
+typedef double real_type;
 using lapack_wrapper::integer;
 
 static
 void
 test1() {
-  lapack_wrapper::QR<valueType> qr;
+  lapack_wrapper::QR<real_type> qr;
   integer const M   = 3;
   integer const N   = 5;
   integer const LDA = 3;
-  valueType A[] = {
+  real_type A[] = {
     0.001,      2,     3,
     0.001,  0.001,     0,
     0,      0.001,     0,
@@ -46,14 +46,14 @@ test1() {
   cout << "\nDo QR factorization of A^T\n";
   qr.t_factorize( "qr", M, N, A, LDA );
 
-  valueType R[M*M];
+  real_type R[M*M];
   qr.getR( R, M );
   cout
     << "\nR=\n"
     << lapack_wrapper::print_matrix( M, M, R, M );
 
-  valueType rhs[M], b[M];
-  valueType x[N] = {1,2,3,4,5};
+  real_type rhs[M], b[M];
+  real_type x[N] = {1,2,3,4,5};
   lapack_wrapper::gemv(
     lapack_wrapper::NO_TRANSPOSE, M, N, 1, A, LDA, x, 1, 0, rhs, 1
   );
@@ -89,11 +89,11 @@ test1() {
 static
 void
 test2() {
-  lapack_wrapper::QRP<valueType> qr;
+  lapack_wrapper::QRP<real_type> qr;
   integer const M   = 3;
   integer const N   = 5;
   integer const LDA = 3;
-  valueType A[] = {
+  real_type A[] = {
     0.001,      2,     3,
     0.001,  0.001,     0,
     0,      0.001,     0,
@@ -107,14 +107,14 @@ test2() {
     << "\nDo QR factorization of A^T\n";
   qr.t_factorize( "qr", M, N, A, LDA );
 
-  valueType R[M*M];
+  real_type R[M*M];
   qr.getR( R, M );
   cout
     << "\nR=\n"
     << lapack_wrapper::print_matrix( M, M, R, M );
 
-  valueType rhs[M], b[M];
-  valueType x[N] = {1,2,3,4,5};
+  real_type rhs[M], b[M];
+  real_type x[N] = {1,2,3,4,5};
   lapack_wrapper::gemv(
     lapack_wrapper::NO_TRANSPOSE, M, N, 1, A, LDA, x, 1, 0, rhs, 1
   );
@@ -149,11 +149,11 @@ test2() {
 static
 void
 test3() {
-  lapack_wrapper::QRP<valueType> qr;
+  lapack_wrapper::QRP<real_type> qr;
   integer const M   = 5;
   integer const N   = 5;
   integer const LDA = 5;
-  valueType A[] = {
+  real_type A[] = {
     0.001,      2,     3,     2, 3,
     0.001,  0.001,     0, 0.001, 1e-10,
     0,      0.001,     0, 0.001, 1e-12,
@@ -168,14 +168,14 @@ test3() {
   cout << "\nDo QR factorization of A^T\n";
   qr.t_factorize( "qr", M, N, A, LDA );
 
-  valueType R[M*M];
+  real_type R[M*M];
   qr.getR( R, M );
   cout
     << "\nR=\n"
     << lapack_wrapper::print_matrix( M, M, R, M );
 
-  valueType rhs[M], b[M];
-  valueType x[N] = {1,2,3,4,5};
+  real_type rhs[M], b[M];
+  real_type x[N] = {1,2,3,4,5};
   lapack_wrapper::gemv(
     lapack_wrapper::NO_TRANSPOSE, M, N, 1, A, LDA, x, 1, 0, rhs, 1
   );
@@ -227,18 +227,18 @@ test3() {
 static
 void
 test4() {
-  lapack_wrapper::LU<valueType>   lu;
-  lapack_wrapper::LUPQ<valueType> lupq;
-  lapack_wrapper::QR<valueType>   qr;
-  lapack_wrapper::QRP<valueType>  qrp;
-  lapack_wrapper::SVD<valueType>  svd;
-  lapack_wrapper::LSS<valueType>  lss;
-  lapack_wrapper::LSY<valueType>  lsy;
-  lapack_wrapper::PINV<valueType> pinv;
+  lapack_wrapper::LU<real_type>   lu;
+  lapack_wrapper::LUPQ<real_type> lupq;
+  lapack_wrapper::QR<real_type>   qr;
+  lapack_wrapper::QRP<real_type>  qrp;
+  lapack_wrapper::SVD<real_type>  svd;
+  lapack_wrapper::LSS<real_type>  lss;
+  lapack_wrapper::LSY<real_type>  lsy;
+  lapack_wrapper::PINV<real_type> pinv;
 
   integer const M   = 5;
   integer const LDA = 5;
-  valueType A[] = {
+  real_type A[] = {
     0.001,      2,     3,       2,      3,
     0.001,  0.001,     0,   0.001,  1e-10,
     0,      0.001,     0,   0.001,  1e-12,
@@ -246,8 +246,8 @@ test4() {
     0.000001,   5,     3,  1e-6+5,    3+1
   };
 
-  valueType rhs[M], b[M], res;
-  valueType x[M] = {1,2,3,4,5};
+  real_type rhs[M], b[M], res;
+  real_type x[M] = {1,2,3,4,5};
   lapack_wrapper::gemv(
     lapack_wrapper::NO_TRANSPOSE, M, M, 1, A, LDA, x, 1, 0, rhs, 1
   );
@@ -292,18 +292,18 @@ test4() {
 static
 void
 test5() {
-  lapack_wrapper::LU<valueType>   lu;
-  lapack_wrapper::LUPQ<valueType> lupq;
-  lapack_wrapper::QR<valueType>   qr;
-  lapack_wrapper::QRP<valueType>  qrp;
-  lapack_wrapper::SVD<valueType>  svd;
-  lapack_wrapper::LSS<valueType>  lss;
-  lapack_wrapper::LSY<valueType>  lsy;
-  lapack_wrapper::PINV<valueType> pinv;
+  lapack_wrapper::LU<real_type>   lu;
+  lapack_wrapper::LUPQ<real_type> lupq;
+  lapack_wrapper::QR<real_type>   qr;
+  lapack_wrapper::QRP<real_type>  qrp;
+  lapack_wrapper::SVD<real_type>  svd;
+  lapack_wrapper::LSS<real_type>  lss;
+  lapack_wrapper::LSY<real_type>  lsy;
+  lapack_wrapper::PINV<real_type> pinv;
 
   integer const M   = 5;
   integer const LDA = 5;
-  valueType A[] = {
+  real_type A[] = {
     0.001,      2,     3,       2,      3,
     0.001,  0.001,     0,   0.001,  1e-10,
     0,      0.001,     0,   0.001,  1e-12,
@@ -311,8 +311,8 @@ test5() {
     0.000001,   5,     3,  1e-6+5,     3+1
   };
 
-  valueType rhs[M], b[M], res;
-  valueType x[M] = {1,2,3,4,5};
+  real_type rhs[M], b[M], res;
+  real_type x[M] = {1,2,3,4,5};
   lapack_wrapper::gemv(
     lapack_wrapper::TRANSPOSE, M, M, 1, A, LDA, x, 1, 0, rhs, 1
   );
@@ -340,16 +340,16 @@ test5() {
 static
 void
 test6() {
-  lapack_wrapper::TridiagonalLU<valueType> lu;
-  lapack_wrapper::TridiagonalQR<valueType> qr;
+  lapack_wrapper::TridiagonalLU<real_type> lu;
+  lapack_wrapper::TridiagonalQR<real_type> qr;
 
   integer const N = 5;
-  valueType const D[] = { 1, 1, 2, -0.1, 0.1 };
-  valueType const L[] = { -0.1, -1, -2, -0.1 };
-  valueType const U[] = { -1, -10, -2, 0.1 };
+  real_type const D[] = { 1, 1, 2, -0.1, 0.1 };
+  real_type const L[] = { -0.1, -1, -2, -0.1 };
+  real_type const U[] = { -1, -10, -2, 0.1 };
 
-  valueType rhs[N], b[N];
-  valueType x[N] = {1,2,3,4,5};
+  real_type rhs[N], b[N];
+  real_type x[N] = {1,2,3,4,5};
   qr.axpy( N, 1.0, L, D, U, x, 0.0, rhs );
   qr.axpy( N, 1.0, L, D, U, x, 0.0, b   );
 
@@ -393,11 +393,11 @@ test6() {
 static
 void
 test7() {
-  lapack_wrapper::QRP<valueType> qrp;
+  lapack_wrapper::QRP<real_type> qrp;
 
   integer const M   = 5;
   integer const LDA = 5;
-  valueType A[] = {
+  real_type A[] = {
     0.001,      2,     3,       2,      3,
     0.001,  0.001,     0,   0.001,  1e-10,
     0,      0.001,     0,   0.001,  1e-12,
@@ -405,8 +405,8 @@ test7() {
     0.000001,   5,     3,  1e-6+5,    3+1
   };
 
-  valueType rhs[M], b[M];
-  valueType x[M] = {1,2,3,4,5};
+  real_type rhs[M], b[M];
+  real_type x[M] = {1,2,3,4,5};
   lapack_wrapper::gemv(
     lapack_wrapper::TRANSPOSE, M, M, 1, A, LDA, x, 1, 0, rhs, 1
   );
@@ -437,7 +437,7 @@ test7() {
     << lapack_wrapper::print_matrix( 1, M, b, 1 )
     << "\n\nDo QRP factorization of A\n";
 
-  lapack_wrapper::Matrix<valueType> mat;
+  lapack_wrapper::Matrix<real_type> mat;
   mat.setup( M, M );
   mat.load_block( 2, 5, A,   LDA, 0, 0 );
   mat.load_block( 3, 5, A+2, LDA, 2, 0 );

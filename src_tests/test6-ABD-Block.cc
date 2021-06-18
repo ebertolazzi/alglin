@@ -19,7 +19,7 @@
 #include "Alglin.hh"
 #include <random>
 
-typedef double valueType;
+typedef double real_type;
 
 #include <random>
 static unsigned seed1 = 2;
@@ -27,9 +27,9 @@ static unsigned seed1 = 2;
 
 static std::mt19937 generator(seed1);
 static
-valueType
-rand( valueType xmin, valueType xmax ) {
-  valueType random = valueType(generator())/generator.max();
+real_type
+rand( real_type xmin, real_type xmax ) {
+  real_type random = real_type(generator())/generator.max();
   return xmin + (xmax-xmin)*random;
 }
 #define TIC tm.tic()
@@ -56,35 +56,35 @@ main() {
                           rowN*(dim+colNN) +
                           2*dim*dim + 13*(N+NB) + 2*N*NB + NB*NB;
 
-    alglin::Malloc<valueType> baseValue("real");
+    alglin::Malloc<real_type> baseValue("real");
     baseValue.allocate(size_t(nnz));
 
-    valueType * block0 = baseValue(size_t(row0*(dim+col00)));
-    valueType * blockN = baseValue(size_t(rowN*(dim+colNN)));
-    valueType * AdAu   = baseValue(size_t(2*dim*dim));
+    real_type * block0 = baseValue(size_t(row0*(dim+col00)));
+    real_type * blockN = baseValue(size_t(rowN*(dim+colNN)));
+    real_type * AdAu   = baseValue(size_t(2*dim*dim));
 
-    valueType * B = baseValue(size_t(N*NB));
-    valueType * C = baseValue(size_t(N*NB));
-    valueType * D = baseValue(size_t(NB*NB));
+    real_type * B = baseValue(size_t(N*NB));
+    real_type * C = baseValue(size_t(N*NB));
+    real_type * D = baseValue(size_t(NB*NB));
 
-    valueType * x      = baseValue(size_t(10*(N+NB)));
-    valueType * xref   = baseValue(size_t(N+NB));
-    valueType * xref1  = baseValue(size_t(N+NB));
-    valueType * rhs    = baseValue(size_t(N+NB));
+    real_type * x      = baseValue(size_t(10*(N+NB)));
+    real_type * xref   = baseValue(size_t(N+NB));
+    real_type * xref1  = baseValue(size_t(N+NB));
+    real_type * rhs    = baseValue(size_t(N+NB));
 
-    alglin::BlockBidiagonal<valueType>::BB_LASTBLOCK_Choice ch[] = {
-      alglin::BlockBidiagonal<valueType>::BB_LASTBLOCK_LU,
-      alglin::BlockBidiagonal<valueType>::BB_LASTBLOCK_LUPQ,
-      alglin::BlockBidiagonal<valueType>::BB_LASTBLOCK_QR,
-      alglin::BlockBidiagonal<valueType>::BB_LASTBLOCK_QRP,
-      alglin::BlockBidiagonal<valueType>::BB_LASTBLOCK_SVD,
-      alglin::BlockBidiagonal<valueType>::BB_LASTBLOCK_LSS,
-      alglin::BlockBidiagonal<valueType>::BB_LASTBLOCK_LSY,
-      alglin::BlockBidiagonal<valueType>::BB_LASTBLOCK_PINV
+    alglin::BlockBidiagonal<real_type>::BB_LASTBLOCK_Choice ch[] = {
+      alglin::BlockBidiagonal<real_type>::BB_LASTBLOCK_LU,
+      alglin::BlockBidiagonal<real_type>::BB_LASTBLOCK_LUPQ,
+      alglin::BlockBidiagonal<real_type>::BB_LASTBLOCK_QR,
+      alglin::BlockBidiagonal<real_type>::BB_LASTBLOCK_QRP,
+      alglin::BlockBidiagonal<real_type>::BB_LASTBLOCK_SVD,
+      alglin::BlockBidiagonal<real_type>::BB_LASTBLOCK_LSS,
+      alglin::BlockBidiagonal<real_type>::BB_LASTBLOCK_LSY,
+      alglin::BlockBidiagonal<real_type>::BB_LASTBLOCK_PINV
     };
     char const * kind[] = { "LU", "LUPQ", "QR", "QRP", "SVD", "LSS", "LSY", "PINV" };
 
-    alglin::BlockLU<valueType> LU;
+    alglin::BlockLU<real_type> LU;
     LU.allocateTopBottom( numBlock, dim, row0, dim+col00, rowN, dim+colNN, NB );
 
     // carico matrice
@@ -92,7 +92,7 @@ main() {
 
     for ( int test = 0; test < 8; ++test ) {
       fmt::print("\n\n\ntest N.{} NB = {} kind = {}\n", test, NB, kind[test]);
-      valueType diag = 2*dim;
+      real_type diag = 2*dim;
 
       alglin::integer nn = row0-col00;
 
@@ -157,7 +157,7 @@ main() {
       fmt::print("(Block {}) Solve     = {:.5} [ms]\n", kind[test], tm.elapsed_ms());
 
       alglin::axpy( N+NB, -1.0, x, 1, xref, 1 );
-      valueType err = alglin::absmax( N+NB, xref, 1 );
+      real_type err = alglin::absmax( N+NB, xref, 1 );
       fmt::print("\nCheck |err|_inf = {:.5}\n\n",err);
       UTILS_ASSERT0( err < 1e-8, "test failed!\n" );
 

@@ -54,7 +54,7 @@ namespace alglin {
   template <typename t_Value>
   void
   KKT<t_Value>::load_A(
-    valueType const A_values[],
+    real_type const A_values[],
     integer   const A_row[], integer r_offs,
     integer   const A_col[], integer c_offs,
     integer         A_nnz,
@@ -75,7 +75,7 @@ namespace alglin {
   template <typename t_Value>
   void
   KKT<t_Value>::load_A(
-    valueType const A[],
+    real_type const A[],
     integer         ldA,
     bool            transposed
   ) {
@@ -100,7 +100,7 @@ namespace alglin {
   template <typename t_Value>
   void
   KKT<t_Value>::load_B(
-    valueType const B_values[],
+    real_type const B_values[],
     integer   const B_row[], integer r_offs,
     integer   const B_col[], integer c_offs,
     integer         B_nnz
@@ -125,7 +125,7 @@ namespace alglin {
   template <typename t_Value>
   void
   KKT<t_Value>::load_B(
-    valueType const B[],
+    real_type const B[],
     integer         ldB,
     bool            transposed
   ) {
@@ -152,7 +152,7 @@ namespace alglin {
   template <typename t_Value>
   void
   KKT<t_Value>::load_C(
-    valueType const C_values[],
+    real_type const C_values[],
     integer   const C_row[], integer r_offs,
     integer   const C_col[], integer c_offs,
     integer         C_nnz
@@ -177,7 +177,7 @@ namespace alglin {
   template <typename t_Value>
   void
   KKT<t_Value>::load_C(
-    valueType const C[],
+    real_type const C[],
     integer         ldC,
     bool            transposed
   ) {
@@ -203,7 +203,7 @@ namespace alglin {
   template <typename t_Value>
   void
   KKT<t_Value>::load_D(
-    valueType const D_values[],
+    real_type const D_values[],
     integer   const D_row[], integer r_offs,
     integer   const D_col[], integer c_offs,
     integer         D_nnz,
@@ -230,7 +230,7 @@ namespace alglin {
   template <typename t_Value>
   void
   KKT<t_Value>::load_D(
-    valueType const D[],
+    real_type const D[],
     integer         ldD,
     bool            transposed
   ) {
@@ -273,23 +273,23 @@ namespace alglin {
     integer         n,
     integer         m,
     // -----------------------
-    valueType const A_values[],
+    real_type const A_values[],
     integer   const A_row[], integer Ar_offs,
     integer   const A_col[], integer Ac_offs,
     integer         A_nnz,
     bool            A_is_symmetric,
     // -----------------------
-    valueType const B_values[],
+    real_type const B_values[],
     integer   const B_row[], integer Br_offs,
     integer   const B_col[], integer Bc_offs,
     integer         B_nnz,
     // -----------------------
-    valueType const C_values[],
+    real_type const C_values[],
     integer   const C_row[], integer Cr_offs,
     integer   const C_col[], integer Cc_offs,
     integer         C_nnz,
     // -----------------------
-    valueType const D_values[],
+    real_type const D_values[],
     integer   const D_row[], integer Dr_offs,
     integer   const D_col[], integer Dc_offs,
     integer         D_nnz,
@@ -310,19 +310,19 @@ namespace alglin {
     integer         n,
     integer         m,
     // -----------------------
-    valueType const A_values[],
+    real_type const A_values[],
     integer         ldA,
     bool            A_transposed,
     // -----------------------
-    valueType const B_values[],
+    real_type const B_values[],
     integer         ldB,
     bool            B_transposed,
     // -----------------------
-    valueType const C_values[],
+    real_type const C_values[],
     integer         ldC,
     bool            C_transposed,
     // -----------------------
-    valueType const D_values[],
+    real_type const D_values[],
     integer         ldD,
     bool            D_transposed
   ) {
@@ -343,17 +343,17 @@ namespace alglin {
     // -----------------------
     LSS const * Asystem,
     // -----------------------
-    valueType const B_values[],
+    real_type const B_values[],
     integer   const B_row[], integer Br_offs,
     integer   const B_col[], integer Bc_offs,
     integer         B_nnz,
     // -----------------------
-    valueType const C_values[],
+    real_type const C_values[],
     integer   const C_row[], integer Cr_offs,
     integer   const C_col[], integer Cc_offs,
     integer         C_nnz,
     // -----------------------
-    valueType const D_values[],
+    real_type const D_values[],
     integer   const D_row[], integer Dr_offs,
     integer   const D_col[], integer Dc_offs,
     integer         D_nnz,
@@ -376,15 +376,15 @@ namespace alglin {
     // -----------------------
     LSS const * Asystem,
     // -----------------------
-    valueType const B_values[],
+    real_type const B_values[],
     integer         ldB,
     bool            B_transposed,
     // -----------------------
-    valueType const C_values[],
+    real_type const C_values[],
     integer         ldC,
     bool            C_transposed,
     // -----------------------
-    valueType const D_values[],
+    real_type const D_values[],
     integer         ldD,
     bool            D_transposed
   ) {
@@ -405,7 +405,7 @@ namespace alglin {
     integer         nL,
     integer         nU,
     // -----------------------
-    valueType const M_values[],
+    real_type const M_values[],
     integer   const M_row[], integer r_offs,
     integer   const M_col[], integer c_offs,
     integer         M_nnz,
@@ -432,7 +432,7 @@ namespace alglin {
     integer         nblocks,
     integer const   rBlocks[],
     // -----------------------
-    valueType const M_values[],
+    real_type const M_values[],
     integer   const M_row[], integer r_offs,
     integer   const M_col[], integer c_offs,
     integer         M_nnz,
@@ -459,7 +459,7 @@ namespace alglin {
     integer nblocks,
     integer block_size,
     // -----------------------
-    valueType const M_values[],
+    real_type const M_values[],
     integer   const M_row[], integer r_offs,
     integer   const M_col[], integer c_offs,
     integer         M_nnz,
@@ -479,7 +479,7 @@ namespace alglin {
 
   template <typename t_Value>
   bool
-  KKT<t_Value>::solve( valueType xb[] ) const {
+  KKT<t_Value>::solve( real_type xb[] ) const {
     integer const & n = m_dim1;
     integer const & m = m_dim2;
     // a' = A^(-1)*a
@@ -509,7 +509,7 @@ namespace alglin {
 
   template <typename t_Value>
   bool
-  KKT<t_Value>::t_solve( valueType xb[] ) const {
+  KKT<t_Value>::t_solve( real_type xb[] ) const {
     integer const & n = m_dim1;
     integer const & m = m_dim2;
     // b' = Z^T*a -b
@@ -539,7 +539,7 @@ namespace alglin {
 
   template <typename t_Value>
   bool
-  KKT<t_Value>::solve( integer nrhs, valueType B[], integer ldB ) const {
+  KKT<t_Value>::solve( integer nrhs, real_type B[], integer ldB ) const {
     integer const & n = m_dim1;
     integer const & m = m_dim2;
     // a' = A^(-1)*a
@@ -571,7 +571,7 @@ namespace alglin {
 
   template <typename t_Value>
   bool
-  KKT<t_Value>::t_solve( integer nrhs, valueType B[], integer ldB ) const {
+  KKT<t_Value>::t_solve( integer nrhs, real_type B[], integer ldB ) const {
     integer const & n = m_dim1;
     integer const & m = m_dim2;
     // b' = Z^T*a -b

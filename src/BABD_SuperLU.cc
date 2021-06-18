@@ -45,10 +45,10 @@ namespace alglin {
     integer         nblock,
     integer         n,
     integer         q,
-    valueType const AdAu[],
-    valueType const H0[],
-    valueType const HN[],
-    valueType const Hq[]
+    real_type const AdAu[],
+    real_type const H0[],
+    real_type const HN[],
+    real_type const Hq[]
   ) {
 
     integer m   = n+q;
@@ -78,8 +78,8 @@ namespace alglin {
     integer ee = nblock*n;
     colptr[0] = 0;
     for ( integer k = 0; k <= nblock; ++k ) {
-      valueType const * Ad = AdAu + 2*n*n*k;
-      valueType const * Au = Ad - n*n;
+      real_type const * Ad = AdAu + 2*n*n*k;
+      real_type const * Au = Ad - n*n;
       integer ii = k*n;
       for ( integer j = 0; j < n; ++j ) {
         if ( k > 0       ) for ( integer i = 0; i < n; ++i ) { rowind[kk] = i+ii-n; values[kk] = Au[i+j*n]; ++kk; }
@@ -194,7 +194,7 @@ namespace alglin {
   \*/
 
   void
-  BABD_SuperLU::solve( valueType y[] ) const {
+  BABD_SuperLU::solve( real_type y[] ) const {
 
     int         info;
     SuperMatrix B;
@@ -230,7 +230,7 @@ namespace alglin {
    |   \___\___/|_| |_|\__,_|
   \*/
   void
-  BABD_SuperLU::cond( valueType & rcond_1, valueType & rcond_inf ) const {
+  BABD_SuperLU::cond( real_type & rcond_1, real_type & rcond_inf ) const {
     int info1 = 0, info2 = 0;
     StatInit( &m_slu_stats );
     dgscon(

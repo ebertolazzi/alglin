@@ -21,7 +21,7 @@
 #include <random>
 
 using namespace std;
-typedef double valueType;
+typedef double real_type;
 
 static unsigned seed1 = 2;
 static std::mt19937 generator(seed1);

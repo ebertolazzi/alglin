@@ -47,7 +47,6 @@
 #include <string>
 #include <cmath>
 
-#include "Alglin_Eigen.hxx"
 #include "Alglin_SuperLU.hxx"
 #include "Alglin/Alglin_aux.hxx"
 #include "Alglin/Alglin_FD.hxx"

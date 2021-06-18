@@ -18,24 +18,136 @@
 \*--------------------------------------------------------------------------*/
 
 #include "Alglin.hh"
+#include <lapack_wrapper/lapack_wrapper_eigen.hh>
 #include <random>
 
 using namespace std;
-typedef double valueType;
+typedef double real_type;
 
 static unsigned seed1 = 2;
 static std::mt19937 generator(seed1);
 
 static
-valueType
-rand( valueType xmin, valueType xmax ) {
-  valueType random = valueType(generator())/generator.max();
+real_type
+rand( real_type xmin, real_type xmax ) {
+  real_type random = real_type(generator())/generator.max();
   return xmin + (xmax-xmin)*random;
 }
 
 using namespace alglin;
-typedef Eigen::Matrix<valueType,Eigen::Dynamic,Eigen::Dynamic> dmat_t;
-typedef Eigen::Matrix<valueType,Eigen::Dynamic,1>              dvec_t;
+typedef Eigen::Matrix<real_type,Eigen::Dynamic,Eigen::Dynamic> dmat_t;
+typedef Eigen::Matrix<real_type,Eigen::Dynamic,1>              dvec_t;
+
+
+template <int N>
+void
+testVV() {
+
+  int     N_TIMES = (1000000/N);
+  double  to_ps   = 1000000.0/N_TIMES;
+
+  typedef Eigen::Matrix<real_type,N,1> vecN_t;
+
+  fmt::print("\nSize N = {}\n",N);
+
+  Malloc<real_type>       baseValue("real");
+  Malloc<alglin::integer> baseIndex("integer");
+
+  baseValue.allocate(N*10);
+  baseIndex.allocate(N*10);
+
+  real_type * V1 = baseValue(N);
+  real_type * V2 = baseValue(N);
+  real_type * V3 = baseValue(N);
+
+  vecN_t v1, v2, v3;
+  dvec_t dv1, dv2, dv3;
+
+  dv1.resize(N);
+  dv2.resize(N);
+  dv3.resize(N);
+
+  for ( int i = 0; i < N; ++i ) {
+    v1(i) = dv1(i) = V1[i] = rand(-1,1);
+    v2(i) = dv2(i) = V2[i] = rand(-1,1);
+    v3(i) = dv3(i) = V3[i] = rand(-1,1);
+  }
+
+  Utils::TicToc tm;
+
+  // ===========================================================================
+
+  tm.tic();
+  for ( int i = 0; i < N_TIMES; ++i ) {
+    real_type alpha = 1.0/i;
+    alglin::copy( N, V2, 1, V3, 1 );
+    alglin::axpy( N, alpha, V1, 1, V3, 1 );
+    alglin::copy( N, V3, 1, V1, 1 );
+  }
+  tm.toc();
+  fmt::print("(VV) AXPY = {:8.4} [ps] (lapack)\n", to_ps*tm.elapsed_ms() );
+
+  // ===========================================================================
+
+  tm.tic();
+  for ( int i = 0; i < N_TIMES; ++i ) {
+    real_type alpha = 1.0/i;
+    dv3.noalias() = dv2 + alpha*dv1;
+    dv1 = dv3;
+  }
+  tm.toc();
+  fmt::print("(VV) AXPY = {:8.4} [ps] (eigen dynamic)\n", to_ps*tm.elapsed_ms() );
+
+  // ===========================================================================
+
+  {
+    Eigen::Map<dvec_t> vv1(NULL,0), vv2(NULL,0), vv3(NULL,0);
+    new (&vv1) Eigen::Map<dvec_t>(V1,N);
+    new (&vv2) Eigen::Map<dvec_t>(V2,N);
+    new (&vv3) Eigen::Map<dvec_t>(V3,N);
+    tm.tic();
+    for ( int i = 0; i < N_TIMES; ++i ) {
+      real_type alpha = 1.0/i;
+      vv3.noalias() = vv2 + alpha*vv1;
+      vv1 = vv3;
+    }
+    tm.toc();
+  }
+  fmt::print("(VV) AXPY = {:8.4} [ps] (eigen map dynamic)\n", to_ps*tm.elapsed_ms() );
+
+  // ===========================================================================
+
+  tm.tic();
+  for ( int i = 0; i < N_TIMES; ++i ) {
+    real_type alpha = 1.0/i;
+    v3.noalias() = v2 + alpha*v1;
+    v2 = v3;
+  }
+  tm.toc();
+  fmt::print("(VV) AXPY = {:8.4} [ps] (eigen fixed)\n", to_ps*tm.elapsed_ms() );
+
+  // ===========================================================================
+
+  {
+    Eigen::Map<vecN_t> vv1(NULL), vv2(NULL), vv3(NULL);
+    new (&vv1) Eigen::Map<vecN_t>(V1);
+    new (&vv2) Eigen::Map<vecN_t>(V2);
+    new (&vv3) Eigen::Map<vecN_t>(V3);
+    tm.tic();
+    for ( int i = 0; i < N_TIMES; ++i ) {
+      real_type alpha = 1.0/i;
+      vv3.noalias() = vv2 + alpha*vv1;
+      vv1 = vv3;
+    }
+    tm.toc();
+  }
+  fmt::print("(VV) AXPY = {:8.4} [ps] (eigen fixed map)\n", to_ps*tm.elapsed_ms() );
+
+  fmt::print("All done!\n");
+}
+
+
+
 
 template <int N>
 void
@@ -44,19 +156,19 @@ testMM() {
   int     N_TIMES = (10000/N);
   double  to_ps   = 10000.0/N_TIMES;
 
-  typedef Eigen::Matrix<valueType,N,N> matN_t;
+  typedef Eigen::Matrix<real_type,N,N> matN_t;
 
   fmt::print("\nSize N = {}\n",N);
 
-  Malloc<valueType>       baseValue("real");
+  Malloc<real_type>       baseValue("real");
   Malloc<alglin::integer> baseIndex("integer");
 
   baseValue.allocate(N*N*10);
   baseIndex.allocate(N*10);
 
-  valueType * M1 = baseValue(N*N);
-  valueType * M2 = baseValue(N*N);
-  valueType * M3 = baseValue(N*N);
+  real_type * M1 = baseValue(N*N);
+  real_type * M2 = baseValue(N*N);
+  real_type * M3 = baseValue(N*N);
 
   matN_t m1, m2, m3;
   dmat_t dm1, dm2, dm3;
@@ -147,9 +259,9 @@ testMM() {
 
   tm.tic();
   for ( int i = 0; i < N_TIMES; ++i ) {
-    MM<valueType,N,N,N,N,N,N>::subTo(M1,M2,M3);
-    memcpy( M2, M3, N*N*sizeof(valueType) );
-    //Vec2<valueType,N*N,1,1>::copy(M3,M2);
+    MM<real_type,N,N,N,N,N,N>::subTo(M1,M2,M3);
+    memcpy( M2, M3, N*N*sizeof(real_type) );
+    //Vec2<real_type,N*N,1,1>::copy(M3,M2);
   }
   tm.toc();
   fmt::print("(MM) MULT = {:8.4} [ps] (hand unrolled)\n", to_ps*tm.elapsed_ms() );
@@ -167,20 +279,20 @@ testMv() {
   int     N_TIMES = (1000000/N);
   double  to_ps   = 1000000.0/N_TIMES;
 
-  typedef Eigen::Matrix<valueType,N,N> matN_t;
-  typedef Eigen::Matrix<valueType,N,1> vecN_t;
+  typedef Eigen::Matrix<real_type,N,N> matN_t;
+  typedef Eigen::Matrix<real_type,N,1> vecN_t;
 
   fmt::print("\nSize N = {}\n",N);
 
-  Malloc<valueType>       baseValue("real");
+  Malloc<real_type>       baseValue("real");
   Malloc<alglin::integer> baseIndex("integer");
 
   baseValue.allocate(N*N*10);
   baseIndex.allocate(N*10);
 
-  valueType * M = baseValue(N*N);
-  valueType * V = baseValue(N);
-  valueType * R = baseValue(N);
+  real_type * M = baseValue(N*N);
+  real_type * V = baseValue(N);
+  real_type * R = baseValue(N);
 
   matN_t m;
   dmat_t dm;
@@ -276,9 +388,9 @@ testMv() {
 
   tm.tic();
   for ( int i = 0; i < N_TIMES; ++i ) {
-    alglin::Mv<valueType,N,N,N,N,N>::subTo(M,V,R);
-    memcpy( V, R, N*sizeof(valueType) );
-    //Vec2<valueType,N*N,1,1>::copy(M3,M2);
+    alglin::Mv<real_type,N,N,N,N,N>::subTo(M,V,R);
+    memcpy( V, R, N*sizeof(real_type) );
+    //Vec2<real_type,N*N,1,1>::copy(M3,M2);
   }
   tm.toc();
   fmt::print("(MV) MULT = {:8.4} [ps] (hand unrolled)\n", to_ps*tm.elapsed_ms() );
@@ -296,19 +408,19 @@ testCopy() {
   int     N_TIMES = (1000000/N);
   double  to_ps   = 1000000.0/N_TIMES;
 
-  typedef Eigen::Matrix<valueType,N,N> matN_t;
+  typedef Eigen::Matrix<real_type,N,N> matN_t;
 
   fmt::print("\nSize N = {}\n",N);
 
-  Malloc<valueType>       baseValue("real");
+  Malloc<real_type>       baseValue("real");
   Malloc<alglin::integer> baseIndex("integer");
 
   baseValue.allocate(N*N*10);
   baseIndex.allocate(N*10);
 
-  valueType * M1 = baseValue(N*N);
-  valueType * M2 = baseValue(N*N);
-  valueType * M3 = baseValue(N*N);
+  real_type * M1 = baseValue(N*N);
+  real_type * M2 = baseValue(N*N);
+  real_type * M3 = baseValue(N*N);
 
   matN_t m1, m2, m3;
   dmat_t dm1, dm2, dm3;
@@ -430,6 +542,32 @@ testCopy() {
 
 static
 void
+testVVall() {
+  testVV<2>();
+  //testCopy<3>();
+  testVV<4>();
+  //testCopy<5>();
+  testVV<6>();
+  //testCopy<7>();
+  testVV<8>();
+  //testCopy<9>();
+  //testCopy<10>();
+  //testCopy<11>();
+  testVV<12>();
+  //testCopy<13>();
+  //testCopy<14>();
+  //testCopy<15>();
+  testVV<16>();
+  //testCopy<17>();
+  //testCopy<18>();
+  //testCopy<19>();
+  //testCopy<20>();
+  testVV<100>();
+  testVV<1000>();
+}
+
+static
+void
 testMvAll() {
   testMv<2>();
   //testMv<3>();
@@ -505,9 +643,15 @@ testCopyAll() {
 
 int
 main() {
+  Eigen::initParallel();
+  Eigen::setNbThreads(4);
+
+  testVVall();
   testMvAll();
   testMMall();
   testCopyAll();
+
+  fmt::print("\n\nNUM THREAD {}\n",Eigen::nbThreads());
   fmt::print("\n\nAll done!\n");
   return 0;
 }

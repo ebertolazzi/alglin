@@ -80,7 +80,7 @@ namespace alglin {
   class BlockLU : public BlockBidiagonal<t_Value> {
   public:
 
-    typedef t_Value valueType;
+    typedef t_Value real_type;
 
   private:
 
@@ -100,14 +100,14 @@ namespace alglin {
 
     //! solve linear sistem using internal factorized matrix
     void
-    solve_internal( bool do_permute, valueType in_out[] ) const;
+    solve_internal( bool do_permute, real_type in_out[] ) const;
 
     //! solve linear sistem using internal factorized matrix
     void
     solve_internal(
       bool      do_permute,
       integer   nrhs,
-      valueType in_out[],
+      real_type in_out[],
       integer   ldRhs
     ) const;
 
@@ -180,7 +180,7 @@ namespace alglin {
     //! solve linear sistem using internal factorized matrix
     virtual
     void
-    solve( valueType in_out[] ) const override
+    solve( real_type in_out[] ) const override
     { solve_internal( true, in_out ); }
 
     //! solve linear sistem using internal factorized matrix
@@ -188,7 +188,7 @@ namespace alglin {
     void
     solve(
       integer   nrhs,
-      valueType in_out[],
+      real_type in_out[],
       integer   ldRhs
     ) const override {
       this->solve_internal( true, nrhs, in_out, ldRhs );
@@ -196,14 +196,14 @@ namespace alglin {
 
     //! solve linear sistem using internal factorized matrix
     void
-    solve_ABD( valueType in_out[] ) const
+    solve_ABD( real_type in_out[] ) const
     { this->solve_internal( false, in_out ); }
 
     //! solve linear sistem using internal factorized matrix
     void
     solve_ABD(
       integer   nrhs,
-      valueType in_out[],
+      real_type in_out[],
       integer   ldRhs
     ) const {
       this->solve_internal( false, nrhs, in_out, ldRhs );

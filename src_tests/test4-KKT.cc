@@ -20,25 +20,25 @@
 #include "Alglin.hh"
 
 using namespace std;
-typedef double valueType;
+typedef double real_type;
 using alglin::integer;
 
 static
 void
 test0() {
 
-  alglin::KKT<valueType> kkt;
+  alglin::KKT<real_type> kkt;
   integer const N = 2;
   integer const M = 1;
 
-  valueType A[] = {
+  real_type A[] = {
     1,      0,
     0,      1,
   };
 
-  valueType B[] = { 0, 0 };
-  valueType C[] = { 0, 0 };
-  valueType D[] = { 2 };
+  real_type B[] = { 0, 0 };
+  real_type C[] = { 0, 0 };
+  real_type D[] = { 2 };
 
   // 1 0 0 -> 1
   // 0 1 0 -> 2
@@ -52,8 +52,8 @@ test0() {
     D, M, false
   );
   kkt.factorize();
-  valueType x[N+M] = { 1, 2, 3 };
-  valueType rhs[N+M];
+  real_type x[N+M] = { 1, 2, 3 };
+  real_type rhs[N+M];
 
   alglin::gemv(
     alglin::NO_TRANSPOSE,
@@ -94,18 +94,18 @@ static
 void
 test1() {
 
-  alglin::KKT<valueType> kkt;
+  alglin::KKT<real_type> kkt;
   integer const N = 2;
   integer const M = 1;
 
-  valueType A[] = {
+  real_type A[] = {
     1,      3,
    -2,      1,
   };
 
-  valueType B[] = { 1, -1 };
-  valueType C[] = { -1, 1 };
-  valueType D[] = { 2 };
+  real_type B[] = { 1, -1 };
+  real_type C[] = { -1, 1 };
+  real_type D[] = { 2 };
 
   //  1 -2  1 -> 0
   //  3  1 -1 -> 2
@@ -119,8 +119,8 @@ test1() {
     D, M, false
   );
   kkt.factorize();
-  valueType x[N+M] = { 1, 2, 3 };
-  valueType rhs[N+M];
+  real_type x[N+M] = { 1, 2, 3 };
+  real_type rhs[N+M];
 
   alglin::gemv(
     alglin::NO_TRANSPOSE,
@@ -161,29 +161,29 @@ static
 void
 test2() {
 
-  alglin::KKT<valueType> kkt;
+  alglin::KKT<real_type> kkt;
   integer const N = 3;
   integer const M = 2;
 
-  valueType A[] = {
+  real_type A[] = {
     0.001,      2,     3,
     0.001,      0.001, 0,
     0,          0.001, 2,
   };
 
-  valueType B[] = {
+  real_type B[] = {
     0.001,      3,
     0.001,      -0.001,
     1,          2,
   };
 
-  valueType C[] = {
+  real_type C[] = {
     2,       3,
     -0.001,  -0.001,
     1,        2,
   };
 
-  valueType D[] = {
+  real_type D[] = {
     1,      4,
     -1,      1
   };
@@ -196,8 +196,8 @@ test2() {
     D, M, false
   );
   kkt.factorize();
-  valueType x[] = { 1, 2, 3, 4, 5, 1, 2, 3, 4, 5 };
-  valueType rhs[2*(N+M)];
+  real_type x[] = { 1, 2, 3, 4, 5, 1, 2, 3, 4, 5 };
+  real_type rhs[2*(N+M)];
 
   alglin::gemv(
     alglin::NO_TRANSPOSE,
@@ -241,29 +241,29 @@ static
 void
 test3() {
 
-  alglin::KKT<valueType> kkt;
+  alglin::KKT<real_type> kkt;
   integer const N = 3;
   integer const M = 2;
 
-  valueType A[] = {
+  real_type A[] = {
     0.001,      2,     3,
     0.001,      0.001, 0,
     0,          0.001, 2,
   };
 
-  valueType B[] = {
+  real_type B[] = {
     0.001,      3,
     0.001,     -0.001,
     1,          2,
   };
 
-  valueType C[] = {
+  real_type C[] = {
      2,       3,
     -0.001,  -0.001,
      1,       2,
   };
 
-  valueType D[] = {
+  real_type D[] = {
     1,      4,
     -1,      1
   };
@@ -276,8 +276,8 @@ test3() {
     D, M, false
   );
   kkt.factorize();
-  valueType x[] = { 1, 2, 3, 4, 5, 1, 2, 3, 4, 5 };
-  valueType rhs[2*(N+M)];
+  real_type x[] = { 1, 2, 3, 4, 5, 1, 2, 3, 4, 5 };
+  real_type rhs[2*(N+M)];
 
   alglin::gemv(
     alglin::TRANSPOSE,
@@ -321,16 +321,16 @@ static
 void
 test4() {
 
-  alglin::KKT<valueType> kkt;
+  alglin::KKT<real_type> kkt;
   integer const N = 10;
   integer const M = 2;
-  alglin::BandedLU<valueType> bLU;
+  alglin::BandedLU<real_type> bLU;
 
   bLU.setup( N, N, 3, 2 ); // number of upper diagonal
   bLU.zero();
 
   integer ldAA = 2;
-  valueType AA[] = {
+  real_type AA[] = {
     3, 1,
     1, 3,
   };
@@ -342,7 +342,7 @@ test4() {
 
   //bLU.dump( cout );
 
-  valueType B[] = {
+  real_type B[] = {
     0.001,      3,
     0.001,     -0.001,
     1,          2,
@@ -355,7 +355,7 @@ test4() {
     0.001,     -0.001,
   };
 
-  valueType C[] = {
+  real_type C[] = {
     1,          2,
     1,          2,
     0.001,      3,
@@ -368,13 +368,13 @@ test4() {
     0.001,      3,
   };
 
-  valueType D[] = {
+  real_type D[] = {
     1,      4,
     -1,      1
   };
 
-  valueType x[] = { 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2 };
-  valueType rhs[2*(N+M)];
+  real_type x[] = { 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2 };
+  real_type rhs[2*(N+M)];
 
   for ( integer i = 0; i < N+M; ++i ) rhs[i] = 0;
   bLU.aAxpy( 1.0, x, rhs );
@@ -427,7 +427,7 @@ static
 void
 test5() {
 
-  alglin::KKT<valueType> kkt;
+  alglin::KKT<real_type> kkt;
   integer const N   = 7;
   integer const M   = 2;
   integer const nnz = 22;
@@ -442,7 +442,7 @@ test5() {
     3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 9
   };
 
-  valueType vals[] = {
+  real_type vals[] = {
     2, 1, -1, 1, 1, -1, 2, 2, 1, 2, 2,
     3, 2, 4, 3, 5, 3, 6, 1, 1, 1, 1
   };
@@ -457,8 +457,8 @@ test5() {
   );
   kkt.factorize();
 
-  //valueType x[]   = { 1, 2, 3, 4, 5, -1, -2, -3, -4, -5 };
-  valueType rhs[] = { -2, -9, -5, -10, 3, -21, 0, 32, 8 };
+  //real_type x[]   = { 1, 2, 3, 4, 5, -1, -2, -3, -4, -5 };
+  real_type rhs[] = { -2, -9, -5, -10, 3, -21, 0, 32, 8 };
 
   //kkt.t_solve( 1, rhs, N+M );
   kkt.t_solve( rhs );
@@ -470,7 +470,7 @@ static
 void
 test6() {
 
-  alglin::KKT<valueType> kkt;
+  alglin::KKT<real_type> kkt;
   integer const N   = 7;
   integer const M   = 2;
   integer const nnz = 22;
@@ -485,7 +485,7 @@ test6() {
     3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 9
   };
 
-  valueType vals[] = {
+  real_type vals[] = {
     2, 1, -1, 1, 1, -1, 2, 2, 1, 2, 2,
     3, 2, 4, 3, 5, 3, 6, 1, 1, 1, 1
   };
@@ -502,8 +502,8 @@ test6() {
   );
   kkt.factorize();
 
-  //valueType x[]   = { 1, 2, 3, 4, 5, -1, -2, -3, -4, -5 };
-  valueType rhs[] = { -2, -9, -5, -10, 3, -21, 0, 32, 8 };
+  //real_type x[]   = { 1, 2, 3, 4, 5, -1, -2, -3, -4, -5 };
+  real_type rhs[] = { -2, -9, -5, -10, 3, -21, 0, 32, 8 };
 
   //kkt.t_solve( 1, rhs, N+M );
   kkt.t_solve( rhs );

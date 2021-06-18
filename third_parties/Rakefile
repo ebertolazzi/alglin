@@ -5,43 +5,43 @@ task :default => [:install_osx]
 
 desc "install 3rd parties for OSX"
 task :install_osx do
-  FileUtils.cd "Eigen3"
-  sh "rake install"
-  FileUtils.cd ".."
+  #FileUtils.cd "Eigen3"
+  #sh "rake install"
+  #FileUtils.cd ".."
 end
 
 desc "install 3rd parties for LINUX"
 task :install_linux do
-  FileUtils.cd "Eigen3"
-  sh "rake install"
-  FileUtils.cd ".."
+  #FileUtils.cd "Eigen3"
+  #sh "rake install"
+  #FileUtils.cd ".."
 end
 
 desc "clean 3rd parties for OSX"
 task :clean_osx do
-  FileUtils.cd "Eigen3"
-  sh "rake clean"
-  FileUtils.cd ".."
+  #FileUtils.cd "Eigen3"
+  #sh "rake clean"
+  #FileUtils.cd ".."
 end
 
 desc "install 3rd parties for WINDOWS"
 task :install_win, [:year, :bits] do |t, args|
-  args.with_defaults(:year => "2017", :bits => "x64" )
-  FileUtils.cd "Eigen3"
-  sh "rake install"
-  FileUtils.cd ".."
+  #args.with_defaults(:year => "2017", :bits => "x64" )
+  #FileUtils.cd "Eigen3"
+  #sh "rake install"
+  #FileUtils.cd ".."
 end
 
 desc "clean 3rd parties for LINUX"
 task :clean_linux do
-  FileUtils.cd "Eigen3"
-  sh "rake clean"
-  FileUtils.cd ".."
+  #FileUtils.cd "Eigen3"
+  #sh "rake clean"
+  #FileUtils.cd ".."
 end
 
 desc "clean 3rd parties for WINDOWS"
 task :clean_win do |t, args|
-  FileUtils.cd "Eigen3"
-  sh "rake clean"
-  FileUtils.cd ".."
+  #FileUtils.cd "Eigen3"
+  #sh "rake clean"
+  #FileUtils.cd ".."
 end

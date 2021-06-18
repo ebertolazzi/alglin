@@ -28,16 +28,16 @@ namespace alglin {
   dumpOneMatrix(
     ostream_type &  stream,
     char const      name[],
-    valueType const M[],
-    indexType       numRow,
-    indexType       numCol
+    real_type const M[],
+    integer         numRow,
+    integer         numCol
   ) {
     stream << "# " << name << " Size: "
            << numRow << " x " << numCol << '\n';
     stream << name << " := <";
-    for ( indexType nc = 0; nc < numCol; ++nc ) {
+    for ( integer nc = 0; nc < numCol; ++nc ) {
       stream << '<';
-      for ( indexType nr = 0; nr < numRow; ++nr ) {
+      for ( integer nr = 0; nr < numRow; ++nr ) {
         stream << M[ nr + nc * numRow ];
         if ( nr+1 < numRow ) stream << ',';
         else                 stream << '>';
@@ -52,11 +52,11 @@ namespace alglin {
 
     stream << "interface( rtablesize = 40 );\n";
 
-    indexType N       = numNodes-1;
-    indexType dim_z_z = 4*dim_x*dim_x;
-    for ( indexType row = 0; row < N; ++row ) {
-      valueType const * Ad = AdAu_blk + 2*row*dim_z_z;
-      valueType const * Au = Ad + dim_z_z;
+    integer N       = numNodes-1;
+    integer dim_z_z = 4*dim_x*dim_x;
+    for ( integer row = 0; row < N; ++row ) {
+      real_type const * Ad = AdAu_blk + 2*row*dim_z_z;
+      real_type const * Au = Ad + dim_z_z;
       dumpOneMatrix( stream, "Ad", Ad, 2*dim_x, 2*dim_x );
       dumpOneMatrix( stream, "Au", Au, 2*dim_x, 2*dim_x );
     }

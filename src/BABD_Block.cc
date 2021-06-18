@@ -43,8 +43,8 @@ namespace alglin {
     integer m  = n+q;
     integer nm = n+m;
     for ( integer k = 0; k < nblock; ++k ) {
-      valueType const * Ad = m_DE_blk + (2*k)*n_x_n;
-      valueType const * Au = Ad + n_x_n;
+      real_type const * Ad = m_DE_blk + (2*k)*n_x_n;
+      real_type const * Au = Ad + n_x_n;
       gecopy( n, n, Ad, n, m_AdH_blk + k*nm*n,  nm );
       gecopy( n, n, Au, n, m_Au_blk  + k*n_x_n, n  );
     }
@@ -57,9 +57,9 @@ namespace alglin {
     integer INFO;
 
     integer   * ipivk = m_ipiv_blk;
-    valueType * AdH   = m_AdH_blk;
-    valueType * Au    = m_Au_blk;
-    valueType * FF    = m_FF_blk;
+    real_type * AdH   = m_AdH_blk;
+    real_type * Au    = m_Au_blk;
+    real_type * FF    = m_FF_blk;
 
     for ( integer k = 0;
           k < nblock-1;
@@ -68,8 +68,8 @@ namespace alglin {
       INFO = getrf( nm, n, AdH, nm, ipivk ); // LU factorization
       UTILS_ASSERT0( INFO==0, "BlockLU::factorize(), matrix singular\n" );
 
-      valueType * H  = AdH + n;
-      valueType * CC = AdH + nm*n + n;
+      real_type * H  = AdH + n;
+      real_type * CC = AdH + nm*n + n;
 
       for ( integer i = 0; i < n; ++i ) {
         integer ip = ipivk[i]-1;
@@ -133,7 +133,7 @@ namespace alglin {
     //
     //  CC* = CC - H (LU)^(-1) Au
     //
-    valueType * H = AdH + n;
+    real_type * H = AdH + n;
     trsm( LEFT, LOWER, NO_TRANSPOSE, UNIT, n, m, 1, AdH, nm, Au, n );
     gemm( NO_TRANSPOSE, NO_TRANSPOSE, m, m, n, -1, H, nm, Au, n, 1, m_DD_blk, m );
 
@@ -152,7 +152,7 @@ namespace alglin {
   \*/
   template <typename t_Value>
   void
-  BBlockLU<t_Value>::solve( valueType y[] ) const {
+  BBlockLU<t_Value>::solve( real_type y[] ) const {
 
     integer const & nblock = m_number_of_blocks;
     integer const & n      = m_block_size;
@@ -162,12 +162,12 @@ namespace alglin {
     integer     m     = n+q;
     integer     nm    = n+m;
     integer     rowFF = (nblock-1) * n;
-    valueType * ye    = y + nblock * n;
+    real_type * ye    = y + nblock * n;
 
     for ( integer k = 0; k < nblock; ++k ) {
       integer   const * ipivk = m_ipiv_blk + k * n;
-      valueType const * AdH   = m_AdH_blk  + k * (nm*n);
-      valueType       * yk    = y        + k * n;
+      real_type const * AdH   = m_AdH_blk  + k * (nm*n);
+      real_type       * yk    = y        + k * n;
 
       // apply permutation
       for ( integer i = 0; i < n; ++i ) {
@@ -192,9 +192,9 @@ namespace alglin {
     integer k = nblock;
     do {
       --k;
-      valueType const * AdH = m_AdH_blk + k*nm*n;
-      valueType const * Au  = m_Au_blk  + k*n*n;
-      valueType       * yk  = y         + k*n;
+      real_type const * AdH = m_AdH_blk + k*nm*n;
+      real_type const * Au  = m_Au_blk  + k*n*n;
+      real_type       * yk  = y         + k*n;
 
       gemv( NO_TRANSPOSE, n, n, -1, Au, n, yk + n, 1, 1, yk, 1 );
       trsv( UPPER, NO_TRANSPOSE, NON_UNIT, n, AdH, nm, yk, 1 );

@@ -14,6 +14,4 @@ bin
 lib
 lib3rd
 build
-third_parties/Eigen3/eigen3
 3.3.4.tar.gz
-third_parties/SuperLU/superlu

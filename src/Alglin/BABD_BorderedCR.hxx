@@ -84,7 +84,7 @@ namespace alglin {
   template <typename t_Value>
   class BorderedCR : public LinearSystemSolver<t_Value> {
   public:
-    typedef t_Value valueType;
+    typedef t_Value real_type;
 
     typedef enum {
       BORDERED_LU      = 0,
@@ -113,12 +113,12 @@ namespace alglin {
 
   protected:
 
-    Malloc<valueType>  m_baseValue;
+    Malloc<real_type>  m_baseValue;
     Malloc<integer>    m_baseInteger;
-    Malloc<valueType*> m_basePointer;
+    Malloc<real_type*> m_basePointer;
     Malloc<integer*>   m_basePointerInteger;
 
-    Malloc<valueType>  m_superluValue;
+    Malloc<real_type>  m_superluValue;
     Malloc<int>        m_superluInteger;
 
     integer m_number_of_blocks; //!< total number of blocks
@@ -160,37 +160,37 @@ namespace alglin {
     BORDERED_Choice      m_selected;
     bool                 m_last_must_use_PINV;
 
-    valueType * m_H0Nqp;
-    valueType * m_Bmat;
-    valueType * m_Cmat;
-    valueType * m_Cqmat;
-    valueType * m_Dmat;
-    valueType * m_Emat;
+    real_type * m_H0Nqp;
+    real_type * m_Bmat;
+    real_type * m_Cmat;
+    real_type * m_Cqmat;
+    real_type * m_Dmat;
+    real_type * m_Emat;
 
-    valueType** m_Fmat;
-    valueType** m_WorkT;
-    valueType** m_WorkQR;
+    real_type** m_Fmat;
+    real_type** m_WorkT;
+    real_type** m_WorkQR;
 
     // working block
-    valueType * m_Tmat;
-    valueType * m_Ttau;
-    valueType * m_Work;
+    real_type * m_Tmat;
+    real_type * m_Ttau;
+    real_type * m_Work;
     integer   * m_Perm;
     integer     m_Lwork;
     integer     m_LworkT;
     integer     m_LworkQR;
 
     // last block
-    valueType * m_Hmat;
+    real_type * m_Hmat;
 
-    LU<valueType>   m_last_lu;
-    LUPQ<valueType> m_last_lupq;
-    QR<valueType>   m_last_qr;
-    QRP<valueType>  m_last_qrp;
-    SVD<valueType>  m_last_svd;
-    LSS<valueType>  m_last_lss;
-    LSY<valueType>  m_last_lsy;
-    PINV<valueType> m_last_pinv;
+    LU<real_type>   m_last_lu;
+    LUPQ<real_type> m_last_lupq;
+    QR<real_type>   m_last_qr;
+    QRP<real_type>  m_last_qrp;
+    SVD<real_type>  m_last_svd;
+    LSS<real_type>  m_last_lss;
+    LSY<real_type>  m_last_lsy;
+    PINV<real_type> m_last_pinv;
 
     integer *m_iBlock;
     integer *m_kBlock;
@@ -200,27 +200,27 @@ namespace alglin {
     integer                     m_used_thread;
     integer                     m_reduced_nblk;
     mutable integer**           m_perm_thread;
-    mutable valueType**         m_xb_thread;
+    mutable real_type**         m_xb_thread;
     mutable Utils::ThreadPool * m_TP;
     mutable Utils::SpinLock     m_spin;
 
     void
     buildT(
       integer         nth,
-      valueType const TOP[],
-      valueType const BOTTOM[],
-      valueType       T[],
+      real_type const TOP[],
+      real_type const BOTTOM[],
+      real_type       T[],
       integer         iperm[]
     ) const;
 
     void
     applyT(
       integer         nth,
-      valueType const T[],
+      real_type const T[],
       integer   const iperm[],
-      valueType       TOP[],
+      real_type       TOP[],
       integer         ldTOP,
-      valueType       BOTTOM[],
+      real_type       BOTTOM[],
       integer         ldBOTTOM,
       integer         ncol
     ) const;
@@ -228,10 +228,10 @@ namespace alglin {
     void
     applyT(
       integer         nth,
-      valueType const T[],
+      real_type const T[],
       integer   const iperm[],
-      valueType       TOP[],
-      valueType       BOTTOM[]
+      real_type       TOP[],
+      real_type       BOTTOM[]
     ) const;
 
     // convert permutation to exchanges
@@ -264,23 +264,23 @@ namespace alglin {
     */
 
     void
-    forward( integer nth, valueType x[], valueType xb[] ) const;
+    forward( integer nth, real_type x[], real_type xb[] ) const;
 
     void
     forward_n(
       integer   nth,
       integer   nrhs,
-      valueType rhs[],
+      real_type rhs[],
       integer   ldRhs
     ) const;
 
     void
-    forward_reduced( valueType x[], valueType xb[] ) const;
+    forward_reduced( real_type x[], real_type xb[] ) const;
 
     void
     forward_n_reduced(
       integer   nrhs,
-      valueType rhs[],
+      real_type rhs[],
       integer   ldRhs
     ) const;
 
@@ -291,21 +291,21 @@ namespace alglin {
     //  |_.__/\__,_\__|_\_\ \_/\_/\__,_|_| \__,_|
     */
 
-    void backward( integer nth, valueType x[] ) const;
-    void backward_reduced( valueType x[] ) const;
+    void backward( integer nth, real_type x[] ) const;
+    void backward_reduced( real_type x[] ) const;
 
     void
     backward_n(
       integer   nth,
       integer   nrhs,
-      valueType rhs[],
+      real_type rhs[],
       integer   ldRhs
     ) const;
 
     void
     backward_n_reduced(
       integer   nrhs,
-      valueType rhs[],
+      real_type rhs[],
       integer   ldRhs
     ) const;
 
@@ -320,12 +320,12 @@ namespace alglin {
     */
 
     bool
-    solve_last( valueType [] ) const;
+    solve_last( real_type [] ) const;
 
     bool
     solve_last(
       integer   nrhs,
-      valueType rhs[],
+      real_type rhs[],
       integer   ldRhs
     ) const;
 
@@ -505,13 +505,13 @@ namespace alglin {
      | | |_) |
      | |____/
     \*/
-    void loadB( integer nbl, valueType const B[], integer ldB );
-    void loadB( integer nbl, MatrixWrapper<valueType> const & B );
-    void addtoB( integer nbl, valueType const B[], integer ldB );
-    void addtoB( integer nbl, MatrixWrapper<valueType> const & B );
+    void loadB( integer nbl, real_type const B[], integer ldB );
+    void loadB( integer nbl, MatrixWrapper<real_type> const & B );
+    void addtoB( integer nbl, real_type const B[], integer ldB );
+    void addtoB( integer nbl, MatrixWrapper<real_type> const & B );
 
     integer patternB( integer nbl, integer I[], integer J[], integer offs ) const;
-    integer valuesB( integer nbl, valueType V[] ) const;
+    integer valuesB( integer nbl, real_type V[] ) const;
 
     // Border Bottom blocks
     /*\
@@ -521,17 +521,17 @@ namespace alglin {
      | | |___
      |  \____|
     \*/
-    void loadC( integer nbl, valueType const C[], integer ldC );
-    void loadC( integer nbl, MatrixWrapper<valueType> const & C );
-    void addtoC( integer nbl, valueType const C[], integer ldC );
-    void addtoC( integer nbl, MatrixWrapper<valueType> const & C );
+    void loadC( integer nbl, real_type const C[], integer ldC );
+    void loadC( integer nbl, MatrixWrapper<real_type> const & C );
+    void addtoC( integer nbl, real_type const C[], integer ldC );
+    void addtoC( integer nbl, MatrixWrapper<real_type> const & C );
 
     integer patternC( integer nbl, integer I[], integer J[], integer offs ) const;
-    integer valuesC( integer nbl, valueType V[] ) const;
+    integer valuesC( integer nbl, real_type V[] ) const;
 
     // add to block nbl and nbl+1
-    void addtoC2( integer nbl, valueType const C[], integer ldC );
-    void addtoC2( integer nbl, MatrixWrapper<valueType> const & C );
+    void addtoC2( integer nbl, real_type const C[], integer ldC );
+    void addtoC2( integer nbl, MatrixWrapper<real_type> const & C );
 
     // -------------------------------------------------------------------------
     /*\
@@ -541,11 +541,11 @@ namespace alglin {
      | | |_| |
      | |____/
     \*/
-    void loadD( integer nbl, valueType const D[], integer ldD );
-    void loadD( integer nbl, MatrixWrapper<valueType> const & D );
+    void loadD( integer nbl, real_type const D[], integer ldD );
+    void loadD( integer nbl, MatrixWrapper<real_type> const & D );
 
     integer patternD( integer nbl, integer I[], integer J[], integer offs ) const;
-    integer valuesD( integer nbl, valueType V[] ) const;
+    integer valuesD( integer nbl, real_type V[] ) const;
 
     /*\
      |  _____
@@ -554,14 +554,14 @@ namespace alglin {
      | | |___
      | |_____|
     \*/
-    void loadE( integer nbl, valueType const E[], integer ldE );
-    void loadE( integer nbl, MatrixWrapper<valueType> const & E );
+    void loadE( integer nbl, real_type const E[], integer ldE );
+    void loadE( integer nbl, MatrixWrapper<real_type> const & E );
 
     integer patternE( integer nbl, integer I[], integer J[], integer offs ) const;
-    integer valuesE( integer nbl, valueType V[] ) const;
+    integer valuesE( integer nbl, real_type V[] ) const;
 
-    void loadDE( integer nbl, valueType const DE[], integer ldDE );
-    void loadDEB( integer nbl, valueType const DEB[], integer ldDEB );
+    void loadDE( integer nbl, real_type const DE[], integer ldDE );
+    void loadDEB( integer nbl, real_type const DEB[], integer ldDEB );
 
     // -------------------------------------------------------------------------
     /*\
@@ -571,13 +571,13 @@ namespace alglin {
      | |  _|
      | |_|
     \*/
-    void loadF( valueType const F[], integer ldF );
-    void loadF( MatrixWrapper<valueType> const & F );
-    void addtoF( valueType const F[], integer ldF );
-    void addtoF( MatrixWrapper<valueType> const & F );
+    void loadF( real_type const F[], integer ldF );
+    void loadF( MatrixWrapper<real_type> const & F );
+    void addtoF( real_type const F[], integer ldF );
+    void addtoF( MatrixWrapper<real_type> const & F );
 
     integer patternF( integer I[], integer J[], integer offs ) const;
-    integer valuesF( valueType V[] ) const;
+    integer valuesF( real_type V[] ) const;
 
     // -------------------------------------------------------------------------
     /*\
@@ -589,12 +589,12 @@ namespace alglin {
      |          |_|
     \*/
 
-    void loadCq( valueType const Cq[], integer ldC );
-    void loadCq( MatrixWrapper<valueType> const & Cq );
-    void loadCqF( valueType const CqF[], integer ldCF );
+    void loadCq( real_type const Cq[], integer ldC );
+    void loadCq( MatrixWrapper<real_type> const & Cq );
+    void loadCqF( real_type const CqF[], integer ldCF );
 
     integer patternCq( integer I[], integer J[], integer offs ) const;
-    integer valuesCq( valueType V[] ) const;
+    integer valuesCq( real_type V[] ) const;
 
     // -------------------------------------------------------------------------
     /*\
@@ -605,26 +605,26 @@ namespace alglin {
      | |_| |_|
     \*/
     integer patternH( integer I[], integer J[], integer offs ) const;
-    integer valuesH( valueType V[] ) const;
+    integer valuesH( real_type V[] ) const;
 
     void
     loadBottom(
-      valueType const H0[], integer ld0,
-      valueType const HN[], integer ldN,
-      valueType const Hq[], integer ldQ,
-      valueType const Hp[], integer ldP
+      real_type const H0[], integer ld0,
+      real_type const HN[], integer ldN,
+      real_type const Hq[], integer ldQ,
+      real_type const Hp[], integer ldP
     );
 
     void
     loadBottom(
-      MatrixWrapper<valueType> const & H0,
-      MatrixWrapper<valueType> const & HN,
-      MatrixWrapper<valueType> const & Hq,
-      MatrixWrapper<valueType> const & Hp
+      MatrixWrapper<real_type> const & H0,
+      MatrixWrapper<real_type> const & HN,
+      MatrixWrapper<real_type> const & Hq,
+      MatrixWrapper<real_type> const & Hp
     );
 
-    void loadBottom( valueType const _H0Nqp[], integer ldH );
-    void loadBottom( MatrixWrapper<valueType> const & H );
+    void loadBottom( real_type const _H0Nqp[], integer ldH );
+    void loadBottom( MatrixWrapper<real_type> const & H );
 
     /*\
      |  +---+---+---+---+
@@ -634,22 +634,22 @@ namespace alglin {
 
     void
     loadBottom2(
-      valueType const C0[], integer ld0,
-      valueType const CN[], integer ldN,
-      valueType const Cq[], integer ldCq,
-      valueType const F[],  integer ldF
+      real_type const C0[], integer ld0,
+      real_type const CN[], integer ldN,
+      real_type const Cq[], integer ldCq,
+      real_type const F[],  integer ldF
     );
 
     void
     loadBottom2(
-      MatrixWrapper<valueType> const & C0,
-      MatrixWrapper<valueType> const & CN,
-      MatrixWrapper<valueType> const & Cq,
-      MatrixWrapper<valueType> const & F
+      MatrixWrapper<real_type> const & C0,
+      MatrixWrapper<real_type> const & CN,
+      MatrixWrapper<real_type> const & Cq,
+      MatrixWrapper<real_type> const & F
     );
 
     void
-    loadBottom2( MatrixWrapper<valueType> const & H );
+    loadBottom2( MatrixWrapper<real_type> const & H );
 
     /*!
      | @}
@@ -720,31 +720,31 @@ namespace alglin {
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     void
-    B( integer nbl, MatrixWrapper<valueType> & B_wrap )
+    B( integer nbl, MatrixWrapper<real_type> & B_wrap )
     { B_wrap.setup( m_Bmat + nbl*n_x_nx, m_block_size, m_nx, m_block_size ); }
 
     void
-    C( integer nbl, MatrixWrapper<valueType> & C_wrap )
+    C( integer nbl, MatrixWrapper<real_type> & C_wrap )
     { C_wrap.setup( m_Cmat + nbl*nr_x_n, m_nr, m_block_size, m_nr ); }
 
     void
-    D( integer nbl, MatrixWrapper<valueType> & D_wrap )
+    D( integer nbl, MatrixWrapper<real_type> & D_wrap )
     { D_wrap.setup( m_Dmat + nbl*n_x_n, m_block_size, m_block_size, m_block_size ); }
 
     void
-    E( integer nbl, MatrixWrapper<valueType> & E_wrap )
+    E( integer nbl, MatrixWrapper<real_type> & E_wrap )
     { E_wrap.setup( m_Emat + nbl*n_x_n, m_block_size, m_block_size, m_block_size ); }
 
     void
-    F( MatrixWrapper<valueType> & F_wrap )
+    F( MatrixWrapper<real_type> & F_wrap )
     { F_wrap.setup( m_Fmat[0], m_nr, m_nx, m_nr ); }
 
     void
-    Cq( MatrixWrapper<valueType> & Cq_wrap )
+    Cq( MatrixWrapper<real_type> & Cq_wrap )
     { Cq_wrap.setup( m_Cqmat, m_nr, m_qx, m_nr ); }
 
     void
-    H( MatrixWrapper<valueType> & H_wrap ) const
+    H( MatrixWrapper<real_type> & H_wrap ) const
     { H_wrap.setup( m_H0Nqp, m_block_size + m_qr, m_Nc, m_block_size + m_qr ); }
 
     /*!
@@ -763,10 +763,10 @@ namespace alglin {
       }
     }
 
-    bool solve_SuperLU( valueType x[] ) const;
-    bool solve_CR( valueType x[] ) const;
-    bool solve_SuperLU( integer nrhs, valueType rhs[], integer ldRhs ) const;
-    bool solve_CR( integer nrhs, valueType rhs[], integer ldRhs ) const;
+    bool solve_SuperLU( real_type x[] ) const;
+    bool solve_CR( real_type x[] ) const;
+    bool solve_SuperLU( integer nrhs, real_type rhs[], integer ldRhs ) const;
+    bool solve_CR( integer nrhs, real_type rhs[], integer ldRhs ) const;
 
     /*\
      |         _      _               _
@@ -778,7 +778,7 @@ namespace alglin {
 
     virtual
     bool
-    solve( valueType x[] ) const override {
+    solve( real_type x[] ) const override {
       if ( m_selected == BORDERED_SUPERLU ) {
         return solve_SuperLU( x );
       } else {
@@ -788,7 +788,7 @@ namespace alglin {
 
     virtual
     bool
-    solve( integer nrhs, valueType rhs[], integer ldRhs ) const override {
+    solve( integer nrhs, real_type rhs[], integer ldRhs ) const override {
       if ( m_selected == BORDERED_SUPERLU ) {
         return solve_SuperLU( nrhs, rhs, ldRhs );
       } else {
@@ -798,13 +798,13 @@ namespace alglin {
 
     virtual
     bool
-    t_solve( valueType [] ) const override {
+    t_solve( real_type [] ) const override {
       UTILS_ERROR0( "BorderedCR::t_solve() not defined\n" );
     }
 
     virtual
     bool
-    t_solve( integer, valueType [], integer ) const override {
+    t_solve( integer, real_type [], integer ) const override {
       UTILS_ERROR0( "BorderedCR::t_solve() not defined\n" );
     }
 
@@ -816,11 +816,11 @@ namespace alglin {
      | /_/   \_\__,_/_/\_\
      |
     \*/
-    void Mv( valueType const x[], valueType res[] ) const;
-    void addMv( valueType alpha, valueType const x[], valueType res[] ) const;
+    void Mv( real_type const x[], real_type res[] ) const;
+    void addMv( real_type alpha, real_type const x[], real_type res[] ) const;
 
     void
-    addMv( valueType const x[], valueType res[] ) const {
+    addMv( real_type const x[], real_type res[] ) const {
       addMv( 1.0, x, res );
     }
 
@@ -849,11 +849,11 @@ namespace alglin {
     sparsePattern( integer I[], integer J[], integer offs ) const;
 
     void
-    sparseValues( valueType V[] ) const;
+    sparseValues( real_type V[] ) const;
 
     void
     sparseLoad(
-      valueType const M_values[],
+      real_type const M_values[],
       integer   const M_row[], integer r_offs,
       integer   const M_col[], integer c_offs,
       integer         M_nnz
@@ -878,35 +878,35 @@ namespace alglin {
     \*/
     bool
     mult_inv(
-      valueType const b[],
+      real_type const b[],
       integer         incb,
-      valueType       x[],
+      real_type       x[],
       integer         incx
     ) const;
 
     bool
     t_mult_inv(
-      valueType const b[],
+      real_type const b[],
       integer         incb,
-      valueType       x[],
+      real_type       x[],
       integer         incx
     ) const;
 
     bool
     mult_inv(
       integer         nrhs,
-      valueType const B[],
+      real_type const B[],
       integer         ldB,
-      valueType       X[],
+      real_type       X[],
       integer         ldX
     ) const;
 
     bool
     t_mult_inv(
       integer         nrhs,
-      valueType const B[],
+      real_type const B[],
       integer         ldB,
-      valueType       X[],
+      real_type       X[],
       integer         ldX
     ) const;
 

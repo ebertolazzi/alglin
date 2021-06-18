@@ -21,15 +21,15 @@
 #include <random>
 
 using namespace std;
-typedef double valueType;
+typedef double real_type;
 
 static unsigned seed1 = 2;
 static std::mt19937 generator(seed1);
 
 static
-valueType
-rand( valueType xmin, valueType xmax ) {
-  valueType random = valueType(generator())/generator.max();
+real_type
+rand( real_type xmin, real_type xmax ) {
+  real_type random = real_type(generator())/generator.max();
   return xmin + (xmax-xmin)*random;
 }
 
@@ -47,7 +47,7 @@ fill_matrix(
 
   BCR.allocate( nblock, n, qr, qx, nr, nx );
 
-  valueType diag = 1.01*n;
+  real_type diag = 1.01*n;
 
   for ( int i = 0; i < (n+qr); ++i ) {
     for ( int j = 0; j < (2*n+qx+nx); ++j ) {
@@ -111,15 +111,15 @@ main() {
 
   fill_matrix( BCR, nblock, n, nr, nx, qr, qx );
 
-  alglin::Malloc<valueType>       baseValue("real");
+  alglin::Malloc<real_type>       baseValue("real");
   alglin::Malloc<alglin::integer> baseIndex("integer");
 
   baseValue.allocate( size_t(7*N) );
-  valueType * x     = baseValue(size_t(2*N)); // extra space per multiple rhs
-  valueType * xref  = baseValue(size_t(N));
-  valueType * xref1 = baseValue(size_t(N));
-  valueType * rhs   = baseValue(size_t(2*N));
-  valueType * resid = baseValue(size_t(N));
+  real_type * x     = baseValue(size_t(2*N)); // extra space per multiple rhs
+  real_type * xref  = baseValue(size_t(N));
+  real_type * xref1 = baseValue(size_t(N));
+  real_type * rhs   = baseValue(size_t(2*N));
+  real_type * resid = baseValue(size_t(N));
 
   BCR.select_LU();
   //BCR.select_QR();
@@ -205,7 +205,7 @@ main() {
 
   alglin::copy( N, xref, 1, xref1, 1 );
   alglin::axpy( N, -1.0, x, 1, xref1, 1 );
-  valueType err = alglin::absmax( N, xref1, 1 );
+  real_type err = alglin::absmax( N, xref1, 1 );
   fmt::print("Check |err|_inf = {:.5}\n",err);
   UTILS_ASSERT0( err < 1e-8, "test failed!\n" );
   err = alglin::asum( N, xref1, 1 )/N;
@@ -268,7 +268,7 @@ main() {
   BCR.solve( x );
   BCR_SAVED.addMv( x, resid );
 
-  valueType res = alglin::nrm2( BCR_SAVED.numRows(), resid, 1 );
+  real_type res = alglin::nrm2( BCR_SAVED.numRows(), resid, 1 );
   fmt::print("||res||_2   = {:.5}\n",res);
   UTILS_ASSERT0( res < 1e-6, "test failed!\n" );
   res = alglin::asum( BCR_SAVED.numRows(), resid, 1 );

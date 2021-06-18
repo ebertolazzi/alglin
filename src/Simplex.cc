@@ -35,9 +35,9 @@
 //! namespace for nonlinear systems and nonlinearsolver
 namespace Simplex {
 
-  valueType const epsilon        = std::numeric_limits<valueType>::epsilon();
-  valueType const relaxedEpsilon = pow(epsilon,0.8);
-  valueType const infinity       = std::numeric_limits<valueType>::max();
+  real_type const epsilon        = std::numeric_limits<real_type>::epsilon();
+  real_type const relaxedEpsilon = pow(epsilon,0.8);
+  real_type const infinity       = std::numeric_limits<real_type>::max();
 
  /*\
   |     _             ___         _    _
@@ -82,7 +82,7 @@ namespace Simplex {
     m_nz = m_nw = m_np = 0;
     m_problem_base->load_b( m_d );
     for ( integer i = 0; i < n;  ++i ) {
-      valueType q = 0;
+      real_type q = 0;
       integer icase = 0;
       if ( m_problem_base->Upper_is_free(i) ) icase  = 1;
       if ( m_problem_base->Lower_is_free(i) ) icase += 2;
@@ -124,18 +124,18 @@ namespace Simplex {
   AuxProblem::Upper_is_free( integer   ) const
   { return true; }
 
-  valueType
+  real_type
   AuxProblem::Lower( integer i ) const {
     if ( Lower_is_free(i) ) return infinity;
     else                    return 0;
   }
 
-  valueType
+  real_type
   AuxProblem::Upper( integer ) const
   { return infinity; }
 
   void
-  AuxProblem::feasible_point( valueType x[], integer IB[] ) const {
+  AuxProblem::feasible_point( real_type x[], integer IB[] ) const {
     integer nn = m_nz+m_nw+m_np;
     alglin::zero( nn, x, 1 );
     for ( integer i = 0; i < m; ++i ) {
@@ -157,17 +157,17 @@ namespace Simplex {
   \*/
   void
   AuxProblem::to_primal(
-    valueType const x[],
-    valueType       xo[],
+    real_type const x[],
+    real_type       xo[],
     integer         IBo[]
   ) const {
     integer ib  = 0;
     integer nzz = 0;
     integer nww = 0;
     integer npp = 0;
-    valueType const * z = x;
-    valueType const * w = z+m_nz;
-    valueType const * p = w+m_nw;
+    real_type const * z = x;
+    real_type const * w = z+m_nz;
+    real_type const * p = w+m_nw;
     for ( integer i = 0; i < n;  ++i ) {
       integer icase = 0;
       if ( m_problem_base->Upper_is_free(i) ) icase  = 1;
@@ -193,7 +193,7 @@ namespace Simplex {
   }
 
   integer
-  AuxProblem::load_A_column( integer jcol, valueType vals[], integer irow[] ) const {
+  AuxProblem::load_A_column( integer jcol, real_type vals[], integer irow[] ) const {
     integer nnz;
     if ( jcol < m_nz ) { // Z matrix
       integer j = m_map_z[jcol];
@@ -226,7 +226,7 @@ namespace Simplex {
   }
 
   void
-  AuxProblem::subtract_Ax( valueType const x[], valueType res[] ) const {
+  AuxProblem::subtract_Ax( real_type const x[], real_type res[] ) const {
     for ( integer i = 0; i < dim_x(); ++i ) {
       integer nnz = load_A_column( i, m_values, m_i_row );
       for ( integer k = 0; k < nnz; ++k )
@@ -244,12 +244,12 @@ namespace Simplex {
   StandardProblem::setup(
     integer         _m,
     integer         _n,
-    valueType const _A[],
+    real_type const _A[],
     integer         _ldA,
-    valueType const _b[],
-    valueType const _c[],
-    valueType const _L[],
-    valueType const _U[]
+    real_type const _b[],
+    real_type const _c[],
+    real_type const _L[],
+    real_type const _U[]
   ) {
     m   = _m;
     n   = _n;
@@ -306,11 +306,11 @@ namespace Simplex {
   Problem::setup(
     integer         _m,
     integer         _n,
-    valueType const _A[],
+    real_type const _A[],
     integer         _ldA,
-    valueType const _c[],
-    valueType const _L[],
-    valueType const _U[]
+    real_type const _c[],
+    real_type const _L[],
+    real_type const _U[]
   ) {
     m   = _m;
     n   = _n;
@@ -414,9 +414,9 @@ namespace Simplex {
   void
   StandardSolver::solve(
     StandardProblemBase * _problem,
-    valueType x[],
+    real_type x[],
     integer   IB[],
-    valueType eps
+    real_type eps
   ) {
 
     problem = _problem;
@@ -427,12 +427,12 @@ namespace Simplex {
 
     // memory allocation
     baseReals.reallocate(4*m+2*n);
-    valueType * gamma  = baseReals(m);
-    valueType * beta   = baseReals(m);
-    valueType * ceta   = baseReals(nm);
-    valueType * y      = baseReals(m);
-    valueType * c      = baseReals(n);
-    valueType * values = baseReals(m);
+    real_type * gamma  = baseReals(m);
+    real_type * beta   = baseReals(m);
+    real_type * ceta   = baseReals(nm);
+    real_type * y      = baseReals(m);
+    real_type * c      = baseReals(n);
+    real_type * values = baseReals(m);
 
     baseIntegers.reallocate(n);
     integer * IN    = baseIntegers(nm);
@@ -476,8 +476,8 @@ namespace Simplex {
     }
 
     if ( n == m ) { // trivial solution
-      alglin::Matrix<valueType> mat;
-      alglin::LU<valueType>     lu; // qr decomposition manage class
+      alglin::Matrix<real_type> mat;
+      alglin::LU<real_type>     lu; // qr decomposition manage class
       mat.setup( m, m );
       mat.zero_fill();
       // select ALL the column of matrix A
@@ -503,8 +503,8 @@ namespace Simplex {
       }
     }
 
-    alglin::Matrix<valueType> qr_mat;
-    alglin::QRP<valueType>    qr; // qr decomposition manage class
+    alglin::Matrix<real_type> qr_mat;
+    alglin::QRP<real_type>    qr; // qr decomposition manage class
     qr_mat.setup( m, m );
     qr_mat.zero_fill();
 
@@ -542,14 +542,14 @@ namespace Simplex {
     }
 
     // check residual
-    valueType scale_residual = 1;
+    real_type scale_residual = 1;
     if ( problem->get_A_max_abs() > scale_residual ) scale_residual = problem->get_A_max_abs();
     if ( problem->get_b_max_abs() > scale_residual ) scale_residual = problem->get_b_max_abs();
 
     problem->load_b( y );
     problem->subtract_Ax( x, y );
     for ( integer i = 0; i < m; ++i ) {
-      valueType error = std::abs(y[i]);
+      real_type error = std::abs(y[i]);
       SIMPLEX_ASSERT(
         error < eps*scale_residual,
         "Error in Simplex: Infeasible starting point, violating " << i <<
@@ -592,8 +592,8 @@ namespace Simplex {
       // 3. compute pivot column gamma
       integer   inmin      = n;
       integer   Q          = -1;
-      valueType ceta_max_L = 0;
-      valueType ceta_min_U = 0;
+      real_type ceta_max_L = 0;
+      real_type ceta_min_U = 0;
       // select the non bases (pivot) columns (n-m)
       for ( integer i = 0; i < nm; ++i ) {
         integer ini = IN[i];
@@ -637,7 +637,7 @@ namespace Simplex {
           bool unique = std::abs(ceta_max_L) <= eps ||
                         std::abs(ceta_min_U) <= eps;
           std::vector<bool>      B(n);
-          std::vector<valueType> D(n);
+          std::vector<real_type> D(n);
           std::fill( B.begin(), B.end(), false );
           for ( integer i = 0; i < m; ++i ) {
             B[IB[i]] = true;
@@ -698,14 +698,14 @@ namespace Simplex {
       */
       integer   IBmin    = n; // maximum number of column of A (size of x)
       integer   P        = -1;
-      valueType beta_min = infinity;
+      real_type beta_min = infinity;
       if ( ceta[Q] > 0 ) {
         /*
         // case 1: ceta[Q] > 0 (resp. X[IN[Q]]=L[IN[Q]])
         */
         for ( integer i = 0; i < m; ++i ) {
           integer   IBi  = IB[i];
-          valueType QUOT = infinity;
+          real_type QUOT = infinity;
           if ( gamma[i] < -eps ) {
             if ( U_bounded(IBi) ) QUOT = (beta[i]-U(IBi))/gamma[i];
           } else if ( gamma[i] > eps ) {
@@ -724,7 +724,7 @@ namespace Simplex {
         */
         for ( integer i = 0; i < m; ++i ) {
           integer   IBi  = IB[i];
-          valueType QUOT = infinity;
+          real_type QUOT = infinity;
           if ( gamma[i] > eps ) {
             if ( U_bounded(IBi) ) QUOT = (U(IBi)-beta[i])/gamma[i];
           } else if ( gamma[i] < -infinity ) {
@@ -741,7 +741,7 @@ namespace Simplex {
       /*
       // stopping criteria
       */
-      valueType TQ  = infinity;
+      real_type TQ  = infinity;
       integer   INq = IN[Q];
       integer   IBp = IB[P];
       if ( U_bounded(INq) && L_bounded(INq) ) TQ = U(INq)-L(INq);

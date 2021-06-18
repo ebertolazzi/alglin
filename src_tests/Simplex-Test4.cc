@@ -25,13 +25,13 @@ main() {
   // Cycling pivot test
   Simplex::integer   m    = 3;
   Simplex::integer   n    = 3;
-  Simplex::valueType A[]  = {  1,  2,  0,
+  Simplex::real_type A[]  = {  1,  2,  0,
                                1,  1, -1,
                                1, -1,  1 };
-  Simplex::valueType c[]  = { -2, -3, -1 };
-  Simplex::valueType L[]  = { 0, 0, 0, -infinity, 10, 10 };
-  Simplex::valueType U[]  = { infinity, infinity, infinity, 40, infinity, infinity };
-  //Simplex::valueType x[]  = { 0, 0, 0, 0, 0, 1 };
+  Simplex::real_type c[]  = { -2, -3, -1 };
+  Simplex::real_type L[]  = { 0, 0, 0, -infinity, 10, 10 };
+  Simplex::real_type U[]  = { infinity, infinity, infinity, 40, infinity, infinity };
+  //Simplex::real_type x[]  = { 0, 0, 0, 0, 0, 1 };
   //Simplex::integer   IB[] = { 0, 1, 2 };
 
   Simplex::Problem        simplex_problem;
@@ -40,7 +40,7 @@ main() {
 
   try {
     //simplex.solve( &simplex_problem, x, IB );
-    Simplex::valueType xd[100], xdd[100];
+    Simplex::real_type xd[100], xdd[100];
     Simplex::integer   IBd[100];
 
     simplex_problem.setup( m, n, A, m, c, L, U );

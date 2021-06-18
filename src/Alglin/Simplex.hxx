@@ -63,18 +63,20 @@
   #define SIMPLEX_ASSERT(COND,MSG) if ( !(COND) ) SIMPLEX_ERROR(MSG);
 #endif
 
-//! namespace for nonlinear systems and nonlinearsolver
+//!
+//! Namespace for nonlinear systems and nonlinearsolver
+//!
 namespace Simplex {
 
   using alglin::ostream_type;
   using alglin::integer;
   using std::vector;
 
-  typedef alglin::doublereal valueType; //!< double value
+  typedef alglin::doublereal real_type; //!< double value
 
-  extern valueType const epsilon; // machine epsilon
-  extern valueType const relaxedEpsilon;
-  extern valueType const infinity;
+  extern real_type const epsilon; // machine epsilon
+  extern real_type const relaxedEpsilon;
+  extern real_type const infinity;
 
   /*\
    |   ___ _                _             _   ___         _    _             ___
@@ -113,17 +115,17 @@ namespace Simplex {
     ~StandardProblemBase()
     {}
 
-    SIMPLEX_VIRTUAL valueType get_b_max_abs() const = 0;
-    SIMPLEX_VIRTUAL valueType get_c_max_abs() const = 0;
-    SIMPLEX_VIRTUAL valueType get_A_max_abs() const = 0;
+    SIMPLEX_VIRTUAL real_type get_b_max_abs() const = 0;
+    SIMPLEX_VIRTUAL real_type get_c_max_abs() const = 0;
+    SIMPLEX_VIRTUAL real_type get_A_max_abs() const = 0;
 
     SIMPLEX_VIRTUAL integer dim_x() const = 0; //!< dimension of x
     SIMPLEX_VIRTUAL integer dim_g() const = 0; //!< number of equality constraints
 
-    SIMPLEX_VIRTUAL void load_c( valueType c[] ) const = 0;
+    SIMPLEX_VIRTUAL void load_c( real_type c[] ) const = 0;
 
     //! fill the vector b with the rhs of the constraints \f$ Ax = b \$f
-    SIMPLEX_VIRTUAL void load_b( valueType b[] ) const = 0;
+    SIMPLEX_VIRTUAL void load_b( real_type b[] ) const = 0;
 
     /*!
       fill the sparse vector with the column `j_col` of matrix `A` in a sparse form as values
@@ -133,16 +135,16 @@ namespace Simplex {
       \param  i_row  the index of the row of the corresponding nonzeros element
       \return number of nonzeros elements of the column
     \*/
-    SIMPLEX_VIRTUAL integer load_A_column( integer j_col, valueType values[], integer i_row[] ) const = 0;
+    SIMPLEX_VIRTUAL integer load_A_column( integer j_col, real_type values[], integer i_row[] ) const = 0;
 
     //! subtract to `res` the product `Ax`
-    SIMPLEX_VIRTUAL void subtract_Ax( valueType const x[], valueType res[] ) const = 0;
+    SIMPLEX_VIRTUAL void subtract_Ax( real_type const x[], real_type res[] ) const = 0;
 
     //! lower bound of `x_i`
-    SIMPLEX_VIRTUAL valueType Lower( integer i ) const = 0;
+    SIMPLEX_VIRTUAL real_type Lower( integer i ) const = 0;
 
     //! upper bound of `x_i`
-    SIMPLEX_VIRTUAL valueType Upper( integer i ) const = 0;
+    SIMPLEX_VIRTUAL real_type Upper( integer i ) const = 0;
 
     //! return true if lower bound of `x_i` is unlimited
     SIMPLEX_VIRTUAL bool Lower_is_free( integer i ) const = 0;
@@ -204,13 +206,13 @@ namespace Simplex {
     ~ProblemBase()
     {}
 
-    SIMPLEX_VIRTUAL valueType get_c_max_abs() const = 0;
-    SIMPLEX_VIRTUAL valueType get_A_max_abs() const = 0;
+    SIMPLEX_VIRTUAL real_type get_c_max_abs() const = 0;
+    SIMPLEX_VIRTUAL real_type get_A_max_abs() const = 0;
 
     SIMPLEX_VIRTUAL integer dim_x() const = 0; //!< dimension of x
     SIMPLEX_VIRTUAL integer dim_g() const = 0; //!< number of equality constraints
 
-    SIMPLEX_VIRTUAL void load_c( valueType c[] ) const = 0;
+    SIMPLEX_VIRTUAL void load_c( real_type c[] ) const = 0;
 
     /*!
       fill the sparse vector with the column `j_col` of matrix `A` in a sparse form as values
@@ -220,16 +222,16 @@ namespace Simplex {
       \param  i_row  the index of the row of the corresponding nonzeros element
       \return number of nonzeros elements of the column
     \*/
-    SIMPLEX_VIRTUAL integer load_A_column( integer j_col, valueType values[], integer i_row[] ) const = 0;
+    SIMPLEX_VIRTUAL integer load_A_column( integer j_col, real_type values[], integer i_row[] ) const = 0;
 
     //! subtract to `res` the product `Ax`
-    SIMPLEX_VIRTUAL void subtract_Ax( valueType const x[], valueType res[] ) const = 0;
+    SIMPLEX_VIRTUAL void subtract_Ax( real_type const x[], real_type res[] ) const = 0;
 
     //! lower bound of `x_i`
-    SIMPLEX_VIRTUAL valueType Lower( integer i ) const = 0;
+    SIMPLEX_VIRTUAL real_type Lower( integer i ) const = 0;
 
     //! upper bound of `x_i`
-    SIMPLEX_VIRTUAL valueType Upper( integer i ) const = 0;
+    SIMPLEX_VIRTUAL real_type Upper( integer i ) const = 0;
 
     //! return true if lower bound of `x_i` is unlimited
     SIMPLEX_VIRTUAL bool Lower_is_free( integer i ) const = 0;
@@ -303,29 +305,29 @@ namespace Simplex {
     ~StandardProblemAdaptor()
     {}
 
-    SIMPLEX_API_DLL valueType get_b_max_abs() const { return 0; }
-    SIMPLEX_API_DLL valueType get_c_max_abs() const { return problem->get_c_max_abs(); }
-    SIMPLEX_API_DLL valueType get_A_max_abs() const { return problem->get_A_max_abs(); }
+    SIMPLEX_API_DLL real_type get_b_max_abs() const { return 0; }
+    SIMPLEX_API_DLL real_type get_c_max_abs() const { return problem->get_c_max_abs(); }
+    SIMPLEX_API_DLL real_type get_A_max_abs() const { return problem->get_A_max_abs(); }
 
     SIMPLEX_VIRTUAL integer dim_x() const { return problem->dim_x()+problem->dim_g(); }
     SIMPLEX_VIRTUAL integer dim_g() const { return problem->dim_g(); }
 
     SIMPLEX_VIRTUAL
     void
-    load_c( valueType c[] ) const {
+    load_c( real_type c[] ) const {
       problem->load_c( c );
       alglin::zero( problem->dim_g(), c + problem->dim_x(), 1 );
     }
 
     SIMPLEX_VIRTUAL
     void
-    load_b( valueType b[] ) const {
+    load_b( real_type b[] ) const {
       alglin::zero( problem->dim_g(), b, 1 );
     }
 
     SIMPLEX_VIRTUAL
     integer
-    load_A_column( integer j_col, valueType values[], integer i_row[] ) const {
+    load_A_column( integer j_col, real_type values[], integer i_row[] ) const {
       if ( j_col < problem->dim_x() )
         return problem->load_A_column( j_col, values, i_row );
       values[0] = -1;
@@ -335,14 +337,14 @@ namespace Simplex {
 
     SIMPLEX_VIRTUAL
     void
-    subtract_Ax( valueType const x[], valueType res[] ) const {
+    subtract_Ax( real_type const x[], real_type res[] ) const {
       // [ A - I ] x
       problem->subtract_Ax( x, res );
       alglin::axpy( problem->dim_g(), 1.0, x + problem->dim_x(), 1, res, 1 );
     }
 
-    SIMPLEX_VIRTUAL valueType Lower( integer i )         const { return problem->Lower(i); }
-    SIMPLEX_VIRTUAL valueType Upper( integer i )         const { return problem->Upper(i); }
+    SIMPLEX_VIRTUAL real_type Lower( integer i )         const { return problem->Lower(i); }
+    SIMPLEX_VIRTUAL real_type Upper( integer i )         const { return problem->Upper(i); }
     SIMPLEX_VIRTUAL bool      Lower_is_free( integer i ) const { return problem->Lower_is_free(i); }
     SIMPLEX_VIRTUAL bool      Upper_is_free( integer i ) const { return problem->Upper_is_free(i); }
   };
@@ -405,11 +407,11 @@ namespace Simplex {
 
     StandardProblemBase * m_problem_base;
 
-    alglin::Malloc<valueType> m_baseReals;
+    alglin::Malloc<real_type> m_baseReals;
     alglin::Malloc<integer>   m_baseInteger;
 
-    valueType * m_d;
-    valueType * m_values;
+    real_type * m_d;
+    real_type * m_values;
 
     integer n;
     integer m;
@@ -422,9 +424,9 @@ namespace Simplex {
     integer * m_map_case;
     integer * m_i_row;
 
-    valueType m_b_max_abs;
-    valueType m_c_max_abs;
-    valueType m_A_max_abs;
+    real_type m_b_max_abs;
+    real_type m_c_max_abs;
+    real_type m_A_max_abs;
 
   public:
 
@@ -447,13 +449,13 @@ namespace Simplex {
     SIMPLEX_VIRTUAL integer dim_x() const { return m_nz+m_nw+m_np+m; }
     SIMPLEX_VIRTUAL integer dim_g() const { return m; }
 
-    SIMPLEX_API_DLL valueType get_b_max_abs() const { return m_b_max_abs; }
-    SIMPLEX_API_DLL valueType get_c_max_abs() const { return m_c_max_abs; }
-    SIMPLEX_API_DLL valueType get_A_max_abs() const { return m_A_max_abs; }
+    SIMPLEX_API_DLL real_type get_b_max_abs() const { return m_b_max_abs; }
+    SIMPLEX_API_DLL real_type get_c_max_abs() const { return m_c_max_abs; }
+    SIMPLEX_API_DLL real_type get_A_max_abs() const { return m_A_max_abs; }
 
     SIMPLEX_VIRTUAL
     void
-    load_c( valueType c[] ) const {
+    load_c( real_type c[] ) const {
       integer nn = m_nz+m_nw+m_np;
       alglin::zero( nn, c, 1 );
       alglin::fill( m, c + nn, 1, 1.0 );
@@ -461,30 +463,30 @@ namespace Simplex {
 
     SIMPLEX_VIRTUAL
     void
-    load_b( valueType b[] ) const {
+    load_b( real_type b[] ) const {
       for ( integer i = 0; i < m; ++i )
         b[i] = std::abs(m_d[i]);
     }
 
-    SIMPLEX_VIRTUAL integer load_A_column( integer j_col, valueType values[], integer i_row[] ) const;
+    SIMPLEX_VIRTUAL integer load_A_column( integer j_col, real_type values[], integer i_row[] ) const;
 
-    SIMPLEX_VIRTUAL valueType Lower( integer ) const;
-    SIMPLEX_VIRTUAL valueType Upper( integer ) const;
+    SIMPLEX_VIRTUAL real_type Lower( integer ) const;
+    SIMPLEX_VIRTUAL real_type Upper( integer ) const;
 
     SIMPLEX_VIRTUAL bool Lower_is_free( integer ) const;
     SIMPLEX_VIRTUAL bool Upper_is_free( integer ) const;
 
-    SIMPLEX_VIRTUAL void subtract_Ax( valueType const x[], valueType res[] ) const;
+    SIMPLEX_VIRTUAL void subtract_Ax( real_type const x[], real_type res[] ) const;
 
     //! get initial feasible point for the solution of Simplex problem
     SIMPLEX_API_DLL
     void
-    feasible_point( valueType x[], integer IB[] ) const;
+    feasible_point( real_type x[], integer IB[] ) const;
 
     //! get the solution of the Aux problem and transform to initial point of primal problem
     SIMPLEX_API_DLL
     void
-    to_primal( valueType const x[], valueType xo[], integer IBo[] ) const;
+    to_primal( real_type const x[], real_type xo[], integer IBo[] ) const;
   };
 
   /*\
@@ -497,16 +499,16 @@ namespace Simplex {
   private:
     integer           n;
     integer           m;
-    valueType const * c;
-    valueType const * A;
-    valueType const * b;
-    valueType const * L;
-    valueType const * U;
+    real_type const * c;
+    real_type const * A;
+    real_type const * b;
+    real_type const * L;
+    real_type const * U;
     integer           ldA;
 
-    valueType b_max_abs;
-    valueType c_max_abs;
-    valueType A_max_abs;
+    real_type b_max_abs;
+    real_type c_max_abs;
+    real_type A_max_abs;
 
     std::vector<bool> L_free, U_free;
 
@@ -558,36 +560,36 @@ namespace Simplex {
     setup(
       integer         m,
       integer         n,
-      valueType const A[],
+      real_type const A[],
       integer         ldA,
-      valueType const b[],
-      valueType const c[],
-      valueType const L[],
-      valueType const U[]
+      real_type const b[],
+      real_type const c[],
+      real_type const L[],
+      real_type const U[]
     );
 
-    SIMPLEX_API_DLL valueType get_b_max_abs() const { return b_max_abs; }
-    SIMPLEX_API_DLL valueType get_c_max_abs() const { return c_max_abs; }
-    SIMPLEX_API_DLL valueType get_A_max_abs() const { return A_max_abs; }
+    SIMPLEX_API_DLL real_type get_b_max_abs() const { return b_max_abs; }
+    SIMPLEX_API_DLL real_type get_c_max_abs() const { return c_max_abs; }
+    SIMPLEX_API_DLL real_type get_A_max_abs() const { return A_max_abs; }
 
     SIMPLEX_VIRTUAL integer dim_x() const { return n; }
     SIMPLEX_VIRTUAL integer dim_g() const { return m; }
 
     SIMPLEX_VIRTUAL
     void
-    load_c( valueType _c[] ) const {
+    load_c( real_type _c[] ) const {
       alglin::copy( n, c, 1, _c, 1 );
     }
 
     SIMPLEX_VIRTUAL
     void
-    load_b( valueType _b[] ) const {
+    load_b( real_type _b[] ) const {
       alglin::copy( m, b, 1, _b, 1 );
     }
 
     SIMPLEX_VIRTUAL
     integer
-    load_A_column( integer j_col, valueType values[], integer i_row[] ) const {
+    load_A_column( integer j_col, real_type values[], integer i_row[] ) const {
       alglin::copy( m, A+j_col*ldA, 1, values, 1 );
       for ( integer i = 0; i < m; ++i ) i_row[i] = i;
       return m;
@@ -596,12 +598,12 @@ namespace Simplex {
     //! subtract to `res` the product `Ax`
     SIMPLEX_VIRTUAL
     void
-    subtract_Ax( valueType const x[], valueType res[] ) const {
+    subtract_Ax( real_type const x[], real_type res[] ) const {
       alglin::gemv( alglin::NO_TRANSPOSE, m, n, -1.0, A, ldA, x, 1, 1.0, res, 1);
     }
 
-    SIMPLEX_VIRTUAL valueType Lower( integer i ) const { return L[i]; }
-    SIMPLEX_VIRTUAL valueType Upper( integer i ) const { return U[i]; }
+    SIMPLEX_VIRTUAL real_type Lower( integer i ) const { return L[i]; }
+    SIMPLEX_VIRTUAL real_type Upper( integer i ) const { return U[i]; }
 
     SIMPLEX_VIRTUAL bool Lower_is_free( integer i ) const { return L_free[i]; }
     SIMPLEX_VIRTUAL bool Upper_is_free( integer i ) const { return U_free[i]; }
@@ -618,14 +620,14 @@ namespace Simplex {
   private:
     integer           n;
     integer           m;
-    valueType const * c;
-    valueType const * A;
-    valueType const * L;
-    valueType const * U;
+    real_type const * c;
+    real_type const * A;
+    real_type const * L;
+    real_type const * U;
     integer           ldA;
 
-    valueType c_max_abs;
-    valueType A_max_abs;
+    real_type c_max_abs;
+    real_type A_max_abs;
 
     std::vector<bool> L_free, U_free;
 
@@ -675,29 +677,29 @@ namespace Simplex {
     setup(
       integer         m,
       integer         n,
-      valueType const A[],
+      real_type const A[],
       integer         ldA,
-      valueType const c[],
-      valueType const L[],
-      valueType const U[]
+      real_type const c[],
+      real_type const L[],
+      real_type const U[]
     );
 
-    SIMPLEX_API_DLL valueType get_b_max_abs() const { return 0; }
-    SIMPLEX_API_DLL valueType get_c_max_abs() const { return c_max_abs; }
-    SIMPLEX_API_DLL valueType get_A_max_abs() const { return A_max_abs; }
+    SIMPLEX_API_DLL real_type get_b_max_abs() const { return 0; }
+    SIMPLEX_API_DLL real_type get_c_max_abs() const { return c_max_abs; }
+    SIMPLEX_API_DLL real_type get_A_max_abs() const { return A_max_abs; }
 
     SIMPLEX_VIRTUAL integer dim_x() const { return n; }
     SIMPLEX_VIRTUAL integer dim_g() const { return m; }
 
     SIMPLEX_VIRTUAL
     void
-    load_c( valueType _c[] ) const {
+    load_c( real_type _c[] ) const {
       alglin::copy( n, c, 1, _c, 1 );
     }
 
     SIMPLEX_VIRTUAL
     integer
-    load_A_column( integer j_col, valueType values[], integer i_row[] ) const {
+    load_A_column( integer j_col, real_type values[], integer i_row[] ) const {
       alglin::copy( m, A+j_col*ldA, 1, values, 1 );
       for ( integer i = 0; i < m; ++i ) i_row[i] = i;
       return m;
@@ -706,12 +708,12 @@ namespace Simplex {
     //! subtract to `res` the product `Ax`
     SIMPLEX_VIRTUAL
     void
-    subtract_Ax( valueType const x[], valueType res[] ) const {
+    subtract_Ax( real_type const x[], real_type res[] ) const {
       alglin::gemv( alglin::NO_TRANSPOSE, m, n, -1.0, A, ldA, x, 1, 1.0, res, 1);
     }
 
-    SIMPLEX_VIRTUAL valueType Lower( integer i ) const { return L[i]; }
-    SIMPLEX_VIRTUAL valueType Upper( integer i ) const { return U[i]; }
+    SIMPLEX_VIRTUAL real_type Lower( integer i ) const { return L[i]; }
+    SIMPLEX_VIRTUAL real_type Upper( integer i ) const { return U[i]; }
 
     SIMPLEX_VIRTUAL bool Lower_is_free( integer i ) const { return L_free[i]; }
     SIMPLEX_VIRTUAL bool Upper_is_free( integer i ) const { return U_free[i]; }
@@ -747,14 +749,14 @@ namespace Simplex {
     StandardSolver(StandardSolver const &);
     StandardSolver const & operator = (StandardSolver const &);
 
-    alglin::Malloc<valueType> baseReals;
+    alglin::Malloc<real_type> baseReals;
     alglin::Malloc<integer>   baseIntegers;
 
     ostream_type        * pStream;
     StandardProblemBase * problem;
 
-    valueType L( integer i ) const { return problem->Lower(i); }
-    valueType U( integer i ) const { return problem->Upper(i); }
+    real_type L( integer i ) const { return problem->Lower(i); }
+    real_type U( integer i ) const { return problem->Upper(i); }
     bool L_free( integer i ) const { return problem->Lower_is_free(i); }
     bool U_free( integer i ) const { return problem->Upper_is_free(i); }
     bool L_bounded( integer i ) const { return !problem->Lower_is_free(i); }
@@ -804,9 +806,9 @@ namespace Simplex {
     void
     solve(
       StandardProblemBase * _problem,
-      valueType             x[],
+      real_type             x[],
       integer               IB[],
-      valueType             eps = relaxedEpsilon
+      real_type             eps = relaxedEpsilon
     );
 
   };

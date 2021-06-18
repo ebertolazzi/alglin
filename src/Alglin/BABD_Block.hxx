@@ -50,7 +50,7 @@ namespace alglin {
   class BBlockLU : public BlockBidiagonal<t_Value> {
   public:
 
-    typedef t_Value valueType;
+    typedef t_Value real_type;
 
   private:
 
@@ -126,7 +126,7 @@ namespace alglin {
     //  +-----+-----+---......---+-----+-----+
     //
     */
-    valueType * m_AdH_blk;
+    real_type * m_AdH_blk;
 
     /*!
     //
@@ -141,7 +141,7 @@ namespace alglin {
     //  +-----+-----+-----+----.........-----+------+
     //
     */
-    valueType * m_Au_blk;
+    real_type * m_Au_blk;
 
     /*!
     //
@@ -155,7 +155,7 @@ namespace alglin {
     //  +=====+=====+
     //
     */
-    valueType * m_DD_blk;
+    real_type * m_DD_blk;
 
     /*!
     //
@@ -179,7 +179,7 @@ namespace alglin {
     //  +-----+-----+   /
     //
     */
-    valueType * m_FF_blk;
+    real_type * m_FF_blk;
 
     // pivot vector
     integer * m_ipiv_blk;
@@ -202,7 +202,7 @@ namespace alglin {
     //! solve linear system previously factorized
     virtual
     void
-    solve( valueType in_out[] ) const override;
+    solve( real_type in_out[] ) const override;
 
   };
 

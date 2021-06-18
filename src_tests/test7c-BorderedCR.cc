@@ -21,7 +21,7 @@
 #include <random>
 
 using namespace std;
-typedef double valueType;
+typedef double real_type;
 
 int
 main() {
@@ -52,17 +52,17 @@ main() {
 
     BCR.allocate( nblock, n, qr, qx, nr, nx );
 
-    alglin::Malloc<valueType>       baseValue("real");
+    alglin::Malloc<real_type>       baseValue("real");
     alglin::Malloc<alglin::integer> baseIndex("integer");
 
     alglin::integer N = std::max(Nr,Nc);
     baseValue.allocate( size_t(5*N) );
 
-    valueType * x     = baseValue(size_t(N)); // extra space per multiple rhs
-    valueType * xref  = baseValue(size_t(N));
-    valueType * xref1 = baseValue(size_t(N));
-    valueType * rhs   = baseValue(size_t(N));
-    valueType * resid = baseValue(size_t(N));
+    real_type * x     = baseValue(size_t(N)); // extra space per multiple rhs
+    real_type * xref  = baseValue(size_t(N));
+    real_type * xref1 = baseValue(size_t(N));
+    real_type * rhs   = baseValue(size_t(N));
+    real_type * resid = baseValue(size_t(N));
 
     BCR.D(0,0,0) = 1;
     BCR.D(0,0,1) = 2;
