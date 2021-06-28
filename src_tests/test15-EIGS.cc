@@ -18,7 +18,7 @@
 \*--------------------------------------------------------------------------*/
 
 #include "Alglin.hh"
-#include <lapack_wrapper/lapack_wrapper_eigen.hh>
+#include <lapack_wrapper_eigen.hh>
 
 using namespace std;
 

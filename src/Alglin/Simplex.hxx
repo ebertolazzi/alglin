@@ -124,32 +124,45 @@ namespace Simplex {
 
     SIMPLEX_VIRTUAL void load_c( real_type c[] ) const = 0;
 
-    //! fill the vector b with the rhs of the constraints \f$ Ax = b \$f
+    //!
+    //! Fill the vector b with the rhs of the constraints \f$ Ax = b \$f
+    //!
     SIMPLEX_VIRTUAL void load_b( real_type b[] ) const = 0;
 
-    /*!
-      fill the sparse vector with the column `j_col` of matrix `A` in a sparse form as values
-      a index of the row.
-      \param  j_col  colum to be extracted
-      \param  values the nonzeros elements of the column
-      \param  i_row  the index of the row of the corresponding nonzeros element
-      \return number of nonzeros elements of the column
-    \*/
+    //!
+    //! Fill the sparse vector with the column `j_col` of matrix `A` in a sparse form as values
+    //! a index of the row.
+    //!
+    //! \param  j_col  colum to be extracted
+    //! \param  values the nonzeros elements of the column
+    //! \param  i_row  the index of the row of the corresponding nonzeros element
+    //! \return number of nonzeros elements of the column
+    //!
     SIMPLEX_VIRTUAL integer load_A_column( integer j_col, real_type values[], integer i_row[] ) const = 0;
 
-    //! subtract to `res` the product `Ax`
+    //!
+    //! Subtract to `res` the product `Ax`.
+    //!
     SIMPLEX_VIRTUAL void subtract_Ax( real_type const x[], real_type res[] ) const = 0;
 
-    //! lower bound of `x_i`
+    //!
+    //! Lower bound of `x_i`.
+    //!
     SIMPLEX_VIRTUAL real_type Lower( integer i ) const = 0;
 
-    //! upper bound of `x_i`
+    //!
+    //! Upper bound of `x_i`.
+    //!
     SIMPLEX_VIRTUAL real_type Upper( integer i ) const = 0;
 
-    //! return true if lower bound of `x_i` is unlimited
+    //!
+    //! Return true if lower bound of `x_i` is unlimited.
+    //!
     SIMPLEX_VIRTUAL bool Lower_is_free( integer i ) const = 0;
 
-    //! return true if upper bound of `x_i` is unlimited
+    //!
+    //! Return true if upper bound of `x_i` is unlimited.
+    //!
     SIMPLEX_VIRTUAL bool Upper_is_free( integer i ) const = 0;
 
     SIMPLEX_API_DLL
@@ -202,10 +215,10 @@ namespace Simplex {
     ProblemBase()
     {}
 
-    SIMPLEX_VIRTUAL
     ~ProblemBase()
     {}
 
+    SIMPLEX_VIRTUAL real_type get_b_max_abs() const = 0;
     SIMPLEX_VIRTUAL real_type get_c_max_abs() const = 0;
     SIMPLEX_VIRTUAL real_type get_A_max_abs() const = 0;
 
@@ -214,29 +227,40 @@ namespace Simplex {
 
     SIMPLEX_VIRTUAL void load_c( real_type c[] ) const = 0;
 
-    /*!
-      fill the sparse vector with the column `j_col` of matrix `A` in a sparse form as values
-      a index of the row.
-      \param  j_col  colum to be extracted
-      \param  values the nonzeros elements of the column
-      \param  i_row  the index of the row of the corresponding nonzeros element
-      \return number of nonzeros elements of the column
-    \*/
+    //!
+    //! Fill the sparse vector with the column `j_col` of matrix `A` in a sparse form as values
+    //! a index of the row.
+    //!
+    //! \param  j_col  colum to be extracted
+    //! \param  values the nonzeros elements of the column
+    //! \param  i_row  the index of the row of the corresponding nonzeros element
+    //! \return number of nonzeros elements of the column
+    //!
     SIMPLEX_VIRTUAL integer load_A_column( integer j_col, real_type values[], integer i_row[] ) const = 0;
 
-    //! subtract to `res` the product `Ax`
+    //!
+    //! Subtract to `res` the product `Ax`.
+    //!
     SIMPLEX_VIRTUAL void subtract_Ax( real_type const x[], real_type res[] ) const = 0;
 
-    //! lower bound of `x_i`
+    //!
+    //! Lower bound of `x_i`.
+    //!
     SIMPLEX_VIRTUAL real_type Lower( integer i ) const = 0;
 
-    //! upper bound of `x_i`
+    //!
+    //! Upper bound of `x_i`.
+    //!
     SIMPLEX_VIRTUAL real_type Upper( integer i ) const = 0;
 
-    //! return true if lower bound of `x_i` is unlimited
+    //!
+    //! Return true if lower bound of `x_i` is unlimited.
+    //!
     SIMPLEX_VIRTUAL bool Lower_is_free( integer i ) const = 0;
 
-    //! return true if upper bound of `x_i` is unlimited
+    //!
+    //! Return true if upper bound of `x_i` is unlimited.
+    //!
     SIMPLEX_VIRTUAL bool Upper_is_free( integer i ) const = 0;
 
     SIMPLEX_API_DLL
@@ -302,32 +326,33 @@ namespace Simplex {
     { }
 
     SIMPLEX_VIRTUAL
-    ~StandardProblemAdaptor()
+    ~StandardProblemAdaptor() override
     {}
 
-    SIMPLEX_API_DLL real_type get_b_max_abs() const { return 0; }
-    SIMPLEX_API_DLL real_type get_c_max_abs() const { return problem->get_c_max_abs(); }
-    SIMPLEX_API_DLL real_type get_A_max_abs() const { return problem->get_A_max_abs(); }
+    real_type get_b_max_abs() const override { return 0; }
+    real_type get_c_max_abs() const override { return problem->get_c_max_abs(); }
+    real_type get_A_max_abs() const override { return problem->get_A_max_abs(); }
 
-    SIMPLEX_VIRTUAL integer dim_x() const { return problem->dim_x()+problem->dim_g(); }
-    SIMPLEX_VIRTUAL integer dim_g() const { return problem->dim_g(); }
+    integer dim_x() const override { return problem->dim_x()+problem->dim_g(); }
+    integer dim_g() const override { return problem->dim_g(); }
 
-    SIMPLEX_VIRTUAL
     void
-    load_c( real_type c[] ) const {
+    load_c( real_type c[] ) const override {
       problem->load_c( c );
       alglin::zero( problem->dim_g(), c + problem->dim_x(), 1 );
     }
 
-    SIMPLEX_VIRTUAL
     void
-    load_b( real_type b[] ) const {
+    load_b( real_type b[] ) const override {
       alglin::zero( problem->dim_g(), b, 1 );
     }
 
-    SIMPLEX_VIRTUAL
     integer
-    load_A_column( integer j_col, real_type values[], integer i_row[] ) const {
+    load_A_column(
+      integer   j_col,
+      real_type values[],
+      integer   i_row[]
+    ) const override {
       if ( j_col < problem->dim_x() )
         return problem->load_A_column( j_col, values, i_row );
       values[0] = -1;
@@ -335,18 +360,17 @@ namespace Simplex {
       return 1;
     }
 
-    SIMPLEX_VIRTUAL
     void
-    subtract_Ax( real_type const x[], real_type res[] ) const {
+    subtract_Ax( real_type const x[], real_type res[] ) const override {
       // [ A - I ] x
       problem->subtract_Ax( x, res );
       alglin::axpy( problem->dim_g(), 1.0, x + problem->dim_x(), 1, res, 1 );
     }
 
-    SIMPLEX_VIRTUAL real_type Lower( integer i )         const { return problem->Lower(i); }
-    SIMPLEX_VIRTUAL real_type Upper( integer i )         const { return problem->Upper(i); }
-    SIMPLEX_VIRTUAL bool      Lower_is_free( integer i ) const { return problem->Lower_is_free(i); }
-    SIMPLEX_VIRTUAL bool      Upper_is_free( integer i ) const { return problem->Upper_is_free(i); }
+    real_type Lower( integer i )         const override { return problem->Lower(i); }
+    real_type Upper( integer i )         const override { return problem->Upper(i); }
+    bool      Lower_is_free( integer i ) const override { return problem->Lower_is_free(i); }
+    bool      Upper_is_free( integer i ) const override { return problem->Upper_is_free(i); }
   };
 
   /*\
@@ -438,52 +462,54 @@ namespace Simplex {
     , m_baseInteger("Simplex::AuxProblem_integers")
     {}
 
-    SIMPLEX_VIRTUAL
-    ~AuxProblem()
+    ~AuxProblem() override
     {}
 
     SIMPLEX_API_DLL
     void
     setup( StandardProblemBase * _pBase );
 
-    SIMPLEX_VIRTUAL integer dim_x() const { return m_nz+m_nw+m_np+m; }
-    SIMPLEX_VIRTUAL integer dim_g() const { return m; }
+    integer dim_x() const override { return m_nz+m_nw+m_np+m; }
+    integer dim_g() const override { return m; }
 
-    SIMPLEX_API_DLL real_type get_b_max_abs() const { return m_b_max_abs; }
-    SIMPLEX_API_DLL real_type get_c_max_abs() const { return m_c_max_abs; }
-    SIMPLEX_API_DLL real_type get_A_max_abs() const { return m_A_max_abs; }
+    real_type get_b_max_abs() const override { return m_b_max_abs; }
+    real_type get_c_max_abs() const override { return m_c_max_abs; }
+    real_type get_A_max_abs() const override { return m_A_max_abs; }
 
-    SIMPLEX_VIRTUAL
     void
-    load_c( real_type c[] ) const {
+    load_c( real_type c[] ) const override {
       integer nn = m_nz+m_nw+m_np;
       alglin::zero( nn, c, 1 );
       alglin::fill( m, c + nn, 1, 1.0 );
     }
 
-    SIMPLEX_VIRTUAL
     void
-    load_b( real_type b[] ) const {
+    load_b( real_type b[] ) const override {
       for ( integer i = 0; i < m; ++i )
         b[i] = std::abs(m_d[i]);
     }
 
-    SIMPLEX_VIRTUAL integer load_A_column( integer j_col, real_type values[], integer i_row[] ) const;
+    integer load_A_column( integer j_col, real_type values[], integer i_row[] ) const override;
 
-    SIMPLEX_VIRTUAL real_type Lower( integer ) const;
-    SIMPLEX_VIRTUAL real_type Upper( integer ) const;
+    real_type Lower( integer ) const override;
+    real_type Upper( integer ) const override;
 
-    SIMPLEX_VIRTUAL bool Lower_is_free( integer ) const;
-    SIMPLEX_VIRTUAL bool Upper_is_free( integer ) const;
+    bool Lower_is_free( integer ) const override;
+    bool Upper_is_free( integer ) const override;
 
-    SIMPLEX_VIRTUAL void subtract_Ax( real_type const x[], real_type res[] ) const;
+    void subtract_Ax( real_type const x[], real_type res[] ) const override;
 
-    //! get initial feasible point for the solution of Simplex problem
+    //!
+    //! Get initial feasible point for the solution of Simplex problem.
+    //!
     SIMPLEX_API_DLL
     void
     feasible_point( real_type x[], integer IB[] ) const;
 
-    //! get the solution of the Aux problem and transform to initial point of primal problem
+    //!
+    //! Get the solution of the Aux problem and transform
+    //! to initial point of primal problem,
+    //!
     SIMPLEX_API_DLL
     void
     to_primal( real_type const x[], real_type xo[], integer IBo[] ) const;
@@ -528,33 +554,31 @@ namespace Simplex {
     , ldA(0)
     { }
 
-    SIMPLEX_VIRTUAL
-    ~StandardProblem()
+    ~StandardProblem() override
     {}
 
-    /*!
-      Setup linear programs of type
-
-      Minimise \f$ c'x \f$
-
-      subject to
-      \f[ l \leq x \leq u \f]
-      \f[ Ax = b \f]
-
-      where \f$ A \f$ is a \f$ m \f$ by \f$ n\f$  matrix,
-      \f$ \textrm{rank}(A)=m \f$ , \f$ m \leq n\f$ , \f$ l \leq u\f$ .
-      The initial \f$ x \f$ is supposed to be a feasible basic solution.
-
-      \param m   Number of rows of A (number of linear constraints)
-      \param n   Number of optimization variables (dimension of x)
-      \param A   The matrix A stored columnwise (Fortran storage)
-      \param ldA Leading dimension of A (size m x n)
-      \param b   r.h.s of equality constraints (size m)
-      \param c   vector of objective function (size n)
-      \param L   lower bound of x
-      \param U   upper bound of x
-    \*/
-
+    //!
+    //! Setup linear programs of type
+    //!
+    //! Minimise \f$ c'x \f$
+    //!
+    //! subject to
+    //! \f[ l \leq x \leq u \f]
+    //! \f[ Ax = b \f]
+    //!
+    //! where \f$ A \f$ is a \f$ m \f$ by \f$ n\f$  matrix,
+    //! \f$ \textrm{rank}(A)=m \f$ , \f$ m \leq n\f$ , \f$ l \leq u\f$ .
+    //! The initial \f$ x \f$ is supposed to be a feasible basic solution.
+    //!
+    //! \param m   Number of rows of A (number of linear constraints)
+    //! \param n   Number of optimization variables (dimension of x)
+    //! \param A   The matrix A stored columnwise (Fortran storage)
+    //! \param ldA Leading dimension of A (size m x n)
+    //! \param b   r.h.s of equality constraints (size m)
+    //! \param c   vector of objective function (size n)
+    //! \param L   lower bound of x
+    //! \param U   upper bound of x
+    //!
     SIMPLEX_API_DLL
     void
     setup(
@@ -568,45 +592,45 @@ namespace Simplex {
       real_type const U[]
     );
 
-    SIMPLEX_API_DLL real_type get_b_max_abs() const { return b_max_abs; }
-    SIMPLEX_API_DLL real_type get_c_max_abs() const { return c_max_abs; }
-    SIMPLEX_API_DLL real_type get_A_max_abs() const { return A_max_abs; }
+    real_type get_b_max_abs() const override { return b_max_abs; }
+    real_type get_c_max_abs() const override { return c_max_abs; }
+    real_type get_A_max_abs() const override { return A_max_abs; }
 
-    SIMPLEX_VIRTUAL integer dim_x() const { return n; }
-    SIMPLEX_VIRTUAL integer dim_g() const { return m; }
+    integer dim_x() const override { return n; }
+    integer dim_g() const override { return m; }
 
-    SIMPLEX_VIRTUAL
     void
-    load_c( real_type _c[] ) const {
+    load_c( real_type _c[] ) const override {
       alglin::copy( n, c, 1, _c, 1 );
     }
 
-    SIMPLEX_VIRTUAL
     void
-    load_b( real_type _b[] ) const {
+    load_b( real_type _b[] ) const override {
       alglin::copy( m, b, 1, _b, 1 );
     }
 
-    SIMPLEX_VIRTUAL
     integer
-    load_A_column( integer j_col, real_type values[], integer i_row[] ) const {
+    load_A_column(
+      integer   j_col,
+      real_type values[],
+      integer   i_row[]
+    ) const override {
       alglin::copy( m, A+j_col*ldA, 1, values, 1 );
       for ( integer i = 0; i < m; ++i ) i_row[i] = i;
       return m;
     }
 
     //! subtract to `res` the product `Ax`
-    SIMPLEX_VIRTUAL
     void
-    subtract_Ax( real_type const x[], real_type res[] ) const {
+    subtract_Ax( real_type const x[], real_type res[] ) const override  {
       alglin::gemv( alglin::NO_TRANSPOSE, m, n, -1.0, A, ldA, x, 1, 1.0, res, 1);
     }
 
-    SIMPLEX_VIRTUAL real_type Lower( integer i ) const { return L[i]; }
-    SIMPLEX_VIRTUAL real_type Upper( integer i ) const { return U[i]; }
+    real_type Lower( integer i ) const override { return L[i]; }
+    real_type Upper( integer i ) const override { return U[i]; }
 
-    SIMPLEX_VIRTUAL bool Lower_is_free( integer i ) const { return L_free[i]; }
-    SIMPLEX_VIRTUAL bool Upper_is_free( integer i ) const { return U_free[i]; }
+    bool Lower_is_free( integer i ) const override { return L_free[i]; }
+    bool Upper_is_free( integer i ) const override { return U_free[i]; }
 
   };
 
@@ -646,32 +670,30 @@ namespace Simplex {
     , ldA(0)
     { }
 
-    SIMPLEX_VIRTUAL
     ~Problem()
     {}
 
-    /*!
-      Setup linear programs of type
-
-      Minimise \f$ c'x \f$
-
-      subject to
-      \f[ l \leq x \leq u \f]
-      \f[ Ax = b \f]
-
-      where \f$ A \f$ is a \f$ m \f$ by \f$ n\f$  matrix,
-      \f$ \textrm{rank}(A)=m \f$ , \f$ m \leq n\f$ , \f$ l \leq u\f$ .
-      The initial \f$ x \f$ is supposed to be a feasible basic solution.
-
-      \param m   Number of rows of A (number of linear constraints)
-      \param n   Number of optimization variables (dimension of x)
-      \param A   The matrix A stored columnwise (Fortran storage)
-      \param ldA Leading dimension of A (size m x n)
-      \param c   vector of objective function (size n)
-      \param L   lower bound of x
-      \param U   upper bound of x
-    \*/
-
+    //!
+    //! Setup linear programs of type
+    //!
+    //! Minimise \f$ c'x \f$
+    //!
+    //! subject to
+    //! \f[ l \leq x \leq u \f]
+    //! \f[ Ax = b \f]
+    //!
+    //! where \f$ A \f$ is a \f$ m \f$ by \f$ n\f$  matrix,
+    //! \f$ \textrm{rank}(A)=m \f$ , \f$ m \leq n\f$ , \f$ l \leq u\f$ .
+    //! The initial \f$ x \f$ is supposed to be a feasible basic solution.
+    //!
+    //! \param m   Number of rows of A (number of linear constraints)
+    //! \param n   Number of optimization variables (dimension of x)
+    //! \param A   The matrix A stored columnwise (Fortran storage)
+    //! \param ldA Leading dimension of A (size m x n)
+    //! \param c   vector of objective function (size n)
+    //! \param L   lower bound of x
+    //! \param U   upper bound of x
+    //!
     SIMPLEX_API_DLL
     void
     setup(
@@ -684,39 +706,42 @@ namespace Simplex {
       real_type const U[]
     );
 
-    SIMPLEX_API_DLL real_type get_b_max_abs() const { return 0; }
-    SIMPLEX_API_DLL real_type get_c_max_abs() const { return c_max_abs; }
-    SIMPLEX_API_DLL real_type get_A_max_abs() const { return A_max_abs; }
+    real_type get_b_max_abs() const override { return 0; }
+    real_type get_c_max_abs() const override { return c_max_abs; }
+    real_type get_A_max_abs() const override { return A_max_abs; }
+ 
+    integer dim_x() const override { return n; }
+    integer dim_g() const override { return m; }
 
-    SIMPLEX_VIRTUAL integer dim_x() const { return n; }
-    SIMPLEX_VIRTUAL integer dim_g() const { return m; }
-
-    SIMPLEX_VIRTUAL
     void
-    load_c( real_type _c[] ) const {
+    load_c( real_type _c[] ) const override {
       alglin::copy( n, c, 1, _c, 1 );
     }
 
-    SIMPLEX_VIRTUAL
     integer
-    load_A_column( integer j_col, real_type values[], integer i_row[] ) const {
+    load_A_column(
+      integer   j_col,
+      real_type values[],
+      integer   i_row[]
+    ) const override {
       alglin::copy( m, A+j_col*ldA, 1, values, 1 );
       for ( integer i = 0; i < m; ++i ) i_row[i] = i;
       return m;
     }
 
-    //! subtract to `res` the product `Ax`
-    SIMPLEX_VIRTUAL
+    //!
+    //! Subtract to `res` the product `Ax`.
+    //!
     void
-    subtract_Ax( real_type const x[], real_type res[] ) const {
+    subtract_Ax( real_type const x[], real_type res[] ) const override {
       alglin::gemv( alglin::NO_TRANSPOSE, m, n, -1.0, A, ldA, x, 1, 1.0, res, 1);
     }
 
-    SIMPLEX_VIRTUAL real_type Lower( integer i ) const { return L[i]; }
-    SIMPLEX_VIRTUAL real_type Upper( integer i ) const { return U[i]; }
+    real_type Lower( integer i ) const override { return L[i]; }
+    real_type Upper( integer i ) const override { return U[i]; }
 
-    SIMPLEX_VIRTUAL bool Lower_is_free( integer i ) const { return L_free[i]; }
-    SIMPLEX_VIRTUAL bool Upper_is_free( integer i ) const { return U_free[i]; }
+    bool Lower_is_free( integer i ) const override { return L_free[i]; }
+    bool Upper_is_free( integer i ) const override { return U_free[i]; }
 
   };
 
@@ -745,9 +770,9 @@ namespace Simplex {
     std::string const _name; //!< name of the NLP problem defined
 
     // block copy constructor
-    StandardSolver();
-    StandardSolver(StandardSolver const &);
-    StandardSolver const & operator = (StandardSolver const &);
+    StandardSolver() = delete;
+    StandardSolver( StandardSolver const & ) = delete;
+    StandardSolver const & operator = ( StandardSolver const & ) = delete;
 
     alglin::Malloc<real_type> baseReals;
     alglin::Malloc<integer>   baseIntegers;
@@ -781,28 +806,30 @@ namespace Simplex {
     ~StandardSolver()
     {}
 
-    //! The name of the class
+    //!
+    //! The name of the class.
+    //!
     SIMPLEX_API_DLL std::string const & name(void) const { return _name; }
 
-    /*!
-      Solve linear programs of type
-
-      Minimise \f$ c'x \f$
-
-      subject to
-      \f[ l \leq x \leq u \f]
-      \f[ Ax = b \f]
-
-      where \f$ A \f$ is a \f$ m \f$ by \f$ n\f$  matrix,
-      \f$ \textrm{rank}(A)=m \f$ , \f$ m \leq n\f$ , \f$ l \leq u\f$ .
-      The initial \f$ x \f$ is supposed to be a feasible basic solution.
-
-      \param _problem Pointer to a class instance describing the problem
-      \param x   in input feasible starting point for simplex algorithm.
-                 On outpout the computed solution
-      \param IB  index set defining the selection of basic variables
-      \param eps
-    \*/
+    //!
+    //! Solve linear programs of type
+    //!
+    //! Minimise \f$ c'x \f$
+    //!
+    //! subject to
+    //! \f[ l \leq x \leq u \f]
+    //! \f[ Ax = b \f]
+    //!
+    //! where \f$ A \f$ is a \f$ m \f$ by \f$ n\f$  matrix,
+    //! \f$ \textrm{rank}(A)=m \f$ , \f$ m \leq n\f$ , \f$ l \leq u\f$ .
+    //! The initial \f$ x \f$ is supposed to be a feasible basic solution.
+    //!
+    //! \param _problem Pointer to a class instance describing the problem
+    //! \param x   in input feasible starting point for simplex algorithm.
+    //!            On outpout the computed solution
+    //! \param IB  index set defining the selection of basic variables
+    //! \param eps
+    //!
     void
     solve(
       StandardProblemBase * _problem,
