@@ -23,6 +23,13 @@
 
 namespace alglin {
 
+  using std::abs;
+  using std::max;
+  using std::min;
+  using std::pow;
+  using std::cbrt;
+  using std::vector;
+
   /*
   //    ____               _ _            _
   //   / ___|_ __ __ _  __| (_) ___ _ __ | |_
@@ -56,7 +63,7 @@ namespace alglin {
 
     for ( integer i = 0; i < dim_x && ok; ++i ) {
       Number temp = x[i];
-      Number h    = std::max( eps*std::abs(temp), eps );
+      Number h    = max( eps*abs(temp), eps );
       switch ( fd_gradient ) {
       case 0:
         X[i] = temp+h; // modify the vector only at i position
@@ -113,7 +120,7 @@ namespace alglin {
     Number value0, value1, gradi=0;
     for ( integer i = 0; i < dim_x && ok; ++i ) {
       Number temp = x[i];
-      Number h    = std::max( eps*std::abs(temp), eps );
+      Number h    = max( eps*abs(temp), eps );
       X[i] = temp+h; // modify the vector only at i position
       ok = (*fun)( X, value1 ) && Utils::isRegular(value1);
       if ( !ok ) break;
@@ -127,16 +134,16 @@ namespace alglin {
 
       X[i] = temp; // restore i position
       if ( ok ) {
-        Number scale = std::max(eps,std::max(std::abs(gradi),std::abs(grad[i])));
-        Number err   = std::abs(gradi-grad[i]);
-        if ( err > epsi*std::max(Number(1),scale) ) {
+        Number scale = max(eps,max(abs(gradi),abs(grad[i])));
+        Number err   = abs(gradi-grad[i]);
+        if ( err > epsi*max(Number(1),scale) ) {
           fmt::print( stream,
-            "grad[{:3}] = {:>12} --- {:<12} err = {:<12}   err (%) = {:8.4}\n",
+            "grad[{:3}] = {:>12} / {:<12} [A/FD] --- {:>12} / {:<12} [err/err(%)]\n",
             i,
-            fmt::format("{:.5} [A]",grad[i]), 
-            fmt::format("{:.5} [FD]",gradi), 
-            fmt::format("{:.5} (%)",err),
-            100*err/scale
+            fmt::format("{:.5}",grad[i]), 
+            fmt::format("{:.5}",gradi), 
+            fmt::format("{:.5}",err),
+            fmt::format("{:.5}",100*err/scale)
           );
         }
       }
@@ -179,7 +186,7 @@ namespace alglin {
                        cbrt(std::numeric_limits<Number>::epsilon()):
                        sqrt(std::numeric_limits<Number>::epsilon());
 
-    std::vector<Number> tmp(size_t(2*dim_f));
+    vector<Number> tmp(size_t(2*dim_f));
     Number * g0 = &tmp[size_t(0)];
     Number * g1 = &tmp[size_t(dim_f)];
     bool ok = true;
@@ -194,7 +201,7 @@ namespace alglin {
 
     for ( integer j = 0; j < dim_x && ok; ++j ) {
       Number temp = x[j];
-      Number h    = std::max( eps*std::abs(temp), eps );
+      Number h    = max( eps*abs(temp), eps );
       switch ( fd_jacobian ) {
       case 0:
         X[j] = temp+h; // modify the vector only at j position
@@ -254,7 +261,7 @@ namespace alglin {
 
     Number const eps = cbrt(std::numeric_limits<Number>::epsilon());
 
-    std::vector<Number> tmp(size_t(2*dim_f));
+    vector<Number> tmp(size_t(2*dim_f));
     Number * g0 = &tmp[size_t(0)];
     Number * g1 = &tmp[size_t(dim_f)];
     bool ok = true;
@@ -267,7 +274,7 @@ namespace alglin {
       if ( !ok ) break;
 
       Number temp = x[j];
-      Number h    = std::max( eps*std::abs(temp), eps );
+      Number h    = max( eps*abs(temp), eps );
 
       X[j] = temp+h; // modify the vector only at j position
       ok = (*fun)( X, g1 ) && isRegular(g1,dim_f);
@@ -280,16 +287,16 @@ namespace alglin {
 
       for ( integer i = 0; i < dim_f; ++i ) {
         Number d     = (g1[i]-g0[i])/(2*h);
-        Number scale = std::max(eps,std::max(std::abs(d),std::abs(pjac[i])));
-        Number err   = std::abs(d-pjac[i]);
-        if ( err > epsi*std::max(Number(1),scale) ) {
+        Number scale = max(eps,max(abs(d),abs(pjac[i])));
+        Number err   = abs(d-pjac[i]);
+        if ( err > epsi*max(Number(1),scale) ) {
           fmt::print( stream,
-            "jac[{:3},{:3}] = {:>12} --- {:<12} err = {:<12} err (%) = {:8.4}\n",
+            "jac[{:3},{:3}] = {:>12} / {:<12} [A/FD] --- {:>12} / {:<12} [err/err(%)]\n",
             i, j,
-            fmt::format("{:.5} [A]",pjac[i]), 
-            fmt::format("{:.5} [FD]",d), 
+            fmt::format("{:.5}",pjac[i]), 
+            fmt::format("{:.5}",d), 
             fmt::format("{:.5}",err),
-            100*err/scale
+            fmt::format("{:.5}",100*err/scale)
           );
         }
       }
@@ -325,31 +332,31 @@ namespace alglin {
     Number fpp, fpm, fmp, fmm;
     for ( integer j = 0; j < dim_x && ok; ++j ) {
       tempj = x[j];
-      hj    = std::max( eps*std::abs(tempj), eps );
-      ok = (*fun)( X, fc ) && Utils::isRegular(fc);
+      hj    = max( eps*abs(tempj), eps );
+      ok    = (*fun)( X, fc ) && Utils::isRegular(fc);
       if ( !ok ) goto skip;
       X[j] = tempj+hj;
-      ok = (*fun)( X, fp ) && Utils::isRegular(fp);
+      ok   = (*fun)( X, fp ) && Utils::isRegular(fp);
       if ( !ok ) goto skip;
       X[j] = tempj-hj;
-      ok = (*fun)( X, fm ) && Utils::isRegular(fm);
+      ok   = (*fun)( X, fm ) && Utils::isRegular(fm);
       if ( !ok ) goto skip;
       Hess[j*(ldH+1)] = ((fp+fm)-2*fc)/(hj*hj);
       for ( integer i = j+1; i < dim_x && ok; ++i ) {
         tempi = X[i];
-        hi    = std::max( eps*std::abs(tempi), eps );
-        X[i] = tempi+hi;
-        X[j] = tempj+hj;
-        ok = (*fun)( X, fpp ) && Utils::isRegular(fpp);
+        hi    = max( eps*abs(tempi), eps );
+        X[i]  = tempi+hi;
+        X[j]  = tempj+hj;
+        ok    = (*fun)( X, fpp ) && Utils::isRegular(fpp);
         if ( !ok ) goto skip2;
         X[i] = tempi-hi;
-        ok = (*fun)( X, fmp ) && Utils::isRegular(fmp);
+        ok   = (*fun)( X, fmp ) && Utils::isRegular(fmp);
         if ( !ok ) goto skip2;
         X[j] = tempj-hj;
-        ok = (*fun)( X, fmm ) && Utils::isRegular(fmm);
+        ok   = (*fun)( X, fmm ) && Utils::isRegular(fmm);
         if ( !ok ) goto skip2;
         X[i] = tempi+hi;
-        ok = (*fun)( X, fpm ) && Utils::isRegular(fpm);
+        ok   = (*fun)( X, fpm ) && Utils::isRegular(fpm);
         if ( !ok ) goto skip2;
         hij = 4*hi*hj;
         Hess[j+i*ldH] = Hess[i+j*ldH] = ( (fpp+fmm) - (fpm+fmp) )/hij;
@@ -383,78 +390,77 @@ namespace alglin {
     Number * X = const_cast<Number*>(x);
     for ( integer j = 0; j < dim_x && ok; ++j ) {
       tempj = x[j];
-      hj    = std::max( eps*std::abs(tempj), eps );
-
-      ok = (*fun)( X, fc ) && Utils::isRegular(fc);
+      hj    = max( eps*abs(tempj), eps );
+      ok    = (*fun)( X, fc ) && Utils::isRegular(fc);
       if ( !ok ) goto skip;
       X[j] = tempj+hj;
-      ok = (*fun)( X, fp ) && Utils::isRegular(fp);
+      ok   = (*fun)( X, fp ) && Utils::isRegular(fp);
       if ( !ok ) goto skip;
       X[j] = tempj-hj;
-      ok = (*fun)( X, fm ) && Utils::isRegular(fm);
+      ok   = (*fun)( X, fm ) && Utils::isRegular(fm);
       if ( !ok ) goto skip;
 
       dde = Hess[j*(ldH+1)];
       dd  = ((fp+fm)-2*fc)/(hj*hj);
-      ok = Utils::isRegular(dd);
+      ok  = Utils::isRegular(dd);
       if ( !ok ) goto skip;
-      scale = std::max(eps,std::max(std::abs(dd),std::abs(dde)));
-      err   = std::abs(dd-dde);
-      if ( err > epsi*std::max(Number(1),scale) ) {
+      scale = max(eps,max(abs(dd),abs(dde)));
+      err   = abs(dd-dde);
+      if ( err > epsi*max(Number(1),scale) ) {
         fmt::print( stream,
-          "Hess[{:3},{:3}] = {:>12} --- {:<12} err = {:<12} err (%) = {:8.4}\n",
+          "Hess[{:3},{:3}] = {:>12} / {:<12} [A/FD] --- {:>12}/{:<12} [err/err(%)]\n",
           j, j,
-          fmt::format("{:.5} [A]",dde), 
-          fmt::format("{:.5} [FD]",dd), 
+          fmt::format("{:.5}",dde), 
+          fmt::format("{:.5}",dd), 
           fmt::format("{:.5}",err),
-          100*err/scale
+          fmt::format("{:.5}",100*err/scale)
         );
       }
 
       for ( integer i = j+1; i < dim_x && ok; ++i ) {
         tempi = X[i];
-        hi    = std::max( eps*std::abs(tempi), eps );
-        X[i] = tempi+hi;
-        X[j] = tempj+hj;
-        ok = (*fun)( X, fpp ) && Utils::isRegular(fpp);
+        hi    = max( eps*abs(tempi), eps );
+        X[i]  = tempi+hi;
+        X[j]  = tempj+hj;
+        ok    = (*fun)( X, fpp ) && Utils::isRegular(fpp);
         if ( !ok ) goto skip2;
         X[i] = tempi-hi;
-        ok = (*fun)( X, fmp ) && Utils::isRegular(fmp);
+        ok   = (*fun)( X, fmp ) && Utils::isRegular(fmp);
         if ( !ok ) goto skip2;
         X[j] = tempj-hj;
-        ok = (*fun)( X, fmm ) && Utils::isRegular(fmm);
+        ok   = (*fun)( X, fmm ) && Utils::isRegular(fmm);
         if ( !ok ) goto skip2;
         X[i] = tempi+hi;
-        ok = (*fun)( X, fpm ) && Utils::isRegular(fpm);
+        ok   = (*fun)( X, fpm ) && Utils::isRegular(fpm);
         if ( !ok ) goto skip2;
         hij  = 4*hi*hj;
         ddji = Hess[j+i*ldH];
         ddij = Hess[i+j*ldH];
         dd   = ( (fpp+fmm) - (fpm+fmp) )/hij;
-        ok = Utils::isRegular(dd);
+        ok   = Utils::isRegular(dd);
         if ( !ok ) goto skip2;
-        scale = std::max(eps,std::max(std::abs(dd),std::abs(ddij)));
-        err   = std::abs(dd-ddij);
-        if ( err > epsi*std::max(Number(1),scale) ) {
+        scale = max(eps,max(abs(dd),abs(ddij)));
+        err   = abs(dd-ddij);
+        if ( err > epsi*max(Number(1),scale) ) {
           fmt::print( stream,
-            "Hess[{:3},{:3}] = {:>12} --- {:<12} err = {:<12} err (%) = {:8.4}\n",
+            "Hess[{:3},{:3}] = {:>12} / {:<12} [A/FD] --- {:>12} / {:<12} [err/err(%)]\n",
             i, j,
-            fmt::format("{:.5} [A]",ddij), 
-            fmt::format("{:.5} [FD]",dd), 
+            fmt::format("{:.5}",ddij), 
+            fmt::format("{:.5}",dd), 
             fmt::format("{:.5}",err),
-            100*err/scale
+            fmt::format("{:.5}",100*err/scale)
           );
         }
-        scale = std::max(eps,std::max(std::abs(dd),std::abs(ddji)));
-        err   = std::abs(dd-ddji);
-        if ( err > epsi*std::max(Number(1),scale) ) {
+        scale = max(eps,max(abs(dd),abs(ddji)));
+        err   = abs(dd-ddji);
+        if ( err > epsi*max(Number(1),scale) ) {
           fmt::print( stream,
-            "Hess[{:3},{:3}] = {:>12} --- {:<12} err = {:<12} err (%) = {:8.4}\n",
+            "Hess[{:3},{:3}] = {:>12} / {:<12} [A/FD] --- {:>12} / {:<12} [err/err(%)]\n",
             j, i,
-            fmt::format("{:.5} [A]",ddij), 
-            fmt::format("{:.5} [FD]",dd), 
+            fmt::format("{:.5}",ddij), 
+            fmt::format("{:.5}",dd), 
             fmt::format("{:.5}",err),
-            100*err/scale
+            fmt::format("{:.5}",100*err/scale)
           );
         }
       skip2:
