@@ -131,8 +131,12 @@ namespace alglin {
         Number err   = std::abs(gradi-grad[i]);
         if ( err > epsi*std::max(Number(1),scale) ) {
           fmt::print( stream,
-            "grad[{:3}] = {:14.5} [A] --- {:14.5} [FD]  err = {:14.5} err (%) {:8.4}\n",
-            i, grad[i], gradi, err, 100*err/scale
+            "grad[{:3}] = {:>12} --- {:<12} err = {:<12}   err (%) = {:8.4}\n",
+            i,
+            fmt::format("{:.5} [A]",grad[i]), 
+            fmt::format("{:.5} [FD]",gradi), 
+            fmt::format("{:.5} (%)",err),
+            100*err/scale
           );
         }
       }
@@ -280,8 +284,12 @@ namespace alglin {
         Number err   = std::abs(d-pjac[i]);
         if ( err > epsi*std::max(Number(1),scale) ) {
           fmt::print( stream,
-            "jac[{:3},{:3}] = {:14.5} [A] --- {:14.5} [FD]  err = {:14.5} err (%) {:8.4}\n",
-            i, j, pjac[i], d, err, 100*err/scale
+            "jac[{:3},{:3}] = {:>12} --- {:<12} err = {:<12} err (%) = {:8.4}\n",
+            i, j,
+            fmt::format("{:.5} [A]",pjac[i]), 
+            fmt::format("{:.5} [FD]",d), 
+            fmt::format("{:.5}",err),
+            100*err/scale
           );
         }
       }
@@ -394,8 +402,12 @@ namespace alglin {
       err   = std::abs(dd-dde);
       if ( err > epsi*std::max(Number(1),scale) ) {
         fmt::print( stream,
-          "Hess[{:3},{:3}] = {:14.5} [A] --- {:14.5} [FD]  err = {:14.5}  err (%) = {:8.4}\n",
-          j, j, dde, dd, err, 100*err/scale
+          "Hess[{:3},{:3}] = {:>12} --- {:<12} err = {:<12} err (%) = {:8.4}\n",
+          j, j,
+          fmt::format("{:.5} [A]",dde), 
+          fmt::format("{:.5} [FD]",dd), 
+          fmt::format("{:.5}",err),
+          100*err/scale
         );
       }
 
@@ -425,16 +437,24 @@ namespace alglin {
         err   = std::abs(dd-ddij);
         if ( err > epsi*std::max(Number(1),scale) ) {
           fmt::print( stream,
-            "Hess[{:3},{:3}] = {:14.5} [A] --- {:14.5} [FD]  err = {:14.5}  err (%) = {:8.4}\n",
-            i, j, ddij, dd, err, 100*err/scale
+            "Hess[{:3},{:3}] = {:>12} --- {:<12} err = {:<12} err (%) = {:8.4}\n",
+            i, j,
+            fmt::format("{:.5} [A]",ddij), 
+            fmt::format("{:.5} [FD]",dd), 
+            fmt::format("{:.5}",err),
+            100*err/scale
           );
         }
         scale = std::max(eps,std::max(std::abs(dd),std::abs(ddji)));
         err   = std::abs(dd-ddji);
         if ( err > epsi*std::max(Number(1),scale) ) {
           fmt::print( stream,
-            "Hess[{:3},{:3}] = {:14.5} [A] --- {:14.5} [FD]  err = {:14.5}  err (%) = {:8.4}\n",
-            j, i, ddij, dd, err, 100*err/scale
+            "Hess[{:3},{:3}] = {:>12} --- {:<12} err = {:<12} err (%) = {:8.4}\n",
+            j, i,
+            fmt::format("{:.5} [A]",ddij), 
+            fmt::format("{:.5} [FD]",dd), 
+            fmt::format("{:.5}",err),
+            100*err/scale
           );
         }
       skip2:

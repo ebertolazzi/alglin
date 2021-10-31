@@ -73,7 +73,8 @@ task :build_osx, [:lapack] do |t, args|
   else
     cmake_cmd += 'false '
   end
-  cmake_cmd += '-D' + args.lapack + ':VAR=true '
+  # non serve
+  # cmake_cmd += '-D' + args.lapack + ':VAR=true '
   if COMPILE_EXECUTABLE then
     cmake_cmd += '-DBUILD_EXECUTABLE:VAR=true '
   else
@@ -109,7 +110,8 @@ task :build_linux, [:lapack] do |t, args|
   else
     cmake_cmd += 'false '
   end
-  cmake_cmd += '-D' + args.lapack + ':VAR=true '
+  # non serve
+  # cmake_cmd += '-D' + args.lapack + ':VAR=true '
   if COMPILE_EXECUTABLE then
     cmake_cmd += '-DBUILD_EXECUTABLE:VAR=true '
   else
