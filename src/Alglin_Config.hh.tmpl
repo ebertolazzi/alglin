@@ -1,0 +1,153 @@
+/*--------------------------------------------------------------------------*\
+ |                                                                          |
+ |  Copyright (C) 2017                                                      |
+ |                                                                          |
+ |         , __                 , __                                        |
+ |        /|/  \               /|/  \                                       |
+ |         | __/ _   ,_         | __/ _   ,_                                |
+ |         |   \|/  /  |  |   | |   \|/  /  |  |   |                        |
+ |         |(__/|__/   |_/ \_/|/|(__/|__/   |_/ \_/|/                       |
+ |                           /|                   /|                        |
+ |                           \|                   \|                        |
+ |                                                                          |
+ |      Enrico Bertolazzi                                                   |
+ |      Dipartimento di Ingegneria Industriale                              |
+ |      Universita` degli Studi di Trento                                   |
+ |      email: enrico.bertolazzi@unitn.it                                   |
+ |                                                                          |
+\*--------------------------------------------------------------------------*/
+
+///
+/// file: Alglin_Config.hh
+///
+
+#pragma once
+
+#ifndef ALGLIN_CONFIG_HH
+#define ALGLIN_CONFIG_HH
+
+#ifdef ALGLIN_USE_SYSTEM_LAPACK_WRAPPER
+  #include <lapack_wrapper/lapack_wrapper.hh>
+  #include <lapack_wrapper/lapack_wrapper++.hh>
+  #include <lapack_wrapper/lapack_wrapper_tmpl.hh>
+#else
+  #include "lapack_wrapper/lapack_wrapper.hh"
+  #include "lapack_wrapper/lapack_wrapper++.hh"
+  #include "lapack_wrapper/lapack_wrapper_tmpl.hh"
+#endif
+
+#ifdef LAPACK_WRAPPER_USE_ACCELERATE
+  #define ALGLIN_USE_ACCELERATE 1
+#endif
+#ifdef LAPACK_WRAPPER_USE_ATLAS
+  #define ALGLIN_USE_ATLAS 1
+#endif
+#ifdef LAPACK_WRAPPER_USE_OPENBLAS
+  #define ALGLIN_USE_OPENBLAS 1
+#endif
+#ifdef LAPACK_WRAPPER_USE_LAPACK
+  #define ALGLIN_USE_LAPACK 1
+#endif
+#ifdef LAPACK_WRAPPER_USE_MKL
+  #define ALGLIN_USE_MKL 1
+#endif
+
+@@ALGIN_OPENMP@@
+
+#define ALGLIN_THREAD_POOL Utils::ThreadPool1
+
+namespace alglin {
+  //using namespace lapack_wrapper;
+
+  using lapack_wrapper::ostream_type;
+  //using lapack_wrapper::istream_type;
+
+  using integer   = lapack_wrapper::integer;
+  using real_type = lapack_wrapper::doublereal;
+
+  using lapack_wrapper::absmax;
+  using lapack_wrapper::axpy;
+  using lapack_wrapper::copy;
+  using lapack_wrapper::dot;
+  using lapack_wrapper::fill;
+  using lapack_wrapper::gecopy;
+  using lapack_wrapper::geid;
+  using lapack_wrapper::gemm;
+  using lapack_wrapper::gemv;
+  using lapack_wrapper::geqp3;
+  using lapack_wrapper::geqrf;
+  using lapack_wrapper::ger;
+  using lapack_wrapper::gesv;
+  using lapack_wrapper::getrf;
+  using lapack_wrapper::lamch;
+  using lapack_wrapper::maxabs;
+  using lapack_wrapper::ormqr;
+  using lapack_wrapper::rot;
+  using lapack_wrapper::rotg;
+  using lapack_wrapper::rscal;
+  using lapack_wrapper::scal;
+  using lapack_wrapper::swap;
+  using lapack_wrapper::swaps;
+  using lapack_wrapper::trsm;
+  using lapack_wrapper::trsv;
+
+  using lapack_wrapper::min_index;
+  using lapack_wrapper::max_index;
+  using lapack_wrapper::iamax;
+  using lapack_wrapper::asum;
+  using lapack_wrapper::nrm2;
+
+  using lapack_wrapper::Matrix;
+  using lapack_wrapper::MatrixType;
+  using lapack_wrapper::MatrixWrapper;
+
+  using lapack_wrapper::LSS;
+  using lapack_wrapper::LSY;
+  using lapack_wrapper::LU;
+  using lapack_wrapper::LUPQ;
+  using lapack_wrapper::PINV;
+  using lapack_wrapper::QR;
+  using lapack_wrapper::QRP;
+  using lapack_wrapper::SVD;
+
+  using lapack_wrapper::BFGS;
+  using lapack_wrapper::DFP;
+  using lapack_wrapper::QN;
+  using lapack_wrapper::SR1;
+
+  using lapack_wrapper::Eigenvectors;
+  using lapack_wrapper::Eigenvalues;
+  using lapack_wrapper::GeneralizedEigenvectors;
+  using lapack_wrapper::GeneralizedEigenvalues;
+  using lapack_wrapper::GeneralizedSVD;
+
+  using lapack_wrapper::LinearSystemSolver;
+  using lapack_wrapper::BlockTridiagonalSymmetic;
+  using lapack_wrapper::BandedLU;
+  using lapack_wrapper::TridiagonalLU;
+  using lapack_wrapper::TridiagonalQR;
+
+  using lapack_wrapper::Transposition;
+  using lapack_wrapper::DiagonalType;
+  using lapack_wrapper::ULselect;
+  using lapack_wrapper::SideMultiply;
+
+  using lapack_wrapper::Mv;
+  using lapack_wrapper::MM;
+
+  using lapack_wrapper::print_matrix;
+  using lapack_wrapper::print_matrix2;
+  using lapack_wrapper::SparseCCOOR;
+  using lapack_wrapper::SparseMatrixBase;
+  using lapack_wrapper::EquilibrationType;
+
+  using Utils::string;
+  using Utils::Malloc;
+  using Utils::vector;
+}
+
+#endif
+
+///
+/// eof: Alglin_Config.hh
+///

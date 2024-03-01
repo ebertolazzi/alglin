@@ -1,0 +1,102 @@
+require "rake"
+require "colorize"
+
+task :default => [:install_osx]
+
+task :copy_submodules, [:arg] do |t, args|
+  args.with_defaults(:arg => "osx")
+  FileUtils.mkdir_p "../lib3rd/"
+  FileUtils.mkdir_p "../lib3rd/lib/"
+  FileUtils.mkdir_p "../lib3rd/dll/"
+  FileUtils.mkdir_p "../lib3rd/bin/"
+  tmp = '_' + args.arg
+  ["./LapackWrapper/"].each do |base|
+    FileUtils.cp_r base + "lib/.",    "../lib3rd/"
+    FileUtils.cp_r base + "lib3rd/.", "../lib3rd/"
+  end
+end
+
+desc "build 3rd parties for OSX [default=LAPACK_WRAPPER_USE_ACCELERATE]"
+task :build_osx, [:lapack] do |t, args|
+  args.with_defaults( :lapack => "LAPACK_WRAPPER_USE_ACCELERATE" )
+  FileUtils.cd "LapackWrapper"
+  sh "rake clean_osx"
+  sh "rake osx_3rd[#{args.lapack}]"
+  sh "rake build_osx[#{args.lapack}]"
+  FileUtils.cd ".."
+  Rake::Task[:copy_submodules].invoke("osx")
+end
+
+desc "build 3rd parties for LINUX [default=LAPACK_WRAPPER_USE_OPENBLAS]"
+task :build_linux, [:lapack] do |t, args|
+  args.with_defaults( :lapack => "LAPACK_WRAPPER_USE_OPENBLAS" )
+  FileUtils.cd "LapackWrapper"
+  sh "rake clean_linux"
+  sh "rake linux_3rd[#{args.lapack}]"
+  sh "rake build_linux[#{args.lapack}]"
+  FileUtils.cd ".."
+  Rake::Task[:copy_submodules].invoke("linux")
+end
+
+desc "build for Visual Studio [lapack=LAPACK_WRAPPER_USE_OPENBLAS]"
+task :build_win, [:lapack] do |t, args|
+  args.with_defaults( :lapack => "LAPACK_WRAPPER_USE_OPENBLAS" )
+  FileUtils.cd "LapackWrapper"
+  sh "rake clean_win"
+  sh "rake win_3rd[#{args.lapack}]"
+  sh "rake build_win[#{args.lapack}]"
+  FileUtils.cd ".."
+  Rake::Task[:copy_submodules].invoke("win")
+end
+
+desc "clean 3rd parties for OSX"
+task :clean_osx do
+  FileUtils.cd "LapackWrapper"
+  sh "rake clean_osx"
+  FileUtils.cd ".."
+end
+
+desc "clean 3rd parties for LINUX"
+task :clean_linux do
+  FileUtils.cd "LapackWrapper"
+  sh "rake clean_linux"
+  FileUtils.cd ".."
+end
+
+desc "clean 3rd parties for WINDOWS"
+task :clean_win do |t, args|
+  FileUtils.cd "LapackWrapper"
+  sh "rake clean_win"
+  FileUtils.cd ".."
+end
+
+case RUBY_PLATFORM
+when /darwin/
+  OS = :mac
+when /linux/
+  OS = :linux
+when /cygwin|mswin|mingw|bccwin|wince|emx/
+  # detect windows shell not in msys2
+  OS = :win
+when /msys/
+  # msys2 envirorment to compile with MINGW
+  OS = :mingw
+end
+
+desc "clean"
+task :clean do
+  case OS
+  when :mac
+    puts "Clean (osx)".green
+    Rake::Task[:clean_osx].invoke
+  when :linux
+    puts "Clean (linux)".green
+    Rake::Task[:clean_linux].invoke
+  when :win
+    puts "Clean (windows)".green
+    Rake::Task[:clean_win].invoke
+  when :mingw
+    puts "Clean (mingw)".green
+    Rake::Task[:clean_mingw].invoke
+  end
+end

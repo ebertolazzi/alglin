@@ -1,0 +1,16 @@
+doc_pdf
+src_no_git
+*.o
+*.a
+.alglin_config
+.vscode
+.idea
+cmake-build-debug
+vs_20*
+DerivedData
+babd.xcodeproj
+bin
+lib
+lib3rd
+build
+3.3.4.tar.gz

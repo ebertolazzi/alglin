@@ -1,0 +1,6 @@
+[submodule "submodules/LapackWrapper"]
+	path = submodules/LapackWrapper
+  url  = https://github.com/ebertolazzi/LapackWrapper.git
+[submodule "cmake_utils"]
+	path = cmake_utils
+	url  = https://github.com/ebertolazzi/cmake_utils.git
