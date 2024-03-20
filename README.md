@@ -7,7 +7,7 @@ a C++11 compiler, rake/ruby and cmake.
 This command fetch all the submodules to the last commit
 
 ~~~~
-ruby setup.rb
+ruby setup.rb --latest
 ~~~~
 
 Use rake to compile all the tests and the library
