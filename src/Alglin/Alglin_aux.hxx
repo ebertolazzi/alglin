@@ -387,6 +387,16 @@ namespace alglin {
     integer IPIV[]
   );
 
+  extern template integer gtx( integer M, integer N, float  A[], integer LDA, integer IPIV[] );
+  extern template integer gtx( integer M, integer N, double A[], integer LDA, integer IPIV[] );
+  extern template integer gty( integer M, integer N, float  A[], integer LDA, integer IPIV[] );
+  extern template integer gty( integer M, integer N, double A[], integer LDA, integer IPIV[] );
+
+  extern template integer getrx( integer M, integer N, float  A[], integer LDA, integer IPIV[], integer MB );
+  extern template integer getrx( integer M, integer N, double A[], integer LDA, integer IPIV[], integer MB  );
+  extern template integer getry( integer M, integer N, float  A[], integer LDA, integer IPIV[], integer MB  );
+  extern template integer getry( integer M, integer N, double A[], integer LDA, integer IPIV[], integer MB  );
+
   // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
   template <typename T>

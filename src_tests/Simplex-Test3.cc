@@ -19,9 +19,10 @@
 
 #ifdef __clang__
 #pragma clang diagnostic ignored "-Wexit-time-destructors"
+#pragma clang diagnostic ignored "-Wglobal-constructors"
 #endif
 
-Utils::Console msg( &std::cout,4);
+static Utils::Console msg( &std::cout,4);
 
 int
 main() {

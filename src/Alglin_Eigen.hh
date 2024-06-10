@@ -83,12 +83,32 @@ namespace alglin {
     t_Value       * Bmat, integer ldB
   );
 
+  extern template void GEcopy(
+    integer       N,
+    integer       M,
+    float const * Amat, integer ldA,
+    float       * Bmat, integer ldB
+  );
+  extern template void GEcopy(
+    integer        N,
+    integer        M,
+    double const * Amat, integer ldA,
+    double       * Bmat, integer ldB
+  );
+
   template <typename t_Value>
   void
   GEzero(
     integer   N,
     integer   M,
     t_Value * Amat, integer ldA
+  );
+
+  extern template void GEzero(
+    integer N, integer M, float * Amat, integer ldA
+  );
+  extern template void GEzero(
+    integer N, integer M, double * Amat, integer ldA
   );
 
   template <typename t_Value>
@@ -98,6 +118,19 @@ namespace alglin {
     integer         M,
     t_Value const * Amat, integer ldA,
     t_Value       * Bmat, integer ldB
+  );
+
+  extern template void GEadd(
+    integer       N,
+    integer       M,
+    float const * Amat, integer ldA,
+    float       * Bmat, integer ldB
+  );
+  extern template void GEadd(
+    integer        N,
+    integer        M,
+    double const * Amat, integer ldA,
+    double       * Bmat, integer ldB
   );
 
 } // end namespace alglin

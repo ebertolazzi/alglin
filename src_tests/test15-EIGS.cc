@@ -18,7 +18,7 @@
 \*--------------------------------------------------------------------------*/
 
 #include "Alglin.hh"
-#include <Utils_eigen.hh>
+#include "Alglin_Eigen.hh"
 
 namespace fmt {
   template <typename Real> struct formatter<std::complex<Real>> : ostream_formatter {};
@@ -28,9 +28,10 @@ using namespace std;
 
 #ifdef __clang__
 #pragma clang diagnostic ignored "-Wexit-time-destructors"
+#pragma clang diagnostic ignored "-Wglobal-constructors"
 #endif
 
-Utils::Console msg( &std::cout,4);
+static Utils::Console msg( &std::cout,4);
 
 using alglin::real_type;
 using alglin::Transposition;

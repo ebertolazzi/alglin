@@ -76,7 +76,7 @@ namespace alglin {
   ) {
 
     integer ierr;
-    if ( 2*m_NB < nrA ) ierr = getry( nrA, ncA, A, ldA, swapR, m_NB );
+    if ( 2*m_NB < nrA ) ierr = getry<t_Value>( nrA, ncA, A, ldA, swapR, m_NB );
     else                ierr = gty( nrA, ncA, A, ldA, swapR );
 
     UTILS_ASSERT( ierr == 0, "DiazLU::LU_left_right, found ierr: {}\n", ierr );
