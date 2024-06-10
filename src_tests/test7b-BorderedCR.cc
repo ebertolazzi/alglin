@@ -162,10 +162,6 @@ main( int argc, char *argv[] ) {
           BCR.select_QRP();
           fmt::print("use QRP\n");
           break;
-        case 3:
-          BCR.select_SUPERLU();
-          fmt::print("use SUPERLU\n");
-          break;
         }
 
         switch ( jjj ) {

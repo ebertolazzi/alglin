@@ -112,31 +112,6 @@ else()
   set(OpenMP_LIB)
 endif()
 
-if( APPLE OR UNIX OR MINGW )
-  find_package( ZLIB REQUIRED )
-else()
-  if ( CMAKE_BUILD_TYPE STREQUAL "Debug" )
-    find_library(
-      ZLIB_LIBRARIES zlibstaticd
-      HINTS ./submodules/Utils/ThirdParties/zlib-ng/lib/win/lib
-            ${UPDIR}/Utils/lib3rd/lib ${UPDIR}/Utils/lib3rd/dll
-    )
-  else()
-    find_library(
-      ZLIB_LIBRARIES zlibstatic
-      HINTS ./submodules/Utils/ThirdParties/zlib-ng/lib/win/lib
-             ${UPDIR}/Utils/lib3rd/lib ${UPDIR}/Utils/lib3rd/dll
-    )
-  endif()
-  set( ZLIB_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/ThirdParties/zlib-ng/win/include " "${UPDIR}/Utils/lib3rd/include ")
-endif()
-
-find_library(
-  SUPERLU superlu${ARTIFACTS_STATIC_SUFFIX}
-  HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib
-  NO_DEFAULT_PATH
-  REQUIRED
-)
 find_library(
   HSL HSL${ARTIFACTS_STATIC_SUFFIX}
   HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib
@@ -150,7 +125,7 @@ find_library(
   REQUIRED
 )
 find_library(
-  UTILS Utils${ARTIFACTS_STATIC_SUFFIX}
+  UTILS UtilsLite${ARTIFACTS_STATIC_SUFFIX}
   HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib
   NO_DEFAULT_PATH
   REQUIRED
@@ -185,9 +160,8 @@ if ( UTILS_BUILD_SHARED )
   )
   target_link_libraries(
     ${UTILS_NAMESPACE}_${PROJECT_NAME}
-    ${LAPACK_WRAPPER} ${SUPERLU} ${HSL} ${UTILS}
+    ${LAPACK_WRAPPER} ${HSL} ${UTILS}
     ${lapackblas_libraries}
-    ${ZLIB_LIBRARIES}
     ${CMAKE_DL_LIBS}
     ${OpenMP_LIB}
   )
@@ -222,9 +196,8 @@ if ( UTILS_ENABLE_TESTS )
   set(
     LIBS
     ${UTILS_NAMESPACE}_${PROJECT_NAME}_Static
-    ${LAPACK_WRAPPER} ${SUPERLU} ${HSL} ${UTILS}
+    ${LAPACK_WRAPPER} ${HSL} ${UTILS}
     ${lapackblas_libraries}
-    ${ZLIB_LIBRARIES}
     ${CMAKE_DL_LIBS}
     ${OpenMP_LIB}
   )

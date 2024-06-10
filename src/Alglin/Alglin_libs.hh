@@ -33,18 +33,14 @@
   #if defined(_DEBUG) || defined(DEBUG)
     #ifdef ALGLIN_ARCH64
       #pragma comment(lib, "Alglin_win_x64_static_debug.lib")
-      #pragma comment(lib, "superlu_win_x64_static_debug.lib")
     #else
       #pragma comment(lib, "Alglin_win_x86_static_debug.lib")
-      #pragma comment(lib, "superlu_win_x86_static_debug.lib")
     #endif
   #else
     #ifdef ALGLIN_ARCH64
       #pragma comment(lib, "Alglin_win_x64_static.lib")
-      #pragma comment(lib, "superlu_win_x64_static.lib")
     #else
       #pragma comment(lib, "Alglin_win_x86_static.lib")
-      #pragma comment(lib, "superlu_win_x86_static.lib")
     #endif
   #endif
 #endif

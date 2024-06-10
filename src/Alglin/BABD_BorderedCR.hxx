@@ -93,10 +93,9 @@ namespace alglin {
     using real_type = t_Value ;
     using MatW      = MatrixWrapper<t_Value>;
     using BORDERED_Choice = enum class BORDERED_Choice : integer {
-      LU      = 0,
-      QR      = 1,
-      QRP     = 3,
-      SUPERLU = 4
+      LU  = 0,
+      QR  = 1,
+      QRP = 3
     };
 
     using BORDERED_LAST_Choice = enum class BORDERED_LAST_Choice : integer {
@@ -122,9 +121,6 @@ namespace alglin {
     Malloc<real_type>  m_mem{"BorderedCR_values"};
     Malloc<integer>    m_mem_int{"BorderedCR_integers"};
 
-    Malloc<real_type>  m_superlu_value{"BorderedCR_superlu_values"};
-    Malloc<int>        m_superlu_integer{"BorderedCR_superlu_integers"};
-
     mutable Malloc<real_type> m_work_mem{"BorderedCR_work_mem"};
     mutable string            m_last_error{"no error"};
 
@@ -147,27 +143,9 @@ namespace alglin {
     integer nr_x_nx{0};
     integer nr_x_qx{0};
 
-    bool m_factorize_CR_use_thread{true};
-    bool m_solve_CR_use_thread{true};
+    bool m_factorize_use_thread{true};
+    bool m_solve_use_thread{true};
     bool m_matrix_is_factorized{false};
-
-    // for SuperLU =====================
-    int * m_slu_perm_r{nullptr}; // row permutations from partial pivoting
-    int * m_slu_perm_c{nullptr}; // column permutation vector
-    int * m_slu_etree{nullptr};
-
-    superlu_options_t     m_slu_options;
-    mutable SuperLUStat_t m_slu_stats;
-    mutable SuperMatrix   m_slu_A;
-    mutable SuperMatrix   m_slu_AC;
-    mutable SuperMatrix   m_slu_L;
-    mutable SuperMatrix   m_slu_U;
-
-    #if defined(SUPERLU_MAJOR_VERSION) && SUPERLU_MAJOR_VERSION >= 5
-    mutable GlobalLU_t    m_slu_glu;
-    #endif
-
-    // for SuperLU ===================== END
 
     BORDERED_LAST_Choice m_last_selected{BORDERED_LAST_Choice::LU};
     BORDERED_Choice      m_selected{BORDERED_Choice::LU};
@@ -372,11 +350,11 @@ namespace alglin {
     ~BorderedCR() override
     {}
 
-    void set_factorize_CR_use_thread( bool yes_no ) { m_factorize_CR_use_thread = yes_no; }
-    void set_solve_CR_use_thread( bool yes_no )     { m_solve_CR_use_thread = yes_no; }
+    void set_factorize_use_thread( bool yes_no ) { m_factorize_use_thread = yes_no; }
+    void set_solve_use_thread( bool yes_no )     { m_solve_use_thread = yes_no; }
 
-    bool factorize_CR_use_thread() const { return m_factorize_CR_use_thread; }
-    bool solve_CR_use_thread()     const { return m_solve_CR_use_thread; }
+    bool factorize_use_thread() const { return m_factorize_use_thread; }
+    bool solve_use_thread()     const { return m_solve_use_thread; }
 
     void
     set_num_parallel_block( integer num_parallel_block ) {
@@ -406,10 +384,9 @@ namespace alglin {
     //! @{
     //!
 
-    void select_LU()      { m_selected = BORDERED_Choice::LU; }
-    void select_QR()      { m_selected = BORDERED_Choice::QR; }
-    void select_QRP()     { m_selected = BORDERED_Choice::QRP; }
-    void select_SUPERLU() { m_selected = BORDERED_Choice::SUPERLU; }
+    void select_LU()  { m_selected = BORDERED_Choice::LU; }
+    void select_QR()  { m_selected = BORDERED_Choice::QR; }
+    void select_QRP() { m_selected = BORDERED_Choice::QRP; }
 
     void select_last_LU()   { m_last_selected = BORDERED_LAST_Choice::LU;   }
     void select_last_LUPQ() { m_last_selected = BORDERED_LAST_Choice::LUPQ; }
@@ -425,10 +402,9 @@ namespace alglin {
     choice_to_string( BORDERED_Choice c ) {
       string res{"none"};
       switch ( c ) {
-      case BORDERED_Choice::LU:      res = "CyclicReduction+LU";         break;
-      case BORDERED_Choice::QR:      res = "CyclicReduction+QR";         break;
-      case BORDERED_Choice::QRP:     res = "CyclicReduction+QRP";        break;
-      case BORDERED_Choice::SUPERLU: res = "SuperLU(LastBlock ignored)"; break;
+      case BORDERED_Choice::LU:  res = "CyclicReduction+LU";         break;
+      case BORDERED_Choice::QR:  res = "CyclicReduction+QR";         break;
+      case BORDERED_Choice::QRP: res = "CyclicReduction+QRP";        break;
       }
       return res;
     }
@@ -820,23 +796,6 @@ namespace alglin {
     //! @}
     //!
 
-    bool factorize_SuperLU();
-    bool factorize_CR();
-
-    bool
-    factorize() {
-      if ( m_selected == BORDERED_Choice::SUPERLU ) {
-        return this->factorize_SuperLU();
-      } else {
-        return this->factorize_CR();
-      }
-    }
-
-    bool solve_SuperLU( real_type x[] ) const;
-    bool solve_CR( real_type x[] ) const;
-    bool solve_SuperLU( integer nrhs, real_type rhs[], integer ldRhs ) const;
-    bool solve_CR( integer nrhs, real_type rhs[], integer ldRhs ) const;
-
     /*\
      |         _      _               _
      |  __   _(_)_ __| |_ _   _  __ _| |___
@@ -845,25 +804,9 @@ namespace alglin {
      |    \_/ |_|_|   \__|\__,_|\__,_|_|___/
     \*/
 
-    virtual
-    bool
-    solve( real_type x[] ) const override {
-      if ( m_selected == BORDERED_Choice::SUPERLU ) {
-        return solve_SuperLU( x );
-      } else {
-        return m_matrix_is_factorized ? solve_CR( x ) : false;
-      }
-    }
-
-    virtual
-    bool
-    solve( integer nrhs, real_type rhs[], integer ldRhs ) const override {
-      if ( m_selected == BORDERED_Choice::SUPERLU ) {
-        return solve_SuperLU( nrhs, rhs, ldRhs );
-      } else {
-        return m_matrix_is_factorized ? solve_CR( nrhs, rhs, ldRhs ) : false;
-      }
-    }
+    bool factorize();
+    bool solve( real_type x[] ) const override;
+    bool solve( integer nrhs, real_type rhs[], integer ldRhs ) const override;
 
     virtual bool t_solve( real_type [] ) const override;
     virtual bool t_solve( integer, real_type [], integer ) const override;

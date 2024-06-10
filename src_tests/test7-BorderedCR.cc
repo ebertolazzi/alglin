@@ -139,7 +139,6 @@ main( int argc, char *argv[] ) {
   BCR.select_LU();
   //BCR.select_QR();
   //BCR.select_QRP();
-  //BCR.select_SUPERLU();
 
   BCR.select_last_LU();
   //BCR.select_last_LUPQ();
@@ -172,8 +171,8 @@ main( int argc, char *argv[] ) {
     N, nblock, n, nr, nx, qr, qx
   );
 
-  BCR.set_factorize_CR_use_thread( false );
-  BCR.set_solve_CR_use_thread( false );
+  BCR.set_factorize_use_thread( false );
+  BCR.set_solve_use_thread( false );
 
   fmt::print( "{}\n", BCR.info() );
 

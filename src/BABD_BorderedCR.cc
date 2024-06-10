@@ -236,8 +236,8 @@ namespace alglin {
       m_block_size, m_qr, m_qx, m_nr, m_nx,
       m_TP->thread_count(),
       m_used_parallel_block,
-      m_factorize_CR_use_thread,
-      m_solve_CR_use_thread,
+      m_factorize_use_thread,
+      m_solve_use_thread,
       choice_to_string( m_selected ),
       choice_to_string( m_last_selected )
     );
@@ -822,7 +822,7 @@ namespace alglin {
 
   template <typename t_Value>
   bool
-  BorderedCR<t_Value>::factorize_CR() {
+  BorderedCR<t_Value>::factorize() {
 
     if ( m_debug ) check_matrix();
 
@@ -832,7 +832,7 @@ namespace alglin {
     m_ok_thread = true;
     if ( npb > 1 ) {
       Zero_n( m_Fmat + nr_x_nx, (npb-1) * nr_x_nx );
-      if ( m_factorize_CR_use_thread ) {
+      if ( m_factorize_use_thread ) {
         for ( integer n_thread = 0; n_thread < npb; ++n_thread )
           m_TP->run( &BorderedCR<t_Value>::factorize_block, this, n_thread );
         m_TP->wait();
@@ -913,10 +913,6 @@ namespace alglin {
         permutation_to_exchange( n, P, iperm );
       }
       break;
-    case BORDERED_Choice::SUPERLU:
-      BABD_LAST_ERROR( "BorderedCR::buildT, cannot be used with SUPERLU at block\n" );
-      return false;
-      break;
     }
     return true;
   }
@@ -994,9 +990,6 @@ namespace alglin {
         m_Work_Lapack_thread[size_t(n_thread)], m_Work_Lapack_size
       );
       break;
-    case BORDERED_Choice::SUPERLU:
-      BABD_LAST_ERROR_LOCK( "BorderedCR::applyT, cannot be used with SUPERLU\n" );
-      return false;
     }
 
     GEcopy( n, ncol, W+n, n_x_2, TOP,    ldTOP    );
@@ -1060,9 +1053,6 @@ namespace alglin {
         return false;
       }
       break;
-    case BORDERED_Choice::SUPERLU:
-      BABD_LAST_ERROR_LOCK( "BorderedCR::applyT, cannot be used with SUPERLU\n" );
-      return false;
     }
     Copy_n( W+n, n, TOP   );
     Copy_n( W,   n, BOTTOM );
@@ -1477,13 +1467,13 @@ namespace alglin {
 
   template <typename t_Value>
   bool
-  BorderedCR<t_Value>::solve_CR( real_type x[] ) const {
+  BorderedCR<t_Value>::solve( real_type x[] ) const {
     integer const & nblock {m_number_of_blocks};
     integer const & n      {m_block_size};
     integer const & npb    {m_used_parallel_block};
     real_type * xb{x + (nblock+1)*n + m_qr}; // deve essere b!
     if ( npb > 1 ) {
-      if ( m_solve_CR_use_thread ) {
+      if ( m_solve_use_thread ) {
         for ( integer n_thread{0}; n_thread < npb; ++n_thread )
           m_TP->run( &BorderedCR<t_Value>::forward, this, n_thread, x );
         m_TP->wait();
@@ -1512,7 +1502,7 @@ namespace alglin {
 
     if ( npb > 1 ) {
       backward_reduced(x);
-      if ( m_solve_CR_use_thread ) {
+      if ( m_solve_use_thread ) {
         for ( integer n_thread{0}; n_thread < npb; ++n_thread )
           m_TP->run( &BorderedCR<t_Value>::backward, this, n_thread, x );
         m_TP->wait();
@@ -1530,7 +1520,7 @@ namespace alglin {
 
   template <typename t_Value>
   bool
-  BorderedCR<t_Value>::solve_CR(
+  BorderedCR<t_Value>::solve(
     integer   nrhs,
     real_type rhs[],
     integer   ldRhs
@@ -1546,7 +1536,7 @@ namespace alglin {
     real_type * work{m_work_mem.realloc( npb * nn )};
 
     if ( npb > 1 ) {
-      if ( m_solve_CR_use_thread ) {
+      if ( m_solve_use_thread ) {
         for ( integer n_thread{0}; n_thread < npb; ++n_thread )
           m_TP->run( &BorderedCR<t_Value>::forward_n, this, n_thread, nrhs, rhs, ldRhs, work + n_thread * nn );
         m_TP->wait();
@@ -1574,7 +1564,7 @@ namespace alglin {
 
     if ( npb > 1 ) {
       backward_n_reduced( nrhs, rhs, ldRhs );
-      if ( m_solve_CR_use_thread ) {
+      if ( m_solve_use_thread ) {
         for ( integer n_thread{0}; n_thread < npb; ++n_thread )
           m_TP->run( &BorderedCR<t_Value>::backward_n, this, n_thread, nrhs, rhs, ldRhs );
         m_TP->wait();
@@ -2490,433 +2480,6 @@ namespace alglin {
         Utils::Runtime_Error( m_last_error, __FILE__, __LINE__ );
       }
     }
-  }
-
-  /*\
-   |   ____                        _    _   _
-   |  / ___| _   _ _ __   ___ _ __| |  | | | |
-   |  \___ \| | | | '_ \ / _ \ '__| |  | | | |
-   |   ___) | |_| | |_) |  __/ |  | |__| |_| |
-   |  |____/ \__,_| .__/ \___|_|  |_____\___/
-   |              |_|
-  \*/
-
-  static
-  inline
-  void
-  Create_CompCol_Matrix(
-    SuperMatrix * A,
-    int           m,
-    int           n,
-    int           nnz,
-    double        nzval[],
-    int           rowind[],
-    int           colptr[],
-    Stype_t       stype,
-    Dtype_t       dtype,
-    Mtype_t       mtype
-  ) {
-    dCreate_CompCol_Matrix( A, m, n, nnz, nzval, rowind, colptr, stype, dtype, mtype );
-  }
-
-  static
-  inline
-  void
-  Create_CompCol_Matrix(
-    SuperMatrix * A,
-    int           m,
-    int           n,
-    int           nnz,
-    float         nzval[],
-    int           rowind[],
-    int           colptr[],
-    Stype_t       stype,
-    Dtype_t       dtype,
-    Mtype_t       mtype
-  ) {
-    sCreate_CompCol_Matrix( A, m, n, nnz, nzval, rowind, colptr, stype, dtype, mtype );
-  }
-
-  static
-  inline
-  void
-  Create_Dense_Matrix(
-    SuperMatrix * X,
-    int           m,
-    int           n,
-    double        x[],
-    int           ldx,
-    Stype_t       stype,
-    Dtype_t       dtype,
-    Mtype_t       mtype
-  ) {
-    dCreate_Dense_Matrix( X, m, n, x, ldx, stype, dtype, mtype );
-  }
-
-  static
-  inline
-  void
-  Create_Dense_Matrix(
-    SuperMatrix * X,
-    int           m,
-    int           n,
-    float         x[],
-    int           ldx,
-    Stype_t       stype,
-    Dtype_t       dtype,
-    Mtype_t       mtype
-  ) {
-    sCreate_Dense_Matrix( X, m, n, x, ldx, stype, dtype, mtype );
-  }
-
-  template <typename T>
-  class SuperLU {
-  public:
-
-    static
-    void
-    gstrf(
-      superlu_options_t * options,
-      SuperMatrix       * A,
-      int                 relax,
-      int                 panel_size,
-      int               * etree,
-      void              * work,
-      int                 lwork,
-      int               * perm_c,
-      int               * perm_r,
-      SuperMatrix       * L,
-      SuperMatrix       * U,
-      #if defined(SUPERLU_MAJOR_VERSION) && SUPERLU_MAJOR_VERSION >= 5
-      GlobalLU_t        * Glu,
-      #endif
-      SuperLUStat_t     * stat,
-      int               * info
-    );
-
-    static
-    void
-    gstrs(
-      trans_t         trans,
-      SuperMatrix   * L,
-      SuperMatrix   * U,
-      int           * perm_c,
-      int           * perm_r,
-      SuperMatrix   * B,
-      SuperLUStat_t * stat,
-      int           * info
-    );
-
-  };
-
-  template <>
-  void
-  SuperLU<float>::gstrf(
-    superlu_options_t * options,
-    SuperMatrix       * A,
-    int                 relax,
-    int                 panel_size,
-    int               * etree,
-    void              * work,
-    int                 lwork,
-    int               * perm_c,
-    int               * perm_r,
-    SuperMatrix       * L,
-    SuperMatrix       * U,
-    #if defined(SUPERLU_MAJOR_VERSION) && SUPERLU_MAJOR_VERSION >= 5
-    GlobalLU_t        * Glu,
-    #endif
-    SuperLUStat_t     * stat,
-    int               * info
-  ) {
-    sgstrf(
-      options, A, relax, panel_size, etree, work, lwork,
-      perm_c, perm_r, L, U,
-      #if defined(SUPERLU_MAJOR_VERSION) && SUPERLU_MAJOR_VERSION >= 5
-      Glu,
-      #endif
-      stat, info
-    );
-  }
-
-  template <>
-  void
-  SuperLU<double>::gstrf(
-    superlu_options_t * options,
-    SuperMatrix       * A,
-    int                 relax,
-    int                 panel_size,
-    int               * etree,
-    void              * work,
-    int                 lwork,
-    int               * perm_c,
-    int               * perm_r,
-    SuperMatrix       * L,
-    SuperMatrix       * U,
-    #if defined(SUPERLU_MAJOR_VERSION) && SUPERLU_MAJOR_VERSION >= 5
-    GlobalLU_t        * Glu,
-    #endif
-    SuperLUStat_t     * stat,
-    int               * info
-  ) {
-    dgstrf(
-      options, A, relax, panel_size, etree, work, lwork,
-      perm_c, perm_r, L, U,
-      #if defined(SUPERLU_MAJOR_VERSION) && SUPERLU_MAJOR_VERSION >= 5
-      Glu,
-      #endif
-      stat, info
-    );
-  }
-
-  template <>
-  void
-  SuperLU<float>::gstrs(
-    trans_t         trans,
-    SuperMatrix   * L,
-    SuperMatrix   * U,
-    int           * perm_c,
-    int           * perm_r,
-    SuperMatrix   * B,
-    SuperLUStat_t * stat,
-    int           * info
-  ) {
-    sgstrs( trans, L, U, perm_c, perm_r, B, stat,  info );
-  }
-
-  template <>
-  void
-  SuperLU<double>::gstrs(
-    trans_t         trans,
-    SuperMatrix   * L,
-    SuperMatrix   * U,
-    int           * perm_c,
-    int           * perm_r,
-    SuperMatrix   * B,
-    SuperLUStat_t * stat,
-    int           * info
-  ) {
-    dgstrs( trans, L, U, perm_c, perm_r, B, stat,  info );
-  }
-
-  template <typename t_Value>
-  bool
-  BorderedCR<t_Value>::factorize_SuperLU() {
-    integer const & nblock{m_number_of_blocks};
-    integer const & n{m_block_size};
-
-    int neq{int(this->nrows())};
-    int nnz{ nblock * ( 2 * n_x_n + m_nx * n ) +
-             ( n * (nblock+1) + (m_qx+m_nx) ) * m_nr +
-             ( n+m_qr ) * ( n_x_2+m_qx+m_nx )};
-
-    m_superlu_integer.reallocate( size_t(nnz+4*neq+1) );
-    m_superlu_value.reallocate( size_t(nnz) );
-
-    set_default_options(&m_slu_options);
-
-    // Initialize the statistics variables.
-    StatInit( &m_slu_stats );
-
-    m_slu_perm_r = m_superlu_integer( size_t(neq) ); /* row permutations from partial pivoting */
-    m_slu_perm_c = m_superlu_integer( size_t(neq) ); /* column permutation vector */
-    m_slu_etree  = m_superlu_integer( size_t(neq) );
-
-    real_type * values{m_superlu_value( size_t(nnz) )};
-    int       * rowind{m_superlu_integer( size_t(nnz) )};
-    int       * colptr{m_superlu_integer( size_t(neq+1) )};
-
-    m_superlu_value.must_be_empty("BorderedCR::factorize_SuperLU, values");
-    m_superlu_integer.must_be_empty("BorderedCR::factorize_SuperLU, integer");
-
-    // fill matrix
-    //                 n * (nblock+1)
-    //    ___________________^____________________
-    //   /                                        \
-    //    n   n   n                              n  qx  nx
-    //  +---+---+---+----.................-----+---+---+---+   -+
-    //  | D | E |   |                          |   |   | B | n  |
-    //  +---+---+---+                     -----+---+---+---+    |
-    //  |   | D | E |                          |   |   | B | n  |
-    //  +---+---+---+---+                 -----+---+---+---+    |
-    //  |   |   | D | E |                      |   |   | B | n  |
-    //  +---+---+---+---+                 -----+---+---+---+    |
-    //  :                                                  :    |
-    //  :                                                  :    |
-    //  :                                                  :     > n * nblock
-    //  :                                                  :    |
-    //  :                                                  :    |
-    //  :                              +---+---+---+---+---+    |
-    //  :                              | D | E |   |   | B | n  |
-    //  :                              +---+---+---+---+---+    |
-    //  :                                  | D | E |   | B | n  |
-    //  +---+---+---................---+---+---+---+---+---+   -+
-    //  |   |   |                          |   |   |   |   |    |
-    //  |H0 | 0 |                          | 0 |HN | Hq| Hp|    | n+qr
-    //  |   |   |                          |   |   |   |   |    |
-    //  +---+---+---................---+---+---+---+---+---+   -+
-    //  | C | C |                      | C | C | C | Cq| F |    | nr
-    //  +---+---+---................---+---+---+---+---+---+   -+
-    //                                             nr*qx
-    //
-
-    int row1{n*nblock};
-    int row2{row1 + n + m_qr};
-    int kk{0};
-    int jj{0};
-    colptr[jj] = 0;
-    for ( int j{0}; j < n; ++j ) {
-      for ( int i{0}; i < n;      ++i ) { values[kk] = D( 0, i, j ); rowind[kk] = i;      ++kk; }
-      for ( int i{0}; i < n+m_qr; ++i ) { values[kk] = H(    i, j ); rowind[kk] = i+row1; ++kk; }
-      for ( int i{0}; i < m_nr;   ++i ) { values[kk] = C( 0, i, j ); rowind[kk] = i+row2; ++kk; }
-      colptr[++jj] = kk; // next column
-    }
-
-    for ( int nbl{1}; nbl < nblock; ++nbl ) {
-      int rown = nbl*n;
-      for ( int j{0}; j < n; ++j ) {
-        for ( int i{0}; i < n;    ++i ) { values[kk] = E( nbl-1, i, j ); rowind[kk] = i+rown-n; ++kk; }
-        for ( int i{0}; i < n;    ++i ) { values[kk] = D( nbl,   i, j ); rowind[kk] = i+rown;   ++kk; }
-        for ( int i{0}; i < m_nr; ++i ) { values[kk] = C( nbl,   i, j ); rowind[kk] = i+row2;   ++kk; }
-        colptr[++jj] = kk;
-      }
-    }
-
-    for ( int j{0}; j < n; ++j ) {
-      for ( int i{0}; i < n;      ++i ) { values[kk] = E( nblock-1, i, j   ); rowind[kk] = i+row1-n; ++kk; }
-      for ( int i{0}; i < n+m_qr; ++i ) { values[kk] = H(           i, j+n ); rowind[kk] = i+row1;   ++kk; }
-      for ( int i{0}; i < m_nr;   ++i ) { values[kk] = C( nblock,   i, j   ); rowind[kk] = i+row2;   ++kk; }
-      colptr[++jj] = kk;
-    }
-
-    for ( int j{0}; j < m_qx; ++j ) {
-      for ( int i{0}; i < n+m_qr; ++i ) { values[kk] = H(  i, j+2*n ); rowind[kk] = i+row1; ++kk; }
-      for ( int i{0}; i < m_nr;   ++i ) { values[kk] = Cq( i, j     ); rowind[kk] = i+row2; ++kk; }
-      colptr[++jj] = kk;
-    }
-
-    for ( int j{0}; j < m_nx; ++j ) {
-      for ( int nbl{0}; nbl < nblock; ++nbl ) {
-        for ( int i{0}; i < n; ++i ) { values[kk] = B( nbl, i, j ); rowind[kk] = i+nbl*n; ++kk; }
-      }
-      for ( int i{0}; i < n+m_qr; ++i ) { values[kk] = H( i, j+2*n+m_qx ); rowind[kk] = i+row1; ++kk; }
-      for ( int i{0}; i < m_nr;   ++i ) { values[kk] = F( i, j );          rowind[kk] = i+row2; ++kk; }
-      colptr[++jj] = kk;
-    }
-
-    if ( kk != nnz ) {
-      BABD_LAST_ERROR( "BABD_SuperLU::factorize -- dgstrf() error nnz = {} != {}\n", nnz, kk );
-      return false;
-    }
-
-    // Create matrix A in the format expected by SuperLU.
-    Create_CompCol_Matrix(
-      &m_slu_A, neq, neq, nnz,
-      values, rowind, colptr,
-      SLU_NC, SLU_D, SLU_GE
-    );
-
-    /*\
-     * Get column permutation vector perm_c[], according to permc_spec:
-     *   ColPerm = 0: natural ordering
-     *   ColPerm = 1: minimum degree on structure of A'*A
-     *   ColPerm = 2: minimum degree on structure of A'+A
-     *   ColPerm = 3: approximate minimum degree for unsymmetric matrices
-    \*/
-    //cout << "get_perm_c.\n";
-    get_perm_c( m_slu_options.ColPerm, &m_slu_A, m_slu_perm_c );
-    //cout << "sp_preorder.\n";
-    sp_preorder( &m_slu_options, &m_slu_A, m_slu_perm_c, m_slu_etree, &m_slu_AC );
-
-    int panel_size{sp_ienv(1)};
-    int relax{sp_ienv(2)};
-    int info{0};
-    //cout << "dgstrf.\n";
-    SuperLU<t_Value>::gstrf(
-      &m_slu_options, &m_slu_AC, relax, panel_size,
-      m_slu_etree, nullptr, 0,
-      m_slu_perm_c, m_slu_perm_r, &m_slu_L, &m_slu_U,
-    #if defined(SUPERLU_MAJOR_VERSION) && SUPERLU_MAJOR_VERSION >= 5
-      &m_slu_glu,
-    #endif
-      &m_slu_stats, &info
-    );
-
-    // Free un-wanted storage
-    Destroy_SuperMatrix_Store(&m_slu_A);
-    Destroy_CompCol_Permuted(&m_slu_AC);
-    StatFree(&m_slu_stats);
-
-    if ( info != 0 ) {
-      BABD_LAST_ERROR( "BABD_SuperLU::factorize -- [sd]gstrf() error returns INFO = {}\n", info );
-      return false;
-    }
-    return true;
-  }
-
-  template <typename t_Value>
-  bool
-  BorderedCR<t_Value>::solve_SuperLU( real_type x[] ) const {
-    int const   nrhs{1};
-    int         info;
-    SuperMatrix B;
-
-    trans_t trans = NOTRANS; // TRANS
-
-    // Initialize the statistics variables.
-    StatInit(&m_slu_stats) ;
-
-    int nrow = m_slu_L.nrow;
-
-    Create_Dense_Matrix(
-      &B, nrow, nrhs,
-      x, nrow,
-      SLU_DN, SLU_D, SLU_GE
-    );
-
-    // Solve the system A*X=B, overwriting B with X.
-    SuperLU<t_Value>::gstrs(
-      trans, &m_slu_L, &m_slu_U, m_slu_perm_c, m_slu_perm_r, &B, &m_slu_stats, &info
-    );
-
-    Destroy_SuperMatrix_Store( &B ) ;
-    StatFree(&m_slu_stats);
-
-    return info == 0;
-  }
-
-  template <typename t_Value>
-  bool
-  BorderedCR<t_Value>::solve_SuperLU(
-    integer   nrhs,
-    real_type rhs[],
-    integer   ldRhs
-  ) const {
-    int         info;
-    SuperMatrix B;
-
-    trans_t trans{NOTRANS}; // TRANS
-
-    // Initialize the statistics variables.
-    StatInit(&m_slu_stats) ;
-
-    int nrow{m_slu_L.nrow};
-
-    Create_Dense_Matrix(
-      &B, nrow, nrhs,
-      rhs, ldRhs,
-      SLU_DN, SLU_D, SLU_GE
-    );
-
-    // Solve the system A*X=B, overwriting B with X.
-    SuperLU<t_Value>::gstrs(
-      trans, &m_slu_L, &m_slu_U, m_slu_perm_c, m_slu_perm_r, &B, &m_slu_stats, &info
-    );
-
-    Destroy_SuperMatrix_Store( &B ) ;
-    StatFree(&m_slu_stats);
-
-    return info == 0;
   }
 
   // ---------------------------------------------------------------------------
