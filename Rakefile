@@ -1,4 +1,8 @@
-require_relative "./cmake_utils/Rakefile_common.rb"
+if File.exist?(File.expand_path('./cmake_utils/Rakefile_common.rb', File.dirname(__FILE__))) then
+  require_relative "./cmake_utils/Rakefile_common.rb"
+else
+  require_relative "../Rakefile_common.rb"
+end
 
 def ChangeOnFile( file, text_to_replace, text_to_put_in_place )
   text = File.read file+".tmpl"

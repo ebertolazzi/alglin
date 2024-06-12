@@ -12,7 +12,18 @@
 cmake_minimum_required(VERSION 3.14)
 
 project( Alglin )
-include(./cmake_utils/CMakeLists-common.txt)
+
+if (IS_DIRECTORY "${PROJECT_SOURCE_DIR}/cmake_utils")
+  set( HOME "${PROJECT_SOURCE_DIR}/cmake_utils/" )
+else()
+  if (IS_DIRECTORY "${PROJECT_SOURCE_DIR}/../cmake_utils")
+    set( HOME "${PROJECT_SOURCE_DIR}/../cmake_utils/" )
+  else()
+    set( HOME "${PROJECT_SOURCE_DIR}/../../cmake_utils/" )
+  endif()
+endif()
+
+include( "${HOME}/CMakeLists-common.txt" )
 
 project(
   ${PROJECT_NAME}
@@ -20,8 +31,8 @@ project(
   HOMEPAGE_URL "https://ebertolazzi.github.io/Alglin/"
 )
 
-include(./cmake_utils/CMakeLists-cflags.txt)
-include(./cmake_utils/CMakeLists-utilities.txt)
+include( "${HOME}/CMakeLists-cflags.txt" )
+include( "${HOME}/CMakeLists-utilities.txt" )
 
 # Evaluating the suffix to append to target built by this CMake file
 utils_artifacts_suffix(ARTIFACTS_STATIC_SUFFIX TRUE)
@@ -71,6 +82,7 @@ endforeach(F ${S})
 # extra include directory for compilation
 include_directories( ./lib3rd/include )
 
+
 #       _                           _                 _
 #    __| | ___ _ __   ___ _ __   __| | ___ _ __   ___(_) ___  ___
 #   / _` |/ _ \ '_ \ / _ \ '_ \ / _` |/ _ \ '_ \ / __| |/ _ \/ __|
@@ -78,61 +90,15 @@ include_directories( ./lib3rd/include )
 #   \__,_|\___| .__/ \___|_| |_|\__,_|\___|_| |_|\___|_|\___||___/
 #             |_|
 #
-set(UPDIR ${CMAKE_CURRENT_SOURCE_DIR}/..)
-if ( UTILS_USE_OPENMP )
-  find_package(OpenMP)
-  if ( OpenMP_CXX_FOUND )
-    find_package( Matlab )
-    if ( Matlab_FOUND )
-      #
-      # If MATLAB found try to link with intel OpenMP runtime
-      #
-      string( REPLACE "mex" "" LIBDIR ${Matlab_MEX_EXTENSION} )
-      message( STATUS "LIBDIR = ${LIBDIR}" )
-      find_library( OpenMP_LIB iomp5 HINTS ${Matlab_ROOT_DIR}/sys/os/${LIBDIR} )
-      if ( NOT OpenMP_LIB )
-        find_library( OpenMP_LIB iomp5md HINTS ${Matlab_ROOT_DIR}/bin/win64 )
-      endif()
-      if ( NOT OpenMP_LIB )
-        #
-        # OpenMP runtime not found use OpenMP::OpenMP_CXX
-        #
-        set(OpenMP_LIB OpenMP::OpenMP_CXX)
-      endif()
-    else()
-      set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
-      set(OpenMP_LIB OpenMP::OpenMP_CXX)
-    endif()
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-  else()
-    message( FATAL_ERROR "Missing OpenMP" )
-  endif()
-else()
-  set(OpenMP_LIB)
-endif()
+set(DEPEND_TARGETS)
 
-find_library(
-  HSL HSL${ARTIFACTS_STATIC_SUFFIX}
-  HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib
-  NO_DEFAULT_PATH
-  REQUIRED
-)
-find_library(
-  LAPACK_WRAPPER lapack_wrapper${ARTIFACTS_STATIC_SUFFIX}
-  HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib
-  NO_DEFAULT_PATH
-  REQUIRED
-)
-find_library(
-  UTILS UtilsLite${ARTIFACTS_STATIC_SUFFIX}
-  HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib3rd/lib
-  NO_DEFAULT_PATH
-  REQUIRED
-)
+# DEPENDENCIES (TRY TO USE ALREADY COMPILED SUBMODULE IN LARGE PROJECT)
+utils_add_library_or_submodule( "lapack_wrapper" LAPACK_WRAPPER "LapackWrapper" )
+utils_add_library_or_submodule( "UtilsLite" UTILS )
+utils_add_library_or_submodule( "HSL" HSL "LapackWrapper" )
 
 # definisce lapackblas_libraries
-include( ./cmake_utils/CMakeLists-blas-lapack.txt )
+include( "${HOME}/CMakeLists-blas-lapack.txt" )
 
 #   _____                  _
 #  |_   _|_ _ _ _ __ _ ___| |_ ___
@@ -233,7 +199,7 @@ install(
 #
 
 # do not work
-include( ./cmake_utils/CMakeLists-cpack.txt )
+include( "${HOME}/CMakeLists-cpack.txt" )
 
 utils_final_messages()
 
