@@ -26,7 +26,11 @@
 #ifndef ALGLIN_EIGEN_dot_HH
 #define ALGLIN_EIGEN_dot_HH
 
-#include <Utils_eigen.hh>
+#ifdef NO_SYSTEM_UTILS
+  #include "Utils_eigen.hh"
+#else
+  #include <Utils_eigen.hh>
+#endif
 
 namespace alglin {
 
