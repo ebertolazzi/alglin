@@ -90,8 +90,8 @@ namespace alglin {
   template <typename t_Value>
   class BorderedCR : public LinearSystemSolver<t_Value> {
   public:
-    using real_type = t_Value ;
-    using MatW      = MatrixWrapper<t_Value>;
+    using real_type       = t_Value;
+    using MatW            = MatrixWrapper<t_Value>;
     using BORDERED_Choice = enum class BORDERED_Choice : integer {
       LU  = 0,
       QR  = 1,
@@ -118,8 +118,8 @@ namespace alglin {
 
   protected:
 
-    Malloc<real_type>  m_mem{"BorderedCR_values"};
-    Malloc<integer>    m_mem_int{"BorderedCR_integers"};
+    Malloc<real_type> m_mem{"BorderedCR_values"};
+    Malloc<integer>   m_mem_int{"BorderedCR_integers"};
 
     mutable Malloc<real_type> m_work_mem{"BorderedCR_work_mem"};
     mutable string            m_last_error{"no error"};
@@ -149,7 +149,8 @@ namespace alglin {
 
     BORDERED_LAST_Choice m_last_selected{BORDERED_LAST_Choice::LU};
     BORDERED_Choice      m_selected{BORDERED_Choice::LU};
-    bool                 m_last_must_use_PINV{false};
+    bool                 m_last_can_use_PINV{false};
+    bool                 m_last_use_PINV{false};
 
     real_type * m_H0Nqp{nullptr};
     real_type * m_Bmat{nullptr};
@@ -229,7 +230,7 @@ namespace alglin {
 
     real_type *
     Work_T( integer n_thread, integer size ) const {
-      vector<real_type> & W = m_Work_T_thread[n_thread];
+      vector<real_type> & W{ m_Work_T_thread[n_thread] };
       if ( integer(W.size()) < size ) W.resize(size);
       return W.data();
     }
@@ -351,7 +352,9 @@ namespace alglin {
     {}
 
     void set_factorize_use_thread( bool yes_no ) { m_factorize_use_thread = yes_no; }
-    void set_solve_use_thread( bool yes_no )     { m_solve_use_thread = yes_no; }
+    void set_solve_use_thread( bool yes_no )     { m_solve_use_thread     = yes_no; }
+    void set_can_use_pinv( bool yes_no )         { m_last_can_use_PINV    = yes_no; }
+    bool can_use_pinv() const                    { return m_last_can_use_PINV; }
 
     bool factorize_use_thread() const { return m_factorize_use_thread; }
     bool solve_use_thread()     const { return m_solve_use_thread; }
@@ -441,7 +444,7 @@ namespace alglin {
     void info( ostream_type & stream ) const { stream << info(); }
 
     //!
-    //!  @}
+    //! @}
     //!
     //! \brief Number of rows of the linear system
     //!
@@ -461,7 +464,6 @@ namespace alglin {
       integer const & n{ m_block_size };
       return n * (nblk+1) + m_qx + m_nx;
     }
-
 
     integer number_of_blocks() const { return m_number_of_blocks; }
     integer block_size()       const { return m_block_size; }

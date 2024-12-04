@@ -1361,15 +1361,16 @@ namespace alglin {
     case BORDERED_LAST_Choice::PINV:
       break;
     }
-    if ( ok ) {
-      m_last_must_use_PINV = false;
-    } else {
-      m_last_must_use_PINV = true;
-      // try to facttorize using PINV
-      if ( m_Nc > m_Nr )
-        ok = m_last_pinv.t_factorize( m_Nr, m_Nc, m_Hmat, m_Nr );
-      else
-        ok = m_last_pinv.factorize( m_Nr, m_Nc, m_Hmat, m_Nr );
+    m_last_use_PINV = false;
+    if ( !ok ) {
+      if ( m_last_can_use_PINV || m_last_selected == BORDERED_LAST_Choice::PINV ) {
+        m_last_use_PINV = true;
+        // try to facttorize using PINV
+        if ( m_Nc > m_Nr )
+          ok = m_last_pinv.t_factorize( m_Nr, m_Nc, m_Hmat, m_Nr );
+        else
+          ok = m_last_pinv.factorize( m_Nr, m_Nc, m_Hmat, m_Nr );
+      }
     }
     if ( !ok )
       m_last_error = "BorderedCR<t_Value>::load_and_factorize_last failed\n";
@@ -1396,7 +1397,7 @@ namespace alglin {
     // sposto primo blocco rhs in fondo
     swap( n, X, 1, x, 1 ); // uso x stesso come temporaneo
     bool ok{false};
-    if ( m_last_must_use_PINV ) {
+    if ( m_last_use_PINV ) {
       if ( m_Nc > m_Nr ) ok = m_last_pinv.t_mult_inv( X, 1, X, 1 );
       else               ok = m_last_pinv.mult_inv( X, 1, X, 1 );
     } else {
@@ -1412,8 +1413,7 @@ namespace alglin {
       }
     }
     if ( ok ) alglin::swap( n, X, 1, x, 1 );
-    if ( !ok )
-      m_last_error = "BorderedCR<t_Value>::solve_last( x ) failed\n";
+    else      m_last_error = "BorderedCR<t_Value>::solve_last( x ) failed\n";
     return ok;
   }
 
@@ -1434,7 +1434,7 @@ namespace alglin {
     for ( integer i{0}; i < nrhs; ++i )
       alglin::swap( n, X+i*ldX, 1, x+i*ldX, 1 );
     bool ok = false;
-    if ( m_last_must_use_PINV ) {
+    if ( m_last_use_PINV ) {
       if ( m_Nc > m_Nr ) ok = m_last_pinv.t_mult_inv( nrhs, X, ldX, X, ldX );
       else               ok = m_last_pinv.mult_inv( nrhs, X, ldX, X, ldX );
     } else {
