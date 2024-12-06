@@ -73,13 +73,11 @@ main( int argc, char *argv[] ) {
     alglin::Malloc<alglin::integer> base_index("integer");
 
     alglin::integer N = std::max(Nr,Nc);
-    base_value.allocate( size_t(5*N) );
+    base_value.allocate( size_t(3*N) );
 
-    real_type * x     = base_value(size_t(N)); // extra space per multiple rhs
-    real_type * xref  = base_value(size_t(N));
-    real_type * xref1 = base_value(size_t(N));
-    real_type * rhs   = base_value(size_t(N));
-    real_type * resid = base_value(size_t(N));
+    real_type * x    = base_value(size_t(N)); // extra space per multiple rhs
+    real_type * xref = base_value(size_t(N));
+    real_type * rhs  = base_value(size_t(N));
 
     BCR.D(0,0,0) = 1;
     BCR.D(0,0,1) = 2;

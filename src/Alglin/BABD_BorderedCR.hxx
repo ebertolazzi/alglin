@@ -90,12 +90,13 @@ namespace alglin {
   template <typename t_Value>
   class BorderedCR : public LinearSystemSolver<t_Value> {
   public:
-    using real_type       = t_Value;
-    using MatW            = MatrixWrapper<t_Value>;
+    using real_type = t_Value;
+    using MatW      = MatrixWrapper<t_Value>;
+
     using BORDERED_Choice = enum class BORDERED_Choice : integer {
       LU  = 0,
       QR  = 1,
-      QRP = 3
+      QRP = 2
     };
 
     using BORDERED_LAST_Choice = enum class BORDERED_LAST_Choice : integer {
@@ -107,6 +108,14 @@ namespace alglin {
       LSS  = 5,
       LSY  = 6,
       PINV = 7
+    };
+
+    using BORDERED_LAST_Choice2 = enum class BORDERED_LAST_Choice2 : integer {
+      NONE = 0,
+      SVD  = 1,
+      LSS  = 2,
+      LSY  = 3,
+      PINV = 4
     };
 
     // block copy constructor
@@ -147,10 +156,10 @@ namespace alglin {
     bool m_solve_use_thread{true};
     bool m_matrix_is_factorized{false};
 
-    BORDERED_LAST_Choice m_last_selected{BORDERED_LAST_Choice::LU};
-    BORDERED_Choice      m_selected{BORDERED_Choice::LU};
-    bool                 m_last_can_use_PINV{false};
-    bool                 m_last_use_PINV{false};
+    BORDERED_Choice       m_selected{BORDERED_Choice::LU};
+    BORDERED_LAST_Choice  m_last_block_selected{BORDERED_LAST_Choice::LU};
+    BORDERED_LAST_Choice2 m_last_block_selected2{BORDERED_LAST_Choice2::NONE};
+    bool                  m_last_block_use_solver2{false};
 
     real_type * m_H0Nqp{nullptr};
     real_type * m_Bmat{nullptr};
@@ -353,8 +362,6 @@ namespace alglin {
 
     void set_factorize_use_thread( bool yes_no ) { m_factorize_use_thread = yes_no; }
     void set_solve_use_thread( bool yes_no )     { m_solve_use_thread     = yes_no; }
-    void set_can_use_pinv( bool yes_no )         { m_last_can_use_PINV    = yes_no; }
-    bool can_use_pinv() const                    { return m_last_can_use_PINV; }
 
     bool factorize_use_thread() const { return m_factorize_use_thread; }
     bool solve_use_thread()     const { return m_solve_use_thread; }
@@ -387,18 +394,70 @@ namespace alglin {
     //! @{
     //!
 
+    void
+    select( string const & s ) {
+      if      ( s == "LU"  ) select_LU();
+      else if ( s == "QR"  ) select_QR();
+      else if ( s == "QRP" ) select_QRP();
+      else {
+        UTILS_ERROR(
+          "BorderedCR::select( choice='{}' )\n"
+          "unknown/unsupported factorization type ('LU','QR','QRP')", s
+        );
+      }
+    }
+
     void select_LU()  { m_selected = BORDERED_Choice::LU; }
     void select_QR()  { m_selected = BORDERED_Choice::QR; }
     void select_QRP() { m_selected = BORDERED_Choice::QRP; }
 
-    void select_last_LU()   { m_last_selected = BORDERED_LAST_Choice::LU;   }
-    void select_last_LUPQ() { m_last_selected = BORDERED_LAST_Choice::LUPQ; }
-    void select_last_QR()   { m_last_selected = BORDERED_LAST_Choice::QR;   }
-    void select_last_QRP()  { m_last_selected = BORDERED_LAST_Choice::QRP;  }
-    void select_last_SVD()  { m_last_selected = BORDERED_LAST_Choice::SVD;  }
-    void select_last_LSS()  { m_last_selected = BORDERED_LAST_Choice::LSS;  }
-    void select_last_LSY()  { m_last_selected = BORDERED_LAST_Choice::LSY;  }
-    void select_last_PINV() { m_last_selected = BORDERED_LAST_Choice::PINV; }
+    void
+    select_last( string const & s ) {
+      if      ( s == "LU"   ) select_last_LU();
+      else if ( s == "LUPQ" ) select_last_LUPQ();
+      else if ( s == "QR"   ) select_last_QR();
+      else if ( s == "QRP"  ) select_last_QRP();
+      else if ( s == "SVD"  ) select_last_SVD();
+      else if ( s == "LSS"  ) select_last_LSS();
+      else if ( s == "LSY"  ) select_last_LSY();
+      else if ( s == "PINV" ) select_last_PINV();
+      else {
+        UTILS_ERROR(
+          "BorderedCR::select_last( choice='{}' )\n"
+          "unknown/unsupported factorization type ('LU','LUPQ','QR','QRP','SVD','LSS','LSY','PINV')", s
+        );
+      }
+    }
+
+    void select_last_LU()   { m_last_block_selected = BORDERED_LAST_Choice::LU;   }
+    void select_last_LUPQ() { m_last_block_selected = BORDERED_LAST_Choice::LUPQ; }
+    void select_last_QR()   { m_last_block_selected = BORDERED_LAST_Choice::QR;   }
+    void select_last_QRP()  { m_last_block_selected = BORDERED_LAST_Choice::QRP;  }
+    void select_last_SVD()  { m_last_block_selected = BORDERED_LAST_Choice::SVD;  }
+    void select_last_LSS()  { m_last_block_selected = BORDERED_LAST_Choice::LSS;  }
+    void select_last_LSY()  { m_last_block_selected = BORDERED_LAST_Choice::LSY;  }
+    void select_last_PINV() { m_last_block_selected = BORDERED_LAST_Choice::PINV; }
+
+    void
+    select_last2( string const & s ) {
+      if      ( s == "NONE" ) select_last2_NONE();
+      else if ( s == "SVD"  ) select_last2_SVD();
+      else if ( s == "LSS"  ) select_last2_LSS();
+      else if ( s == "LSY"  ) select_last2_LSY();
+      else if ( s == "PINV" ) select_last2_PINV();
+      else {
+        UTILS_ERROR(
+          "BorderedCR::select_last2( choice='{}' )\n"
+          "unknown/unsupported factorization type ('NONE','SVD','LSS','LSY','PINV')", s
+        );
+      }
+    }
+
+    void select_last2_NONE() { m_last_block_selected2 = BORDERED_LAST_Choice2::NONE;  }
+    void select_last2_SVD()  { m_last_block_selected2 = BORDERED_LAST_Choice2::SVD;  }
+    void select_last2_LSS()  { m_last_block_selected2 = BORDERED_LAST_Choice2::LSS;  }
+    void select_last2_LSY()  { m_last_block_selected2 = BORDERED_LAST_Choice2::LSY;  }
+    void select_last2_PINV() { m_last_block_selected2 = BORDERED_LAST_Choice2::PINV; }
 
     static
     string
@@ -429,15 +488,33 @@ namespace alglin {
       return res;
     }
 
+    static
     string
-    info_algo() const {
-      return choice_to_string(m_selected)+
-             " and "+
-             choice_to_string(m_last_selected);
+    choice_to_string( BORDERED_LAST_Choice2 c ) {
+      string res{"LastBlock not selected"};
+      switch ( c ) {
+      case BORDERED_LAST_Choice2::NONE: res = "LastBlock NONE"; break;
+      case BORDERED_LAST_Choice2::SVD:  res = "LastBlock SVD";  break;
+      case BORDERED_LAST_Choice2::LSS:  res = "LastBlock LSS";  break;
+      case BORDERED_LAST_Choice2::LSY:  res = "LastBlock LSY";  break;
+      case BORDERED_LAST_Choice2::PINV: res = "LastBlock PINV"; break;
+      }
+      return res;
     }
 
-    string info_algo_block()      const { return choice_to_string(m_selected); }
-    string info_algo_last_block() const { return choice_to_string(m_last_selected); }
+    string
+    info_algo() const {
+      return fmt::format(
+        "{} and {} and {}",
+        choice_to_string(m_selected),
+        choice_to_string(m_last_block_selected),
+        choice_to_string(m_last_block_selected2)
+      );
+    }
+
+    string info_algo_block()       const { return choice_to_string(m_selected); }
+    string info_algo_last_block()  const { return choice_to_string(m_last_block_selected); }
+    string info_algo_last_block2() const { return choice_to_string(m_last_block_selected2); }
 
     string info( char const * indent = "" ) const;
 

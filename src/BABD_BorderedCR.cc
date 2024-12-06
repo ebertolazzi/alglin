@@ -230,7 +230,8 @@ namespace alglin {
       "{0}nx     = {8}\n"
       "{0}treads = {9}/nblk:{10}/factorize:{11}/solve:{12}\n"
       "{0}intern = {13}\n"
-      "{0}last   = {14}\n",
+      "{0}last   = {14}\n"
+      "{0}last2  = {14}\n",
       indent,
       nrows(), ncols(), m_number_of_blocks,
       m_block_size, m_qr, m_qx, m_nr, m_nx,
@@ -239,7 +240,8 @@ namespace alglin {
       m_factorize_use_thread,
       m_solve_use_thread,
       choice_to_string( m_selected ),
-      choice_to_string( m_last_selected )
+      choice_to_string( m_last_block_selected ),
+      choice_to_string( m_last_block_selected2 )
     );
   }
 
@@ -1336,7 +1338,7 @@ namespace alglin {
     GEcopy( m_nr, m_nx, m_Fmat,  m_nr, Wp+offs, m_Nr );
 
     bool ok = false;
-    switch ( m_last_selected ) {
+    switch ( m_last_block_selected ) {
     case BORDERED_LAST_Choice::LU:
       ok = m_last_lu.factorize( m_Nr, m_Nc, m_Hmat, m_Nr );
       break;
@@ -1359,17 +1361,32 @@ namespace alglin {
       ok = m_last_lsy.factorize( m_Nr, m_Nc, m_Hmat, m_Nr );
       break;
     case BORDERED_LAST_Choice::PINV:
+      // try to factorize using PINV
+      if ( m_Nc > m_Nr ) ok = m_last_pinv.t_factorize( m_Nr, m_Nc, m_Hmat, m_Nr );
+      else               ok = m_last_pinv.factorize( m_Nr, m_Nc, m_Hmat, m_Nr );
       break;
     }
-    m_last_use_PINV = false;
-    if ( !ok ) {
-      if ( m_last_can_use_PINV || m_last_selected == BORDERED_LAST_Choice::PINV ) {
-        m_last_use_PINV = true;
-        // try to facttorize using PINV
-        if ( m_Nc > m_Nr )
-          ok = m_last_pinv.t_factorize( m_Nr, m_Nc, m_Hmat, m_Nr );
-        else
-          ok = m_last_pinv.factorize( m_Nr, m_Nc, m_Hmat, m_Nr );
+    if ( ok ) {
+      m_last_block_use_solver2 = false;
+    } else {
+      m_last_block_use_solver2 = true;
+      switch ( m_last_block_selected2 ) {
+      case BORDERED_LAST_Choice2::NONE:
+        break;
+      case BORDERED_LAST_Choice2::SVD:
+        ok = m_last_svd.factorize( m_Nr, m_Nc, m_Hmat, m_Nr );
+        break;
+      case BORDERED_LAST_Choice2::LSS:
+        ok = m_last_lss.factorize( m_Nr, m_Nc, m_Hmat, m_Nr );
+        break;
+      case BORDERED_LAST_Choice2::LSY:
+        ok = m_last_lsy.factorize( m_Nr, m_Nc, m_Hmat, m_Nr );
+        break;
+      case BORDERED_LAST_Choice2::PINV:
+        // try to factorize using PINV
+        if ( m_Nc > m_Nr ) ok = m_last_pinv.t_factorize( m_Nr, m_Nc, m_Hmat, m_Nr );
+        else               ok = m_last_pinv.factorize( m_Nr, m_Nc, m_Hmat, m_Nr );
+        break;
       }
     }
     if ( !ok )
@@ -1397,11 +1414,19 @@ namespace alglin {
     // sposto primo blocco rhs in fondo
     swap( n, X, 1, x, 1 ); // uso x stesso come temporaneo
     bool ok{false};
-    if ( m_last_use_PINV ) {
-      if ( m_Nc > m_Nr ) ok = m_last_pinv.t_mult_inv( X, 1, X, 1 );
-      else               ok = m_last_pinv.mult_inv( X, 1, X, 1 );
+    if ( m_last_block_use_solver2 ) {
+      switch ( m_last_block_selected2 ) {
+        case BORDERED_LAST_Choice2::NONE: break;
+        case BORDERED_LAST_Choice2::SVD:  ok = m_last_svd.solve( X );  break;
+        case BORDERED_LAST_Choice2::LSS:  ok = m_last_lss.solve( X );  break;
+        case BORDERED_LAST_Choice2::LSY:  ok = m_last_lsy.solve( X );  break;
+        case BORDERED_LAST_Choice2::PINV:
+          if ( m_Nc > m_Nr ) ok = m_last_pinv.t_mult_inv( X, 1, X, 1 );
+          else               ok = m_last_pinv.mult_inv( X, 1, X, 1 );
+          break;
+      }
     } else {
-      switch ( m_last_selected ) {
+      switch ( m_last_block_selected ) {
         case BORDERED_LAST_Choice::LU:   ok = m_last_lu.solve( X );   break;
         case BORDERED_LAST_Choice::LUPQ: ok = m_last_lupq.solve( X ); break;
         case BORDERED_LAST_Choice::QR:   ok = m_last_qr.solve( X );   break;
@@ -1409,7 +1434,10 @@ namespace alglin {
         case BORDERED_LAST_Choice::SVD:  ok = m_last_svd.solve( X );  break;
         case BORDERED_LAST_Choice::LSS:  ok = m_last_lss.solve( X );  break;
         case BORDERED_LAST_Choice::LSY:  ok = m_last_lsy.solve( X );  break;
-        case BORDERED_LAST_Choice::PINV: break;
+        case BORDERED_LAST_Choice::PINV:
+          if ( m_Nc > m_Nr ) ok = m_last_pinv.t_mult_inv( X, 1, X, 1 );
+          else               ok = m_last_pinv.mult_inv( X, 1, X, 1 );
+          break;
       }
     }
     if ( ok ) alglin::swap( n, X, 1, x, 1 );
@@ -1434,19 +1462,30 @@ namespace alglin {
     for ( integer i{0}; i < nrhs; ++i )
       alglin::swap( n, X+i*ldX, 1, x+i*ldX, 1 );
     bool ok = false;
-    if ( m_last_use_PINV ) {
-      if ( m_Nc > m_Nr ) ok = m_last_pinv.t_mult_inv( nrhs, X, ldX, X, ldX );
-      else               ok = m_last_pinv.mult_inv( nrhs, X, ldX, X, ldX );
+    if ( m_last_block_use_solver2 ) {
+      switch ( m_last_block_selected2 ) {
+        case BORDERED_LAST_Choice2::NONE: break;
+        case BORDERED_LAST_Choice2::SVD:  ok = m_last_svd.solve( nrhs, X, ldX  );  break;
+        case BORDERED_LAST_Choice2::LSS:  ok = m_last_lss.solve( nrhs, X, ldX  );  break;
+        case BORDERED_LAST_Choice2::LSY:  ok = m_last_lsy.solve( nrhs, X, ldX  );  break;
+        case BORDERED_LAST_Choice2::PINV:
+          if ( m_Nc > m_Nr ) ok = m_last_pinv.t_mult_inv( nrhs, X, ldX, X, ldX );
+          else               ok = m_last_pinv.mult_inv( nrhs, X, ldX, X, ldX );
+          break;
+      }
     } else {
-      switch ( m_last_selected ) {
-        case BORDERED_LAST_Choice::LU:   ok = m_last_lu.solve( nrhs, X, ldX );   break;
-        case BORDERED_LAST_Choice::LUPQ: ok = m_last_lupq.solve( nrhs, X, ldX ); break;
+      switch ( m_last_block_selected ) {
+        case BORDERED_LAST_Choice::LU:   ok = m_last_lu.solve( nrhs, X, ldX  );   break;
+        case BORDERED_LAST_Choice::LUPQ: ok = m_last_lupq.solve( nrhs, X, ldX  ); break;
         case BORDERED_LAST_Choice::QR:   ok = m_last_qr.solve( nrhs, X, ldX );   break;
-        case BORDERED_LAST_Choice::QRP:  ok = m_last_qrp.solve( nrhs, X, ldX );  break;
-        case BORDERED_LAST_Choice::SVD:  ok = m_last_svd.solve( nrhs, X, ldX );  break;
-        case BORDERED_LAST_Choice::LSS:  ok = m_last_lss.solve( nrhs, X, ldX );  break;
-        case BORDERED_LAST_Choice::LSY:  ok = m_last_lsy.solve( nrhs, X, ldX );  break;
-        case BORDERED_LAST_Choice::PINV: break;
+        case BORDERED_LAST_Choice::QRP:  ok = m_last_qrp.solve( nrhs, X, ldX  );  break;
+        case BORDERED_LAST_Choice::SVD:  ok = m_last_svd.solve( nrhs, X, ldX  );  break;
+        case BORDERED_LAST_Choice::LSS:  ok = m_last_lss.solve( nrhs, X, ldX  );  break;
+        case BORDERED_LAST_Choice::LSY:  ok = m_last_lsy.solve( nrhs, X, ldX  );  break;
+        case BORDERED_LAST_Choice::PINV:
+          if ( m_Nc > m_Nr ) ok = m_last_pinv.t_mult_inv( nrhs, X, ldX, X, ldX );
+          else               ok = m_last_pinv.mult_inv( nrhs, X, ldX, X, ldX );
+          break;
       }
     }
     if ( ok )
