@@ -54,7 +54,7 @@ task :build_common, [:lapack] do |t, args|
   FileUtils.cd      'build'
 
   puts "run CMAKE for ALGLIN".yellow
-  sh "cmake -G Ninja " + cmd_cmake_build() + ' -DUTILS_USE_OPENMP=OFF -D' + args.lapack + ':VAR=ON ..'
+  sh "cmake -G Ninja " + cmd_cmake_build() + ' -D' + args.lapack + ':VAR=ON ..'
 
   puts "compile with CMAKE for ALGLIN".yellow
   if COMPILE_DEBUG then
@@ -104,7 +104,7 @@ task :build_win, [:lapack] do |t, args|
   FileUtils.cd      "build"
 
   puts "run CMAKE for ALGLIN".yellow
-  sh "cmake -G Ninja -DBITS:VAR=#{VS_ARCH} " + cmd_cmake_build() + ' -DUTILS_USE_OPENMP=OFF -D' + args.lapack + ':VAR=ON ..'
+  sh "cmake -G Ninja -DBITS:VAR=#{VS_ARCH} " + cmd_cmake_build() + ' -D' + args.lapack + ':VAR=ON ..'
 
   puts "compile with CMAKE for ALGLIN".yellow
   if COMPILE_DEBUG then
