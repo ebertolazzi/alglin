@@ -218,7 +218,7 @@ namespace alglin {
 
   template <typename t_Value>
   string
-  BorderedCR<t_Value>::info( char const indent[] ) const {
+  BorderedCR<t_Value>::info( string_view indent ) const {
     return fmt::format(
       "{0}rows   = {1}\n"
       "{0}cols   = {2}\n"

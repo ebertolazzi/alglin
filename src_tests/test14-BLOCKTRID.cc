@@ -226,12 +226,12 @@ test4() {
   tm.tic();
   BT1.solve( &rhs1.front() );
   tm.toc();
-  fmt::print("solve1     = {:.5} [ms]\n", tm.elapsed_ms());
+  fmt::print("solve1 = {:.5} [ms]\n", tm.elapsed_ms());
 
   tm.tic();
   BT2.solve( &rhs2.front() );
   tm.toc();
-  fmt::print("solve2     = {:.5} [ms]\n", tm.elapsed_ms());
+  fmt::print("solve2 = {:.5} [ms]\n", tm.elapsed_ms());
 
   alglin::real_type accerr = 0;
   alglin::real_type maxerr = 0;
@@ -241,8 +241,8 @@ test4() {
     if ( maxerr < err ) maxerr = err;
   }
 
-  fmt::print("||err||_1  = {:.5} [ms]\n", accerr);
-  fmt::print("||err||_i  = {:.5} [ms]\n", maxerr);
+  fmt::print("‖err‖₁ = {:.5} [ms]\n", accerr);
+  fmt::print("‖err‖₁ = {:.5} [ms]\n", maxerr);
 
 }
 

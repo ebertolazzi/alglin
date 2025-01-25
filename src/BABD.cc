@@ -27,7 +27,7 @@ namespace alglin {
   void
   dumpOneMatrix(
     ostream_type &  stream,
-    char const      name[],
+    string_view     name,
     real_type const M[],
     integer         numRow,
     integer         numCol

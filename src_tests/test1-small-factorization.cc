@@ -225,7 +225,7 @@ test3() {
   alglin::gemv( Transposition::NO, M, M, -1, A, LDA, x, 1, 1, b, 1 ); \
   cout << "residual =" << alglin::print_matrix( 1, M, b, 1 ); \
   res = alglin::nrm2( M, b, 1 ); \
-  cout << "||res||_2 = " << res << '\n'; \
+  cout << "‖res‖₂ = " << res << '\n'; \
   UTILS_ASSERT0( res < 1e-6, "test failed!\n" );
 
 static
@@ -286,7 +286,7 @@ test4() {
   alglin::gemv( Transposition::YES, M, M, -1, A, LDA, x, 1, 1, b, 1 ); \
   cout << "residual = " << alglin::print_matrix( 1, M, b, 1 ); \
   res = alglin::nrm2( M, b, 1 ); \
-  cout << "||res||_2 = " << res << '\n'; \
+  cout << "‖res‖₂ = " << res << '\n'; \
   UTILS_ASSERT0( res < 1e-6, "test failed!\n" );
 
 
@@ -364,7 +364,7 @@ test6() {
   fmt::print( "x^T = {}", alglin::print_matrix( 1, N, x, 1 ) );
 
   lu.axpy( N, -1.0, L, D, U, x, 1.0, b );
-  fmt::format(
+  fmt::print(
     "residual = {}"
     "\n\nDo (trid) QR  factorization of A\n",
     alglin::print_matrix( 1, N, b, 1 )
@@ -376,13 +376,13 @@ test6() {
   alglin::Copy_n( rhs, N, b );
   qr.solve( x );
   //qr.t_solve( 1, x, M);
-  fmt::format(
+  fmt::print(
     "x^T = {}",
     alglin::print_matrix( 1, N, x, 1 )
   );
 
   qr.axpy( N, -1.0, L, D, U, x, 1.0, b );
-  fmt::format(
+  fmt::print(
     "residual = {}\ndone test6\n",
     alglin::print_matrix( 1, N, b, 1 )
   );

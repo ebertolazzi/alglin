@@ -177,18 +177,6 @@ main( int argc, char *argv[] ) {
 
   fmt::print( "{}\n", BCR.info() );
 
-  /*
-  ofstream file("mat.txt");
-  file.precision(15);
-  BCR.dump_ccoord( file );
-  file.close();
-  file.open("rhs.txt");
-  file.precision(15);
-  for ( int i = 0; i < N; ++i )
-    file << rhs[i] << '\n';
-  file.close();
-  */
-
   Utils::TicToc tm;
 
   tm.tic();
@@ -201,24 +189,12 @@ main( int argc, char *argv[] ) {
   alglin::Copy_n( rhs, N, x+N );
   tm.tic();
   int nrhs = 2;
-  int ns   = 1;
   ok = BCR.solve( x );
   if ( !ok ) {
     fmt::print( "BCR.solve( x ) failed, last error: {}\n",BCR.last_error() );
   }
-  #if 1
-  alglin::Copy_n( rhs, N, x ); ok = BCR.solve( x ); ++ns;
-  alglin::Copy_n( rhs, N, x ); ok = BCR.solve( x ); ++ns;
-  alglin::Copy_n( rhs, N, x ); ok = BCR.solve( x ); ++ns;
-  alglin::Copy_n( rhs, N, x ); ok = BCR.solve( x ); ++ns;
-  alglin::Copy_n( rhs, N, x ); ok = BCR.solve( x ); ++ns;
-  alglin::Copy_n( rhs, N, x ); ok = BCR.solve( x ); ++ns;
-  alglin::Copy_n( rhs, N, x ); ok = BCR.solve( x ); ++ns;
-  alglin::Copy_n( rhs, N, x ); ok = BCR.solve( x ); ++ns;
-  alglin::Copy_n( rhs, N, x ); ok = BCR.solve( x ); ++ns;
-  #endif
   tm.toc();
-  fmt::print("\nSolve = {:.5} [ms]\n\n", tm.elapsed_ms()/ns);
+  fmt::print("\nSolve = {:.5} [ms]\n\n", tm.elapsed_ms());
 
   alglin::Copy_n( xref, N, xref1 );
   alglin::axpy( N, -1.0, x, 1, xref1, 1 );
@@ -237,23 +213,10 @@ main( int argc, char *argv[] ) {
 
   alglin::Copy_n( rhs, 2*N, x );
   tm.tic();
-  ns = 1;
   ok = BCR.solve( 2, x, N );
-  #if 1
-  alglin::Copy_n( rhs, nrhs*N, x ); BCR.solve( nrhs, x, N ); ++ns;
-  alglin::Copy_n( rhs, nrhs*N, x ); BCR.solve( nrhs, x, N ); ++ns;
-  alglin::Copy_n( rhs, nrhs*N, x ); BCR.solve( nrhs, x, N ); ++ns;
-  alglin::Copy_n( rhs, nrhs*N, x ); BCR.solve( nrhs, x, N ); ++ns;
-  alglin::Copy_n( rhs, nrhs*N, x ); BCR.solve( nrhs, x, N ); ++ns;
-  alglin::Copy_n( rhs, nrhs*N, x ); BCR.solve( nrhs, x, N ); ++ns;
-  alglin::Copy_n( rhs, nrhs*N, x ); BCR.solve( nrhs, x, N ); ++ns;
-  alglin::Copy_n( rhs, nrhs*N, x ); BCR.solve( nrhs, x, N ); ++ns;
-  alglin::Copy_n( rhs, nrhs*N, x ); BCR.solve( nrhs, x, N ); ++ns;
-  alglin::Copy_n( rhs, nrhs*N, x ); BCR.solve( nrhs, x, N ); ++ns;
-  #endif
   tm.toc();
   if ( !ok ) fmt::print( "BCR.solve( nrhs, x, N ) failed, last error: {}\n",BCR.last_error() );
-  fmt::print("\nSolve2 = {:.5} [ms]\n",tm.elapsed_ms()/ns);
+  fmt::print("\nSolve2 = {:.5} [ms]\n",tm.elapsed_ms());
 
   alglin::Copy_n( xref, N, xref1 );
   alglin::axpy( N, -1.0, x, 1, xref1, 1 );

@@ -27,6 +27,7 @@ namespace alglin {
   using std::swap;
   using std::min;
   using std::max;
+  using std::string_view;
 
   /*\
    |   ___             _                _    ___ ___
@@ -385,7 +386,7 @@ namespace alglin {
       integer nx
     );
 
-    string const & last_error() const { return m_last_error; }
+    string_view last_error() const { return m_last_error; }
 
     void dup( BorderedCR const & );
 
@@ -395,7 +396,7 @@ namespace alglin {
     //!
 
     void
-    select( string const & s ) {
+    select( string_view s ) {
       if      ( s == "LU"  ) select_LU();
       else if ( s == "QR"  ) select_QR();
       else if ( s == "QRP" ) select_QRP();
@@ -412,7 +413,7 @@ namespace alglin {
     void select_QRP() { m_selected = BORDERED_Choice::QRP; }
 
     void
-    select_last( string const & s ) {
+    select_last( string_view s ) {
       if      ( s == "LU"   ) select_last_LU();
       else if ( s == "LUPQ" ) select_last_LUPQ();
       else if ( s == "QR"   ) select_last_QR();
@@ -439,7 +440,7 @@ namespace alglin {
     void select_last_PINV() { m_last_block_selected = BORDERED_LAST_Choice::PINV; }
 
     void
-    select_last2( string const & s ) {
+    select_last2( string_view s ) {
       if      ( s == "NONE" ) select_last2_NONE();
       else if ( s == "SVD"  ) select_last2_SVD();
       else if ( s == "LSS"  ) select_last2_LSS();
@@ -516,7 +517,7 @@ namespace alglin {
     string info_algo_last_block()  const { return choice_to_string(m_last_block_selected); }
     string info_algo_last_block2() const { return choice_to_string(m_last_block_selected2); }
 
-    string info( char const * indent = "" ) const;
+    string info( string_view indent = "" ) const;
 
     void info( ostream_type & stream ) const { stream << info(); }
 

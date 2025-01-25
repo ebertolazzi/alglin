@@ -255,7 +255,7 @@ main( int argc, char *argv[] ) {
         real_type err = alglin::asum( Nr, resid, 1 )/Nr;
         msg.semaphore(
           err > 1e-8 ? 0 : 1,
-          fmt::format("Check |resid|_1/N = {:.5}\n",err)
+          fmt::format("Check ‖resid‖_1/N = {:.5}\n",err)
         );
 
         alglin::Copy_n( xref, Nc, xref1 );
@@ -263,14 +263,14 @@ main( int argc, char *argv[] ) {
         err = alglin::absmax( Nc, xref1, 1 );
         msg.semaphore(
           err > 1e-8 ? 0 : 1,
-          fmt::format("Check |err|_inf = {:.5}\n",err)
+          fmt::format("Check ‖err‖∞ = {:.5}\n",err)
         );
         UTILS_ASSERT0( err < 1e-8, "test failed!\n" );
 
         err = alglin::asum( Nc, xref1, 1 )/Nc;
         msg.semaphore(
           err > 1e-8 ? 0 : 1,
-          fmt::format("Check |err|_1/N = {:.5}\n",err)
+          fmt::format("Check ‖err‖_1/N = {:.5}\n",err)
         );
         UTILS_ASSERT0( err < 1e-8, "test failed!\n" );
 

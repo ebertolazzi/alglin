@@ -167,7 +167,7 @@ main() {
       LU.solve_bordered( x );
       tm.toc();
       fmt::print(
-        "(Diaz {}) Solve     = {:.5} [ms]\n",
+        "(Diaz {}) Solve = {:.5} [ms]\n",
         kind[test], tm.elapsed_ms()
       );
 
@@ -175,7 +175,7 @@ main() {
       real_type err = alglin::absmax( N+NB, xref, 1 );
       msg.semaphore(
         err > 1e-8 ? 0 : 1,
-        fmt::format("\nCheck |err|_inf = {:.5}\n\n",err)
+        fmt::format("\nCheck ‖err‖∞ = {:.5}\n\n",err)
       );
 
       UTILS_ASSERT0( err < 1e-8, "test failed!\n" );
@@ -186,7 +186,7 @@ main() {
       LU.solve_bordered( 1, x, N+NB );
       tm.toc();
       fmt::print(
-        "(Diaz {}) Solve     = {:.5} [ms]\n",
+        "(Diaz {}) Solve = {:.5} [ms]\n",
         kind[test], tm.elapsed_ms()
       );
 
@@ -194,7 +194,7 @@ main() {
       err = alglin::absmax( N+NB, xref1, 1 );
       msg.semaphore(
         err > 1e-8 ? 0 : 1,
-        fmt::format("\nCheck |err|_inf = {:.5}\n\n",err)
+        fmt::format("\nCheck ‖err‖∞ = {:.5}\n\n",err)
       );
       UTILS_ASSERT0( err < 1e-8, "test failed!\n" );
     }

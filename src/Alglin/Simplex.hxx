@@ -63,6 +63,7 @@ namespace Simplex {
   using std::copy_n;
   using std::vector;
   using std::string;
+  using std::string_view;
 
   extern real_type const epsilon; // machine epsilon
   extern real_type const relaxedEpsilon;
@@ -764,7 +765,7 @@ namespace Simplex {
 
     SIMPLEX_API_DLL
     explicit
-    StandardSolver( string const & n );
+    StandardSolver( string_view n );
 
     virtual
     ~StandardSolver() = default;
@@ -772,7 +773,7 @@ namespace Simplex {
     //!
     //! The name of the class.
     //!
-    SIMPLEX_API_DLL string const & name(void) const { return m_name; }
+    SIMPLEX_API_DLL string_view name(void) const { return m_name; }
 
     //!
     //! Solve linear programs of type

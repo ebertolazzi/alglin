@@ -45,6 +45,7 @@
 #include <mutex>
 
 #include <string>
+#include <string_view>
 #include <cmath>
 
 #include "Alglin/Alglin_aux.hxx"

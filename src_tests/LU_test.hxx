@@ -92,5 +92,5 @@
   alglin::babd_residue<real_type>( nblk, n, q, AdAu, H0, HN, Hq,
                                    rhs, 1, x, 1, resid, 1 );
 
-  cout << "Check residue |r|_inf = "
+  cout << "Check residue ‖r‖∞ = "
        << alglin::absmax( N, resid, 1 ) << '\n';

@@ -37,6 +37,7 @@
 namespace Simplex {
 
   using std::string;
+  using std::string_view;
   using std::abs;
   using std::numeric_limits;
   using std::sort;
@@ -369,7 +370,7 @@ namespace Simplex {
    |  \__ \  _/ _` | ' \/ _` / _` | '_/ _` | \__ \/ _ \ \ V / -_) '_|
    |  |___/\__\__,_|_||_\__,_\__,_|_| \__,_| |___/\___/_|\_/\___|_|
   \*/
-  StandardSolver::StandardSolver( string const & name )
+  StandardSolver::StandardSolver( string_view name )
   : m_name(name)
   , m_mem(fmt::format("StandardSolver[{}]::m_mem",name))
   , m_mem_int(fmt::format("StandardSolver[{}]::m_mem_int",name))

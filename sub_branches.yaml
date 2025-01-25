@@ -1,0 +1,7 @@
+# git submodule status --recursive
+---
+#=========================
+cmake_utils: main
+submodules/LapackWrapper: main
+submodules/LapackWrapper/cmake_utils: main
+...
