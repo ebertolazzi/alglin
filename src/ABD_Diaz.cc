@@ -140,10 +140,9 @@ namespace alglin {
 
     UTILS_ASSERT( ierr == 0, "DiazLU::LU_top_bottom, found ierr: {}\n", ierr );
     // applico permutazione al blocco
-    t_Value * T = A - nrT;
-    for ( integer i = 0; i < nrA; ++i ) {
-      integer ip = swapC[i];
-      if ( ip > i ) {
+    t_Value * T{A - nrT};
+    for ( integer i{0}; i < nrA; ++i ) {
+      if ( integer const ip{swapC[i]}; ip > i ) {
         alglin::swap( nrT, T + i*ldA, 1, T + ip*ldA, 1 );
         alglin::swap( nrB, B + i*ldB, 1, B + ip*ldB, 1 );
       }
@@ -302,8 +301,8 @@ namespace alglin {
   template <typename t_Value>
   void
   DiazLU<t_Value>::solve_internal(
-    bool      do_permute,
-    real_type in_out[]
+    bool const do_permute,
+    real_type  in_out[]
   ) const {
 
     integer const & nblock = m_number_of_blocks;
@@ -477,10 +476,10 @@ namespace alglin {
   template <typename t_Value>
   void
   DiazLU<t_Value>::solve_internal(
-    bool      do_permute,
-    integer   nrhs,
-    real_type in_out[],
-    integer   ldRhs
+    bool const do_permute,
+    integer    nrhs,
+    real_type  in_out[],
+    integer    ldRhs
   ) const {
 
     integer const & nblock = m_number_of_blocks;

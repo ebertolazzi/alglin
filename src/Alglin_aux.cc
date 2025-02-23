@@ -52,17 +52,17 @@ namespace alglin {
   template <typename REAL>
   integer
   gtx(
-    integer M,
-    integer N,
-    REAL    A[],
-    integer LDA,
-    integer IPIV[]
+    integer const M,
+    integer const N,
+    REAL          A[],
+    integer const LDA,
+    integer       IPIV[]
   ) {
 
     // LU DECOMPOSITION, COLUMN INTERCHANGES
-    REAL * Ajj = A;
-    for ( int j = 0; j < M; Ajj += LDA+1 ) {
-      integer MX = iamax( N-j, Ajj, LDA );
+    REAL * Ajj{A};
+    for ( int j{0}; j < M; Ajj += LDA+1 ) {
+      integer const MX{iamax( N-j, Ajj, LDA )};
       IPIV[j] = MX + j; // C-based
       if ( j < IPIV[j] ) alglin::swap( M, A + j*LDA, 1, A + IPIV[j]*LDA, 1 );
       if ( Utils::is_zero(Ajj[0]) ) return j;
@@ -77,14 +77,14 @@ namespace alglin {
   template <typename REAL>
   integer
   getrx(
-    integer M,      // NUMBER OF ROWS IN A, UNCHANGED
-    integer N,      // NUMBER OF COLUMNS IN A, UNCHANGED
-    REAL    A[],    // A - ARRAY OF DIMENSION (LDA, N), OVERWRITTEN BY FACTORIZATION
-                    // L - UNIT LOVER TRIANGULAR
-                    // U - UPPER TRIANGULAR
-    integer LDA,    // FIRST DIMENSION OF A AS DECLARED IN THE CALLING (SUB)PROGRAM, UNCHANGED
-    integer IPIV[], // ARRAY OF DIMENSION (M) ON EXIT CONTAINS PIVOT INDICES
-    integer MB
+    integer const M,      // NUMBER OF ROWS IN A, UNCHANGED
+    integer const N,      // NUMBER OF COLUMNS IN A, UNCHANGED
+    REAL          A[],    // A - ARRAY OF DIMENSION (LDA, N), OVERWRITTEN BY FACTORIZATION
+                          // L - UNIT LOVER TRIANGULAR
+                          // U - UPPER TRIANGULAR
+    integer const LDA,    // FIRST DIMENSION OF A AS DECLARED IN THE CALLING (SUB)PROGRAM, UNCHANGED
+    integer       IPIV[], // ARRAY OF DIMENSION (M) ON EXIT CONTAINS PIVOT INDICES
+    integer const MB
   ) {
 
     // COMPUTES LU FACTORIZATION OF M-BY-N MATRIX;
@@ -92,18 +92,16 @@ namespace alglin {
     // INFO - ERROR INDICATOR, 0 - NORMAL RETURN, POSITIVE VALUE (K) INDICATE
     // THAT U(K, K) = 0.E0 EXACTLY, ALWAYS CHECK AFTER CALL
     if ( M == 0 || N == 0 ) return 0;
-    REAL * Ajj = A;
-    for ( integer j = 0; j < M; j += MB, Ajj += MB*(LDA+1) ) {
-      integer JB = min_index(M-j, MB);
+    REAL * Ajj{ A };
+    for ( integer j{0}; j < M; j += MB, Ajj += MB*(LDA+1) ) {
+      integer JB{ min_index(M-j, MB) };
       // FACTORIZE DIAGONAL AND SUBDIAGONAL BLOCKS AND TEST FOR SINGULARITY
-      integer INFO = gtx( JB, N-j, Ajj, LDA, IPIV+j );
-      if ( INFO != 0 ) return INFO + j;
+      if ( integer const INFO{gtx( JB, N-j, Ajj, LDA, IPIV+j )}; INFO != 0 ) return INFO + j;
       // APPLY INTERCHANGES TO PREVIOUS BLOCKS
-      integer jjB = j + JB;
-      REAL * Aj = A+jjB;
-      for ( integer i = j; i < jjB; ++i ) {
-        integer IP = (IPIV[i] += j);
-        if ( i < IP ) {
+      integer jjB { j + JB };
+      REAL *  Aj  { A+jjB  };
+      for ( integer i{j}; i < jjB; ++i ) {
+        if ( integer const IP{ IPIV[i] += j }; i < IP ) {
           alglin::swap( j,     A  + i*LDA, 1, A  + IP*LDA, 1 );
           alglin::swap( M-jjB, Aj + i*LDA, 1, Aj + IP*LDA, 1 );
         }
@@ -132,21 +130,21 @@ namespace alglin {
   template <typename REAL>
   integer
   gty(
-    integer M,
-    integer N,
-    REAL    A[],
-    integer LDA,
-    integer IPIV[]
+    integer const M,
+    integer const N,
+    REAL          A[],
+    integer const LDA,
+    integer       IPIV[]
   ) {
 
     // LU DECOMPOSITION, ROW INTERCHANGES
-    REAL * Ajj = A;
-    for ( int j = 0; j < N; Ajj += LDA+1 ) {
-      integer MX = iamax( M-j, Ajj, 1 );
+    REAL * Ajj{A};
+    for ( int j{0}; j < N; Ajj += LDA+1 ) {
+      integer const MX{iamax( M-j, Ajj, 1 )};
       IPIV[j] = MX + j; // C-based
       if ( j < IPIV[j] ) alglin::swap( N, A + j, LDA, A + IPIV[j], LDA );
       if ( Utils::is_zero(Ajj[0]) ) return j;
-      REAL ROWM = 1/Ajj[0];
+      REAL ROWM{ 1/Ajj[0] };
       ++j;
       alglin::scal(M-j, ROWM, Ajj+1, 1);
       alglin::ger(M-j, N-j, -1.0, Ajj+1, 1, Ajj+LDA, LDA, Ajj+LDA+1, LDA );
@@ -157,14 +155,14 @@ namespace alglin {
   template <typename REAL>
   integer
   getry(
-    integer M,      // NUMBER OF ROWS IN A, UNCHANGED
-    integer N,      // NUMBER OF COLUMNS IN A, UNCHANGED
-    REAL    A[],    // A - ARRAY OF DIMENSION (LDA, N), OVERWRITTEN BY FACTORIZATION
-                    // L - UNIT LOVER TRIANGULAR
-                    // U - UPPER TRIANGULAR
-    integer LDA,    // FIRST DIMENSION OF A AS DECLARED IN THE CALLING (SUB)PROGRAM, UNCHANGED
-    integer IPIV[], // ARRAY OF DIMENSION (M) ON EXIT CONTAINS PIVOT INDICES
-    integer NB
+    integer const M,      // NUMBER OF ROWS IN A, UNCHANGED
+    integer const N,      // NUMBER OF COLUMNS IN A, UNCHANGED
+    REAL         A[],    // A - ARRAY OF DIMENSION (LDA, N), OVERWRITTEN BY FACTORIZATION
+                         // L - UNIT LOVER TRIANGULAR
+                         // U - UPPER TRIANGULAR
+    integer const LDA,    // FIRST DIMENSION OF A AS DECLARED IN THE CALLING (SUB)PROGRAM, UNCHANGED
+    integer       IPIV[], // ARRAY OF DIMENSION (M) ON EXIT CONTAINS PIVOT INDICES
+    integer const NB
   ) {
 
     // COMPUTES LU FACTORIZATION OF M-BY-N MATRIX;
@@ -172,16 +170,16 @@ namespace alglin {
     // INFO - ERROR INDICATOR, 0 - NORMAL RETURN, POSITIVE VALUE (K) INDICATE
     // THAT U(K, K) = 0.E0 EXACTLY, ALWAYS CHECK AFTER CALL
     if ( M == 0 || N == 0 ) return 0;
-    REAL * Ajj = A;
-    for ( integer j = 0; j < N; j += NB, Ajj += NB*(LDA+1) ) {
-      integer JB = min_index(N-j, NB);
+    REAL * Ajj{A};
+    for ( integer j{0}; j < N; j += NB, Ajj += NB*(LDA+1) ) {
+      integer JB{ min_index(N-j, NB) };
       // FACTORIZE DIAGONAL AND SUBDIAGONAL BLOCKS AND TEST FOR SINGULARITY
-      integer INFO = gty( M-j, JB, Ajj, LDA, IPIV+j );
+      integer const INFO{gty( M-j, JB, Ajj, LDA, IPIV+j )};
       // APPLY INTERCHANGES TO PREVIOUS BLOCKS
-      integer jjB = j+JB;
-      REAL * Aj = A+jjB*LDA;
-      for ( integer i = j; i < jjB; ++i ) {
-        integer IP = (IPIV[i] += j);
+      integer const jjB{j+JB};
+      REAL * Aj{A+jjB*LDA};
+      for ( integer i{j}; i < jjB; ++i ) {
+        integer IP{IPIV[i] += j};
         if ( i < IP ) {
           alglin::swap( j,     A + i,  LDA, A + IP,  LDA );
           alglin::swap( N-jjB, Aj + i, LDA, Aj + IP, LDA );
@@ -244,17 +242,16 @@ namespace alglin {
   template <typename T>
   void
   triTikhonov(
-    integer N,
-    T const Amat[],
-    integer ldA,
-    integer nrhs,
-    T       RHS[],
-    integer ldRHS,
-    T       lambda
+    integer const N,
+    T       const Amat[],
+    integer const ldA,
+    integer const nrhs,
+    T             RHS[],
+    integer const ldRHS,
+    T             lambda
   ) {
 
     vector<T> Tmat(N*N), line(N), r(nrhs);
-    T C, S;
 
     alglin::GEcopy( N, N, Amat, ldA, &Tmat.front(), N );
 
@@ -263,7 +260,8 @@ namespace alglin {
       fill( r.begin(), r.end(), T(0) );
       line[i] = lambda;
       for ( integer j = i; j < N; ++j ) {
-        T * pTjj = &Tmat[j*(N+1)];
+        T S, C;
+        T * pTjj{ &Tmat[j*(N+1)] };
         rotg( *pTjj, line[j], C, S );
         if ( N-j-1 > 0 ) rot( N-j-1, pTjj+N, N, &line[j+1], 1, C, S );
         rot( nrhs, RHS+j, ldRHS, &r.front(), 1, C, S );
@@ -291,20 +289,21 @@ namespace alglin {
     integer JPIV[]
   ) {
     // Set constants to control overflow
-    integer INFO = 0;
-    T       EPS    = lamch<T>("P");
-    T       SMLNUM = lamch<T>("S") / EPS;
-    T       SMIN   = 0;
+    integer INFO   {0};
+    T       EPS    {lamch<T>("P")};
+    T       SMLNUM {lamch<T>("S") / EPS};
+    T       SMIN   {0};
     // Factorize A using complete pivoting.
     // Set pivots less than SMIN to SMIN.
-    T * Aii = A;
-    for ( int II = 0; II < N-1; ++II, Aii += LDA+1 ) {
+    T * Aii{A};
+    for ( int II{0}; II < N-1; ++II, Aii += LDA+1 ) {
       // Find max element in matrix A
-      T XMAX = 0;
-      integer IPV=II, JPV=II;
-      for ( int IP = II; IP < N; ++IP ) {
-        for ( int JP = II; JP < N; ++JP ) {
-          T absA = abs( A[IP+JP*LDA] );
+      T XMAX{0};
+      integer IPV{II};
+      integer JPV{II};
+      for ( int IP{II}; IP < N; ++IP ) {
+        for ( int JP{II}; JP < N; ++JP ) {
+          T absA{abs( A[IP+JP*LDA] )};
           if ( absA > XMAX ) { XMAX = absA; IPV = IP; JPV = JP; }
         }
       }
@@ -315,7 +314,7 @@ namespace alglin {
       JPIV[II] = JPV+1; if ( JPV != II ) alglin::swap( N, A+JPV*LDA, 1, A+II*LDA, 1 );
       // Check for singularity
       if ( abs(*Aii) < SMIN ) { INFO = II+1; *Aii = SMIN; }
-      for ( integer JJ = II+1; JJ < N; ++JJ ) A[JJ+II*LDA] /= *Aii;
+      for ( integer JJ{II+1}; JJ < N; ++JJ ) A[JJ+II*LDA] /= *Aii;
       alglin::ger( N-II-1, N-II-1, -1, Aii+1, 1, Aii+LDA, LDA, Aii+LDA+1, LDA );
     }
     if ( abs(*Aii) < SMIN ) { INFO = N; *Aii = SMIN; }
@@ -349,15 +348,15 @@ namespace alglin {
     integer const JPIV[]
   ) {
     // Set constants to control overflow
-    T EPS    = lamch<T>("P");
-    T SMLNUM = lamch<T>("S") / EPS;
+    T EPS    {lamch<T>("P")};
+    T SMLNUM {lamch<T>("S") / EPS};
     // Apply permutations IPIV to RHS
-    for ( integer i = 0; i < N-1; ++i )
+    for ( integer i{0}; i < N-1; ++i )
       if ( IPIV[i] > i+1 )
         alglin::swap( RHS[i], RHS[IPIV[i]-1] );
     // Solve for L part
-    for ( integer i=0; i < N-1; ++i )
-      for ( integer j=i+1; j < N; ++j )
+    for ( integer i{0}; i < N-1; ++i )
+      for ( integer j{i+1}; j < N; ++j )
         RHS[j] -= A[j+i*LDA]*RHS[i];
     // Solve for U part
     T SCALE = 1;

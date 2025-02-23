@@ -222,8 +222,8 @@ namespace alglin {
       );
     }
 
-    integer const * ipive{m_ipiv_blk + nblock * n};
-    integer ok{getrs( Transposition::NO, m, 1, m_DD_blk, m, ipive, ye, m )};
+    integer const * ipive { m_ipiv_blk + nblock * n };
+    integer const   ok    { getrs( Transposition::NO, m, 1, m_DD_blk, m, ipive, ye, m ) };
 
     UTILS_ASSERT0( ok == 0, "BlockLU::solve(...) failed\n" );
 

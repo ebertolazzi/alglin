@@ -33,9 +33,9 @@ namespace alglin {
     if ( n != m_dim1 || m != m_dim2 ) {
       m_dim1 = n;
       m_dim2 = m;
-      m_mem.reallocate( size_t(2*n*m) );
-      m_Zmat = m_mem( size_t(n*m) );
-      m_Cmat = m_mem( size_t(n*m) );
+      m_mem.reallocate( 2 * n * m );
+      m_Zmat = m_mem( n * m );
+      m_Cmat = m_mem( n * m );
       m_W_LU.allocate(m,m);
     }
   }
@@ -56,8 +56,8 @@ namespace alglin {
     real_type const A_values[],
     integer   const A_row[], integer r_offs,
     integer   const A_col[], integer c_offs,
-    integer         A_nnz,
-    bool            is_symmetric
+    integer   const A_nnz,
+    bool      const is_symmetric
   ) {
     integer const & n = m_dim1;
     m_Asolver = &m_A_LU;
@@ -75,8 +75,8 @@ namespace alglin {
   void
   KKT<t_Value>::load_A(
     real_type const A[],
-    integer         ldA,
-    bool            transposed
+    integer   const ldA,
+    bool      const transposed
   ) {
     integer const & n = m_dim1;
     UTILS_ASSERT(
@@ -100,9 +100,9 @@ namespace alglin {
   void
   KKT<t_Value>::load_B(
     real_type const B_values[],
-    integer   const B_row[], integer r_offs,
-    integer   const B_col[], integer c_offs,
-    integer         B_nnz
+    integer   const B_row[], integer const r_offs,
+    integer   const B_col[], integer const c_offs,
+    integer   const B_nnz
   ) {
     integer const & n = m_dim1;
     integer const & m = m_dim2;
@@ -125,8 +125,8 @@ namespace alglin {
   void
   KKT<t_Value>::load_B(
     real_type const B[],
-    integer         ldB,
-    bool            transposed
+    integer   const ldB,
+    bool      const transposed
   ) {
     integer const & n{m_dim1};
     integer const & m{m_dim2};
@@ -147,9 +147,9 @@ namespace alglin {
   void
   KKT<t_Value>::load_C(
     real_type const C_values[],
-    integer   const C_row[], integer r_offs,
-    integer   const C_col[], integer c_offs,
-    integer         C_nnz
+    integer   const C_row[], integer const r_offs,
+    integer   const C_col[], integer const c_offs,
+    integer   const C_nnz
   ) {
     integer const & n{m_dim1};
     integer const & m{m_dim2};
@@ -172,8 +172,8 @@ namespace alglin {
   void
   KKT<t_Value>::load_C(
     real_type const C[],
-    integer         ldC,
-    bool            transposed
+    integer   const ldC,
+    bool      const transposed
   ) {
     integer const & n{m_dim1};
     integer const & m{m_dim2};
@@ -195,10 +195,10 @@ namespace alglin {
   void
   KKT<t_Value>::load_D(
     real_type const D_values[],
-    integer   const D_row[], integer r_offs,
-    integer   const D_col[], integer c_offs,
-    integer         D_nnz,
-    bool            is_symmetric_D
+    integer   const D_row[], integer const r_offs,
+    integer   const D_col[], integer const c_offs,
+    integer   const D_nnz,
+    bool      const is_symmetric_D
   ) {
     integer const & m = m_dim2;
     m_W_LU_working.setup(m,m);
@@ -222,8 +222,8 @@ namespace alglin {
   void
   KKT<t_Value>::load_D(
     real_type const D[],
-    integer         ldD,
-    bool            transposed
+    integer   const ldD,
+    bool      const transposed
   ) {
     integer const & m{m_dim2};
     UTILS_ASSERT( ldD >= m, "KKT::load_D bad ldD = {} must be >= {}\n", ldD, m );
@@ -261,30 +261,30 @@ namespace alglin {
   template <typename t_Value>
   void
   KKT<t_Value>::load(
-    integer         n,
-    integer         m,
+    integer   const n,
+    integer   const m,
     // -----------------------
     real_type const A_values[],
-    integer   const A_row[], integer Ar_offs,
-    integer   const A_col[], integer Ac_offs,
-    integer         A_nnz,
-    bool            A_is_symmetric,
+    integer   const A_row[], integer const Ar_offs,
+    integer   const A_col[], integer const Ac_offs,
+    integer   const A_nnz,
+    bool      const A_is_symmetric,
     // -----------------------
     real_type const B_values[],
-    integer   const B_row[], integer Br_offs,
-    integer   const B_col[], integer Bc_offs,
-    integer         B_nnz,
+    integer   const B_row[], integer const Br_offs,
+    integer   const B_col[], integer const Bc_offs,
+    integer   const B_nnz,
     // -----------------------
     real_type const C_values[],
-    integer   const C_row[], integer Cr_offs,
-    integer   const C_col[], integer Cc_offs,
-    integer         C_nnz,
+    integer   const C_row[], integer const Cr_offs,
+    integer   const C_col[], integer const Cc_offs,
+    integer   const C_nnz,
     // -----------------------
     real_type const D_values[],
-    integer   const D_row[], integer Dr_offs,
-    integer   const D_col[], integer Dc_offs,
-    integer         D_nnz,
-    bool            D_is_symmetric
+    integer   const D_row[], integer const Dr_offs,
+    integer   const D_col[], integer const Dc_offs,
+    integer   const D_nnz,
+    bool      const D_is_symmetric
   ) {
     allocate( n, m );
     load_A( A_values, A_row, Ar_offs, A_col, Ac_offs, A_nnz, A_is_symmetric );
@@ -298,24 +298,24 @@ namespace alglin {
   template <typename t_Value>
   void
   KKT<t_Value>::load(
-    integer         n,
-    integer         m,
+    integer   const n,
+    integer   const m,
     // -----------------------
     real_type const A_values[],
-    integer         ldA,
-    bool            A_transposed,
+    integer   const ldA,
+    bool      const A_transposed,
     // -----------------------
     real_type const B_values[],
-    integer         ldB,
-    bool            B_transposed,
+    integer   const ldB,
+    bool      const B_transposed,
     // -----------------------
     real_type const C_values[],
-    integer         ldC,
-    bool            C_transposed,
+    integer   const ldC,
+    bool      const C_transposed,
     // -----------------------
     real_type const D_values[],
-    integer         ldD,
-    bool            D_transposed
+    integer   const ldD,
+    bool      const D_transposed
   ) {
     allocate( n, m );
     load_A( A_values, ldA, A_transposed );
@@ -329,26 +329,26 @@ namespace alglin {
   template <typename t_Value>
   void
   KKT<t_Value>::load(
-    integer n,
-    integer m,
+    integer   const n,
+    integer   const m,
     // -----------------------
-    LSS const * Asystem,
+    LSS       const * Asystem,
     // -----------------------
     real_type const B_values[],
-    integer   const B_row[], integer Br_offs,
-    integer   const B_col[], integer Bc_offs,
-    integer         B_nnz,
+    integer   const B_row[], integer const Br_offs,
+    integer   const B_col[], integer const Bc_offs,
+    integer   const B_nnz,
     // -----------------------
     real_type const C_values[],
-    integer   const C_row[], integer Cr_offs,
-    integer   const C_col[], integer Cc_offs,
-    integer         C_nnz,
+    integer   const C_row[], integer const Cr_offs,
+    integer   const C_col[], integer const Cc_offs,
+    integer   const  C_nnz,
     // -----------------------
     real_type const D_values[],
-    integer   const D_row[], integer Dr_offs,
-    integer   const D_col[], integer Dc_offs,
-    integer         D_nnz,
-    bool            D_is_symmetric
+    integer   const D_row[], integer const Dr_offs,
+    integer   const D_col[], integer const Dc_offs,
+    integer   const D_nnz,
+    bool      const D_is_symmetric
   ) {
     allocate( n, m );
     load_A( Asystem );
@@ -362,22 +362,22 @@ namespace alglin {
   template <typename t_Value>
   void
   KKT<t_Value>::load(
-    integer n,
-    integer m,
+    integer   const n,
+    integer   const m,
     // -----------------------
-    LSS const * Asystem,
+    LSS       const * Asystem,
     // -----------------------
     real_type const B_values[],
-    integer         ldB,
-    bool            B_transposed,
+    integer   const ldB,
+    bool      const B_transposed,
     // -----------------------
     real_type const C_values[],
-    integer         ldC,
-    bool            C_transposed,
+    integer   const ldC,
+    bool      const C_transposed,
     // -----------------------
     real_type const D_values[],
-    integer         ldD,
-    bool            D_transposed
+    integer   const ldD,
+    bool      const D_transposed
   ) {
     allocate( n, m );
     load_A( Asystem );
@@ -391,16 +391,16 @@ namespace alglin {
   template <typename t_Value>
   void
   KKT<t_Value>::load_banded(
-    integer         n,
-    integer         m,
-    integer         nL,
-    integer         nU,
+    integer   const n,
+    integer   const m,
+    integer   const nL,
+    integer   const nU,
     // -----------------------
     real_type const M_values[],
     integer   const M_row[], integer r_offs,
     integer   const M_col[], integer c_offs,
-    integer         M_nnz,
-    bool            M_is_symmetric
+    integer   const M_nnz,
+    bool      const M_is_symmetric
   ) {
     allocate( n, m );
     m_A_banded_LU.setup( n, n, nL, nU );
@@ -417,17 +417,17 @@ namespace alglin {
   template <typename t_Value>
   void
   KKT<t_Value>::load_triblock(
-    integer         n,
-    integer         m,
+    integer   const n,
+    integer   const m,
     // ---- BLOCK TRIDIAGONAL STRUCTURE ----
-    integer         nblocks,
-    integer const   rBlocks[],
+    integer   const nblocks,
+    integer   const rBlocks[],
     // -----------------------
     real_type const M_values[],
     integer   const M_row[], integer r_offs,
     integer   const M_col[], integer c_offs,
-    integer         M_nnz,
-    bool            M_is_symmetric
+    integer   const M_nnz,
+    bool      const M_is_symmetric
   ) {
     allocate( n, m );
     m_A_strid_LDL.setup( nblocks, rBlocks );
@@ -444,17 +444,17 @@ namespace alglin {
   template <typename t_Value>
   void
   KKT<t_Value>::load_triblock(
-    integer n,
-    integer m,
+    integer   const n,
+    integer   const m,
     // ---- BLOCK TRIDIAGONAL STRUCTURE ----
-    integer nblocks,
-    integer block_size,
+    integer   const nblocks,
+    integer   const block_size,
     // -----------------------
     real_type const M_values[],
     integer   const M_row[], integer r_offs,
     integer   const M_col[], integer c_offs,
-    integer         M_nnz,
-    bool            M_is_symmetric
+    integer   const M_nnz,
+    bool      const M_is_symmetric
   ) {
     allocate( n, m );
     m_A_strid_LDL.setup( nblocks, block_size );

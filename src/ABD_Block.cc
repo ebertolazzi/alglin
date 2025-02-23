@@ -59,11 +59,11 @@ namespace alglin {
       Fnnz+2*m_Work_ldim*n,
       innz+row0
     );
-    m_swap0      = m_mem_int( size_t(row0) );
-    m_swapR_blks = m_mem_int( size_t(innz) );
-    m_F_mat      = m_mem( size_t(Fnnz) );
-    m_Work_mat   = m_mem( size_t(m_Work_ldim*n) );
-    m_Work_mat1  = m_mem( size_t(m_Work_ldim*n) );
+    m_swap0      = m_mem_int( row0 );
+    m_swapR_blks = m_mem_int( innz );
+    m_F_mat      = m_mem( Fnnz );
+    m_Work_mat   = m_mem( m_Work_ldim*n );
+    m_Work_mat1  = m_mem( m_Work_ldim*n );
   }
 
   /*\
@@ -290,8 +290,8 @@ namespace alglin {
   template <typename t_Value>
   void
   BlockLU<t_Value>::solve_internal(
-    bool      do_permute,
-    real_type in_out[]
+    bool const do_permute,
+    real_type  in_out[]
   ) const {
 
     integer const & nblock = m_number_of_blocks;
@@ -568,10 +568,10 @@ namespace alglin {
   template <typename t_Value>
   void
   BlockLU<t_Value>::solve_internal(
-    bool      do_permute,
-    integer   nrhs,
-    real_type in_out[],
-    integer   ldRhs
+    bool const do_permute,
+    integer    nrhs,
+    real_type  in_out[],
+    integer    ldRhs
   ) const {
 
     integer const & nblock = m_number_of_blocks;

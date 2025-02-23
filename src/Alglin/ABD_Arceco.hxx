@@ -114,11 +114,11 @@ namespace alglin {
     //!
     void
     forward_elimination(
-      real_type block[],
-      integer   nrows_block,
-      integer   nrows_pivot,
-      integer   pivot[],
-      real_type b[]
+      real_type const block[],
+      integer         nrows_block,
+      integer         nrows_pivot,
+      integer   const pivot[],
+      real_type       b[]
     ) const;
 
     //!
@@ -173,22 +173,25 @@ namespace alglin {
     //!
     void
     backward_elimination(
-      real_type block[],
-      integer   nrows_block,
-      integer   ncols_pivot,
-      integer   noverlap_cols,
-      integer   pivot[],
-      real_type b[]
+      real_type     block[],
+      integer       nrows_block,
+      integer       ncols_pivot,
+      integer       noverlap_cols,
+      integer const pivot[],
+      real_type     b[]
     ) const;
 
+    [[nodiscard]]
     integer
     nrows( integer num_block ) const
     { return m_matrix_structure[num_block*3+0]; }
 
+    [[nodiscard]]
     integer
     ncols( integer num_block ) const
     { return m_matrix_structure[num_block*3+1]; }
 
+    [[nodiscard]]
     integer
     noverlap( integer num_block ) const
     { return m_matrix_structure[num_block*3+2]; }
@@ -235,7 +238,7 @@ namespace alglin {
     //!            n = SUM(matrix_structure[3*k],K=0,number_of_blocks-1)
     //!
     void
-    checkStructure( integer neq );
+    checkStructure( integer neq ) const;
 
     //!
     //!  Decompose supervises the modified alternate row and column

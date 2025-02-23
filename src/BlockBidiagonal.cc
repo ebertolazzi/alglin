@@ -32,21 +32,21 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BlockBidiagonal<t_Value>::load_block( integer nbl, real_type const AdAu[], integer ldA ) {
+  BlockBidiagonal<t_Value>::load_block( integer const nbl, real_type const AdAu[], integer const ldA ) {
     integer const & n{m_block_size};
     GEcopy( n, 2*n, AdAu, ldA, m_DE_blk + 2*nbl*n_x_n, n );
   }
 
   template <typename t_Value>
   void
-  BlockBidiagonal<t_Value>::load_block_left( integer nbl, real_type const Ad[], integer ldA ) {
+  BlockBidiagonal<t_Value>::load_block_left( integer const nbl, real_type const Ad[], integer const ldA ) {
     integer const & n{m_block_size};
     GEcopy( n, n, Ad, ldA, m_DE_blk + 2*nbl*n_x_n, n );
   }
 
   template <typename t_Value>
   void
-  BlockBidiagonal<t_Value>::load_block_right( integer nbl, real_type const Au[], integer ldA ) {
+  BlockBidiagonal<t_Value>::load_block_right( integer const nbl, real_type const Au[], integer const ldA ) {
     integer const & n{m_block_size};
     GEcopy( n, n, Au, ldA, m_DE_blk + (2*nbl+1)*n_x_n, n );
   }
@@ -124,7 +124,7 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BlockBidiagonal<t_Value>::loadRightBlock( integer nbl, real_type const B[], integer ldB ) {
+  BlockBidiagonal<t_Value>::loadRightBlock( integer const nbl, real_type const B[], integer const ldB ) {
     integer const & n{m_block_size};
     integer const & nb{m_border_size};
     integer const & neq{m_num_equations};
@@ -213,20 +213,20 @@ namespace alglin {
   template <typename t_Value>
   void
   BlockBidiagonal<t_Value>::allocate(
-    integer nblock,
-    integer n,
-    integer nb,
+    integer const nblock,
+    integer const n,
+    integer const nb,
     // ----------------------
-    integer num_initial_BC,
-    integer num_final_BC,
-    integer num_cyclic_BC,
+    integer const num_initial_BC,
+    integer const num_final_BC,
+    integer const num_cyclic_BC,
     // ----------------------
-    integer num_initial_OMEGA,
-    integer num_final_OMEGA,
-    integer num_cyclic_OMEGA,
+    integer const num_initial_OMEGA,
+    integer const num_final_OMEGA,
+    integer const num_cyclic_OMEGA,
     // ----------------------
-    integer num_extra_r,
-    integer num_extra_i
+    integer const num_extra_r,
+    integer const num_extra_i
   ) {
 
     UTILS_ASSERT(
@@ -270,16 +270,18 @@ namespace alglin {
     m_num_equations    = (nblock+1)*n+q;
     n_x_n              = n*n;
     n_x_nb             = n*nb;
-    integer DE_size    = 2*nblock*n_x_n;
-    integer H0Nq_size  = (n+q)*(2*n+q);
-    integer BC_size    = nb*m_num_equations;
-    m_mem.reallocate( size_t(DE_size+H0Nq_size+2*BC_size+nb*nb+num_extra_r) );
-    m_mem_int.reallocate( size_t(num_extra_i) );
-    m_DE_blk = m_mem( size_t(DE_size) );
-    m_H0Nq   = m_mem( size_t(H0Nq_size) );
-    m_Bmat   = m_mem( size_t(BC_size) );
-    m_Cmat   = m_mem( size_t(BC_size) );
-    m_Dmat   = m_mem( size_t(nb*nb) );
+
+    integer const DE_size   { 2 * nblock * n_x_n  };
+    integer const H0Nq_size { (n+q) * (2*n+q)      };
+    integer const BC_size   { nb * m_num_equations };
+
+    m_mem.reallocate( DE_size + H0Nq_size + 2*BC_size + nb*nb + num_extra_r );
+    m_mem_int.reallocate( num_extra_i );
+    m_DE_blk = m_mem( DE_size );
+    m_H0Nq   = m_mem( H0Nq_size );
+    m_Bmat   = m_mem( BC_size );
+    m_Cmat   = m_mem( BC_size );
+    m_Dmat   = m_mem( nb*nb );
     m_block0 = nullptr;
     m_blockN = nullptr;
   }
@@ -444,10 +446,10 @@ namespace alglin {
        |  |blk0|  0   |    :blk0|
        |  +----+------+---------+
       \*/
-      integer row0{m_num_initial_BC};
-      integer rowN{m_num_final_BC};
-      integer col00{m_num_initial_OMEGA};
-      integer colNN{m_num_final_OMEGA};
+      integer const row0{m_num_initial_BC};
+      integer const rowN{m_num_final_BC};
+      integer const col00{m_num_initial_OMEGA};
+      integer const colNN{m_num_final_OMEGA};
       m_la_matrix.load_block( n, nx2, m_DE_blk, n );
       m_la_matrix.zero_block( m, mn, n, 0 );
       m_la_matrix.load_block( rowN, n+colNN, m_blockN,            rowN, n,      n );
@@ -763,10 +765,10 @@ namespace alglin {
     integer ii;
     if ( m_num_cyclic_BC == 0 && m_num_cyclic_OMEGA == 0 ) {
 
-      integer row0  = m_num_initial_BC;
-      integer rowN  = m_num_final_BC;
-      integer col00 = m_num_initial_OMEGA;
-      integer colNN = m_num_final_OMEGA;
+      integer const row0  = m_num_initial_BC;
+      integer const rowN  = m_num_final_BC;
+      integer const col00 = m_num_initial_OMEGA;
+      integer const colNN = m_num_final_OMEGA;
 
       nnz += row0 * ( n + col00 ) + rowN * ( n + colNN );
       fmt::print( stream, "{}\n", nnz );
@@ -795,7 +797,7 @@ namespace alglin {
 
     } else {
 
-      integer nq{n+q};
+      integer const nq{n+q};
       nnz += nq*(2*nq);
       fmt::print( stream, "{}\n", nnz );
 
@@ -866,10 +868,10 @@ namespace alglin {
 
     integer nnz{ (2*nblock)*n_x_n + 2*(nblock+1)*n*nb + nb*nb };
     if ( m_num_cyclic_BC == 0 && m_num_cyclic_OMEGA == 0 ) {
-      integer row0  {m_num_initial_BC};
-      integer rowN  {m_num_final_BC};
-      integer col00 {m_num_initial_OMEGA};
-      integer colNN {m_num_final_OMEGA};
+      integer const row0  {m_num_initial_BC};
+      integer const rowN  {m_num_final_BC};
+      integer const col00 {m_num_initial_OMEGA};
+      integer const colNN {m_num_final_OMEGA};
       nnz += row0 * ( n + col00 ) + rowN * ( n + colNN );
     } else {
       nnz += (n+q)*(2*n+q);
@@ -891,10 +893,10 @@ namespace alglin {
     integer ii;
     if ( m_num_cyclic_BC == 0 && m_num_cyclic_OMEGA == 0 ) {
 
-      integer row0  {m_num_initial_BC};
-      integer rowN  {m_num_final_BC};
-      integer col00 {m_num_initial_OMEGA};
-      integer colNN {m_num_final_OMEGA};
+      integer const row0  {m_num_initial_BC};
+      integer const rowN  {m_num_final_BC};
+      integer const col00 {m_num_initial_OMEGA};
+      integer const colNN {m_num_final_OMEGA};
 
       ii = nblock*n;
       for ( integer i{0}; i < rowN; ++i ) {
@@ -923,7 +925,7 @@ namespace alglin {
 
     } else {
 
-      integer nq{n + q};
+      integer const nq{n + q};
 
       ii = nblock*n;
       for ( integer i{0}; i < nq; ++i ) {
@@ -997,10 +999,10 @@ namespace alglin {
     integer ii;
     if ( m_num_cyclic_BC == 0 && m_num_cyclic_OMEGA == 0 ) {
 
-      integer row0  = m_num_initial_BC;
-      integer rowN  = m_num_final_BC;
-      integer col00 = m_num_initial_OMEGA;
-      integer colNN = m_num_final_OMEGA;
+      integer const row0  { m_num_initial_BC };
+      integer const rowN  { m_num_final_BC };
+      integer const col00 { m_num_initial_OMEGA };
+      integer const colNN { m_num_final_OMEGA };
 
       ii = nblock*n;
       for ( integer i{0}; i < rowN; ++i )
@@ -1017,7 +1019,7 @@ namespace alglin {
 
     } else {
 
-      integer nq{n + q};
+      integer const nq{n + q};
 
       real_type * H0{m_H0Nq};
       ii = nblock*n;

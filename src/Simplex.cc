@@ -76,16 +76,16 @@ namespace Simplex {
       }
     }
     // allocate memory
-    m_mem_int.reallocate( size_t(m_nz+m_nw+m_np+m_n+m_m) );
-    m_map_z    = m_mem_int( size_t(m_nz) );
-    m_map_w    = m_mem_int( size_t(m_nw) );
-    m_map_p    = m_mem_int( size_t(m_np) );
-    m_map_case = m_mem_int( size_t(m_n)  );
-    m_i_row    = m_mem_int( size_t(m_m)  );
+    m_mem_int.reallocate( m_nz + m_nw + m_np + m_n + m_m );
+    m_map_z    = m_mem_int( m_nz );
+    m_map_w    = m_mem_int( m_nw );
+    m_map_p    = m_mem_int( m_np );
+    m_map_case = m_mem_int( m_n  );
+    m_i_row    = m_mem_int( m_m  );
 
-    m_mem.reallocate( size_t(2*m_m) );
-    m_d      = m_mem( size_t(m_m) );
-    m_values = m_mem( size_t(m_m) );
+    m_mem.reallocate( 2 * m_m );
+    m_d      = m_mem( m_m     );
+    m_values = m_mem( m_m     );
 
     // fill mapping and vector q
     m_nz = m_nw = m_np = 0;
@@ -114,7 +114,7 @@ namespace Simplex {
         m_map_p[m_np++] = i;
         break;
       }
-      integer nnz = m_problem_base->load_A_column( i, m_values, m_i_row );
+      integer const nnz{ m_problem_base->load_A_column( i, m_values, m_i_row ) };
       for ( integer k = 0; k < nnz; ++k )
         m_d[m_i_row[k]] -= q*m_values[k];
     }
@@ -126,7 +126,7 @@ namespace Simplex {
   }
 
   bool
-  AuxProblem::Lower_is_free( integer i ) const
+  AuxProblem::Lower_is_free( integer const i ) const
   { return i >= m_nz+m_nw && i < m_nz+m_nw+m_np; }
 
   bool
@@ -134,9 +134,9 @@ namespace Simplex {
   { return true; }
 
   real_type
-  AuxProblem::Lower( integer i ) const {
+  AuxProblem::Lower( integer const i ) const {
     if ( Lower_is_free(i) ) return infinity;
-    else                    return 0;
+    return 0;
   }
 
   real_type
@@ -145,7 +145,7 @@ namespace Simplex {
 
   void
   AuxProblem::feasible_point( real_type x[], integer IB[] ) const {
-    integer nn = m_nz+m_nw+m_np;
+    integer const nn{ m_nz + m_nw + m_np };
     alglin::Zero_n( x, nn );
     for ( integer i{0}; i < m_m; ++i ) {
       x[nn+i] = abs(m_d[i]);
@@ -205,21 +205,21 @@ namespace Simplex {
   AuxProblem::load_A_column( integer jcol, real_type vals[], integer irow[] ) const {
     integer nnz;
     if ( jcol < m_nz ) { // Z matrix
-      integer j{m_map_z[jcol]};
+      integer const j{ m_map_z[jcol] };
       nnz = m_problem_base->load_A_column( j, vals, irow );
       for ( integer i{0}; i < nnz; ++i )
         if ( m_d[irow[i]] < 0 ) vals[i] = -vals[i];
     } else {
       jcol -= m_nz;
       if ( jcol < m_nw ) { // W matrix
-        integer j{m_map_w[jcol]};
+        integer const j{ m_map_w[jcol] };
         nnz = m_problem_base->load_A_column( j, vals, irow );
         for ( integer i{0}; i < nnz; ++i )
           if ( m_d[irow[i]] >= 0 ) vals[i] = -vals[i]; // reverse sign
       } else {
         jcol -= m_nw;
         if ( jcol < m_np ) { // P matrix
-          integer j{m_map_z[jcol]};
+          integer const j{ m_map_z[jcol] };
           nnz = m_problem_base->load_A_column( j, vals, irow );
           for ( integer i{0}; i < nnz; ++i )
             if ( m_d[irow[i]] < 0 ) vals[i] = -vals[i];
@@ -237,7 +237,7 @@ namespace Simplex {
   void
   AuxProblem::subtract_Ax( real_type const x[], real_type res[] ) const {
     for ( integer i{0}; i < dim_x(); ++i ) {
-      integer nnz{ load_A_column( i, m_values, m_i_row )} ;
+      integer const nnz{ load_A_column( i, m_values, m_i_row )} ;
       for ( integer k{0}; k < nnz; ++k )
         res[m_i_row[k]] -= x[i]*m_values[k];
     }
@@ -251,10 +251,10 @@ namespace Simplex {
   \*/
   void
   StandardProblem::setup(
-    integer         m,
-    integer         n,
+    integer   const m,
+    integer   const n,
     real_type const A[],
-    integer         ldA,
+    integer   const ldA,
     real_type const b[],
     real_type const c[],
     real_type const L[],
@@ -289,8 +289,8 @@ namespace Simplex {
       m_m, m_n
     );
 
-    m_L_free.resize( size_t(m_n) );
-    m_U_free.resize( size_t(m_n) );
+    m_L_free.resize( static_cast<size_t>(m_n) );
+    m_U_free.resize( static_cast<size_t>(m_n) );
     for ( integer i{0}; i < m_n; ++i ) {
       m_L_free[i] = m_L[i] <= -infinity;
       m_U_free[i] = m_U[i] >=  infinity;
@@ -317,10 +317,10 @@ namespace Simplex {
 
   void
   Problem::setup(
-    integer         m,
-    integer         n,
+    integer   const m,
+    integer   const n,
     real_type const A[],
-    integer         ldA,
+    integer   const  ldA,
     real_type const c[],
     real_type const L[],
     real_type const U[]
@@ -370,7 +370,7 @@ namespace Simplex {
    |  \__ \  _/ _` | ' \/ _` / _` | '_/ _` | \__ \/ _ \ \ V / -_) '_|
    |  |___/\__\__,_|_||_\__,_\__,_|_| \__,_| |___/\___/_|\_/\___|_|
   \*/
-  StandardSolver::StandardSolver( string_view name )
+  StandardSolver::StandardSolver( string_view const name )
   : m_name(name)
   , m_mem(fmt::format("StandardSolver[{}]::m_mem",name))
   , m_mem_int(fmt::format("StandardSolver[{}]::m_mem_int",name))
@@ -379,13 +379,12 @@ namespace Simplex {
   }
 
   static
-  inline
   void
   writeIter(
     ostream_type * pStream,
-    integer        iter,
+    integer const  iter,
     integer const  IB[],
-    integer        m
+    integer const  m
   ) {
     fmt::print( *pStream,
       "\n"
@@ -400,21 +399,15 @@ namespace Simplex {
   }
 
   string
-  StandardSolver::Lstring( integer i ) const {
-    if ( L_bounded(i) ) {
-      return fmt::format("{}",L(i));
-    } else {
-      return "-Infinity";
-    }
+  StandardSolver::Lstring( integer const i ) const {
+    if ( L_bounded(i) ) return fmt::format("{}",L(i));
+    return "-Infinity";
   }
 
   string
-  StandardSolver::Ustring( integer i ) const {
-    if ( U_bounded(i) ) {
-      return fmt::format("{}",U(i));
-    } else {
-      return "+Infinity";
-    }
+  StandardSolver::Ustring( integer const i ) const {
+    if ( U_bounded(i) ) return fmt::format("{}",U(i));
+    return "+Infinity";
   }
 
   // windows workaround!
@@ -428,9 +421,9 @@ namespace Simplex {
   void
   StandardSolver::solve(
     StandardProblemBase * _problem,
-    real_type x[],
-    integer   IB[],
-    real_type eps
+    real_type       x[],
+    integer         IB[],
+    real_type const eps
   ) {
 
     m_problem = _problem;
@@ -660,7 +653,7 @@ namespace Simplex {
             D[IB[i]] = y[i];
           }
           for ( integer i{0}; i < nm; ++i ) {
-            integer ini{IN[i]};
+            integer ini{ IN[i] };
             if ( Utils::is_zero(x[ini]-L(ini)) ) {
               D[ini] = ceta[i];
             } else if ( Utils::is_zero(x[ini]-U(ini)) ) {

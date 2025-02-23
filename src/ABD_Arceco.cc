@@ -36,10 +36,10 @@ namespace alglin {
   template <typename t_Value>
   void
   ArcecoLU<t_Value>::load_by_ref(
-    integer   number_of_blocks,
-    integer   matrix_structure[],
-    real_type array[],
-    integer   pivot[]
+    integer const number_of_blocks,
+    integer       matrix_structure[],
+    real_type     array[],
+    integer       pivot[]
   ) {
     m_number_of_blocks = number_of_blocks;
     m_matrix_structure = matrix_structure;
@@ -56,8 +56,8 @@ namespace alglin {
   \*/
   template <typename t_Value>
   void
-  ArcecoLU<t_Value>::checkStructure( integer neq ) {
-    integer const & nblocks = m_number_of_blocks;
+  ArcecoLU<t_Value>::checkStructure( integer const neq ) const {
+    integer const & nblocks{ m_number_of_blocks };
 
     UTILS_ASSERT(
       noverlap(nblocks-1) == 0,
@@ -66,7 +66,7 @@ namespace alglin {
     );
 
     // check index
-    for ( integer k = 0; k < nblocks; ++k ) {
+    for ( integer k{0}; k < nblocks; ++k ) {
       UTILS_ASSERT(
         ncols(k) >= 1,
         "ArcecoLU::checkStructure: ncols({}) = {} < 1\n", k, ncols(k)
@@ -87,7 +87,7 @@ namespace alglin {
     }
 
     // check ovelapping
-    for ( integer k = 1; k < nblocks; ++k )
+    for ( integer k{1}; k < nblocks; ++k )
       UTILS_ASSERT(
         noverlap(k-1) + noverlap(k) <= ncols(k),
         "Arceco::checkStructure: at block {} three consecutive block overlap\n", k
@@ -110,7 +110,7 @@ namespace alglin {
 
     integer isum1 = 0;
     integer isum2 = 0;
-    for ( integer k = 0; k < nblocks; ++k ) {
+    for ( integer k{0}; k < nblocks; ++k ) {
       isum1 += nrows(k);
       isum2 += ncols(k) - noverlap(k);
     }
@@ -140,31 +140,31 @@ namespace alglin {
   template <typename t_Value>
   void
   ArcecoLU<t_Value>::factorize(
-    integer         row0,
-    integer         col0,
+    integer   const row0,
+    integer   const col0,
     real_type const block0[],
     integer         nblk,
     integer         n,
     real_type const blocks[],
-    integer         rowN,
-    integer         colN,
+    integer   const rowN,
+    integer   const colN,
     real_type const blockN[]
   ) {
 
     m_number_of_blocks = nblk + 2;
 
-    integer size0        = row0 * col0;
-    integer sizeN        = rowN * colN;
-    integer BLK_size     = 2*n*n*nblk;
-    integer numEquations = nblk * n + row0 + rowN;
+    integer const size0        { row0 * col0 };
+    integer const sizeN        { rowN * colN };
+    integer const BLK_size     { 2 * n * n * nblk };
+    integer const numEquations { nblk * n + row0 + rowN };
 
     // allocazione dinamica
-    m_mem.reallocate( size_t( BLK_size + size0 + sizeN ) );
-    m_mem_int.reallocate( size_t( 3*m_number_of_blocks + numEquations ) );
+    m_mem.reallocate( BLK_size + size0 + sizeN );
+    m_mem_int.reallocate( 3*m_number_of_blocks + numEquations );
 
-    m_array            = m_mem( size_t( BLK_size + size0 + sizeN ) );
-    m_pivot_array      = m_mem_int( size_t( numEquations ) );
-    m_matrix_structure = m_mem_int( size_t( 3*m_number_of_blocks ) );
+    m_array            = m_mem( BLK_size + size0 + sizeN );
+    m_pivot_array      = m_mem_int( numEquations );
+    m_matrix_structure = m_mem_int( 3*m_number_of_blocks );
 
     // Fill structures
     Copy_n( block0, size0,    m_array );
@@ -175,7 +175,7 @@ namespace alglin {
     *mtr++ = row0;
     *mtr++ = col0;
     *mtr++ = n;
-    for ( integer i = 0; i < nblk; ++i ) {
+    for ( integer i{0}; i < nblk; ++i ) {
       *mtr++ = n;
       *mtr++ = 2*n;
       *mtr++ = n;
@@ -220,7 +220,7 @@ namespace alglin {
       m_pivot_array + indpiv
     );
 
-    for ( integer k = 1; k < m_number_of_blocks; ++k ) {
+    for ( integer k{1}; k < m_number_of_blocks; ++k ) {
       indpiv += nrows_pivot;
       integer index2       = index1 + nrows_block * nrows_pivot;
       integer index3       = index2 + nrows_block * noverlap_cols;
@@ -259,21 +259,21 @@ namespace alglin {
   template <typename t_Value>
   void
   ArcecoLU<t_Value>::row_elimination(
-    real_type block[],
-    integer   nrows_block,
-    integer   ncols_block,
-    integer   nrows_pivot,
-    integer   pivot[]
+    real_type     block[],
+    integer const nrows_block,
+    integer const ncols_block,
+    integer const nrows_pivot,
+    integer       pivot[]
   ) {
 
     #define BLOCK(I,J) block[(I) + (J) * nrows_block]
 
-    for ( integer j = 0; j < nrows_pivot; ++j ) {
-      integer   jplus1 = j + 1;
-      integer   jmax   = j;
-      real_type rowmax = abs(BLOCK(j,j));
-      for ( integer i1 = jplus1; i1 < nrows_block; ++i1 ) {
-        real_type tempiv = abs(BLOCK(i1,j));
+    for ( integer j{0}; j < nrows_pivot; ++j ) {
+      integer const jplus1 { j + 1 };
+      integer       jmax   { j };
+      real_type     rowmax { abs(BLOCK(j,j)) };
+      for ( integer i1{jplus1}; i1 < nrows_block; ++i1 ) {
+        real_type tempiv{ abs(BLOCK(i1,j)) };
         if ( tempiv > rowmax ) { rowmax = tempiv; jmax = i1; }
       }
 
@@ -281,13 +281,13 @@ namespace alglin {
 
       pivot[j] = jmax;
       if ( j != jmax )
-        for ( integer j1 = j; j1 < ncols_block; ++j1 )
+        for ( integer j1{j}; j1 < ncols_block; ++j1 )
           std::swap( BLOCK(jmax,j1), BLOCK(j,j1) );
 
-      real_type rowpiv = BLOCK(j,j);
-      for ( integer i1 = jplus1; i1 < nrows_block; ++i1 ) {
-        real_type rowmlt = ( BLOCK(i1,j) /= rowpiv );
-        for ( integer j1 = jplus1; j1 < ncols_block; ++j1 )
+      real_type rowpiv{ BLOCK(j,j) };
+      for ( integer i1{jplus1}; i1 < nrows_block; ++i1 ) {
+        real_type rowmlt{ BLOCK(i1,j) /= rowpiv };
+        for ( integer j1{jplus1}; j1 < ncols_block; ++j1 )
           BLOCK(i1,j1) -= rowmlt * BLOCK(j,j1);
       }
     }
@@ -299,25 +299,25 @@ namespace alglin {
   template <typename t_Value>
   void
   ArcecoLU<t_Value>::column_elimination(
-    real_type topblk[],
-    integer   nrows_top_block,
-    integer   noverlap_cols,
-    real_type botblk[],
-    integer   nrows_bottom_block,
-    integer   ncols_pivot,
-    integer   pivot[]
+    real_type     topblk[],
+    integer const nrows_top_block,
+    integer const noverlap_cols,
+    real_type     botblk[],
+    integer const nrows_bottom_block,
+    integer const ncols_pivot,
+    integer       pivot[]
   ) {
 
     #define TOPBLK(I,J) topblk[(I) + (J) * nrows_top_block]
     #define BOTBLK(I,J) botblk[(I) + (J) * nrows_bottom_block]
 
-    for ( integer j = 0; j < ncols_pivot; ++j ) {
-      integer jplus1 = j + 1;
-      integer i      = nrows_top_block - ncols_pivot + j;
-      integer jmax   = j;
-      real_type colmax = abs(TOPBLK(i,j));
-      for ( integer j1 = jplus1; j1 < noverlap_cols; ++j1 ) {
-        real_type tempiv = abs(TOPBLK(i,j1));
+    for ( integer j{0}; j < ncols_pivot; ++j ) {
+      integer const jplus1 { j + 1 };
+      integer const i      { nrows_top_block - ncols_pivot + j };
+      integer       jmax   { j };
+      real_type colmax{ abs(TOPBLK(i,j)) };
+      for ( integer j1{jplus1}; j1 < noverlap_cols; ++j1 ) {
+        real_type tempiv{ abs(TOPBLK(i,j1)) };
         if ( tempiv > colmax) { colmax = tempiv; jmax = j1; }
       }
 
@@ -325,14 +325,14 @@ namespace alglin {
 
       pivot[j] = jmax;
       if ( j != jmax ) {
-        for ( integer k = i; k < nrows_top_block;    ++k ) std::swap(TOPBLK(k,j),TOPBLK(k,jmax));
-        for ( integer k = 0; k < nrows_bottom_block; ++k ) std::swap(BOTBLK(k,j),BOTBLK(k,jmax));
+        for ( integer k{i}; k < nrows_top_block;    ++k ) std::swap(TOPBLK(k,j),TOPBLK(k,jmax));
+        for ( integer k{0}; k < nrows_bottom_block; ++k ) std::swap(BOTBLK(k,j),BOTBLK(k,jmax));
       }
-      real_type colpiv = TOPBLK(i,j);
-      for ( integer j1 = jplus1; j1 < noverlap_cols; ++j1 ) {
-        real_type colmlt = (TOPBLK(i,j1) /= colpiv);
-        for ( integer k = i+1; k < nrows_top_block;    ++k ) TOPBLK(k,j1) -= colmlt * TOPBLK(k,j);
-        for ( integer k = 0;   k < nrows_bottom_block; ++k ) BOTBLK(k,j1) -= colmlt * BOTBLK(k,j);
+      real_type colpiv{ TOPBLK(i,j) };
+      for ( integer j1{jplus1}; j1 < noverlap_cols; ++j1 ) {
+        real_type colmlt{ TOPBLK(i,j1) /= colpiv };
+        for ( integer k{i+1}; k < nrows_top_block;    ++k ) TOPBLK(k,j1) -= colmlt * TOPBLK(k,j);
+        for ( integer k{0};   k < nrows_bottom_block; ++k ) BOTBLK(k,j1) -= colmlt * BOTBLK(k,j);
       }
     }
 
@@ -351,12 +351,12 @@ namespace alglin {
   template <typename t_Value>
   void
   ArcecoLU<t_Value>::solve( real_type b[] ) const {
-    integer indpiv        = 0;
-    integer indexa        = 0;
-    integer nrows_block   = nrows(0);
-    integer ncols_block   = ncols(0);
-    integer noverlap_cols = noverlap(0);
-    integer nrows_pivot   = ncols_block - noverlap_cols;
+    integer indpiv        { 0 };
+    integer indexa        { 0 };
+    integer nrows_block   { nrows(0) };
+    integer ncols_block   { ncols(0) };
+    integer noverlap_cols { noverlap(0) };
+    integer nrows_pivot   { ncols_block - noverlap_cols };
 
     forward_elimination(
       m_array + indexa,
@@ -364,8 +364,8 @@ namespace alglin {
       m_pivot_array + indpiv, b + indpiv
     );
 
-    integer ncols_pivot = 0;
-    for ( integer k = 1; k < m_number_of_blocks; ++k ) {
+    integer ncols_pivot{0};
+    for ( integer k{1}; k < m_number_of_blocks; ++k ) {
       indexa     += nrows_block * nrows_pivot;
       ncols_pivot = nrows_block - nrows_pivot;
       indpiv     += nrows_pivot;
@@ -401,7 +401,7 @@ namespace alglin {
       );
     }
     // BACKWARD LOOP
-    for ( integer k = m_number_of_blocks - 2; k >= 0; --k ) {
+    for ( integer k{m_number_of_blocks - 2}; k >= 0; --k ) {
 
       if ( nrows_pivot != 0 ) {
         if ( nrows_pivot != ncols_block )
@@ -473,18 +473,18 @@ namespace alglin {
   template <typename t_Value>
   void
   ArcecoLU<t_Value>::forward_elimination(
-    real_type block[],
-    integer   nrows_block,
-    integer   nrows_pivot,
-    integer   pivot[],
-    real_type b[]
+    real_type const block[],
+    integer   const nrows_block,
+    integer   const nrows_pivot,
+    integer   const pivot[],
+    real_type       b[]
   ) const {
-    real_type const * blockI = block;
-    for ( integer i = 0; i < nrows_pivot; ++i, blockI += nrows_block ) {
-      integer pivoti = pivot[i];
+    real_type const * blockI{block};
+    for ( integer i{0}; i < nrows_pivot; ++i, blockI += nrows_block ) {
+      integer pivoti{pivot[i]};
       if ( pivoti != i ) std::swap( b[pivoti], b[i] );
-      real_type bi = b[i];
-      for ( integer l = i+1; l < nrows_block; ++l ) b[l] -= blockI[l] * bi;
+      real_type bi{b[i]};
+      for ( integer l{i+1}; l < nrows_block; ++l ) b[l] -= blockI[l] * bi;
     }
   }
 
@@ -499,17 +499,17 @@ namespace alglin {
   template <typename t_Value>
   void
   ArcecoLU<t_Value>::forward_solution(
-    real_type block[],
-    integer   nrows_block,
-    integer   ncols_pivot,
+    real_type     block[],
+    integer const nrows_block,
+    integer const ncols_pivot,
     integer   /* noverlap_cols */,
-    real_type b[]
+    real_type     b[]
   ) const {
-    integer     kk      = nrows_block - ncols_pivot;
-    real_type * blockJS = block + kk;
-    for ( integer j = 0; j < ncols_pivot; ++j, blockJS += nrows_block ) {
-      real_type xj = (b[j] /= blockJS[j]);
-      for ( integer l = j+1; l < ncols_pivot; ++l )
+    integer     kk      { nrows_block - ncols_pivot };
+    real_type * blockJS { block + kk };
+    for ( integer j{0}; j < ncols_pivot; ++j, blockJS += nrows_block ) {
+      real_type xj{ b[j] /= blockJS[j] };
+      for ( integer l{j+1}; l < ncols_pivot; ++l )
         b[l] -= blockJS[l] * xj;
     }
   }
@@ -524,15 +524,15 @@ namespace alglin {
   template <typename t_Value>
   void
   ArcecoLU<t_Value>::forward_modification(
-    real_type block[],
-    integer   nrows_block,
-    integer   ncols_pivot,
-    real_type b[]
+    real_type     block[],
+    integer const nrows_block,
+    integer const ncols_pivot,
+    real_type     b[]
   ) const {
-    real_type * blockJ = block;
-    for ( integer j = 0; j < ncols_pivot; ++j, blockJ += nrows_block ) {
-      real_type xj = b[j];
-      for ( integer l = 0; l < nrows_block; ++l )
+    real_type * blockJ{ block };
+    for ( integer j{0}; j < ncols_pivot; ++j, blockJ += nrows_block ) {
+      real_type xj{ b[j] };
+      for ( integer l{0}; l < nrows_block; ++l )
         b[ncols_pivot + l] -= blockJ[l] * xj;
     }
   }
@@ -552,16 +552,16 @@ namespace alglin {
   template <typename t_Value>
   void
   ArcecoLU<t_Value>::backward_modification(
-    real_type block[],
-    integer   nrows_block,
-    integer   ncols_block,
-    integer   nrows_pivot,
-    real_type b[]
+    real_type     block[],
+    integer const nrows_block,
+    integer const ncols_block,
+    integer const nrows_pivot,
+    real_type     b[]
   ) const {
-    real_type * blockJ = block + nrows_pivot * nrows_block;
-    for ( integer j = nrows_pivot; j < ncols_block; ++j, blockJ += nrows_block ) {
-      real_type xj = b[j];
-      for ( integer l = 0; l < nrows_pivot; ++l )
+    real_type * blockJ{ block + nrows_pivot * nrows_block };
+    for ( integer j{nrows_pivot}; j < ncols_block; ++j, blockJ += nrows_block ) {
+      real_type xj{b[j]};
+      for ( integer l{0}; l < nrows_pivot; ++l )
         b[l] -= blockJ[l] * xj;
     }
   }
@@ -577,16 +577,16 @@ namespace alglin {
   template <typename t_Value>
   void
   ArcecoLU<t_Value>::backward_solution(
-    real_type block[],
-    integer   nrows_block,
-    integer   /* ncols_block */,
-    integer   nrows_pivot,
-    real_type b[]
+    real_type     block[],
+    integer const nrows_block,
+    integer       /* ncols_block */,
+    integer const nrows_pivot,
+    real_type     b[]
   ) const {
-    for ( integer j = nrows_pivot - 1; j >= 0; --j ) {
-      real_type * blockJ = block + j * nrows_block;
-      real_type xj = (b[j] /= blockJ[j]);
-      for ( integer l = 0; l < j; ++l )
+    for ( integer j{nrows_pivot - 1}; j >= 0; --j ) {
+      real_type * blockJ{ block + j * nrows_block };
+      real_type xj{ b[j] /= blockJ[j] };
+      for ( integer l{0}; l < j; ++l )
         b[l] -= blockJ[l] * xj;
     }
   }
@@ -601,22 +601,22 @@ namespace alglin {
   template <typename t_Value>
   void
   ArcecoLU<t_Value>::backward_elimination(
-    real_type block[],
-    integer   nrows_block,
-    integer   ncols_pivot,
-    integer   noverlap_cols,
-    integer   pivot[],
-    real_type x[]
+    real_type     block[],
+    integer const nrows_block,
+    integer const ncols_pivot,
+    integer const noverlap_cols,
+    integer const pivot[],
+    real_type     x[]
   ) const {
-    integer kk = nrows_block - ncols_pivot;
-    integer j1 = ncols_pivot;
+    integer kk{ nrows_block - ncols_pivot };
+    integer j1{ ncols_pivot };
     while ( j1 > 0 ) {
-      real_type const * blockS = block + j1-1 + kk + j1 * nrows_block;
-      integer n = noverlap_cols - j1;
+      real_type const * blockS { block + j1-1 + kk + j1 * nrows_block };
+      integer   const   n      { noverlap_cols - j1 };
       // Kahan summation algorithm
-      real_type dotprd = dot(n,x+j1,1,blockS,nrows_block);
+      real_type const dotprd { dot(n,x+j1,1,blockS,nrows_block) };
       x[--j1] -= dotprd;
-      integer pivotj = pivot[j1];
+      integer pivotj{ pivot[j1] };
       if ( pivotj != j1 ) swap( x[pivotj], x[j1] );
     }
   }

@@ -36,7 +36,7 @@ namespace alglin {
   ) {
     MapMatrix<t_Value> A( const_cast<t_Value*>(Amat), ldA, M );
     MapMatrix<t_Value> B( Bmat, ldB, M );
-    integer kk = (ldA == N?0:1)|(ldB == N?0:2);
+    integer const kk{ (ldA == N?0:1)|(ldB == N?0:2) };
     switch ( kk ) {
     case 0: B.noalias()            = A;            break;
     case 1: B.noalias()            = A.topRows(N); break;
@@ -95,7 +95,7 @@ namespace alglin {
   ) {
     MapMatrix<t_Value> A( const_cast<t_Value*>(Amat), ldA, M );
     MapMatrix<t_Value> B( Bmat, ldB, M );
-    integer kk = (ldA == N?0:1)|(ldB == N?0:2);
+    integer const kk{ (ldA == N?0:1)|(ldB == N?0:2) };
     switch ( kk ) {
     case 0: B.noalias()            += A;            break;
     case 1: B.noalias()            += A.topRows(N); break;

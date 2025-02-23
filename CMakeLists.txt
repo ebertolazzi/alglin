@@ -10,7 +10,10 @@
 ############################################################################
 
 cmake_minimum_required(VERSION 3.16)
-cmake_policy(SET CMP0177 NEW)
+
+if(POLICY CMP0177)
+  cmake_policy(SET CMP0177 NEW)
+endif()
 
 project( Alglin )
 
@@ -94,9 +97,9 @@ include_directories( ./lib3rd/include )
 set(DEPEND_TARGETS)
 
 # DEPENDENCIES (TRY TO USE ALREADY COMPILED SUBMODULE IN LARGE PROJECT)
-utils_add_library_or_submodule( "lapack_wrapper" LAPACK_WRAPPER "LapackWrapper" )
 utils_add_library_or_submodule( "UtilsLite" UTILS )
-utils_add_library_or_submodule( "HSL" HSL "LapackWrapper" )
+utils_add_library_or_submodule( "lapack_wrapper" LAPACK_WRAPPER "LapackWrapper" )
+#utils_add_library_or_submodule( "HSL" HSL "LapackWrapper" )
 
 # definisce lapackblas_libraries
 include( "${HOME}/CMakeLists-blas-lapack.txt" )
@@ -127,7 +130,7 @@ if ( UTILS_BUILD_SHARED )
   )
   target_link_libraries(
     ${UTILS_NAMESPACE}_${PROJECT_NAME}
-    ${LAPACK_WRAPPER} ${HSL} ${UTILS}
+    ${LAPACK_WRAPPER} ${UTILS}
     ${lapackblas_libraries}
     ${CMAKE_DL_LIBS}
     ${OpenMP_LIB}
@@ -163,7 +166,7 @@ if ( UTILS_ENABLE_TESTS )
   set(
     LIBS
     ${UTILS_NAMESPACE}_${PROJECT_NAME}_Static
-    ${LAPACK_WRAPPER} ${HSL} ${UTILS}
+    ${LAPACK_WRAPPER} ${UTILS}
     ${lapackblas_libraries}
     ${CMAKE_DL_LIBS}
     ${OpenMP_LIB}

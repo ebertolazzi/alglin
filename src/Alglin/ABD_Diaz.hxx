@@ -194,7 +194,7 @@ namespace alglin {
         rowN, colN,
         nb, 0, inv
       );
-      m_swapRC_blks = m_mem_int(size_t(inv));
+      m_swapRC_blks = m_mem_int( inv );
     }
 
     virtual

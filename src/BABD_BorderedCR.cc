@@ -42,12 +42,12 @@ namespace alglin {
   template <typename t_Value>
   void
   BorderedCR<t_Value>::allocate(
-    integer nblock,
-    integer n,
-    integer qr,
-    integer qx,
-    integer nr,
-    integer nx
+    integer const nblock,
+    integer const n,
+    integer const qr,
+    integer const qx,
+    integer const nr,
+    integer const nx
   ) {
 
     if ( m_number_of_blocks == nblock &&
@@ -76,9 +76,8 @@ namespace alglin {
       m_Nc    = n_x_2+m_nx+m_qx;
       m_Tsize = 2*n_x_n+n;
 
-      integer NBLK = max(1,m_max_parallel_block);
-
-      integer N = max(m_Nr,m_Nc);
+      integer       NBLK { max(1,m_max_parallel_block) };
+      integer const N    { max(m_Nr,m_Nc) };
       m_Work_Lapack_size = max(N,2*max(n_x_n,max(nr_x_n,n_x_nx)));
 
       real_type tmp; // get optimal allocation
@@ -87,63 +86,63 @@ namespace alglin {
         info == 0,
         "BorderedCR::allocate call alglin::geqrf return info = {}\n", info
       );
-      if ( m_Work_Lapack_size < integer(tmp) ) m_Work_Lapack_size = integer(tmp);
+      if ( m_Work_Lapack_size < static_cast<integer>(tmp) ) m_Work_Lapack_size = static_cast<integer>(tmp);
 
       info = geqp3( m_Nr, m_Nc, nullptr, m_Nr, nullptr, nullptr, &tmp, -1 );
       UTILS_ASSERT(
         info == 0,
         "BorderedCR::allocate call alglin::geqp3 return info = {}\n", info
       );
-      if ( m_Work_Lapack_size < integer(tmp) ) m_Work_Lapack_size = integer(tmp);
+      if ( m_Work_Lapack_size < static_cast<integer>(tmp) ) m_Work_Lapack_size = static_cast<integer>(tmp);
 
       info = alglin::geqrf( n_x_2, n, nullptr, n_x_2, nullptr, &tmp, -1 );
       UTILS_ASSERT(
         info == 0,
         "BorderedCR::allocate call alglin::geqrf return info = {}\n", info
       );
-      if ( m_Work_Lapack_size < integer(tmp) ) m_Work_Lapack_size = integer(tmp);
+      if ( m_Work_Lapack_size < static_cast<integer>(tmp) ) m_Work_Lapack_size = static_cast<integer>(tmp);
 
       info = alglin::geqp3( n_x_2, n, nullptr, n_x_2, nullptr, nullptr, &tmp, -1 );
       UTILS_ASSERT(
         info == 0,
         "BorderedCR::allocate call alglin::geqp3 return info = {}\n", info
       );
-      if ( m_Work_Lapack_size < integer(tmp) ) m_Work_Lapack_size = integer(tmp);
+      if ( m_Work_Lapack_size < static_cast<integer>(tmp) ) m_Work_Lapack_size = static_cast<integer>(tmp);
 
-      integer nnz = (n*(nr+2*n+nx+1)+m_Tsize)*nblock +
-                    (n + m_Nr + qr)*m_Nc + (n + qx)*nr +
-                    (m_Work_Lapack_size+nr+nr_x_nx)*NBLK;
-      integer innz = nblock*n + (3+n)*NBLK;
+      integer nnz{ (n*(nr+2*n+nx+1)+m_Tsize)*nblock +
+                   (n + m_Nr + qr)*m_Nc + (n + qx)*nr +
+                   (m_Work_Lapack_size+nr+nr_x_nx)*NBLK };
+      integer const innz{ nblock*n + (3+n)*NBLK };
 
-      m_mem.reallocate( size_t(nnz) );
-      m_mem_int.reallocate( size_t(innz) );
+      m_mem.reallocate( nnz );
+      m_mem_int.reallocate( innz );
 
-      m_Bmat  = m_mem( size_t(nblock*n_x_nx) );
-      m_Cmat  = m_mem( size_t((nblock+1)*nr_x_n) );
-      m_Cqmat = m_mem( size_t(nr_x_qx) );
-      m_Dmat  = m_mem( size_t(nblock*n_x_n) );
-      m_Emat  = m_mem( size_t(nblock*n_x_n) );
-      m_Fmat  = m_mem( size_t(NBLK*nr_x_nx) );
+      m_Bmat  = m_mem( nblock * n_x_nx );
+      m_Cmat  = m_mem( (nblock+1) * nr_x_n );
+      m_Cqmat = m_mem( nr_x_qx );
+      m_Dmat  = m_mem( nblock * n_x_n );
+      m_Emat  = m_mem( nblock * n_x_n );
+      m_Fmat  = m_mem( NBLK * nr_x_nx );
 
-      m_Tmat  = m_mem( size_t(nblock*m_Tsize) );
-      m_Ttau  = m_mem( size_t(nblock*n) );
-      m_Hmat  = m_mem( size_t(m_Nr*m_Nc) );
-      m_H0Nqp = m_mem( size_t((n+qr)*m_Nc) );
+      m_Tmat  = m_mem( nblock * m_Tsize );
+      m_Ttau  = m_mem( nblock * n );
+      m_Hmat  = m_mem( m_Nr * m_Nc );
+      m_H0Nqp = m_mem( (n+qr) * m_Nc );
 
-      m_Perm   = m_mem_int( size_t(nblock*n) );
-      m_iBlock = m_mem_int( size_t(2*NBLK) );
-      m_kBlock = m_mem_int( size_t(NBLK) );
+      m_Perm   = m_mem_int( nblock * n );
+      m_iBlock = m_mem_int( 2 * NBLK );
+      m_kBlock = m_mem_int( NBLK );
 
-      m_perm_thread.resize( size_t(NBLK) );
-      m_xb_thread.resize( size_t(NBLK) );
-      m_Work_Lapack_thread.resize( size_t(NBLK) );
-      m_Work_T_thread.resize( size_t(NBLK) );
+      m_perm_thread.resize( NBLK );
+      m_xb_thread.resize( NBLK );
+      m_Work_Lapack_thread.resize( NBLK );
+      m_Work_T_thread.resize( NBLK );
 
       // precompute partition for parallel computation
-      for ( size_t nt = 0; nt < size_t(NBLK); ++nt ) {
-        m_perm_thread[nt]        = m_mem_int( size_t(n) );
-        m_xb_thread[nt]          = m_mem( size_t(nr) );
-        m_Work_Lapack_thread[nt] = m_mem( size_t(m_Work_Lapack_size) );
+      for ( integer nt{0}; nt < NBLK; ++nt ) {
+        m_perm_thread[nt]        = m_mem_int( n );
+        m_xb_thread[nt]          = m_mem( nr );
+        m_Work_Lapack_thread[nt] = m_mem( m_Work_Lapack_size );
         m_Work_T_thread[nt].resize(100);
       }
 
@@ -461,9 +460,9 @@ namespace alglin {
   template <typename t_Value>
   void
   BorderedCR<t_Value>::load_bottom2( MatW const & H ) {
-    integer   const & nblock{m_number_of_blocks};
-    real_type const * ptr{H.data()};
-    integer           ld{H.ldim()};
+    integer   const & nblock{ m_number_of_blocks };
+    real_type const * ptr{ H.data() };
+    integer   const   ld{ H.ldim() };
     this->load_C(  0,      ptr, ld ); ptr += nr_x_n;
     this->load_C(  nblock, ptr, ld ); ptr += nr_x_n;
     this->load_Cq( ptr, ld ); ptr += m_nr * m_qx;
@@ -474,7 +473,7 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::load_B( integer nbl, real_type const B[], integer ldB ) {
+  BorderedCR<t_Value>::load_B( integer const nbl, real_type const B[], integer const ldB ) {
     integer const & n{m_block_size};
     GEcopy( n, m_nx, B, ldB, m_Bmat + nbl*n_x_nx, n );
   }
@@ -500,7 +499,7 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::add_to_B( integer nbl, real_type const B[], integer ldB ) {
+  BorderedCR<t_Value>::add_to_B( integer const nbl, real_type const B[], integer const ldB ) {
     integer const & n{m_block_size};
     real_type * BB{m_Bmat + nbl*n_x_nx};
     GEadd( n, m_nx, B, ldB, BB, n );
@@ -528,7 +527,7 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::load_C( integer nbl, real_type const C[], integer ldC ) {
+  BorderedCR<t_Value>::load_C( integer const nbl, real_type const C[], integer const ldC ) {
     integer const & n{m_block_size};
     GEcopy( m_nr, n, C, ldC, m_Cmat + nbl*nr_x_n, m_nr );
   }
@@ -619,7 +618,7 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::load_D( integer nbl, real_type const D[], integer ldD ) {
+  BorderedCR<t_Value>::load_D( integer const nbl, real_type const D[], integer const ldD ) {
     integer const & n{m_block_size};
     GEcopy( n, n, D, ldD, m_Dmat + nbl*n_x_n, n );
   }
@@ -646,7 +645,7 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::load_E( integer nbl, real_type const E[], integer ldE ) {
+  BorderedCR<t_Value>::load_E( integer const nbl, real_type const E[], integer const ldE ) {
     integer const & n{m_block_size};
     real_type * EE{m_Emat + nbl*n_x_n};
     GEcopy( n, n, E, ldE, EE, n );
@@ -675,7 +674,7 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::load_DE( integer nbl, real_type const DE[], integer ldDE ) {
+  BorderedCR<t_Value>::load_DE( integer const nbl, real_type const DE[], integer const ldDE ) {
     integer const & n{m_block_size};
     real_type * DD{m_Dmat + nbl*n_x_n};
     real_type * EE{m_Emat + nbl*n_x_n};
@@ -687,7 +686,7 @@ namespace alglin {
 
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::load_DEB( integer nbl, real_type const DEB[], integer ldDEB ) {
+  BorderedCR<t_Value>::load_DEB( integer const nbl, real_type const DEB[], integer const ldDEB ) {
     integer const & n{m_block_size};
     real_type * DD{m_Dmat + nbl*n_x_n};
     real_type * EE{m_Emat + nbl*n_x_n};
@@ -887,7 +886,7 @@ namespace alglin {
     case BORDERED_Choice::QR:
       info = alglin::geqrf(
         n_x_2, n, T, n_x_2, T+2*n_x_n,
-        m_Work_Lapack_thread[size_t(n_thread)], m_Work_Lapack_size
+        m_Work_Lapack_thread[n_thread], m_Work_Lapack_size
       );
       if ( info != 0 ) {
         BABD_LAST_ERROR(
@@ -899,11 +898,11 @@ namespace alglin {
       break;
     case BORDERED_Choice::QRP:
       {
-        integer * P{m_perm_thread[size_t(n_thread)]};
+        integer * P{m_perm_thread[n_thread]};
         Fill_n( P, n, 0 );
         info = alglin::geqp3(
           n_x_2, n, T, n_x_2, P, T+2*n_x_n,
-          m_Work_Lapack_thread[size_t(n_thread)], m_Work_Lapack_size
+          m_Work_Lapack_thread[n_thread], m_Work_Lapack_size
         );
         if ( info != 0 ) {
           BABD_LAST_ERROR(
@@ -989,7 +988,7 @@ namespace alglin {
         T, n_x_2,
         T+2*n_x_n,
         W, n_x_2,
-        m_Work_Lapack_thread[size_t(n_thread)], m_Work_Lapack_size
+        m_Work_Lapack_thread[n_thread], m_Work_Lapack_size
       );
       break;
     }
@@ -1048,7 +1047,7 @@ namespace alglin {
         T, n_x_2,
         T+2*n_x_n,
         W, n_x_2,
-        m_Work_Lapack_thread[size_t(n_thread)], m_Work_Lapack_size
+        m_Work_Lapack_thread[n_thread], m_Work_Lapack_size
       );
       if ( info != 0 ) {
         BABD_LAST_ERROR_LOCK( "BorderedCR::applyT, ormqr return INFO = {}\n", info );
@@ -1076,9 +1075,9 @@ namespace alglin {
 
     integer const & n{m_block_size};
 
-    integer iblock { m_iBlock[2*n_thread+0] };
-    integer eblock { m_iBlock[2*n_thread+1] };
-    integer nblk   { eblock - iblock };
+    integer const iblock { m_iBlock[2*n_thread+0] };
+    integer const eblock { m_iBlock[2*n_thread+1] };
+    integer const nblk   { eblock - iblock };
 
     real_type * Bmat0 { m_Bmat + iblock   * n_x_nx  };
     real_type * Cmat0 { m_Cmat + iblock   * nr_x_n  };
@@ -1103,7 +1102,7 @@ namespace alglin {
       integer   * P   { P0    + k*n       };
 
       // -----------------------------------------------------------------------
-      integer k_x_2{2*k};
+      integer const k_x_2{ 2 * k };
       for ( integer j{iblock+k}; j < eblock; j += k_x_2 ) {
 
         GEcopy( n, n, Ejp, n, T,   n_x_2 ); // TOP
@@ -1152,8 +1151,8 @@ namespace alglin {
              1.0, Cjp, m_nr
           );
 
-          integer     jpp{ min(j+k,eblock) };
-          real_type * Cpp{ m_Cmat + jpp*nr_x_n };
+          integer const jpp { min(j+k,eblock) };
+          real_type *   Cpp { m_Cmat + jpp*nr_x_n };
 
           alglin::gemm(
             Transposition::NO,
@@ -1203,8 +1202,8 @@ namespace alglin {
     while ( k < m_reduced_nblk ) {
       // -----------------------------------------------------------------------
       for ( integer jj{k}; jj < m_reduced_nblk; jj += 2*k ) {
-        integer j  { m_iBlock[jj] };
-        integer jp { m_iBlock[jj-k] };
+        integer const j  { m_iBlock[jj]       };
+        integer const jp { m_iBlock[jj-k]     };
         real_type * T   { m_Tmat + j*m_Tsize };
         integer   * P   { m_Perm + j*n       };
         real_type * Djp { m_Dmat + jp*n_x_n  };
@@ -1255,8 +1254,8 @@ namespace alglin {
              1.0, Cjp, m_nr
           );
 
-          integer     jpp { m_iBlock[min(jj+k,m_reduced_nblk)] };
-          real_type * Cpp { m_Cmat + jpp*nr_x_n };
+          integer const jpp { m_iBlock[min(jj+k,m_reduced_nblk)] };
+          real_type *   Cpp { m_Cmat + jpp*nr_x_n };
 
           alglin::gemm(
             Transposition::NO,
@@ -1523,7 +1522,7 @@ namespace alglin {
       if ( m_nr > 0 ) {
         MapVector<t_Value> XB( xb, m_nr );
         for ( integer n_thread{0}; n_thread < npb; ++n_thread ) {
-          MapVector<t_Value> WORK( m_xb_thread[size_t(n_thread)], m_nr );
+          MapVector<t_Value> WORK( m_xb_thread[n_thread], m_nr );
           XB.noalias() += WORK;
         }
       }
@@ -1571,7 +1570,7 @@ namespace alglin {
 
     m_ok_thread = true;
 
-    integer nn{m_nr*nrhs};
+    integer const nn { m_nr * nrhs };
     real_type * work{m_work_mem.realloc( npb * nn )};
 
     if ( npb > 1 ) {
@@ -1630,26 +1629,26 @@ namespace alglin {
   BorderedCR<t_Value>::forward( integer n_thread, real_type x[] ) const {
     integer const & n = m_block_size;
 
-    integer   iblock { m_iBlock[2*n_thread+0]        };
-    integer   eblock { m_iBlock[2*n_thread+1]        };
-    integer   nblk   { eblock - iblock               };
-    real_type * x0   { x      + iblock*n             };
-    real_type * T0   { m_Tmat + iblock*m_Tsize       };
-    integer   * P0   { m_Perm + iblock*n             };
-    real_type * C0   { m_Cmat + iblock*nr_x_n        };
-    real_type * work { m_xb_thread[size_t(n_thread)] };
+    integer const iblock { m_iBlock[2*n_thread+0]  };
+    integer const eblock { m_iBlock[2*n_thread+1]  };
+    integer const nblk   { eblock - iblock         };
+    real_type *   x0     { x      + iblock*n       };
+    real_type *   T0     { m_Tmat + iblock*m_Tsize };
+    integer   *   P0     { m_Perm + iblock*n       };
+    real_type *   C0     { m_Cmat + iblock*nr_x_n  };
+    real_type *   work   { m_xb_thread[n_thread]   };
 
     // se serve accumula in work
     if ( m_nr > 0 ) Zero_n( work, m_nr );
 
     integer k = 1;
     while ( k < nblk ) {
-      real_type * xj  { x0 + k*n        };
-      real_type * xjp { x0              };
-      real_type * T   { T0 + k*m_Tsize  };
-      integer   * P   { P0 + k*n        };
-      real_type * Cj  { C0 + k*nr_x_n   };
-      integer   k_x_2 { 2*k             };
+      real_type *   xj    { x0 + k*n        };
+      real_type *   xjp   { x0              };
+      real_type *   T     { T0 + k*m_Tsize  };
+      integer   *   P     { P0 + k*n        };
+      real_type *   Cj    { C0 + k*nr_x_n   };
+      integer const k_x_2 { 2*k             };
       for ( integer jj{k}; jj < nblk; jj += k_x_2 ) {
         if ( !applyT( n_thread, T, P, xjp, xj ) ) return false;
         if ( m_nr > 0 )
@@ -1682,26 +1681,26 @@ namespace alglin {
     integer   ldX,
     real_type work[]
   ) const {
-    integer const & n{m_block_size};
-    integer iblock { m_iBlock[2*n_thread+0]  };
-    integer eblock { m_iBlock[2*n_thread+1]  };
-    integer nblk   { eblock - iblock         };
-    real_type * x0 { x      + iblock*n       };
-    real_type * T0 { m_Tmat + iblock*m_Tsize };
-    integer   * P0 { m_Perm + iblock*n       };
-    real_type * C0 { m_Cmat + iblock*nr_x_n  };
+    integer const & n      { m_block_size            };
+    integer const   iblock { m_iBlock[2*n_thread+0]  };
+    integer const   eblock { m_iBlock[2*n_thread+1]  };
+    integer const   nblk   { eblock - iblock         };
+    real_type *     x0     { x      + iblock*n       };
+    real_type *     T0     { m_Tmat + iblock*m_Tsize };
+    integer   *     P0     { m_Perm + iblock*n       };
+    real_type *     C0     { m_Cmat + iblock*nr_x_n  };
 
     // se serve accumula in work
     if ( m_nr > 0 ) Zero_n( work, m_nr*nrhs );
 
     integer k{1};
     while ( k < nblk ) {
-      real_type * xj  { x0 + k*n       };
-      real_type * xjp { x0             };
-      real_type * T   { T0 + k*m_Tsize };
-      integer   * P   { P0 + k*n       };
-      real_type * Cj  { C0 + k*nr_x_n  };
-      integer   k_x_2 { 2*k            };
+      real_type * xj      { x0 + k*n       };
+      real_type * xjp     { x0             };
+      real_type * T       { T0 + k*m_Tsize };
+      integer   * P       { P0 + k*n       };
+      real_type * Cj      { C0 + k*nr_x_n  };
+      integer const k_x_2 { 2*k            };
 
       for ( integer jj{k}; jj < nblk; jj += k_x_2 ) {
         if ( !applyT( n_thread, T, P, xjp, ldX, xj, ldX, nrhs ) ) {
@@ -1741,9 +1740,9 @@ namespace alglin {
 
     integer k{1};
     while ( k < m_reduced_nblk ) {
-      for ( integer jj = k; jj < m_reduced_nblk; jj += 2*k ) {
-        integer j{m_iBlock[jj]};
-        integer jp{m_iBlock[jj-k]};
+      for ( integer jj{k}; jj < m_reduced_nblk; jj += 2*k ) {
+        integer   const   j   { m_iBlock[jj]       };
+        integer   const   jp  { m_iBlock[jj-k]     };
         real_type const * T   { m_Tmat + j*m_Tsize };
         integer   const * P   { m_Perm + j*n       };
         real_type       * xj  { x + j*n            };
@@ -1778,8 +1777,8 @@ namespace alglin {
     integer k{1};
     while ( k < m_reduced_nblk ) {
       for ( integer jj{k}; jj < m_reduced_nblk; jj += 2*k ) {
-        integer j{m_iBlock[jj]};
-        integer jp{m_iBlock[jj-k]};
+        integer   const   j   { m_iBlock[jj]       };
+        integer   const   jp  { m_iBlock[jj-k]     };
         real_type const * T   { m_Tmat + j*m_Tsize };
         integer   const * P   { m_Perm + j*n       };
         real_type       * xj  { x + j*n            };
@@ -1819,24 +1818,24 @@ namespace alglin {
     integer const & n{m_block_size};
 
     real_type * xn { x + (nblock+1)*n + m_qx };
-    integer iblock { m_iBlock[2*n_thread+0]  };
-    integer eblock { m_iBlock[2*n_thread+1]  };
-    real_type * x0 { x      + iblock*n       };
-    real_type * B0 { m_Bmat + iblock*n_x_nx  };
-    real_type * D0 { m_Dmat + iblock*n_x_n   };
-    real_type * E0 { m_Emat + iblock*n_x_n   };
-    real_type * T0 { m_Tmat + iblock*m_Tsize };
+    integer const iblock { m_iBlock[2*n_thread+0]  };
+    integer const eblock { m_iBlock[2*n_thread+1]  };
+    real_type *   x0     { x      + iblock*n       };
+    real_type *   B0     { m_Bmat + iblock*n_x_nx  };
+    real_type *   D0     { m_Dmat + iblock*n_x_n   };
+    real_type *   E0     { m_Emat + iblock*n_x_n   };
+    real_type *   T0     { m_Tmat + iblock*m_Tsize };
     integer k = m_kBlock[n_thread];
     while ( (k/=2) > 0 ) {
-      real_type * xj { x0 + k*n       };
-      real_type * xp { x0             };
-      real_type * Bj { B0 + k*n_x_nx  };
-      real_type * Dj { D0 + k*n_x_n   };
-      real_type * Ej { E0 + k*n_x_n   };
-      real_type * T  { T0 + k*m_Tsize };
-      integer k_x_2  { 2*k            };
+      real_type *   xj    { x0 + k*n       };
+      real_type *   xp    { x0             };
+      real_type *   Bj    { B0 + k*n_x_nx  };
+      real_type *   Dj    { D0 + k*n_x_n   };
+      real_type *   Ej    { E0 + k*n_x_n   };
+      real_type *   T     { T0 + k*m_Tsize };
+      integer const k_x_2 { 2*k            };
       for ( integer j{iblock+k}; j < eblock; j += k_x_2 ) {
-        integer     jpp{min(j+k,eblock)};
+        integer const jpp{min(j+k,eblock)};
         real_type * xpp{x + jpp*n};
         alglin::gemv(
           Transposition::NO,
@@ -1888,26 +1887,26 @@ namespace alglin {
     integer const & nblock{m_number_of_blocks};
     integer const & n{m_block_size};
 
-    real_type * xn { x + (nblock+1)*n + m_qx };
-    integer iblock { m_iBlock[2*n_thread+0]  };
-    integer eblock { m_iBlock[2*n_thread+1]  };
-    real_type * x0 { x      + iblock*n       };
-    real_type * B0 { m_Bmat + iblock*n_x_nx  };
-    real_type * D0 { m_Dmat + iblock*n_x_n   };
-    real_type * E0 { m_Emat + iblock*n_x_n   };
-    real_type * T0 { m_Tmat + iblock*m_Tsize };
-    integer k{m_kBlock[n_thread]};
+    real_type *   xn     { x + (nblock+1)*n + m_qx };
+    integer const iblock { m_iBlock[2*n_thread+0]  };
+    integer const eblock { m_iBlock[2*n_thread+1]  };
+    real_type * x0       { x      + iblock*n       };
+    real_type * B0       { m_Bmat + iblock*n_x_nx  };
+    real_type * D0       { m_Dmat + iblock*n_x_n   };
+    real_type * E0       { m_Emat + iblock*n_x_n   };
+    real_type * T0       { m_Tmat + iblock*m_Tsize };
+    integer     k        { m_kBlock[n_thread]      };
     while ( (k/=2) > 0 ) {
-      real_type * xj { x0 + k*n       };
-      real_type * xp { x0             };
-      real_type * Bj { B0 + k*n_x_nx  };
-      real_type * Dj { D0 + k*n_x_n   };
-      real_type * Ej { E0 + k*n_x_n   };
-      real_type * T  { T0 + k*m_Tsize };
-      integer  k_x_2 { 2*k            };
+      real_type * xj      { x0 + k*n       };
+      real_type * xp      { x0             };
+      real_type * Bj      { B0 + k*n_x_nx  };
+      real_type * Dj      { D0 + k*n_x_n   };
+      real_type * Ej      { E0 + k*n_x_n   };
+      real_type * T       { T0 + k*m_Tsize };
+      integer const k_x_2 { 2*k            };
       for ( integer j{iblock+k}; j < eblock; j += k_x_2 ) {
-        integer     jpp{min(j+k,eblock)};
-        real_type * xpp{x + jpp*n};
+        integer const jpp { min(j+k,eblock) };
+        real_type *   xpp { x + jpp*n };
         alglin::gemm(
           Transposition::NO,
           Transposition::NO,
@@ -1962,22 +1961,22 @@ namespace alglin {
   template <typename t_Value>
   void
   BorderedCR<t_Value>::backward_reduced( real_type x[] ) const {
-    integer const & nblock{m_number_of_blocks};
-    integer const & n{m_block_size};
+    integer const & nblock { m_number_of_blocks };
+    integer const & n      { m_block_size };
 
     real_type * xn{ x + (nblock+1)*n + m_qx };
     integer k{1};
     while ( k < m_reduced_nblk ) k *= 2;
     while ( (k/=2) > 0 ) {
       for ( integer jj{k}; jj < m_reduced_nblk; jj += 2*k ) {
-        integer     j   { m_iBlock[jj] };
-        integer     jp  { m_iBlock[jj-k] };
-        integer     jpp { m_iBlock[min(jj+k,m_reduced_nblk)] };
-        real_type * Dj  { m_Dmat + j*n_x_n };
-        real_type * Ej  { m_Emat + j*n_x_n };
-        real_type * xj  { x + j*n };
-        real_type * xp  { x + jp*n };
-        real_type * xpp { x + jpp*n };
+        integer const j   { m_iBlock[jj] };
+        integer const jp  { m_iBlock[jj-k] };
+        integer const jpp { m_iBlock[min(jj+k,m_reduced_nblk)] };
+        real_type *   Dj  { m_Dmat + j*n_x_n };
+        real_type *   Ej  { m_Emat + j*n_x_n };
+        real_type *   xj  { x + j*n };
+        real_type *   xp  { x + jp*n };
+        real_type *   xpp { x + jpp*n };
         alglin::gemv(
           Transposition::NO,
           n, n, -1.0, Dj, n, xp,  1, 1.0, xj, 1
@@ -2028,9 +2027,9 @@ namespace alglin {
     while ( k < m_reduced_nblk ) k *= 2;
     while ( (k/=2) > 0 ) {
       for ( integer jj{k}; jj < m_reduced_nblk; jj += 2*k ) {
-        integer     j   { m_iBlock[jj] };
-        integer     jp  { m_iBlock[jj-k] };
-        integer     jpp { m_iBlock[min(jj+k,m_reduced_nblk)] };
+        integer const j   { m_iBlock[jj] };
+        integer const jp  { m_iBlock[jj-k] };
+        integer const jpp { m_iBlock[min(jj+k,m_reduced_nblk)] };
         real_type * Dj  { m_Dmat + j*n_x_n };
         real_type * Ej  { m_Emat + j*n_x_n };
         real_type * xj  { x + j*n };
@@ -2202,23 +2201,23 @@ namespace alglin {
   template <typename t_Value>
   integer
   BorderedCR<t_Value>::pattern_B(
-    integer nbl, integer I[], integer J[], integer offs
+    integer const nbl, integer I[], integer J[], integer const offs
   ) const {
     integer const & nblock{m_number_of_blocks};
     integer const & n{m_block_size};
 
-    integer i0{nbl*n + offs};
-    integer j0{(nblock+1)*n + m_qx + offs};
+    integer const i0{nbl*n + offs};
+    integer const j0{(nblock+1)*n + m_qx + offs};
     for ( integer ij{0}; ij < n_x_nx; ++ij ) {
       I[ij] = i0 + (ij % n);
-      J[ij] = j0 + integer(ij/n);
+      J[ij] = j0 + static_cast<integer>(ij / n);
     }
     return n_x_nx;
   }
 
   template <typename t_Value>
   integer
-  BorderedCR<t_Value>::values_B( integer nbl, real_type V[] ) const {
+  BorderedCR<t_Value>::values_B( integer const nbl, real_type V[] ) const {
     Copy_n( m_Bmat + nbl*n_x_nx, n_x_nx, V );
     return n_x_nx;
   }
@@ -2226,23 +2225,23 @@ namespace alglin {
   template <typename t_Value>
   integer
   BorderedCR<t_Value>::pattern_C(
-    integer nbl, integer I[], integer J[], integer offs
+    integer const nbl, integer I[], integer J[], integer const offs
   ) const {
     integer const & nblock{m_number_of_blocks};
     integer const & n{m_block_size};
 
-    integer i0{(nblock+1)*n + m_qr + offs};
-    integer j0{nbl*n + offs};
+    integer const i0{(nblock+1)*n + m_qr + offs};
+    integer const j0{nbl*n + offs};
     for ( integer ij{0}; ij < nr_x_n; ++ij ) {
       I[ij] = i0 + (ij % m_nr);
-      J[ij] = j0 + integer(ij/m_nr);
+      J[ij] = j0 + static_cast<integer>(ij / m_nr);
     }
     return nr_x_n;
   }
 
   template <typename t_Value>
   integer
-  BorderedCR<t_Value>::values_C( integer nbl, real_type V[] ) const {
+  BorderedCR<t_Value>::values_C( integer const nbl, real_type V[] ) const {
     Copy_n( m_Cmat + nbl*nr_x_n, nr_x_n, V );
     return nr_x_n;
   }
@@ -2250,21 +2249,21 @@ namespace alglin {
   template <typename t_Value>
   integer
   BorderedCR<t_Value>::pattern_D(
-    integer nbl, integer I[], integer J[], integer offs
+    integer const nbl, integer I[], integer J[], integer const offs
   ) const {
     integer const & n{m_block_size};
-    integer i0{nbl*n + offs};
-    integer j0{nbl*n + offs};
+    integer const i0{nbl*n + offs};
+    integer const j0{nbl*n + offs};
     for ( integer ij{0}; ij < n_x_n; ++ij ) {
       I[ij] = i0 + (ij % n);
-      J[ij] = j0 + integer(ij/n);
+      J[ij] = j0 + static_cast<integer>(ij / n);
     }
     return n_x_n;
   }
 
   template <typename t_Value>
   integer
-  BorderedCR<t_Value>::values_D( integer nbl, real_type V[] ) const {
+  BorderedCR<t_Value>::values_D( integer const nbl, real_type V[] ) const {
     Copy_n( m_Dmat + nbl*n_x_n, n_x_n, V );
     return n_x_n;
   }
@@ -2272,21 +2271,21 @@ namespace alglin {
   template <typename t_Value>
   integer
   BorderedCR<t_Value>::pattern_E(
-    integer nbl, integer I[], integer J[], integer offs
+    integer const nbl, integer I[], integer J[], integer const offs
   ) const {
     integer const & n{m_block_size};
-    integer i0{nbl*n + offs};
-    integer j0{(nbl+1)*n + offs};
+    integer const i0{nbl*n + offs};
+    integer const j0{(nbl+1)*n + offs};
     for ( integer ij{0}; ij < n_x_n; ++ij ) {
       I[ij] = i0 + (ij % n);
-      J[ij] = j0 + integer(ij/n);
+      J[ij] = j0 + static_cast<integer>(ij / n);
     }
     return n_x_n;
   }
 
   template <typename t_Value>
   integer
-  BorderedCR<t_Value>::values_E( integer nbl, real_type V[] ) const {
+  BorderedCR<t_Value>::values_E( integer const nbl, real_type V[] ) const {
     Copy_n( m_Emat + nbl*n_x_n, n_x_n, V );
     return n_x_n;
   }
@@ -2294,15 +2293,15 @@ namespace alglin {
   template <typename t_Value>
   integer
   BorderedCR<t_Value>::pattern_F(
-    integer I[], integer J[], integer offs
+    integer I[], integer J[], integer const offs
   ) const {
     integer const & nblock{m_number_of_blocks};
     integer const & n{m_block_size};
-    integer i0{(nblock+1)*n + m_qr + offs};
-    integer j0{(nblock+1)*n + m_qx + offs};
+    integer const i0{(nblock+1)*n + m_qr + offs};
+    integer const j0{(nblock+1)*n + m_qx + offs};
     for ( integer ij{0}; ij < nr_x_nx; ++ij ) {
       I[ij] = i0 + (ij % m_nr);
-      J[ij] = j0 + integer(ij/m_nr);
+      J[ij] = j0 + static_cast<integer>(ij / m_nr);
     }
     return nr_x_nx;
   }
@@ -2317,16 +2316,16 @@ namespace alglin {
   template <typename t_Value>
   integer
   BorderedCR<t_Value>::pattern_Cq(
-    integer I[], integer J[], integer offs
+    integer I[], integer J[], integer const offs
   ) const {
     integer const & nblock{m_number_of_blocks};
     integer const & n{m_block_size};
 
-    integer i0{(nblock+1)*n + m_qr + offs};
-    integer j0{(nblock+1)*n + offs};
+    integer const i0{(nblock+1)*n + m_qr + offs};
+    integer const j0{(nblock+1)*n + offs};
     for ( integer ij{0}; ij < nr_x_qx; ++ij ) {
       I[ij] = i0 + (ij % m_nr);
-      J[ij] = j0 + integer(ij/m_nr);
+      J[ij] = j0 + static_cast<integer>(ij / m_nr);
     }
     return nr_x_qx;
   }
@@ -2340,16 +2339,17 @@ namespace alglin {
 
   template <typename t_Value>
   integer
-  BorderedCR<t_Value>::pattern_H( integer I[], integer J[], integer offs ) const {
+  BorderedCR<t_Value>::pattern_H( integer I[], integer J[], integer const offs ) const {
     integer const & nblock{m_number_of_blocks};
     integer const & n{m_block_size};
-    integer nqr{n + m_qr};
-    integer nnz{nqr * m_Nc};
-    integer i0{nblock*n};
-    integer j0{i0 - n};
+    integer const nqr{n + m_qr};
+    integer const nnz{nqr * m_Nc};
+    integer const i0{nblock*n};
+    integer const j0{i0 - n};
     for ( integer ij{0}; ij < nnz; ++ij ) {
       I[ij] = i0 + (ij % nqr) + offs;
-      integer j = integer(ij/nqr); if ( j >= n ) j += j0;
+      integer j{ static_cast<integer>(ij / nqr)};
+      if ( j >= n ) j += j0;
       J[ij] = j + offs;
     }
     return nnz;
@@ -2367,9 +2367,9 @@ namespace alglin {
   template <typename t_Value>
   void
   BorderedCR<t_Value>::sparse_pattern(
-    integer I[],
-    integer J[],
-    integer offs
+    integer       I[],
+    integer       J[],
+    integer const offs
   ) const {
     integer const & nblock{m_number_of_blocks};
 
@@ -2443,9 +2443,9 @@ namespace alglin {
   void
   BorderedCR<t_Value>::sparse_load(
     real_type const M_values[],
-    integer   const M_row[], integer r_offs,
-    integer   const M_col[], integer c_offs,
-    integer         M_nnz
+    integer   const M_row[], integer const r_offs,
+    integer   const M_col[], integer const c_offs,
+    integer   const M_nnz
   ) {
     integer const & nblock{m_number_of_blocks};
     integer const & n{m_block_size};
@@ -2461,16 +2461,16 @@ namespace alglin {
     fill_zero();
 
     for ( integer kkk{0}; kkk < M_nnz; ++kkk ) {
-      integer   i{M_row[kkk] - r_offs};
-      integer   j{M_col[kkk] - c_offs};
+      integer const i{M_row[kkk] - r_offs};
+      integer const j{M_col[kkk] - c_offs};
       real_type v{M_values[kkk]};
       // cerca blocco
       bool ok{true};
       if ( i < rH ) {
         if ( j < cCq ) { // DE
           // cerca blocchi
-          integer ib = i/n;
-          integer jb = j/n;
+          integer ib{i/n};
+          integer jb{j/n};
           if ( ib == jb ) {
             D(ib,i%n,j%n) = v;
           } else if ( ib+1 == jb ) {
@@ -2536,10 +2536,10 @@ namespace alglin {
     integer nnz = this->sparse_nnz();
     Malloc<t_Value> mem(" BorderedCR::print_matlab_script real");
     Malloc<integer> memi(" BorderedCR::print_matlab_script integer");
-    memi.allocate( size_t(2*nnz) );
-    t_Value * V{mem.malloc( size_t(nnz) )};
-    integer * I{memi( size_t(nnz) )};
-    integer * J{memi( size_t(nnz) )};
+    memi.allocate( 2 * nnz );
+    t_Value * V{ mem.malloc( nnz ) };
+    integer * I{ memi( nnz ) };
+    integer * J{ memi( nnz ) };
 
     this->sparse_pattern( I, J, 1 );
     this->sparse_values( V );
@@ -2583,12 +2583,12 @@ namespace alglin {
       integer const & nblock{m_number_of_blocks};
       integer const & n{m_block_size};
       {
-        integer NR{n+m_qr};
-        integer NC{m_Nc};
-        integer NN{NR*NC};
+        integer       NR{n+m_qr};
+        integer       NC{m_Nc};
+        integer const NN{NR*NC};
         for( integer i{0}; i < NN; ++i ) {
           integer r{ i % NR };
-          integer c{ integer(i / NR) };
+          integer c{ static_cast<integer>(i / NR) };
           UTILS_ASSERT(
             Utils::is_finite(m_H0Nqp[i]),
             "BorderedCR::check_matrix, found {} at position ({},{}) of {}x{} matrix H0Hqp\n",
@@ -2597,14 +2597,14 @@ namespace alglin {
         }
       }
       {
-        integer NR{n};
-        integer NC{m_nx};
-        integer SB{NR*NC};
-        integer NN{SB*nblock};
+        integer       NR{n};
+        integer       NC{m_nx};
+        integer const SB{NR*NC};
+        integer const NN{SB*nblock};
         for( integer i{0}; i < NN; ++i ) {
-          integer nb{ integer(i/SB) };
+          integer nb{ static_cast<integer>(i / SB) };
           integer r{ i % NR };
-          integer c{ integer((i-nb*SB) / NR) };
+          integer c{ static_cast<integer>((i - nb * SB) / NR) };
           UTILS_ASSERT(
             Utils::is_finite(m_Bmat[i]),
             "BorderedCR::check_matrix, found {} at block {} position ({},{}) of {}x{} matrix B\n",
@@ -2613,14 +2613,14 @@ namespace alglin {
         }
       }
       {
-        integer NR{m_nr};
-        integer NC{n};
-        integer SB{NR*NC};
-        integer NN{SB*(nblock+1)};
+        integer       NR{m_nr};
+        integer       NC{n};
+        integer const SB{NR*NC};
+        integer const NN{SB*(nblock+1)};
         for( integer i{0}; i < NN; ++i ) {
-          integer nb{ integer(i/SB) };
+          integer nb{ static_cast<integer>(i / SB) };
           integer r{ i % NR };
-          integer c{ integer((i-nb*SB) / NR) };
+          integer c{ static_cast<integer>((i - nb * SB) / NR) };
           UTILS_ASSERT(
             Utils::is_finite(m_Cmat[i]),
             "BorderedCR::check_matrix, found {} at block {} position ({},{}) of {}x{} matrix C\n",
@@ -2629,12 +2629,12 @@ namespace alglin {
         }
       }
       {
-        integer NR{m_nr};
-        integer NC{m_qx};
-        integer NN{NR*NC};
+        integer       NR{m_nr};
+        integer       NC{m_qx};
+        integer const NN{NR*NC};
         for( integer i{0}; i < NN; ++i ) {
           integer r{ i % NR };
-          integer c{ integer(i / NR) };
+          integer c{ static_cast<integer>(i / NR) };
           UTILS_ASSERT(
             Utils::is_finite(m_Cqmat[i]),
             "BorderedCR::check_matrix, found {} at position ({},{}) of {}x{} matrix Cq\n",
@@ -2643,14 +2643,14 @@ namespace alglin {
         }
       }
       {
-        integer NR{n};
-        integer NC{n};
-        integer SB{NR*NC};
-        integer NN{SB*nblock};
+        integer       NR{n};
+        integer       NC{n};
+        integer const SB{NR*NC};
+        integer const NN{SB*nblock};
         for( integer i{0}; i < NN; ++i ) {
-          integer nb{ integer(i/SB) };
+          integer nb{ static_cast<integer>(i / SB) };
           integer r{ i % NR };
-          integer c{ integer((i-nb*SB) / NR) };
+          integer c{ static_cast<integer>((i - nb * SB) / NR) };
           UTILS_ASSERT(
             Utils::is_finite(m_Dmat[i]),
             "BorderedCR::check_matrix, found {} at block {} position ({},{}) of {}x{} matrix D\n",
@@ -2659,14 +2659,14 @@ namespace alglin {
         }
       }
       {
-        integer NR{n};
-        integer NC{n};
-        integer SB{NR*NC};
-        integer NN{SB*nblock};
+        integer      NR{n};
+        integer       NC{n};
+        integer const SB{NR*NC};
+        integer const NN{SB*nblock};
         for( integer i{0}; i < NN; ++i ) {
-          integer nb{ integer(i/SB) };
+          integer nb{ static_cast<integer>(i / SB) };
           integer r{ i % NR };
-          integer c{ integer((i-nb*SB) / NR) };
+          integer c{ static_cast<integer>((i - nb * SB) / NR) };
           UTILS_ASSERT(
             Utils::is_finite(m_Emat[i]),
             "BorderedCR::check_matrix, found {} at block {} position ({},{}) of {}x{} matrix E\n",
@@ -2675,12 +2675,12 @@ namespace alglin {
         }
       }
       {
-        integer NR{m_nr};
-        integer NC{m_nx};
-        integer NN{NR*NC};
+        integer       NR{m_nr};
+        integer       NC{m_nx};
+        integer const NN{NR*NC};
         for( integer i{0}; i < NN; ++i ) {
           integer r{ i % NR };
-          integer c{ integer(i / NR) };
+          integer c{ static_cast<integer>(i / NR) };
           UTILS_ASSERT(
             Utils::is_finite(m_Fmat[i]),
             "BorderedCR::check_matrix, found {} at position ({},{}) of {}x{} matrix F\n",
