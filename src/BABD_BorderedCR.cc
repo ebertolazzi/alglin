@@ -76,42 +76,30 @@ namespace alglin {
       m_Nc    = n_x_2+m_nx+m_qx;
       m_Tsize = 2*n_x_n+n;
 
-      integer       NBLK { max(1,m_max_parallel_block) };
+      integer const NBLK { max(1,m_max_parallel_block) };
       integer const N    { max(m_Nr,m_Nc) };
       m_Work_Lapack_size = max(N,2*max(n_x_n,max(nr_x_n,n_x_nx)));
 
       real_type tmp; // get optimal allocation
       integer info = alglin::geqrf( m_Nr, m_Nc, nullptr, m_Nr, nullptr, &tmp, -1 );
-      UTILS_ASSERT(
-        info == 0,
-        "BorderedCR::allocate call alglin::geqrf return info = {}\n", info
-      );
+      UTILS_ASSERT( info == 0, "BorderedCR::allocate call alglin::geqrf return info = {}\n", info );
       if ( m_Work_Lapack_size < static_cast<integer>(tmp) ) m_Work_Lapack_size = static_cast<integer>(tmp);
 
       info = geqp3( m_Nr, m_Nc, nullptr, m_Nr, nullptr, nullptr, &tmp, -1 );
-      UTILS_ASSERT(
-        info == 0,
-        "BorderedCR::allocate call alglin::geqp3 return info = {}\n", info
-      );
+      UTILS_ASSERT( info == 0, "BorderedCR::allocate call alglin::geqp3 return info = {}\n", info );
       if ( m_Work_Lapack_size < static_cast<integer>(tmp) ) m_Work_Lapack_size = static_cast<integer>(tmp);
 
       info = alglin::geqrf( n_x_2, n, nullptr, n_x_2, nullptr, &tmp, -1 );
-      UTILS_ASSERT(
-        info == 0,
-        "BorderedCR::allocate call alglin::geqrf return info = {}\n", info
-      );
+      UTILS_ASSERT( info == 0, "BorderedCR::allocate call alglin::geqrf return info = {}\n", info );
       if ( m_Work_Lapack_size < static_cast<integer>(tmp) ) m_Work_Lapack_size = static_cast<integer>(tmp);
 
       info = alglin::geqp3( n_x_2, n, nullptr, n_x_2, nullptr, nullptr, &tmp, -1 );
-      UTILS_ASSERT(
-        info == 0,
-        "BorderedCR::allocate call alglin::geqp3 return info = {}\n", info
-      );
+      UTILS_ASSERT( info == 0, "BorderedCR::allocate call alglin::geqp3 return info = {}\n", info );
       if ( m_Work_Lapack_size < static_cast<integer>(tmp) ) m_Work_Lapack_size = static_cast<integer>(tmp);
 
-      integer nnz{ (n*(nr+2*n+nx+1)+m_Tsize)*nblock +
-                   (n + m_Nr + qr)*m_Nc + (n + qx)*nr +
-                   (m_Work_Lapack_size+nr+nr_x_nx)*NBLK };
+      integer const nnz{ (n*(nr+2*n+nx+1)+m_Tsize)*nblock +
+                         (n + m_Nr + qr)*m_Nc + (n + qx)*nr +
+                         (m_Work_Lapack_size+nr+nr_x_nx)*NBLK };
       integer const innz{ nblock*n + (3+n)*NBLK };
 
       m_mem.reallocate( nnz );
@@ -160,7 +148,7 @@ namespace alglin {
       } else {
         m_iBlock[0] = 0;
         m_iBlock[1] = static_cast<integer>(m_number_of_blocks/m_used_parallel_block);
-        for ( integer nt = 1; nt < m_used_parallel_block; ++nt ) {
+        for ( integer nt{1}; nt < m_used_parallel_block; ++nt ) {
           m_iBlock[2*nt+0] = m_iBlock[2*nt-1]+1;
           m_iBlock[2*nt+1] = static_cast<integer>(((nt+1)*m_number_of_blocks)/m_used_parallel_block);
         }
@@ -299,10 +287,10 @@ namespace alglin {
   template <typename t_Value>
   void
   BorderedCR<t_Value>::load_bottom(
-    real_type const H0[], integer ld0,
-    real_type const HN[], integer ldN,
-    real_type const Hq[], integer ldQ,
-    real_type const Hp[], integer ldP
+    real_type const H0[], integer const ld0,
+    real_type const HN[], integer const ldN,
+    real_type const Hq[], integer const ldQ,
+    real_type const Hp[], integer const ldP
   ) {
     integer const & n{m_block_size};
     // (n+qr) x ( n + n + qx + nx )
@@ -324,8 +312,8 @@ namespace alglin {
     MatW const & Hq,
     MatW const & Hp
   ) {
-    integer const & n{m_block_size};
-    integer m{n + m_qr};
+    integer const n { m_block_size };
+    integer const m { n + m_qr };
 
     bool ok{true};
     if ( ! (H0.nrows() == m && H0.ncols() == n) ) {
@@ -360,22 +348,22 @@ namespace alglin {
         Hp.data(), Hp.ldim()
       );
     }
-    if ( !ok ) Utils::Runtime_Error( m_last_error, __FILE__, __LINE__ );
+    if ( !ok ) throw Utils::Runtime_Error( m_last_error, __FILE__, __LINE__ );
   }
 
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::load_bottom( real_type const H0Nqp[], integer ldH ) {
-    integer const & n{m_block_size};
-    integer nq{n + m_qr};
+  BorderedCR<t_Value>::load_bottom( real_type const H0Nqp[], integer const ldH ) {
+    integer const n  { m_block_size };
+    integer const nq { n + m_qr };
     GEcopy( nq, m_Nc, H0Nqp, ldH, m_H0Nqp, nq );
   }
 
   template <typename t_Value>
   void
   BorderedCR<t_Value>::load_bottom( MatW const & H ) {
-    integer const & n{m_block_size};
-    integer m{n + m_qr};
+    integer const n { m_block_size };
+    integer const m { n + m_qr     };
     if ( H.nrows() == m && H.ncols() == m_Nc ) {
       load_bottom( H.data(), H.ldim() );
     } else {
@@ -383,17 +371,17 @@ namespace alglin {
         "BorderedCR::load_bottom, bad dimension size(H) = {} x {} expected {} x {}\n",
         H.nrows(), H.ncols(), m, m_Nc
       );
-      Utils::Runtime_Error( m_last_error, __FILE__, __LINE__ );
+      throw Utils::Runtime_Error( m_last_error, __FILE__, __LINE__ );
     }
   }
 
   template <typename t_Value>
   void
   BorderedCR<t_Value>::load_bottom2(
-    real_type const C0[], integer ld0,
-    real_type const CN[], integer ldN,
-    real_type const Cq[], integer ldCq,
-    real_type const F[],  integer ldF
+    real_type const C0[], integer const ld0,
+    real_type const CN[], integer const ldN,
+    real_type const Cq[], integer const ldCq,
+    real_type const F[],  integer const ldF
   ) {
     integer const & nblk {m_number_of_blocks};
     integer const & n    {m_block_size};
@@ -412,40 +400,18 @@ namespace alglin {
     MatW const & Cq,
     MatW const & F
   ) {
-    integer const & n{m_block_size};
+    constexpr char where[]{ "BorderedCR::load_bottom2, bad dimension, " };
+    integer const n{ m_block_size };
 
-    bool ok{ C0.nrows() == m_nr && C0.ncols() == n };
-    if ( !ok ) {
-      BABD_LAST_ERROR(
-        "BorderedCR::load_bottom2, bad dimension size(C0) = {} x {} expected {} x {}\n",
-        C0.nrows(), C0.ncols(), m_nr, n
-      );
-    } else {
-      ok = CN.nrows() == m_nr && CN.ncols() == n;
-      if ( !ok ) {
-        BABD_LAST_ERROR(
-          "BorderedCR::load_bottom2, bad dimension size(CN) = {} x {} expected {} x {}\n",
-          CN.nrows(), CN.ncols(), m_nr, n
-        );
-      } else {
-        ok = Cq.nrows() == m_nr && Cq.ncols() == m_qx;
-        if ( !ok ) {
-          BABD_LAST_ERROR(
-            "BorderedCR::load_bottom2, bad dimension size(Cq) = {} x {} expected {} x {}\n",
-            Cq.nrows(), Cq.ncols(), m_nr, m_qx
-          );
-        } else {
-          ok = F.nrows() == m_nr && F.ncols() == m_nx;
-          if ( !ok ) {
-            BABD_LAST_ERROR(
-              "BorderedCR::load_bottom2, bad dimension size(F) = {} x {} expected {} x {}\n",
-              F.nrows(), F.ncols(), m_nr, m_nx
-            );
-          }
-        }
-      }
-    }
-    if ( ok ) {
+    bool const ok1{ C0.nrows() == m_nr && C0.ncols() == n };
+    if ( !ok1 ) BABD_LAST_ERROR( "{}size(C0) = {} x {} expected {} x {}\n", where, C0.nrows(), C0.ncols(), m_nr, n );
+    bool const ok2{ CN.nrows() == m_nr && CN.ncols() == n };
+    if ( !ok2 ) BABD_LAST_ERROR( "{}size(CN) = {} x {} expected {} x {}\n", where, CN.nrows(), CN.ncols(), m_nr, n );
+    bool const ok3{ Cq.nrows() == m_nr && Cq.ncols() == m_qx };
+    if ( !ok3 ) BABD_LAST_ERROR( "{}size(Cq) = {} x {} expected {} x {}\n", where, Cq.nrows(), Cq.ncols(), m_nr, m_qx );
+    bool const ok4{ F.nrows() == m_nr && F.ncols() == m_nx };
+    if ( !ok4 ) BABD_LAST_ERROR( "{}size(F) = {} x {} expected {} x {}\n", where, F.nrows(), F.ncols(), m_nr, m_nx );
+    if ( ok1 && ok2 && ok3 && ok4 ) {
       load_bottom2(
         C0.data(), C0.ldim(),
         CN.data(), CN.ldim(),
@@ -453,20 +419,28 @@ namespace alglin {
         F.data(),  F.ldim()
       );
     } else {
-      Utils::Runtime_Error( m_last_error, __FILE__, __LINE__ );
+     throw Utils::Runtime_Error( m_last_error, __FILE__, __LINE__ );
     }
   }
 
   template <typename t_Value>
   void
-  BorderedCR<t_Value>::load_bottom2( MatW const & H ) {
-    integer   const & nblock{ m_number_of_blocks };
-    real_type const * ptr{ H.data() };
-    integer   const   ld{ H.ldim() };
-    this->load_C(  0,      ptr, ld ); ptr += nr_x_n;
-    this->load_C(  nblock, ptr, ld ); ptr += nr_x_n;
-    this->load_Cq( ptr, ld ); ptr += m_nr * m_qx;
-    this->load_F(  ptr, ld );
+  BorderedCR<t_Value>::load_bottom2( MatW const & Hp ) {
+    integer   const   nblock { m_number_of_blocks };
+    real_type const * ptr    { Hp.data() };
+    integer   const   ld     { Hp.ldim() };
+    if ( Hp.nrows() == m_nr && Hp.ncols() == m_Nc ) {
+      this->load_C(  0,      ptr, ld ); ptr += nr_x_n;
+      this->load_C(  nblock, ptr, ld ); ptr += nr_x_n;
+      this->load_Cq(         ptr, ld ); ptr += m_nr * m_qx;
+      this->load_F(          ptr, ld );
+    } else {
+      BABD_LAST_ERROR(
+        "BorderedCR::load_bottom2, bad dimension size(Hp) = {} x {} expected {} x {}\n",
+        Hp.nrows(), Hp.ncols(), m_nr, m_Nc
+      );
+      throw Utils::Runtime_Error( m_last_error, __FILE__, __LINE__ );
+    }
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -474,7 +448,7 @@ namespace alglin {
   template <typename t_Value>
   void
   BorderedCR<t_Value>::load_B( integer const nbl, real_type const B[], integer const ldB ) {
-    integer const & n{m_block_size};
+    integer const n{ m_block_size };
     GEcopy( n, m_nx, B, ldB, m_Bmat + nbl*n_x_nx, n );
   }
 
@@ -483,7 +457,7 @@ namespace alglin {
   template <typename t_Value>
   void
   BorderedCR<t_Value>::load_B( integer nbl, MatW const & B ) {
-    integer const & n{m_block_size};
+    integer const n{ m_block_size };
     if ( B.nrows() == n && B.ncols() == m_nx ) {
       GEcopy( n, m_nx, B.data(), B.ldim(), m_Bmat + nbl*n_x_nx, n );
     } else {
@@ -491,7 +465,7 @@ namespace alglin {
         "BorderedCR::load_B( {}, B) bad dimension size(B) = {} x {} expected {} x {}\n",
         nbl, B.nrows(), B.ncols(), n, m_nx
       );
-      Utils::Runtime_Error( m_last_error, __FILE__, __LINE__ );
+      throw Utils::Runtime_Error( m_last_error, __FILE__, __LINE__ );
     }
   }
 
@@ -500,8 +474,8 @@ namespace alglin {
   template <typename t_Value>
   void
   BorderedCR<t_Value>::add_to_B( integer const nbl, real_type const B[], integer const ldB ) {
-    integer const & n{m_block_size};
-    real_type * BB{m_Bmat + nbl*n_x_nx};
+    integer const n{ m_block_size };
+    real_type * BB{ m_Bmat + nbl*n_x_nx };
     GEadd( n, m_nx, B, ldB, BB, n );
   }
 
@@ -510,7 +484,7 @@ namespace alglin {
   template <typename t_Value>
   void
   BorderedCR<t_Value>::add_to_B( integer nbl, MatW const & B ) {
-    integer const & n{m_block_size};
+    integer const n{ m_block_size };
     if ( B.nrows() == n && B.ncols() == m_nx ) {
       real_type * BB{m_Bmat + nbl*n_x_nx};
       GEadd( n, m_nx, B.data(), B.ldim(), BB, n );
@@ -519,7 +493,7 @@ namespace alglin {
         "BorderedCR::add_to_B( {}, B) bad dimension size(B) = {} x {} expected {} x {}\n",
         nbl, B.nrows(), B.ncols(), n, m_nx
       );
-      Utils::Runtime_Error( m_last_error, __FILE__, __LINE__ );
+      throw Utils::Runtime_Error( m_last_error, __FILE__, __LINE__ );
     }
   }
 
@@ -528,7 +502,7 @@ namespace alglin {
   template <typename t_Value>
   void
   BorderedCR<t_Value>::load_C( integer const nbl, real_type const C[], integer const ldC ) {
-    integer const & n{m_block_size};
+    integer const n{ m_block_size };
     GEcopy( m_nr, n, C, ldC, m_Cmat + nbl*nr_x_n, m_nr );
   }
 
@@ -537,7 +511,7 @@ namespace alglin {
   template <typename t_Value>
   void
   BorderedCR<t_Value>::load_C( integer nbl, MatW const & C ) {
-    integer const & n{m_block_size};
+    integer const n{ m_block_size };
     if ( C.nrows() == m_nr && C.ncols() == n ) {
       real_type * CC{m_Cmat + nbl*nr_x_n};
       GEcopy( m_nr, n, C.data(), C.ldim(), CC, m_nr );
@@ -546,7 +520,7 @@ namespace alglin {
         "BorderedCR::load_C( {}, C) bad dimension size(C) = {} x {} expected {} x {}\n",
         nbl, C.nrows(), C.ncols(), m_nr, n
       );
-      Utils::Runtime_Error( m_last_error, __FILE__, __LINE__ );
+      throw Utils::Runtime_Error( m_last_error, __FILE__, __LINE__ );
     }
   }
 
@@ -555,13 +529,13 @@ namespace alglin {
   template <typename t_Value>
   void
   BorderedCR<t_Value>::add_to_C( integer nbl, real_type const C[], integer ldC ) {
-    integer const & n{m_block_size};
+    integer const n{ m_block_size };
     if ( ldC >= m_nr ) {
       real_type * CC{m_Cmat + nbl*nr_x_n};
       GEadd( m_nr, n, C, ldC, CC, m_nr );
     } else {
       BABD_LAST_ERROR( "BorderedCR::add_to_C( {}, C, ldC = {} ) bad ldC\n", nbl, ldC );
-      Utils::Runtime_Error( m_last_error, __FILE__, __LINE__ );
+      throw Utils::Runtime_Error( m_last_error, __FILE__, __LINE__ );
     }
   }
 
@@ -570,7 +544,7 @@ namespace alglin {
   template <typename t_Value>
   void
   BorderedCR<t_Value>::add_to_C( integer nbl, MatW const & C ) {
-    integer const & n{m_block_size};
+    integer const n{ m_block_size };
     if ( C.nrows() == m_nr && C.ncols() == n ) {
       real_type * CC{m_Cmat + nbl*nr_x_n};
       GEadd( m_nr, n, C.data(), C.ldim(), CC, m_nr );
@@ -579,7 +553,7 @@ namespace alglin {
         "BorderedCR::add_to_C( {}, C) bad dimension size(C) = {} x {} expected {} x {}\n",
         nbl, C.nrows(), C.ncols(), m_nr, n
       );
-      Utils::Runtime_Error( m_last_error, __FILE__, __LINE__ );
+      throw Utils::Runtime_Error( m_last_error, __FILE__, __LINE__ );
     }
   }
 
@@ -593,7 +567,7 @@ namespace alglin {
       GEadd( m_nr, n_x_2, C, ldC, CC, m_nr );
     } else {
       BABD_LAST_ERROR( "BorderedCR::add_to_C2( {}, C, ldC = {} ) bad ldC\n", nbl, ldC );
-      Utils::Runtime_Error( m_last_error, __FILE__, __LINE__ );
+      throw Utils::Runtime_Error( m_last_error, __FILE__, __LINE__ );
     }
   }
 
@@ -610,7 +584,7 @@ namespace alglin {
         "BorderedCR::add_to_C2( {}, C) bad dimension size(C) = {} x {} expected {} x {}\n",
         nbl, C.nrows(), C.ncols(), m_nr, n_x_2
       );
-      Utils::Runtime_Error( m_last_error, __FILE__, __LINE__ );
+      throw Utils::Runtime_Error( m_last_error, __FILE__, __LINE__ );
     }
   }
 
@@ -619,7 +593,7 @@ namespace alglin {
   template <typename t_Value>
   void
   BorderedCR<t_Value>::load_D( integer const nbl, real_type const D[], integer const ldD ) {
-    integer const & n{m_block_size};
+    integer const n{ m_block_size };
     GEcopy( n, n, D, ldD, m_Dmat + nbl*n_x_n, n );
   }
 
@@ -628,7 +602,7 @@ namespace alglin {
   template <typename t_Value>
   void
   BorderedCR<t_Value>::load_D( integer nbl, MatW const & D ) {
-    integer const & n{m_block_size};
+    integer const n{ m_block_size };
     if ( D.nrows() == n && D.ncols() == n ) {
       real_type * DD{m_Dmat + nbl*n_x_n};
       GEcopy( n, n, D.data(), D.ldim(), DD, n );
@@ -637,7 +611,7 @@ namespace alglin {
         "BorderedCR::load_D( {}, D) bad dimension size(D) = {} x {} expected {} x {}\n",
         nbl, D.nrows(), D.ncols(), n, n
       );
-      Utils::Runtime_Error( m_last_error, __FILE__, __LINE__ );
+      throw Utils::Runtime_Error( m_last_error, __FILE__, __LINE__ );
     }
   }
 
@@ -646,7 +620,7 @@ namespace alglin {
   template <typename t_Value>
   void
   BorderedCR<t_Value>::load_E( integer const nbl, real_type const E[], integer const ldE ) {
-    integer const & n{m_block_size};
+    integer const n{ m_block_size };
     real_type * EE{m_Emat + nbl*n_x_n};
     GEcopy( n, n, E, ldE, EE, n );
   }
@@ -656,7 +630,7 @@ namespace alglin {
   template <typename t_Value>
   void
   BorderedCR<t_Value>::load_E( integer nbl, MatW const & E ) {
-    integer const & n{m_block_size};
+    integer const n{ m_block_size };
     if ( E.nrows() == n && E.ncols() == n ) {
       real_type * EE{m_Emat + nbl*n_x_n};
       GEcopy( n, n, E.data(), E.ldim(), EE, n );
@@ -665,7 +639,7 @@ namespace alglin {
         "BorderedCR::load_E( {}, E) bad dimension size(E) = {} x {} expected {} x {}\n",
         nbl, E.nrows(), E.ncols(), n, n
       );
-      Utils::Runtime_Error( m_last_error, __FILE__, __LINE__ );
+      throw Utils::Runtime_Error( m_last_error, __FILE__, __LINE__ );
     }
   }
 
@@ -675,9 +649,9 @@ namespace alglin {
   template <typename t_Value>
   void
   BorderedCR<t_Value>::load_DE( integer const nbl, real_type const DE[], integer const ldDE ) {
-    integer const & n{m_block_size};
-    real_type * DD{m_Dmat + nbl*n_x_n};
-    real_type * EE{m_Emat + nbl*n_x_n};
+    integer const n{ m_block_size };
+    real_type * DD{ m_Dmat + nbl*n_x_n };
+    real_type * EE{ m_Emat + nbl*n_x_n };
     GEcopy( n, n, DE, ldDE, DD, n ); DE += n*ldDE;
     GEcopy( n, n, DE, ldDE, EE, n );
   }
@@ -687,13 +661,14 @@ namespace alglin {
   template <typename t_Value>
   void
   BorderedCR<t_Value>::load_DEB( integer const nbl, real_type const DEB[], integer const ldDEB ) {
-    integer const & n{m_block_size};
-    real_type * DD{m_Dmat + nbl*n_x_n};
-    real_type * EE{m_Emat + nbl*n_x_n};
-    real_type * BB{m_Bmat + nbl*n_x_nx};
-    GEcopy( n, n,    DEB, ldDEB, DD, n ); DEB += n*ldDEB;
-    GEcopy( n, n,    DEB, ldDEB, EE, n ); DEB += n*ldDEB;
-    GEcopy( n, m_nx, DEB, ldDEB, BB, n );
+    integer const n  { m_block_size };
+    integer const nx { m_nx         };
+    real_type * DD{ m_Dmat + nbl*n_x_n };
+    real_type * EE{ m_Emat + nbl*n_x_n };
+    real_type * BB{ m_Bmat + nbl*n_x_nx };
+    GEcopy( n, n,  DEB, ldDEB, DD, n ); DEB += n*ldDEB;
+    GEcopy( n, n,  DEB, ldDEB, EE, n ); DEB += n*ldDEB;
+    GEcopy( n, nx, DEB, ldDEB, BB, n );
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -716,7 +691,7 @@ namespace alglin {
         "BorderedCR::load_F(F) bad dimension size(F) = {} x {} expected {} x {}\n",
         F.nrows(), F.ncols(), m_nr, m_nx
       );
-      Utils::Runtime_Error( m_last_error, __FILE__, __LINE__ );
+      throw Utils::Runtime_Error( m_last_error, __FILE__, __LINE__ );
     }
   }
 
@@ -740,7 +715,7 @@ namespace alglin {
         "BorderedCR::add_to_F(F) bad dimension size(F) = {} x {} expected {} x {}\n",
         F.nrows(), F.ncols(), m_nr, m_nx
       );
-      Utils::Runtime_Error( m_last_error, __FILE__, __LINE__ );
+      throw Utils::Runtime_Error( m_last_error, __FILE__, __LINE__ );
     }
   }
 
@@ -764,7 +739,7 @@ namespace alglin {
         "BorderedCR::load_Cq(Cq) bad dimension size(Cq) = {} x {} expected {} x {}\n",
         Cq.nrows(), Cq.ncols(), m_nr, m_qx
       );
-      Utils::Runtime_Error( m_last_error, __FILE__, __LINE__ );
+      throw Utils::Runtime_Error( m_last_error, __FILE__, __LINE__ );
     }
   }
 
@@ -773,9 +748,9 @@ namespace alglin {
   template <typename t_Value>
   void
   BorderedCR<t_Value>::load_CqF( real_type const CqF[], integer ldCF ) {
-    integer const & nr{m_nr};
-    integer const & nx{m_nx};
-    integer const & qx{m_qx};
+    integer const nr{ m_nr };
+    integer const nx{ m_nx };
+    integer const qx{ m_qx };
     GEcopy( nr, qx, CqF, ldCF, m_Cqmat, nr ); CqF += qx*ldCF;
     GEcopy( nr, nx, CqF, ldCF, m_Fmat,  nr );
   }
@@ -791,7 +766,7 @@ namespace alglin {
       GEadd( m_nr, m_nx,  C2F + ldC * n_x_2, ldC, m_Fmat, m_nr );
     } else {
       BABD_LAST_ERROR( "BorderedCR::add_to_C2F( {}, C2F, ldC = {} ) bad ldC\n", nbl, ldC );
-      Utils::Runtime_Error( m_last_error, __FILE__, __LINE__ );
+      throw Utils::Runtime_Error( m_last_error, __FILE__, __LINE__ );
     }
   }
 
@@ -809,7 +784,7 @@ namespace alglin {
         "BorderedCR::add_to_C2F( {}, C2F) bad dimension size(C2F) = {} x {} expected {} x {}\n",
         nbl, C2F.nrows(), C2F.ncols(), m_nr, n_x_2+m_nx
       );
-      Utils::Runtime_Error( m_last_error, __FILE__, __LINE__ );
+      throw Utils::Runtime_Error( m_last_error, __FILE__, __LINE__ );
     }
   }
 
@@ -828,8 +803,8 @@ namespace alglin {
     if ( m_debug ) check_matrix();
 
     m_matrix_is_factorized = false;
-    integer const & nblock {m_number_of_blocks};
-    integer const & npb    {m_used_parallel_block};
+    integer const nblock { m_number_of_blocks    };
+    integer const npb    { m_used_parallel_block };
     m_ok_thread = true;
     if ( npb > 1 ) {
       Zero_n( m_Fmat + nr_x_nx, (npb-1) * nr_x_nx );
@@ -870,7 +845,7 @@ namespace alglin {
     real_type T[],
     integer   iperm[]
   ) const {
-    integer const & n{m_block_size};
+    integer const n{ m_block_size };
     integer info{0};
     switch ( m_selected ) {
     case BORDERED_Choice::LU:
@@ -947,8 +922,8 @@ namespace alglin {
     integer         ldBOTTOM,
     integer         ncol
   ) const {
-    integer const & n{m_block_size};
-    real_type     * W{Work_T(n_thread,n_x_2*ncol)};
+    integer const n { m_block_size };
+    real_type   * W { Work_T(n_thread,n_x_2*ncol) };
 
     GEcopy( n, ncol, TOP,    ldTOP,    W,   n_x_2 );
     GEcopy( n, ncol, BOTTOM, ldBOTTOM, W+n, n_x_2 );
@@ -1010,8 +985,8 @@ namespace alglin {
     real_type       BOTTOM[]
   ) const {
 
-    integer const & n{m_block_size};
-    real_type     * W{Work_T(n_thread,n_x_2)};
+    integer const n { m_block_size };
+    real_type   * W { Work_T(n_thread,n_x_2) };
     Copy_n( TOP,    n, W   );
     Copy_n( BOTTOM, n, W+n );
     integer info{0};
@@ -1073,11 +1048,10 @@ namespace alglin {
   void
   BorderedCR<t_Value>::factorize_block( integer n_thread ) {
 
-    integer const & n{m_block_size};
-
+    integer const n      { m_block_size           };
     integer const iblock { m_iBlock[2*n_thread+0] };
     integer const eblock { m_iBlock[2*n_thread+1] };
-    integer const nblk   { eblock - iblock };
+    integer const nblk   { eblock - iblock        };
 
     real_type * Bmat0 { m_Bmat + iblock   * n_x_nx  };
     real_type * Cmat0 { m_Cmat + iblock   * nr_x_n  };
@@ -1120,10 +1094,7 @@ namespace alglin {
                  applyT( n_thread, T, P, Ejp, n, Ej, n, n )};
         if ( okk && m_nx > 0 ) okk = applyT( n_thread, T, P, Bjp, n, Bj, n, m_nx );
 
-        if ( !okk ) {
-          m_ok_thread = false;
-          return;
-        }
+        if ( !okk ) { m_ok_thread = false; return; }
 
         if ( m_nr > 0 ) {
 
@@ -1197,7 +1168,7 @@ namespace alglin {
   bool
   BorderedCR<t_Value>::factorize_reduced() {
 
-    integer const & n{m_block_size};
+    integer const n{ m_block_size };
     integer k{1};
     while ( k < m_reduced_nblk ) {
       // -----------------------------------------------------------------------
@@ -1302,8 +1273,8 @@ namespace alglin {
   template <typename t_Value>
   bool
   BorderedCR<t_Value>::load_and_factorize_last() {
-    integer const & nblock { m_number_of_blocks };
-    integer const & n      { m_block_size };
+    integer const nblock { m_number_of_blocks };
+    integer const n      { m_block_size       };
    /*
     //    n   n  qx  nx
     //  +---+---+---+---+
@@ -1407,9 +1378,11 @@ namespace alglin {
   bool
   BorderedCR<t_Value>::solve_last( real_type x[] ) const {
 
-    integer const & nblock { m_number_of_blocks };
-    integer const & n      { m_block_size };
+    integer const nblock { m_number_of_blocks };
+    integer const n      { m_block_size       };
+
     real_type * X{ x + (nblock-1)*n };
+
     // sposto primo blocco rhs in fondo
     swap( n, X, 1, x, 1 ); // uso x stesso come temporaneo
     bool ok{false};
@@ -1454,9 +1427,11 @@ namespace alglin {
     integer   ldX
   ) const {
 
-    integer const & nblock{m_number_of_blocks};
-    integer const & n{m_block_size};
-    real_type * X{x + (nblock-1)*n};
+    integer const nblock { m_number_of_blocks };
+    integer const n      { m_block_size       };
+
+    real_type * X{ x + (nblock-1)*n };
+
     // sposto primo blocco rhs in fondo
     for ( integer i{0}; i < nrhs; ++i )
       alglin::swap( n, X+i*ldX, 1, x+i*ldX, 1 );
@@ -1506,10 +1481,12 @@ namespace alglin {
   template <typename t_Value>
   bool
   BorderedCR<t_Value>::solve( real_type x[] ) const {
-    integer const & nblock {m_number_of_blocks};
-    integer const & n      {m_block_size};
-    integer const & npb    {m_used_parallel_block};
-    real_type * xb{x + (nblock+1)*n + m_qr}; // deve essere b!
+    integer const nblock { m_number_of_blocks    };
+    integer const n      { m_block_size          };
+    integer const npb    { m_used_parallel_block };
+
+    real_type * xb{ x + (nblock+1)*n + m_qr }; // deve essere b!
+
     if ( npb > 1 ) {
       if ( m_solve_use_thread ) {
         for ( integer n_thread{0}; n_thread < npb; ++n_thread )
@@ -1563,15 +1540,16 @@ namespace alglin {
     real_type rhs[],
     integer   ldRhs
   ) const {
-    integer const & npb    {m_used_parallel_block};
-    integer const & nblock {m_number_of_blocks};
-    integer const & n      {m_block_size};
+    integer const npb    { m_used_parallel_block };
+    integer const nblock { m_number_of_blocks    };
+    integer const n      { m_block_size          };
+
     MapMatrix<t_Value> XB( rhs + (nblock+1)*n + m_qr, ldRhs, nrhs );
 
     m_ok_thread = true;
 
     integer const nn { m_nr * nrhs };
-    real_type * work{m_work_mem.realloc( npb * nn )};
+    real_type * work { m_work_mem.realloc( npb * nn ) };
 
     if ( npb > 1 ) {
       if ( m_solve_use_thread ) {
@@ -1627,8 +1605,7 @@ namespace alglin {
   template <typename t_Value>
   bool
   BorderedCR<t_Value>::forward( integer n_thread, real_type x[] ) const {
-    integer const & n = m_block_size;
-
+    integer const n      { m_block_size            };
     integer const iblock { m_iBlock[2*n_thread+0]  };
     integer const eblock { m_iBlock[2*n_thread+1]  };
     integer const nblk   { eblock - iblock         };
@@ -1641,7 +1618,7 @@ namespace alglin {
     // se serve accumula in work
     if ( m_nr > 0 ) Zero_n( work, m_nr );
 
-    integer k = 1;
+    integer k{1};
     while ( k < nblk ) {
       real_type *   xj    { x0 + k*n        };
       real_type *   xjp   { x0              };
@@ -1681,14 +1658,14 @@ namespace alglin {
     integer   ldX,
     real_type work[]
   ) const {
-    integer const & n      { m_block_size            };
-    integer const   iblock { m_iBlock[2*n_thread+0]  };
-    integer const   eblock { m_iBlock[2*n_thread+1]  };
-    integer const   nblk   { eblock - iblock         };
-    real_type *     x0     { x      + iblock*n       };
-    real_type *     T0     { m_Tmat + iblock*m_Tsize };
-    integer   *     P0     { m_Perm + iblock*n       };
-    real_type *     C0     { m_Cmat + iblock*nr_x_n  };
+    integer const n      { m_block_size            };
+    integer const iblock { m_iBlock[2*n_thread+0]  };
+    integer const eblock { m_iBlock[2*n_thread+1]  };
+    integer const nblk   { eblock - iblock         };
+    real_type *   x0     { x      + iblock*n       };
+    real_type *   T0     { m_Tmat + iblock*m_Tsize };
+    integer   *   P0     { m_Perm + iblock*n       };
+    real_type *   C0     { m_Cmat + iblock*nr_x_n  };
 
     // se serve accumula in work
     if ( m_nr > 0 ) Zero_n( work, m_nr*nrhs );
@@ -1736,7 +1713,7 @@ namespace alglin {
     real_type x[],
     real_type xb[]
   ) const {
-    integer const & n{m_block_size};
+    integer const n{ m_block_size };
 
     integer k{1};
     while ( k < m_reduced_nblk ) {
@@ -1770,8 +1747,9 @@ namespace alglin {
     real_type x[],
     integer   ldX
   ) const {
-    integer const & nblock{m_number_of_blocks};
-    integer const & n{m_block_size};
+
+    integer const nblock { m_number_of_blocks };
+    integer const n      { m_block_size       };
 
     real_type * xb{ x + (nblock+1)*n + m_qr };
     integer k{1};
@@ -1814,8 +1792,9 @@ namespace alglin {
   template <typename t_Value>
   void
   BorderedCR<t_Value>::backward( integer n_thread, real_type x[] ) const {
-    integer const & nblock{m_number_of_blocks};
-    integer const & n{m_block_size};
+
+    integer const nblock { m_number_of_blocks };
+    integer const n      { m_block_size       };
 
     real_type * xn { x + (nblock+1)*n + m_qx };
     integer const iblock { m_iBlock[2*n_thread+0]  };
@@ -1884,8 +1863,8 @@ namespace alglin {
     integer   ldX
   ) const {
 
-    integer const & nblock{m_number_of_blocks};
-    integer const & n{m_block_size};
+    integer const nblock { m_number_of_blocks };
+    integer const n      { m_block_size       };
 
     real_type *   xn     { x + (nblock+1)*n + m_qx };
     integer const iblock { m_iBlock[2*n_thread+0]  };
@@ -1961,8 +1940,8 @@ namespace alglin {
   template <typename t_Value>
   void
   BorderedCR<t_Value>::backward_reduced( real_type x[] ) const {
-    integer const & nblock { m_number_of_blocks };
-    integer const & n      { m_block_size };
+    integer const nblock { m_number_of_blocks };
+    integer const n      { m_block_size       };
 
     real_type * xn{ x + (nblock+1)*n + m_qx };
     integer k{1};
@@ -2019,10 +1998,10 @@ namespace alglin {
     integer   ldX
   ) const {
 
-    integer const & nblock{m_number_of_blocks};
-    integer const & n{m_block_size};
+    integer const nblock { m_number_of_blocks };
+    integer const n      { m_block_size       };
 
-    real_type * xn{x + (nblock+1)*n + m_qx};
+    real_type * xn{ x + (nblock+1)*n + m_qx };
     integer k{1};
     while ( k < m_reduced_nblk ) k *= 2;
     while ( (k/=2) > 0 ) {
@@ -2143,24 +2122,18 @@ namespace alglin {
     t_Value const * xb { xq + m_qx     };
     t_Value *       yy = res;
     for ( integer i{0}; i < nblock; ++i ) {
-      alglin::gemv(
-        Transposition::NO, n, n, alpha, D, n, xx, 1, 1.0, yy, 1
-      );
+      alglin::gemv( Transposition::NO, n, n, alpha, D, n, xx, 1, 1.0, yy, 1 );
       xx += n;
-      alglin::gemv(
-        Transposition::NO, n, n, alpha, E, n, xx, 1, 1.0, yy, 1
-      );
-      alglin::gemv(
-        Transposition::NO, n, m_nx, alpha, B, n, xb, 1, 1.0, yy, 1
-      );
+      alglin::gemv( Transposition::NO, n, n,    alpha, E, n, xx, 1, 1.0, yy, 1 );
+      alglin::gemv( Transposition::NO, n, m_nx, alpha, B, n, xb, 1, 1.0, yy, 1 );
       yy += n;
       D  += n_x_n;
       E  += n_x_n;
       B  += n_x_nx;
     }
 
-    integer     m{n+m_qr};
-    real_type * H{m_H0Nqp};
+    integer const m { n+m_qr  };
+    real_type *   H { m_H0Nqp };
     alglin::gemv( Transposition::NO, m, n,    alpha, H, m, x,  1, 1.0, yy, 1 ); H += m * n;
     alglin::gemv( Transposition::NO, m, n,    alpha, H, m, xe, 1, 1.0, yy, 1 ); H += m * n;
     alglin::gemv( Transposition::NO, m, m_qx, alpha, H, m, xq, 1, 1.0, yy, 1 ); H += m * m_qx;
@@ -2168,23 +2141,14 @@ namespace alglin {
 
     if ( m_nr > 0 ) {
       yy += m;
-      alglin::gemv(
-        Transposition::NO, m_nr, m_nx,
-        alpha, m_Fmat, m_nr, xb, 1, 1.0, yy, 1
-      );
-      t_Value const * C = m_Cmat;
+      alglin::gemv( Transposition::NO, m_nr, m_nx, alpha, m_Fmat, m_nr, xb, 1, 1.0, yy, 1 );
+      t_Value const * C{ m_Cmat };
       xx = x;
-      for ( integer i = 0; i <= nblock; ++i ) {
-        alglin::gemv(
-          Transposition::NO, m_nr, n,
-          alpha, C, m_nr, xx, 1, 1.0, yy, 1
-        );
+      for ( integer i{0}; i <= nblock; ++i ) {
+        alglin::gemv( Transposition::NO, m_nr, n, alpha, C, m_nr, xx, 1, 1.0, yy, 1 );
         xx += n; C += nr_x_n;
       }
-      alglin::gemv(
-        Transposition::NO, m_nr, m_qx,
-        alpha, m_Cqmat, m_nr, xx, 1, 1.0, yy, 1
-      );
+      alglin::gemv( Transposition::NO, m_nr, m_qx, alpha, m_Cqmat, m_nr, xx, 1, 1.0, yy, 1 );
     }
   }
 
@@ -2203,11 +2167,10 @@ namespace alglin {
   BorderedCR<t_Value>::pattern_B(
     integer const nbl, integer I[], integer J[], integer const offs
   ) const {
-    integer const & nblock{m_number_of_blocks};
-    integer const & n{m_block_size};
-
-    integer const i0{nbl*n + offs};
-    integer const j0{(nblock+1)*n + m_qx + offs};
+    integer const nblock { m_number_of_blocks         };
+    integer const n      { m_block_size               };
+    integer const i0     { nbl*n + offs               };
+    integer const j0     { (nblock+1)*n + m_qx + offs };
     for ( integer ij{0}; ij < n_x_nx; ++ij ) {
       I[ij] = i0 + (ij % n);
       J[ij] = j0 + static_cast<integer>(ij / n);
@@ -2227,11 +2190,10 @@ namespace alglin {
   BorderedCR<t_Value>::pattern_C(
     integer const nbl, integer I[], integer J[], integer const offs
   ) const {
-    integer const & nblock{m_number_of_blocks};
-    integer const & n{m_block_size};
-
-    integer const i0{(nblock+1)*n + m_qr + offs};
-    integer const j0{nbl*n + offs};
+    integer const nblock { m_number_of_blocks         };
+    integer const n      { m_block_size               };
+    integer const i0     { (nblock+1)*n + m_qr + offs };
+    integer const j0     { nbl*n + offs               };
     for ( integer ij{0}; ij < nr_x_n; ++ij ) {
       I[ij] = i0 + (ij % m_nr);
       J[ij] = j0 + static_cast<integer>(ij / m_nr);
@@ -2251,9 +2213,9 @@ namespace alglin {
   BorderedCR<t_Value>::pattern_D(
     integer const nbl, integer I[], integer J[], integer const offs
   ) const {
-    integer const & n{m_block_size};
-    integer const i0{nbl*n + offs};
-    integer const j0{nbl*n + offs};
+    integer const n  { m_block_size };
+    integer const i0 { nbl*n + offs };
+    integer const j0 { nbl*n + offs };
     for ( integer ij{0}; ij < n_x_n; ++ij ) {
       I[ij] = i0 + (ij % n);
       J[ij] = j0 + static_cast<integer>(ij / n);
@@ -2273,9 +2235,9 @@ namespace alglin {
   BorderedCR<t_Value>::pattern_E(
     integer const nbl, integer I[], integer J[], integer const offs
   ) const {
-    integer const & n{m_block_size};
-    integer const i0{nbl*n + offs};
-    integer const j0{(nbl+1)*n + offs};
+    integer const n  { m_block_size     };
+    integer const i0 { nbl*n + offs     };
+    integer const j0 { (nbl+1)*n + offs };
     for ( integer ij{0}; ij < n_x_n; ++ij ) {
       I[ij] = i0 + (ij % n);
       J[ij] = j0 + static_cast<integer>(ij / n);
@@ -2295,10 +2257,10 @@ namespace alglin {
   BorderedCR<t_Value>::pattern_F(
     integer I[], integer J[], integer const offs
   ) const {
-    integer const & nblock{m_number_of_blocks};
-    integer const & n{m_block_size};
-    integer const i0{(nblock+1)*n + m_qr + offs};
-    integer const j0{(nblock+1)*n + m_qx + offs};
+    integer const nblock { m_number_of_blocks         };
+    integer const n      { m_block_size               };
+    integer const i0     { (nblock+1)*n + m_qr + offs };
+    integer const j0     { (nblock+1)*n + m_qx + offs };
     for ( integer ij{0}; ij < nr_x_nx; ++ij ) {
       I[ij] = i0 + (ij % m_nr);
       J[ij] = j0 + static_cast<integer>(ij / m_nr);
@@ -2318,11 +2280,10 @@ namespace alglin {
   BorderedCR<t_Value>::pattern_Cq(
     integer I[], integer J[], integer const offs
   ) const {
-    integer const & nblock{m_number_of_blocks};
-    integer const & n{m_block_size};
-
-    integer const i0{(nblock+1)*n + m_qr + offs};
-    integer const j0{(nblock+1)*n + offs};
+    integer const nblock { m_number_of_blocks         };
+    integer const n      { m_block_size               };
+    integer const i0     { (nblock+1)*n + m_qr + offs };
+    integer const j0     { (nblock+1)*n + offs        };
     for ( integer ij{0}; ij < nr_x_qx; ++ij ) {
       I[ij] = i0 + (ij % m_nr);
       J[ij] = j0 + static_cast<integer>(ij / m_nr);
@@ -2340,15 +2301,16 @@ namespace alglin {
   template <typename t_Value>
   integer
   BorderedCR<t_Value>::pattern_H( integer I[], integer J[], integer const offs ) const {
-    integer const & nblock{m_number_of_blocks};
-    integer const & n{m_block_size};
-    integer const nqr{n + m_qr};
-    integer const nnz{nqr * m_Nc};
-    integer const i0{nblock*n};
-    integer const j0{i0 - n};
+    integer const nblock { m_number_of_blocks };
+    integer const n      { m_block_size       };
+    integer const nqr    { n + m_qr           };
+    integer const nnz    { nqr * m_Nc         };
+    integer const i0     { nblock*n           };
+    integer const j0     { i0 - n             };
     for ( integer ij{0}; ij < nnz; ++ij ) {
-      I[ij] = i0 + (ij % nqr) + offs;
-      integer j{ static_cast<integer>(ij / nqr)};
+      integer i{ ij % nqr };
+      integer j{ static_cast<integer>(ij / nqr) };
+      I[ij] = i0 + i + offs;
       if ( j >= n ) j += j0;
       J[ij] = j + offs;
     }
@@ -2358,8 +2320,8 @@ namespace alglin {
   template <typename t_Value>
   integer
   BorderedCR<t_Value>::values_H( real_type V[] ) const {
-    integer const & n{m_block_size};
-    integer nnz{(n + m_qr) * m_Nc};
+    integer const n   { m_block_size      };
+    integer const nnz { (n + m_qr) * m_Nc };
     Copy_n( m_H0Nqp, nnz, V );
     return nnz;
   }
@@ -2371,7 +2333,7 @@ namespace alglin {
     integer       J[],
     integer const offs
   ) const {
-    integer const & nblock{m_number_of_blocks};
+    integer const nblock{ m_number_of_blocks };
 
     integer kkk{0};
     for ( integer nbl{0}; nbl < nblock; ++nbl ) {
@@ -2384,21 +2346,21 @@ namespace alglin {
     kkk += this->pattern_H( I+kkk, J+kkk, offs );
 
     // C
-    for ( integer nbl = 0; nbl <= nblock; ++nbl )
+    for ( integer nbl{0}; nbl <= nblock; ++nbl )
       kkk += this->pattern_C( nbl, I+kkk, J+kkk, offs );
-
-    // F
-    kkk += this->pattern_F( I+kkk, J+kkk, offs );
 
     // Cq
     kkk += this->pattern_Cq( I+kkk, J+kkk, offs );
 
-    if ( kkk == sparse_nnz() ) {
+    // F
+    kkk += this->pattern_F( I+kkk, J+kkk, offs );
+
+    if ( kkk != sparse_nnz() ) {
       BABD_LAST_ERROR(
         "BorderedCR::sparse_pattern( I, J, offs ), inserted {} values, expected {}\n",
         kkk, sparse_nnz()
       );
-      Utils::Runtime_Error( m_last_error, __FILE__, __LINE__ );
+      throw Utils::Runtime_Error( m_last_error, __FILE__, __LINE__ );
     }
   }
 
@@ -2422,18 +2384,18 @@ namespace alglin {
     for ( integer nbl{0}; nbl <= nblock; ++nbl )
       kkk += this->values_C( nbl, V+kkk );
 
-    // F
-    kkk += this->values_F( V+kkk );
-
     // Cq
     kkk += this->values_Cq( V+kkk );
 
-    if ( kkk == sparse_nnz() ) {
+    // F
+    kkk += this->values_F( V+kkk );
+
+    if ( kkk != sparse_nnz() ) {
       BABD_LAST_ERROR(
         "BorderedCR::sparse_values( V ), inserted {} values, expected {}\n",
         kkk, sparse_nnz()
       );
-      Utils::Runtime_Error( m_last_error, __FILE__, __LINE__ );
+      throw Utils::Runtime_Error( m_last_error, __FILE__, __LINE__ );
     }
   }
 
@@ -2445,68 +2407,53 @@ namespace alglin {
     real_type const M_values[],
     integer   const M_row[], integer const r_offs,
     integer   const M_col[], integer const c_offs,
-    integer   const M_nnz
+    integer   const M_nnz,
+    bool      const do_error
   ) {
-    integer const & nblock{m_number_of_blocks};
-    integer const & n{m_block_size};
+    integer const nblock { m_number_of_blocks };
+    integer const n      { m_block_size };
 
-    integer const rH   {n*nblock};
-    integer const rC   {rH + n + m_qr};
-    integer const nrow {rC + m_nr};
+    integer const rH   { n*nblock };
+    integer const rC   { rH + n + m_qr };
+    integer const nrow { rC + m_nr };
 
-    integer const cCq  {rH  + n};
-    integer const cF   {cCq + m_qx};
-    integer const ncol {cF  + m_nx};
+    integer const cCq  { rH  + n };
+    integer const cF   { cCq + m_qx };
+    integer const ncol { cF  + m_nx };
 
     fill_zero();
 
     for ( integer kkk{0}; kkk < M_nnz; ++kkk ) {
-      integer const i{M_row[kkk] - r_offs};
-      integer const j{M_col[kkk] - c_offs};
-      real_type v{M_values[kkk]};
+      integer   const i  { M_row[kkk] - r_offs };
+      integer   const j  { M_col[kkk] - c_offs };
+      real_type const v  { M_values[kkk]       };
+      integer   const ib { i/n };
+      integer   const jb { j/n };
       // cerca blocco
       bool ok{true};
       if ( i < rH ) {
         if ( j < cCq ) { // DE
           // cerca blocchi
-          integer ib{i/n};
-          integer jb{j/n};
-          if ( ib == jb ) {
-            D(ib,i%n,j%n) = v;
-          } else if ( ib+1 == jb ) {
-            E(ib,i%n,j%n) = v;
-          } else {
-            ok = false;
-          }
+          if      ( ib   == jb ) D(ib,i%n,j%n) = v;
+          else if ( ib+1 == jb ) E(ib,i%n,j%n) = v;
+          else                   ok = false;
         } else if ( j < cF ) { // Hq
           ok = false;
         } else if ( j < ncol ) { // B
-          integer ib = i/n;
           B(ib,i%n,j-cF) = v;
         } else {
           ok = false;
         }
       } else if ( i < rC ) {
-        if ( j < n ) { // H0
-          H(i-rH,j) = v;
-        } else if ( j < rH ) {
-          ok = false;
-        } else if ( j < ncol ) { // HN,Hq,Hp
-          H(i-rH,j-rH+n) = v;
-        } else {
-          ok = false;
-        }
+        if      ( j < n    ) H(i-rH,j) = v; // H0  
+        else if ( j < rH   ) ok = false;
+        else if ( j < ncol ) H(i-rH,j-rH+n) = v; // HN,Hq,Hp
+        else                 ok = false;
       } else if ( i < nrow ) {
-        if ( j < cCq ) {
-          integer jb = j/n;
-          C(jb,i-rC,j%n) = v;
-        } else if ( j < cF ) {
-          Cq(i-rC,j-cCq) =v;
-        } else if ( j < ncol ) {
-          F(i-rC,j-cF) = v;
-        } else {
-          ok = false;
-        }
+        if      ( j < cCq  ) C(jb,i-rC,j%n) = v;
+        else if ( j < cF   ) Cq(i-rC,j-cCq) = v;
+        else if ( j < ncol ) F(i-rC,j-cF)   = v;
+        else                 ok = false;
       } else {
         ok = false;
       }
@@ -2516,7 +2463,7 @@ namespace alglin {
           "indices (i,j) = ( {}, {}) out of pattern!\n",
           M_row[kkk], M_col[kkk]
         );
-        Utils::Runtime_Error( m_last_error, __FILE__, __LINE__ );
+        if ( do_error ) throw Utils::Runtime_Error( m_last_error, __FILE__, __LINE__ );
       }
     }
   }
@@ -2533,7 +2480,7 @@ namespace alglin {
   template <typename t_Value>
   void
   BorderedCR<t_Value>::print_matlab_script( ostream_type & stream ) const {
-    integer nnz = this->sparse_nnz();
+    integer const nnz{ this->sparse_nnz() };
     Malloc<t_Value> mem(" BorderedCR::print_matlab_script real");
     Malloc<integer> memi(" BorderedCR::print_matlab_script integer");
     memi.allocate( 2 * nnz );
@@ -2567,8 +2514,9 @@ namespace alglin {
       " ];\n\n"
       "nr  = {};\n"
       "nc  = {};\n\n"
+      "nnz = {};\n\n"
       "MAT = sparse( I, J, V, nr, nc );\n",
-      this->nrows(), this->ncols()
+      this->nrows(), this->ncols(), nnz
     );
   }
 
@@ -2580,15 +2528,15 @@ namespace alglin {
 
     try{
 
-      integer const & nblock{m_number_of_blocks};
-      integer const & n{m_block_size};
+      integer const nblock { m_number_of_blocks };
+      integer const n      { m_block_size       };
       {
-        integer       NR{n+m_qr};
-        integer       NC{m_Nc};
-        integer const NN{NR*NC};
+        integer const NR{ n+m_qr };
+        integer const NC{ m_Nc };
+        integer const NN{ NR*NC };
         for( integer i{0}; i < NN; ++i ) {
-          integer r{ i % NR };
-          integer c{ static_cast<integer>(i / NR) };
+          integer const r{ i % NR };
+          integer const c{ static_cast<integer>(i / NR) };
           UTILS_ASSERT(
             Utils::is_finite(m_H0Nqp[i]),
             "BorderedCR::check_matrix, found {} at position ({},{}) of {}x{} matrix H0Hqp\n",
@@ -2597,14 +2545,14 @@ namespace alglin {
         }
       }
       {
-        integer       NR{n};
-        integer       NC{m_nx};
-        integer const SB{NR*NC};
-        integer const NN{SB*nblock};
+        integer const NR{ n };
+        integer const NC{ m_nx };
+        integer const SB{ NR*NC };
+        integer const NN{ SB*nblock };
         for( integer i{0}; i < NN; ++i ) {
-          integer nb{ static_cast<integer>(i / SB) };
-          integer r{ i % NR };
-          integer c{ static_cast<integer>((i - nb * SB) / NR) };
+          integer const nb{ static_cast<integer>(i / SB) };
+          integer const r{ i % NR };
+          integer const c{ static_cast<integer>((i - nb * SB) / NR) };
           UTILS_ASSERT(
             Utils::is_finite(m_Bmat[i]),
             "BorderedCR::check_matrix, found {} at block {} position ({},{}) of {}x{} matrix B\n",
@@ -2613,14 +2561,14 @@ namespace alglin {
         }
       }
       {
-        integer       NR{m_nr};
-        integer       NC{n};
-        integer const SB{NR*NC};
-        integer const NN{SB*(nblock+1)};
+        integer const NR { m_nr };
+        integer const NC { n };
+        integer const SB { NR*NC };
+        integer const NN { SB*(nblock+1) };
         for( integer i{0}; i < NN; ++i ) {
-          integer nb{ static_cast<integer>(i / SB) };
-          integer r{ i % NR };
-          integer c{ static_cast<integer>((i - nb * SB) / NR) };
+          integer const nb{ static_cast<integer>(i / SB) };
+          integer const r{ i % NR };
+          integer const c{ static_cast<integer>((i - nb * SB) / NR) };
           UTILS_ASSERT(
             Utils::is_finite(m_Cmat[i]),
             "BorderedCR::check_matrix, found {} at block {} position ({},{}) of {}x{} matrix C\n",
@@ -2629,12 +2577,12 @@ namespace alglin {
         }
       }
       {
-        integer       NR{m_nr};
-        integer       NC{m_qx};
-        integer const NN{NR*NC};
+        integer const NR{ m_nr };
+        integer const NC{ m_qx };
+        integer const NN{ NR*NC };
         for( integer i{0}; i < NN; ++i ) {
-          integer r{ i % NR };
-          integer c{ static_cast<integer>(i / NR) };
+          integer const r{ i % NR };
+          integer const c{ static_cast<integer>(i / NR) };
           UTILS_ASSERT(
             Utils::is_finite(m_Cqmat[i]),
             "BorderedCR::check_matrix, found {} at position ({},{}) of {}x{} matrix Cq\n",
@@ -2643,14 +2591,14 @@ namespace alglin {
         }
       }
       {
-        integer       NR{n};
-        integer       NC{n};
-        integer const SB{NR*NC};
-        integer const NN{SB*nblock};
+        integer const NR{ n };
+        integer const NC{ n };
+        integer const SB{ NR*NC };
+        integer const NN{ SB*nblock };
         for( integer i{0}; i < NN; ++i ) {
-          integer nb{ static_cast<integer>(i / SB) };
-          integer r{ i % NR };
-          integer c{ static_cast<integer>((i - nb * SB) / NR) };
+          integer const nb{ static_cast<integer>(i / SB) };
+          integer const r{ i % NR };
+          integer const c{ static_cast<integer>((i - nb * SB) / NR) };
           UTILS_ASSERT(
             Utils::is_finite(m_Dmat[i]),
             "BorderedCR::check_matrix, found {} at block {} position ({},{}) of {}x{} matrix D\n",
@@ -2659,14 +2607,14 @@ namespace alglin {
         }
       }
       {
-        integer      NR{n};
-        integer       NC{n};
-        integer const SB{NR*NC};
-        integer const NN{SB*nblock};
+        integer const NR{ n };
+        integer const NC{ n };
+        integer const SB{ NR*NC };
+        integer const NN{ SB*nblock };
         for( integer i{0}; i < NN; ++i ) {
-          integer nb{ static_cast<integer>(i / SB) };
-          integer r{ i % NR };
-          integer c{ static_cast<integer>((i - nb * SB) / NR) };
+          integer const nb{ static_cast<integer>(i / SB) };
+          integer const r{ i % NR };
+          integer const c{ static_cast<integer>((i - nb * SB) / NR) };
           UTILS_ASSERT(
             Utils::is_finite(m_Emat[i]),
             "BorderedCR::check_matrix, found {} at block {} position ({},{}) of {}x{} matrix E\n",
@@ -2675,12 +2623,12 @@ namespace alglin {
         }
       }
       {
-        integer       NR{m_nr};
-        integer       NC{m_nx};
-        integer const NN{NR*NC};
+        integer const NR { m_nr  };
+        integer const NC { m_nx  };
+        integer const NN { NR*NC };
         for( integer i{0}; i < NN; ++i ) {
-          integer r{ i % NR };
-          integer c{ static_cast<integer>(i / NR) };
+          integer const r{ i % NR };
+          integer const c{ static_cast<integer>(i / NR) };
           UTILS_ASSERT(
             Utils::is_finite(m_Fmat[i]),
             "BorderedCR::check_matrix, found {} at position ({},{}) of {}x{} matrix F\n",

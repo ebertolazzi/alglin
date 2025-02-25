@@ -44,9 +44,9 @@ namespace Simplex {
   using std::swap;
   using std::cout;
 
-  real_type const epsilon        = numeric_limits<real_type>::epsilon();
-  real_type const relaxedEpsilon = pow(epsilon,0.8);
-  real_type const infinity       = numeric_limits<real_type>::max();
+  real_type const epsilon        { numeric_limits<real_type>::epsilon() };
+  real_type const relaxedEpsilon { pow(epsilon,0.8) };
+  real_type const infinity       { numeric_limits<real_type>::max() };
 
  /*\
   |     _             ___         _    _

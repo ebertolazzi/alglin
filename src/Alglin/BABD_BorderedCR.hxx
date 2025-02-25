@@ -787,90 +787,29 @@ namespace alglin {
     //! @{
     //!
 
-    t_Value &
-    B( integer nbl, integer i, integer j )
-    { return m_Bmat[ nbl*n_x_nx + i + j*m_block_size ]; }
-
-    t_Value const &
-    B( integer nbl, integer i, integer j ) const
-    { return m_Bmat[ nbl*n_x_nx + i + j*m_block_size ]; }
-
-    t_Value &
-    C( integer nbl, integer i, integer j )
-    { return m_Cmat[ nbl*nr_x_n + i + j*m_nr ]; }
-
-    t_Value const &
-    C( integer nbl, integer i, integer j ) const
-    { return m_Cmat[ nbl*nr_x_n + i + j*m_nr ]; }
-
-    t_Value &
-    D( integer nbl, integer i, integer j )
-    { return m_Dmat[ nbl*n_x_n + i + j*m_block_size]; }
-
-    t_Value const &
-    D( integer nbl, integer i, integer j ) const
-    { return m_Dmat[ nbl*n_x_n + i + j*m_block_size]; }
-
-    t_Value &
-    E( integer nbl, integer i, integer j )
-    { return m_Emat[ nbl*n_x_n + i + j*m_block_size]; }
-
-    t_Value const &
-    E( integer nbl, integer i, integer j ) const
-    { return m_Emat[ nbl*n_x_n + i + j*m_block_size]; }
-
-    t_Value &
-    F( integer i, integer j )
-    { return m_Fmat[ i + j*m_nr ]; }
-
-    t_Value const &
-    F( integer i, integer j ) const
-    { return m_Fmat[ i + j*m_nr ]; }
-
-    t_Value &
-    Cq( integer i, integer j )
-    { return m_Cqmat[ i + j*m_nr ]; }
-
-    t_Value const &
-    Cq( integer i, integer j ) const
-    { return m_Cqmat[ i + j*m_nr ]; }
-
-    t_Value &
-    H( integer i, integer j )
-    { return m_H0Nqp[ i + j*(m_block_size+m_qr) ]; }
-
-    t_Value const &
-    H( integer i, integer j ) const
-    { return m_H0Nqp[ i + j*(m_block_size+m_qr) ]; }
+    t_Value       & B ( integer nbl, integer i, integer j )       { return m_Bmat [ nbl*n_x_nx + i + j*m_block_size        ]; }
+    t_Value const & B ( integer nbl, integer i, integer j ) const { return m_Bmat [ nbl*n_x_nx + i + j*m_block_size        ]; }
+    t_Value       & C ( integer nbl, integer i, integer j )       { return m_Cmat [ nbl*nr_x_n + i + j*m_nr                ]; }
+    t_Value const & C ( integer nbl, integer i, integer j ) const { return m_Cmat [ nbl*nr_x_n + i + j*m_nr                ]; }
+    t_Value       & D ( integer nbl, integer i, integer j )       { return m_Dmat [ nbl*n_x_n  + i + j*m_block_size        ]; }
+    t_Value const & D ( integer nbl, integer i, integer j ) const { return m_Dmat [ nbl*n_x_n  + i + j*m_block_size        ]; }
+    t_Value       & E ( integer nbl, integer i, integer j )       { return m_Emat [ nbl*n_x_n  + i + j*m_block_size        ]; }
+    t_Value const & E ( integer nbl, integer i, integer j ) const { return m_Emat [ nbl*n_x_n  + i + j*m_block_size        ]; }
+    t_Value       & F (              integer i, integer j )       { return m_Fmat [              i + j*m_nr                ]; }
+    t_Value const & F (              integer i, integer j ) const { return m_Fmat [              i + j*m_nr                ]; }
+    t_Value       & Cq(              integer i, integer j )       { return m_Cqmat[              i + j*m_nr                ]; }
+    t_Value const & Cq(              integer i, integer j ) const { return m_Cqmat[              i + j*m_nr                ]; }
+    t_Value       & H (              integer i, integer j )       { return m_H0Nqp[              i + j*(m_block_size+m_qr) ]; }
+    t_Value const & H (              integer i, integer j ) const { return m_H0Nqp[              i + j*(m_block_size+m_qr) ]; }
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    void
-    B( integer nbl, MatW & B_wrap )
-    { B_wrap.setup( m_Bmat + nbl*n_x_nx, m_block_size, m_nx, m_block_size ); }
-
-    void
-    C( integer nbl, MatW & C_wrap )
-    { C_wrap.setup( m_Cmat + nbl*nr_x_n, m_nr, m_block_size, m_nr ); }
-
-    void
-    D( integer nbl, MatW & D_wrap )
-    { D_wrap.setup( m_Dmat + nbl*n_x_n, m_block_size, m_block_size, m_block_size ); }
-
-    void
-    E( integer nbl, MatW & E_wrap )
-    { E_wrap.setup( m_Emat + nbl*n_x_n, m_block_size, m_block_size, m_block_size ); }
-
-    void
-    F( MatW & F_wrap )
-    { F_wrap.setup( m_Fmat, m_nr, m_nx, m_nr ); }
-
-    void
-    Cq( MatW & Cq_wrap )
-    { Cq_wrap.setup( m_Cqmat, m_nr, m_qx, m_nr ); }
-
-    void
-    H( MatW & H_wrap ) const
-    { H_wrap.setup( m_H0Nqp, m_block_size + m_qr, m_Nc, m_block_size + m_qr ); }
+    void B( integer nbl, MatW & B_wrap  ) const { B_wrap.setup( m_Bmat + nbl*n_x_nx, m_block_size, m_nx, m_block_size ); }
+    void C( integer nbl, MatW & C_wrap  ) const { C_wrap.setup( m_Cmat + nbl*nr_x_n, m_nr, m_block_size, m_nr ); }
+    void D( integer nbl, MatW & D_wrap  ) const { D_wrap.setup( m_Dmat + nbl*n_x_n, m_block_size, m_block_size, m_block_size ); }
+    void E( integer nbl, MatW & E_wrap  ) const { E_wrap.setup( m_Emat + nbl*n_x_n, m_block_size, m_block_size, m_block_size ); }
+    void F(              MatW & F_wrap  ) const { F_wrap.setup( m_Fmat, m_nr, m_nx, m_nr ); }
+    void Cq(             MatW & Cq_wrap ) const { Cq_wrap.setup( m_Cqmat, m_nr, m_qx, m_nr ); }
+    void H(              MatW & H_wrap  ) const { H_wrap.setup( m_H0Nqp, m_block_size + m_qr, m_Nc, m_block_size + m_qr ); }
 
     //!
     //! @}
@@ -939,7 +878,8 @@ namespace alglin {
       real_type const M_values[],
       integer   const M_row[], integer r_offs,
       integer   const M_col[], integer c_offs,
-      integer         M_nnz
+      integer         M_nnz,
+      bool            do_error = true
     );
 
     /*\

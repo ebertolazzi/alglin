@@ -72,8 +72,8 @@ namespace alglin {
   using lapack_wrapper::fill;
   using lapack_wrapper::gecopy;
   using lapack_wrapper::geid;
-  using lapack_wrapper::gemm;
   using lapack_wrapper::gemv;
+  using lapack_wrapper::gemm;
   using lapack_wrapper::geqp3;
   using lapack_wrapper::geqrf;
   using lapack_wrapper::ger;
@@ -88,8 +88,10 @@ namespace alglin {
   using lapack_wrapper::scal;
   using lapack_wrapper::swap;
   using lapack_wrapper::swaps;
-  using lapack_wrapper::trsm;
   using lapack_wrapper::trsv;
+  using lapack_wrapper::trsm;
+  using lapack_wrapper::trmv;
+  using lapack_wrapper::trmm;
 
   using lapack_wrapper::min_index;
   using lapack_wrapper::max_index;

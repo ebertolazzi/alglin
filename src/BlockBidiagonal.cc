@@ -762,7 +762,6 @@ namespace alglin {
     integer nnz{ (2*nblock)*n_x_n+ 2*(nblock+1)*n*nb + nb*nb };
 
     // BC
-    integer ii;
     if ( m_num_cyclic_BC == 0 && m_num_cyclic_OMEGA == 0 ) {
 
       integer const row0  = m_num_initial_BC;
@@ -773,7 +772,7 @@ namespace alglin {
       nnz += row0 * ( n + col00 ) + rowN * ( n + colNN );
       fmt::print( stream, "{}\n", nnz );
 
-      ii = nblock*n;
+      integer const ii{nblock*n};
       for ( integer i{0}; i < rowN; ++i )
         for ( integer j{0}; j < n+colNN; ++j )
           fmt::print(
@@ -792,7 +791,7 @@ namespace alglin {
         for ( integer j{0}; j < col00; ++j )
           fmt::print(
             stream, "{}\t{}\t{}\n",
-            ii+rowN+i, ii+n+colNN+j, m_block0[i+j*row0]
+            ii+i, ii+n+colNN+j, m_block0[i+j*row0]
           );
 
     } else {
@@ -802,7 +801,7 @@ namespace alglin {
       fmt::print( stream, "{}\n", nnz );
 
       real_type * H0{m_H0Nq};
-      ii = nblock*n;
+      integer const ii{nblock*n};
       for ( integer i{0}; i < nq; ++i )
         for ( integer j{0}; j < n; ++j )
           fmt::print( stream,
@@ -821,7 +820,7 @@ namespace alglin {
 
     // bidiagonal
     for ( integer k{0}; k < nblock; ++k ) {
-      ii = k*n;
+      integer const ii{k*n};
       real_type * DE{ m_DE_blk + (2*k) * n_x_n };
       for ( integer i{0}; i < n; ++i )
         for ( integer j{0}; j < nx2; ++j )
@@ -832,7 +831,7 @@ namespace alglin {
     }
 
     // border
-    ii = n*(nblock+1)+q;
+    integer const ii{n*(nblock+1)+q};
     for ( integer i{0}; i < nb; ++i )
       for ( integer j{0}; j < ii; ++j )
           fmt::print(
@@ -890,7 +889,6 @@ namespace alglin {
     integer kkk = 0;
 
     // BC
-    integer ii;
     if ( m_num_cyclic_BC == 0 && m_num_cyclic_OMEGA == 0 ) {
 
       integer const row0  {m_num_initial_BC};
@@ -898,7 +896,7 @@ namespace alglin {
       integer const col00 {m_num_initial_OMEGA};
       integer const colNN {m_num_final_OMEGA};
 
-      ii = nblock*n;
+      integer const ii {nblock*n};
       for ( integer i{0}; i < rowN; ++i ) {
         for ( integer j{0}; j < n+colNN; ++j ) {
           I[kkk] = ii+i;
@@ -917,7 +915,7 @@ namespace alglin {
 
       for ( integer i{0}; i < row0; ++i ) {
         for ( integer j{0}; j < col00; ++j ) {
-          I[kkk] = ii+rowN+i;
+          I[kkk] = ii+i;
           J[kkk] = ii+n+colNN+j;
           ++kkk;
         }
@@ -927,7 +925,7 @@ namespace alglin {
 
       integer const nq{n + q};
 
-      ii = nblock*n;
+      integer const ii{ nblock*n };
       for ( integer i{0}; i < nq; ++i ) {
         for ( integer j{0}; j < n; ++j ) {
           I[kkk] = ii+i;
@@ -947,7 +945,7 @@ namespace alglin {
 
     // bidiagonal
     for ( integer k{0}; k < nblock; ++k ) {
-      ii = k*n;
+      integer const ii{ k*n };
       for ( integer i{0}; i < n; ++i ) {
         for ( integer j{0}; j < nx2; ++j ) {
           I[kkk] = ii+i;
@@ -958,7 +956,7 @@ namespace alglin {
     }
 
     // border
-    ii = n*(nblock+1)+q;
+    integer const ii{ n*(nblock+1)+q };
     for ( integer i{0}; i < nb; ++i ) {
       for ( integer j{0}; j < ii; ++j ) {
         I[kkk] = ii+i;
@@ -996,7 +994,7 @@ namespace alglin {
     integer kkk{0};
 
     // BC
-    integer ii;
+    // integer ii;
     if ( m_num_cyclic_BC == 0 && m_num_cyclic_OMEGA == 0 ) {
 
       integer const row0  { m_num_initial_BC };
@@ -1004,7 +1002,6 @@ namespace alglin {
       integer const col00 { m_num_initial_OMEGA };
       integer const colNN { m_num_final_OMEGA };
 
-      ii = nblock*n;
       for ( integer i{0}; i < rowN; ++i )
         for ( integer j{0}; j < n+colNN; ++j )
           V[kkk++] = m_blockN[i+j*rowN];
@@ -1022,7 +1019,6 @@ namespace alglin {
       integer const nq{n + q};
 
       real_type * H0{m_H0Nq};
-      ii = nblock*n;
       for ( integer i{0}; i < nq; ++i )
         for ( integer j{0}; j < n; ++j )
           V[kkk++] = H0[i+j*nq];
@@ -1035,7 +1031,6 @@ namespace alglin {
 
     // bidiagonal
     for ( integer k{0}; k < nblock; ++k ) {
-      ii = k*n;
       real_type * DE{m_DE_blk + (2*k) * n_x_n};
       for ( integer i{0}; i < n; ++i )
         for ( integer j{0}; j < nx2; ++j )
@@ -1043,7 +1038,7 @@ namespace alglin {
     }
 
     // border
-    ii = n*(nblock+1)+q;
+    integer const ii{n*(nblock+1)+q};
     for ( integer i{0}; i < nb; ++i ) {
       for ( integer j{0}; j < ii; ++j ) {
         V[kkk++] = m_Cmat[i+j*nb];
