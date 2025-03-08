@@ -508,7 +508,7 @@ namespace alglin {
           bool ok_RR{FUN( X, vRR )};
           if ( ok_RR ) ok_RR = finite_difference_side( vC, vR, vRR, h1, h2, Jcol, dim_f );
           if ( !ok_RR )
-            for ( integer i = 0; i < dim_f; ++i )
+            for ( integer i{0}; i < dim_f; ++i )
               Jcol[i] = (vR[i]-vC[i])/h1; // low precision FD
         }
         break;
@@ -519,7 +519,7 @@ namespace alglin {
           bool ok_LL{FUN( X, vLL )};
           if ( ok_LL ) ok_LL = finite_difference_side( vC, vL, vLL, -h1, -h2, Jcol, dim_f );
           if ( !ok_LL )
-            for ( integer i = 0; i < dim_f; ++i )
+            for ( integer i{0}; i < dim_f; ++i )
               Jcol[i] = (vC[i]-vL[i])/h1; // low precision FD
         }
         break;

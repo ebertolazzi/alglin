@@ -41,10 +41,10 @@ void
 test1() {
   // solution
   // 0, 0, 7/2+(1/2)*sqrt(73), 7/2-(1/2)*sqrt(73)])
-  real_type A[] = { 1, 2, 3, 4,
-                    4, 4, 4, 4,
-                    1, 2, 1, 2,
-                    0, 0, 1, 1 };
+  real_type A[]{ 1, 2, 3, 4,
+                 4, 4, 4, 4,
+                 1, 2, 1, 2,
+                 0, 0, 1, 1 };
   alglin::Eigenvalues<real_type> E;
   E.setup( 4, A, 4 );
   vector<complex<real_type> > e;
@@ -58,14 +58,14 @@ void
 test2() {
   // solution
   // 0, 0, 7/2+(1/2)*sqrt(73), 7/2-(1/2)*sqrt(73)])
-  real_type A[] = { 1, 2, 3, 4,
-                    4, 4, 4, 4,
-                    1, 2, 1, 2,
-                    0, 0, 1, 1 };
-  real_type B[] = { 3, 2, 1, 1,
-                    1, 1, 1, 1,
-                    4, 3, 2, 1,
-                    1,-1, 0, 1 };
+  real_type A[]{ 1, 2, 3, 4,
+                 4, 4, 4, 4,
+                 1, 2, 1, 2,
+                 0, 0, 1, 1 };
+  real_type B[]{ 3, 2, 1, 1,
+                 1, 1, 1, 1,
+                 4, 3, 2, 1,
+                 1,-1, 0, 1 };
   alglin::GeneralizedEigenvalues<real_type> E;
   E.setup( 4, A, 4, B, 4 );
   vector<complex<real_type> > e;
@@ -83,14 +83,14 @@ test3() {
   [U,V,X,C,S] = gsvd(A,B)
   %[U,V,X,C,S] = gsvd(A,B,0)
   */
-  real_type A_data[] = { 1, 2, 3, 4,
-                         4, 4, 4, 4,
-                         1, 2, 1, 2,
-                         0, 0, 1, 1 };
-  real_type B_data[] = { 3, 2, 1, 1,
-                         1, 1, 1, 1,
-                         4, 3, 2, 1,
-                         1,-1, 0, 1 };
+  real_type A_data[]{ 1, 2, 3, 4,
+                      4, 4, 4, 4,
+                      1, 2, 1, 2,
+                      0, 0, 1, 1 };
+  real_type B_data[]{ 3, 2, 1, 1,
+                      1, 1, 1, 1,
+                      4, 3, 2, 1,
+                      1,-1, 0, 1 };
   real_type TMP_data[16], TMP1_data[16];
   alglin::MatrixWrapper<real_type> A(A_data,4,4,4);
   alglin::MatrixWrapper<real_type> B(B_data,4,4,4);
@@ -131,12 +131,12 @@ test4() {
 
   /*
   */
-  real_type A_data[] = { 1, 2, 3, 4, 5,
-                         6, 7, 8, 9, 10,
-                         11,12,13,14,15 };
-  real_type B_data[] = { 8, 3, 4,
-                         1, 5, 9,
-                         6, 7, 2 };
+  real_type A_data[]{ 1, 2, 3, 4, 5,
+                      6, 7, 8, 9, 10,
+                      11,12,13,14,15 };
+  real_type B_data[]{ 8, 3, 4,
+                      1, 5, 9,
+                      6, 7, 2 };
   real_type TMP_data[100], TMP1_data[100], TMP2_data[100], TMP3_data[100];
   MatrixWrapper<real_type> A(A_data,5,3,5);
   MatrixWrapper<real_type> B(B_data,3,3,3);
@@ -175,7 +175,7 @@ void
 test5() {
   // solution
   // 0, 0, 7/2+(1/2)*sqrt(73), 7/2-(1/2)*sqrt(73)])
-  real_type A_data[] = {
+  real_type A_data[]{
     2, 0, 2, 0,
     0, 2, 4, 0,
     2, 4, 4, 1,
@@ -193,16 +193,16 @@ test5() {
 
   vector<vector< alglin::Eigenvectors<real_type>::complex_type > > vecs;
   E.getLeftEigenvector( vecs );
-  for ( size_t n = 0; n < 4; ++n ) {
+  for ( size_t n{0}; n < 4; ++n ) {
     fmt::print("vL[{}] = ",n);
-    for ( size_t i = 0; i < 4; ++i )
+    for ( size_t i{0}; i < 4; ++i )
       fmt::print(" {}",vecs[n][i]);
     cout << '\n';
   }
   E.getRightEigenvector( vecs );
-  for ( size_t n = 0; n < 4; ++n ) {
+  for ( size_t n{0}; n < 4; ++n ) {
     fmt::print("vR[{}] = ",n);
-    for ( size_t i = 0; i < 4; ++i )
+    for ( size_t i{0}; i < 4; ++i )
       fmt::print(" {}",vecs[n][i]);
     cout << '\n';
   }
@@ -213,14 +213,14 @@ void
 test6() {
   // solution
   // 0, 0, 7/2+(1/2)*sqrt(73), 7/2-(1/2)*sqrt(73)])
-  real_type A_data[] = { 1, 2, 3, 4,
-                         4, 4, 4, 4,
-                         1, 2, 1, 2,
-                         0, 0, 1, 1 };
-  real_type B_data[] = { 3, 2, 1, 1,
-                         1, 1, 1, 1,
-                         4, 3, 2, 1,
-                         1,-1, 0, 1 };
+  real_type A_data[]{ 1, 2, 3, 4,
+                      4, 4, 4, 4,
+                      1, 2, 1, 2,
+                       0, 0, 1, 1 };
+  real_type B_data[]{ 3, 2, 1, 1,
+                      1, 1, 1, 1,
+                      4, 3, 2, 1,
+                      1,-1, 0, 1 };
   alglin::MatrixWrapper<real_type> A(A_data,4,4,4);
   alglin::MatrixWrapper<real_type> B(B_data,4,4,4);
   alglin::GeneralizedEigenvectors<real_type> E;
@@ -234,16 +234,16 @@ test6() {
 
   vector<vector< alglin::GeneralizedEigenvectors<real_type>::complex_type > > vecs;
   E.getLeftEigenvector( vecs );
-  for ( size_t n = 0; n < 4; ++n ) {
+  for ( size_t n{0}; n < 4; ++n ) {
     fmt::print("vL[{}] = ",n);
-    for ( size_t i = 0; i < 4; ++i )
+    for ( size_t i{0}; i < 4; ++i )
       fmt::print(" {}",vecs[n][i]);
     cout << '\n';
   }
   E.getRightEigenvector( vecs );
-  for ( size_t n = 0; n < 4; ++n ) {
+  for ( size_t n{0}; n < 4; ++n ) {
     fmt::print("vR[{}] = ",n);
-    for ( size_t i = 0; i < 4; ++i )
+    for ( size_t i{0}; i < 4; ++i )
       fmt::print(" {}",vecs[n][i]);
     cout << '\n';
   }

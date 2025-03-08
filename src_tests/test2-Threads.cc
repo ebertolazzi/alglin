@@ -77,10 +77,10 @@ main() {
   int usedThread = 10;
 
   bar.setup(usedThread);
-  for ( int nt = 0; nt < usedThread; ++nt )
+  for ( int nt{0}; nt < usedThread; ++nt )
     threads[nt] = std::thread( &test, nt );
 
-  for ( int nt = 0; nt < usedThread; ++nt ) {
+  for ( int nt{0}; nt < usedThread; ++nt ) {
     threads[nt].join();
     mtx.lock();
     fmt::print( "Thread N.{} joined\n", nt );

@@ -809,16 +809,16 @@ namespace alglin {
     if ( npb > 1 ) {
       Zero_n( m_Fmat + nr_x_nx, (npb-1) * nr_x_nx );
       if ( m_factorize_use_thread ) {
-        for ( integer n_thread = 0; n_thread < npb; ++n_thread )
+        for ( integer n_thread{0}; n_thread < npb; ++n_thread )
           m_TP->run( &BorderedCR<t_Value>::factorize_block, this, n_thread );
         m_TP->wait();
       } else {
-        for ( integer n_thread = 0; n_thread < npb; ++n_thread )
+        for ( integer n_thread{0}; n_thread < npb; ++n_thread )
           factorize_block( n_thread );
       }
       if ( nr_x_nx > 0 ) {
         MapMatrix<t_Value> FMAT( m_Fmat, m_nr, m_nx );
-        for ( integer n_thread = 1; n_thread < npb; ++n_thread ) {
+        for ( integer n_thread{1}; n_thread < npb; ++n_thread ) {
           MapMatrix<t_Value> WORK( m_Fmat + n_thread*nr_x_nx, m_nr, m_nx );
           FMAT.noalias() += WORK;
         }
@@ -1836,8 +1836,8 @@ namespace alglin {
           n, T, n_x_2, xj, 1
         );
         if ( m_selected == BORDERED_Choice::QRP ) {
-          integer const * P = m_Perm + j*n;
-          for ( integer i = 0; i < n; ++i )
+          integer const * P { m_Perm + j * n };
+          for ( integer i{0}; i < n; ++i )
             if ( P[i] > i )
               alglin::swap( xj[i], xj[P[i]] );
         }
@@ -1919,8 +1919,8 @@ namespace alglin {
           n, nrhs, 1.0, T, n_x_2, xj, ldX
         );
         if ( m_selected == BORDERED_Choice::QRP ) {
-          integer const * P = m_Perm + j*n;
-          for ( integer i = 0; i < n; ++i )
+          integer const * P { m_Perm + j * n };
+          for ( integer i{0}; i < n; ++i )
             if ( P[i] > i )
               alglin::swap( nrhs, xj+i, ldX, xj+P[i], ldX );
         }
@@ -1979,8 +1979,8 @@ namespace alglin {
           n, T, n_x_2, xj, 1
         );
         if ( m_selected == BORDERED_Choice::QRP ) {
-          integer const * P = m_Perm + j*n;
-          for ( integer i = 0; i < n; ++i )
+          integer const * P { m_Perm + j * n };
+          for ( integer i{0}; i < n; ++i )
             if ( P[i] > i )
               std::swap( xj[i], xj[P[i]] );
         }
@@ -2052,8 +2052,8 @@ namespace alglin {
           n, nrhs, 1.0, T, n_x_2, xj, ldX
         );
         if ( m_selected == BORDERED_Choice::QRP ) {
-          integer const * P = m_Perm + j*n;
-          for ( integer i = 0; i < n; ++i )
+          integer const * P { m_Perm + j * n };
+          for ( integer i{0}; i < n; ++i )
             if ( P[i] > i )
               alglin::swap( nrhs, xj+i, ldX, xj+P[i], ldX );
         }

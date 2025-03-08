@@ -172,7 +172,7 @@ namespace alglin {
       m_W_LU_working.zero_fill();
 
       // load elements
-      for ( integer k = 0; k < M_nnz; ++k ) {
+      for ( integer k{0}; k < M_nnz; ++k ) {
         t_Value v{ M_values[k] };
         integer i{ M_row[k]+r_offs };
         integer j{ M_col[k]+c_offs };

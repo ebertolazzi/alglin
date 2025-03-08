@@ -109,8 +109,8 @@ testCopy() {
   dm2.resize(N,N);
   dm3.resize(N,N);
 
-  for ( int i = 0; i < N; ++i ) {
-    for ( int j = 0; j < N; ++j ) {
+  for ( int i{0}; i < N; ++i ) {
+    for ( int j{0}; j < N; ++j ) {
       m1(i,j) = dm1(i,j) = M1[i+j*N] = rand(-1,1);
       m2(i,j) = dm2(i,j) = M2[i+j*N] = rand(-1,1);
       m3(i,j) = dm3(i,j) = M3[i+j*N] = rand(-1,1);
@@ -122,7 +122,7 @@ testCopy() {
   // ===========================================================================
 
   tm.tic();
-  for ( int i = 0; i < N_TIMES; ++i ) {
+  for ( int i{0}; i < N_TIMES; ++i ) {
     alglin::gecopy( N, N, M1, N, M2, N ); M1[0] += M2[0];
     alglin::gecopy( N, N, M1, N, M2, N ); M1[0] += M2[0];
     alglin::gecopy( N, N, M1, N, M2, N ); M1[0] += M2[0];
@@ -135,7 +135,7 @@ testCopy() {
   // ===========================================================================
 
   tm.tic();
-  for ( int i = 0; i < N_TIMES; ++i ) {
+  for ( int i{0}; i < N_TIMES; ++i ) {
     dm2.noalias() = dm1; dm1(0,0) += dm2(0,0);
     dm2.noalias() = dm1; dm1(0,0) += dm2(0,0);
     dm2.noalias() = dm1; dm1(0,0) += dm2(0,0);
@@ -148,7 +148,7 @@ testCopy() {
   // ===========================================================================
   {
     tm.tic();
-    for ( int i = 0; i < N_TIMES; ++i ) {
+    for ( int i{0}; i < N_TIMES; ++i ) {
       alglin::GEcopy( N, N, M1, N, M2, N ); M1[0] += M2[0];
       alglin::GEcopy( N, N, M1, N, M2, N ); M1[0] += M2[0];
       alglin::GEcopy( N, N, M1, N, M2, N ); M1[0] += M2[0];
@@ -162,7 +162,7 @@ testCopy() {
   // ===========================================================================
 
   tm.tic();
-  for ( int i = 0; i < N_TIMES; ++i ) {
+  for ( int i{0}; i < N_TIMES; ++i ) {
     m2.noalias() = m1; m1(0,0) += m2(0,0);
     m2.noalias() = m1; m1(0,0) += m2(0,0);
     m2.noalias() = m1; m1(0,0) += m2(0,0);
@@ -175,7 +175,7 @@ testCopy() {
   // ===========================================================================
 
   tm.tic();
-  for ( int i = 0; i < N_TIMES; ++i ) {
+  for ( int i{0}; i < N_TIMES; ++i ) {
     Eigen::Map<matN_t> mm1(M1);
     Eigen::Map<matN_t> mm2(M2);
     mm2.noalias() = mm1; mm1(0,0) += mm2(0,0);
@@ -228,7 +228,7 @@ testVV() {
   dv2.resize(N);
   dv3.resize(N);
 
-  for ( int i = 0; i < N; ++i ) {
+  for ( int i{0}; i < N; ++i ) {
     v1(i) = dv1(i) = V1[i] = rand(-1,1);
     v2(i) = dv2(i) = V2[i] = rand(-1,1);
     v3(i) = dv3(i) = V3[i] = rand(-1,1);
@@ -239,7 +239,7 @@ testVV() {
   // ===========================================================================
 
   tm.tic();
-  for ( int i = 0; i < N_TIMES; ++i ) {
+  for ( int i{0}; i < N_TIMES; ++i ) {
     real_type alpha = 1.0/i;
     alglin::copy( N, V2, 1, V3, 1 );
     alglin::axpy( N, alpha, V1, 1, V3, 1 );
@@ -251,7 +251,7 @@ testVV() {
   // ===========================================================================
 
   tm.tic();
-  for ( int i = 0; i < N_TIMES; ++i ) {
+  for ( int i{0}; i < N_TIMES; ++i ) {
     real_type alpha = 1.0/i;
     dv3.noalias() = dv2 + alpha*dv1;
     dv1.noalias() = dv3;
@@ -263,7 +263,7 @@ testVV() {
 
   {
     tm.tic();
-    for ( int i = 0; i < N_TIMES; ++i ) {
+    for ( int i{0}; i < N_TIMES; ++i ) {
       real_type alpha = 1.0/i;
       alglin::Copy_n( V2, N, V3 );
       alglin::Axpy_n( N, alpha, V1, V3 );
@@ -276,7 +276,7 @@ testVV() {
   // ===========================================================================
 
   tm.tic();
-  for ( int i = 0; i < N_TIMES; ++i ) {
+  for ( int i{0}; i < N_TIMES; ++i ) {
     real_type alpha = 1.0/i;
     v3.noalias() = v2 + alpha*v1;
     v2.noalias() = v3;
@@ -292,7 +292,7 @@ testVV() {
     new (&vv2) Eigen::Map<vecN_t>(V2);
     new (&vv3) Eigen::Map<vecN_t>(V3);
     tm.tic();
-    for ( int i = 0; i < N_TIMES; ++i ) {
+    for ( int i{0}; i < N_TIMES; ++i ) {
       real_type alpha = 1.0/i;
       vv3.noalias() = vv2 + alpha*vv1;
       vv1.noalias() = vv3;
@@ -347,10 +347,10 @@ testMv() {
   dv.resize(N);
   dr.resize(N);
 
-  for ( int i = 0; i < N; ++i ) {
+  for ( int i{0}; i < N; ++i ) {
     dv(i) = v(i) = V[i] = rand(-1,1);
     dr(i) = r(i) = R[i] = rand(-1,1);
-    for ( int j = 0; j < N; ++j ) {
+    for ( int j{0}; j < N; ++j ) {
       m(i,j) = dm(i,j) = M[i+j*N] = rand(-1,1);
     }
   }
@@ -360,7 +360,7 @@ testMv() {
   // ===========================================================================
 
   tm.tic();
-  for ( int i = 0; i < N_TIMES; ++i ) {
+  for ( int i{0}; i < N_TIMES; ++i ) {
     gemv(
       Transposition::NO,
       N, N,
@@ -376,7 +376,7 @@ testMv() {
   // ===========================================================================
 
   tm.tic();
-  for ( int i = 0; i < N_TIMES; ++i ) {
+  for ( int i{0}; i < N_TIMES; ++i ) {
     dr.noalias() -= dm*dv;
     dv.noalias() = dr;
   }
@@ -390,7 +390,7 @@ testMv() {
     //Eigen::Map<dmat_t> mm(NULL,Z,Z);
     //Eigen::Map<dvec_t> vv(NULL,Z), rr(R,Z);
     tm.tic();
-    for ( int i = 0; i < N_TIMES; ++i ) {
+    for ( int i{0}; i < N_TIMES; ++i ) {
       //new (&mm) Eigen::Map<dmat_t>(M,Eigen::Index(N),Eigen::Index(N));
       //new (&vv) Eigen::Map<dvec_t>(V,Eigen::Index(N));
       //new (&rr) Eigen::Map<dvec_t>(R,Eigen::Index(N));
@@ -407,7 +407,7 @@ testMv() {
   // ===========================================================================
 
   tm.tic();
-  for ( int i = 0; i < N_TIMES; ++i ) {
+  for ( int i{0}; i < N_TIMES; ++i ) {
     r.noalias() -= m*v;
     v.noalias() = r;
   }
@@ -420,7 +420,7 @@ testMv() {
     Eigen::Map<matN_t> mm(NULL);
     Eigen::Map<vecN_t> vv(NULL), rr(NULL);
     tm.tic();
-    for ( int i = 0; i < N_TIMES; ++i ) {
+    for ( int i{0}; i < N_TIMES; ++i ) {
       new (&mm) Eigen::Map<matN_t>(M);
       new (&vv) Eigen::Map<vecN_t>(V);
       new (&rr) Eigen::Map<vecN_t>(R);
@@ -434,7 +434,7 @@ testMv() {
   // ===========================================================================
 
   tm.tic();
-  for ( int i = 0; i < N_TIMES; ++i ) {
+  for ( int i{0}; i < N_TIMES; ++i ) {
     alglin::Mv<real_type,N,N,N,N,N>::subTo(M,V,R);
     memcpy( V, R, N*sizeof(real_type) );
     //Vec2<real_type,N*N,1,1>::copy(M3,M2);
@@ -484,8 +484,8 @@ testMM() {
   dm2.resize( Eigen::Index(N), Eigen::Index(N) );
   dm3.resize( Eigen::Index(N), Eigen::Index(N) );
 
-  for ( int i = 0; i < N; ++i ) {
-    for ( int j = 0; j < N; ++j ) {
+  for ( int i{0}; i < N; ++i ) {
+    for ( int j{0}; j < N; ++j ) {
       m1(i,j) = dm1(i,j) = M1[i+j*N] = rand(-1,1);
       m2(i,j) = dm2(i,j) = M2[i+j*N] = rand(-1,1);
       m3(i,j) = dm3(i,j) = M3[i+j*N] = rand(-1,1);
@@ -497,7 +497,7 @@ testMM() {
   // ===========================================================================
 
   tm.tic();
-  for ( int i = 0; i < N_TIMES; ++i ) {
+  for ( int i{0}; i < N_TIMES; ++i ) {
     gemm(
       Transposition::NO,
       Transposition::NO,
@@ -514,7 +514,7 @@ testMM() {
   // ===========================================================================
 
   tm.tic();
-  for ( int i = 0; i < N_TIMES; ++i ) {
+  for ( int i{0}; i < N_TIMES; ++i ) {
     dm3.noalias() -= dm1*dm2;
     dm2.noalias()  = dm3;
   }
@@ -527,7 +527,7 @@ testMM() {
     //Eigen::Index Z(0);
     //Eigen::Map<dmat_t> mm1(NULL,Z,Z), mm2(NULL,Z,Z), mm3(NULL,Z,Z);
     tm.tic();
-    for ( int i = 0; i < N_TIMES; ++i ) {
+    for ( int i{0}; i < N_TIMES; ++i ) {
       //new (&mm1) Eigen::Map<dmat_t>(M1,Eigen::Index(N),Eigen::Index(N));
       //new (&mm2) Eigen::Map<dmat_t>(M2,Eigen::Index(N),Eigen::Index(N));
       //new (&mm3) Eigen::Map<dmat_t>(M3,Eigen::Index(N),Eigen::Index(N));
@@ -544,7 +544,7 @@ testMM() {
   // ===========================================================================
 
   tm.tic();
-  for ( int i = 0; i < N_TIMES; ++i ) {
+  for ( int i{0}; i < N_TIMES; ++i ) {
     m3.noalias() -= m1*m2;
     m2.noalias() = m3;
   }
@@ -556,7 +556,7 @@ testMM() {
   {
     Eigen::Map<matN_t> mm1(NULL), mm2(NULL), mm3(NULL);
     tm.tic();
-    for ( int i = 0; i < N_TIMES; ++i ) {
+    for ( int i{0}; i < N_TIMES; ++i ) {
       new (&mm1) Eigen::Map<matN_t>(M1);
       new (&mm2) Eigen::Map<matN_t>(M2);
       new (&mm3) Eigen::Map<matN_t>(M3);
@@ -570,7 +570,7 @@ testMM() {
   // ===========================================================================
 
   tm.tic();
-  for ( int i = 0; i < N_TIMES; ++i ) {
+  for ( int i{0}; i < N_TIMES; ++i ) {
     MM<real_type,N,N,N,N,N,N>::subTo(M1,M2,M3);
     memcpy( M2, M3, N*N*sizeof(real_type) );
     //Vec2<real_type,N*N,1,1>::copy(M3,M2);

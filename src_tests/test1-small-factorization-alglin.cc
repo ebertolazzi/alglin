@@ -36,10 +36,10 @@ static
 void
 test1() {
   alglin::QR<real_type> qr;
-  integer const M   = 3;
-  integer const N   = 5;
-  integer const LDA = 3;
-  real_type A[] = {
+  integer const M{3};
+  integer const N{5};
+  integer const LDA{3};
+  real_type A[]{
     0.001,      2,     3,
     0.001,  0.001,     0,
     0,      0.001,     0,
@@ -62,7 +62,7 @@ test1() {
   fmt::print( "\nR=\n{}\n", alglin::print_matrix( M, M, R, M ) );
 
   real_type rhs[M], b[M];
-  real_type x[N] = {1,2,3,4,5};
+  real_type x[N]{1,2,3,4,5};
   alglin::gemv( Transposition::NO, M, N, 1, A, LDA, x, 1, 0, rhs, 1 );
   alglin::gemv( Transposition::NO, M, N, 1, A, LDA, x, 1, 0, b, 1 );
 
@@ -93,10 +93,10 @@ static
 void
 test2() {
   alglin::QRP<real_type> qr;
-  integer const M   = 3;
-  integer const N   = 5;
-  integer const LDA = 3;
-  real_type A[] = {
+  integer const M{3};
+  integer const N{5};
+  integer const LDA{3};
+  real_type A[]{
     0.001,      2,     3,
     0.001,  0.001,     0,
     0,      0.001,     0,
@@ -120,7 +120,7 @@ test2() {
   );
 
   real_type rhs[M], b[M];
-  real_type x[N] = {1,2,3,4,5};
+  real_type x[N]{1,2,3,4,5};
   alglin::gemv(
     Transposition::NO, M, N, 1, A, LDA, x, 1, 0, rhs, 1
   );
@@ -155,10 +155,10 @@ static
 void
 test3() {
   alglin::QRP<real_type> qr;
-  integer const M   = 5;
-  integer const N   = 5;
-  integer const LDA = 5;
-  real_type A[] = {
+  integer const M{5};
+  integer const N{5};
+  integer const LDA{5};
+  real_type A[]{
     0.001,      2,     3,     2, 3,
     0.001,  0.001,     0, 0.001, 1e-10,
     0,      0.001,     0, 0.001, 1e-12,
@@ -183,7 +183,7 @@ test3() {
   );
 
   real_type rhs[M], b[M];
-  real_type x[N] = {1,2,3,4,5};
+  real_type x[N]{1,2,3,4,5};
   alglin::gemv( Transposition::NO, M, N, 1, A, LDA, x, 1, 0, rhs, 1 );
   alglin::gemv( Transposition::NO, M, N, 1, A, LDA, x, 1, 0, b, 1 );
 
@@ -240,9 +240,9 @@ test4() {
   alglin::LSY<real_type>  lsy;
   alglin::PINV<real_type> pinv;
 
-  integer const M   = 5;
-  integer const LDA = 5;
-  real_type A[] = {
+  integer const M{5};
+  integer const LDA{5};
+  real_type A[]{
     0.001,      2,     3,       2,      3,
     0.001,  0.001,     0,   0.001,  1e-10,
     0,      0.001,     0,   0.001,  1e-12,
@@ -251,7 +251,7 @@ test4() {
   };
 
   real_type rhs[M], b[M], res;
-  real_type x[M] = {1,2,3,4,5};
+  real_type x[M]{1,2,3,4,5};
   alglin::gemv( Transposition::NO, M, M, 1, A, LDA, x, 1, 0, rhs, 1 );
   alglin::gemv( Transposition::NO, M, M, 1, A, LDA, x, 1, 0, b, 1 );
 
@@ -302,9 +302,9 @@ test5() {
   alglin::LSY<real_type>  lsy;
   alglin::PINV<real_type> pinv;
 
-  integer const M   = 5;
-  integer const LDA = 5;
-  real_type A[] = {
+  integer const M{5};
+  integer const LDA{5};
+  real_type A[]{
     0.001,      2,     3,       2,      3,
     0.001,  0.001,     0,   0.001,  1e-10,
     0,      0.001,     0,   0.001,  1e-12,
@@ -313,7 +313,7 @@ test5() {
   };
 
   real_type rhs[M], b[M], res;
-  real_type x[M] = {1,2,3,4,5};
+  real_type x[M]{1,2,3,4,5};
   alglin::gemv( Transposition::YES, M, M, 1, A, LDA, x, 1, 0, rhs, 1 );
   alglin::gemv( Transposition::YES, M, M, 1, A, LDA, x, 1, 0, b, 1 );
 
@@ -341,13 +341,13 @@ test6() {
   alglin::TridiagonalLU<real_type> lu;
   alglin::TridiagonalQR<real_type> qr;
 
-  integer const N = 5;
-  real_type const D[] = { 1, 1, 2, -0.1, 0.1 };
-  real_type const L[] = { -0.1, -1, -2, -0.1 };
-  real_type const U[] = { -1, -10, -2, 0.1 };
+  integer   const N{5};
+  real_type const D[]{ 1, 1, 2, -0.1, 0.1 };
+  real_type const L[]{ -0.1, -1, -2, -0.1 };
+  real_type const U[]{ -1, -10, -2, 0.1 };
 
   real_type rhs[N], b[N];
-  real_type x[N] = {1,2,3,4,5};
+  real_type x[N]{1,2,3,4,5};
   qr.axpy( N, 1.0, L, D, U, x, 0.0, rhs );
   qr.axpy( N, 1.0, L, D, U, x, 0.0, b   );
 
@@ -393,9 +393,9 @@ void
 test7() {
   alglin::QRP<real_type> qrp;
 
-  integer const M   = 5;
-  integer const LDA = 5;
-  real_type A[] = {
+  integer const M{5};
+  integer const LDA{5};
+  real_type A[]{
     0.001,      2,     3,       2,      3,
     0.001,  0.001,     0,   0.001,  1e-10,
     0,      0.001,     0,   0.001,  1e-12,
@@ -404,7 +404,7 @@ test7() {
   };
 
   real_type rhs[M], b[M];
-  real_type x[M] = {1,2,3,4,5};
+  real_type x[M]{1,2,3,4,5};
   alglin::gemv( Transposition::YES, M, M, 1, A, LDA, x, 1, 0, rhs, 1 );
   alglin::gemv( Transposition::YES, M, M, 1, A, LDA, x, 1, 0, b, 1 );
 

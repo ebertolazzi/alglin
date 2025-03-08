@@ -37,10 +37,10 @@ void
 test0() {
 
   alglin::KKT<real_type> kkt;
-  integer const N = 2;
-  integer const M = 1;
+  integer const N{2};
+  integer const M{1};
 
-  real_type A[] = {
+  real_type A[]{
     1,      0,
     0,      1,
   };
@@ -49,9 +49,9 @@ test0() {
   //  A B
   //  C D
   //
-  real_type B[] = { 0, 0 };
-  real_type C[] = { 0, 0 };
-  real_type D[] = { 2 };
+  real_type B[]{ 0, 0 };
+  real_type C[]{ 0, 0 };
+  real_type D[]{ 2 };
 
   // 1 0 0 -> 1
   // 0 1 0 -> 2
@@ -64,7 +64,7 @@ test0() {
     D, M, false  // M x M
   );
   kkt.factorize();
-  real_type x[N+M] = { 1, 2, 3 };
+  real_type x[N+M]{ 1, 2, 3 };
   real_type rhs[N+M];
 
   alglin::gemv(
@@ -95,10 +95,10 @@ test0() {
     1,
     rhs+N, 1
   );
-  for ( integer i = 0; i < N+M; ++i )
+  for ( integer i{0}; i < N+M; ++i )
     fmt::print("rhs[{}] = {}\n",i,rhs[i]);
   kkt.solve( rhs );
-  for ( integer i = 0; i < N+M; ++i )
+  for ( integer i{0}; i < N+M; ++i )
     fmt::print("x[{}] = {}\n",i,rhs[i]);
 }
 
@@ -107,17 +107,17 @@ void
 test1() {
 
   alglin::KKT<real_type> kkt;
-  integer const N = 2;
-  integer const M = 1;
+  integer const N{2};
+  integer const M{1};
 
-  real_type A[] = {
+  real_type A[]{
     1,      3,
    -2,      1,
   };
 
-  real_type B[] = { 1, -1 };
-  real_type C[] = { -1, 1 };
-  real_type D[] = { 2 };
+  real_type B[]{ 1, -1 };
+  real_type C[]{ -1, 1 };
+  real_type D[]{ 2 };
 
   //  1 -2  1 -> 0
   //  3  1 -1 -> 2
@@ -131,7 +131,7 @@ test1() {
     D, M, false  // M x M
   );
   kkt.factorize();
-  real_type x[N+M] = { 1, 2, 3 };
+  real_type x[N+M]{ 1, 2, 3 };
   real_type rhs[N+M];
 
   alglin::gemv(
@@ -162,10 +162,10 @@ test1() {
     1,
     rhs+N, 1
   );
-  for ( integer i = 0; i < N+M; ++i )
+  for ( integer i{0}; i < N+M; ++i )
     fmt::print("rhs[{}] = {}\n",i,rhs[i]);
   kkt.solve( rhs );
-  for ( integer i = 0; i < N+M; ++i )
+  for ( integer i{0}; i < N+M; ++i )
     fmt::print("x[{}] = {}\n",i,rhs[i]);
 }
 
@@ -176,28 +176,28 @@ test2() {
   using namespace alglin;
 
   alglin::KKT<real_type> kkt;
-  integer const N = 3;
-  integer const M = 2;
+  integer const N{3};
+  integer const M{2};
 
-  real_type A[] = {
+  real_type A[]{
     0.001,      2,     3,
     0.001,      0.001, 0,
     0,          0.001, 2,
   };
 
-  real_type B[] = {
+  real_type B[]{
     0.001,      3,
     0.001,      -0.001,
     1,          2,
   };
 
-  real_type C[] = {
+  real_type C[]{
     2,       3,
     -0.001,  -0.001,
     1,        2,
   };
 
-  real_type D[] = {
+  real_type D[]{
     1,      4,
     -1,      1
   };
@@ -210,7 +210,7 @@ test2() {
     D, M, false  // M x M
   );
   kkt.factorize();
-  real_type x[] = { 1, 2, 3, 4, 5, 1, 2, 3, 4, 5 };
+  real_type x[]{ 1, 2, 3, 4, 5, 1, 2, 3, 4, 5 };
   real_type rhs[2*(N+M)];
 
   gemv(
@@ -242,11 +242,11 @@ test2() {
     rhs+N, 1
   );
   alglin::Copy_n( rhs, N+M, rhs+N+M );
-  for ( integer i = 0; i < N+M; ++i )
+  for ( integer i{0}; i < N+M; ++i )
     fmt::print("rhs[{}] = {}\n",i,rhs[i]);
   //kkt.solve( rhs );
   kkt.solve( 2, rhs, N+M );
-  for ( integer i = 0; i < N+M; ++i )
+  for ( integer i{0}; i < N+M; ++i )
     fmt::print("x[{}] = {}\n",i,rhs[i]);
 
 }
@@ -258,28 +258,28 @@ test3() {
   using namespace alglin;
 
   KKT<real_type> kkt;
-  integer const N = 3;
-  integer const M = 2;
+  integer const N{3};
+  integer const M{2};
 
-  real_type A[] = {
+  real_type A[]{
     0.001,      2,     3,
     0.001,      0.001, 0,
     0,          0.001, 2,
   };
 
-  real_type B[] = {
+  real_type B[]{
     0.001,      3,
     0.001,     -0.001,
     1,          2,
   };
 
-  real_type C[] = {
+  real_type C[]{
      2,       3,
     -0.001,  -0.001,
      1,       2,
   };
 
-  real_type D[] = {
+  real_type D[]{
     1,      4,
     -1,      1
   };
@@ -292,7 +292,7 @@ test3() {
     D, M, false  // M x M
   );
   kkt.factorize();
-  real_type x[] = { 1, 2, 3, 4, 5, 1, 2, 3, 4, 5 };
+  real_type x[]{ 1, 2, 3, 4, 5, 1, 2, 3, 4, 5 };
   real_type rhs[2*(N+M)];
 
   gemv(
@@ -326,10 +326,10 @@ test3() {
 
   Copy_n( rhs, N+M, rhs+N+M );
 
-  for ( integer i = 0; i < N+M; ++i )
+  for ( integer i{0}; i < N+M; ++i )
     fmt::print("rhs[{}] = {}\n",i,rhs[i]);
   kkt.t_solve( 2, rhs, N+M );
-  for ( integer i = 0; i < N+M; ++i )
+  for ( integer i{0}; i < N+M; ++i )
     fmt::print("x[{}] = {}\n",i,rhs[i]);
 }
 
@@ -340,19 +340,19 @@ test4() {
   using namespace alglin;
 
   KKT<real_type> kkt;
-  integer const N = 10;
-  integer const M = 2;
+  integer const N{10};
+  integer const M{2};
   BandedLU<real_type> bLU;
 
   bLU.setup( N, N, 3, 2 ); // number of upper diagonal
   bLU.zero();
 
-  integer ldAA = 2;
-  real_type AA[] = {
+  integer ldAA{2};
+  real_type AA[]{
     3, 1,
     1, 3,
   };
-  for ( integer i = 0; i < N; ++i ) bLU(i,i) = i+1;
+  for ( integer i{0}; i < N; ++i ) bLU(i,i) = i+1;
   bLU.load_block( 2, 2, AA, ldAA, 0, 0 );
   bLU.load_block( 2, 2, AA, ldAA, 3, 3 );
   bLU.load_block( 2, 2, AA, ldAA, 6, 6 );
@@ -360,7 +360,7 @@ test4() {
 
   //bLU.dump( cout );
 
-  real_type B[] = {
+  real_type B[]{
     0.001,      3,
     0.001,     -0.001,
     1,          2,
@@ -373,7 +373,7 @@ test4() {
     0.001,     -0.001,
   };
 
-  real_type C[] = {
+  real_type C[]{
     1,          2,
     1,          2,
     0.001,      3,
@@ -386,15 +386,15 @@ test4() {
     0.001,      3,
   };
 
-  real_type D[] = {
+  real_type D[]{
     1,      4,
     -1,      1
   };
 
-  real_type x[] = { 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2 };
+  real_type x[]{ 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2 };
   real_type rhs[2*(N+M)];
 
-  for ( integer i = 0; i < N+M; ++i ) rhs[i] = 0;
+  for ( integer i{0}; i < N+M; ++i ) rhs[i] = 0;
   bLU.aAxpy( 1.0, x, rhs );
 
   gemv(
@@ -423,7 +423,7 @@ test4() {
 
   Copy_n( rhs, N+M, rhs+N+M );
 
-  for ( integer i = 0; i < N+M; ++i )
+  for ( integer i{0}; i < N+M; ++i )
     fmt::print("rhs[{}] = {}\n",i,rhs[i]);
 
   // must be factorized before to call kkt.factorize
@@ -437,7 +437,7 @@ test4() {
   );
   kkt.factorize();
   kkt.t_solve( 2, rhs, N+M );
-  for ( integer i = 0; i < N+M; ++i )
+  for ( integer i{0}; i < N+M; ++i )
     fmt::print("x[{}] = {}\n",i,rhs[i]);
 }
 
@@ -448,21 +448,21 @@ test5() {
   using namespace alglin;
 
   KKT<real_type> kkt;
-  integer const N   = 7;
-  integer const M   = 2;
-  integer const nnz = 22;
+  integer const N{7};
+  integer const M{2};
+  integer const nnz{22};
 
-  integer ii[] = {
+  integer ii[]{
     1, 2, 3, 8, 2, 4, 9, 3, 5, 6, 7,
     8, 4, 9, 5, 8, 6, 9, 7, 9, 8, 9
   };
 
-  integer jj[] = {
+  integer jj[]{
     1, 1, 1, 1, 2, 2, 2, 3, 3, 3, 3,
     3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 9
   };
 
-  real_type vals[] = {
+  real_type vals[]{
     2, 1, -1, 1, 1, -1, 2, 2, 1, 2, 2,
     3, 2, 4, 3, 5, 3, 6, 1, 1, 1, 1
   };
@@ -477,12 +477,12 @@ test5() {
   );
   kkt.factorize();
 
-  //real_type x[]   = { 1, 2, 3, 4, 5, -1, -2, -3, -4, -5 };
-  real_type rhs[] = { -2, -9, -5, -10, 3, -21, 0, 32, 8 };
+  //real_type x[]{ 1, 2, 3, 4, 5, -1, -2, -3, -4, -5 };
+  real_type rhs[]{ -2, -9, -5, -10, 3, -21, 0, 32, 8 };
 
   //kkt.t_solve( 1, rhs, N+M );
   kkt.t_solve( rhs );
-  for ( integer i = 0; i < N+M; ++i )
+  for ( integer i{0}; i < N+M; ++i )
     cout << "x[" << i << "] = " << rhs[i] << '\n';
 }
 
@@ -493,27 +493,27 @@ test6() {
   using namespace alglin;
 
   KKT<real_type> kkt;
-  integer const N   = 7;
-  integer const M   = 2;
-  integer const nnz = 22;
+  integer const N{7};
+  integer const M{2};
+  integer const nnz{22};
 
-  integer ii[] = {
+  integer ii[]{
     1, 2, 3, 8, 2, 4, 9, 3, 5, 6, 7,
     8, 4, 9, 5, 8, 6, 9, 7, 9, 8, 9
   };
 
-  integer jj[] = {
+  integer jj[]{
     1, 1, 1, 1, 2, 2, 2, 3, 3, 3, 3,
     3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 9
   };
 
-  real_type vals[] = {
+  real_type vals[]{
     2, 1, -1, 1, 1, -1, 2, 2, 1, 2, 2,
     3, 2, 4, 3, 5, 3, 6, 1, 1, 1, 1
   };
 
   // must be factorized before to call kkt.factorize
-  integer kblocks[] = { 0, 2, 4, 7 };
+  integer kblocks[]{ 0, 2, 4, 7 };
   kkt.load_triblock(
     N, M,
     3, kblocks,
@@ -525,11 +525,11 @@ test6() {
   kkt.factorize();
 
   //real_type x[]   = { 1, 2, 3, 4, 5, -1, -2, -3, -4, -5 };
-  real_type rhs[] = { -2, -9, -5, -10, 3, -21, 0, 32, 8 };
+  real_type rhs[]{ -2, -9, -5, -10, 3, -21, 0, 32, 8 };
 
   //kkt.t_solve( 1, rhs, N+M );
   kkt.t_solve( rhs );
-  for ( integer i = 0; i < N+M; ++i )
+  for ( integer i{0}; i < N+M; ++i )
     fmt::print("x[{}] = {}\n",i,rhs[i]);
 }
 

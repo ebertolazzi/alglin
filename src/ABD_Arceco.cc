@@ -98,8 +98,9 @@ namespace alglin {
     // r           +------------------+
     //             |                  |
     // r+numRow    +------------------+
-    integer r = nrows(0), c = ncols(0) - noverlap(0);
-    for ( integer k = 1; k < nblocks; ++k ) {
+    integer r{ nrows(0) };
+    integer c{ ncols(0) - noverlap(0) };
+    for ( integer k{1}; k < nblocks; ++k ) {
       UTILS_ASSERT(
         c <= r && c+ncols(k) >= r+nrows(k),
         "ArcecoLU::checkStructure: block n. {} do not cross the diagonal\n", k
@@ -108,8 +109,8 @@ namespace alglin {
       c += ncols(k)-noverlap(k);
     }
 
-    integer isum1 = 0;
-    integer isum2 = 0;
+    integer isum1{0};
+    integer isum2{0};
     for ( integer k{0}; k < nblocks; ++k ) {
       isum1 += nrows(k);
       isum2 += ncols(k) - noverlap(k);

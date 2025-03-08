@@ -30,17 +30,17 @@ main() {
   using Simplex::infinity;
   Simplex::integer m = 3;
   Simplex::integer n = 5;
-  Simplex::real_type A[] = { 1, 40, 6,
-                             1, 120, 12,
-                             1, 0, 0,
-                             0, 1, 0,
-                             0, 0, 1 };
-  Simplex::real_type b[]  = { 40, 2400, 312 };
-  Simplex::real_type c[]  = { -100, -250, 0, 0, 0 };
-  Simplex::real_type L[]  = { 0, 0, 0, 0, 0 };
-  Simplex::real_type U[]  = { infinity, infinity, infinity, infinity, infinity };
-  Simplex::real_type x[]  = { 0, 0, 40, 2400, 312 };
-  Simplex::integer   IB[] = { 2, 3, 4 };
+  Simplex::real_type A[]{ 1, 40, 6,
+                          1, 120, 12,
+                          1, 0, 0,
+                          0, 1, 0,
+                          0, 0, 1 };
+  Simplex::real_type b[]{ 40, 2400, 312 };
+  Simplex::real_type c[]{ -100, -250, 0, 0, 0 };
+  Simplex::real_type L[]{ 0, 0, 0, 0, 0 };
+  Simplex::real_type U[]{ infinity, infinity, infinity, infinity, infinity };
+  Simplex::real_type x[]{ 0, 0, 40, 2400, 312 };
+  Simplex::integer   IB[]{ 2, 3, 4 };
 
   Simplex::StandardProblem simplex_problem;
   Simplex::AuxProblem      simplex_problem_aux;

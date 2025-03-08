@@ -202,13 +202,13 @@ namespace alglin {
       //
       */
 
-      for ( integer k = 1; k < nblock; ++k ) {
+      for ( integer k{1}; k < nblock; ++k ) {
 
-        real_type * B    = m_DE_blk + (2*k)*n_x_n;
-        real_type * A    = B - n_x_n;
-        real_type * C    = B + n_x_n;
-        real_type * F    = m_F_mat + k*m_F_size;
-        integer   * swps = m_swapR_blks + k * n;
+        real_type * B    { m_DE_blk + (2*k)*n_x_n };
+        real_type * A    { B - n_x_n              };
+        real_type * C    { B + n_x_n              };
+        real_type * F    { m_F_mat + k*m_F_size   };
+        integer   * swps { m_swapR_blks + k * n   };
 
         // copy from
         GEcopy( row00, n, A + n_m_row00, n, m_Work_mat,        m_Work_ldim );
@@ -218,15 +218,11 @@ namespace alglin {
 
         // factorize
         info = getrf( n+row00, n, m_Work_mat, m_Work_ldim, swps );
-        UTILS_ASSERT(
-          info == 0, "BlockLU::factorize, first block, getrf INFO = {}\n", info
-        );
+        UTILS_ASSERT( info == 0, "BlockLU::factorize, first block, getrf INFO = {}\n", info );
 
         // apply permutation
         info = alglin::swaps( n, m_Work_mat1, m_Work_ldim, 0, n-1, swps, 1 );
-        UTILS_ASSERT(
-          info == 0, "BlockLU::factorize, first block, swaps INFO = {}\n", info
-        );
+        UTILS_ASSERT( info == 0, "BlockLU::factorize, first block, swaps INFO = {}\n", info );
         trsm(
           SideMultiply::LEFT,
           ULselect::LOWER,
@@ -262,8 +258,8 @@ namespace alglin {
       */
 
       // fattorizzazione ultimo blocco
-      real_type * B = m_DE_blk + (2*nblock-1)*n_x_n;
-      integer N = row00+rowN;
+      real_type * B{ m_DE_blk + (2*nblock-1)*n_x_n };
+      integer     N{ row00 + rowN };
       m_la_matrix.setup( N, N );
       m_la_matrix.zero_block(row00,N-n,0,n);
       m_la_matrix.load_block(row00,n,B+n_m_row00,n,0,0);
@@ -294,18 +290,18 @@ namespace alglin {
     real_type  in_out[]
   ) const {
 
-    integer const & nblock = m_number_of_blocks;
-    integer const & n      = m_block_size;
+    integer const & nblock  { m_number_of_blocks };
+    integer const & n       { m_block_size };
 
-    integer const & col00  = m_num_initial_OMEGA;
-    integer const & row0   = m_num_initial_BC;
-    integer const & rowN   = m_num_final_BC;
+    integer const & col00   { m_num_initial_OMEGA };
+    integer const & row0    { m_num_initial_BC };
+    integer const & rowN    { m_num_final_BC };
 
-    integer const row00     = row0 - col00;
-    integer const n_m_row00 = n - row00;
+    integer const row00     { row0 - col00 };
+    integer const n_m_row00 { n - row00 };
 
     // permuto le x
-    integer neq = nblock*n+row0+rowN;
+    integer neq{ nblock * n + row0 + rowN };
     if ( do_permute ) rotate( in_out, in_out + neq - row0, in_out + neq );
 
     if ( nblock > 0 ) {
@@ -328,7 +324,7 @@ namespace alglin {
       */
       if ( col00 > 0 ) {
         // apply permutation
-        integer info = alglin::swaps( 1, io, row0, 0, col00-1, m_swap0, 1 );
+        integer info{ alglin::swaps( 1, io, row0, 0, col00-1, m_swap0, 1 ) };
         UTILS_ASSERT(
           info == 0, "BlockLU::solve, first block, swaps INFO = {}\n", info
         );
@@ -361,7 +357,7 @@ namespace alglin {
       //                |            |            |
       //
       */
-      real_type const * block00 = m_block0 + col00*row0;
+      real_type const * block00 { m_block0 + col00 * row0 };
 
       // apply permutation
       integer info = alglin::swaps( 1, io, n, 0, n-1, m_swapR_blks, 1 );
@@ -401,19 +397,16 @@ namespace alglin {
       //              |    B       |            |
       //
       */
-      integer k = 0;
+      integer k{0};
       while ( ++k < nblock ) {
 
-        real_type * B    = m_DE_blk + (2*k)*n_x_n;
-        real_type * A    = B - n_x_n;
-        integer   * swps = m_swapR_blks + k * n;
+        real_type * B    { m_DE_blk + (2*k)*n_x_n };
+        real_type * A    { B - n_x_n };
+        integer   * swps { m_swapR_blks + k * n };
 
         // apply permutation
         info = alglin::swaps( 1, io, n, 0, n-1, swps, 1 );
-        UTILS_ASSERT(
-          info == 0,
-          "BlockLU::solve, first block, swaps INFO = {}\n", info
-        );
+        UTILS_ASSERT( info == 0, "BlockLU::solve, first block, swaps INFO = {}\n", info );
 
         // copy from
         GEcopy( row00, n, A + n_m_row00, n, m_Work_mat,       m_Work_ldim );
@@ -471,10 +464,10 @@ namespace alglin {
       */
       while ( --k > 0 ) {
 
-        real_type * B = m_DE_blk + (2*k)*n_x_n;
-        real_type * C = B + n_x_n;
-        real_type * A = B - n_x_n;
-        real_type * F = m_F_mat + k*m_F_size;
+        real_type * B { m_DE_blk + (2*k)*n_x_n };
+        real_type * C { B + n_x_n };
+        real_type * A { B - n_x_n };
+        real_type * F { m_F_mat + k*m_F_size };
 
         // copy from
         GEcopy( row00,     n, A + n_m_row00, n,        m_Work_mat,        m_Work_ldim );
@@ -500,8 +493,8 @@ namespace alglin {
 
       }
 
-      real_type * B = m_DE_blk;
-      real_type * C = B + n_x_n;
+      real_type * B { m_DE_blk };
+      real_type * C { B + n_x_n };
 
       // copy from
       GEcopy( row00,     n, block00 + col00, row0,     m_Work_mat,        m_Work_ldim );
@@ -574,22 +567,22 @@ namespace alglin {
     integer    ldRhs
   ) const {
 
-    integer const & nblock = m_number_of_blocks;
-    integer const & n      = m_block_size;
+    integer const & nblock  { m_number_of_blocks };
+    integer const & n       { m_block_size };
 
-    integer const & col00  = m_num_initial_OMEGA;
-    integer const & row0   = m_num_initial_BC;
-    integer const & rowN   = m_num_final_BC;
+    integer const & col00   { m_num_initial_OMEGA };
+    integer const & row0    { m_num_initial_BC };
+    integer const & rowN    { m_num_final_BC };
 
-    integer const row00     = row0 - col00;
-    integer const n_m_row00 = n - row00;
+    integer const row00     { row0 - col00 };
+    integer const n_m_row00 { n - row00 };
 
-    integer neq = nblock*n+row0+rowN;
+    integer neq{ nblock * n + row0 + rowN };
 
     // permuto le x
-    real_type * io = in_out;
+    real_type * io{ in_out };
     if ( do_permute ) {
-      for ( integer k = 0; k < nrhs; ++k ) {
+      for ( integer k{0}; k < nrhs; ++k ) {
         rotate( io, io + neq - row0, io + neq );
         io += ldRhs;
       }
@@ -615,7 +608,7 @@ namespace alglin {
       */
       if ( col00 > 0 ) {
         // apply permutation
-        integer info = alglin::swaps( 1, io, row0, 0, col00-1, m_swap0, 1 );
+        integer info{ alglin::swaps( 1, io, row0, 0, col00-1, m_swap0, 1 ) };
         UTILS_ASSERT(
           info == 0, "BlockLU::solve, first block, swaps INFO = {}\n", info
         );
@@ -650,13 +643,11 @@ namespace alglin {
       //                |            |            |
       //
       */
-      real_type const * block00 = m_block0 + col00*row0;
+      real_type const * block00 { m_block0 + col00*row0 };
 
       // apply permutation
-      integer info = alglin::swaps( nrhs, io, ldRhs, 0, n-1, m_swapR_blks, 1 );
-      UTILS_ASSERT(
-        info == 0, "BlockLU::solve, first block, swaps INFO = {}\n", info
-      );
+      integer info { alglin::swaps( nrhs, io, ldRhs, 0, n-1, m_swapR_blks, 1 ) };
+      UTILS_ASSERT( info == 0, "BlockLU::solve, first block, swaps INFO = {}\n", info );
 
       // copy from
       GEcopy( row00, n, block00 + col00, row0, m_Work_mat,       m_Work_ldim );
@@ -693,18 +684,16 @@ namespace alglin {
       //              |    B       |            |
       //
       */
-      integer k = 0;
+      integer k{0};
       while ( ++k < nblock ) {
 
-        real_type * B    = m_DE_blk + (2*k)*n_x_n;
-        real_type * A    = B - n_x_n;
-        integer   * swps = m_swapR_blks + k * n;
+        real_type * B    { m_DE_blk + (2*k)*n_x_n };
+        real_type * A    { B - n_x_n };
+        integer   * swps { m_swapR_blks + k * n };
 
         // apply permutation
         info = alglin::swaps( nrhs, io, ldRhs, 0, n-1, swps, 1 );
-        UTILS_ASSERT(
-          info == 0, "BlockLU::solve, first block, swaps INFO = {}\n", info
-        );
+        UTILS_ASSERT( info == 0, "BlockLU::solve, first block, swaps INFO = {}\n", info );
 
         // copy from
         GEcopy( row00, n, A + n_m_row00, n, m_Work_mat,       m_Work_ldim );
@@ -765,10 +754,10 @@ namespace alglin {
       */
       while ( --k > 0 ) {
 
-        real_type * B = m_DE_blk + (2*k)*n_x_n;
-        real_type * C = B + n_x_n;
-        real_type * A = B - n_x_n;
-        real_type * F = m_F_mat + k*m_F_size;
+        real_type * B { m_DE_blk + (2*k)*n_x_n };
+        real_type * C { B + n_x_n };
+        real_type * A { B - n_x_n };
+        real_type * F { m_F_mat + k*m_F_size };
 
         // copy from
         GEcopy( row00,     n, A + n_m_row00, n,        m_Work_mat,        m_Work_ldim );
@@ -797,8 +786,8 @@ namespace alglin {
 
       }
 
-      real_type * B = m_DE_blk;
-      real_type * C = B + n_x_n;
+      real_type * B { m_DE_blk  };
+      real_type * C { B + n_x_n };
 
       // copy from
       GEcopy( row00,     n, block00 + col00, row0,     m_Work_mat,        m_Work_ldim );
@@ -858,7 +847,7 @@ namespace alglin {
     // permuto le x
     if ( do_permute ) {
       io = in_out;
-      for ( integer k = 0; k < nrhs; ++k ) {
+      for ( integer k{0}; k < nrhs; ++k ) {
         rotate( io, io + col00, io + neq );
         io += ldRhs;
       }

@@ -39,14 +39,14 @@ main() {
   ABD_intType colN   = 4;
 
   ABD_intType ldTOP = 2;
-  ABD_realType const TOP[] = {
+  ABD_realType const TOP[]{
     1,  2,
     2,  3,
     3, -1
   };
 
   ABD_intType ldBOTTOM = 3;
-  ABD_realType const BOTTOM[] = {
+  ABD_realType const BOTTOM[]{
     1,  2,  1,
     2,  3,  0,
     3, -1, -1,
@@ -54,7 +54,7 @@ main() {
   };
 
   ABD_intType ldDE = 2;
-  ABD_realType const DE[] = {
+  ABD_realType const DE[]{
      1, 2,
      3, 4,
      3, -1,
@@ -71,7 +71,7 @@ main() {
      2, -1
   };
 
-  ABD_realType rhs[] = { 6, 4, 9, 4, 9, 4, 9, 4, 7, 3, 2 };
+  ABD_realType rhs[]{ 6, 4, 9, 4, 9, 4, 9, 4, 7, 3, 2 };
 
   ABD_intType mat_id = 1;
 

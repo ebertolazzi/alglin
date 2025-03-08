@@ -187,9 +187,9 @@ namespace alglin {
   void
   BBlockLU<t_Value>::solve( real_type y[] ) const {
 
-    integer const & nblock{m_number_of_blocks};
-    integer const & n{m_block_size};
-    integer const & q{m_extra_bc};
+    integer const & nblock { m_number_of_blocks };
+    integer const & n      { m_block_size };
+    integer const & q      { m_extra_bc };
 
     // solve L
     integer     m     {n+q};
@@ -197,7 +197,7 @@ namespace alglin {
     integer     rowFF {(nblock-1) * n};
     real_type * ye    {y + nblock * n};
 
-    for ( integer k = 0; k < nblock; ++k ) {
+    for ( integer k{0}; k < nblock; ++k ) {
       integer   const * ipivk {m_ipiv_blk + k * n};
       real_type const * AdH   {m_AdH_blk  + k * (nm*n)};
       real_type       * yk    {y          + k * n};

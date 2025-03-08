@@ -78,14 +78,14 @@ namespace alglin {
     integer   const ldA,
     bool      const transposed
   ) {
-    integer const & n = m_dim1;
+    integer const & n { m_dim1 };
     UTILS_ASSERT(
       ldA >= n, "KKT::load_A bad ldA = {} must be >= {}\n", ldA, n
     );
     m_Asolver = &m_A_LU;
     m_A_LU_working.setup(n,n);
     if ( transposed ) {
-      for ( integer i = 0; i < n; ++i )
+      for ( integer i{0}; i < n; ++i )
         m_A_LU_working.load_row(A+i*ldA,i);
     } else {
       m_A_LU_working.load_block(n,n,A,ldA);
@@ -104,8 +104,8 @@ namespace alglin {
     integer   const B_col[], integer const c_offs,
     integer   const B_nnz
   ) {
-    integer const & n = m_dim1;
-    integer const & m = m_dim2;
+    integer const & n { m_dim1 };
+    integer const & m { m_dim2 };
     GEzero( n, m, m_Zmat, n );
     for ( integer k{0}; k < B_nnz; ++k ) {
       integer i{ B_row[k]+r_offs };
@@ -128,8 +128,8 @@ namespace alglin {
     integer   const ldB,
     bool      const transposed
   ) {
-    integer const & n{m_dim1};
-    integer const & m{m_dim2};
+    integer const & n { m_dim1 };
+    integer const & m { m_dim2 };
     if ( transposed ) {
       UTILS_ASSERT( ldB >= m, "KKT::load_B bad ldB = {} must be >= {}\n", ldB, m );
       for ( integer i{0}; i < n; ++i )

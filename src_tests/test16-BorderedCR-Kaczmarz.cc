@@ -63,37 +63,37 @@ fill_matrix(
 
   real_type diag = 1.01*n;
 
-  for ( int i = 0; i < (n+qr); ++i ) {
-    for ( int j = 0; j < (2*n+qx+nx); ++j ) {
+  for ( int i{0}; i < (n+qr); ++i ) {
+    for ( int j{0}; j < (2*n+qx+nx); ++j ) {
       BCR.H(i,j) = rand(-1,0);
     }
     BCR.H(i,i+n) += diag; // force diagonal dominance
   }
 
-  for ( int k = 0; k < nblock; ++k ) {
-    for ( int i = 0; i < n; ++i ) {
-      for ( int j = 0; j < n; ++j ) {
+  for ( int k{0}; k < nblock; ++k ) {
+    for ( int i{0}; i < n; ++i ) {
+      for ( int j{0}; j < n; ++j ) {
         BCR.D(k,i,j) = rand(-1,0);
         BCR.E(k,i,j) = rand(-1,0);
       }
       BCR.D(k,i,i) += diag; // force diagonal dominance
     }
-    for ( int i = 0; i < n; ++i ) {
-      for ( int j = 0; j < nx; ++j ) BCR.B(k,i,j) = rand(-0.1,0.1);
-      for ( int j = 0; j < nr; ++j ) BCR.C(k,j,i) = rand(-0.1,0.1);
+    for ( int i{0}; i < n; ++i ) {
+      for ( int j{0}; j < nx; ++j ) BCR.B(k,i,j) = rand(-0.1,0.1);
+      for ( int j{0}; j < nr; ++j ) BCR.C(k,j,i) = rand(-0.1,0.1);
     }
   }
-  for ( int i = 0; i < nr; ++i ) {
-    for ( int j = 0; j < nx; ++j ) {
+  for ( int i{0}; i < nr; ++i ) {
+    for ( int j{0}; j < nx; ++j ) {
       BCR.F(i,j) = rand(-0.1,0.1);
     }
-    for ( int j = 0; j < qx; ++j ) {
+    for ( int j{0}; j < qx; ++j ) {
       BCR.Cq(i,j) = rand(-0.1,0.1);
     }
     BCR.F(i,i) += diag; // force diagonal dominance
   }
-  for ( int i = 0; i < n; ++i ) {
-    for ( int j = 0; j < nr; ++j ) {
+  for ( int i{0}; i < n; ++i ) {
+    for ( int j{0}; j < nr; ++j ) {
       BCR.C(nblock,j,i) = 1;
     }
   }
@@ -106,7 +106,7 @@ main( int argc, char *argv[] ) {
 
   alglin::integer nth = std::thread::hardware_concurrency();
 
-  for ( int i = 0; i < argc; ++i )
+  for ( int i{0}; i < argc; ++i )
     fmt::print( "arg[{}] = {}\n", i, argv[i] );
 
   if ( argc == 2 ) nth = atoi( argv[1] );
@@ -117,25 +117,25 @@ main( int argc, char *argv[] ) {
 
   #define NSIZE 8
 
-  alglin::integer n      = NSIZE;
-  alglin::integer nblock = 10000;
-  alglin::integer qx     = 4;// 4+1;
-  alglin::integer qr     = 4;// 4;
-  alglin::integer nx     = 1;// 2-1;
-  alglin::integer nr     = 1;//2;
-  alglin::integer N      = (nblock+1)*n+nx+qx;
+  alglin::integer n      { NSIZE };
+  alglin::integer nblock { 10000 };
+  alglin::integer qx     { 4 };// 4+1;
+  alglin::integer qr     { 4 };// 4;
+  alglin::integer nx     { 1 };// 2-1;
+  alglin::integer nr     { 1 };//2;
+  alglin::integer N      { (nblock+1) * n + nx + qx };
 
   fill_matrix( BCR, nblock, n, nr, nx, qr, qx );
 
   alglin::Malloc<real_type>       base_value("real");
   alglin::Malloc<alglin::integer> base_index("integer");
 
-  base_value.allocate( size_t(7*N) );
-  real_type * x     = base_value(size_t(2*N)); // extra space per multiple rhs
-  real_type * xref  = base_value(size_t(N));
-  real_type * xref1 = base_value(size_t(N));
-  real_type * rhs   = base_value(size_t(2*N));
-  real_type * resid = base_value(size_t(N));
+  base_value.allocate( 7*N );
+  real_type * x     { base_value( 2*N) }; // extra space per multiple rhs
+  real_type * xref  { base_value( N)   };
+  real_type * xref1 { base_value( N)   };
+  real_type * rhs   { base_value( 2*N) };
+  real_type * resid { base_value( N)   };
 
   BCR.select_LU();
   //BCR.select_QR();
@@ -150,7 +150,7 @@ main( int argc, char *argv[] ) {
   //BCR.select_last_LSY();
   //BCR.select_last_PINV();
 
-  for ( alglin::integer i = 0; i < N; ++i ) x[i] = 1+ (i % 100);
+  for ( alglin::integer i{0}; i < N; ++i ) x[i] = 1+ (i % 100);
   alglin::Copy_n( x, N, xref );
   BCR.Mv( x, rhs );
   BCR_SAVED.dup( BCR );

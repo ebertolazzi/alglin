@@ -588,7 +588,7 @@ namespace Simplex {
       integer   i_row[]
     ) const override {
       copy_n( m_A+j_col*m_A_ldim, m_m, values );
-      for ( integer i = 0; i < m_m; ++i ) i_row[i] = i;
+      for ( integer i{0}; i < m_m; ++i ) i_row[i] = i;
       return m_m;
     }
 
@@ -688,7 +688,7 @@ namespace Simplex {
       integer   i_row[]
     ) const override {
       copy_n( m_A+j_col*m_A_ldim, m_m, values );
-      for ( integer i = 0; i < m_m; ++i ) i_row[i] = i;
+      for ( integer i{0}; i < m_m; ++i ) i_row[i] = i;
       return m_m;
     }
 

@@ -131,8 +131,8 @@ main() {
     )
   );
 
-  for ( int i = 0; i < dim_x; ++i ) {
-    for ( int j = 0; j < dim_x; ++j ) {
+  for ( int i{0}; i < dim_x; ++i ) {
+    for ( int j{0}; j < dim_x; ++j ) {
       fmt::print(
         "jac[{},{}] = {:<12.6}   err = {:<12.6}\n",
         i, j, jac[i+j*dim_x], abs(jac[i+j*dim_x]-jacFD[i+j*dim_x])
@@ -142,8 +142,8 @@ main() {
 
   ok = finite_difference_hessian( x, dim_x, ff, jacFD, dim_x );
   fmt::print("ok = {}\n",ok);
-  for ( int i = 0; i < dim_x; ++i ) {
-    for ( int j = 0; j < dim_x; ++j ) {
+  for ( int i{0}; i < dim_x; ++i ) {
+    for ( int j{0}; j < dim_x; ++j ) {
       fmt::print(
         "Hess[{0},{1}] = {2:<12.6} HessFD[{0},{1}] = {3:<12.6} err = {4:<12.6}\n",
         i, j, jac[i+j*dim_x], jacFD[i+j*dim_x], abs(jac[i+j*dim_x]-jacFD[i+j*dim_x])

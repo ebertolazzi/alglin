@@ -57,34 +57,34 @@
   real_type * rhs   = base_value(N);
   real_type * resid = base_value(N);
 
-  for ( int i = 0; i < nq; ++i ) {
-    for ( int j = 0; j < n; ++j ) {
+  for ( int i{0}; i < nq; ++i ) {
+    for ( int j{0}; j < n; ++j ) {
       H0[i+j*nq] = rand(-1,0);
       HN[i+j*nq] = rand(-1,0);
     }
   }
 
-  for ( int i = 0; i < nq; ++i )
-    for ( int j = 0; j < q; ++j )
+  for ( int i{0}; i < nq; ++i )
+    for ( int j{0}; j < q; ++j )
       Hq[i+j*nq] = rand(-1,0);
 
   // forzo diagonale dominanza
   real_type diag = 2*n;
-  for ( int k = 0; k < nblk; ++k ) {
+  for ( int k{0}; k < nblk; ++k ) {
     real_type * AdAu_k = AdAu + 2*k*n*n;
-    for ( int i = 0; i < n; ++i )
-      for ( int j = 0; j < 2*n; ++j )
+    for ( int i{0}; i < n; ++i )
+      for ( int j{0}; j < 2*n; ++j )
         AdAu_k[i+j*n] = rand(-1,0);
-    for ( int i = 0; i < n; ++i )
+    for ( int i{0}; i < n; ++i )
       AdAu_k[i*(n+1)] += diag;
   }
 
-  for ( int j = 0; j < n; ++j ) HN[j*(nq+1)]   += diag;
-  for ( int j = 0; j < q; ++j ) Hq[n+j*(nq+1)] += diag;
+  for ( int j{0}; j < n; ++j ) HN[j*(nq+1)]   += diag;
+  for ( int j{0}; j < q; ++j ) Hq[n+j*(nq+1)] += diag;
 
   cout << "N = " << N << '\n';
 
-  for ( alglin::integer i = 0; i < N; ++i ) x[i] = i;
+  for ( alglin::integer i{0}; i < N; ++i ) x[i] = i;
   Copy_n( x, N, xref );
   alglin::babd_mv<real_type>( nblk, n, q, AdAu, H0, HN, Hq,
                               1.0, x, 1, 0, rhs, 1 );

@@ -115,7 +115,7 @@ namespace Simplex {
         break;
       }
       integer const nnz{ m_problem_base->load_A_column( i, m_values, m_i_row ) };
-      for ( integer k = 0; k < nnz; ++k )
+      for ( integer k{0}; k < nnz; ++k )
         m_d[m_i_row[k]] -= q*m_values[k];
     }
 

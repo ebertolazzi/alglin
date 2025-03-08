@@ -33,22 +33,22 @@ void
 test1() {
 
   alglin::BlockTridiagonalSymmetic<alglin::real_type> BT;
-  alglin::integer rBlocks[] = { 0, 2, 5, 7};
+  alglin::integer rBlocks[]{ 0, 2, 5, 7};
   BT.setup( 3, rBlocks );
 
-  alglin::real_type D0[] = { 2, 1, 1, 1};
-  alglin::real_type D1[] = { 2, 0, 1,
-                             0, 0, 0,
-                             1, 0, 2};
-  alglin::real_type D2[] = { 2, 0,
-                             0, 1};
+  alglin::real_type D0[]{ 2, 1, 1, 1};
+  alglin::real_type D1[]{ 2, 0, 1,
+                          0, 0, 0,
+                          1, 0, 2};
+  alglin::real_type D2[]{ 2, 0,
+                          0, 1};
 
-  alglin::real_type L0[] = { 1, 1, 0,
-                             0, 1, 1 };
-  alglin::real_type L1[] = { 1, 1, 1,
-                             1, 1, 1 };
+  alglin::real_type L0[]{ 1, 1, 0,
+                          0, 1, 1 };
+  alglin::real_type L1[]{ 1, 1, 1,
+                          1, 1, 1 };
 
-  alglin::real_type rhs[] = {
+  alglin::real_type rhs[]{
     5, 4, 6, 4, 6, 5, 4,
     5, 4, 6, 4, 6, 5, 4
   };
@@ -64,7 +64,7 @@ test1() {
   //BT.solve( rhs );
   BT.solve( 2, rhs, 7 );
 
-  for ( alglin::integer k = 0; k < rBlocks[3]; ++k )
+  for ( alglin::integer k{0}; k < rBlocks[3]; ++k )
     fmt::print("x[{}] = {}\n", k, rhs[7+k]);
 }
 
@@ -73,10 +73,10 @@ void
 test2() {
 
   alglin::BlockTridiagonalSymmetic<alglin::real_type> BT;
-  alglin::integer rBlocks[] = { 0, 2, 5, 7};
+  alglin::integer rBlocks[]{ 0, 2, 5, 7};
   BT.setup( 3, rBlocks );
 
-  alglin::integer ii[] = {
+  alglin::integer ii[]{
     1, 2, 1, 2,
     3, 5, 3, 5,
     6, 7,
@@ -84,7 +84,7 @@ test2() {
     6, 6, 6, 7, 7, 7
   };
 
-  alglin::integer jj[] = {
+  alglin::integer jj[]{
     1, 1, 2, 2,
     3, 3, 5, 5,
     6, 7,
@@ -92,7 +92,7 @@ test2() {
     3, 4, 5, 3, 4, 5
   };
 
-  alglin::real_type vals[] = {
+  alglin::real_type vals[]{
     2, 1, 1, 1,
     2, 1, 1, 2,
     2, 1,
@@ -100,13 +100,13 @@ test2() {
     1, 1, 1, 1, 1, 1
   };
 
-  alglin::real_type rhs[] = {
+  alglin::real_type rhs[]{
     5, 4, 6, 4, 6, 5, 4,
     5, 4, 6, 4, 6, 5, 4
   };
 
   BT.zero();
-  for ( int k = 0; k < 20; ++k )
+  for ( int k{0}; k < 20; ++k )
     BT(ii[k]-1,jj[k]-1) += vals[k];
 
   BT.factorize( "BT" );
@@ -114,7 +114,7 @@ test2() {
   //BT.solve( rhs );
   BT.solve( 2, rhs, 7 );
 
-  for ( alglin::integer k = 0; k < rBlocks[3]; ++k )
+  for ( alglin::integer k{0}; k < rBlocks[3]; ++k )
     fmt::print("x[{}] = {}\n", k, rhs[7+k]);
 }
 
@@ -125,26 +125,26 @@ test3() {
 
   alglin::KKT<alglin::real_type> BT;
 
-  alglin::integer rBlocks[] = { 0, 2, 4, 7 };
-  alglin::integer ii[] = { 1,2,2,8,9,9,5,5,6,6,7,7,8,8,8,9,9,9,3,4,5,6,7,3,4,8,9,8,9 };
+  alglin::integer rBlocks[]{ 0, 2, 4, 7 };
+  alglin::integer ii[]{ 1,2,2,8,9,9,5,5,6,6,7,7,8,8,8,9,9,9,3,4,5,6,7,3,4,8,9,8,9 };
 
-  alglin::integer jj[] = { 1,1,2,8,8,9,3,4,3,4,3,4,5,6,7,5,6,7,3,4,5,6,7,1,2,1,2,3,4 };
+  alglin::integer jj[]{ 1,1,2,8,8,9,3,4,3,4,3,4,5,6,7,5,6,7,3,4,5,6,7,1,2,1,2,3,4 };
 
-  alglin::real_type vals[] = {2,1,1,1,1,1,1,0,2,0,2,0,5,0,0,0,6,0,2,2,3,3,3,-1,-1,1,2,3,4};
+  alglin::real_type vals[]{2,1,1,1,1,1,1,0,2,0,2,0,5,0,0,0,6,0,2,2,3,3,3,-1,-1,1,2,3,4};
 
-  alglin::real_type rhs[] = { -2, -9, -5, -10, 3, -21, 0, 28, 7 };
+  alglin::real_type rhs[]{ -2, -9, -5, -10, 3, -21, 0, 28, 7 };
 
   BT.load_triblock( 7, 2, 3, rBlocks, vals, ii, -1, jj, -1, 29, true );
   //BT.factorize( 7, 2, 4, 4, vals, ii, -1, jj, -1, 29, true );
 
   //BT.zero();
-  //for ( int k = 0; k < 29; ++k )
+  //for ( int k{0}; k < 29; ++k )
   //  BT(ii[k]-1,jj[k]-1) += vals[k];
 
   BT.factorize();
   BT.solve( rhs );
 
-  for ( alglin::integer k = 0; k < rBlocks[3]; ++k )
+  for ( alglin::integer k{0}; k < rBlocks[3]; ++k )
     fmt::print("x[{}] = {}\n", k, rhs[k]);
 }
 
@@ -171,18 +171,18 @@ test4() {
   std::vector<alglin::integer>   ii, jj;
   std::vector<alglin::real_type> vals, rhs1, rhs2;
 
-  alglin::integer n      = 100000;
-  alglin::integer bksize = 50;
-  alglin::integer nblk   = n/bksize-4;
-  alglin::integer m      = n - bksize*nblk;
+  alglin::integer n      { 100000 };
+  alglin::integer bksize { 50 };
+  alglin::integer nblk   { n/bksize-4 };
+  alglin::integer m      { n - bksize*nblk };
 
-  for ( alglin::integer i=0; i < n; ++i ) {
+  for ( alglin::integer i{0}; i < n; ++i ) {
     ii.push_back( i );
     jj.push_back( i );
     vals.push_back( bksize );
     rhs1.push_back( i );
     rhs2.push_back( i );
-    for ( alglin::integer j=-bksize; j < 0; ++j ) {
+    for ( alglin::integer j{-bksize}; j < 0; ++j ) {
       if ( i+j < 0 || i+j >= n ) continue;
       ii.push_back( i );
       jj.push_back( i+j );
@@ -235,7 +235,7 @@ test4() {
 
   alglin::real_type accerr = 0;
   alglin::real_type maxerr = 0;
-  for ( size_t i=0; i < size_t(n); ++i ) {
+  for ( size_t i{0}; i < size_t(n); ++i ) {
     alglin::real_type err = std::abs( rhs1[i] - rhs2[i] );
     accerr += err;
     if ( maxerr < err ) maxerr = err;

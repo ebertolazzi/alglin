@@ -30,16 +30,16 @@ main() {
   using Simplex::infinity;
 
   // Cycling pivot test
-  Simplex::integer   m    = 3;
-  Simplex::integer   n    = 3;
-  Simplex::real_type A[]  = {  1,  2,  0,
-                               1,  1, -1,
-                               1, -1,  1 };
-  Simplex::real_type c[]  = { -2, -3, -1 };
-  Simplex::real_type L[]  = { 0, 0, 0, -infinity, 10, 10 };
-  Simplex::real_type U[]  = { infinity, infinity, infinity, 40, infinity, infinity };
-  //Simplex::real_type x[]  = { 0, 0, 0, 0, 0, 1 };
-  //Simplex::integer   IB[] = { 0, 1, 2 };
+  Simplex::integer   m{3};
+  Simplex::integer   n{3};
+  Simplex::real_type A[]{  1,  2,  0,
+                           1,  1, -1,
+                           1, -1,  1 };
+  Simplex::real_type c[]{ -2, -3, -1 };
+  Simplex::real_type L[]{ 0, 0, 0, -infinity, 10, 10 };
+  Simplex::real_type U[]{ infinity, infinity, infinity, 40, infinity, infinity };
+  //Simplex::real_type x[]{ 0, 0, 0, 0, 0, 1 };
+  //Simplex::integer   IB[]{ 0, 1, 2 };
 
   Simplex::Problem        simplex_problem;
   Simplex::AuxProblem     simplex_problem_aux;

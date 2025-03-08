@@ -296,13 +296,13 @@ namespace alglin {
     // Factorize A using complete pivoting.
     // Set pivots less than SMIN to SMIN.
     T * Aii{A};
-    for ( int II{0}; II < N-1; ++II, Aii += LDA+1 ) {
+    for ( integer II{0}; II < N-1; ++II, Aii += LDA+1 ) {
       // Find max element in matrix A
       T XMAX{0};
       integer IPV{II};
       integer JPV{II};
-      for ( int IP{II}; IP < N; ++IP ) {
-        for ( int JP{II}; JP < N; ++JP ) {
+      for ( integer IP{II}; IP < N; ++IP ) {
+        for ( integer JP{II}; JP < N; ++JP ) {
           T absA{abs( A[IP+JP*LDA] )};
           if ( absA > XMAX ) { XMAX = absA; IPV = IP; JPV = JP; }
         }
