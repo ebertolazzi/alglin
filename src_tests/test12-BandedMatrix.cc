@@ -33,14 +33,14 @@ main() {
 
   alglin::BandedLU<alglin::real_type> BLU;
 
-  alglin::integer const N{10};
-  alglin::real_type D []{1,2,3,4,5,6,7,8,9,10};
-  alglin::real_type L0[]{ 1,   1, 1,  1, 1,  1, 1, 1, 1};
-  alglin::real_type L1[]{ 1,  -1, 1, -1, 1, -1, 1, 1};
-  alglin::real_type L2[]{ 1,-1.4, 1, -1, 1, -1, 1 };
-  alglin::real_type U0[]{-1,  -1,-1, -1,-1, -1,-1, -1,-1};
-  alglin::real_type U1[]{ 1,  -1, 1, -1, 1, -1, 1, -1};
-  alglin::real_type rhs[N];
+  alglin::integer   const N{10};
+  alglin::real_type const D []{1,2,3,4,5,6,7,8,9,10};
+  alglin::real_type const L0[]{ 1,   1, 1,  1, 1,  1, 1, 1, 1};
+  alglin::real_type const L1[]{ 1,  -1, 1, -1, 1, -1, 1, 1};
+  alglin::real_type const L2[]{ 1,-1.4, 1, -1, 1, -1, 1 };
+  alglin::real_type const U0[]{-1,  -1,-1, -1,-1, -1,-1, -1,-1};
+  alglin::real_type const U1[]{ 1,  -1, 1, -1, 1, -1, 1, -1};
+  alglin::real_type       rhs[N];
 
   BLU.setup( N, N, 3, 2 );
   BLU.zero();

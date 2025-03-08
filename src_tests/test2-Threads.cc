@@ -42,7 +42,7 @@ static
 void
 test( int nth ) {
 
-  int ms = generator() % 2000;
+  int ms{ static_cast<int>( generator() % 2000 ) };
 
   mtx.lock();
   fmt::print( "Thread N.{} ms = {}\n", nth, ms );
@@ -74,7 +74,7 @@ int
 main() {
 
   std::thread threads[100];
-  int usedThread = 10;
+  int usedThread{10};
 
   bar.setup(usedThread);
   for ( int nt{0}; nt < usedThread; ++nt )

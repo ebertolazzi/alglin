@@ -91,16 +91,16 @@ main() {
 
   using namespace std;
 
-  integer   dim_x = 4;
-  real_type x[4] = { 1, 2, 1, 4 };
-  real_type gradFD[4], grad[4], jac[4*4], jacFD[4*4];
+  integer   const dim_x{4};
+  real_type const x[4]{ 1, 2, 1, 4 };
+  real_type       gradFD[4], grad[4], jac[4*4], jacFD[4*4];
 
   fun_class  ff;
   fun_class1 gg;
 
-  bool ok = finite_difference_gradient( x, dim_x, ff, gradFD );
-  ok = fun_grad( x, grad );
-  real_type epsi = 1e-6;
+  bool ok{ finite_difference_gradient( x, dim_x, ff, gradFD ) };
+  if (ok) ok = fun_grad( x, grad );
+  real_type epsi{1e-6};
 
   fmt::print(
     "\n\nCheck Gradient\n{}Done\n",

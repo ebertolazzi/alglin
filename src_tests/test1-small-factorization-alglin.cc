@@ -36,10 +36,10 @@ static
 void
 test1() {
   alglin::QR<real_type> qr;
-  integer const M{3};
-  integer const N{5};
-  integer const LDA{3};
-  real_type A[]{
+  constexpr integer M{3};
+  constexpr integer N{5};
+  constexpr integer LDA{3};
+  constexpr real_type A[]{
     0.001,      2,     3,
     0.001,  0.001,     0,
     0,      0.001,     0,
@@ -93,10 +93,10 @@ static
 void
 test2() {
   alglin::QRP<real_type> qr;
-  integer const M{3};
-  integer const N{5};
-  integer const LDA{3};
-  real_type A[]{
+  constexpr integer M{3};
+  constexpr integer N{5};
+  constexpr integer LDA{3};
+  constexpr real_type A[]{
     0.001,      2,     3,
     0.001,  0.001,     0,
     0,      0.001,     0,
@@ -155,10 +155,10 @@ static
 void
 test3() {
   alglin::QRP<real_type> qr;
-  integer const M{5};
-  integer const N{5};
-  integer const LDA{5};
-  real_type A[]{
+  constexpr integer M{5};
+  constexpr integer N{5};
+  constexpr integer LDA{5};
+  constexpr real_type A[]{
     0.001,      2,     3,     2, 3,
     0.001,  0.001,     0, 0.001, 1e-10,
     0,      0.001,     0, 0.001, 1e-12,
@@ -393,9 +393,9 @@ void
 test7() {
   alglin::QRP<real_type> qrp;
 
-  integer const M{5};
-  integer const LDA{5};
-  real_type A[]{
+  constexpr integer M{5};
+  constexpr integer LDA{5};
+  constexpr real_type A[]{
     0.001,      2,     3,       2,      3,
     0.001,  0.001,     0,   0.001,  1e-10,
     0,      0.001,     0,   0.001,  1e-12,

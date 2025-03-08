@@ -28,8 +28,8 @@ int
 main() {
 
   using Simplex::infinity;
-  Simplex::integer m = 3;
-  Simplex::integer n = 5;
+  Simplex::integer m{3};
+  Simplex::integer n{5};
   Simplex::real_type A[]{ 1, 40, 6,
                           1, 120, 12,
                           1, 0, 0,

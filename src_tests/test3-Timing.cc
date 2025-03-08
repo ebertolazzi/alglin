@@ -37,7 +37,7 @@ static std::mt19937 generator(seed1);
 static
 real_type
 rand( real_type xmin, real_type xmax ) {
-  real_type random = real_type(generator())/generator.max();
+  real_type random = static_cast<real_type>(generator())/generator.max();
   return xmin + (xmax-xmin)*random;
 }
 
@@ -287,7 +287,7 @@ testVV() {
   // ===========================================================================
 
   {
-    Eigen::Map<vecN_t> vv1(NULL), vv2(NULL), vv3(NULL);
+    Eigen::Map<vecN_t> vv1(nullptr), vv2(nullptr), vv3(nullptr);
     new (&vv1) Eigen::Map<vecN_t>(V1);
     new (&vv2) Eigen::Map<vecN_t>(V2);
     new (&vv3) Eigen::Map<vecN_t>(V3);
@@ -394,9 +394,9 @@ testMv() {
       //new (&mm) Eigen::Map<dmat_t>(M,Eigen::Index(N),Eigen::Index(N));
       //new (&vv) Eigen::Map<dvec_t>(V,Eigen::Index(N));
       //new (&rr) Eigen::Map<dvec_t>(R,Eigen::Index(N));
-      Eigen::Map<dmat_t> mm(M,Eigen::Index(N),Eigen::Index(N));
-      Eigen::Map<dvec_t> vv(V,Eigen::Index(N));
-      Eigen::Map<dvec_t> rr(R,Eigen::Index(N));
+      Eigen::Map<dmat_t> mm(M,static_cast<Eigen::Index>(N),static_cast<Eigen::Index>(N));
+      Eigen::Map<dvec_t> vv(V,static_cast<Eigen::Index>(N));
+      Eigen::Map<dvec_t> rr(R,static_cast<Eigen::Index>(N));
       rr.noalias() -= mm*vv;
       vv.noalias() = rr;
     }
@@ -417,8 +417,8 @@ testMv() {
   // ===========================================================================
 
   {
-    Eigen::Map<matN_t> mm(NULL);
-    Eigen::Map<vecN_t> vv(NULL), rr(NULL);
+    Eigen::Map<matN_t> mm(nullptr);
+    Eigen::Map<vecN_t> vv(nullptr), rr(nullptr);
     tm.tic();
     for ( int i{0}; i < N_TIMES; ++i ) {
       new (&mm) Eigen::Map<matN_t>(M);
@@ -473,16 +473,16 @@ testMM() {
   base_value.allocate(N*N*10);
   base_index.allocate(N*10);
 
-  real_type * M1 = base_value( size_t(N*N) );
-  real_type * M2 = base_value( size_t(N*N) );
-  real_type * M3 = base_value( size_t(N*N) );
+  real_type * M1 { base_value( N*N ) };
+  real_type * M2 { base_value( N*N ) };
+  real_type * M3 { base_value( N*N ) };
 
   matN_t m1, m2, m3;
   dmat_t dm1, dm2, dm3;
 
-  dm1.resize( Eigen::Index(N), Eigen::Index(N) );
-  dm2.resize( Eigen::Index(N), Eigen::Index(N) );
-  dm3.resize( Eigen::Index(N), Eigen::Index(N) );
+  dm1.resize( static_cast<Eigen::Index>(N), static_cast<Eigen::Index>(N) );
+  dm2.resize( static_cast<Eigen::Index>(N), static_cast<Eigen::Index>(N) );
+  dm3.resize( static_cast<Eigen::Index>(N), static_cast<Eigen::Index>(N) );
 
   for ( int i{0}; i < N; ++i ) {
     for ( int j{0}; j < N; ++j ) {
@@ -531,9 +531,9 @@ testMM() {
       //new (&mm1) Eigen::Map<dmat_t>(M1,Eigen::Index(N),Eigen::Index(N));
       //new (&mm2) Eigen::Map<dmat_t>(M2,Eigen::Index(N),Eigen::Index(N));
       //new (&mm3) Eigen::Map<dmat_t>(M3,Eigen::Index(N),Eigen::Index(N));
-      Eigen::Map<dmat_t> mm1(M1,Eigen::Index(N),Eigen::Index(N));
-      Eigen::Map<dmat_t> mm2(M2,Eigen::Index(N),Eigen::Index(N));
-      Eigen::Map<dmat_t> mm3(M3,Eigen::Index(N),Eigen::Index(N));
+      Eigen::Map<dmat_t> mm1(M1,static_cast<Eigen::Index>(N),static_cast<Eigen::Index>(N));
+      Eigen::Map<dmat_t> mm2(M2,static_cast<Eigen::Index>(N),static_cast<Eigen::Index>(N));
+      Eigen::Map<dmat_t> mm3(M3,static_cast<Eigen::Index>(N),static_cast<Eigen::Index>(N));
       mm3.noalias() -= mm1*mm2;
       mm2.noalias()  = mm3;
     }
@@ -554,7 +554,7 @@ testMM() {
   // ===========================================================================
 
   {
-    Eigen::Map<matN_t> mm1(NULL), mm2(NULL), mm3(NULL);
+    Eigen::Map<matN_t> mm1(nullptr), mm2(nullptr), mm3(nullptr);
     tm.tic();
     for ( int i{0}; i < N_TIMES; ++i ) {
       new (&mm1) Eigen::Map<matN_t>(M1);

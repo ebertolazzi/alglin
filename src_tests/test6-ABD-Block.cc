@@ -38,8 +38,8 @@ static unsigned seed1 = 2;
 static std::mt19937 generator(seed1);
 static
 real_type
-rand( real_type xmin, real_type xmax ) {
-  real_type random = real_type(generator())/generator.max();
+rand( real_type const xmin, real_type const xmax ) {
+  real_type const random{ static_cast<real_type>(generator())/generator.max() };
   return xmin + (xmax-xmin)*random;
 }
 #define TIC tm.tic()
@@ -54,35 +54,35 @@ main() {
   for (; NB < 100; NB = NB*2 + 1 ) {
     cout << "\n\n\nNB = " << NB << "\n\n\n\n";
 
-    alglin::integer dim      = 100;
-    alglin::integer row0     = 40;
-    alglin::integer col00    = 2;
-    alglin::integer colNN    = 10;
-    alglin::integer rowN     = (dim-row0)+(col00+colNN);
-    alglin::integer numBlock = 1000;
+    alglin::integer       dim      {100};
+    alglin::integer       row0     {40};
+    alglin::integer       col00    {2};
+    alglin::integer       colNN    {10};
+    alglin::integer       rowN     {(dim-row0)+(col00+colNN)};
+    alglin::integer const numBlock {1000};
 
-    alglin::integer N   = row0 + rowN + numBlock*dim;
-    alglin::integer nnz = row0*(dim+col00) +
-                          rowN*(dim+colNN) +
-                          2*dim*dim + 13*(N+NB) + 2*N*NB + NB*NB;
+    alglin::integer       N   { row0 + rowN + numBlock*dim };
+    alglin::integer const nnz { row0*(dim+col00) +
+                                rowN*(dim+colNN) +
+                                2*dim*dim + 13*(N+NB) + 2*N*NB + NB*NB };
 
     alglin::Malloc<real_type> base_value("real");
-    base_value.allocate(size_t(nnz));
+    base_value.allocate(nnz);
 
-    real_type * block0 = base_value(size_t(row0*(dim+col00)));
-    real_type * blockN = base_value(size_t(rowN*(dim+colNN)));
-    real_type * AdAu   = base_value(size_t(2*dim*dim));
+    real_type * block0 { base_value(row0*(dim+col00)) };
+    real_type * blockN { base_value(rowN*(dim+colNN)) };
+    real_type * AdAu   { base_value(2*dim*dim)        };
 
-    real_type * B = base_value(size_t(N*NB));
-    real_type * C = base_value(size_t(N*NB));
-    real_type * D = base_value(size_t(NB*NB));
+    real_type * B { base_value( N*NB ) };
+    real_type * C { base_value( N*NB ) };
+    real_type * D { base_value( NB*NB ) };
 
-    real_type * x      = base_value(size_t(10*(N+NB)));
-    real_type * xref   = base_value(size_t(N+NB));
-    real_type * xref1  = base_value(size_t(N+NB));
-    real_type * rhs    = base_value(size_t(N+NB));
+    real_type * x     { base_value(10*(N+NB) ) };
+    real_type * xref  { base_value(N+NB ) };
+    real_type * xref1 { base_value(N+NB ) };
+    real_type * rhs   { base_value(N+NB ) };
 
-    alglin::BlockBidiagonal<real_type>::BB_LASTBLOCK_Choice ch[]{
+    constexpr alglin::BlockBidiagonal<real_type>::BB_LASTBLOCK_Choice ch[]{
       alglin::BlockBidiagonal<real_type>::BB_LASTBLOCK_Choice::LU,
       alglin::BlockBidiagonal<real_type>::BB_LASTBLOCK_Choice::LUPQ,
       alglin::BlockBidiagonal<real_type>::BB_LASTBLOCK_Choice::QR,
@@ -102,9 +102,9 @@ main() {
 
     for ( int test{0}; test < 8; ++test ) {
       fmt::print("\n\n\ntest N.{} NB = {} kind = {}\n", test, NB, kind[test]);
-      real_type diag = 2*dim;
+      real_type const diag{ static_cast<double>(2*dim) };
 
-      alglin::integer nn = row0-col00;
+      alglin::integer const nn{ row0-col00 };
 
       for ( int k{0}; k < numBlock; ++k ) {
         for ( int i{0}; i < dim; ++i ) {

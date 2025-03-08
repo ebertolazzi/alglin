@@ -30,19 +30,18 @@ using namespace std;
 
 int
 main() {
+  constexpr alglin::real_type s1[]{1,2,3};
+  constexpr alglin::real_type y1[]{11./3.,-6./3.,13./3.};
 
-  alglin::real_type s1[] = {1,2,3};
-  alglin::real_type y1[] = {11./3.,-6./3.,13./3.};
+  constexpr alglin::real_type s2[]{1,0,1};
+  constexpr alglin::real_type y2[]{3,-2,3};
 
-  alglin::real_type s2[] = {1,0,1};
-  alglin::real_type y2[] = {3,-2,3};
-
-  alglin::real_type s3[] = {0,-1,1};
-  alglin::real_type y3[] = {7/3.,-6/3.,8/3.};
+  constexpr alglin::real_type s3[]{0,-1,1};
+  constexpr alglin::real_type y3[]{7/3.,-6/3.,8/3.};
 
   alglin::BFGS<alglin::real_type> bfgs;
 
-  alglin::real_type epsi = 1e-8;
+  constexpr alglin::real_type epsi{1e-8};
 
   bfgs.allocate(3);
   bfgs.init();

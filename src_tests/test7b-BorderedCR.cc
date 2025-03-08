@@ -41,8 +41,8 @@ static std::mt19937 generator(seed1);
 
 static
 real_type
-rand( real_type xmin, real_type xmax ) {
-  real_type random = real_type(generator())/generator.max();
+rand( real_type const xmin, real_type const xmax ) {
+  real_type const random{ static_cast<real_type>(generator())/generator.max() };
   return xmin + (xmax-xmin)*random;
 }
 
@@ -60,7 +60,7 @@ fill_matrix(
 
   BCR.allocate( nblock, n, qr, qx, nr, nx );
 
-  real_type diag = 1.01*n;
+  real_type diag{1.01*n};
 
   for ( int i{0}; i < (n+qr); ++i ) {
     for ( int j{0}; j < (2*n+qx+nx); ++j ) {
@@ -140,13 +140,13 @@ main( int argc, char *argv[] ) {
         alglin::Malloc<real_type>       base_value("real");
         alglin::Malloc<alglin::integer> base_index("integer");
 
-        base_value.allocate( size_t(5*N) );
+        base_value.allocate( 5*N );
 
-        real_type * x     { base_value(size_t(N)) }; // extra space per multiple rhs
-        real_type * xref  { base_value(size_t(N)) };
-        real_type * xref1 { base_value(size_t(N)) };
-        real_type * rhs   { base_value(size_t(N)) };
-        real_type * resid { base_value(size_t(N)) };
+        real_type * x     { base_value(N) }; // extra space per multiple rhs
+        real_type * xref  { base_value(N) };
+        real_type * xref1 { base_value(N) };
+        real_type * rhs   { base_value(N) };
+        real_type * resid { base_value(N) };
 
         std::cout << "\n\n\n\n\n\n";
 

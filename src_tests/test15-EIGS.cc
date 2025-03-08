@@ -41,10 +41,10 @@ void
 test1() {
   // solution
   // 0, 0, 7/2+(1/2)*sqrt(73), 7/2-(1/2)*sqrt(73)])
-  real_type A[]{ 1, 2, 3, 4,
-                 4, 4, 4, 4,
-                 1, 2, 1, 2,
-                 0, 0, 1, 1 };
+  constexpr real_type A[]{ 1, 2, 3, 4,
+                           4, 4, 4, 4,
+                           1, 2, 1, 2,
+                           0, 0, 1, 1 };
   alglin::Eigenvalues<real_type> E;
   E.setup( 4, A, 4 );
   vector<complex<real_type> > e;
@@ -58,14 +58,14 @@ void
 test2() {
   // solution
   // 0, 0, 7/2+(1/2)*sqrt(73), 7/2-(1/2)*sqrt(73)])
-  real_type A[]{ 1, 2, 3, 4,
-                 4, 4, 4, 4,
-                 1, 2, 1, 2,
-                 0, 0, 1, 1 };
-  real_type B[]{ 3, 2, 1, 1,
-                 1, 1, 1, 1,
-                 4, 3, 2, 1,
-                 1,-1, 0, 1 };
+  constexpr real_type A[]{ 1, 2, 3, 4,
+                           4, 4, 4, 4,
+                           1, 2, 1, 2,
+                           0, 0, 1, 1 };
+  constexpr real_type B[]{ 3, 2, 1, 1,
+                           1, 1, 1, 1,
+                           4, 3, 2, 1,
+                           1,-1, 0, 1 };
   alglin::GeneralizedEigenvalues<real_type> E;
   E.setup( 4, A, 4, B, 4 );
   vector<complex<real_type> > e;

@@ -42,7 +42,7 @@ static std::mt19937 generator(seed1);
 static
 real_type
 rand( real_type xmin, real_type xmax ) {
-  real_type random = real_type(generator())/generator.max();
+  real_type const random{ static_cast<real_type>(generator())/generator.max() };
   return xmin + (xmax-xmin)*random;
 }
 
@@ -61,7 +61,7 @@ fill_matrix(
   BCR.allocate( nblock, n, qr, qx, nr, nx );
   BCR.fill_zero();
 
-  real_type diag = 1.01*n;
+  real_type const diag{ 1.01*n };
 
   for ( int i{0}; i < (n+qr); ++i ) {
     for ( int j{0}; j < (2*n+qx+nx); ++j ) {
@@ -104,7 +104,7 @@ main( int argc, char *argv[] ) {
 
   try {
 
-  alglin::integer nth = std::thread::hardware_concurrency();
+  alglin::integer nth{ static_cast<alglin::integer>(std::thread::hardware_concurrency()) };
 
   for ( int i{0}; i < argc; ++i )
     fmt::print( "arg[{}] = {}\n", i, argv[i] );

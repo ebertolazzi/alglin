@@ -37,8 +37,8 @@ void
 test0() {
 
   alglin::KKT<real_type> kkt;
-  integer const N{2};
-  integer const M{1};
+  constexpr integer N{2};
+  constexpr integer M{1};
 
   real_type A[]{
     1,      0,
@@ -107,8 +107,8 @@ void
 test1() {
 
   alglin::KKT<real_type> kkt;
-  integer const N{2};
-  integer const M{1};
+  constexpr integer N{2};
+  constexpr integer M{1};
 
   real_type A[]{
     1,      3,
@@ -176,8 +176,8 @@ test2() {
   using namespace alglin;
 
   alglin::KKT<real_type> kkt;
-  integer const N{3};
-  integer const M{2};
+  constexpr integer N{3};
+  constexpr integer M{2};
 
   real_type A[]{
     0.001,      2,     3,
@@ -258,8 +258,8 @@ test3() {
   using namespace alglin;
 
   KKT<real_type> kkt;
-  integer const N{3};
-  integer const M{2};
+  constexpr integer N{3};
+  constexpr integer M{2};
 
   real_type A[]{
     0.001,      2,     3,
@@ -340,8 +340,8 @@ test4() {
   using namespace alglin;
 
   KKT<real_type> kkt;
-  integer const N{10};
-  integer const M{2};
+  constexpr integer N{10};
+  constexpr integer M{2};
   BandedLU<real_type> bLU;
 
   bLU.setup( N, N, 3, 2 ); // number of upper diagonal
@@ -448,9 +448,9 @@ test5() {
   using namespace alglin;
 
   KKT<real_type> kkt;
-  integer const N{7};
-  integer const M{2};
-  integer const nnz{22};
+  constexpr integer N{7};
+  constexpr integer M{2};
+  constexpr integer nnz{22};
 
   integer ii[]{
     1, 2, 3, 8, 2, 4, 9, 3, 5, 6, 7,

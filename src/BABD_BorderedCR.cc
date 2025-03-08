@@ -2308,8 +2308,8 @@ namespace alglin {
     integer const i0     { nblock*n           };
     integer const j0     { i0 - n             };
     for ( integer ij{0}; ij < nnz; ++ij ) {
-      integer i{ ij % nqr };
-      integer j{ static_cast<integer>(ij / nqr) };
+      integer const i{ ij % nqr };
+      integer       j{ static_cast<integer>(ij / nqr) };
       I[ij] = i0 + i + offs;
       if ( j >= n ) j += j0;
       J[ij] = j + offs;
