@@ -12,7 +12,7 @@
  |                                                                          |
  |      Enrico Bertolazzi                                                   |
  |      Dipartimento di Ingegneria Industriale                              |
- |      Universita` degli Studi di Trento                                   |
+ |      Università degli Studi di Trento                                    |
  |      email: enrico.bertolazzi@unitn.it                                   |
  |                                                                          |
 \*--------------------------------------------------------------------------*/
@@ -40,10 +40,10 @@ namespace alglin {
 
   template <typename Number>
   class finite_difference_epsilon {
-    Number const m_epsilon{numeric_limits<Number>::epsilon()};
-    Number const m_epsilon1{sqrt(numeric_limits<Number>::epsilon())};
-    Number const m_epsilon2{pow(numeric_limits<Number>::epsilon(),Number(0.75))};
-    Number const m_epsilon3{pow(numeric_limits<Number>::epsilon(),Number(0.25))};
+    Number const m_epsilon  { numeric_limits<Number>::epsilon()                   };
+    Number const m_epsilon1 { sqrt(numeric_limits<Number>::epsilon())             };
+    Number const m_epsilon2 { pow(numeric_limits<Number>::epsilon(),Number(0.75)) };
+    Number const m_epsilon3 { pow(numeric_limits<Number>::epsilon(),Number(0.25)) };
   public:
     Number epsilon1( Number v ) const { return (abs(v)+1)*m_epsilon1; }
     Number epsilon2( Number v ) const { return (abs(v)+1)*m_epsilon2; }
@@ -60,9 +60,9 @@ namespace alglin {
     Number h1,
     Number h2
   ) {
-    Number df1{f1-f0};
-    Number df2{f2-f0};
-    Number dH{h1-h2};
+    Number df1 { f1-f0 };
+    Number df2 { f2-f0 };
+    Number dH  { h1-h2 };
     return ((h1/h2)*df2-(h2/h1)*df1)/dH;
   }
 
@@ -196,41 +196,41 @@ namespace alglin {
     static finite_difference_epsilon<Number> EPS;
 
     auto FUN = [&fun]( Number const x[], Number & f ) -> bool {
-      bool ok{fun( x, f )};
+      bool ok { fun( x, f ) };
       if ( ok ) ok = Utils::is_finite(f);
       return ok;
     };
 
     Number vC{0}, vR{0}, vL{0}; // only to stop warning
-    bool ok_C = FUN( x, vC );
+    bool ok_C { FUN( x, vC ) };
     if ( !ok_C ) return false;
 
-    Number * X = const_cast<Number*>(x);
+    Number * X{ const_cast<Number*>(x) };
 
     for ( integer i{0}; i < dim_x; ++i ) {
-      Number temp{x[i]};
-      Number h1{EPS.epsilon1(temp)};
-      Number h2{EPS.epsilon2(temp)};
-      X[i] = temp+h1; bool ok_R{FUN( X, vR )};
-      X[i] = temp-h1; bool ok_L{FUN( X, vL )};
-      integer ic = finite_difference_centered( vL, ok_L, vC, ok_C, vR, ok_R, h1, grad[i] );
+      Number temp { x[i]               };
+      Number h1   { EPS.epsilon1(temp) };
+      Number h2   { EPS.epsilon2(temp) };
+      X[i] = temp+h1; bool ok_R{ FUN( X, vR ) };
+      X[i] = temp-h1; bool ok_L{ FUN( X, vL ) };
+      integer ic{ finite_difference_centered( vL, ok_L, vC, ok_C, vR, ok_R, h1, grad[i] ) };
       switch ( ic ) {
       case  0:
         break;
       case  1:
         {
-          Number & vRR = vL;
+          Number & vRR{ vL };
           X[i] = temp+h2; // modify the vector only at i position
-          bool ok_RR{FUN( X, vRR )};
+          bool ok_RR{ FUN( X, vRR ) };
           if ( ok_RR ) grad[i] = finite_difference_side( vC, vR, vRR, h1, h2 );
           if ( ! (ok_RR&&Utils::is_finite(grad[i])) ) grad[i] = (vR-vC)/h1; // low precision FD
         }
         break;
       case -1:
         {
-          Number & vLL = vR;
+          Number & vLL{ vR };
           X[i] = temp-h2; // modify the vector only at i position
-          bool ok_LL{FUN( X, vLL )};
+          bool ok_LL{ FUN( X, vLL ) };
           if ( ok_LL ) grad[i] = finite_difference_side( vC, vL, vLL, -h1, -h2 );
           if ( ! (ok_LL&&Utils::is_finite(grad[i])) ) grad[i] = (vC-vL)/h1; // low precision FD
         }
@@ -249,7 +249,7 @@ namespace alglin {
 
   template <typename FUNCTION, typename Number>
   static
-  void
+  bool
   finite_difference_check_gradient(
     Number const x[],
     integer      dim_x,
@@ -257,50 +257,48 @@ namespace alglin {
     Number const grad[],
     Number       epsi,
     //            i       A      FD     err   scale
-    vector<tuple<integer,Number,Number,Number,Number>> & err_list
+    vector<tuple<integer,Number,Number,Number,Number>> & err_list,
+    integer      max_error = 0
   ) {
 
     static finite_difference_epsilon<Number> EPS;
 
     auto FUN = [&fun]( Number const x[], Number & f ) -> bool {
-      bool ok{fun( x, f )};
+      bool ok { fun( x, f ) };
       if ( ok ) ok = Utils::is_finite(f);
       return ok;
     };
 
     Number vC{0}, vR{0}, vL{0}, gradi{0}; // only to stop warning
-    bool ok_C{FUN( x, vC )};
-    if ( !ok_C ) {
-      err_list.emplace_back( -1, 0, 0, 0, 0 );
-      return;
-    }
+    bool ok_C { FUN( x, vC ) };
+    if ( !ok_C ) { err_list.emplace_back( -1, 0, 0, 0, 0 ); return true; }
 
-    Number * X{const_cast<Number*>(x)};
+    Number * X { const_cast<Number*>(x) };
 
     for ( integer i{0}; i < dim_x; ++i ) {
-      Number temp{x[i]};
-      Number h1{EPS.epsilon1(temp)};
-      Number h2{EPS.epsilon2(temp)};
-      X[i] = temp+h1; bool ok_R{FUN( X, vR )};
-      X[i] = temp-h1; bool ok_L{FUN( X, vL )};
-      integer ic = finite_difference_centered( vL, ok_L, vC, ok_C, vR, ok_R, h1, gradi );
+      Number temp { x[i]               };
+      Number h1   { EPS.epsilon1(temp) };
+      Number h2   { EPS.epsilon2(temp) };
+      X[i] = temp+h1; bool ok_R{ FUN( X, vR ) };
+      X[i] = temp-h1; bool ok_L{ FUN( X, vL ) };
+      integer ic{ finite_difference_centered( vL, ok_L, vC, ok_C, vR, ok_R, h1, gradi ) };
       switch ( ic ) {
       case  0:
         break;
       case  1:
         {
-          Number & vRR = vL;
+          Number & vRR{ vL };
           X[i] = temp+h2; // modify the vector only at i position
-          bool ok_RR{FUN( X, vRR )};
+          bool ok_RR { FUN( X, vRR ) };
           if ( ok_RR ) gradi = finite_difference_side( vC, vR, vRR, h1, h2 );
           if ( ! (ok_RR&&Utils::is_finite(gradi)) ) gradi = (vR-vC)/h1; // low precision FD
         }
         break;
       case -1:
         {
-          Number & vLL = vR;
+          Number & vLL{ vR };
           X[i] = temp-h2; // modify the vector only at i position
-          bool ok_LL{FUN( X, vLL )};
+          bool ok_LL { FUN( X, vLL ) };
           if ( ok_LL ) gradi = finite_difference_side( vC, vL, vLL, -h1, -h2 );
           if ( ! (ok_LL&&Utils::is_finite(gradi)) ) gradi = (vC-vL)/h1; // low precision FD
         }
@@ -313,9 +311,12 @@ namespace alglin {
       Number err   = abs(gradi - grad[i]);
       if ( !Utils::is_finite(gradi)   ||
            !Utils::is_finite(grad[i]) ||
-           err > epsi * scale )
+           err > epsi * scale ) {
         err_list.emplace_back( i, grad[i], gradi, err, scale );
+        if ( max_error > 0 && static_cast<integer>(err_list.size()) >= max_error ) return false;
+      }
     }
+    return true;
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -328,11 +329,12 @@ namespace alglin {
     integer      dim_x,
     FUNCTION     fun,
     Number const grad[],
-    Number       epsi
+    Number       epsi,
+    integer      max_error = 0
   ) {
     vector<tuple<integer,Number,Number,Number,Number>> err_list;
-    finite_difference_check_gradient( x, dim_x, fun, grad, epsi, err_list );
-    string res{""};
+    bool no_skipping{ finite_difference_check_gradient( x, dim_x, fun, grad, epsi, err_list, max_error ) };
+    string res;
     for ( auto & e : err_list ) {
       integer i;
       Number A, FD, err, scale;
@@ -346,6 +348,7 @@ namespace alglin {
         fmt::format("{:.5}", 100 * err / scale)
       );
     }
+    if ( !no_skipping ) res += "...skipping\n";
     return res;
   }
 
@@ -378,40 +381,40 @@ namespace alglin {
       dim_f, lwork
     );
 
-    Number * vC{work};
-    Number * vR{work+dim_f};
-    Number * vL{work+2*dim_f};
+    Number * vC{ work       };
+    Number * vR{ vC + dim_f };
+    Number * vL{ vR + dim_f };
 
     auto FUN = [&fun,dim_f]( Number const x[], Number f[] ) -> bool {
-      bool ok{fun( x, f )};
+      bool ok { fun( x, f ) };
       for ( integer i{0}; ok && i < dim_f; ++i ) ok = Utils::is_finite(f[i]);
       return ok;
     };
 
-    bool ok_C{FUN( x, vC )};
+    bool ok_C { FUN( x, vC ) };
     if ( !ok_C ) return false;
 
-    Number * X{const_cast<Number*>(x)};
+    Number * X { const_cast<Number*>(x) };
     Number * pjac{Jac};
 
     for ( integer j{0}; j < dim_x; ++j ) {
-      Number temp{x[j]};
-      Number h1{EPS.epsilon1(temp)};
-      Number h2{EPS.epsilon2(temp)};
+      Number temp { x[j]               };
+      Number h1   { EPS.epsilon1(temp) };
+      Number h2   { EPS.epsilon2(temp) };
 
-      X[j] = temp+h1; bool ok_R{FUN( X, vR )};
-      X[j] = temp-h1; bool ok_L{FUN( X, vL )};
+      X[j] = temp+h1; bool ok_R { FUN( X, vR ) };
+      X[j] = temp-h1; bool ok_L { FUN( X, vL ) };
 
-      integer ic = finite_difference_centered( vL, ok_L, vC, ok_C, vR, ok_R, h1, pjac, dim_f );
+      integer ic{ finite_difference_centered( vL, ok_L, vC, ok_C, vR, ok_R, h1, pjac, dim_f ) };
 
       switch ( ic ) {
       case  0:
         break;
       case  1:
         {
-          Number * vRR{vL};
+          Number * vRR{ vL };
           X[j] = temp+h2; // modify the vector only at i position
-          bool ok_RR{FUN( X, vRR )};
+          bool ok_RR { FUN( X, vRR ) };
           if ( ok_RR ) ok_RR = finite_difference_side( vC, vR, vRR, h1, h2, pjac, dim_f );
           if ( !ok_RR ) {
             for ( integer i{0}; i < dim_f; ++i ) {
@@ -423,9 +426,9 @@ namespace alglin {
         break;
       case -1:
         {
-          Number * vLL{vR};
+          Number * vLL { vR };
           X[j] = temp-h2; // modify the vector only at i position
-          bool ok_LL{FUN( X, vLL )};
+          bool ok_LL { FUN( X, vLL ) };
           if ( ok_LL ) ok_LL = finite_difference_side( vC, vL, vLL, -h1, -h2, pjac, dim_f );
           if ( !ok_LL ) {
             for ( integer i{0}; i < dim_f; ++i ) {
@@ -449,7 +452,7 @@ namespace alglin {
 
   template <typename FUNCTION, typename Number>
   static
-  void
+  bool
   finite_difference_check_jacobian(
     Number const x[],
     integer      dim_x,
@@ -460,7 +463,8 @@ namespace alglin {
     Number       epsi,
     Number *     work,
     integer      lwork,
-    vector<tuple<integer,integer,Number,Number,Number,Number>> & err_list
+    vector<tuple<integer,integer,Number,Number,Number,Number>> & err_list,
+    integer      max_error = 0
   ) {
 
     static finite_difference_epsilon<Number> EPS;
@@ -471,41 +475,41 @@ namespace alglin {
       dim_f, lwork
     );
 
-    Number * vC{work};
-    Number * vR{work+dim_f};
-    Number * vL{work+2*dim_f};
-    Number * Jcol{work+3*dim_f};
+    Number * vC   { work       };
+    Number * vR   { vC + dim_f };
+    Number * vL   { vR + dim_f };
+    Number * Jcol { vL + dim_f };
 
     auto FUN = [&fun,dim_f]( Number const x[], Number f[] ) -> bool {
-      bool ok{fun( x, f )};
+      bool ok { fun( x, f ) };
       for ( integer i{0}; ok && i < dim_f; ++i ) ok = Utils::is_finite(f[i]);
       return ok;
     };
 
-    bool ok_C{FUN( x, vC )};
-    if ( !ok_C ) { err_list.emplace_back(-1,-1,0,0,0,0); return; }
+    bool ok_C { FUN( x, vC ) };
+    if ( !ok_C ) { err_list.emplace_back(-1,-1,0,0,0,0); return true; }
 
-    Number       * X{const_cast<Number*>(x)};
-    Number const * Ajac{Jac};
+    Number       * X    { const_cast<Number*>(x) };
+    Number const * Ajac { Jac                    };
 
     for ( integer j{0}; j < dim_x; ++j ) {
-      Number temp{x[j]};
-      Number h1{EPS.epsilon1(temp)};
-      Number h2{EPS.epsilon2(temp)};
+      Number temp { x[j]               };
+      Number h1   { EPS.epsilon1(temp) };
+      Number h2   { EPS.epsilon2(temp) };
 
-      X[j] = temp+h1; bool ok_R{FUN( X, vR )};
-      X[j] = temp-h1; bool ok_L{FUN( X, vL )};
+      X[j] = temp+h1; bool ok_R { FUN( X, vR ) };
+      X[j] = temp-h1; bool ok_L { FUN( X, vL ) };
 
-      integer ic = finite_difference_centered( vL, ok_L, vC, ok_C, vR, ok_R, h1, Jcol, dim_f );
+      integer ic{ finite_difference_centered( vL, ok_L, vC, ok_C, vR, ok_R, h1, Jcol, dim_f ) };
 
       switch ( ic ) {
       case  0:
         break;
       case  1:
         {
-          Number * vRR{vL};
+          Number * vRR { vL };
           X[j] = temp+h2; // modify the vector only at i position
-          bool ok_RR{FUN( X, vRR )};
+          bool ok_RR { FUN( X, vRR ) };
           if ( ok_RR ) ok_RR = finite_difference_side( vC, vR, vRR, h1, h2, Jcol, dim_f );
           if ( !ok_RR )
             for ( integer i{0}; i < dim_f; ++i )
@@ -514,9 +518,9 @@ namespace alglin {
         break;
       case -1:
         {
-          Number * vLL{vR};
+          Number * vLL { vR };
           X[j] = temp-h2; // modify the vector only at i position
-          bool ok_LL{FUN( X, vLL )};
+          bool ok_LL { FUN( X, vLL ) };
           if ( ok_LL ) ok_LL = finite_difference_side( vC, vL, vLL, -h1, -h2, Jcol, dim_f );
           if ( !ok_LL )
             for ( integer i{0}; i < dim_f; ++i )
@@ -529,17 +533,20 @@ namespace alglin {
 
       X[j] = temp; // restore i position
       for ( integer i{0}; i < dim_f; ++i ) {
-        Number A{Ajac[i]};
-        Number FD{Jcol[i]};
-        Number scale{max( Number(1), max(abs(A), abs(FD)))};
-        Number err{abs(A - FD)};
+        Number A     { Ajac[i]                               };
+        Number FD    { Jcol[i]                               };
+        Number scale { max( Number(1), max(abs(A), abs(FD))) };
+        Number err   { abs(A - FD)                           };
         if ( !Utils::is_finite(A)  ||
              !Utils::is_finite(FD) ||
-             err > epsi * scale )
+             err > epsi * scale ) {
           err_list.emplace_back( i, j, A, FD, err, scale );
+          if ( max_error > 0 && static_cast<integer>(err_list.size()) >= max_error ) return false;
+        }
       }
       Ajac += ldJ;
     }
+    return true;
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -556,11 +563,12 @@ namespace alglin {
     integer      ldJ,
     Number       epsi,
     Number *     work,
-    integer      lwork
+    integer      lwork,
+    integer      max_error = 0
   ) {
     vector<tuple<integer,integer,Number,Number,Number,Number>> err_list;
-    finite_difference_check_jacobian( x, dim_x, fun, dim_f, Jac, ldJ, epsi, work, lwork, err_list );
-    string res{""};
+    bool no_skipping{ finite_difference_check_jacobian( x, dim_x, fun, dim_f, Jac, ldJ, epsi, work, lwork, err_list, max_error ) };
+    string res;
     for ( auto & e : err_list ) {
       integer i, j;
       Number A, FD, err, scale;
@@ -574,6 +582,7 @@ namespace alglin {
         fmt::format("{:.5}", 100 * err / scale)
       );
     }
+    if ( !no_skipping ) res += "...skipping\n";
     return res;
   }
 
@@ -651,7 +660,7 @@ namespace alglin {
 
   template <typename FUNCTION, typename Number>
   static
-  void
+  bool
   finite_difference_check_hessian(
     Number const x[],
     integer      dim_x,
@@ -659,7 +668,8 @@ namespace alglin {
     Number const Hess[],
     integer      ldH,
     Number       epsi,
-    vector<tuple<integer,integer,Number,Number,Number,Number>> err_list
+    vector<tuple<integer,integer,Number,Number,Number,Number>> err_list,
+    integer      max_error = 0
   ) {
     static finite_difference_epsilon<Number> EPS;
 
@@ -716,12 +726,15 @@ namespace alglin {
           } else {
             err_list.emplace_back( i, j, dd, ddij, 0, 1 );
           }
+          if ( max_error > 0 && static_cast<integer>(err_list.size()) >= max_error ) return false;
         }
       } else {
         err_list.emplace_back( -1, -1, 0, 0, 0, 0 );
+        if ( max_error > 0 && static_cast<integer>(err_list.size()) >= max_error ) return false;
       }
       X[j] = tempj;
     }
+    return true;
   }
 
   template <typename FUNCTION, typename Number>
@@ -733,11 +746,12 @@ namespace alglin {
     FUNCTION     fun,
     Number const Hess[],
     integer      ldH,
-    Number       epsi
+    Number       epsi,
+    integer      max_error = 0
   ) {
     vector<tuple<integer,integer,Number,Number,Number,Number>> err_list;
-    finite_difference_check_hessian( x, dim_x, fun, Hess, ldH, epsi, err_list );
-    string res{""};
+    bool no_skipping{ finite_difference_check_hessian( x, dim_x, fun, Hess, ldH, epsi, err_list, max_error ) };
+    string res;
     for ( auto & e : err_list ) {
       integer i,j;
       Number A, FD, err, scale;
@@ -751,6 +765,7 @@ namespace alglin {
         fmt::format("{:.5}", 100 * err / scale)
       );
     }
+    if ( !no_skipping ) res += "...skipping\n";
     return res;
   }
 

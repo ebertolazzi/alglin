@@ -12,7 +12,7 @@
  |                                                                          |
  |      Enrico Bertolazzi                                                   |
  |      Dipartimento di Ingegneria Industriale                              |
- |      Universita` degli Studi di Trento                                   |
+ |      Università degli Studi di Trento                                    |
  |      email: enrico.bertolazzi@unitn.it                                   |
  |                                                                          |
 \*--------------------------------------------------------------------------*/
@@ -39,43 +39,47 @@ namespace alglin {
   //!
   //!
   /*
-      Matrix NNZ structure
-        col0-col00
-     |    +----+----+                        |
-     |    |    |    |                        | <- size_block
-     |    +----+----+----+                   |
-     |         |    |    |                   |
-     |         +----+----+----+              |
-     |              |    |    |              |
-     |              +----+----+----+         |
-     |                   |    |    |         |
-     |                   +----+----+---+     |
-     |                        |        |     | <-- rowN
-     |                        | BOTTOM |     |
-     |    +----+              +--------+--+  |
-     |    | TOP|                       |  |  | <-- row0
-     |    +----+                       +--+  |
-                                colN  col00
 
-      Matrix NNZ internal structure
+
+    Matrix NNZ structure
+          col0-col00
+     ┌    ┌────┼────┐                       ┐
+     │    │    │    │                       │ <- size_block
+     │    └────┼────┼────┐                  │
+     │         │    │    │                  │
+     │         └────┼────┼────┐             │
+     │              │    │    │             │
+     │              └────┼────┼────┐        │
+     │                   │    │    │        │
+     │                   └───-┼────┴───┐    │
+     │                        │        │    │ <-- rowN
+     │                        │ BOTTOM │    │
+     │    ┌────┐              └────────┼─┐  │
+     │    │TOP │                       │ │  │ <- row0
+     │    └────┘                       └─┘  │
+     └                        
+                              colN  col00
+
+    Matrix NNZ structure
           col0
-       |       |
-     / +-------+                         \
-     | |  TOP  |                         | <-- row0
-     | +--+----+----+                    |
-     |    |    |    |                    | <- size_block
-     |    +----+----+----+               |
-     |         |    |    |               |
-     |         +----+----+----+          |
-     |              |    |    |          |
-     |              +----+----+----+     |
-     |                   |    |    |     |
-     |                   +----+----+---+ |
-     |                        |        | | <-- rowN
-     |                        | BOTTOM | |
-     \                        +--------+ /
-                              |        |
+       │       │
+     ┌ ┌───────┐                         ┐
+     │ │  TOP  │                         │ <-- row0
+     │ └──┬────┼────┐                    │
+     │    │    │    │                    │ <- size_block
+     │    └────┼────┼────┐               │
+     │         │    │    │               │
+     │         └────┼────┼────┐          │
+     │              │    │    │          │
+     │              └────┼────┼────┐     │
+     │                   │    │    │     │
+     │                   └───-┼────┴───┐ │
+     │                        │        │ │ <-- rowN
+     │                        │ BOTTOM │ │
+     └                        └────────┘
+                              │        │
                                  colN
+
   */
 
   template <typename t_Value>

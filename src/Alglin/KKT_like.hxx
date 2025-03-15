@@ -12,7 +12,7 @@
  |                                                                          |
  |      Enrico Bertolazzi                                                   |
  |      Dipartimento di Ingegneria Industriale                              |
- |      Universita` degli Studi di Trento                                   |
+ |      Università degli Studi di Trento                                    |
  |      email: enrico.bertolazzi@unitn.it                                   |
  |                                                                          |
 \*--------------------------------------------------------------------------*/
@@ -143,11 +143,11 @@ namespace alglin {
     //  m = m_dim2
     //
     //     n     m
-    //  +-----+-----+
-    //  |  A  |  B  | n
-    //  +-----+-----+
-    //  |  C  |  D  | m
-    //  +-----+-----+
+    //  ┌─────┬─────┐
+    //  │  A  │  B  │ n
+    //  ├─────┼─────┤
+    //  │  C  │  D  │ m
+    //  └─────┴─────┘
     */
 
     template <typename MATRIX>

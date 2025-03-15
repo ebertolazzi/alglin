@@ -12,7 +12,7 @@
  |                                                                          |
  |      Enrico Bertolazzi                                                   |
  |      Dipartimento di Ingegneria Industriale                              |
- |      Universita` degli Studi di Trento                                   |
+ |      Università degli Studi di Trento                                    |
  |      email: enrico.bertolazzi@unitn.it                                   |
  |                                                                          |
 \*--------------------------------------------------------------------------*/
@@ -95,9 +95,9 @@ namespace alglin {
 
     // controlla che i blocchi atraversino la diagonale
     //             c                  c+numCol
-    // r           +------------------+
-    //             |                  |
-    // r+numRow    +------------------+
+    // r           ┌──────────────────┐
+    //             │                  │
+    // r+numRow    └──────────────────┘
     integer r{ nrows(0) };
     integer c{ ncols(0) - noverlap(0) };
     for ( integer k{1}; k < nblocks; ++k ) {
@@ -207,12 +207,12 @@ namespace alglin {
     integer nrows_pivot   = ncols_block - noverlap_cols;
 
     /*\
-     |  +------------------+
-     |  |                  |
-     |  |                  |
-     |  +---------+--------+---------+
-     |            |                  |
-     |            +------------------+
+     |  ┌──────────────────┐
+     |  │                  │
+     |  │                  │
+     |  └─────────┬────────┴─────────┐
+     |            │                  │
+     |            └──────────────────┘
     \*/
 
     row_elimination(

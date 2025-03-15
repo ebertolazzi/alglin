@@ -4,14 +4,14 @@
 #  Copyright (C) 2016                                                      #
 #      Enrico Bertolazzi                                                   #
 #      Dipartimento di Ingegneria Industriale                              #
-#      Universita` degli Studi di Trento                                   #
+#      Università degli Studi di Trento                                    #
 #      email: enrico.bertolazzi@unitn.it                                   #
 #                                                                          #
 ############################################################################
 
 cmake_minimum_required(VERSION 3.16)
 
-if(POLICY CMP0177)
+if (CMAKE_VERSION VERSION_GREATER_EQUAL 3.31)
   cmake_policy(SET CMP0177 NEW)
 endif()
 
