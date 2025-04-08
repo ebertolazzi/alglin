@@ -130,8 +130,8 @@ namespace alglin {
     Number & res
   ) {
     if ( ok_R && ok_L && ok_C ) {
-      Number D1{(fR-fC)/h};
-      Number D2{(fC-fL)/h};
+      Number const D1{ (fR-fC) / h };
+      Number const D2{ (fC-fL) / h };
       ALGLIN_FINITE_DIFFERENCE_WEIGHT;
       res = ALGLIN_FINITE_DIFFERENCE_AVERAGE;
       return 0;
@@ -159,8 +159,8 @@ namespace alglin {
   ) {
     if ( ok_R && ok_L && ok_C  ) {
       for ( integer i{0}; i < f_dim; ++i ) {
-        Number D1{(fR[i]-fC[i])/h};
-        Number D2{(fC[i]-fL[i])/h};
+        Number const D1{ (fR[i]-fC[i]) / h };
+        Number const D2{ (fC[i]-fL[i]) / h };
         ALGLIN_FINITE_DIFFERENCE_WEIGHT;
         res[i] = ALGLIN_FINITE_DIFFERENCE_AVERAGE;
       }
@@ -208,9 +208,9 @@ namespace alglin {
     Number * X{ const_cast<Number*>(x) };
 
     for ( integer i{0}; i < dim_x; ++i ) {
-      Number temp { x[i]               };
-      Number h1   { EPS.epsilon1(temp) };
-      Number h2   { EPS.epsilon2(temp) };
+      Number const temp { x[i]               };
+      Number const h1   { EPS.epsilon1(temp) };
+      Number const h2   { EPS.epsilon2(temp) };
       X[i] = temp+h1; bool ok_R{ FUN( X, vR ) };
       X[i] = temp-h1; bool ok_L{ FUN( X, vL ) };
       integer ic{ finite_difference_centered( vL, ok_L, vC, ok_C, vR, ok_R, h1, grad[i] ) };
@@ -223,7 +223,7 @@ namespace alglin {
           X[i] = temp+h2; // modify the vector only at i position
           bool ok_RR{ FUN( X, vRR ) };
           if ( ok_RR ) grad[i] = finite_difference_side( vC, vR, vRR, h1, h2 );
-          if ( ! (ok_RR&&Utils::is_finite(grad[i])) ) grad[i] = (vR-vC)/h1; // low precision FD
+          if ( ! ( ok_RR && Utils::is_finite(grad[i]) ) ) grad[i] = (vR-vC)/h1; // low precision FD
         }
         break;
       case -1:
@@ -232,7 +232,7 @@ namespace alglin {
           X[i] = temp-h2; // modify the vector only at i position
           bool ok_LL{ FUN( X, vLL ) };
           if ( ok_LL ) grad[i] = finite_difference_side( vC, vL, vLL, -h1, -h2 );
-          if ( ! (ok_LL&&Utils::is_finite(grad[i])) ) grad[i] = (vC-vL)/h1; // low precision FD
+          if ( ! ( ok_LL && Utils::is_finite(grad[i]) ) ) grad[i] = (vC-vL)/h1; // low precision FD
         }
         break;
       case -2:
@@ -276,9 +276,9 @@ namespace alglin {
     Number * X { const_cast<Number*>(x) };
 
     for ( integer i{0}; i < dim_x; ++i ) {
-      Number temp { x[i]               };
-      Number h1   { EPS.epsilon1(temp) };
-      Number h2   { EPS.epsilon2(temp) };
+      Number const temp { x[i]               };
+      Number const h1   { EPS.epsilon1(temp) };
+      Number const h2   { EPS.epsilon2(temp) };
       X[i] = temp+h1; bool ok_R{ FUN( X, vR ) };
       X[i] = temp-h1; bool ok_L{ FUN( X, vL ) };
       integer ic{ finite_difference_centered( vL, ok_L, vC, ok_C, vR, ok_R, h1, gradi ) };
@@ -291,7 +291,7 @@ namespace alglin {
           X[i] = temp+h2; // modify the vector only at i position
           bool ok_RR { FUN( X, vRR ) };
           if ( ok_RR ) gradi = finite_difference_side( vC, vR, vRR, h1, h2 );
-          if ( ! (ok_RR&&Utils::is_finite(gradi)) ) gradi = (vR-vC)/h1; // low precision FD
+          else         gradi = (vR-vC)/h1; // low precision FD
         }
         break;
       case -1:
@@ -300,10 +300,11 @@ namespace alglin {
           X[i] = temp-h2; // modify the vector only at i position
           bool ok_LL { FUN( X, vLL ) };
           if ( ok_LL ) gradi = finite_difference_side( vC, vL, vLL, -h1, -h2 );
-          if ( ! (ok_LL&&Utils::is_finite(gradi)) ) gradi = (vC-vL)/h1; // low precision FD
+          else         gradi = (vC-vL)/h1; // low precision FD
         }
         break;
       case -2:
+        return false;
         break;
       }
       X[i] = temp; // restore i position
@@ -398,9 +399,9 @@ namespace alglin {
     Number * pjac{Jac};
 
     for ( integer j{0}; j < dim_x; ++j ) {
-      Number temp { x[j]               };
-      Number h1   { EPS.epsilon1(temp) };
-      Number h2   { EPS.epsilon2(temp) };
+      Number const temp { x[j]               };
+      Number const h1   { EPS.epsilon1(temp) };
+      Number const h2   { EPS.epsilon2(temp) };
 
       X[j] = temp+h1; bool ok_R { FUN( X, vR ) };
       X[j] = temp-h1; bool ok_L { FUN( X, vL ) };
@@ -493,9 +494,9 @@ namespace alglin {
     Number const * Ajac { Jac                    };
 
     for ( integer j{0}; j < dim_x; ++j ) {
-      Number temp { x[j]               };
-      Number h1   { EPS.epsilon1(temp) };
-      Number h2   { EPS.epsilon2(temp) };
+      Number const temp { x[j]               };
+      Number const h1   { EPS.epsilon1(temp) };
+      Number const h2   { EPS.epsilon2(temp) };
 
       X[j] = temp+h1; bool ok_R { FUN( X, vR ) };
       X[j] = temp-h1; bool ok_L { FUN( X, vL ) };
@@ -684,8 +685,8 @@ namespace alglin {
 
     Number * X{const_cast<Number*>(x)};
     for ( integer j{0}; j < dim_x; ++j ) {
-      Number tempj{x[j]};
-      Number hj{EPS.epsilon3(tempj)};
+      Number const tempj{x[j]};
+      Number const hj{EPS.epsilon3(tempj)};
 
       bool ok{FUN( X, fc )};
       if ( ok ) { X[j] = tempj+hj; ok = FUN( X, fp ); }

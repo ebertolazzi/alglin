@@ -203,20 +203,20 @@ main( int argc, char *argv[] ) {
   int nrhs = 2;
   int ns   = 1;
   ok = BCR.solve( x );
+  #if 1
+  if ( ok ) { alglin::Copy_n( rhs, N, x ); ok = BCR.solve( x ); ++ns; }
+  if ( ok ) { alglin::Copy_n( rhs, N, x ); ok = BCR.solve( x ); ++ns; }
+  if ( ok ) { alglin::Copy_n( rhs, N, x ); ok = BCR.solve( x ); ++ns; }
+  if ( ok ) { alglin::Copy_n( rhs, N, x ); ok = BCR.solve( x ); ++ns; }
+  if ( ok ) { alglin::Copy_n( rhs, N, x ); ok = BCR.solve( x ); ++ns; }
+  if ( ok ) { alglin::Copy_n( rhs, N, x ); ok = BCR.solve( x ); ++ns; }
+  if ( ok ) { alglin::Copy_n( rhs, N, x ); ok = BCR.solve( x ); ++ns; }
+  if ( ok ) { alglin::Copy_n( rhs, N, x ); ok = BCR.solve( x ); ++ns; }
+  if ( ok ) { alglin::Copy_n( rhs, N, x ); ok = BCR.solve( x ); ++ns; }
+  #endif
   if ( !ok ) {
     fmt::print( "BCR.solve( x ) failed, last error: {}\n",BCR.last_error() );
   }
-  #if 1
-  alglin::Copy_n( rhs, N, x ); ok = BCR.solve( x ); ++ns;
-  alglin::Copy_n( rhs, N, x ); ok = BCR.solve( x ); ++ns;
-  alglin::Copy_n( rhs, N, x ); ok = BCR.solve( x ); ++ns;
-  alglin::Copy_n( rhs, N, x ); ok = BCR.solve( x ); ++ns;
-  alglin::Copy_n( rhs, N, x ); ok = BCR.solve( x ); ++ns;
-  alglin::Copy_n( rhs, N, x ); ok = BCR.solve( x ); ++ns;
-  alglin::Copy_n( rhs, N, x ); ok = BCR.solve( x ); ++ns;
-  alglin::Copy_n( rhs, N, x ); ok = BCR.solve( x ); ++ns;
-  alglin::Copy_n( rhs, N, x ); ok = BCR.solve( x ); ++ns;
-  #endif
   tm.toc();
   fmt::print("\nSolve = {:.5} [ms]\n\n", tm.elapsed_ms()/ns);
 

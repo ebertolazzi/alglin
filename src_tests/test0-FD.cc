@@ -100,6 +100,7 @@ main() {
 
   bool ok{ finite_difference_gradient( x, dim_x, ff, gradFD ) };
   if (ok) ok = fun_grad( x, grad );
+  if (!ok) { fmt::print("test failed!\n"); return -1; }
   real_type epsi{1e-6};
 
   fmt::print(
@@ -119,10 +120,11 @@ main() {
   std::vector<real_type> work(4*dim_x);
 
   ok = fun_jac( x, jac );
-  ok = finite_difference_jacobian(
+  if ( ok ) ok = finite_difference_jacobian(
     x, dim_x, gg, dim_x, jacFD, dim_x,
     work.data(), work.size()
   );
+  if (!ok) { fmt::print("test failed!\n"); return -1; }
   fmt::print(
     "\n\nCheck Jacobian\n{}Done\n",
     finite_difference_check_jacobian(
