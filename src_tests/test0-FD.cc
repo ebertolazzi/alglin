@@ -122,14 +122,14 @@ main() {
   ok = fun_jac( x, jac );
   if ( ok ) ok = finite_difference_jacobian(
     x, dim_x, gg, dim_x, jacFD, dim_x,
-    work.data(), work.size()
+    work.data(), static_cast<integer>(work.size())
   );
   if (!ok) { fmt::print("test failed!\n"); return -1; }
   fmt::print(
     "\n\nCheck Jacobian\n{}Done\n",
     finite_difference_check_jacobian(
       x, dim_x, gg, dim_x, jac, dim_x,
-      epsi, work.data(), work.size()
+      epsi, work.data(), static_cast<integer>(work.size())
     )
   );
 

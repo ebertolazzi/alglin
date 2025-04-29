@@ -207,6 +207,7 @@ namespace Simplex {
     ProblemBase()
     {}
 
+    virtual
     ~ProblemBase()
     {}
 
@@ -636,6 +637,7 @@ namespace Simplex {
     : ProblemBase()
     { }
 
+    virtual
     ~Problem()
     {}
 

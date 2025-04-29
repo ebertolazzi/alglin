@@ -223,3 +223,21 @@ utils_final_messages()
 ## message(STATUS "OpenMP_CXX_VERSION_MAJOR = ${OpenMP_CXX_VERSION_MAJOR}")
 ## message(STATUS "OpenMP_CXX_VERSION_MINOR = ${OpenMP_CXX_VERSION_MINOR}")
 ## message(STATUS "OpenMP_CXX_VERSION       = ${OpenMP_CXX_VERSION}")
+
+#
+# Remove warning for 3rd
+#
+get_property(all_targets DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY BUILDSYSTEM_TARGETS)
+
+foreach(target IN LISTS all_targets)
+  if (TARGET ${target})
+    get_target_property(type ${target} TYPE)
+    if(type STREQUAL "EXECUTABLE" OR
+       type STREQUAL "STATIC_LIBRARY" OR
+       type STREQUAL "SHARED_LIBRARY" OR
+       type STREQUAL "MODULE_LIBRARY" OR
+       type STREQUAL "OBJECT_LIBRARY")
+      target_include_directories(${target} SYSTEM PRIVATE ${CMAKE_SOURCE_DIR}/lib/include/Utils/3rd)
+    endif()
+  endif()
+endforeach()
