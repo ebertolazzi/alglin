@@ -143,9 +143,10 @@ namespace alglin {
   using lapack_wrapper::SparseMatrixBase;
   using lapack_wrapper::EquilibrationType;
 
-  using Utils::string;
   using Utils::Malloc;
-  using Utils::vector;
+
+  using std::string;
+  using std::vector;
 }
 
 #endif

@@ -16,3 +16,4 @@ build
 3.3.4.tar.gz
 .DS_Store
 Xcode
+.cache
