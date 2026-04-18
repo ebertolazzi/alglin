@@ -338,7 +338,7 @@ namespace alglin {
     }
 
     void select_last_block_solver_LU()   { m_la_factorization = &m_la_lu;   }
-    void select_last_block_solver_LU_Q() { m_la_factorization = &m_la_lupq; }
+    void select_last_block_solver_LUPQ() { m_la_factorization = &m_la_lupq; }
     void select_last_block_solver_QR()   { m_la_factorization = &m_la_qr;   }
     void select_last_block_solver_QRP()  { m_la_factorization = &m_la_qrp;  }
     void select_last_block_solver_SVD()  { m_la_factorization = &m_la_svd;  }
@@ -361,7 +361,7 @@ namespace alglin {
     }
 
     void select_last_border_block_solver_LU()   { m_bb_factorization = &m_bb_lu;   }
-    void select_last_border_block_solver_LU_Q() { m_bb_factorization = &m_bb_lupq; }
+    void select_last_border_block_solver_LUPQ() { m_bb_factorization = &m_bb_lupq; }
     void select_last_border_block_solver_QR()   { m_bb_factorization = &m_bb_qr;   }
     void select_last_border_block_solver_QRP()  { m_bb_factorization = &m_bb_qrp;  }
     void select_last_border_block_solver_SVD()  { m_bb_factorization = &m_bb_svd;  }

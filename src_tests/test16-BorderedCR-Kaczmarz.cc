@@ -188,7 +188,7 @@ main( int argc, char *argv[] ) {
   alglin::Copy_n( rhs, N, x );
   alglin::Copy_n( rhs, N, x+N );
   tm.tic();
-  int nrhs = 2;
+  int constexpr nrhs = 2;
   ok = BCR.solve( x );
   if ( !ok ) {
     fmt::print( "BCR.solve( x ) failed, last error: {}\n",BCR.last_error() );
@@ -213,7 +213,7 @@ main( int argc, char *argv[] ) {
 
   alglin::Copy_n( rhs, 2*N, x );
   tm.tic();
-  ok = BCR.solve( 2, x, N );
+  ok = BCR.solve( nrhs, x, N );
   tm.toc();
   if ( !ok ) fmt::print( "BCR.solve( nrhs, x, N ) failed, last error: {}\n",BCR.last_error() );
   fmt::print("\nSolve2 = {:.5} [ms]\n",tm.elapsed_ms());

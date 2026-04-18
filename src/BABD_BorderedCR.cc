@@ -50,12 +50,15 @@ namespace alglin {
     integer const nx
   ) {
 
+    integer const NBLK{ max(integer(1),m_max_parallel_block) };
+
     if ( m_number_of_blocks == nblock &&
          m_block_size       == n      &&
          m_qr               == qr     &&
          m_qx               == qx     &&
          m_nr               == nr     &&
-         m_nx               == nx ) return;
+         m_nx               == nx     &&
+         integer(m_perm_thread.size()) == NBLK ) return;
 
     try {
 
@@ -76,7 +79,6 @@ namespace alglin {
       m_Nc    = n_x_2+m_nx+m_qx;
       m_Tsize = 2*n_x_n+n;
 
-      integer const NBLK { max(1,m_max_parallel_block) };
       integer const N    { max(m_Nr,m_Nc) };
       m_Work_Lapack_size = max(N,2*max(n_x_n,max(nr_x_n,n_x_nx)));
 
@@ -218,7 +220,7 @@ namespace alglin {
       "{0}treads = {9}/nblk:{10}/factorize:{11}/solve:{12}\n"
       "{0}intern = {13}\n"
       "{0}last   = {14}\n"
-      "{0}last2  = {14}\n",
+      "{0}last2  = {15}\n",
       indent,
       nrows(), ncols(), m_number_of_blocks,
       m_block_size, m_qr, m_qx, m_nr, m_nx,
@@ -427,12 +429,13 @@ namespace alglin {
   void
   BorderedCR<t_Value>::load_bottom2( MatW const & Hp ) {
     integer   const   nblock { m_number_of_blocks };
+    integer   const   n      { m_block_size       };
     real_type const * ptr    { Hp.data() };
     integer   const   ld     { Hp.ldim() };
     if ( Hp.nrows() == m_nr && Hp.ncols() == m_Nc ) {
-      this->load_C(  0,      ptr, ld ); ptr += nr_x_n;
-      this->load_C(  nblock, ptr, ld ); ptr += nr_x_n;
-      this->load_Cq(         ptr, ld ); ptr += m_nr * m_qx;
+      this->load_C(  0,      ptr, ld ); ptr += ld * n;
+      this->load_C(  nblock, ptr, ld ); ptr += ld * n;
+      this->load_Cq(         ptr, ld ); ptr += ld * m_qx;
       this->load_F(          ptr, ld );
     } else {
       BABD_LAST_ERROR(
@@ -776,9 +779,10 @@ namespace alglin {
   void
   BorderedCR<t_Value>::add_to_C2F( integer nbl, MatW const & C2F ) {
     if ( C2F.nrows() == m_nr && C2F.ncols() == n_x_2+m_nx ) {
+      integer const ld{ C2F.ldim() };
       real_type * CC{m_Cmat + nbl*nr_x_n};
-      GEadd( m_nr, n_x_2, C2F.data(),                m_nr, CC,     m_nr );
-      GEadd( m_nr, m_nx,  C2F.data() + m_nr * n_x_2, m_nr, m_Fmat, m_nr );
+      GEadd( m_nr, n_x_2, C2F.data(),               ld, CC,     m_nr );
+      GEadd( m_nr, m_nx,  C2F.data() + ld * n_x_2, ld, m_Fmat, m_nr );
     } else {
       BABD_LAST_ERROR(
         "BorderedCR::add_to_C2F( {}, C2F) bad dimension size(C2F) = {} x {} expected {} x {}\n",
@@ -965,6 +969,10 @@ namespace alglin {
         W, n_x_2,
         m_Work_Lapack_thread[n_thread], m_Work_Lapack_size
       );
+      if ( info != 0 ) {
+        BABD_LAST_ERROR_LOCK( "BorderedCR::applyT, ormqr return INFO = {}\n", info );
+        return false;
+      }
       break;
     }
 
@@ -1486,15 +1494,17 @@ namespace alglin {
     integer const npb    { m_used_parallel_block };
 
     real_type * xb{ x + (nblock+1)*n + m_qr }; // deve essere b!
+    m_ok_thread = true;
 
     if ( npb > 1 ) {
       if ( m_solve_use_thread ) {
         for ( integer n_thread{0}; n_thread < npb; ++n_thread )
           m_TP->run( &BorderedCR<t_Value>::forward, this, n_thread, x );
         m_TP->wait();
+        if ( !m_ok_thread ) return false;
       } else {
         for ( integer n_thread{0}; n_thread < npb; ++n_thread )
-          forward( n_thread, x );
+          if ( !forward( n_thread, x ) ) return false;
       }
       if ( m_nr > 0 ) {
         MapVector<t_Value> XB( xb, m_nr );
@@ -1505,7 +1515,7 @@ namespace alglin {
       }
       if ( !forward_reduced( x, xb ) ) return false;
     } else {
-      forward( 0, x );
+      if ( !forward( 0, x ) ) return false;
       if ( m_nr > 0 ) {
         MapVector<t_Value> XB( xb, m_nr );
         MapVector<t_Value> WORK( m_xb_thread[0], m_nr );
@@ -1627,7 +1637,10 @@ namespace alglin {
       real_type *   Cj    { C0 + k*nr_x_n   };
       integer const k_x_2 { 2*k             };
       for ( integer jj{k}; jj < nblk; jj += k_x_2 ) {
-        if ( !applyT( n_thread, T, P, xjp, xj ) ) return false;
+        if ( !applyT( n_thread, T, P, xjp, xj ) ) {
+          m_ok_thread = false;
+          return false;
+        }
         if ( m_nr > 0 )
           gemv(
             Transposition::NO,

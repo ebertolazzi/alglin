@@ -588,7 +588,7 @@ testMM() {
 }
 
 
-static
+[[maybe_unused]] static
 void
 testVVall() {
   testVV<2>();
@@ -617,7 +617,7 @@ testVVall() {
   testVV<10000>();
 }
 
-static
+[[maybe_unused]] static
 void
 testMvAll() {
   testMv<2>();
@@ -669,7 +669,7 @@ testMMall() {
   testMM<100>();
 }
 
-static
+[[maybe_unused]] static
 void
 testCopyAll() {
   testCopy<2>();
@@ -698,7 +698,6 @@ testCopyAll() {
 
 int
 main() {
-  Eigen::initParallel();
   Eigen::setNbThreads(4);
 
   //testCopyAll();

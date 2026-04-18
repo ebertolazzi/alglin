@@ -206,7 +206,7 @@ namespace alglin {
     mutable UTILS_SPINLOCK m_spin;
     mutable atomic<bool>   m_ok_thread;
 
-    Utils::ThreadPool0      m_TP_fake{0};
+    Utils::ThreadPool0      m_TP_fake{1};
     Utils::ThreadPoolBase * m_TP{&m_TP_fake};
 
     bool
@@ -369,9 +369,19 @@ namespace alglin {
     void
     set_num_parallel_block( integer num_parallel_block ) {
       // taglia il massimo numero di blocchi paralleli al numero delle thread
-      m_max_parallel_block = m_TP->thread_count();
-      if ( m_max_parallel_block > num_parallel_block )
-        m_max_parallel_block = num_parallel_block;
+      m_max_parallel_block = max(
+        integer(1),
+        min( integer(m_TP->thread_count()), num_parallel_block )
+      );
+      if ( m_number_of_blocks > 0 )
+        this->allocate(
+          m_number_of_blocks,
+          m_block_size,
+          m_qr,
+          m_qx,
+          m_nr,
+          m_nx
+        );
     }
 
     //! load matrix in the class

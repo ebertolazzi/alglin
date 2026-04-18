@@ -85,12 +85,12 @@ static void print_info(const std::string& message) {
 }
 
 static void print_progress(int current, int total, const std::string& message = "") {
-  float progress = static_cast<float>(current) / total;
-  int bar_width = 40;
+  float const progress = static_cast<float>(current) / static_cast<float>(total);
+  int constexpr bar_width = 40;
   
   fmt::print("\r");
   fmt::print(fg(fmt::color::cyan), "[");
-  int pos = static_cast<int>(bar_width * progress);
+  int const pos = static_cast<int>(static_cast<float>(bar_width) * progress);
   for (int i = 0; i < bar_width; ++i) {
     if (i < pos) fmt::print(fg(fmt::color::green), "█");
     else if (i == pos) fmt::print(fg(fmt::color::yellow), "▌");
@@ -179,8 +179,9 @@ static void print_result_table(const vector<TestResult>& results) {
   
   fmt::print(fg(fmt::color::white), "\n📈 Summary: {}/{} tests passed", 
              passed_count, results.size());
+  double const result_count = static_cast<double>(results.size());
   fmt::print(fg(fmt::color::cyan), " | Average speedup: {:.1f}x\n", 
-             total_speedup / results.size());
+             total_speedup / result_count);
 }
 
 } // namespace TestUtils
@@ -416,7 +417,7 @@ private:
       result.max_error = max(result.max_error, error);
       result.avg_error += error;
     }
-    result.avg_error /= x0.size();
+    result.avg_error /= static_cast<real_type>(x0.size());
     
     result.passed = (result.max_error < epsilon);
     
@@ -638,12 +639,13 @@ public:
     fmt::print(fg(fmt::color::cyan) | fmt::emphasis::bold, " ║\n");
     
     fmt::print(fg(fmt::color::cyan) | fmt::emphasis::bold, "║" );
-    fmt::print(fg(fmt::color::white), "   Success Rate: {:5.1f}%                                                   ", passed * 100.0 / results_.size());
+    double const result_count = static_cast<double>(results_.size());
+    fmt::print(fg(fmt::color::white), "   Success Rate: {:5.1f}%                                                   ", passed * 100.0 / result_count);
     fmt::print(fg(fmt::color::cyan) | fmt::emphasis::bold, "║\n║" );
     
     fmt::print(fg(fmt::color::white), 
       "   Max Error: {:10.2e}    Avg Speedup: {:5.1f}x                           ",
-      max_error_overall, total_speedup / results_.size());
+      max_error_overall, total_speedup / result_count);
     
     fmt::print(fg(fmt::color::cyan) | fmt::emphasis::bold,
       "║\n"
@@ -665,7 +667,7 @@ public:
       fmt::print(fg(fmt::color::red), "❌ Poor accuracy. Review finite difference implementation.\n");
     }
     
-    double avg_speedup = total_speedup / results_.size();
+    double avg_speedup = total_speedup / result_count;
     if (avg_speedup > 50) {
       fmt::print(fg(fmt::color::blue), "⚡ Analytical gradients are significantly faster.\n");
     } else if (avg_speedup > 10) {
