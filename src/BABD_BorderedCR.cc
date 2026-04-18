@@ -389,7 +389,7 @@ namespace alglin {
     integer const & n    {m_block_size};
     // (n+qr) x ( n + n + qx + nx )
     GEcopy( m_nr, n,    C0, ld0,  m_Cmat,            m_nr );
-    GEcopy( m_nr, n,    CN, ldN,  m_Cmat+nblk*n_x_n, m_nr );
+    GEcopy( m_nr, n,    CN, ldN,  m_Cmat+nblk*nr_x_n, m_nr );
     GEcopy( m_nr, m_qx, Cq, ldCq, m_Cqmat,           m_nr );
     GEcopy( m_nr, m_nx, F,  ldF,  m_Fmat,            m_nr );
   }

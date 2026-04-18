@@ -21,6 +21,21 @@
 /// file: BlockBidiagonal.hxx
 ///
 
+/*!
+ * \file BlockBidiagonal.hxx
+ * \brief Abstract base for block bidiagonal and bordered systems.
+ *
+ * This header collects the common base class used by the ABD/BABD solvers in
+ * the library. The class manages:
+ * - allocation of the block data structure;
+ * - loading of bidiagonal blocks and border terms;
+ * - selection of the solver applied to the last block or reduced system;
+ * - sparse export and matrix-vector products.
+ *
+ * Derived classes implement the actual numerical factorization and solve
+ * strategy.
+ */
+
 namespace alglin {
 
   /*\
@@ -32,41 +47,46 @@ namespace alglin {
    |                                                  |___/
   \*/
 
-  //!
-  //!  Cyclic reduction of a block bidiagonal matrix
-  //!
-  //!  \date     October 25, 2016
-  //!  \version  1.0
-  //!  \note     October 25, 2016
-  //!
-  //!  \author   Enrico Bertolazzi
-  //!
-  //!  \par      Affiliation:
-  //!            Department of Industrial Engineering<br>
-  //!            University of Trento <br>
-  //!            Via Sommarive 9, I-38123 Povo, Trento, Italy<br>
-  //!            enrico.bertolazzi\@unitn.it
-  //!
+  /*!
+   * \brief Base class for block bidiagonal matrices with an optional border.
+   *
+   * The class encapsulates problem geometry and the buffers representing:
+   * - the internal diagonal/bidiagonal structure;
+   * - the right and lower border blocks;
+   * - the final reduced block produced by elimination.
+   *
+   * Derived implementations must provide methods \ref factorize and \ref solve,
+   * but can reuse the whole loading, sparse export, and final-solver management
+   * infrastructure.
+   *
+   * \date     October 25, 2016
+   * \version  1.0
+   * \note     October 25, 2016
+   * \author   Enrico Bertolazzi
+   */
   template <typename t_Value>
   class BlockBidiagonal {
   public:
 
     typedef t_Value real_type;
 
-    //! available LU factorization code
+    //! \brief Solvers available for the final reduced block.
     using BB_LASTBLOCK_Choice = enum class BB_LASTBLOCK_Choice : integer {
-      LU   = 0,
-      LUPQ = 1,
-      QR   = 2,
-      QRP  = 3,
-      SVD  = 4,
-      LSS  = 5,
-      LSY  = 6,
-      PINV = 7
+      LU   = 0, //!< Standard LU factorization.
+      LUPQ = 1, //!< LU factorization with complete pivoting.
+      QR   = 2, //!< QR factorization.
+      QRP  = 3, //!< QR factorization with pivoting.
+      SVD  = 4, //!< Singular value decomposition.
+      LSS  = 5, //!< Least-squares standard.
+      LSY  = 6, //!< Least-squares with regularization/symmetry support.
+      PINV = 7  //!< Pseudoinverse.
     };
 
     static
     string
+    //! \brief Converts a final-solver choice into a readable string.
+    //! \param c choice to convert.
+    //! \return Solver description.
     LastBlock_to_string( BB_LASTBLOCK_Choice c ) {
       switch ( c ) {
         case BB_LASTBLOCK_Choice::LU:   return "last block LU";
@@ -188,7 +208,24 @@ namespace alglin {
 
     virtual ~BlockBidiagonal() = default;
 
-    //! allocatew and resize the problem
+    /*!
+     * \brief Allocates or resizes the problem using the general structure.
+     *
+     * This method initializes system geometry, border-block sizes, and any
+     * extra storage required by the derived algorithm.
+     *
+     * \param nblock number of internal bidiagonal blocks.
+     * \param n size of each square internal block.
+     * \param nb size of the right border.
+     * \param num_initial_BC number of rows in the initial lower block.
+     * \param num_final_BC number of rows in the final lower block.
+     * \param num_cyclic_BC number of rows in the cyclic lower block.
+     * \param num_initial_OMEGA number of extra columns associated with the first block.
+     * \param num_final_OMEGA number of extra columns associated with the last block.
+     * \param num_cyclic_OMEGA number of cyclic extra columns.
+     * \param num_extra_r extra real storage requested by the derived class.
+     * \param num_extra_i extra integer storage requested by the derived class.
+     */
     void
     allocate(
       integer nblock,
@@ -207,6 +244,22 @@ namespace alglin {
       integer num_extra_i
     );
 
+    /*!
+     * \brief Convenience variant for systems with only top and bottom blocks.
+     *
+     * It converts the dimensions of `top` and `bottom` blocks into the general
+     * class convention and forwards to \ref allocate.
+     *
+     * \param nblock number of internal blocks.
+     * \param n size of the square internal blocks.
+     * \param row0 number of rows in the top block.
+     * \param col0 number of columns in the top block.
+     * \param rowN number of rows in the bottom block.
+     * \param colN number of columns in the bottom block.
+     * \param nb size of the right border.
+     * \param num_extra_r extra real storage requested by the derived class.
+     * \param num_extra_i extra integer storage requested by the derived class.
+     */
     void
     allocate_top_bottom(
       integer nblock,
@@ -227,43 +280,87 @@ namespace alglin {
       );
     }
 
-    // filling bidiagonal part of the matrix
+    //! \name Loading the bidiagonal part
+    //! @{
+
+    //! \brief Loads all internal `[Ad | Au]` blocks.
     void load_blocks( real_type const AdAu[], integer ldA );
+    //! \brief Loads full internal block `nbl` as `[Ad | Au]`.
     void load_block( integer nbl, real_type const AdAu[], integer ldA );
 
+    //! \brief Loads only the left diagonal part `Ad` of block `nbl`.
     void load_block_left( integer nbl, real_type const Ad[], integer ldA );
+    //! \brief Loads only the right superdiagonal part `Au` of block `nbl`.
     void load_block_right( integer nbl, real_type const Au[], integer ldA );
 
-    // Border Bottom blocks
+    //! @}
+    //! \name Lower-border blocks
+    //! @{
+
+    //! \brief Zeros all lower-border blocks.
     void set_zero_bottom_blocks();
+    //! \brief Loads all lower-border blocks.
     void load_bottom_blocks( real_type const C[], integer ldC );
+    //! \brief Loads the lower block associated with internal block `nbl`.
     void load_bottom_block( integer nbl, real_type const C[], integer ldC );
+    //! \brief Adds a contribution to lower block `nbl`.
     void add_to_bottom_block( integer nbl, real_type const C[], integer ldC );
 
-    // add to bottom block nbl and nbl+1
+    //! \brief Adds a contribution distributed across blocks `nbl` and `nbl+1`.
     void add_to_bottom_block2( integer nbl, real_type const C[], integer ldC );
+    //! \brief Loads the last lower-border block.
     void load_bottom_last_block( real_type const C[], integer ldC );
 
-    // Border Right blocks
+    //! @}
+    //! \name Right-border blocks
+    //! @{
+
+    //! \brief Zeros all right-border blocks.
     void set_zero_right_blocks();
+    //! \brief Loads all right-border blocks.
     void load_right_blocks( real_type const B[], integer ldB );
+    //! \brief Loads right-border block `nbl`.
     void loadRightBlock( integer nbl, real_type const B[], integer ldB );
+    //! \brief Loads the last right-border block.
     void loadRightLastBlock( real_type const B[], integer ldB );
 
-    // Border RBblock
+    //! @}
+    //! \name Bottom-right corner block
+    //! @{
+
+    //! \brief Zeros the bottom-right corner block.
     void setZeroRBblock();
+    //! \brief Loads the bottom-right corner block.
     void load_RB_block( real_type const D[], integer ldD );
 
-    // final blocks after cyclic reduction
+    //! @}
+    //! \name Extraction of the final reduced block
+    //! @{
+
+    //! \brief Returns the pointer to the concatenated final reduced block.
     real_type const * getPointer_LR() const { return m_DE_blk; }
 
+    //! \brief Copies the concatenated final block `[L | R]`.
     void getBlock_LR( real_type LR[], integer ldA ) const;
+    //! \brief Copies the left final block `L`.
     void getBlock_L ( real_type L[],  integer ldA ) const;
+    //! \brief Copies the right final block `R`.
     void getBlock_R ( real_type R[],  integer ldA ) const;
+    //! \brief Copies reduced-lower-border block `H0`.
     void getBlock_H0( real_type H0[], integer ld0 ) const;
+    //! \brief Copies reduced-lower-border block `HN`.
     void getBlock_HN( real_type HN[], integer ldN ) const;
+    //! \brief Copies reduced-lower-border block `Hq`.
     void getBlock_Hq( real_type Hq[], integer ldQ ) const;
 
+    //! @}
+
+    /*!
+     * \brief Specialized allocation implemented by the derived class.
+     *
+     * This overload receives only the problem geometry; base storage is already
+     * managed by the current class.
+     */
     virtual
     void
     allocate(
@@ -280,6 +377,12 @@ namespace alglin {
       integer /* num_cyclic_OMEGA  */
     ) = 0;
 
+    /*!
+     * \brief Specialized allocation for systems described by top/bottom blocks.
+     *
+     * Derived classes may use this signature to implement more natural
+     * allocation paths for their specific algorithms.
+     */
     virtual
     void
     allocate_top_bottom(
@@ -292,14 +395,17 @@ namespace alglin {
       integer /* nb     */
     ) = 0;
 
+    //! \brief Factorizes the system loaded in the internal structure.
     virtual
     void
     factorize() = 0;
 
+    //! \brief Solves the system for a single right-hand side.
     virtual
     void
     solve( real_type [] ) const = 0;
 
+    //! \brief Solves the system for multiple right-hand sides.
     virtual
     void
     solve(
@@ -308,6 +414,24 @@ namespace alglin {
       integer      /* ldRhs */
     ) const = 0;
 
+    //! \brief Number of internal blocks.
+    integer number_of_blocks() const { return m_number_of_blocks; }
+    //! \brief Size of the square internal block.
+    integer block_size()       const { return m_block_size; }
+    //! \brief Total number of equations in the internal bidiagonal block structure.
+    integer num_equations()    const { return m_num_equations; }
+    //! \brief Size of the right / bottom-right border.
+    integer border_size()      const { return m_border_size; }
+
+    /*!
+     * \brief Loads the reduced lower border through blocks `H0`, `HN`, `Hq`.
+     * \param H0 contribution connected to the first block.
+     * \param ld0 leading dimension di `H0`.
+     * \param HN contribution connected to the last block.
+     * \param ldN leading dimension di `HN`.
+     * \param Hq contribution associated with the extra variables.
+     * \param ldQ leading dimension di `Hq`.
+     */
     void
     load_bottom(
       real_type const H0[], integer ld0,
@@ -315,14 +439,26 @@ namespace alglin {
       real_type const Hq[], integer ldQ
     );
 
-    // block0 = row0 * col0
-    // blockN = rowN * colN
+    /*!
+     * \brief Loads `top` and `bottom` blocks in the top/bottom parameterization.
+     * \param block0 top block.
+     * \param ld0 leading dimension di `block0`.
+     * \param blockN bottom block.
+     * \param ldN leading dimension di `blockN`.
+     *
+     * Block `top` has size `row0 x col0`, while `bottom` has size `rowN x colN`
+     * according to the geometry fixed during allocation.
+     */
     void
     load_top_bottom(
       real_type const block0[], integer ld0,
       real_type const blockN[], integer ldN
     );
 
+    /*!
+     * \brief Selects the solver to use on the final reduced block.
+     * \param choice desired numerical strategy.
+     */
     void
     select_last_block_solver( BB_LASTBLOCK_Choice choice ) {
       switch ( choice ) {
@@ -337,15 +473,27 @@ namespace alglin {
       }
     }
 
+    //! \brief Selects LU for the final reduced block.
     void select_last_block_solver_LU()   { m_la_factorization = &m_la_lu;   }
+    //! \brief Selects LUPQ for the final reduced block.
     void select_last_block_solver_LUPQ() { m_la_factorization = &m_la_lupq; }
+    //! \brief Selects QR for the final reduced block.
     void select_last_block_solver_QR()   { m_la_factorization = &m_la_qr;   }
+    //! \brief Selects QRP for the final reduced block.
     void select_last_block_solver_QRP()  { m_la_factorization = &m_la_qrp;  }
+    //! \brief Selects SVD for the final reduced block.
     void select_last_block_solver_SVD()  { m_la_factorization = &m_la_svd;  }
+    //! \brief Selects LSS for the final reduced block.
     void select_last_block_solver_LSS()  { m_la_factorization = &m_la_lss;  }
+    //! \brief Selects LSY for the final reduced block.
     void select_last_block_solver_LSY()  { m_la_factorization = &m_la_lsy;  }
+    //! \brief Selects PINV for the final reduced block.
     void select_last_block_solver_PINV() { m_la_factorization = &m_la_pinv; }
 
+    /*!
+     * \brief Selects the solver to use on the final bordered system.
+     * \param choice desired numerical strategy.
+     */
     void
     select_last_border_block_solver( BB_LASTBLOCK_Choice choice ) {
       switch ( choice ) {
@@ -360,24 +508,36 @@ namespace alglin {
       }
     }
 
+    //! \brief Selects LU for the final bordered system.
     void select_last_border_block_solver_LU()   { m_bb_factorization = &m_bb_lu;   }
+    //! \brief Selects LUPQ for the final bordered system.
     void select_last_border_block_solver_LUPQ() { m_bb_factorization = &m_bb_lupq; }
+    //! \brief Selects QR for the final bordered system.
     void select_last_border_block_solver_QR()   { m_bb_factorization = &m_bb_qr;   }
+    //! \brief Selects QRP for the final bordered system.
     void select_last_border_block_solver_QRP()  { m_bb_factorization = &m_bb_qrp;  }
+    //! \brief Selects SVD for the final bordered system.
     void select_last_border_block_solver_SVD()  { m_bb_factorization = &m_bb_svd;  }
+    //! \brief Selects LSS for the final bordered system.
     void select_last_border_block_solver_LSS()  { m_bb_factorization = &m_bb_lss;  }
+    //! \brief Selects LSY for the final bordered system.
     void select_last_border_block_solver_LSY()  { m_bb_factorization = &m_bb_lsy;  }
+    //! \brief Selects PINV for the final bordered system.
     void select_last_border_block_solver_PINV() { m_bb_factorization = &m_bb_pinv; }
 
+    //! \brief Factorizes the final reduced block without border terms.
     void
     last_block_factorize();
 
+    //! \brief Factorizes the reduced system with right/lower border terms.
     void
     factorize_bordered();
 
+    //! \brief Solves the bordered system for a single right-hand side.
     void
     solve_bordered( real_type [] ) const;
 
+    //! \brief Solves the bordered system for multiple right-hand sides.
     void
     solve_bordered(
       integer      /* nrhs  */,
@@ -385,7 +545,12 @@ namespace alglin {
       integer      /* ldRhs */
     ) const;
 
-    // All in one
+    /*!
+     * \brief Loads and factorizes a bordered system in a single step.
+     *
+     * Blocks are provided in dense column-major form, consistent with the
+     * structure of the already allocated problem.
+     */
     void
     factorize(
       real_type const AdAu[],
@@ -414,7 +579,9 @@ namespace alglin {
       }
     }
 
-    // All in one
+    /*!
+     * \brief Loads and factorizes a system without a right border in a single step.
+     */
     void
     factorize(
       real_type const AdAu[],
@@ -433,7 +600,11 @@ namespace alglin {
       this->factorize();
     }
 
-    // aux function
+    /*!
+     * \brief Computes the matrix-vector product `res = A*x`.
+     * \param x input vector.
+     * \param res output buffer.
+     */
     void
     Mv( real_type const x[], real_type res[] ) const;
 
@@ -446,9 +617,11 @@ namespace alglin {
      |                        |_|
     \*/
 
+    //! \brief Exports the matrix in readable column-coordinate form.
     void
     dump_ccoord( ostream_type & stream ) const;
 
+    //! \brief Prints the matrix in a Maple-compatible format.
     void
     dump_to_Maple( ostream_type & stream ) const;
 
@@ -460,12 +633,15 @@ namespace alglin {
      |      |_|
     \*/
 
+    //! \brief Number of nonzero entries in the full matrix.
     integer
     sparse_nnz() const;
 
+    //! \brief Exports the sparse pattern of the full matrix.
     void
     sparse_pattern( integer I[], integer J[] ) const;
 
+    //! \brief Exports the values of the full matrix in sparse order.
     void
     sparse_values( real_type vals[] ) const;
 

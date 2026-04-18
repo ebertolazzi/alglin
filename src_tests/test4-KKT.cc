@@ -60,7 +60,7 @@ test0() {
     N, M,
     A, N, false, // N x N
     B, N, false, // N x M
-    C, N, false, // M x N
+    C, M, false, // M x N
     D, M, false  // M x M
   );
   kkt.factorize();
@@ -127,7 +127,7 @@ test1() {
     N, M,
     A, N, false, // N x N
     B, N, false, // N x M
-    C, N, false, // M x N
+    C, M, false, // M x N
     D, M, false  // M x M
   );
   kkt.factorize();
@@ -171,6 +171,65 @@ test1() {
 
 static
 void
+test_matrixwrapper_api() {
+
+  using namespace alglin;
+
+  KKT<real_type> kkt;
+  constexpr integer N{2};
+  constexpr integer M{1};
+
+  real_type A[]{
+    1, 0,
+    0, 1
+  };
+
+  real_type B[]{ 0, 0 };
+  real_type C[]{ 0, 0 };
+  real_type D[]{ 2 };
+
+  kkt.load(
+    N, M,
+    A, N, false,
+    B, N, false,
+    C, M, false,
+    D, M, false
+  );
+  kkt.factorize();
+
+  Matrix<real_type> rhs( N+M, 2 );
+
+  rhs(0,0) =  1; rhs(1,0) = 2; rhs(2,0) =  6;
+  rhs(0,1) = -1; rhs(1,1) = 4; rhs(2,1) = -2;
+
+  UTILS_ASSERT0( kkt.solve( rhs ), "KKT::solve(MatrixWrapper) failed\n" );
+  UTILS_ASSERT0(
+    std::abs(rhs(0,0) -  1) < 1e-12 &&
+    std::abs(rhs(1,0) -  2) < 1e-12 &&
+    std::abs(rhs(2,0) -  3) < 1e-12 &&
+    std::abs(rhs(0,1) +  1) < 1e-12 &&
+    std::abs(rhs(1,1) -  4) < 1e-12 &&
+    std::abs(rhs(2,1) +  1) < 1e-12,
+    "KKT::solve(MatrixWrapper) returned a wrong solution\n"
+  );
+
+  rhs(0,0) =  1; rhs(1,0) = 2; rhs(2,0) =  6;
+  rhs(0,1) = -1; rhs(1,1) = 4; rhs(2,1) = -2;
+
+  UTILS_ASSERT0( kkt.t_solve( rhs ), "KKT::t_solve(MatrixWrapper) failed\n" );
+  UTILS_ASSERT0(
+    std::abs(rhs(0,0) -  1) < 1e-12 &&
+    std::abs(rhs(1,0) -  2) < 1e-12 &&
+    std::abs(rhs(2,0) -  3) < 1e-12 &&
+    std::abs(rhs(0,1) +  1) < 1e-12 &&
+    std::abs(rhs(1,1) -  4) < 1e-12 &&
+    std::abs(rhs(2,1) +  1) < 1e-12,
+    "KKT::t_solve(MatrixWrapper) returned a wrong solution\n"
+  );
+}
+
+static
+void
 test2() {
 
   using namespace alglin;
@@ -206,7 +265,7 @@ test2() {
     N, M,
     A, N, false, // N x N
     B, N, false, // N x M
-    C, N, false, // M x N
+    C, M, false, // M x N
     D, M, false  // M x M
   );
   kkt.factorize();
@@ -288,7 +347,7 @@ test3() {
     N, M,
     A, N, false, // N x N
     B, N, false, // N x M
-    C, N, false, // M x N
+    C, M, false, // M x N
     D, M, false  // M x M
   );
   kkt.factorize();
@@ -541,6 +600,8 @@ main() {
     test0();
     cout << "\n\n\ntest1\n";
     test1();
+    cout << "\n\n\ntest_matrixwrapper_api\n";
+    test_matrixwrapper_api();
     cout << "\n\n\ntest2\n";
     test2();
     cout << "\n\n\ntest3\n";
@@ -553,8 +614,10 @@ main() {
     test6();
   } catch ( exception const & exc ) {
     cerr << exc.what();
+    return 1;
   } catch ( ... ) {
     cerr << "Errore Sconosciuto!\n";
+    return 1;
   }
 
   cout << "\nAll done!\n";

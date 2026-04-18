@@ -759,7 +759,7 @@ namespace alglin {
     integer const & nb     {m_border_size};
     integer const   nx2    {n*2};
 
-    integer nnz{ (2*nblock)*n_x_n+ 2*(nblock+1)*n*nb + nb*nb };
+    integer const nnz{ sparse_nnz() };
 
     // BC
     if ( m_num_cyclic_BC == 0 && m_num_cyclic_OMEGA == 0 ) {
@@ -769,7 +769,6 @@ namespace alglin {
       integer const col00 = m_num_initial_OMEGA;
       integer const colNN = m_num_final_OMEGA;
 
-      nnz += row0 * ( n + col00 ) + rowN * ( n + colNN );
       fmt::print( stream, "{}\n", nnz );
 
       integer const ii{nblock*n};
@@ -797,7 +796,6 @@ namespace alglin {
     } else {
 
       integer const nq{n+q};
-      nnz += nq*(2*nq);
       fmt::print( stream, "{}\n", nnz );
 
       real_type * H0{m_H0Nq};
@@ -865,7 +863,8 @@ namespace alglin {
     integer const & q      {m_extra_bc};
     integer const & nb     {m_border_size};
 
-    integer nnz{ (2*nblock)*n_x_n + 2*(nblock+1)*n*nb + nb*nb };
+    integer const neq{ m_num_equations };
+    integer nnz{ (2*nblock)*n_x_n + 2*neq*nb + nb*nb };
     if ( m_num_cyclic_BC == 0 && m_num_cyclic_OMEGA == 0 ) {
       integer const row0  {m_num_initial_BC};
       integer const rowN  {m_num_final_BC};

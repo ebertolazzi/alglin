@@ -21,6 +21,16 @@
 /// file: BABD_Block.hxx
 ///
 
+/*!
+ * \file BABD_Block.hxx
+ * \brief Block LU solver for cyclic BABD systems.
+ *
+ * This header defines `alglin::BBlockLU`, a specialization of
+ * `BlockBidiagonal` for block-almost-bidiagonal systems without a top block,
+ * but with a lower border and cyclic coupling. The class uses dedicated block
+ * workspaces to build and factorize the final reduced system.
+ */
+
 //! Various LU decomposition classes
 namespace alglin {
 
@@ -31,21 +41,19 @@ namespace alglin {
   //  | |_) | |_) | | (_) | (__|   <| |__| |_| |
   //  |____/|____/|_|\___/ \___|_|\_\_____\___/
   */
-  //!
-  //!  LU decomposition of a BABD matrix
-  //!
-  //!  \date     May 30, 2006
-  //!  \version  1.0
-  //!  \note     first release May 30, 2006
-  //!
-  //!  \author   Enrico Bertolazzi
-  //!
-  //!  \par      Affiliation:
-  //!            Department of Industrial Engineering<br>
-  //!            University of Trento<br>
-  //!            Via Sommarive 9, I-38123 Povo, Trento, Italy<br>
-  //!            enrico.bertolazzi\@unitn.it
-  //!
+  /*!
+   * \brief LU factorization for cyclic BABD systems.
+   *
+   * This class is the "block LU" counterpart for BABD systems whose structure
+   * is already expressed through the base-class conventions. It provides a full
+   * allocation/factorization/solve workflow for systems with a lower border and
+   * final coupling.
+   *
+   * \date     May 30, 2006
+   * \version  1.0
+   * \note     first release May 30, 2006
+   * \author   Enrico Bertolazzi
+   */
   template <typename t_Value>
   class BBlockLU : public BlockBidiagonal<t_Value> {
   public:
@@ -192,18 +200,72 @@ namespace alglin {
     using BlockBidiagonal<t_Value>::factorize;
     using BlockBidiagonal<t_Value>::dump_ccoord;
 
+    //! \brief Builds a solver that has not been allocated yet.
     explicit BBlockLU() = default;
 
+    /*!
+     * \brief Allocates the solver for the general BABD geometry.
+     * \param nblock number of internal blocks.
+     * \param n size of the square internal block.
+     * \param nb size of the right border.
+     * \param num_initial_BC number of initial border rows.
+     * \param num_final_BC number of final border rows.
+     * \param num_cyclic_BC number of cyclic border rows.
+     * \param num_initial_OMEGA number of initial extra columns.
+     * \param num_final_OMEGA number of final extra columns.
+     * \param num_cyclic_OMEGA number of cyclic extra columns.
+     */
+    virtual
+    void
+    allocate(
+      integer nblock,
+      integer n,
+      integer nb,
+      integer num_initial_BC,
+      integer num_final_BC,
+      integer num_cyclic_BC,
+      integer num_initial_OMEGA,
+      integer num_final_OMEGA,
+      integer num_cyclic_OMEGA
+    ) override;
+
+    /*!
+     * \brief Allocation variant for top/bottom-style interfaces.
+     *
+     * Specialization `BBlockLU` only supports cases compatible with the cyclic
+     * BABD structure; this method makes explicit the same convention used by
+     * the other solvers in the module.
+     */
+    virtual
+    void
+    allocate_top_bottom(
+      integer nblock,
+      integer n,
+      integer row0,
+      integer col0,
+      integer rowN,
+      integer colN,
+      integer nb
+    ) override;
+
+    //! \brief Factorizes the loaded BABD system.
     virtual
     void
     factorize() override;
 
-    //!
-    //! solve linear system previously factorized
-    //!
+    //! \brief Solves the system for a single right-hand side.
     virtual
     void
     solve( real_type in_out[] ) const override;
+
+    //! \brief Solves the system for multiple right-hand sides.
+    virtual
+    void
+    solve(
+      integer   nrhs,
+      real_type in_out[],
+      integer   ldRhs
+    ) const override;
 
   };
 

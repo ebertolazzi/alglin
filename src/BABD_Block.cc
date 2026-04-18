@@ -36,6 +36,75 @@ namespace alglin {
 
   template <typename t_Value>
   void
+  BBlockLU<t_Value>::allocate(
+    integer nblock,
+    integer n,
+    integer nb,
+    integer num_initial_BC,
+    integer num_final_BC,
+    integer num_cyclic_BC,
+    integer num_initial_OMEGA,
+    integer num_final_OMEGA,
+    integer num_cyclic_OMEGA
+  ) {
+    UTILS_ASSERT0( nb == 0, "BBlockLU::allocate only supports non-bordered BABD systems\n" );
+    UTILS_ASSERT(
+      num_initial_BC == 0 &&
+      num_final_BC == 0 &&
+      num_initial_OMEGA == 0 &&
+      num_final_OMEGA == 0,
+      "BBlockLU::allocate only supports cyclic BABD structures\n"
+      "num_initial_BC    = {}\n"
+      "num_final_BC      = {}\n"
+      "num_initial_OMEGA = {}\n"
+      "num_final_OMEGA   = {}\n",
+      num_initial_BC, num_final_BC, num_initial_OMEGA, num_final_OMEGA
+    );
+
+    integer const q{ num_cyclic_OMEGA };
+    integer const m{ n + q };
+    integer const nm{ n + m };
+    integer const nxn{ n * n };
+    integer const Au_size{ nblock * nxn + n * q };
+    integer const rowFF{ max( integer(0), (nblock - 1) * n ) };
+    integer const extra_r{
+      nblock * nm * n +
+      Au_size +
+      m * m +
+      rowFF * m
+    };
+    integer const extra_i{ nblock * n + m };
+
+    BlockBidiagonal<t_Value>::allocate(
+      nblock, n, nb,
+      num_initial_BC, num_final_BC, num_cyclic_BC,
+      num_initial_OMEGA, num_final_OMEGA, num_cyclic_OMEGA,
+      extra_r, extra_i
+    );
+
+    m_AdH_blk  = this->m_mem( nblock * nm * n );
+    m_Au_blk   = this->m_mem( Au_size );
+    m_DD_blk   = this->m_mem( m * m );
+    m_FF_blk   = this->m_mem( rowFF * m );
+    m_ipiv_blk = this->m_mem_int( nblock * n + m );
+  }
+
+  template <typename t_Value>
+  void
+  BBlockLU<t_Value>::allocate_top_bottom(
+    integer /* nblock */,
+    integer /* n      */,
+    integer /* row0   */,
+    integer /* col0   */,
+    integer /* rowN   */,
+    integer /* colN   */,
+    integer /* nb     */
+  ) {
+    UTILS_ERROR0("BBlockLU::allocate_top_bottom() not defined!\n");
+  }
+
+  template <typename t_Value>
+  void
   BBlockLU<t_Value>::factorize() {
 
     integer const & nblock{m_number_of_blocks};
@@ -45,6 +114,14 @@ namespace alglin {
     // fill matrix
     integer m{n+q};
     integer nm{n+m};
+    integer Au_size{ nblock * n_x_n + n * q };
+    integer rowFF{max( integer(0), (nblock-1) * n )};
+
+    alglin::Zero_n( m_AdH_blk, nblock * nm * n );
+    alglin::Zero_n( m_Au_blk,  Au_size );
+    alglin::Zero_n( m_DD_blk,  m * m );
+    alglin::Zero_n( m_FF_blk,  rowFF * m );
+
     for ( integer k{0}; k < nblock; ++k ) {
       real_type const * Ad{m_DE_blk + (2*k)*n_x_n};
       real_type const * Au{Ad + n_x_n};
@@ -56,7 +133,6 @@ namespace alglin {
     GEcopy( m, n, m_H0Nq+n*m,   m, m_DD_blk,       m  );
     GEcopy( m, q, m_H0Nq+2*n*m, m, m_DD_blk + m*n, m  );
 
-    integer rowFF{(nblock-1)*n};
     integer INFO;
 
     integer   * ipivk {m_ipiv_blk};
@@ -249,6 +325,17 @@ namespace alglin {
       );
 
     } while ( k > 0 );
+  }
+
+  template <typename t_Value>
+  void
+  BBlockLU<t_Value>::solve(
+    integer   nrhs,
+    real_type in_out[],
+    integer   ldRhs
+  ) const {
+    for ( integer k{0}; k < nrhs; ++k )
+      this->solve( in_out + k * ldRhs );
   }
 
   template class BBlockLU<double>;

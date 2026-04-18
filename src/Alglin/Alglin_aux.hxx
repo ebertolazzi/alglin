@@ -21,6 +21,18 @@
 /// file: Alglin_aux.hxx
 ///
 
+/*!
+ * \file Alglin_aux.hxx
+ * \brief Numerical and I/O utilities for ABD/BABD and dense matrices.
+ *
+ * This header collects helper routines used throughout the library:
+ * - matrix-vector products and residuals for ABD/BABD structures;
+ * - printing helpers for debugging and diagnostics;
+ * - wrappers for selected auxiliary factorization routines;
+ * - utilities for equilibration, triangular-system regularization, and dense
+ *   matrix serialization.
+ */
+
 namespace alglin {
 
   /*
@@ -45,9 +57,12 @@ namespace alglin {
                                  colN
   */
 
-  //!
-  //! compute y = alpha*A*x+beta*y
-  //!
+  /*!
+   * \brief Computes `y = alpha*A*x + beta*y` for an ABD matrix.
+   *
+   * Matrix `A` is described by the triple `(block0, blocks, blockN)` using the
+   * top/internal/bottom convention adopted throughout the library.
+   */
   template <typename t_Value>
   inline
   void
@@ -106,7 +121,11 @@ namespace alglin {
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  //! compute r = b-A*x
+  /*!
+   * \brief Computes the residual `res = b - A*x` for an ABD matrix.
+   * \param b right-hand side.
+   * \param res output buffer.
+   */
   template <typename t_Value>
   inline
   void
@@ -138,6 +157,10 @@ namespace alglin {
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+  /*!
+   * \brief Prints an ABD matrix in a readable block-by-block form.
+   * \param stream output stream.
+   */
   template <typename t_Value>
   inline
   void
@@ -180,38 +203,37 @@ namespace alglin {
     }
   }
 
-  //!
-  //! Matrix structure
-  //!
-  //! \verbatim
-  //!                   n * nblock
-  //!   ┌────────────────────────────────────┐
-  //!      n     n     n                        n     q
-  //!   ╔═════╦═════╦═════╦════.........═════╦═════╦═════╗   ─┐
-  //!   ║  Ad ║ Au  ║  0  ║                  ║  0  ║  0  ║ n  │
-  //!   ╠═════╬═════╬═════╬══           ═════╬═════╬═════╣    │
-  //!   ║  0  ║ Ad  ║ Au  ║  0               ║  0  ║  0  ║ n  │
-  //!   ╠═════╬═════╬═════╬═════╬       ═════╬═════╬═════╣    │
-  //!   ║  0  ║  0  ║ Ad  ║ Au  ║            ║  0  ║  0  ║ n  │
-  //!   ╠═════╬═════╬═════╬═════╬       ═════╬═════╬═════╣    │
-  //!   |                                                :    │
-  //!   :                                                :    ├─ n * nblock
-  //!   :                                                :    │
-  //!   :                                                :    │
-  //!   :                                                :    │
-  //!   :                              ╬═════╬═════╬═════╣    │
-  //!   :                              ║ Au  ║  0  ║  0  ║    │
-  //!   :                        ╬═════╬═════╬═════╬═════╣    │
-  //!   :                        ║  0  ║ Ad  ║ Au  ║  0  ║ n  │
-  //!   ╠═════╬═════╬═══......═══╬═════╬═════╬═════╬═════╣   ─┘
-  //!   ║     ║     ║            ║     ║     ║     ║     ║
-  //!   ║ H0  ║  0  ║            ║     ║  0  ║ HN  ║ Hq  ║ m
-  //!   ║     ║     ║            ║     ║     ║     ║     ║
-  //!   ╚═════╩═════╩═══......═══╬═════╬═════╬═════╬═════╣
-  //!
-  //! \endverbatim
-  //! compute y = alpha*A*x+beta*y
-  //!
+  /*!
+   * \brief Computes `y = alpha*A*x + beta*y` for a BABD matrix.
+   *
+   * \verbatim
+   *                  n * nblock
+   *  ┌────────────────────────────────────┐
+   *     n     n     n                        n     q
+   *  ╔═════╦═════╦═════╦════.........═════╦═════╦═════╗   ─┐
+   *  ║  Ad ║ Au  ║  0  ║                  ║  0  ║  0  ║ n  │
+   *  ╠═════╬═════╬═════╬══           ═════╬═════╬═════╣    │
+   *  ║  0  ║ Ad  ║ Au  ║  0               ║  0  ║  0  ║ n  │
+   *  ╠═════╬═════╬═════╬═════╬       ═════╬═════╬═════╣    │
+   *  ║  0  ║  0  ║ Ad  ║ Au  ║            ║  0  ║  0  ║ n  │
+   *  ╠═════╬═════╬═════╬═════╬       ═════╬═════╬═════╣    │
+   *  |                                                :    │
+   *  :                                                :    ├─ n * nblock
+   *  :                                                :    │
+   *  :                                                :    │
+   *  :                                                :    │
+   *  :                              ╬═════╬═════╬═════╣    │
+   *  :                              ║ Au  ║  0  ║  0  ║    │
+   *  :                        ╬═════╬═════╬═════╬═════╣    │
+   *  :                        ║  0  ║ Ad  ║ Au  ║  0  ║ n  │
+   *  ╠═════╬═════╬═══......═══╬═════╬═════╬═════╬═════╣   ─┘
+   *  ║     ║     ║            ║     ║     ║     ║     ║
+   *  ║ H0  ║  0  ║            ║     ║  0  ║ HN  ║ Hq  ║ m
+   *  ║     ║     ║            ║     ║     ║     ║     ║
+   *  ╚═════╩═════╩═══......═══╬═════╬═════╬═════╬═════╣
+   *
+   * \endverbatim
+   */
   template <typename t_Value>
   inline
   void
@@ -259,6 +281,9 @@ namespace alglin {
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+  /*!
+   * \brief Computes the residual `res = b - A*x` for a BABD matrix.
+   */
   template <typename t_Value>
   inline
   void
@@ -286,6 +311,9 @@ namespace alglin {
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+  /*!
+   * \brief Prints a BABD matrix in a readable block-by-block form.
+   */
   template <typename t_Value>
   inline
   void
@@ -344,6 +372,10 @@ namespace alglin {
   //   \__, |\___|\__|_|  /_/\_\/_/  \__, |
   //   |___/                         |___/
   */
+  /*!
+   * \brief Auxiliary factorization with blocked pivoting along rows.
+   * \return `info` code in LAPACK style.
+   */
   template <typename REAL>
   integer
   getrx(
@@ -355,6 +387,10 @@ namespace alglin {
     integer NB
   );
 
+  /*!
+   * \brief Auxiliary factorization with blocked pivoting along columns.
+   * \return `info` code in LAPACK style.
+   */
   template <typename REAL>
   integer
   getry(
@@ -366,6 +402,10 @@ namespace alglin {
     integer NB
   );
 
+  /*!
+   * \brief Unblocked variant of factorization `getrx`.
+   * \return `info` code in LAPACK style.
+   */
   template <typename REAL>
   integer
   gtx(
@@ -376,6 +416,10 @@ namespace alglin {
     integer IPIV[]
   );
 
+  /*!
+   * \brief Unblocked variant of factorization `getry`.
+   * \return `info` code in LAPACK style.
+   */
   template <typename REAL>
   integer
   gty(
@@ -398,6 +442,18 @@ namespace alglin {
 
   // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
+  /*!
+   * \brief Equilibrates rows and columns of a dense matrix.
+   * \param M number of rows.
+   * \param N number of columns.
+   * \param A input matrix.
+   * \param LDA leading dimension di `A`.
+   * \param R computed row scaling.
+   * \param C computed column scaling.
+   * \param maxIter maximum number of iterations.
+   * \param epsi stopping tolerance.
+   * \return Number of iterations performed.
+   */
   template <typename T>
   integer
   equilibrate(
@@ -413,6 +469,16 @@ namespace alglin {
 
   // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
+  /*!
+   * \brief Applies Tikhonov regularization to a triangular system.
+   * \param N size of the triangular matrix.
+   * \param Tmat triangular matrix.
+   * \param LDT leading dimension di `Tmat`.
+   * \param nrhs number of right-hand sides.
+   * \param RHS right-hand sides / solutions in column-major layout.
+   * \param ldRHS leading dimension di `RHS`.
+   * \param lambda regularization parameter.
+   */
   template <typename T>
   void
   triTikhonov(
@@ -425,6 +491,7 @@ namespace alglin {
     T       lambda
   );
 
+  //! \brief Checks whether position `(i,j)` should be printed for the given matrix type.
   inline
   bool
   outMATRIXcheck( MatrixType const & MT, integer i, integer j ) {
@@ -434,6 +501,18 @@ namespace alglin {
     return ok;
   }
 
+  /*!
+   * \brief Prints a dense matrix to a stream in tabular form.
+   * \param MT structural type to display (`FULL`, upper triangular, lower triangular).
+   * \param NR number of rows.
+   * \param NC number of columns.
+   * \param A matrix to print.
+   * \param LDA leading dimension di `A`.
+   * \param s output stream.
+   * \param prec number of printed significant digits.
+   * \param rperm optional row permutation.
+   * \param cperm optional column permutation.
+   */
   template <typename T>
   inline
   void
@@ -469,6 +548,14 @@ namespace alglin {
     }
   }
 
+  /*!
+   * \brief Exports a dense matrix in Maple matrix format.
+   * \param NR number of rows.
+   * \param NC number of columns.
+   * \param A matrix to export.
+   * \param LDA leading dimension di `A`.
+   * \param s output stream.
+   */
   template <typename T>
   inline
   void

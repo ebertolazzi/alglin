@@ -21,6 +21,15 @@
 /// file: Alglin_libs.hh
 ///
 
+/*!
+ * \file Alglin_libs.hh
+ * \brief Auto-linking helper for Microsoft Visual C++ toolchains.
+ *
+ * This header does not expose numerical APIs; it centralizes the
+ * `#pragma comment(lib, ...)` directives used on Windows to automatically link
+ * the correct static-library variant according to architecture and build type.
+ */
+
 #pragma once
 
 #ifndef ALGLIN_LIBS_HH

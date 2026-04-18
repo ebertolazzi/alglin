@@ -21,6 +21,17 @@
 /// file: KKT_lite.hxx
 ///
 
+/*!
+ * \file KKT_like.hxx
+ * \brief Solver for two-block KKT-like systems.
+ *
+ * This header declares `alglin::KKT`, a solver intended for systems of the
+ * form `[[A,B],[C,D]]`, where block `A` is large and block `D` is small. The
+ * solver explicitly builds the Schur complement and supports several loading
+ * modes for block `A`: dense, sparse, banded, block-tridiagonal, or through an
+ * external already-factorized solver.
+ */
+
 namespace alglin {
 
   using std::fill_n;
@@ -32,65 +43,66 @@ namespace alglin {
   //  | . \| . \  | |
   //  |_|\_\_|\_\ |_|
   */
-  //!
-  //!  LU decomposition of a KKT like matrix
-  //!
-  //!
-  //!  Solve the linear system of the form
-  //!  -----------------------------------
-  //!
-  //!  \verbatim
-  //!  / A B \ / x \   / a \
-  //!  |     | |   | = |   |
-  //!  \ C D / \ y /   \ b /
-  //!  \endverbatim
-  //!
-  //!  A*x + B*y = a
-  //!  C*x + D*y = b
-  //!
-  //!  x = A^(-1) * ( a - B*y )
-  //!  C*A^(-1)*a -b = C*A^(-1)*B*y -D*y
-  //!
-  //!  Solution procedure
-  //!
-  //!  Compute aux matrix
-  //!  Z = A^(-1)*B
-  //!  W = C*Z - D
-  //!
-  //!  solve the system
-  //!  a' = A^(-1)*a
-  //!  b' = C*a' - b
-  //!
-  //!  y = W^(-1) * b'
-  //!  x = a' - Z*y
-  //!
-  //!  Solve the linear system of the form
-  //!  -----------------------------------
-  //!
-  //!  \verbatim
-  //!  / A^T C^T \ / x \   / a \
-  //!  |         | |   | = |   |
-  //!  \ B^T D^T / \ y /   \ b /
-  //!  \endverbatim
-  //!
-  //!  A^T*x + C^T*y = a
-  //!  B^T*x + D^T*y = b
-  //!
-  //!  x = A^(-T) * ( a - C^T*y )
-  //!  B^T*A^(-T)*a -b = B^T*A^(-T)*C^T*y - D^T*y
-  //!                  = (A^(-1)B)^T*C^T*y - D^T*y
-  //!                  = (C*(A^(-1)B))^T*y - D^T*y
-  //!                  = W^T*y
-  //!  (A^(-1)*B)^T*a -b = W^T*y
-  //!           Z^T*a -b = W^T*y
-  //!
-  //!  Solution procedure
-  //!
-  //!  b' = Z^T*a -b
-  //!  y  = W^(-T)*b'
-  //!  a' = a - C^T*y
-  //!  x = A^(-T) a'
-  //!
+  /*!
+   * \brief Solver for KKT-like systems based on the Schur complement.
+   *
+   * The class manages two-block systems of the form
+   *
+   * \verbatim
+   * / A B \ / x \   / a \
+   * |     | |   | = |   |
+   * \ C D / \ y /   \ b /
+   * \endverbatim
+   *
+   * A*x + B*y = a
+   * C*x + D*y = b
+   *
+   * x = A^(-1) * ( a - B*y )
+   * C*A^(-1)*a -b = C*A^(-1)*B*y -D*y
+   *
+   * Solution procedure
+   *
+   * Compute auxiliary matrices
+   * Z = A^(-1)*B
+   * W = C*Z - D
+   *
+   * Solve the system
+   * a' = A^(-1)*a
+   * b' = C*a' - b
+   *
+   * y = W^(-1) * b'
+   * x = a' - Z*y
+   *
+   * Solve the linear system of the form
+   * -----------------------------------
+   *
+   * \verbatim
+   * / A^T C^T \ / x \   / a \
+   * |         | |   | = |   |
+   * \ B^T D^T / \ y /   \ b /
+   * \endverbatim
+   *
+   * A^T*x + C^T*y = a
+   * B^T*x + D^T*y = b
+   *
+   * x = A^(-T) * ( a - C^T*y )
+   * B^T*A^(-T)*a -b = B^T*A^(-T)*C^T*y - D^T*y
+   *                 = (A^(-1)B)^T*C^T*y - D^T*y
+   *                 = (C*(A^(-1)B))^T*y - D^T*y
+   *                 = W^T*y
+   * (A^(-1)*B)^T*a -b = W^T*y
+   *          Z^T*a -b = W^T*y
+   *
+   *  Solution procedure
+   *
+   *  b' = Z^T*a -b
+   *  y  = W^(-T)*b'
+   *  a' = a - C^T*y
+   *  x  = A^(-T) a'
+   *
+   * Factorization of block `A` can be handled internally or delegated to an
+   * already configured `LinearSystemSolver` object.
+   */
   template <typename t_Value>
   class KKT : public LinearSystemSolver<t_Value> {
   public:
@@ -208,11 +220,19 @@ namespace alglin {
   public:
 
     using LinearSystemSolver<t_Value>::factorize;
+    using LinearSystemSolver<t_Value>::solve;
+    using LinearSystemSolver<t_Value>::t_solve;
 
+    //! \brief Builds an empty KKT solver.
     explicit KKT() : m_mem("KKT-reals") {}
 
     ~KKT() override {}
 
+    /*!
+     * \brief Allocates the block-structured system.
+     * \param n size of block `A`.
+     * \param m size of block `D`.
+     */
     void
     allocate( integer n, integer m );
 
@@ -633,23 +653,28 @@ namespace alglin {
 
     // -------------------------------------------------------------------------
 
+    //! \brief Builds and factorizes the Schur complement.
     void factorize();
 
     // -------------------------------------------------------------------------
     // virtuals redefined
 
+    //! \brief Solves the KKT system for a single right-hand side.
     virtual
     bool
     solve( real_type xb[] ) const override;
 
+    //! \brief Solves the transposed system for a single right-hand side.
     virtual
     bool
     t_solve( real_type xb[] ) const override;
 
+    //! \brief Solves the KKT system for multiple right-hand sides.
     virtual
     bool
     solve( integer nrhs, real_type B[], integer ldB ) const override;
 
+    //! \brief Solves the transposed system for multiple right-hand sides.
     virtual
     bool
     t_solve( integer nrhs, real_type B[], integer ldB ) const override;

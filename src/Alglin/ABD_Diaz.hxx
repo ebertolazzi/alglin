@@ -21,23 +21,31 @@
 /// file: ABD_Diaz.hh
 ///
 
+/*!
+ * \file ABD_Diaz.hxx
+ * \brief Diaz implementation of the solver for almost block diagonal systems.
+ *
+ * This header declares `alglin::DiazLU`, an ABD solver variant based on the
+ * Diaz algorithm for systems with top and bottom blocks. The class shares the
+ * same data layout as `BlockBidiagonal`, but uses a dedicated elimination
+ * procedure together with internally stored permutations during the solve phase.
+ */
+
 namespace alglin {
 
-  //!
-  //! LU decomposition of a ABD matrix
-  //!
-  //! \date     May, 2016
-  //! \version  1.0
-  //!
-  //! \author   Enrico Bertolazzi
-  //!
-  //! \par      Affiliation:
-  //!           Department of Industrial Engineering<br>
-  //!           University of Trento <br>
-  //!           Via Sommarive 9, I-38123 Povo, Trento, Italy<br>
-  //!           `enrico.bertolazzi\@unitn.it`
-  //!
-  //!
+  /*!
+   * \brief ABD solver based on the Diaz factorization.
+   *
+   * The class is designed for almost block diagonal matrices described by an
+   * initial block, a sequence of internal blocks, and a final block. The
+   * algorithm uses row and column permutations to keep the decomposition stable
+   * and reuses the base-class infrastructure for system loading and sparse
+   * export.
+   *
+   * \date     May, 2016
+   * \version  1.0
+   * \author   Enrico Bertolazzi
+   */
   /*
 
 
@@ -161,8 +169,10 @@ namespace alglin {
 
     using BlockBidiagonal<t_Value>::m_la_factorization;
 
+    //! \brief Builds a Diaz solver that has not been allocated yet.
     explicit constexpr DiazLU() = default;
 
+    //! \brief Not supported by this specialization: use \ref allocate_top_bottom.
     virtual
     void
     allocate(
@@ -180,6 +190,16 @@ namespace alglin {
     ) override
     { UTILS_ERROR0("DiazLU::allocate() not defined!\n"); }
 
+    /*!
+     * \brief Allocates the solver for a top/bottom block structure.
+     * \param nblock number of internal blocks.
+     * \param n size of the square internal block.
+     * \param row0 number of rows in the top block.
+     * \param col0 number of columns in the top block.
+     * \param rowN number of rows in the bottom block.
+     * \param colN number of columns in the bottom block.
+     * \param nb size of the right border, if present.
+     */
     virtual
     void
     allocate_top_bottom(
@@ -201,28 +221,32 @@ namespace alglin {
       m_swapRC_blks = m_mem_int( inv );
     }
 
+    //! \brief Factorizes the already loaded system.
     virtual
     void
     factorize() override;
 
-    //! solve linear sistem using internal factorized matrix
+    //! \brief Solves the bordered system for a single right-hand side.
     virtual
     void
     solve( real_type in_out[] ) const override
     { solve_internal( true, in_out ); }
 
-    //! solve linear sistem using internal factorized matrix
+    //! \brief Solves the bordered system for multiple right-hand sides.
     virtual
     void
     solve( integer nrhs, real_type in_out[], integer ldRhs ) const override
     { solve_internal( true, nrhs, in_out, ldRhs ); }
 
-    //! solve linear sistem using internal factorized matrix
+    /*!
+     * \brief Solves only the ABD part of the factorization.
+     * \param in_out right-hand side on input, solution on output.
+     */
     void
     solve_ABD( real_type in_out[] ) const
     { solve_internal( false, in_out ); }
 
-    //! solve linear sistem using internal factorized matrix
+    //! \brief Multi-RHS version of \ref solve_ABD(real_type[]) const.
     void
     solve_ABD( integer nrhs, real_type in_out[], integer ldRhs ) const
     { solve_internal( false, nrhs, in_out, ldRhs ); }

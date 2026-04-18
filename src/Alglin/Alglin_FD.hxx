@@ -21,6 +21,21 @@
 /// file: Alglin_FD.hxx
 ///
 
+/*!
+ * \file Alglin_FD.hxx
+ * \brief Numerical differentiation and derivative-checking utilities.
+ *
+ * This header provides generic helpers to:
+ * - build robust finite-difference step sizes;
+ * - approximate gradients, Jacobians, and Hessians;
+ * - compare analytical and numerical derivatives;
+ * - generate textual reports with the most significant errors.
+ *
+ * The functions are designed to work with callbacks returning `bool`, so that
+ * failures in the evaluation of the analyzed function can be propagated
+ * naturally.
+ */
+
 #include <tuple>
 #include <string>
 #include <cmath>
@@ -38,6 +53,13 @@ namespace alglin {
   using std::tuple;
   using std::tie;
 
+  /*!
+   * \brief Policy object for finite-difference step selection.
+   *
+   * The class exposes three perturbation scales derived from machine precision
+   * of the numeric type. They are typically used for gradients/Jacobians and
+   * Hessians, respectively.
+   */
   template <typename Number>
   class finite_difference_epsilon {
     Number const m_epsilon  { numeric_limits<Number>::epsilon()                   };
@@ -45,11 +67,15 @@ namespace alglin {
     Number const m_epsilon2 { pow(numeric_limits<Number>::epsilon(),Number(0.75)) };
     Number const m_epsilon3 { pow(numeric_limits<Number>::epsilon(),Number(0.25)) };
   public:
+    //! \brief First-level step, typically used for centered differences.
     Number epsilon1( Number v ) const { return (abs(v)+1)*m_epsilon1; }
+    //! \brief Second-level step, useful for one-sided fallback differences.
     Number epsilon2( Number v ) const { return (abs(v)+1)*m_epsilon2; }
+    //! \brief Third-level, finer step, typically used for Hessians.
     Number epsilon3( Number v ) const { return (abs(v)+1)*m_epsilon3; }
   };
 
+  //! \brief First-derivative estimate using a two-step one-sided formula.
   template <typename Number>
   static
   Number
@@ -66,6 +92,10 @@ namespace alglin {
     return ((h1/h2)*df2-(h2/h1)*df1)/dH;
   }
 
+  /*!
+   * \brief Vector version of \ref finite_difference_side(Number,Number,Number,Number,Number).
+   * \return `true` if every derivative component is finite.
+   */
   template <typename Number>
   static
   bool
@@ -104,6 +134,7 @@ namespace alglin {
 
   #define ALGLIN_FINITE_DIFFERENCE_AVERAGE (D1*w2+D2*w1)/(w1+w2)
 
+  //! \brief Scalar centered derivative obtained by combining left and right estimates.
   template <typename Number>
   static
   Number
@@ -119,6 +150,11 @@ namespace alglin {
     return ALGLIN_FINITE_DIFFERENCE_AVERAGE;
   }
 
+  /*!
+   * \brief Scalar centered derivative with handling of missing samples.
+   * \return `0` when the centered formula is used, `1/-1` when it falls back to
+   *   a one-sided estimate, `-2` if no estimate is available.
+   */
   template <typename Number>
   static
   integer
@@ -146,6 +182,10 @@ namespace alglin {
     return -2;
   }
 
+  /*!
+   * \brief Vector version of \ref finite_difference_centered with one-sided fallback.
+   * \return Status code analogous to the scalar version.
+   */
   template <typename Number>
   static
   integer
@@ -183,6 +223,14 @@ namespace alglin {
   //  | |_| | | | (_| | (_| | |  __/ | | | |_
   //   \____|_|  \__,_|\__,_|_|\___|_| |_|\__|
   */
+  /*!
+   * \brief Approximates the gradient of a scalar function.
+   * \param x evaluation point.
+   * \param dim_x dimension of vector `x`.
+   * \param fun callback evaluating `f(x)`.
+   * \param grad output buffer for the gradient.
+   * \return `true` if all required evaluations succeed.
+   */
   template <typename FUNCTION, typename Number>
   static
   bool
@@ -247,6 +295,17 @@ namespace alglin {
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+  /*!
+   * \brief Compares an analytical gradient against a numerical one.
+   * \param x verification point.
+   * \param dim_x dimension of vector `x`.
+   * \param fun callback evaluating `f(x)`.
+   * \param grad analytical gradient.
+   * \param epsi threshold above which an error is reported.
+   * \param err_list list of components exceeding the threshold.
+   * \param max_error maximum number of rows to store, `0` for no limit.
+   * \return `true` if no component exceeds the threshold.
+   */
   template <typename FUNCTION, typename Number>
   static
   bool
@@ -322,6 +381,10 @@ namespace alglin {
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+  /*!
+   * \brief Generates a textual report for the gradient comparison.
+   * \return Formatted string containing the detected discrepancies.
+   */
   template <typename FUNCTION, typename Number>
   static
   string
@@ -360,6 +423,18 @@ namespace alglin {
   //  | |_| | (_| | (_| (_) | |_) | | (_| | | | |
   //   \___/ \__,_|\___\___/|_.__/|_|\__,_|_| |_|
   */
+  /*!
+   * \brief Approximates the Jacobian of a vector-valued function.
+   * \param x evaluation point.
+   * \param dim_x variable dimension.
+   * \param fun callback evaluating `f(x)`.
+   * \param dim_f dimension of the function value.
+   * \param Jac output buffer for the Jacobian in column-major layout.
+   * \param ldJ leading dimension of `Jac`.
+   * \param work temporary workspace.
+   * \param lwork size of the workspace.
+   * \return `true` if all required evaluations succeed.
+   */
   template <typename FUNCTION, typename Number>
   static
   bool
@@ -451,6 +526,10 @@ namespace alglin {
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+  /*!
+   * \brief Compares an analytical Jacobian against a numerical one.
+   * \return `true` if no component exceeds threshold `epsi`.
+   */
   template <typename FUNCTION, typename Number>
   static
   bool
@@ -552,6 +631,10 @@ namespace alglin {
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+  /*!
+   * \brief Generates a textual report for the Jacobian comparison.
+   * \return Formatted string listing out-of-tolerance components.
+   */
   template <typename FUNCTION, typename Number>
   static
   string
@@ -595,6 +678,15 @@ namespace alglin {
   //  |_| |_|\___||___/___/_|\__,_|_| |_|
   */
 
+  /*!
+   * \brief Approximates the Hessian of a scalar function.
+   * \param x evaluation point.
+   * \param dim_x dimension of vector `x`.
+   * \param fun callback evaluating `f(x)`.
+   * \param Hess output buffer for the Hessian in column-major layout.
+   * \param ldH leading dimension of `Hess`.
+   * \return `true` if all required evaluations succeed.
+   */
   template <typename FUNCTION, typename Number>
   static
   bool
@@ -659,6 +751,10 @@ namespace alglin {
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+  /*!
+   * \brief Compares an analytical Hessian against a numerical one.
+   * \return `true` if no component exceeds threshold `epsi`.
+   */
   template <typename FUNCTION, typename Number>
   static
   bool
@@ -738,6 +834,10 @@ namespace alglin {
     return true;
   }
 
+  /*!
+   * \brief Generates a textual report for the Hessian comparison.
+   * \return Formatted string listing out-of-tolerance components.
+   */
   template <typename FUNCTION, typename Number>
   static
   string

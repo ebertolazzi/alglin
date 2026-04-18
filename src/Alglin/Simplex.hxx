@@ -34,6 +34,16 @@
 /// file: Simplex.hxx
 ///
 
+/*!
+ * \file Simplex.hxx
+ * \brief Primitives to describe and solve linear programs with primal simplex.
+ *
+ * This header collects:
+ * - abstract interfaces for linear programs in standard or general form;
+ * - adaptors and auxiliary problems to build feasible starting points;
+ * - primal simplex solvers for equality-constrained problems with bounds.
+ */
+
 #ifndef SIMPLEX_API_DLL
   #ifdef UTILS_OS_WINDOWS
     #ifdef SIMPLEX_EXPORT
@@ -48,9 +58,12 @@
   #endif
 #endif
 
-//!
-//! Namespace for nonlinear systems and nonlinearsolver
-//!
+/*!
+ * \brief Namespace containing the simplex components of the library.
+ *
+ * It hosts both the classes describing the linear program and the solver
+ * itself.
+ */
 namespace Simplex {
 
   using alglin::ostream_type;
@@ -65,9 +78,9 @@ namespace Simplex {
   using std::string;
   using std::string_view;
 
-  extern real_type const epsilon; // machine epsilon
-  extern real_type const relaxedEpsilon;
-  extern real_type const infinity;
+  extern real_type const epsilon;        //!< Machine precision used by the solver.
+  extern real_type const relaxedEpsilon; //!< Relaxed tolerance used in numerical tests.
+  extern real_type const infinity;       //!< Sentinel value for unbounded limits.
 
   /*\
    |   ___ _                _             _   ___         _    _             ___
@@ -88,6 +101,13 @@ namespace Simplex {
    !     where A is a m by n matrix, rank(A)=m, m<=n, l<=u.                   !
    !                                                                          !
   \*--------------------------------------------------------------------------*/
+  /*!
+   * \brief Abstract interface for a linear program in standard form.
+   *
+   * The standard form considered here is `min c'x` subject to `Ax = b` and
+   * bounds on `x`. Derived classes provide sparse column access to the matrix
+   * and to variable bounds.
+   */
   class StandardProblemBase {
   private:
 
@@ -193,6 +213,13 @@ namespace Simplex {
    !     where A is a m by n matrix, rank(A)=m, m<=n, l<=u.                   !
    !                                                                          !
   \*--------------------------------------------------------------------------*/
+  /*!
+   * \brief Abstract interface for a linear program in general form.
+   *
+   * This variant does not expose the right-hand side `b` directly because it is
+   * meant to be transformed into a standard-form problem through
+   * \ref StandardProblemAdaptor.
+   */
   class ProblemBase {
   private:
 
@@ -306,6 +333,12 @@ namespace Simplex {
    !                       [A -I] / x \ = 0                                   !
    !                              \ z /                                       !
   \*--------------------------------------------------------------------------*/
+  /*!
+   * \brief Adaptor from \ref ProblemBase to \ref StandardProblemBase.
+   *
+   * The adaptor introduces auxiliary variables in order to rewrite problem
+   * `Ax = b` in the standard form expected by the simplex solver.
+   */
   class StandardProblemAdaptor : public StandardProblemBase {
   private:
 
@@ -417,6 +450,13 @@ namespace Simplex {
    !           +                                                              !
    !                                                                          !
   \*--------------------------------------------------------------------------*/
+  /*!
+   * \brief Auxiliary problem used to construct a feasible starting point.
+   *
+   * The class automatically generates the auxiliary variables required by
+   * simplex phase I and allows the auxiliary solution to be transformed into an
+   * initial point for the original primal problem.
+   */
   class AuxProblem : public StandardProblemBase {
   private:
 
@@ -509,6 +549,12 @@ namespace Simplex {
    |  \__ \  _/ _` | ' \/ _` / _` | '_/ _` | |  _/ '_/ _ \ '_ \ / -_) '  \
    |  |___/\__\__,_|_||_\__,_\__,_|_| \__,_| |_| |_| \___/_.__/_\___|_|_|_|
   \*/
+  /*!
+   * \brief Concrete implementation of a problem in standard form.
+   *
+   * Data are referenced externally and not copied; the caller must ensure that
+   * the pointed storage remains valid for the whole lifetime of the object.
+   */
   class StandardProblem : public StandardProblemBase {
   private:
     integer           m_n{0};
@@ -614,6 +660,12 @@ namespace Simplex {
    |  |  _/ '_/ _ \ '_ \ / -_) '  \
    |  |_| |_| \___/_.__/_\___|_|_|_|
   \*/
+  /*!
+   * \brief Concrete implementation of a problem in general form.
+   *
+   * Here too, data are referenced externally, with dense column access to the
+   * constraint matrix.
+   */
   class Problem : public ProblemBase {
   private:
     integer           m_n{0};
@@ -731,6 +783,12 @@ namespace Simplex {
    !     The initial x is supposed to be a feasible basic solution.           !
    !                                                                          !
   \*--------------------------------------------------------------------------*/
+  /*!
+   * \brief Primal simplex solver for bounded linear programs.
+   *
+   * The solver operates on objects implementing \ref StandardProblemBase and
+   * updates both the current point and the basis-variable set in place.
+   */
   class StandardSolver {
   public:
     // block copy constructor

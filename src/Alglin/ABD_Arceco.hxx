@@ -21,39 +21,40 @@
 /// file: ABD_Arceco.hxx
 ///
 
+/*!
+ * \file ABD_Arceco.hxx
+ * \brief ARCECO implementation for almost block diagonal systems.
+ *
+ * This header declares `alglin::ArcecoLU`, a historical solver for almost
+ * block diagonal matrices based on the alternate row and column elimination
+ * procedure. The system structure is provided in compact form through an array
+ * of triples `(nrows, ncols, noverlap)` plus an array of matrix coefficients.
+ */
+
 namespace alglin {
 
   /*\
    *  A R C E C O
   \*/
 
-  //!
-  //!  \date    June 11, 2010
-  //!  \version 1.0
-  //!
-  //!  \author  Enrico Bertolazzi and Daniele Bosetti
-  //!
-  //!  \par     Affiliation:
-  //!           Department of Industrial Engineering<br>
-  //!           University of Trento <br>
-  //!           Via Sommarive 9, I-38123 Povo, Trento, Italy<br>
-  //!           enrico.bertolazzi\@unitn.it
-  //!
-  //!  \par Abstract
-  //!  This program solves the linear system A*X = B where A is
-  //!  an almost block diagonal matrix. The method implemented is
-  //!  based on Gauss elimination with alternate row and column
-  //!  eliminaion with partial pivoting, which produces a stable
-  //!  decomposition of the matrix A without introducing fill-in-
-  //!
-  //!  This class is an implementation of the Alternate Row and
-  //!  Column Elimination in the C++ language.
-  //!  Being almost block diagonal, the matrix is given by the
-  //!  3-tuple (number_of_blocks,m_matrix_structure,array), where
-  //!  number_of_blocks is the number of the blocks forming the matrix,
-  //!  m_matrix_structure is an array which describes the structure
-  //!  of the matrix, and array contains the data of the matrix.
-  //!
+  /*!
+   * \brief ARCECO solver for almost block diagonal matrices.
+   *
+   * This implementation follows the Alternate Row and Column Elimination
+   * strategy with partial pivoting. The class works directly on a compact
+   * matrix representation and either reuses caller-provided buffers through
+   * \ref load_by_ref or allocates its own data during \ref factorize.
+   *
+   * \date    June 11, 2010
+   * \version 1.0
+   * \author  Enrico Bertolazzi and Daniele Bosetti
+   *
+   * \par Abstract
+   * This program solves the linear system A*X = B where A is an almost block
+   * diagonal matrix. The method implemented is based on Gauss elimination with
+   * alternate row and column elimination with partial pivoting, which produces
+   * a stable decomposition of the matrix A without introducing fill-in.
+   */
   template <typename t_Value>
   class ArcecoLU {
 
@@ -198,6 +199,7 @@ namespace alglin {
 
   public:
 
+    //! \brief Builds an empty ARCECO solver.
     explicit constexpr ArcecoLU() = default;
     ~ArcecoLU() = default;
 
@@ -233,10 +235,10 @@ namespace alglin {
       integer   pivot[]
     );
 
-    //!
-    //! \param neq the order of the linear system, and
-    //!            n = SUM(matrix_structure[3*k],K=0,number_of_blocks-1)
-    //!
+    /*!
+     * \brief Checks that the block structure matches the global system size.
+     * \param neq expected order of the linear system.
+     */
     void
     checkStructure( integer neq ) const;
 
@@ -248,9 +250,12 @@ namespace alglin {
     void
     factorize();
 
-    //!
-    //! factorize the matrix
-    //!
+    /*!
+     * \brief Builds the factorization from top, internal, and bottom blocks.
+     *
+     * This helper is convenient when the matrix is not already available in the
+     * compact representation used by \ref load_by_ref.
+     */
     void
     factorize(
       integer         row0,
@@ -266,18 +271,12 @@ namespace alglin {
       real_type const blockN[]
     );
 
-    //!
-    //!  Solve supervises the solution of the linear system
-    //!
-    //!                          A*X=B
-    //!
-    //!  using the decomposition of the matrix  A  already generated
-    //!  in Decompose. It involves two loops, the forward loop,
-    //!  consisting of forward solution, forward modification, and
-    //!  forward elimination, and the backward loop, consisting of
-    //!  backward solution, backward modification, and backward
-    //!  elimination.
-    //!
+    /*!
+     * \brief Solves the already factorized system for a single right-hand side.
+     *
+     * The vector `b` contains the right-hand side on input and is overwritten
+     * with the computed solution.
+     */
     void
     solve( real_type b[] ) const;
 
