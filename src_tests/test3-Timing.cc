@@ -19,6 +19,8 @@
 
 #include "Alglin.hh"
 #include "Alglin_Eigen.hh"
+#include "Utils_Console.hh"
+
 #include <random>
 
 #ifdef __clang__

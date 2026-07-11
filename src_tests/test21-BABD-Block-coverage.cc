@@ -18,6 +18,7 @@
 \*--------------------------------------------------------------------------*/
 
 #include "Alglin.hh"
+#include "Utils_Console.hh"
 
 #ifdef __clang__
 #pragma clang diagnostic ignored "-Wexit-time-destructors"

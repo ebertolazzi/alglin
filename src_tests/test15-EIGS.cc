@@ -19,6 +19,7 @@
 
 #include "Alglin.hh"
 #include "Alglin_Eigen.hh"
+#include "Utils_Console.hh"
 
 namespace fmt {
   template <typename Real> struct formatter<std::complex<Real>> : ostream_formatter {};
