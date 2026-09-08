@@ -44,7 +44,7 @@ check_close(
   integer i,
   integer j
 ) {
-  UTILS_ASSERT(
+  Utils::Check(
     std::abs(value-expected) < 1e-12,
     "{} mismatch at ({},{}): found {}, expected {}\n",
     where, i, j, value, expected
@@ -129,24 +129,24 @@ test_parallel_reconfigure_and_info() {
   bcr.allocate( 16, 2, 0, 0, 0, 0 );
 
   std::string info{ bcr.info() };
-  UTILS_ASSERT0( info.find("nblk:1") != std::string::npos, "expected nblk:1 in initial info\n" );
+  Utils::Check( info.find("nblk:1") != std::string::npos, "expected nblk:1 in initial info\n" );
 
   bcr.set_num_parallel_block(4);
   info = bcr.info();
-  UTILS_ASSERT0( info.find("nblk:4") != std::string::npos, "expected nblk:4 after set_num_parallel_block(4)\n" );
+  Utils::Check( info.find("nblk:4") != std::string::npos, "expected nblk:4 after set_num_parallel_block(4)\n" );
 
   bcr.set_num_parallel_block(2);
   info = bcr.info();
-  UTILS_ASSERT0( info.find("nblk:2") != std::string::npos, "expected nblk:2 after set_num_parallel_block(2)\n" );
+  Utils::Check( info.find("nblk:2") != std::string::npos, "expected nblk:2 after set_num_parallel_block(2)\n" );
 
   bcr.select_last_LU();
   bcr.select_last2_PINV();
   info = bcr.info();
-  UTILS_ASSERT0(
+  Utils::Check(
     info.find("last   = LastBlock LU") != std::string::npos,
     "expected primary last-block solver in info()\n"
   );
-  UTILS_ASSERT0(
+  Utils::Check(
     info.find("last2  = LastBlock PINV") != std::string::npos,
     "expected fallback last-block solver in info()\n"
   );

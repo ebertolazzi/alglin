@@ -178,7 +178,7 @@ main() {
         fmt::format("\nCheck ‖err‖∞ = {:.5}\n\n",err)
       );
 
-      UTILS_ASSERT0( err < 1e-8, "test failed!\n" );
+      Utils::Check( err < 1e-8, "test failed!\n" );
 
       for ( alglin::integer i{0}; i < 10; ++i )
         alglin::Copy_n( rhs, N+NB, x+i*(N+NB) );
@@ -196,7 +196,7 @@ main() {
         err > 1e-8 ? 0 : 1,
         fmt::format("\nCheck ‖err‖∞ = {:.5}\n\n",err)
       );
-      UTILS_ASSERT0( err < 1e-8, "test failed!\n" );
+      Utils::Check( err < 1e-8, "test failed!\n" );
     }
   }
 

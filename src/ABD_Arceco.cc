@@ -59,7 +59,7 @@ namespace alglin {
   ArcecoLU<t_Value>::checkStructure( integer const neq ) const {
     integer const & nblocks{ m_number_of_blocks };
 
-    UTILS_ASSERT(
+    Utils::Check(
       noverlap(nblocks-1) == 0,
       "Arceco::checkStructure: noverlap({}) = {} expected zero!\n",
       nblocks-1, noverlap(nblocks-1)
@@ -67,19 +67,19 @@ namespace alglin {
 
     // check index
     for ( integer k{0}; k < nblocks; ++k ) {
-      UTILS_ASSERT(
+      Utils::Check(
         ncols(k) >= 1,
         "ArcecoLU::checkStructure: ncols({}) = {} < 1\n", k, ncols(k)
       );
-      UTILS_ASSERT(
+      Utils::Check(
         nrows(k) >= 1,
         "ArcecoLU::checkStructure: nrows({}) = {} < 1\n", k, nrows(k)
       );
-      UTILS_ASSERT(
+      Utils::Check(
         noverlap(k) >= 0,
         "ArcecoLU::checkStructure: noverlap({}) = {} < 0\n", k, noverlap(k)
       );
-      UTILS_ASSERT(
+      Utils::Check(
         ncols(k) >= noverlap(k),
         "ArcecoLU::checkStructure: ncols({}) = {} < noverlap({}) = {}\n",
         k, ncols(k), k, noverlap(k)
@@ -88,7 +88,7 @@ namespace alglin {
 
     // check ovelapping
     for ( integer k{1}; k < nblocks; ++k )
-      UTILS_ASSERT(
+      Utils::Check(
         noverlap(k-1) + noverlap(k) <= ncols(k),
         "Arceco::checkStructure: at block {} three consecutive block overlap\n", k
       );
@@ -101,7 +101,7 @@ namespace alglin {
     integer r{ nrows(0) };
     integer c{ ncols(0) - noverlap(0) };
     for ( integer k{1}; k < nblocks; ++k ) {
-      UTILS_ASSERT(
+      Utils::Check(
         c <= r && c+ncols(k) >= r+nrows(k),
         "ArcecoLU::checkStructure: block n. {} do not cross the diagonal\n", k
       );
@@ -115,13 +115,13 @@ namespace alglin {
       isum1 += nrows(k);
       isum2 += ncols(k) - noverlap(k);
     }
-    UTILS_ASSERT(
+    Utils::Check(
       isum1 == isum2,
       "ArcecoLU::checkStructure: matrix not squared!\n"
       "row sum = {} column sum = {}\n",
       isum1, isum2
     );
-    UTILS_ASSERT(
+    Utils::Check(
       isum1 == neq,
       "ArcecoLU::checkStructure: block dimension = {}"
       " different from expected dimension = {}\n",
@@ -278,7 +278,7 @@ namespace alglin {
         if ( tempiv > rowmax ) { rowmax = tempiv; jmax = i1; }
       }
 
-      UTILS_ASSERT0( rowmax > 0, "Arceco::row_elimination, singular matrix\n" );
+      Utils::Check( rowmax > 0, "Arceco::row_elimination, singular matrix\n" );
 
       pivot[j] = jmax;
       if ( j != jmax )
@@ -322,7 +322,7 @@ namespace alglin {
         if ( tempiv > colmax) { colmax = tempiv; jmax = j1; }
       }
 
-      UTILS_ASSERT0( colmax > 0, "Arceco::column_elimination, singular matrix\n" );
+      Utils::Check( colmax > 0, "Arceco::column_elimination, singular matrix\n" );
 
       pivot[j] = jmax;
       if ( j != jmax ) {

@@ -172,7 +172,7 @@ namespace alglin {
       integer /* num_final_OMEGA   */,
       integer /* num_cyclic_OMEGA  */
     ) override
-    { UTILS_ERROR0("BlockLU::allocate() not defined!\n"); }
+    { Utils::Error("BlockLU::allocate() not defined!\n"); }
 
     /*!
      * \brief Allocates the solver for an ABD structure with top and bottom blocks.

@@ -228,13 +228,13 @@ main( int argc, char *argv[] ) {
     err > 1e-8 ? 0 : 1,
     fmt::format("Check ‖err‖∞ = {:.5}\n",err)
   );
-  UTILS_ASSERT0( err < 1e-8, "test failed!\n" );
+  Utils::Check( err < 1e-8, "test failed!\n" );
   err = alglin::asum( N, xref1, 1 )/N;
   msg.semaphore(
     err > 1e-8 ? 0 : 1,
     fmt::format("Check ‖err‖_1/N = {:.5}\n",err)
   );
-  UTILS_ASSERT0( err < 1e-8, "test failed!\n" );
+  Utils::Check( err < 1e-8, "test failed!\n" );
 
   alglin::Copy_n( rhs, 2*N, x );
   tm.tic();
@@ -263,13 +263,13 @@ main( int argc, char *argv[] ) {
     err > 1e-8 ? 0 : 1,
     fmt::format("Check ‖err‖∞ = {:.5}\n",err)
   );
-  UTILS_ASSERT0( err < 1e-8, "test failed!\n" );
+  Utils::Check( err < 1e-8, "test failed!\n" );
   err = alglin::asum( N, xref1, 1 )/N;
   msg.semaphore(
     err > 1e-8 ? 0 : 1,
     fmt::format("Check ‖err‖_1/N = {:.5}\n",err)
   );
-  UTILS_ASSERT0( err < 1e-8, "test failed!\n" );
+  Utils::Check( err < 1e-8, "test failed!\n" );
 
   fmt::print("\n\ncheck residual\n\n");
 
@@ -280,13 +280,13 @@ main( int argc, char *argv[] ) {
 
   real_type res = alglin::nrm2( BCR_SAVED.nrows(), resid, 1 );
   fmt::print("‖res‖₂ = {:.5}\n",res);
-  UTILS_ASSERT0( res < 1e-6, "test failed!\n" );
+  Utils::Check( res < 1e-6, "test failed!\n" );
   res = alglin::asum( BCR_SAVED.nrows(), resid, 1 );
   fmt::print("‖res‖₁ = {:.5}\n",res);
-  UTILS_ASSERT0( res < 1e-6, "test failed!\n" );
+  Utils::Check( res < 1e-6, "test failed!\n" );
   res = alglin::absmax( BCR_SAVED.nrows(), resid, 1 );
   fmt::print("‖res‖∞ = {:.5}\n",res);
-  UTILS_ASSERT0( res < 1e-6, "test failed!\n" );
+  Utils::Check( res < 1e-6, "test failed!\n" );
 
   msg.green("All done!\n");
 

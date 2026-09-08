@@ -184,12 +184,12 @@ namespace alglin {
       m_W_LU_working.zero_fill();
 
       // load elements
-      for ( integer k{0}; k < M_nnz; ++k ) {
-        t_Value v{ M_values[k] };
-        integer i{ M_row[k]+r_offs };
-        integer j{ M_col[k]+c_offs };
-        integer quad{ (i < n ? 0 : 1) + (j < n ? 0 : 2) };
-        UTILS_ASSERT(
+      for ( integer k = 0; k < M_nnz; ++k ) {
+        t_Value v    = M_values[k];
+        integer i    = M_row[k]+r_offs;
+        integer j    = M_col[k]+c_offs;
+        integer quad = (i < n ? 0 : 1) + (j < n ? 0 : 2);
+        Utils::Check(
           i >= 0 && i < mn &&  j >= 0 && j < mn,
           "Element ( {}, {} ) outside the matrix M\n", i, j
         );

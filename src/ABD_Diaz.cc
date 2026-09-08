@@ -79,7 +79,7 @@ namespace alglin {
     if ( 2*m_NB < nrA ) ierr = getry<t_Value>( nrA, ncA, A, ldA, swapR, m_NB );
     else                ierr = gty( nrA, ncA, A, ldA, swapR );
 
-    UTILS_ASSERT( ierr == 0, "DiazLU::LU_left_right, found ierr: {}\n", ierr );
+    Utils::Check( ierr == 0, "DiazLU::LU_left_right, found ierr: {}\n", ierr );
     // applico permutazione al blocco
     t_Value * R { A + ncA * ldA };
     t_Value * L { A - ncL * ldA };
@@ -138,7 +138,7 @@ namespace alglin {
     if ( 2*m_NB < ncA ) ierr = getrx( nrA, ncA, A, ldA, swapC, m_NB );
     else                ierr = gtx( nrA, ncA, A, ldA, swapC );
 
-    UTILS_ASSERT( ierr == 0, "DiazLU::LU_top_bottom, found ierr: {}\n", ierr );
+    Utils::Check( ierr == 0, "DiazLU::LU_top_bottom, found ierr: {}\n", ierr );
     // applico permutazione al blocco
     t_Value * T{A - nrT};
     for ( integer i{0}; i < nrA; ++i ) {
@@ -178,7 +178,7 @@ namespace alglin {
   void
   DiazLU<t_Value>::factorize() {
 
-    UTILS_ASSERT0(
+    Utils::Check(
       m_num_cyclic_OMEGA == 0 && m_num_cyclic_BC == 0,
       "DiazLU cannot manage cyclic BC\n"
     );

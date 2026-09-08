@@ -72,7 +72,7 @@ namespace alglin {
   BlockBidiagonal<t_Value>::load_bottom_block( integer nbl, real_type const C[], integer ldC ) {
     integer const & n{m_block_size};
     integer const & nb{m_border_size};
-    UTILS_ASSERT( ldC >= nb, "load_bottom_block( {}, C, ldC = {} ) bad ldC\n", nbl, ldC );
+    Utils::Check( ldC >= nb, "load_bottom_block( {}, C, ldC = {} ) bad ldC\n", nbl, ldC );
     real_type * CC{m_Cmat + nbl*n_x_nb};
     GEcopy( nb, n, C, ldC, CC, nb );
   }
@@ -82,7 +82,7 @@ namespace alglin {
   BlockBidiagonal<t_Value>::add_to_bottom_block( integer nbl, real_type const C[], integer ldC ) {
     integer const & n{m_block_size};
     integer const & nb{m_border_size};
-    UTILS_ASSERT( ldC >= nb, "add_to_bottom_block( {}, C, ldC = {} ) bad ldC\n", nbl, ldC );
+    Utils::Check( ldC >= nb, "add_to_bottom_block( {}, C, ldC = {} ) bad ldC\n", nbl, ldC );
     real_type * CC{m_Cmat + nbl*n_x_nb};
     GEadd( nb, n, C, ldC, CC, nb );
   }
@@ -92,7 +92,7 @@ namespace alglin {
   BlockBidiagonal<t_Value>::add_to_bottom_block2( integer nbl, real_type const C[], integer ldC ) {
     integer const & n{m_block_size};
     integer const & nb{m_border_size};
-    UTILS_ASSERT( ldC >= nb, "add_to_bottom_block2( {}, C, ldC = {} ) bad ldC\n", nbl, ldC );
+    Utils::Check( ldC >= nb, "add_to_bottom_block2( {}, C, ldC = {} ) bad ldC\n", nbl, ldC );
     real_type * CC{m_Cmat + nbl*n_x_nb};
     GEadd( nb, 2*n, C, ldC, CC, nb );
   }
@@ -229,7 +229,7 @@ namespace alglin {
     integer const num_extra_i
   ) {
 
-    UTILS_ASSERT(
+    Utils::Check(
       num_initial_BC  >= 0 && num_final_BC      >= 0 &&
       num_cyclic_BC   >= 0 && num_initial_OMEGA >= 0 &&
       num_final_OMEGA >= 0 && num_cyclic_OMEGA  >= 0,
@@ -247,7 +247,7 @@ namespace alglin {
     m_extra_bc = num_initial_OMEGA + num_final_OMEGA + num_cyclic_OMEGA;
     integer const & q = m_extra_bc;
 
-    UTILS_ASSERT(
+    Utils::Check(
       num_initial_BC + num_final_BC + num_cyclic_BC == n+q,
       "Bad BC specification:"
       "\nnum_initial_BC    = {}"
@@ -382,7 +382,7 @@ namespace alglin {
   ) {
     integer const & n{m_block_size};
 
-    UTILS_ASSERT(
+    Utils::Check(
       m_num_cyclic_BC == 0 && m_num_cyclic_OMEGA == 0,
       "in load_top_bottom num_cyclic_BC = {} and num_cyclic_OMEGA = {} "
       "must be both zero!\n",
@@ -975,7 +975,7 @@ namespace alglin {
       }
     }
 
-    UTILS_ASSERT(
+    Utils::Check(
       kkk == sparse_nnz(),
       "BlockBidiagonal::sparse_pattern( V ), inserted {} values, expected {}\n",
       kkk, sparse_nnz()
@@ -1049,7 +1049,7 @@ namespace alglin {
       for ( integer j{0}; j < nb; ++j )
         V[kkk++] = m_Dmat[i+j*nb];
 
-    UTILS_ASSERT(
+    Utils::Check(
       kkk == sparse_nnz(),
       "BlockBidiagonal::sparse_values( V ), inserted {} values, expected {}\n",
       kkk, sparse_nnz()

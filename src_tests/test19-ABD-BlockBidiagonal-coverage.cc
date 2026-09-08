@@ -125,7 +125,7 @@ namespace {
     integer j,
     real_type tol = TOL
   ) {
-    UTILS_ASSERT(
+    Utils::Check(
       std::abs(value-expected) < tol,
       "{} mismatch at ({},{}): found {}, expected {}\n",
       where, i, j, value, expected
@@ -139,7 +139,7 @@ namespace {
     char const where[],
     real_type tol = TOL
   ) {
-    UTILS_ASSERT(
+    Utils::Check(
       std::abs(value-expected) < tol,
       "{} mismatch: found {}, expected {}\n",
       where, value, expected
@@ -155,7 +155,7 @@ namespace {
     } catch ( ... ) {
       thrown = true;
     }
-    UTILS_ASSERT( thrown, "{} expected an exception\n", where );
+    Utils::Check( thrown, "{} expected an exception\n", where );
   }
 
   std::vector<real_type>
@@ -255,7 +255,7 @@ namespace {
     integer                        total,
     char const                     where[]
   ) {
-    UTILS_ASSERT( A.size() == B.size(), "{} size mismatch\n", where );
+    Utils::Check( A.size() == B.size(), "{} size mismatch\n", where );
     for ( integer j{0}; j < total; ++j )
       for ( integer i{0}; i < total; ++i )
         check_close(
@@ -382,7 +382,7 @@ namespace {
 
     solver.allocate( layout.nblock, layout.n, layout.nb, 1, 1, 1, 0, 0, 1 );
 
-    UTILS_ASSERT0(
+    Utils::Check(
       alglin::BlockBidiagonal<real_type>::LastBlock_to_string( Choice::PINV ) == "last block PINV",
       "LastBlock_to_string(PINV) failed\n"
     );
@@ -514,14 +514,14 @@ namespace {
 
     std::ostringstream maple;
     solver.dump_to_Maple( maple );
-    UTILS_ASSERT0( maple.str().find("interface(") != std::string::npos, "dump_to_Maple missing interface()\n" );
+    Utils::Check( maple.str().find("interface(") != std::string::npos, "dump_to_Maple missing interface()\n" );
 
     std::ostringstream ccoord;
     solver.dump_ccoord( ccoord );
     std::istringstream is( ccoord.str() );
     integer dumped_nnz{ -1 };
     is >> dumped_nnz;
-    UTILS_ASSERT0( dumped_nnz == solver.sparse_nnz(), "dump_ccoord wrong nnz header\n" );
+    Utils::Check( dumped_nnz == solver.sparse_nnz(), "dump_ccoord wrong nnz header\n" );
   }
 
   template <typename Solver>

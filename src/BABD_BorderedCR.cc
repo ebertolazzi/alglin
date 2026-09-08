@@ -84,19 +84,19 @@ namespace alglin {
 
       real_type tmp; // get optimal allocation
       integer info = alglin::geqrf( m_Nr, m_Nc, nullptr, m_Nr, nullptr, &tmp, -1 );
-      UTILS_ASSERT( info == 0, "BorderedCR::allocate call alglin::geqrf return info = {}\n", info );
+      Utils::Check( info == 0, "BorderedCR::allocate call alglin::geqrf return info = {}\n", info );
       if ( m_Work_Lapack_size < static_cast<integer>(tmp) ) m_Work_Lapack_size = static_cast<integer>(tmp);
 
       info = geqp3( m_Nr, m_Nc, nullptr, m_Nr, nullptr, nullptr, &tmp, -1 );
-      UTILS_ASSERT( info == 0, "BorderedCR::allocate call alglin::geqp3 return info = {}\n", info );
+      Utils::Check( info == 0, "BorderedCR::allocate call alglin::geqp3 return info = {}\n", info );
       if ( m_Work_Lapack_size < static_cast<integer>(tmp) ) m_Work_Lapack_size = static_cast<integer>(tmp);
 
       info = alglin::geqrf( n_x_2, n, nullptr, n_x_2, nullptr, &tmp, -1 );
-      UTILS_ASSERT( info == 0, "BorderedCR::allocate call alglin::geqrf return info = {}\n", info );
+      Utils::Check( info == 0, "BorderedCR::allocate call alglin::geqrf return info = {}\n", info );
       if ( m_Work_Lapack_size < static_cast<integer>(tmp) ) m_Work_Lapack_size = static_cast<integer>(tmp);
 
       info = alglin::geqp3( n_x_2, n, nullptr, n_x_2, nullptr, nullptr, &tmp, -1 );
-      UTILS_ASSERT( info == 0, "BorderedCR::allocate call alglin::geqp3 return info = {}\n", info );
+      Utils::Check( info == 0, "BorderedCR::allocate call alglin::geqp3 return info = {}\n", info );
       if ( m_Work_Lapack_size < static_cast<integer>(tmp) ) m_Work_Lapack_size = static_cast<integer>(tmp);
 
       integer const nnz{ (n*(nr+2*n+nx+1)+m_Tsize)*nblock +
@@ -2089,14 +2089,14 @@ namespace alglin {
   template <typename t_Value>
   bool
   BorderedCR<t_Value>::t_solve( real_type [] ) const {
-    UTILS_ERROR0( "BorderedCR::t_solve() not defined\n" );
+    Utils::Error( "BorderedCR::t_solve() not defined\n" );
     return false;
   }
 
   template <typename t_Value>
   bool
   BorderedCR<t_Value>::t_solve( integer, real_type [], integer ) const {
-    UTILS_ERROR0( "BorderedCR::t_solve() not defined\n" );
+    Utils::Error( "BorderedCR::t_solve() not defined\n" );
     return false;
   }
 
@@ -2333,8 +2333,8 @@ namespace alglin {
   template <typename t_Value>
   integer
   BorderedCR<t_Value>::values_H( real_type V[] ) const {
-    integer const n   { m_block_size      };
-    integer const nnz { (n + m_qr) * m_Nc };
+    integer const n   = m_block_size;
+    integer const nnz = (n + m_qr) * m_Nc;
     Copy_n( m_H0Nqp, nnz, V );
     return nnz;
   }
@@ -2346,7 +2346,7 @@ namespace alglin {
     integer       J[],
     integer const offs
   ) const {
-    integer const nblock{ m_number_of_blocks };
+    integer const nblock = m_number_of_blocks;
 
     integer kkk{0};
     for ( integer nbl{0}; nbl < nblock; ++nbl ) {
@@ -2423,25 +2423,25 @@ namespace alglin {
     integer   const M_nnz,
     bool      const do_error
   ) {
-    integer const nblock { m_number_of_blocks };
-    integer const n      { m_block_size };
+    integer const nblock = m_number_of_blocks;
+    integer const n      = m_block_size;
 
-    integer const rH   { n*nblock };
-    integer const rC   { rH + n + m_qr };
-    integer const nrow { rC + m_nr };
+    integer const rH   = n*nblock;
+    integer const rC   = rH + n + m_qr;
+    integer const nrow = rC + m_nr;
 
-    integer const cCq  { rH  + n };
-    integer const cF   { cCq + m_qx };
-    integer const ncol { cF  + m_nx };
+    integer const cCq  = rH  + n;
+    integer const cF   = cCq + m_qx;
+    integer const ncol = cF  + m_nx;
 
     fill_zero();
 
     for ( integer kkk{0}; kkk < M_nnz; ++kkk ) {
-      integer   const i  { M_row[kkk] - r_offs };
-      integer   const j  { M_col[kkk] - c_offs };
-      real_type const v  { M_values[kkk]       };
-      integer   const ib { i/n };
-      integer   const jb { j/n };
+      integer   const i  = M_row[kkk] - r_offs;
+      integer   const j  = M_col[kkk] - c_offs;
+      real_type const v  = M_values[kkk];
+      integer   const ib = i/n;
+      integer   const jb = j/n;
       // cerca blocco
       bool ok{true};
       if ( i < rH ) {
@@ -2497,29 +2497,29 @@ namespace alglin {
     Malloc<t_Value> mem(" BorderedCR::print_matlab_script real");
     Malloc<integer> memi(" BorderedCR::print_matlab_script integer");
     memi.allocate( 2 * nnz );
-    t_Value * V{ mem.malloc( nnz ) };
-    integer * I{ memi( nnz ) };
-    integer * J{ memi( nnz ) };
+    t_Value * V = mem.malloc( nnz );
+    integer * I = memi( nnz );
+    integer * J = memi( nnz );
 
     this->sparse_pattern( I, J, 1 );
     this->sparse_values( V );
 
     fmt::print( stream, "I = [ {}", I[0] );
-    for ( integer i{1}; i < nnz; ++i ) {
+    for ( integer i = 1; i < nnz; ++i ) {
       if ( (i % 20) == 0 ) fmt::print( stream, ", ...\n  {}", I[i] );
       else                 fmt::print( stream, ",  {}", I[i] );
     }
     fmt::print( stream, " ];\n\n" );
 
     fmt::print( stream, "J = [ {}", J[0] );
-    for ( integer i{1}; i < nnz; ++i ) {
+    for ( integer i = 1; i < nnz; ++i ) {
       if ( (i % 20) == 0 ) fmt::print( stream, ", ...\n  {}", J[i] );
       else                 fmt::print( stream, ",  {}", J[i] );
     }
     fmt::print( stream, " ];\n\n" );
 
     fmt::print( stream, "V = [ {}", V[0] );
-    for ( integer i{1}; i < nnz; ++i ) {
+    for ( integer i = 1; i < nnz; ++i ) {
       if ( (i % 20) == 0 ) fmt::print( stream, ", ...\n  {}", V[i] );
       else                 fmt::print( stream, ",  {}", V[i] );
     }
@@ -2544,13 +2544,13 @@ namespace alglin {
       integer const nblock { m_number_of_blocks };
       integer const n      { m_block_size       };
       {
-        integer const NR{ n+m_qr };
-        integer const NC{ m_Nc };
-        integer const NN{ NR*NC };
-        for( integer i{0}; i < NN; ++i ) {
+        integer const NR = n+m_qr;
+        integer const NC = m_Nc;
+        integer const NN = NR*NC;
+        for( integer i = 0; i < NN; ++i ) {
           integer const r{ i % NR };
           integer const c{ static_cast<integer>(i / NR) };
-          UTILS_ASSERT(
+          Utils::Check(
             Utils::is_finite(m_H0Nqp[i]),
             "BorderedCR::check_matrix, found {} at position ({},{}) of {}x{} matrix H0Hqp\n",
             m_H0Nqp[i], r, c, NR, NC
@@ -2562,11 +2562,11 @@ namespace alglin {
         integer const NC{ m_nx };
         integer const SB{ NR*NC };
         integer const NN{ SB*nblock };
-        for( integer i{0}; i < NN; ++i ) {
+        for( integer i = 0; i < NN; ++i ) {
           integer const nb{ static_cast<integer>(i / SB) };
           integer const r{ i % NR };
           integer const c{ static_cast<integer>((i - nb * SB) / NR) };
-          UTILS_ASSERT(
+          Utils::Check(
             Utils::is_finite(m_Bmat[i]),
             "BorderedCR::check_matrix, found {} at block {} position ({},{}) of {}x{} matrix B\n",
             m_Bmat[i], nb, r, c, NR, NC
@@ -2578,11 +2578,11 @@ namespace alglin {
         integer const NC { n };
         integer const SB { NR*NC };
         integer const NN { SB*(nblock+1) };
-        for( integer i{0}; i < NN; ++i ) {
-          integer const nb{ static_cast<integer>(i / SB) };
-          integer const r{ i % NR };
-          integer const c{ static_cast<integer>((i - nb * SB) / NR) };
-          UTILS_ASSERT(
+        for( integer i = 0; i < NN; ++i ) {
+          integer const nb = static_cast<integer>(i / SB);
+          integer const r  = i % NR;
+          integer const c  = static_cast<integer>((i - nb * SB) / NR);
+          Utils::Check(
             Utils::is_finite(m_Cmat[i]),
             "BorderedCR::check_matrix, found {} at block {} position ({},{}) of {}x{} matrix C\n",
             m_Cmat[i], nb, r, c, NR, NC
@@ -2593,10 +2593,10 @@ namespace alglin {
         integer const NR{ m_nr };
         integer const NC{ m_qx };
         integer const NN{ NR*NC };
-        for( integer i{0}; i < NN; ++i ) {
-          integer const r{ i % NR };
-          integer const c{ static_cast<integer>(i / NR) };
-          UTILS_ASSERT(
+        for( integer i = 0; i < NN; ++i ) {
+          integer const r = i % NR;
+          integer const c = static_cast<integer>(i / NR);
+          Utils::Check(
             Utils::is_finite(m_Cqmat[i]),
             "BorderedCR::check_matrix, found {} at position ({},{}) of {}x{} matrix Cq\n",
             m_Cqmat[i], r, c, NR, NC
@@ -2608,11 +2608,11 @@ namespace alglin {
         integer const NC{ n };
         integer const SB{ NR*NC };
         integer const NN{ SB*nblock };
-        for( integer i{0}; i < NN; ++i ) {
-          integer const nb{ static_cast<integer>(i / SB) };
-          integer const r{ i % NR };
-          integer const c{ static_cast<integer>((i - nb * SB) / NR) };
-          UTILS_ASSERT(
+        for( integer i = 0; i < NN; ++i ) {
+          integer const nb = static_cast<integer>(i / SB);
+          integer const r  = i % NR;
+          integer const c  = static_cast<integer>((i - nb * SB) / NR);
+          Utils::Check(
             Utils::is_finite(m_Dmat[i]),
             "BorderedCR::check_matrix, found {} at block {} position ({},{}) of {}x{} matrix D\n",
             m_Dmat[i], nb, r, c, NR, NC
@@ -2624,11 +2624,11 @@ namespace alglin {
         integer const NC{ n };
         integer const SB{ NR*NC };
         integer const NN{ SB*nblock };
-        for( integer i{0}; i < NN; ++i ) {
-          integer const nb{ static_cast<integer>(i / SB) };
-          integer const r{ i % NR };
-          integer const c{ static_cast<integer>((i - nb * SB) / NR) };
-          UTILS_ASSERT(
+        for( integer i = 0; i < NN; ++i ) {
+          integer const nb = static_cast<integer>(i / SB);
+          integer const r  = i % NR;
+          integer const c  = static_cast<integer>((i - nb * SB) / NR);
+          Utils::Check(
             Utils::is_finite(m_Emat[i]),
             "BorderedCR::check_matrix, found {} at block {} position ({},{}) of {}x{} matrix E\n",
             m_Emat[i], nb, r, c, NR, NC
@@ -2639,10 +2639,10 @@ namespace alglin {
         integer const NR { m_nr  };
         integer const NC { m_nx  };
         integer const NN { NR*NC };
-        for( integer i{0}; i < NN; ++i ) {
-          integer const r{ i % NR };
-          integer const c{ static_cast<integer>(i / NR) };
-          UTILS_ASSERT(
+        for( integer i = 0; i < NN; ++i ) {
+          integer const r = i % NR;
+          integer const c = static_cast<integer>(i / NR);
+          Utils::Check(
             Utils::is_finite(m_Fmat[i]),
             "BorderedCR::check_matrix, found {} at position ({},{}) of {}x{} matrix F\n",
             m_Fmat[i], r, c, NR, NC

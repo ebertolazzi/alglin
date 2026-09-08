@@ -62,7 +62,7 @@ namespace {
     integer i,
     real_type tol = TOL
   ) {
-    UTILS_ASSERT(
+    Utils::Check(
       std::abs(value-expected) < tol,
       "{} mismatch at {}: found {}, expected {}\n",
       where, i, value, expected
@@ -78,7 +78,7 @@ namespace {
     } catch ( ... ) {
       thrown = true;
     }
-    UTILS_ASSERT( thrown, "{} expected an exception\n", where );
+    Utils::Check( thrown, "{} expected an exception\n", where );
   }
 
   TopBottomData

@@ -203,8 +203,8 @@ test_matrixwrapper_api() {
   rhs(0,0) =  1; rhs(1,0) = 2; rhs(2,0) =  6;
   rhs(0,1) = -1; rhs(1,1) = 4; rhs(2,1) = -2;
 
-  UTILS_ASSERT0( kkt.solve( rhs ), "KKT::solve(MatrixWrapper) failed\n" );
-  UTILS_ASSERT0(
+  Utils::Check( kkt.solve( rhs ), "KKT::solve(MatrixWrapper) failed\n" );
+  Utils::Check(
     std::abs(rhs(0,0) -  1) < 1e-12 &&
     std::abs(rhs(1,0) -  2) < 1e-12 &&
     std::abs(rhs(2,0) -  3) < 1e-12 &&
@@ -217,8 +217,8 @@ test_matrixwrapper_api() {
   rhs(0,0) =  1; rhs(1,0) = 2; rhs(2,0) =  6;
   rhs(0,1) = -1; rhs(1,1) = 4; rhs(2,1) = -2;
 
-  UTILS_ASSERT0( kkt.t_solve( rhs ), "KKT::t_solve(MatrixWrapper) failed\n" );
-  UTILS_ASSERT0(
+  Utils::Check( kkt.t_solve( rhs ), "KKT::t_solve(MatrixWrapper) failed\n" );
+  Utils::Check(
     std::abs(rhs(0,0) -  1) < 1e-12 &&
     std::abs(rhs(1,0) -  2) < 1e-12 &&
     std::abs(rhs(2,0) -  3) < 1e-12 &&

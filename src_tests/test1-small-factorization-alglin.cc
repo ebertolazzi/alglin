@@ -283,7 +283,7 @@ void test_factorization_method(
       fmt::print(fg(fmt::color::green), " ✓\n");
     } else {
       fmt::print(fg(fmt::color::orange), " ⚠️\n");
-      UTILS_ASSERT0( res < 1e-6, "test failed!\n" );
+      Utils::Check( res < 1e-6, "test failed!\n" );
     }
 }
 
@@ -384,7 +384,7 @@ void test_transposed_factorization_method(
       fmt::print(fg(fmt::color::green), " ✓\n");
     } else {
       fmt::print(fg(fmt::color::orange), " ⚠️\n");
-      UTILS_ASSERT0( res < 1e-6, "test failed!\n" );
+      Utils::Check( res < 1e-6, "test failed!\n" );
     }
 }
 

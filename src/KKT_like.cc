@@ -29,7 +29,7 @@ namespace alglin {
   template <typename t_Value>
   void
   KKT<t_Value>::allocate( integer n, integer m ) {
-    UTILS_ASSERT( n > 0 && m > 0, "KKT::allocate( {}, {} ) bad dimension\n", n, m );
+    Utils::Check( n > 0 && m > 0, "KKT::allocate( {}, {} ) bad dimension\n", n, m );
     if ( n != m_dim1 || m != m_dim2 ) {
       m_dim1 = n;
       m_dim2 = m;
@@ -78,14 +78,12 @@ namespace alglin {
     integer   const ldA,
     bool      const transposed
   ) {
-    integer const & n { m_dim1 };
-    UTILS_ASSERT(
-      ldA >= n, "KKT::load_A bad ldA = {} must be >= {}\n", ldA, n
-    );
+    integer const & n = m_dim1;
+    Utils::Check( ldA >= n, "KKT::load_A bad ldA = {} must be >= {}\n", ldA, n );
     m_Asolver = &m_A_LU;
     m_A_LU_working.setup(n,n);
     if ( transposed ) {
-      for ( integer i{0}; i < n; ++i )
+      for ( integer i = 0; i < n; ++i )
         m_A_LU_working.load_row(A+i*ldA,i);
     } else {
       m_A_LU_working.load_block(n,n,A,ldA);
@@ -104,13 +102,13 @@ namespace alglin {
     integer   const B_col[], integer const c_offs,
     integer   const B_nnz
   ) {
-    integer const & n { m_dim1 };
-    integer const & m { m_dim2 };
+    integer const & n = m_dim1;
+    integer const & m = m_dim2;
     GEzero( n, m, m_Zmat, n );
-    for ( integer k{0}; k < B_nnz; ++k ) {
-      integer i{ B_row[k]+r_offs };
-      integer j{ B_col[k]+c_offs };
-      UTILS_ASSERT(
+    for ( integer k = 0; k < B_nnz; ++k ) {
+      integer i = B_row[k]+r_offs;
+      integer j = B_col[k]+c_offs;
+      Utils::Check(
         i >= 0 && i < n && j >= 0 && j < m,
         "KKT::load_B bad index (i,j) = ({},{}) at position {}\n", i, j, k
       );
@@ -128,14 +126,14 @@ namespace alglin {
     integer   const ldB,
     bool      const transposed
   ) {
-    integer const & n { m_dim1 };
-    integer const & m { m_dim2 };
+    integer const & n = m_dim1;
+    integer const & m = m_dim2;
     if ( transposed ) {
-      UTILS_ASSERT( ldB >= m, "KKT::load_B bad ldB = {} must be >= {}\n", ldB, m );
-      for ( integer i{0}; i < n; ++i )
+      Utils::Check( ldB >= m, "KKT::load_B bad ldB = {} must be >= {}\n", ldB, m );
+      for ( integer i = 0; i < n; ++i )
         alglin::copy( m, B+i, n, m_Zmat+i*n, 1 );
     } else {
-      UTILS_ASSERT( ldB >= n, "KKT::load_B bad ldB = {} must be >= {}\n", ldB, n );
+      Utils::Check( ldB >= n, "KKT::load_B bad ldB = {} must be >= {}\n", ldB, n );
       GEcopy( n, m, B, ldB, m_Zmat, n );
     }
   }
@@ -154,10 +152,10 @@ namespace alglin {
     integer const & n{m_dim1};
     integer const & m{m_dim2};
     GEzero( m, n, m_Cmat, m );
-    for ( integer k{0}; k < C_nnz; ++k ) {
-      integer i{C_row[k]+r_offs};
-      integer j{C_col[k]+c_offs};
-      UTILS_ASSERT(
+    for ( integer k = 0; k < C_nnz; ++k ) {
+      integer i = C_row[k]+r_offs;
+      integer j = C_col[k]+c_offs;
+      Utils::Check(
         i >= 0 && i < m && j >= 0 && j < n,
         "KKT::load_C bad index (i,j) = ({},{}) at position {}\n", i, j, k
       );
@@ -175,13 +173,11 @@ namespace alglin {
     integer   const ldC,
     bool      const transposed
   ) {
-    integer const & n{m_dim1};
-    integer const & m{m_dim2};
+    integer const & n = m_dim1;
+    integer const & m = m_dim2;
     if ( transposed ) {
-      UTILS_ASSERT(
-        ldC >= n, "KKT::load_C bad ldC = {} must be >= {}\n", ldC, n
-      );
-      for ( integer i{0}; i < m; ++i )
+      Utils::Check( ldC >= n, "KKT::load_C bad ldC = {} must be >= {}\n", ldC, n );
+      for ( integer i = 0; i < m; ++i )
         alglin::copy( n, C+i, m, m_Cmat+i*m, 1 );
     } else {
       GEcopy( m, n, C, ldC, m_Cmat, m );
@@ -203,10 +199,10 @@ namespace alglin {
     integer const & m = m_dim2;
     m_W_LU_working.setup(m,m);
     m_W_LU_working.zero_fill();
-    for ( integer k{0}; k < D_nnz; ++k ) {
-      integer i{D_row[k]+r_offs};
-      integer j{D_col[k]+c_offs};
-      UTILS_ASSERT(
+    for ( integer k = 0; k < D_nnz; ++k ) {
+      integer i = D_row[k]+r_offs;
+      integer j = D_col[k]+c_offs;
+      Utils::Check(
         i >= 0 && i < m && j >= 0 && j < m,
         "KKT::load_D bad index (i,j) = ({},{}) at position {}\n", i, j, k
       );
@@ -225,8 +221,8 @@ namespace alglin {
     integer   const ldD,
     bool      const transposed
   ) {
-    integer const & m{m_dim2};
-    UTILS_ASSERT( ldD >= m, "KKT::load_D bad ldD = {} must be >= {}\n", ldD, m );
+    integer const & m = m_dim2;
+    Utils::Check( ldD >= m, "KKT::load_D bad ldD = {} must be >= {}\n", ldD, m );
     m_W_LU_working.setup(m,m);
     if ( transposed ) m_W_LU_working.load_transposed( D, ldD );
     else              m_W_LU_working.load( D, ldD );

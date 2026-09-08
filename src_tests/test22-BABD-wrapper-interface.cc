@@ -48,7 +48,7 @@ namespace {
     integer i,
     real_type tol = TOL
   ) {
-    UTILS_ASSERT(
+    Utils::Check(
       std::abs(value - expected) < tol,
       "{} mismatch at {}: found {}, expected {}\n",
       where, i, value, expected
@@ -64,7 +64,7 @@ namespace {
     integer j,
     real_type tol = TOL
   ) {
-    UTILS_ASSERT(
+    Utils::Check(
       std::abs(value - expected) < tol,
       "{} mismatch at ({},{}): found {}, expected {}\n",
       where, i, j, value, expected
@@ -80,7 +80,7 @@ namespace {
     } catch ( ... ) {
       thrown = true;
     }
-    UTILS_ASSERT( thrown, "{} expected an exception\n", where );
+    Utils::Check( thrown, "{} expected an exception\n", where );
   }
 
   struct TopBottomLayout {
@@ -270,16 +270,16 @@ namespace {
     TopBottomLayout layout;
     BABD            wrap( BABD::BABD_Choice::DIAZ );
 
-    UTILS_ASSERT0( wrap.using_diaz(), "BABD should start on Diaz backend\n" );
-    UTILS_ASSERT0( !wrap.using_cyclic_reduction(), "BABD Diaz backend mismatch\n" );
+    Utils::Check( wrap.using_diaz(), "BABD should start on Diaz backend\n" );
+    Utils::Check( !wrap.using_cyclic_reduction(), "BABD Diaz backend mismatch\n" );
     expect_throw( [&]() { (void) wrap.cr(); }, "BABD::cr on Diaz backend" );
 
     load_diaz_system( wrap, layout );
 
-    UTILS_ASSERT0( wrap.nrows() == layout.total, "BABD Diaz nrows mismatch\n" );
-    UTILS_ASSERT0( wrap.ncols() == layout.total, "BABD Diaz ncols mismatch\n" );
-    UTILS_ASSERT0( wrap.info() == "Diaz", "BABD Diaz info mismatch\n" );
-    UTILS_ASSERT0( wrap.sparse_nnz() > 0, "BABD Diaz sparse_nnz should be positive\n" );
+    Utils::Check( wrap.nrows() == layout.total, "BABD Diaz nrows mismatch\n" );
+    Utils::Check( wrap.ncols() == layout.total, "BABD Diaz ncols mismatch\n" );
+    Utils::Check( wrap.info() == "Diaz", "BABD Diaz info mismatch\n" );
+    Utils::Check( wrap.sparse_nnz() > 0, "BABD Diaz sparse_nnz should be positive\n" );
 
     std::vector<real_type> xref( static_cast<size_t>(layout.total) );
     std::vector<real_type> rhs( static_cast<size_t>(layout.total) );
@@ -293,10 +293,10 @@ namespace {
       xref[static_cast<size_t>(i)] = 0.8 + 0.3 * i;
 
     wrap.diaz().Mv( xref.data(), rhs.data() );
-    UTILS_ASSERT0( wrap.factorize_system(), "BABD Diaz factorize_system failed\n" );
+    Utils::Check( wrap.factorize_system(), "BABD Diaz factorize_system failed\n" );
 
     x = rhs;
-    UTILS_ASSERT0( wrap.solve_system( x.data() ), "BABD Diaz solve_system failed\n" );
+    Utils::Check( wrap.solve_system( x.data() ), "BABD Diaz solve_system failed\n" );
     for ( integer i{0}; i < layout.total; ++i )
       check_close( x[static_cast<size_t>(i)], xref[static_cast<size_t>(i)], "BABD Diaz solve_system", i, 5e-9 );
 
@@ -307,9 +307,9 @@ namespace {
       wrap.diaz().Mv( Xref.data() + c * layout.total, RHS.data() + c * layout.total );
     }
 
-    UTILS_ASSERT0( wrap.factorize(), "BABD Diaz factorize alias failed\n" );
+    Utils::Check( wrap.factorize(), "BABD Diaz factorize alias failed\n" );
     X = RHS;
-    UTILS_ASSERT0( wrap.solve( nrhs, X.data(), layout.total ), "BABD Diaz solve alias failed\n" );
+    Utils::Check( wrap.solve( nrhs, X.data(), layout.total ), "BABD Diaz solve alias failed\n" );
     for ( integer c{0}; c < nrhs; ++c )
       for ( integer i{0}; i < layout.total; ++i )
         check_close(
@@ -324,16 +324,16 @@ namespace {
   test_cr_wrapper() {
     BABD wrap;
 
-    UTILS_ASSERT0( wrap.using_cyclic_reduction(), "BABD default backend should be CR\n" );
-    UTILS_ASSERT0(
+    Utils::Check( wrap.using_cyclic_reduction(), "BABD default backend should be CR\n" );
+    Utils::Check(
       wrap.selected_solver() == BABD::BABD_Choice::CYCLIC_REDUCTION_LU,
       "BABD default choice mismatch\n"
     );
     expect_throw( [&]() { (void) wrap.diaz(); }, "BABD::diaz on CR backend" );
 
     load_cr_system( wrap );
-    UTILS_ASSERT0( wrap.nrows() == wrap.ncols(), "BABD CR should be square in this test\n" );
-    UTILS_ASSERT0( wrap.sparse_nnz() > 0, "BABD CR sparse_nnz should be positive\n" );
+    Utils::Check( wrap.nrows() == wrap.ncols(), "BABD CR should be square in this test\n" );
+    Utils::Check( wrap.sparse_nnz() > 0, "BABD CR sparse_nnz should be positive\n" );
 
     integer const N{ wrap.ncols() };
     std::vector<integer> I( static_cast<size_t>(wrap.sparse_nnz()) );
@@ -341,7 +341,7 @@ namespace {
     std::vector<real_type> V( static_cast<size_t>(wrap.sparse_nnz()) );
     wrap.sparse_pattern( I.data(), J.data() );
     wrap.sparse_values( V.data() );
-    UTILS_ASSERT0( I.front() >= 0 && J.front() >= 0, "BABD CR sparse pattern not filled\n" );
+    Utils::Check( I.front() >= 0 && J.front() >= 0, "BABD CR sparse pattern not filled\n" );
 
     std::vector<real_type> xref( static_cast<size_t>(N) );
     std::vector<real_type> rhs( static_cast<size_t>(N) );
@@ -353,19 +353,19 @@ namespace {
     wrap.cr().Mv( xref.data(), rhs.data() );
 
     wrap.selectSolver( BABD::BABD_Choice::CYCLIC_REDUCTION_QRP );
-    UTILS_ASSERT0(
+    Utils::Check(
       wrap.selected_solver() == BABD::BABD_Choice::CYCLIC_REDUCTION_QRP,
       "BABD CR solver switch mismatch\n"
     );
-    UTILS_ASSERT0( wrap.using_cyclic_reduction(), "BABD should remain on CR backend\n" );
-    UTILS_ASSERT(
+    Utils::Check( wrap.using_cyclic_reduction(), "BABD should remain on CR backend\n" );
+    Utils::Check(
       wrap.info().find("CyclicReduction+QRP") != std::string::npos,
       "BABD CR info should mention QRP\n"
     );
 
-    UTILS_ASSERT0( wrap.factorize_system(), "BABD CR factorize_system failed\n" );
+    Utils::Check( wrap.factorize_system(), "BABD CR factorize_system failed\n" );
     x = rhs;
-    UTILS_ASSERT0( wrap.solve_system( x.data() ), "BABD CR solve_system failed\n" );
+    Utils::Check( wrap.solve_system( x.data() ), "BABD CR solve_system failed\n" );
     for ( integer i{0}; i < N; ++i )
       check_close( x[static_cast<size_t>(i)], xref[static_cast<size_t>(i)], "BABD CR solve_system", i, 5e-9 );
   }

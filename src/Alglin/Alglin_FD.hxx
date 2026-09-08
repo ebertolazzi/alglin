@@ -451,7 +451,7 @@ namespace alglin {
 
     static finite_difference_epsilon<Number> EPS;
 
-    UTILS_ASSERT(
+    Utils::Check(
       lwork >= 3*dim_f,
       "finite_difference_jacobian(...,dim_f={},...,lwork={}), lwork must be >= 3*dim_f\n",
       dim_f, lwork
@@ -549,7 +549,7 @@ namespace alglin {
 
     static finite_difference_epsilon<Number> EPS;
 
-    UTILS_ASSERT(
+    Utils::Check(
       lwork >= 4*dim_f,
       "finite_difference_check_jacobian(...,dim_f={},...,lwork={}), lwork must be >= 3*dim_f\n",
       dim_f, lwork

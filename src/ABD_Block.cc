@@ -78,7 +78,7 @@ namespace alglin {
   void
   BlockLU<t_Value>::factorize() {
 
-    UTILS_ASSERT0(
+    Utils::Check(
       m_num_cyclic_OMEGA == 0 && m_num_cyclic_BC == 0,
       "BlockLU cannot manage cyclic BC\n"
     );
@@ -107,14 +107,10 @@ namespace alglin {
       t_Value * block00 = m_block0 + col00*row0;
       if ( col00 > 0 ) {
         integer info = getrf( row0, col00, m_block0, row0, m_swap0 );
-        UTILS_ASSERT(
-          info == 0, "BlockLU::factorize, first block, getrf INFO = {}\n", info
-        );
+        Utils::Check( info == 0, "BlockLU::factorize, first block, getrf INFO = {}\n", info );
         // applico permutazioni
         info = alglin::swaps( n, block00, row0, 0, col00-1, m_swap0, 1 );
-        UTILS_ASSERT(
-          info == 0, "BlockLU::factorize, first block, swaps INFO = {}\n", info
-        );
+        Utils::Check( info == 0, "BlockLU::factorize, first block, swaps INFO = {}\n", info );
         trsm(
           SideMultiply::LEFT,
           ULselect::LOWER,
@@ -154,14 +150,14 @@ namespace alglin {
 
       // factorize
       integer info = getrf( n+row00, n, m_Work_mat, m_Work_ldim, m_swapR_blks );
-      UTILS_ASSERT(
+      Utils::Check(
         info == 0,
         "BlockLU::factorize, first block, getrf INFO = {}\n", info
       );
 
       // apply permutation
       info = alglin::swaps( n, m_Work_mat1, m_Work_ldim, 0, n-1, m_swapR_blks, 1 );
-      UTILS_ASSERT(
+      Utils::Check(
         info == 0,
         "BlockLU::factorize, first block, swaps INFO = {}\n", info
       );
@@ -218,11 +214,11 @@ namespace alglin {
 
         // factorize
         info = getrf( n+row00, n, m_Work_mat, m_Work_ldim, swps );
-        UTILS_ASSERT( info == 0, "BlockLU::factorize, first block, getrf INFO = {}\n", info );
+        Utils::Check( info == 0, "BlockLU::factorize, first block, getrf INFO = {}\n", info );
 
         // apply permutation
         info = alglin::swaps( n, m_Work_mat1, m_Work_ldim, 0, n-1, swps, 1 );
-        UTILS_ASSERT( info == 0, "BlockLU::factorize, first block, swaps INFO = {}\n", info );
+        Utils::Check( info == 0, "BlockLU::factorize, first block, swaps INFO = {}\n", info );
         trsm(
           SideMultiply::LEFT,
           ULselect::LOWER,
@@ -325,9 +321,7 @@ namespace alglin {
       if ( col00 > 0 ) {
         // apply permutation
         integer info{ alglin::swaps( 1, io, row0, 0, col00-1, m_swap0, 1 ) };
-        UTILS_ASSERT(
-          info == 0, "BlockLU::solve, first block, swaps INFO = {}\n", info
-        );
+        Utils::Check( info == 0, "BlockLU::solve, first block, swaps INFO = {}\n", info );
         trsv(
           ULselect::LOWER,
           Transposition::NO,
@@ -361,7 +355,7 @@ namespace alglin {
 
       // apply permutation
       integer info = alglin::swaps( 1, io, n, 0, n-1, m_swapR_blks, 1 );
-      UTILS_ASSERT(
+      Utils::Check(
         info == 0, "BlockLU::solve, first block, swaps INFO = {}\n", info
       );
 
@@ -406,7 +400,7 @@ namespace alglin {
 
         // apply permutation
         info = alglin::swaps( 1, io, n, 0, n-1, swps, 1 );
-        UTILS_ASSERT( info == 0, "BlockLU::solve, first block, swaps INFO = {}\n", info );
+        Utils::Check( info == 0, "BlockLU::solve, first block, swaps INFO = {}\n", info );
 
         // copy from
         GEcopy( row00, n, A + n_m_row00, n, m_Work_mat,       m_Work_ldim );

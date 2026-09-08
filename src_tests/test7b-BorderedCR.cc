@@ -266,14 +266,14 @@ main( int argc, char *argv[] ) {
           err > 1e-8 ? 0 : 1,
           fmt::format("Check ‖err‖∞ = {:.5}\n",err)
         );
-        UTILS_ASSERT0( err < 1e-8, "test failed!\n" );
+        Utils::Check( err < 1e-8, "test failed!\n" );
 
         err = alglin::asum( Nc, xref1, 1 )/Nc;
         msg.semaphore(
           err > 1e-8 ? 0 : 1,
           fmt::format("Check ‖err‖_1/N = {:.5}\n",err)
         );
-        UTILS_ASSERT0( err < 1e-8, "test failed!\n" );
+        Utils::Check( err < 1e-8, "test failed!\n" );
 
         msg.green( "All done!\n" );
       }

@@ -59,7 +59,7 @@ namespace {
     integer j,
     real_type tol = TOL
   ) {
-    UTILS_ASSERT(
+    Utils::Check(
       std::abs(value-expected) < tol,
       "{} mismatch at ({},{}): found {}, expected {}\n",
       where, i, j, value, expected
@@ -73,7 +73,7 @@ namespace {
     char const where[],
     real_type tol = TOL
   ) {
-    UTILS_ASSERT(
+    Utils::Check(
       std::abs(value-expected) < tol,
       "{} mismatch: found {}, expected {}\n",
       where, value, expected
@@ -89,7 +89,7 @@ namespace {
     } catch ( ... ) {
       thrown = true;
     }
-    UTILS_ASSERT( thrown, "{} expected an exception\n", where );
+    Utils::Check( thrown, "{} expected an exception\n", where );
   }
 
   real_type
@@ -147,7 +147,7 @@ namespace {
     integer                        nc,
     char const                     where[]
   ) {
-    UTILS_ASSERT(
+    Utils::Check(
       A.size() == B.size(),
       "{} size mismatch: {} vs {}\n",
       where, A.size(), B.size()
@@ -256,7 +256,7 @@ namespace {
 
   void
   verify_view( MatW const & view, integer rows, integer cols, char const where[] ) {
-    UTILS_ASSERT(
+    Utils::Check(
       view.nrows() == rows && view.ncols() == cols,
       "{} wrong size {} x {}, expected {} x {}\n",
       where, view.nrows(), view.ncols(), rows, cols
@@ -272,83 +272,83 @@ namespace {
     bcr.allocate( N_BLOCKS, N_SIZE, QR_SIZE, QX_SIZE, NR_SIZE, NX_SIZE );
     bcr_fake.allocate( 2, 2, 0, 0, 0, 0 );
 
-    UTILS_ASSERT0( bcr.number_of_blocks() == N_BLOCKS, "wrong number_of_blocks\n" );
-    UTILS_ASSERT0( bcr.block_size()       == N_SIZE,   "wrong block_size\n" );
-    UTILS_ASSERT0( bcr.dim_qr()           == QR_SIZE,  "wrong qr size\n" );
-    UTILS_ASSERT0( bcr.dim_qx()           == QX_SIZE,  "wrong qx size\n" );
-    UTILS_ASSERT0( bcr.dim_nr()           == NR_SIZE,  "wrong nr size\n" );
-    UTILS_ASSERT0( bcr.dim_nx()           == NX_SIZE,  "wrong nx size\n" );
-    UTILS_ASSERT0( bcr.Nr() == 2 * N_SIZE + QR_SIZE + NR_SIZE, "reduced Nr mismatch\n" );
-    UTILS_ASSERT0( bcr.Nc() == 2 * N_SIZE + QX_SIZE + NX_SIZE, "reduced Nc mismatch\n" );
-    UTILS_ASSERT0( bcr.nrows() == N_SIZE * (N_BLOCKS + 1) + QR_SIZE + NR_SIZE, "global nrows mismatch\n" );
-    UTILS_ASSERT0( bcr.ncols() == N_SIZE * (N_BLOCKS + 1) + QX_SIZE + NX_SIZE, "global ncols mismatch\n" );
+    Utils::Check( bcr.number_of_blocks() == N_BLOCKS, "wrong number_of_blocks\n" );
+    Utils::Check( bcr.block_size()       == N_SIZE,   "wrong block_size\n" );
+    Utils::Check( bcr.dim_qr()           == QR_SIZE,  "wrong qr size\n" );
+    Utils::Check( bcr.dim_qx()           == QX_SIZE,  "wrong qx size\n" );
+    Utils::Check( bcr.dim_nr()           == NR_SIZE,  "wrong nr size\n" );
+    Utils::Check( bcr.dim_nx()           == NX_SIZE,  "wrong nx size\n" );
+    Utils::Check( bcr.Nr() == 2 * N_SIZE + QR_SIZE + NR_SIZE, "reduced Nr mismatch\n" );
+    Utils::Check( bcr.Nc() == 2 * N_SIZE + QX_SIZE + NX_SIZE, "reduced Nc mismatch\n" );
+    Utils::Check( bcr.nrows() == N_SIZE * (N_BLOCKS + 1) + QR_SIZE + NR_SIZE, "global nrows mismatch\n" );
+    Utils::Check( bcr.ncols() == N_SIZE * (N_BLOCKS + 1) + QX_SIZE + NX_SIZE, "global ncols mismatch\n" );
 
     bcr.set_factorize_use_thread( false );
     bcr.set_solve_use_thread( false );
-    UTILS_ASSERT0( !bcr.factorize_use_thread(), "factorize thread flag mismatch\n" );
-    UTILS_ASSERT0( !bcr.solve_use_thread(),     "solve thread flag mismatch\n" );
+    Utils::Check( !bcr.factorize_use_thread(), "factorize thread flag mismatch\n" );
+    Utils::Check( !bcr.solve_use_thread(),     "solve thread flag mismatch\n" );
     bcr.set_factorize_use_thread( true );
     bcr.set_solve_use_thread( true );
-    UTILS_ASSERT0( bcr.factorize_use_thread(), "factorize thread flag mismatch\n" );
-    UTILS_ASSERT0( bcr.solve_use_thread(),     "solve thread flag mismatch\n" );
+    Utils::Check( bcr.factorize_use_thread(), "factorize thread flag mismatch\n" );
+    Utils::Check( bcr.solve_use_thread(),     "solve thread flag mismatch\n" );
 
     bcr.select( "LU" );
-    UTILS_ASSERT0( bcr.info_algo_block() == "CyclicReduction+LU", "select(LU) failed\n" );
+    Utils::Check( bcr.info_algo_block() == "CyclicReduction+LU", "select(LU) failed\n" );
     bcr.select( "QR" );
-    UTILS_ASSERT0( bcr.info_algo_block() == "CyclicReduction+QR", "select(QR) failed\n" );
+    Utils::Check( bcr.info_algo_block() == "CyclicReduction+QR", "select(QR) failed\n" );
     bcr.select_QRP();
-    UTILS_ASSERT0( bcr.info_algo_block() == "CyclicReduction+QRP", "select_QRP failed\n" );
+    Utils::Check( bcr.info_algo_block() == "CyclicReduction+QRP", "select_QRP failed\n" );
 
     bcr.select_last( "LU" );
-    UTILS_ASSERT0( bcr.info_algo_last_block() == "LastBlock LU", "select_last(LU) failed\n" );
+    Utils::Check( bcr.info_algo_last_block() == "LastBlock LU", "select_last(LU) failed\n" );
     bcr.select_last( "LUPQ" );
-    UTILS_ASSERT0( bcr.info_algo_last_block() == "LastBlock LUPQ", "select_last(LUPQ) failed\n" );
+    Utils::Check( bcr.info_algo_last_block() == "LastBlock LUPQ", "select_last(LUPQ) failed\n" );
     bcr.select_last( "QR" );
-    UTILS_ASSERT0( bcr.info_algo_last_block() == "LastBlock QR", "select_last(QR) failed\n" );
+    Utils::Check( bcr.info_algo_last_block() == "LastBlock QR", "select_last(QR) failed\n" );
     bcr.select_last( "QRP" );
-    UTILS_ASSERT0( bcr.info_algo_last_block() == "LastBlock QRP", "select_last(QRP) failed\n" );
+    Utils::Check( bcr.info_algo_last_block() == "LastBlock QRP", "select_last(QRP) failed\n" );
     bcr.select_last( "SVD" );
-    UTILS_ASSERT0( bcr.info_algo_last_block() == "LastBlock SVD", "select_last(SVD) failed\n" );
+    Utils::Check( bcr.info_algo_last_block() == "LastBlock SVD", "select_last(SVD) failed\n" );
     bcr.select_last( "LSS" );
-    UTILS_ASSERT0( bcr.info_algo_last_block() == "LastBlock LSS", "select_last(LSS) failed\n" );
+    Utils::Check( bcr.info_algo_last_block() == "LastBlock LSS", "select_last(LSS) failed\n" );
     bcr.select_last( "LSY" );
-    UTILS_ASSERT0( bcr.info_algo_last_block() == "LastBlock LSY", "select_last(LSY) failed\n" );
+    Utils::Check( bcr.info_algo_last_block() == "LastBlock LSY", "select_last(LSY) failed\n" );
     bcr.select_last_PINV();
-    UTILS_ASSERT0( bcr.info_algo_last_block() == "LastBlock PINV", "select_last_PINV failed\n" );
+    Utils::Check( bcr.info_algo_last_block() == "LastBlock PINV", "select_last_PINV failed\n" );
 
     bcr.select_last2( "NONE" );
-    UTILS_ASSERT0( bcr.info_algo_last_block2() == "LastBlock NONE", "select_last2(NONE) failed\n" );
+    Utils::Check( bcr.info_algo_last_block2() == "LastBlock NONE", "select_last2(NONE) failed\n" );
     bcr.select_last2( "SVD" );
-    UTILS_ASSERT0( bcr.info_algo_last_block2() == "LastBlock SVD", "select_last2(SVD) failed\n" );
+    Utils::Check( bcr.info_algo_last_block2() == "LastBlock SVD", "select_last2(SVD) failed\n" );
     bcr.select_last2( "LSS" );
-    UTILS_ASSERT0( bcr.info_algo_last_block2() == "LastBlock LSS", "select_last2(LSS) failed\n" );
+    Utils::Check( bcr.info_algo_last_block2() == "LastBlock LSS", "select_last2(LSS) failed\n" );
     bcr.select_last2( "LSY" );
-    UTILS_ASSERT0( bcr.info_algo_last_block2() == "LastBlock LSY", "select_last2(LSY) failed\n" );
+    Utils::Check( bcr.info_algo_last_block2() == "LastBlock LSY", "select_last2(LSY) failed\n" );
     bcr.select_last2_PINV();
-    UTILS_ASSERT0( bcr.info_algo_last_block2() == "LastBlock PINV", "select_last2_PINV failed\n" );
+    Utils::Check( bcr.info_algo_last_block2() == "LastBlock PINV", "select_last2_PINV failed\n" );
 
-    UTILS_ASSERT0(
+    Utils::Check(
       BCR::choice_to_string( BCR::BORDERED_Choice::LU ) == "CyclicReduction+LU",
       "choice_to_string(BORDERED_Choice::LU) failed\n"
     );
-    UTILS_ASSERT0(
+    Utils::Check(
       BCR::choice_to_string( BCR::BORDERED_LAST_Choice::QRP ) == "LastBlock QRP",
       "choice_to_string(BORDERED_LAST_Choice::QRP) failed\n"
     );
-    UTILS_ASSERT0(
+    Utils::Check(
       BCR::choice_to_string( BCR::BORDERED_LAST_Choice2::NONE ) == "LastBlock NONE",
       "choice_to_string(BORDERED_LAST_Choice2::NONE) failed\n"
     );
 
     bcr.set_num_parallel_block( 4 );
     std::string const info{ bcr.info("  ") };
-    UTILS_ASSERT0( info.find("nblk:3") != std::string::npos, "set_num_parallel_block not reflected in info()\n" );
-    UTILS_ASSERT0( info.find("CyclicReduction+QRP") != std::string::npos, "info() missing internal solver\n" );
-    UTILS_ASSERT0( info.find("LastBlock PINV") != std::string::npos, "info() missing last solver\n" );
+    Utils::Check( info.find("nblk:3") != std::string::npos, "set_num_parallel_block not reflected in info()\n" );
+    Utils::Check( info.find("CyclicReduction+QRP") != std::string::npos, "info() missing internal solver\n" );
+    Utils::Check( info.find("LastBlock PINV") != std::string::npos, "info() missing last solver\n" );
 
     std::ostringstream sout;
     bcr.info( sout );
-    UTILS_ASSERT0( sout.str().find("rows") != std::string::npos, "info(stream) produced empty output\n" );
+    Utils::Check( sout.str().find("rows") != std::string::npos, "info(stream) produced empty output\n" );
 
     expect_throw( [&]() { bcr.select("BAD"); },        "select invalid option" );
     expect_throw( [&]() { bcr.select_last("BAD"); },   "select_last invalid option" );
@@ -888,9 +888,9 @@ namespace {
     std::ostringstream sout;
     bcr.print_matlab_script( sout );
     std::string const matlab{ sout.str() };
-    UTILS_ASSERT0( matlab.find("MAT = sparse") != std::string::npos, "print_matlab_script missing sparse() call\n" );
-    UTILS_ASSERT0( matlab.find("nr  = ") != std::string::npos, "print_matlab_script missing nr\n" );
-    UTILS_ASSERT0( matlab.find("nc  = ") != std::string::npos, "print_matlab_script missing nc\n" );
+    Utils::Check( matlab.find("MAT = sparse") != std::string::npos, "print_matlab_script missing sparse() call\n" );
+    Utils::Check( matlab.find("nr  = ") != std::string::npos, "print_matlab_script missing nr\n" );
+    Utils::Check( matlab.find("nc  = ") != std::string::npos, "print_matlab_script missing nc\n" );
   }
 
   void
@@ -907,7 +907,7 @@ namespace {
     build_square_solver_matrix( bad );
     bad.F( 0, 0 ) = std::numeric_limits<real_type>::quiet_NaN();
     expect_throw( [&]() { bad.check_matrix(); }, "check_matrix on NaN" );
-    UTILS_ASSERT0( bad.last_error().find("check_matrix") != std::string::npos, "last_error not updated after check_matrix failure\n" );
+    Utils::Check( bad.last_error().find("check_matrix") != std::string::npos, "last_error not updated after check_matrix failure\n" );
 
     std::vector<real_type> x( static_cast<size_t>(ok.ncols()), 0 );
     expect_throw( [&]() { ok.t_solve( x.data() ); }, "t_solve(single)" );
@@ -958,7 +958,7 @@ namespace {
     rhs_builder.Mv( xref.data(), rhs.data() );
 
     bool const ok_factorize{ solver.factorize() };
-    UTILS_ASSERT(
+    Utils::Check(
       ok_factorize,
       "factorize failed for internal={}, last={}, fthread={}, sthread={}: {}\n",
       internal_choice, last_choice, factorize_threads, solve_threads, solver.last_error()
@@ -966,7 +966,7 @@ namespace {
 
     x = rhs;
     bool const ok_solve{ solver.solve( x.data() ) };
-    UTILS_ASSERT(
+    Utils::Check(
       ok_solve,
       "solve failed for internal={}, last={}, fthread={}, sthread={}: {}\n",
       internal_choice, last_choice, factorize_threads, solve_threads, solver.last_error()
@@ -988,7 +988,7 @@ namespace {
       for ( integer i{0}; i < Nr; ++i )
         X[static_cast<size_t>( i + c * N )] = RHS[static_cast<size_t>( i + c * Nr )];
     bool const ok_solve_n{ solver.solve( nrhs, X.data(), N ) };
-    UTILS_ASSERT(
+    Utils::Check(
       ok_solve_n,
       "solve(nrhs) failed for internal={}, last={}, fthread={}, sthread={}: {}\n",
       internal_choice, last_choice, factorize_threads, solve_threads, solver.last_error()
@@ -1017,7 +1017,7 @@ namespace {
         Xmat(i,c) = RHS[static_cast<size_t>( i + c * Nr )];
 
     bool const ok_solve_mat{ solver.solve( Xmat ) };
-    UTILS_ASSERT(
+    Utils::Check(
       ok_solve_mat,
       "solve(MatrixWrapper) failed for internal={}, last={}, fthread={}, sthread={}: {}\n",
       internal_choice, last_choice, factorize_threads, solve_threads, solver.last_error()
@@ -1073,13 +1073,13 @@ namespace {
     no_fallback.select_LU();
     no_fallback.select_last_LU();
     no_fallback.select_last2_NONE();
-    UTILS_ASSERT0( !no_fallback.factorize(), "singular LU case should fail without fallback\n" );
-    UTILS_ASSERT0( no_fallback.last_error().find("load_and_factorize_last") != std::string::npos, "unexpected last_error without fallback\n" );
+    Utils::Check( !no_fallback.factorize(), "singular LU case should fail without fallback\n" );
+    Utils::Check( no_fallback.last_error().find("load_and_factorize_last") != std::string::npos, "unexpected last_error without fallback\n" );
 
     with_fallback.select_LU();
     with_fallback.select_last_LU();
     with_fallback.select_last2_PINV();
-    UTILS_ASSERT0( with_fallback.factorize(), "PINV fallback should recover singular last block\n" );
+    Utils::Check( with_fallback.factorize(), "PINV fallback should recover singular last block\n" );
 
     std::vector<real_type> xref{ 2.0, -1.0, 0.0 };
     std::vector<real_type> rhs( 3 );
@@ -1089,7 +1089,7 @@ namespace {
     base.Mv( xref.data(), rhs.data() );
     x = rhs;
 
-    UTILS_ASSERT0( with_fallback.solve( x.data() ), "solve with PINV fallback failed\n" );
+    Utils::Check( with_fallback.solve( x.data() ), "solve with PINV fallback failed\n" );
     for ( integer i{0}; i < 3; ++i )
       check_close( x[static_cast<size_t>(i)], xref[static_cast<size_t>(i)], "fallback solve", i, 0, 5e-9 );
 

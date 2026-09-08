@@ -593,7 +593,7 @@ namespace alglin {
       integer const & q  = m_extra_bc;
       integer const & nb = m_border_size;
 
-      UTILS_ASSERT0( nb == 0, "factorize nb > 0 and no border assigned\n" );
+      Utils::Check( nb == 0, "factorize nb > 0 and no border assigned\n" );
       integer nq = n + q;
       this->load_blocks( AdAu, n );
       this->load_bottom( H0, nq, HN, nq, Hq, nq );

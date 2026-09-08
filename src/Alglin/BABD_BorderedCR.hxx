@@ -268,7 +268,7 @@ namespace alglin {
       for ( integer i{0}; i < nn; ++i ) {
         integer j = i;
         while ( j < nn ) { if ( P[j] == i+1 ) break; ++j; }
-        //UTILS_ASSERT0( j < nn, "permutation_to_exchange error!\n" );
+        //Utils::Check( j < nn, "permutation_to_exchange error!\n" );
         std::swap( P[j], P[i] );
         S[i] = j;
       }
@@ -462,7 +462,7 @@ namespace alglin {
       else if ( s == "QR"  ) select_QR();
       else if ( s == "QRP" ) select_QRP();
       else {
-        UTILS_ERROR(
+        Utils::Error(
           "BorderedCR::select( choice='{}' )\n"
           "unknown/unsupported factorization type ('LU','QR','QRP')", s
         );
@@ -488,7 +488,7 @@ namespace alglin {
       else if ( s == "LSY"  ) select_last_LSY();
       else if ( s == "PINV" ) select_last_PINV();
       else {
-        UTILS_ERROR(
+        Utils::Error(
           "BorderedCR::select_last( choice='{}' )\n"
           "unknown/unsupported factorization type ('LU','LUPQ','QR','QRP','SVD','LSS','LSY','PINV')", s
         );
@@ -521,7 +521,7 @@ namespace alglin {
       else if ( s == "LSY"  ) select_last2_LSY();
       else if ( s == "PINV" ) select_last2_PINV();
       else {
-        UTILS_ERROR(
+        Utils::Error(
           "BorderedCR::select_last2( choice='{}' )\n"
           "unknown/unsupported factorization type ('NONE','SVD','LSS','LSY','PINV')", s
         );

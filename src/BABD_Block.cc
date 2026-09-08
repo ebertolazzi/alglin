@@ -47,8 +47,8 @@ namespace alglin {
     integer num_final_OMEGA,
     integer num_cyclic_OMEGA
   ) {
-    UTILS_ASSERT0( nb == 0, "BBlockLU::allocate only supports non-bordered BABD systems\n" );
-    UTILS_ASSERT(
+    Utils::Check( nb == 0, "BBlockLU::allocate only supports non-bordered BABD systems\n" );
+    Utils::Check(
       num_initial_BC == 0 &&
       num_final_BC == 0 &&
       num_initial_OMEGA == 0 &&
@@ -100,7 +100,7 @@ namespace alglin {
     integer /* colN   */,
     integer /* nb     */
   ) {
-    UTILS_ERROR0("BBlockLU::allocate_top_bottom() not defined!\n");
+    Utils::Error("BBlockLU::allocate_top_bottom() not defined!\n");
   }
 
   template <typename t_Value>
@@ -145,7 +145,7 @@ namespace alglin {
           ++k, ipivk += n, AdH += nm*n, Au += n*n, FF += n ) {
 
       INFO = getrf( nm, n, AdH, nm, ipivk ); // LU factorization
-      UTILS_ASSERT0( INFO==0, "BlockLU::factorize(), matrix singular\n" );
+      Utils::Check( INFO==0, "BlockLU::factorize(), matrix singular\n" );
 
       real_type * H  { AdH + n };
       real_type * CC { AdH + nm*n + n };
@@ -206,7 +206,7 @@ namespace alglin {
 
     // factorize last two block
     INFO = getrf( nm, n, AdH, nm, ipivk ); // LU factorization
-    UTILS_ASSERT0( INFO==0, "BlockLU::factorize(), matrix singular\n" );
+    Utils::Check( INFO==0, "BlockLU::factorize(), matrix singular\n" );
 
     for ( integer i{0}; i < n; ++i ) {
       integer ip{ipivk[i]-1};
@@ -249,7 +249,7 @@ namespace alglin {
     // factorize last block
     ipivk += n;
     INFO = getrf( m, m, m_DD_blk, m, ipivk ); // LU factorization
-    UTILS_ASSERT0( INFO==0, "BlockLU::factorize(), singular matrix\n" );
+    Utils::Check( INFO==0, "BlockLU::factorize(), singular matrix\n" );
   }
 
   /*\
@@ -301,7 +301,7 @@ namespace alglin {
     integer const * ipive { m_ipiv_blk + nblock * n };
     integer const   ok    { getrs( Transposition::NO, m, 1, m_DD_blk, m, ipive, ye, m ) };
 
-    UTILS_ASSERT0( ok == 0, "BlockLU::solve(...) failed\n" );
+    Utils::Check( ok == 0, "BlockLU::solve(...) failed\n" );
 
     if ( rowFF > 0 ) gemv( Transposition::NO, rowFF, m, -1, m_FF_blk, rowFF, ye, 1, 1, y, 1 );
     if (     m > n ) gemv( Transposition::NO, n, m-n, -1, m_Au_blk + nblock*n*n, n, ye+n, 1, 1, ye-n, 1 );

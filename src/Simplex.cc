@@ -270,19 +270,19 @@ namespace Simplex {
     m_A_ldim = ldA;
 
     // some check
-    UTILS_ASSERT(
+    Utils::Check(
       m_m >= 0 && m_n > 0,
       "StandardProblem::Bad problem dimensions, m={} n={}\n",
       m_m, m_n
     );
 
-    UTILS_ASSERT(
+    Utils::Check(
       m_A_ldim >= m_m,
       "StandardProblem::Bad leading dimension of matrix A, ldA={} A is {} x {}\n",
       m_A_ldim, m_m, m_n
     );
 
-    UTILS_ASSERT(
+    Utils::Check(
       m_n >= m_m,
       "StandardProblem::Dimension of x ({}) must be greater than\n"
       "number of equality constraints ({})\n",
@@ -291,11 +291,11 @@ namespace Simplex {
 
     m_L_free.resize( static_cast<size_t>(m_n) );
     m_U_free.resize( static_cast<size_t>(m_n) );
-    for ( integer i{0}; i < m_n; ++i ) {
+    for ( integer i = 0; i < m_n; ++i ) {
       m_L_free[i] = m_L[i] <= -infinity;
       m_U_free[i] = m_U[i] >=  infinity;
       if ( !( m_L_free[i] || m_U_free[i]) ) {
-        UTILS_ASSERT(
+        Utils::Check(
           m_L[i] <= m_U[i],
           "StandardProblem, L[i]={} must be less or equal to U[i]={}\n",
           m_L[i], m_U[i]
@@ -334,13 +334,13 @@ namespace Simplex {
     m_A_ldim = ldA;
 
     // some check
-    UTILS_ASSERT(
+    Utils::Check(
       m_m >= 0 && m_n > 0,
       "Problem::Bad problem dimensions, m={} n={}\n",
       m_m, m_n
     );
 
-    UTILS_ASSERT(
+    Utils::Check(
       m_A_ldim >= m_m,
       "Problem::Bad leading dimension of matrix A, ldA={} A is {} x {}\n",
       m_A_ldim, m_m, m_n
@@ -352,7 +352,7 @@ namespace Simplex {
       m_L_free[i] = m_L[i] <= -infinity;
       m_U_free[i] = m_U[i] >=  infinity;
       if ( !( m_L_free[i] || m_U_free[i]) ) {
-        UTILS_ASSERT(
+        Utils::Check(
           m_L[i] <= m_U[i],
           "Problem, L[i]={} must be less or equal to U[i]={}\n",
           m_L[i], m_U[i]
@@ -430,26 +430,26 @@ namespace Simplex {
 
     m_n = m_problem->dim_x();
     m_m = m_problem->dim_g();
-    integer nm{m_n-m_m};
+    integer nm = m_n-m_m;
 
     // memory allocation
     m_mem.reallocate(4*m_m+2*m_n);
-    real_type * gamma  { m_mem(m_m) };
-    real_type * beta   { m_mem(m_m) };
-    real_type * ceta   { m_mem(nm)  };
-    real_type * y      { m_mem(m_m) };
-    real_type * c      { m_mem(m_n) };
-    real_type * values { m_mem(m_m) };
+    real_type * gamma  = m_mem(m_m);
+    real_type * beta   = m_mem(m_m);
+    real_type * ceta   = m_mem(nm);
+    real_type * y      = m_mem(m_m);
+    real_type * c      = m_mem(m_n);
+    real_type * values = m_mem(m_m);
 
     m_mem_int.reallocate(m_n);
-    integer * IN    { m_mem_int(nm)  };
-    integer * i_row { m_mem_int(m_m) };
+    integer * IN    = m_mem_int(nm);
+    integer * i_row = m_mem_int(m_m);
 
     m_problem->load_c( c );
 
     // no equality constraints, solution is on the border of the box
     if ( m_m == 0 ) { // trivial solution
-      for ( integer i{0}; i < m_n; ++i ) {
+      for ( integer i = 0; i < m_n; ++i ) {
         if      ( c[i] > 0 ) x[i] = L(i);
         else if ( c[i] < 0 ) x[i] = U(i);
         else {
@@ -463,23 +463,23 @@ namespace Simplex {
 
     // build non bases index set IN
     sort( IB, IB+m_m );
-    UTILS_ASSERT0(
+    Utils::Check(
       IB[0] >= 0 && IB[m_m-1] < m_n,
       "StandardSolver. Wrong Basis index set\n"
     );
-    for ( integer i{1}; i < m_m; ++i ) {
-      UTILS_ASSERT0(
+    for ( integer i = 1; i < m_m; ++i ) {
+      Utils::Check(
         IB[i-1] != IB[i],
         "StandardSolver. Duplicated index in basis index set\n"
       );
     }
 
-    integer ib{0};
-    integer in{0};
-    for ( integer i{0}; i < m_n; ++i ) {
+    integer ib = 0;
+    integer in = 0;
+    for ( integer i = 0; i < m_n; ++i ) {
       while ( ib < m_m && IB[ib] < i ) ++ib;
       if ( ib == m_m || IB[ib] != i ) IN[in++] = i;
-      UTILS_ASSERT0( in <= nm, "Bad non basis index construction\n" );
+      Utils::Check( in <= nm, "Bad non basis index construction\n" );
     }
 
     if ( m_n == m_m ) { // trivial solution
@@ -488,7 +488,7 @@ namespace Simplex {
       mat.setup( m_m, m_m );
       mat.zero_fill();
       // select ALL the column of matrix A
-      for ( integer j{0}; j < m_m; ++j ) {
+      for ( integer j = 0; j < m_m; ++j ) {
         integer nnz{ m_problem->load_A_column( j, values, i_row ) };
         mat.load_sparse_column( nnz, values, i_row, j );
       }
@@ -501,7 +501,7 @@ namespace Simplex {
         bool ok{true};
         if ( U_bounded(i) ) ok = x[i] <= U(i)+eps;
         if ( L_bounded(i) ) ok = ok && x[i] >= L(i)-eps;
-        UTILS_ASSERT(
+        Utils::Check(
           ok,
           "StandardSolver. Infeasible solution x[{}]={} not in [{},{}]\n",
           i, x[i], Lstring(i), Ustring(i)
@@ -515,12 +515,12 @@ namespace Simplex {
     qr_mat.zero_fill();
 
     // check basis
-    for ( integer i{0}; i < m_m; ++i ) {
+    for ( integer i = 0; i < m_m; ++i ) {
       integer ibi = IB[i];
       bool ok = true;
       if ( U_bounded(ibi) ) ok = x[ibi] <= U(ibi)+eps;
       if ( L_bounded(ibi) ) ok = ok && x[ibi] >= L(ibi)-eps;
-      UTILS_ASSERT(
+      Utils::Check(
         ok,
         "StandardSolver. Infeasible starting point,\n"
         "violating basis variable x[{}] = {} not in [{},{}]\n",
@@ -529,7 +529,7 @@ namespace Simplex {
     }
 
     // check non basis
-    for ( integer i{0}; i < nm; ++i ) {
+    for ( integer i = 0; i < nm; ++i ) {
       integer ini = IN[i];
       bool ok{false};
       if ( U_bounded(ini) && x[ini] >= U(ini)-eps ) {
@@ -539,7 +539,7 @@ namespace Simplex {
         x[ini] = L(ini);
         ok     = true;
       }
-      UTILS_ASSERT(
+      Utils::Check(
         ok,
         "StandardSolver. Infeasible starting point,\n"
         "violating non basis variable x[{}]={} not equal to {} or {}\n",
@@ -554,9 +554,9 @@ namespace Simplex {
 
     m_problem->load_b( y );
     m_problem->subtract_Ax( x, y );
-    for ( integer i{0}; i < m_m; ++i ) {
+    for ( integer i = 0; i < m_m; ++i ) {
       real_type error{abs(y[i])};
-      UTILS_ASSERT(
+      Utils::Check(
         error < eps*scale_residual,
         "StandardSolver. Infeasible starting point,\n"
         "violating {}th equality constraint, error={}\n",
@@ -593,20 +593,20 @@ namespace Simplex {
       // 2B. compute Y = Q * Z
       qr.factorize( "StandardSolver::solve<qr>", qr_mat );
       integer rank{qr.rankEstimate(relaxedEpsilon)};
-      UTILS_ASSERT(
+      Utils::Check(
         rank == m_m,
         "StandardSolver. Basis Matrix Singular, rank={} should be {}\n",
         rank, m_m
       );
       qr.t_solve( y );
       // 3. compute pivot column gamma
-      integer   inmin{m_n};
-      integer   Q{-1};
-      real_type ceta_max_L{0};
-      real_type ceta_min_U{0};
+      integer   inmin      = m_n;
+      integer   Q          = -1;
+      real_type ceta_max_L = 0;
+      real_type ceta_min_U = 0;
       // select the non bases (pivot) columns (n-m)
-      for ( integer i{0}; i < nm; ++i ) {
-        integer ini{IN[i]};
+      for ( integer i = 0; i < nm; ++i ) {
+        integer ini = IN[i];
         // 3A.  compute negative reduced costs Y'*A_N - C_N
         //problem->load_A_column( column, ini );
         //ceta[i] = alglin::dot(m,y,1,column,1) - c[ini];
@@ -659,7 +659,7 @@ namespace Simplex {
             } else if ( Utils::is_zero(x[ini]-U(ini)) ) {
               D[ini] = -ceta[i];
             } else {
-              UTILS_ERROR(
+              Utils::Error(
                 "StandardSolver. Something wrong\n"
                 " x[{}]={} != L[{}]={} and x[{}]={} != U[{}]={}\n"
                 "for non basis variable\n",
@@ -751,14 +751,14 @@ namespace Simplex {
       integer   IBp{IB[P]};
       if ( U_bounded(INq) && L_bounded(INq) ) TQ = U(INq)-L(INq);
 
-      UTILS_ASSERT0(
+      Utils::Check(
         TQ < infinity || beta_min < infinity,
         "StandardSolver. Problem is NOT solvable!\n"
       );
       if ( TQ < infinity && TQ <= beta_min ) {
         if      ( ceta[Q] > eps  ) x[INq] = U(INq);
         else if ( ceta[Q] < -eps ) x[INq] = L(INq);
-        UTILS_ASSERT(
+        Utils::Check(
           ceta[Q] <= eps || ceta[Q] >= -eps,
           "StandardSolver. Could not find a new pivot row in iteration {}\n", iter
         );
@@ -780,7 +780,7 @@ namespace Simplex {
         */
         std::swap( IB[P], IN[Q] );
       } else {
-        UTILS_ERROR0( "StandardSolver. No continuation defined!" );
+        Utils::Error( "StandardSolver. No continuation defined!" );
       }
     }
   }

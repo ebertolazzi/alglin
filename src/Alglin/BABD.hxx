@@ -159,7 +159,7 @@ namespace alglin {
      */
     DiazBackend &
     diaz() {
-      UTILS_ASSERT0( this->using_diaz(), "BABD::diaz(), active backend is not DiazLU\n" );
+      Utils::Check( this->using_diaz(), "BABD::diaz(), active backend is not DiazLU\n" );
       return std::get<DiazBackend>( m_backend );
     }
 
@@ -170,7 +170,7 @@ namespace alglin {
      */
     DiazBackend const &
     diaz() const {
-      UTILS_ASSERT0( this->using_diaz(), "BABD::diaz() const, active backend is not DiazLU\n" );
+      Utils::Check( this->using_diaz(), "BABD::diaz() const, active backend is not DiazLU\n" );
       return std::get<DiazBackend>( m_backend );
     }
 
@@ -181,7 +181,7 @@ namespace alglin {
      */
     CRBackend &
     cr() {
-      UTILS_ASSERT0(
+      Utils::Check(
         this->using_cyclic_reduction(),
         "BABD::cr(), active backend is not BorderedCR\n"
       );
@@ -195,7 +195,7 @@ namespace alglin {
      */
     CRBackend const &
     cr() const {
-      UTILS_ASSERT0(
+      Utils::Check(
         this->using_cyclic_reduction(),
         "BABD::cr() const, active backend is not BorderedCR\n"
       );

@@ -188,7 +188,7 @@ namespace alglin {
       integer /* num_final_OMEGA   */,
       integer /* num_cyclic_OMEGA  */
     ) override
-    { UTILS_ERROR0("DiazLU::allocate() not defined!\n"); }
+    { Utils::Error("DiazLU::allocate() not defined!\n"); }
 
     /*!
      * \brief Allocates the solver for a top/bottom block structure.
